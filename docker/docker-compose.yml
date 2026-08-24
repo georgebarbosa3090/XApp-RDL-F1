@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Base de dados em Grafo
+  memgraph:
+    image: memgraph/memgraph-platform:latest
+    container_name: rdl_memgraph
+    ports:
+      - "7687:7687" # Protocolo Bolt
+      - "3000:3000" # Memgraph Lab (UI)
+    environment:
+      - MEMGRAPH_LOG_LEVEL=WARNING
+
+  # xApp RDL
+  rdl-xapp:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: iqos_xapp_rdl
+    environment:
+      - MEMGRAPH_HOST=memgraph
+      - MEMGRAPH_PORT=7687
+      - PROMETHEUS_PORT=8081
+    ports:
+      - "8080:8080" # REST API e Liveness Probe
+      - "8081:8081" # Prometheus Exporter
+    depends_on:
+      - memgraph
+    volumes:
+      - ../configs:/app/configs

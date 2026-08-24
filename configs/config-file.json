@@ -1,0 +1,45 @@
+{
+  "xapp": {
+    "name": "iqos-xapp-rdl",
+    "version": "1.1.0"
+  },
+  "rmr": {
+    "port": 4560,
+    "max_message_size": 65536,
+    "wait_for_ready": true
+  },
+  "http": {
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+  "metrics": {
+    "port": 8081
+  },
+  "sdl": {
+    "use_fake": false,
+    "namespace": "iqos-xapp-rdl"
+  },
+  "e2": {
+    "subscription_period_ms": 1000,
+    "retry_interval_seconds": 5,
+    "maximum_retries": 10
+  },
+  "kpm": {
+    "service_model_versions": [
+      "v2",
+      "v3"
+    ],
+    "measurements": [
+      "DRB.UEThpDl",
+      "DRB.UEThpUl",
+      "DRB.RlcSduDelayDl",
+      "RRU.PrbUsedDl",
+      "RRU.PrbUsedUl"
+    ]
+  },
+  "control": {
+    "enabled": true,
+    "dry_run": true,
+    "service_model": "E2SM-RC"
+  }
+}

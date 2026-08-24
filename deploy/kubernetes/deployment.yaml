@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ricxapp-iqos-xapp-rdl
+  namespace: ricxapp
+  labels:
+    app: ricxapp-iqos-xapp-rdl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricxapp-iqos-xapp-rdl
+  template:
+    metadata:
+      labels:
+        app: ricxapp-iqos-xapp-rdl
+    spec:
+      terminationGracePeriodSeconds: 15
+      containers:
+      - name: iqos-xapp-rdl
+        image: docker.io/muriloavlis/iqos-xapp-rdl:1.1.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: USE_FAKE_SDL
+          value: "false"
+        - name: RMR_SEED_RT
+          value: "/app/configs/routes.rt"
+        ports:
+        - containerPort: 4560
+          name: rmr-data
+        - containerPort: 4561
+          name: rmr-route
+        - containerPort: 8080
+          name: http-health
+        - containerPort: 8081
+          name: http-metrics
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000

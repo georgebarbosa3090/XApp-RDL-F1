@@ -1,0 +1,9 @@
+newrt|start
+# Rotas para E2Term e SubMgr
+rte|12010|${E2TERM_SERVICE}
+rte|12011|${RDL_SERVICE}
+rte|12012|${RDL_SERVICE}
+rte|12020|${SUBMGR_SERVICE}
+rte|12050|${RDL_SERVICE}
+rte|30000|${RDL_SERVICE}
+newrt|end

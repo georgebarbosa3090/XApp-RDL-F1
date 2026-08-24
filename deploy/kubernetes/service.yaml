@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ricxapp-iqos-xapp-rdl-rmr
+  namespace: ricxapp
+  labels:
+    app: ricxapp-iqos-xapp-rdl
+spec:
+  ports:
+  - name: rmr-data
+    port: 4560
+    protocol: TCP
+    targetPort: 4560
+  - name: rmr-route
+    port: 4561
+    protocol: TCP
+    targetPort: 4561
+  selector:
+    app: ricxapp-iqos-xapp-rdl
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ricxapp-iqos-xapp-rdl-http
+  namespace: ricxapp
+  labels:
+    app: ricxapp-iqos-xapp-rdl
+spec:
+  ports:
+  - name: http-health
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  - name: http-metrics
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    app: ricxapp-iqos-xapp-rdl
+  type: ClusterIP

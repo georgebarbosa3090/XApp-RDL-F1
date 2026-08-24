@@ -1,0 +1,92 @@
+{
+  "xapp_name": "iqos-xapp-rdl",
+  "version": "1.1.0",
+  "vendor": "ufpa",
+  "containers": [
+    {
+      "name": "iqos-xapp-rdl",
+      "image": {
+        "registry": "docker.io",
+        "name": "muriloavlis/iqos-xapp-rdl",
+        "tag": "1.1.0"
+      },
+      "command": ["python", "src/main.py"],
+      "resources": {
+        "requests": {
+          "memory": "512Mi",
+          "cpu": "500m"
+        },
+        "limits": {
+          "memory": "4Gi",
+          "cpu": "2"
+        }
+      }
+    }
+  ],
+  "messaging": {
+    "ports": [
+      {
+        "name": "rmr-data",
+        "container": "iqos-xapp-rdl",
+        "port": 4560,
+        "rxMessages": ["RIC_INDICATION", "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE", "RIC_SUB_RESP", "RIC_SUB_FAILURE", "RDL_ACTION_PROPOSAL"],
+        "txMessages": ["RIC_CONTROL_REQ", "RIC_SUB_REQ"]
+      },
+      {
+        "name": "rmr-route",
+        "container": "iqos-xapp-rdl",
+        "port": 4561
+      },
+      {
+        "name": "http-health",
+        "container": "iqos-xapp-rdl",
+        "port": 8080
+      },
+      {
+        "name": "http-metrics",
+        "container": "iqos-xapp-rdl",
+        "port": 8081
+      }
+    ]
+  },
+  "rmr": {
+    "protPort": "tcp:4560",
+    "maxSize": 65536,
+    "numWorkers": 1,
+    "txMessages": ["RIC_CONTROL_REQ", "RIC_SUB_REQ"],
+    "rxMessages": ["RIC_INDICATION", "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE", "RIC_SUB_RESP", "RIC_SUB_FAILURE", "RDL_ACTION_PROPOSAL"]
+  },
+  "metrics": [
+    {
+      "name": "rdl_rmr_messages_received_total",
+      "objectName": "rdl",
+      "objectInstance": "rmr_messages_received_total"
+    },
+    {
+      "name": "rdl_rmr_messages_sent_total",
+      "objectName": "rdl",
+      "objectInstance": "rmr_messages_sent_total"
+    }
+  ],
+  "controls": {
+    "logger": {
+      "level": "INFO"
+    }
+  },
+  "livenessProbe": {
+    "httpGet": {
+      "path": "/health",
+      "port": 8080
+    },
+    "initialDelaySeconds": 5,
+    "periodSeconds": 15
+  },
+  "readinessProbe": {
+    "httpGet": {
+      "path": "/ready",
+      "port": 8080
+    },
+    "initialDelaySeconds": 10,
+    "periodSeconds": 15
+  }
+}
