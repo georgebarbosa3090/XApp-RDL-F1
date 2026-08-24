@@ -49,6 +49,7 @@ RDL_ACTION_PROPOSAL = 30000
 
 class RDLxApp:
     def __init__(self):
+        self.running = True
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
         use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
         rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
@@ -85,8 +86,6 @@ class RDLxApp:
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
-        
-        self.running = False
 
     def start(self):
         logger.info("Iniciando xApp RDL")
