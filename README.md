@@ -52,9 +52,11 @@ make build
 make build-no-cache
 
 # 4. Teste Rápido de Execução (Smoke Test standalone via Docker)
-docker run -d --name xapp-rdl-test -p 8080:8080 -p 8081:8081 -e USE_FAKE_SDL=true iqos-xapp-rdl:1.1.0
-curl -i http://localhost:8080/health
-curl http://localhost:8081/metrics | grep -E "rdl_|dl_"
+docker rm -f xapp-rdl-test 2>/dev/null || true
+docker run -d --name xapp-rdl-test -p 8090:8080 -p 8091:8081 -e USE_FAKE_SDL=true iqos-xapp-rdl:1.1.0
+sleep 3
+curl -i http://localhost:8090/health
+curl http://localhost:8091/metrics | grep -E "rdl_|dl_"
 docker logs xapp-rdl-test
 docker rm -f xapp-rdl-test
 
