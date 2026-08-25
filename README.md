@@ -57,29 +57,14 @@ make test
 
 ---
 
-## 5. Índice de Documentação Técnica (`docs/`)
+## 5. Índice de Documentação Técnica Consolidada (`docs/`)
 
-| Documento | Descrição |
-| :--- | :--- |
-| **[00_introducao.md](docs/00_introducao.md)** | Visão geral do problema de conflito de xApps no O-RAN. |
-| **[01_arquitetura.md](docs/01_arquitetura.md)** | Arquitetura DDD, Clean Architecture e fluxo de mensagens. |
-| **[02_modulos_core.md](docs/02_modulos_core.md)** | Módulos de domínio, coordenação e infraestrutura. |
-| **[03_modulos_heuristica.md](docs/03_modulos_heuristica.md)** | Algoritmos de resolução determinística (TVS e EEVS). |
-| **[04_comunicacao_ric.md](docs/04_comunicacao_ric.md)** | Protocolos E2AP, E2SM-KPM, E2SM-RC e RMR. |
-| **[05_testes_e_ci.md](docs/05_testes_e_ci.md)** | Estratégia de testes unitários e CI/CD. |
-| **[06_guia_de_implantacao.md](docs/06_guia_de_implantacao.md)** | Implantação e operação no cluster Kubernetes. |
-| **[07_modelagem_matematica.md](docs/07_modelagem_matematica.md)** | Funções de utilidade e modelagem formal. |
-| **[08_guia_instalacao_osc_near_rt_ric.md](docs/08_guia_instalacao_osc_near_rt_ric.md)** | Instalação da plataforma Near-RT RIC da OSC. |
-| **[09_cenarios_de_teste_e_benchmark_fase1_fase2.md](docs/09_cenarios_de_teste_e_benchmark_fase1_fase2.md)** | Cenários de teste e métricas comparativas. |
-| **[10_relatorio_smoke_test_fase1.md](docs/10_relatorio_smoke_test_fase1.md)** | Relatório de aprovação do Smoke Test (HTTP 200 e Prometheus). |
-| **[11_guia_empacotamento_helm_e_sincronizacao_github.md](docs/11_guia_empacotamento_helm_e_sincronizacao_github.md)** | Empacotamento Helm e onboarding O-RAN DMS. |
-| **[12_guia_cenario_ns3_oran_benchmark.md](docs/12_guia_cenario_ns3_oran_benchmark.md)** | Simulação 5G NR no ns-O-RAN com E2 Agent. |
-| **[13_guia_operacional_deploy_helm_e_backup_wsl.md](docs/13_guia_operacional_deploy_helm_e_backup_wsl.md)** | Procedimento Operacional Padrão (SOP) e backup WSL. |
-| **[14_troubleshooting_helm_deploy_e_solucao_offline.md](docs/14_troubleshooting_helm_deploy_e_solucao_offline.md)** | Resolução autônoma de falhas de diretório e deploy offline. |
-| **[15_topologias_cluster_k3d_oran_wsl.md](docs/15_topologias_cluster_k3d_oran_wsl.md)** | Análise comparativa de topologias (1S+1A vs Single-Node). |
-| **[16_automacao_deploy_helm.md](docs/16_automacao_deploy_helm.md)** | Pipeline 100% automatizado de deploy Helm. |
-| **[17_guia_deploy_kubernetes_puro_k8s.md](docs/17_guia_deploy_kubernetes_puro_k8s.md)** | Guia de implantação em Kubernetes puro com Kustomize. |
-| **[18_guia_visualizacao_rancher_dashboard_oran.md](docs/18_guia_visualizacao_rancher_dashboard_oran.md)** | Manual de navegação e visualização no Rancher UI. |
-| **[19_agente_especialista_cluster_k8s_oran.md](docs/19_agente_especialista_cluster_k8s_oran.md)** | Especificação do agente especialista `07-k8s-oran-cluster-operator`. |
-| **[20_checklist_dependencias_e_observabilidade_kiali.md](docs/20_checklist_dependencias_e_observabilidade_kiali.md)** | Checklist de dependências e observabilidade de fluxo com Kiali. |
-| **[21_guia_injecao_trafego_e_kiali_mesh.md](docs/21_guia_injecao_trafego_e_kiali_mesh.md)** | Guia prático de injeção contínua de tráfego O-RAN para Kiali Service Mesh. |
+| Volume | Título Temático | Conteúdo Abrangente |
+| :---: | :--- | :--- |
+| **[Volume 01](docs/01_arquitetura_e_modelagem_matematica.md)** | Arquitetura, Módulos Core e Modelagem Matemática | Clean Architecture, DDD, agentes de percepção/raciocínio/refinamento, heurísticas TVS/EEVS, protocolos E2AP/KPM/RC/RMR e modelagem matemática. |
+| **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d, Rancher Dashboard e Operações O-RAN | Topologias de cluster no WSL2 (1S+1A vs Single-Node), instalação do Near-RT RIC, visualização no Rancher UI e agente especialista `07-k8s-oran-cluster-operator`. |
+| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Implantação e Automação de Deploy (Helm & K8s) | Estrutura e empacotamento Helm Chart (`1.1.0`), deploy declarativo com Kustomize (`deploy/kubernetes/`), pipelines automatizados e onboarding O-RAN DMS. |
+| **[Volume 04](docs/04_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnósticos de erro (`ErrImageNeverPull`, Rancher agent), soluções offline e backup/restauração bare-metal do WSL Ubuntu 20.04. |
+| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação em ns-3 O-RAN e Benchmarks Científicos | Estratégia de testes unitários (10/10 PASS), relatório do Smoke Test (HTTP 200/Prometheus), código C++ de simulação 5G NR no `ns-O-RAN` (SCTP 36422) e métricas comparativas. |
+| **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | Observabilidade Service Mesh com Kiali e Injeção de Tráfego | Checklist de dependências, Service Mesh com Istio, Kiali Dashboard (opcional) e script gerador contínuo de tráfego O-RAN (`make inject-traffic`). |
+| **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica, Governança e Manual Consolidado | Matriz de rastreabilidade de requisitos, avaliação de conformidade aos padrões O-RAN Alliance e sumário executivo de governança. |
