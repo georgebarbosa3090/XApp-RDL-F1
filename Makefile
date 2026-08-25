@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -67,6 +67,16 @@ kiali-install:
 kiali-dashboard:
 	@echo "Abrindo Kiali em http://localhost:20001/kiali (pressione Ctrl+C para parar)..."
 	kubectl port-forward -n istio-system svc/kiali 20001:20001 --address 0.0.0.0
+
+start-traffic:
+	@echo "Iniciando gerador contínuo de tráfego interno no cluster..."
+	kubectl apply -f deploy/kubernetes/traffic-generator.yaml
+	kubectl rollout status deployment/traffic-generator -n $(NAMESPACE) --timeout=60s
+	@echo "Tráfego ATIVO! Atualize o Kiali para ver o fluxo animado."
+
+stop-traffic:
+	@echo "Parando gerador de tráfego..."
+	kubectl delete -f deploy/kubernetes/traffic-generator.yaml --ignore-not-found=true
 
 inject-traffic:
 	bash scripts/inject_traffic.sh

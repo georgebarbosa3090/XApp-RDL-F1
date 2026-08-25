@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic-generator
+  namespace: ricxapp
+  labels:
+    app: traffic-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traffic-generator
+  template:
+    metadata:
+      labels:
+        app: traffic-generator
+    spec:
+      containers:
+      - name: generator
+        image: curlimages/curl:latest
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Iniciando gerador de carga contínuo para a xApp RDL..."
+          while true; do
+            curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8080/health >/dev/null || true
+            curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8080/ready >/dev/null || true
+            curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8081/metrics >/dev/null || true
+            sleep 0.2
+          done
