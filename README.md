@@ -45,6 +45,7 @@ make test
 
 * **Rancher Dashboard (Padrão):** Acesse `https://127.0.0.1:8443` para gerenciar nós, namespaces (`ricplt`, `ricxapp`), ver gráficos de consumo de CPU/RAM em tempo real e acompanhar logs.
 * **Kiali Service Mesh (Opcional):** Para visualização em grafo animado da topologia de rede entre xApps e o RIC, instale opcionalmente com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
+* **Injetor de Tráfego O-RAN:** Para ver o grafo animado no Kiali com tráfego em tempo real, execute `make inject-traffic`.
 * **Testes de Endpoints:**
   ```bash
   make helm-test   # ou make k8s-test
@@ -81,3 +82,4 @@ make test
 | **[18_guia_visualizacao_rancher_dashboard_oran.md](docs/18_guia_visualizacao_rancher_dashboard_oran.md)** | Manual de navegação e visualização no Rancher UI. |
 | **[19_agente_especialista_cluster_k8s_oran.md](docs/19_agente_especialista_cluster_k8s_oran.md)** | Especificação do agente especialista `07-k8s-oran-cluster-operator`. |
 | **[20_checklist_dependencias_e_observabilidade_kiali.md](docs/20_checklist_dependencias_e_observabilidade_kiali.md)** | Checklist de dependências e observabilidade de fluxo com Kiali. |
+| **[21_guia_injecao_trafego_e_kiali_mesh.md](docs/21_guia_injecao_trafego_e_kiali_mesh.md)** | Guia prático de injeção contínua de tráfego O-RAN para Kiali Service Mesh. |
