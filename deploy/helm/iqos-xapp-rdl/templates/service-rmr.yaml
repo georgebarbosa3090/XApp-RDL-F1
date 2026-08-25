@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "iqos-xapp-rdl.fullname" . }}-rmr
+  labels:
+    {{- include "iqos-xapp-rdl.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.rmr.type }}
+  ports:
+    - port: {{ .Values.service.rmr.dataPort }}
+      targetPort: {{ .Values.service.rmr.dataPort }}
+      protocol: TCP
+      name: rmr-data
+    - port: {{ .Values.service.rmr.routePort }}
+      targetPort: {{ .Values.service.rmr.routePort }}
+      protocol: TCP
+      name: rmr-route
+  selector:
+    {{- include "iqos-xapp-rdl.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "iqos-xapp-rdl.fullname" . }}-http
+  labels:
+    {{- include "iqos-xapp-rdl.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.http.type }}
+  ports:
+    - port: {{ .Values.service.http.port }}
+      targetPort: {{ .Values.service.http.targetPort }}
+      protocol: TCP
+      name: http-health
+    - port: {{ .Values.service.metrics.port }}
+      targetPort: {{ .Values.service.metrics.targetPort }}
+      protocol: TCP
+      name: http-metrics
+  selector:
+    {{- include "iqos-xapp-rdl.selectorLabels" . | nindent 4 }}
