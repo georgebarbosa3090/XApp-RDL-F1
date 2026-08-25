@@ -43,8 +43,8 @@ make test
 
 ## 4. Observabilidade e Monitoramento
 
-* **Rancher Dashboard:** Acesse `https://127.0.0.1:8443` para gerenciar nós, namespaces (`ricplt`, `ricxapp`), ver gráficos de consumo de CPU/RAM em tempo real e acompanhar logs.
-* **Kiali Service Mesh:** Acesse `http://localhost:20001/kiali` para visualizar a topologia gráfica animada das mensagens RMR e HTTP entre as xApps e o RIC.
+* **Rancher Dashboard (Padrão):** Acesse `https://127.0.0.1:8443` para gerenciar nós, namespaces (`ricplt`, `ricxapp`), ver gráficos de consumo de CPU/RAM em tempo real e acompanhar logs.
+* **Kiali Service Mesh (Opcional):** Para visualização em grafo animado da topologia de rede entre xApps e o RIC, instale opcionalmente com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
 * **Testes de Endpoints:**
   ```bash
   make helm-test   # ou make k8s-test

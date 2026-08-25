@@ -59,7 +59,7 @@ helm-uninstall:
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE)
 
 # -------------------------------------------------------------
-# Observabilidade e Service Mesh (Kiali)
+# [OPCIONAL] Observabilidade Service Mesh (Kiali / Istio)
 # -------------------------------------------------------------
 kiali-install:
 	bash scripts/install_kiali.sh

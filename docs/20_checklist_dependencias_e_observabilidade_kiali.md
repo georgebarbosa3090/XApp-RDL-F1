@@ -29,7 +29,10 @@ Abaixo está o status consolidado de todas as camadas do ecossistema:
 
 ---
 
-## 2. Sugestão Arquitetural: Observabilidade de Fluxo com KIALI
+## 2. Recurso Opcional: Observabilidade de Fluxo com KIALI (Service Mesh)
+
+> [!NOTE]
+> **Recurso Opcional:** O Kiali é uma ferramenta avançada e estritamente **opcional** para fins de demonstração visual e auditoria gráfica de malha de serviços. A xApp RDL e o Near-RT RIC funcionam 100% de forma autônoma sem a necessidade do Istio/Kiali.
 
 ### 2.1. O que é o Kiali?
 O **Kiali** é o painel de visualização gráfica para **Service Mesh (Istio)** mais poderoso do ecossistema Kubernetes. Ele gera uma **topologia visual animada em tempo real** mostrando o fluxo exato de mensagens e chamadas de rede entre todos os componentes da O-RAN.
