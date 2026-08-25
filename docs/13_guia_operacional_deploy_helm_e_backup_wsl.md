@@ -52,7 +52,21 @@ docker rm -f xapp-rdl-test
 
 ---
 
-## 3. Empacotamento Helm e Deploy no Cluster Near-RT RIC
+## 3. Importação da Imagem para os Nós do Cluster k3d
+
+Para evitar erros de `ImagePullBackOff` ou `ErrImageNeverPull`, importe a imagem construída localmente em todos os nós do k3d:
+
+```bash
+# Importação automática em todos os nós do k3d (server e agents)
+for node in $(docker ps --format '{{.Names}}' | grep k3d); do
+    echo "Carregando imagem no nó: $node..."
+    docker save iqos-xapp-rdl:1.1.0 | docker exec -i $node ctr images import -
+done
+```
+
+---
+
+## 4. Empacotamento Helm e Deploy no Cluster Near-RT RIC
 
 ```bash
 # 1. Validar a sintaxe dos templates Helm (Lint)
@@ -64,19 +78,22 @@ helm package deploy/helm/iqos-xapp-rdl
 # 3. Instalar / Atualizar a release no namespace ricxapp do Kubernetes
 helm upgrade --install ricxapp-iqos-xapp-rdl ./iqos-xapp-rdl-1.1.0.tgz \
   --namespace ricxapp \
-  --create-namespace
+  --create-namespace \
+  --set image.pullPolicy=Never \
+  --set env.useFakeSdl="true" \
+  --set env.rmrWaitForReady="false"
 
-# 4. Acompanhar a inicialização dos Pods em tempo real
+# 4. Acompanhar a inicialização dos Pods em tempo real (deve ir para 1/1 Running)
 kubectl get pods -n ricxapp -l app=ricxapp-iqos-xapp-rdl -w
 ```
 
 ---
 
-## 4. Procedimento de Backup Completo do WSL Ubuntu 20.04
+## 5. Procedimento de Backup Completo do WSL Ubuntu 20.04
 
 Para garantir a preservação de todo o estado do cluster, dependências compiladas, módulos SCTP e configurações do Near-RT RIC, utilize o método de exportação de imagem do WSL.
 
-### 4.1. Backup Snapshot Completo da Máquina Virtual (via PowerShell do Windows)
+### 5.1. Backup Snapshot Completo da Máquina Virtual (via PowerShell do Windows)
 
 Abra o **PowerShell do Windows como Administrador**:
 
@@ -96,7 +113,7 @@ wsl --export Ubuntu-20.04 "C:\BackupsWSL\ubuntu-20.04-backup-$(Get-Date -Format 
 
 ---
 
-### 4.2. Como Restaurar o Backup do WSL (se necessário no futuro)
+### 5.2. Como Restaurar o Backup do WSL (se necessário no futuro)
 
 ```powershell
 # Criar diretório onde a imagem restaurada residirá
@@ -111,7 +128,7 @@ wsl -d Ubuntu-20.04-Restaurado
 
 ---
 
-### 4.3. Alternativa: Backup Rápido de Códigos e Configurações Kube (sem desligar o WSL)
+### 5.3. Alternativa: Backup Rápido de Códigos e Configurações Kube (sem desligar o WSL)
 
 No terminal do próprio Ubuntu / WSL:
 
@@ -127,7 +144,7 @@ tar -czvf /mnt/c/BackupsWSL/backup-configs-$(date +%Y%m%d).tar.gz \
 
 ---
 
-## 5. Comandos de Diagnóstico e Monitoramento Pós-Deploy
+## 6. Comandos de Diagnóstico e Monitoramento Pós-Deploy
 
 ```bash
 # Inspecionar logs da xApp em execução no Kubernetes
