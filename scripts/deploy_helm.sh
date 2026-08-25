@@ -22,16 +22,22 @@ echo -e "${BLUE}====================================================${NC}"
 echo -e "\n${YELLOW}[1/6] Construindo imagem Docker (${IMAGE_NAME}:${IMAGE_TAG})...${NC}"
 docker build --file docker/Dockerfile --tag ${IMAGE_NAME}:${IMAGE_TAG} .
 
-# 2. Importação Automática para os nós do k3d
+# 2. Importação Automática para os nós do k3d (filtrando apenas nós server e agent, ignorando load balancers como serverlb)
 echo -e "\n${YELLOW}[2/6] Importando imagem para os nós do k3d...${NC}"
-K3D_NODES=$(docker ps --format '{{.Names}}' | grep k3d || true)
+K3D_NODES=$(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)" || true)
 if [ -n "$K3D_NODES" ]; then
     for node in $K3D_NODES; do
         echo " -> Carregando no nó containerd: $node"
-        docker save ${IMAGE_NAME}:${IMAGE_TAG} | docker exec -i $node ctr images import -
+        docker save ${IMAGE_NAME}:${IMAGE_TAG} | docker exec -i $node ctr images import - || true
     done
 else
-    echo " -> Nenhum nó k3d detectado. Utilizando daemon local/containerd padrão."
+    # Tentativa com comando nativo do k3d se disponível
+    if command -v k3d &> /dev/null; then
+        echo " -> Importando via CLI nativa do k3d..."
+        k3d image import ${IMAGE_NAME}:${IMAGE_TAG} -c rancher-lab || true
+    else
+        echo " -> Nenhum nó k3d worker detectado. Prosseguindo com containerd local."
+    fi
 fi
 
 # 3. Criação de Namespaces
