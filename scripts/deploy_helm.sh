@@ -14,14 +14,30 @@ IMAGE_TAG="1.1.0"
 CHART_DIR="deploy/helm/iqos-xapp-rdl"
 NAMESPACE="ricxapp"
 RELEASE_NAME="ricxapp-iqos-xapp-rdl"
+CLUSTER_NAME="rancher-lab"
 
 echo -e "${BLUE}====================================================${NC}"
 echo -e "${BLUE}   Pipeline Automatizado de Deploy Helm - xApp RDL  ${NC}"
 echo -e "${BLUE}====================================================${NC}"
 
-# 0. Sincronizar Kubeconfig
-if command -v k3d &> /dev/null; then
-    k3d kubeconfig merge rancher-lab --kubeconfig-switch-context -d 2>/dev/null || true
+# 0. Verificar se o cluster k3d existe; se não existir, criar automaticamente
+if ! k3d cluster list ${CLUSTER_NAME} 2>/dev/null | grep -q "${CLUSTER_NAME}"; then
+    echo -e "\n${YELLOW}[0/6] Cluster '${CLUSTER_NAME}' não encontrado. Criando cluster k3d automaticamente...${NC}"
+    docker network disconnect -f k3d-${CLUSTER_NAME} rancher-server 2>/dev/null || true
+    k3d cluster create ${CLUSTER_NAME} \
+      --servers 1 \
+      --agents 0 \
+      --port "36422:36422/SCTP@server:0" \
+      --port "8080:8080@server:0" \
+      --port "8081:8081@server:0" \
+      --port "4560:4560@server:0" \
+      --port "4561:4561@server:0"
+    mkdir -p ~/.kube
+    k3d kubeconfig get ${CLUSTER_NAME} > ~/.kube/config
+    chmod 600 ~/.kube/config
+else
+    k3d kubeconfig merge ${CLUSTER_NAME} --kubeconfig-switch-context -d 2>/dev/null || true
+    k3d kubeconfig get ${CLUSTER_NAME} > ~/.kube/config 2>/dev/null || true
 fi
 export KUBECONFIG=~/.kube/config
 
@@ -40,7 +56,7 @@ if [ -n "$K3D_NODES" ]; then
 else
     if command -v k3d &> /dev/null; then
         echo " -> Importando via CLI nativa do k3d..."
-        k3d image import ${IMAGE_NAME}:${IMAGE_TAG} -c rancher-lab || true
+        k3d image import ${IMAGE_NAME}:${IMAGE_TAG} -c ${CLUSTER_NAME} || true
     fi
 fi
 
