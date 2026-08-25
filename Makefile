@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -57,6 +57,16 @@ helm-test:
 
 helm-uninstall:
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE)
+
+# -------------------------------------------------------------
+# Observabilidade e Service Mesh (Kiali)
+# -------------------------------------------------------------
+kiali-install:
+	bash scripts/install_kiali.sh
+
+kiali-dashboard:
+	@echo "Abrindo Kiali em http://localhost:20001/kiali (pressione Ctrl+C para parar)..."
+	kubectl port-forward -n istio-system svc/kiali 20001:20001 --address 0.0.0.0
 
 # -------------------------------------------------------------
 # Operações Gerais
