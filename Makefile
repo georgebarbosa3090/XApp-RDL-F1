@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -6,6 +6,7 @@ CHART_DIR ?= deploy/helm/iqos-xapp-rdl
 K8S_DIR ?= deploy/kubernetes
 NAMESPACE ?= ricxapp
 RELEASE_NAME ?= ricxapp-iqos-xapp-rdl
+CLUSTER_NAME ?= rancher-lab
 
 build:
 	docker build --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
@@ -15,6 +16,30 @@ build-no-cache:
 
 test:
 	PYTHONPATH=. pytest tests/ -v
+
+# -------------------------------------------------------------
+# Gestão e Ciclo de Vida do Cluster k3d
+# -------------------------------------------------------------
+cluster-create:
+	@echo "Criando cluster k3d $(CLUSTER_NAME) com portas O-RAN..."
+	k3d cluster create $(CLUSTER_NAME) \
+	  --servers 1 \
+	  --agents 0 \
+	  --port "36422:36422/SCTP@server:0" \
+	  --port "8080:8080@server:0" \
+	  --port "8081:8081@server:0" \
+	  --port "4560:4560@server:0" \
+	  --port "4561:4561@server:0"
+	mkdir -p ~/.kube
+	k3d kubeconfig get $(CLUSTER_NAME) > ~/.kube/config
+	chmod 600 ~/.kube/config
+
+cluster-delete:
+	@echo "Removendo cluster k3d $(CLUSTER_NAME)..."
+	k3d cluster delete $(CLUSTER_NAME)
+
+cluster-recreate: cluster-delete cluster-create
+	@echo "Cluster recriado com sucesso!"
 
 # -------------------------------------------------------------
 # Pipeline Kubernetes Nativo (K8s Puro / Kustomize)
@@ -36,7 +61,7 @@ k8s-test:
 	kill $$PID
 
 # -------------------------------------------------------------
-# Pipeline Helm Chart
+# Pipeline Helm Chart (Padrão O-RAN)
 # -------------------------------------------------------------
 helm-deploy:
 	bash scripts/deploy_helm.sh
