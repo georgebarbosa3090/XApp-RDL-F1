@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iqos-xapp-rdl-config
+  namespace: ricxapp
+  labels:
+    app: ricxapp-iqos-xapp-rdl
+data:
+  config-file.json: |
+    {
+      "xapp_name": "iqos-xapp-rdl",
+      "version": "1.1.0",
+      "rmr": {
+        "protPort": "tcp:4560",
+        "numWorkers": 2
+      },
+      "envs": {
+        "USE_FAKE_SDL": "true",
+        "RMR_WAIT_FOR_READY": "false",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  routes.rt: |
+    newrt|start
+    rte|12050|service-ricplt-e2term-rmr.ricplt:38000
+    rte|12010|service-ricplt-e2term-rmr.ricplt:38000
+    rte|30000|127.0.0.1:4560
+    newrt|end

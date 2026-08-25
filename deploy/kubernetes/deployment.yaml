@@ -5,6 +5,8 @@ metadata:
   namespace: ricxapp
   labels:
     app: ricxapp-iqos-xapp-rdl
+    app.kubernetes.io/name: iqos-xapp-rdl
+    app.kubernetes.io/instance: rdl-f1
 spec:
   replicas: 1
   selector:
@@ -14,32 +16,46 @@ spec:
     metadata:
       labels:
         app: ricxapp-iqos-xapp-rdl
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: "/metrics"
     spec:
       terminationGracePeriodSeconds: 15
       containers:
       - name: iqos-xapp-rdl
-        image: docker.io/muriloavlis/iqos-xapp-rdl:1.1.0
-        imagePullPolicy: IfNotPresent
+        image: iqos-xapp-rdl:1.1.0
+        imagePullPolicy: Never
         env:
         - name: USE_FAKE_SDL
-          value: "false"
+          value: "true"
         - name: RMR_SEED_RT
           value: "/app/configs/routes.rt"
+        - name: CONFIG_FILE
+          value: "/app/configs/config-file.json"
+        - name: RMR_WAIT_FOR_READY
+          value: "false"
+        - name: LOG_LEVEL
+          value: "INFO"
         ports:
         - containerPort: 4560
           name: rmr-data
+          protocol: TCP
         - containerPort: 4561
           name: rmr-route
+          protocol: TCP
         - containerPort: 8080
           name: http-health
+          protocol: TCP
         - containerPort: 8081
           name: http-metrics
+          protocol: TCP
         resources:
           requests:
             cpu: "500m"
             memory: "512Mi"
           limits:
-            cpu: "2"
+            cpu: "2000m"
             memory: "4Gi"
         livenessProbe:
           httpGet:
@@ -56,3 +72,7 @@ spec:
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
