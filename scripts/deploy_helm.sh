@@ -45,9 +45,9 @@ export KUBECONFIG=~/.kube/config
 echo -e "\n${YELLOW}[1/6] Construindo imagem Docker (${IMAGE_NAME}:${IMAGE_TAG})...${NC}"
 docker build --file docker/Dockerfile --tag ${IMAGE_NAME}:${IMAGE_TAG} .
 
-# 2. Importação Automática para os nós do k3d
+# 2. Importação Automática para os nós do k3d (filtrando apenas nós reais de containerd, sem serverlb)
 echo -e "\n${YELLOW}[2/6] Importando imagem para os nós do k3d...${NC}"
-K3D_NODES=$(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)" || true)
+K3D_NODES=$(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server-[0-9]|agent-[0-9])" || true)
 if [ -n "$K3D_NODES" ]; then
     for node in $K3D_NODES; do
         echo " -> Carregando no nó containerd: $node"

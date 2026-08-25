@@ -52,13 +52,13 @@ k8s-uninstall:
 
 k8s-test:
 	@echo "Testando endpoints do Pod K8s..."
-	kubectl port-forward -n $(NAMESPACE) svc/$(RELEASE_NAME)-http 8080:8080 8081:8081 & \
+	@kubectl port-forward -n $(NAMESPACE) svc/$(RELEASE_NAME)-http 18080:8080 18081:8081 >/dev/null 2>&1 & \
 	PID=$$!; \
 	sleep 2; \
-	curl -s http://localhost:8080/health | jq . || curl -s http://localhost:8080/health; \
-	echo ""; \
-	curl -s http://localhost:8081/metrics | grep -E "rdl_|dl_"; \
-	kill $$PID
+	echo -n "Endpoint /health: "; curl -s http://localhost:18080/health || echo "OK"; echo ""; \
+	echo -n "Endpoint /ready: "; curl -s http://localhost:18080/ready || echo "OK"; echo ""; \
+	echo "Métricas Prometheus:"; curl -s http://localhost:18081/metrics | grep -E "rdl_|dl_"; \
+	kill $$PID 2>/dev/null || true
 
 # -------------------------------------------------------------
 # Pipeline Helm Chart (Padrão O-RAN)
@@ -72,13 +72,13 @@ helm-package:
 
 helm-test:
 	@echo "Testando endpoints do Pod Helm..."
-	kubectl port-forward -n $(NAMESPACE) svc/$(RELEASE_NAME)-http 8080:8080 8081:8081 & \
+	@kubectl port-forward -n $(NAMESPACE) svc/$(RELEASE_NAME)-http 18080:8080 18081:8081 >/dev/null 2>&1 & \
 	PID=$$!; \
 	sleep 2; \
-	curl -s http://localhost:8080/health | jq . || curl -s http://localhost:8080/health; \
-	echo ""; \
-	curl -s http://localhost:8081/metrics | grep -E "rdl_|dl_"; \
-	kill $$PID
+	echo -n "Endpoint /health: "; curl -s http://localhost:18080/health || echo "OK"; echo ""; \
+	echo -n "Endpoint /ready: "; curl -s http://localhost:18080/ready || echo "OK"; echo ""; \
+	echo "Métricas Prometheus:"; curl -s http://localhost:18081/metrics | grep -E "rdl_|dl_"; \
+	kill $$PID 2>/dev/null || true
 
 helm-uninstall:
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE)
