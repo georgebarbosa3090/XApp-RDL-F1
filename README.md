@@ -1,7 +1,5 @@
 # xApp RDL (Resource and Decision Layer) — O-RAN Conflict Mitigation
 
-![xApp RDL Banner](docs/assets/rdl_commercial_banner.jpg)
-
 <div align="center">
 
 [![O-RAN WG3 Compliant](https://img.shields.io/badge/O--RAN-WG3%20Near--RT%20RIC-blue.svg)](https://www.o-ran.org/)
