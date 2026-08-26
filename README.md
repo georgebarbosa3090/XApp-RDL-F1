@@ -1,3 +1,11 @@
+[![Open RAN](https://img.shields.io/badge/O--RAN-Near--RT--RIC-orange.svg)](https://o-ran.org)
+[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/georgebarbosa3090/XApp-RDL-F1)
+[![Helm](https://img.shields.io/badge/Helm-v3%20Chart%202.0.0-informational.svg)](deploy/helm/iqos-xapp-rdl)
+[![Kubernetes](https://img.shields.io/badge/K8s-Native%20Kustomize-326CE5.svg)](deploy/kubernetes)
+[![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-success.svg)](tests/)
+
+---
+
 # xApp RDL (Resource and Decision Layer) - O-RAN Conflict Mitigation
 
 ## 1. Visão Geral
