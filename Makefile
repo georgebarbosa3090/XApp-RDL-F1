@@ -135,3 +135,9 @@ smoke-test:
 
 uninstall:
 	kubectl delete -k $(K8S_DIR) || helm uninstall $(RELEASE_NAME) -n $(NAMESPACE)
+
+run-experiments:
+	bash scripts/run_full_experiment.sh
+
+analyze-benchmarks:
+	python3 scripts/run_and_analyze_benchmarks.py
