@@ -1,5 +1,7 @@
 # Volume 05: Testes, Simulação em ns-3 O-RAN e Benchmarks Científicos
 
+> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+
 **Documento:** Volume Temático 05  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
 **Escopo:** Testes Unitários/CI, Smoke Test Formal, Cenários de Simulação 5G NR no ns-O-RAN e Métricas de Benchmark  
@@ -96,3 +98,8 @@ int main(int argc, char *argv[]) {
 | **Violação de SLA URLLC** | 12.8% dos pacotes | **< 0.8%** | **< 0.2%** |
 | **Eficiência Energética (Bits/Joule)** | Linha base (1.0x) | **+14.5%** | **+23.1%** |
 | **Efeito Ping-Pong de Handover** | 22 eventos/min | **0 eventos** (Safety Guard ativo) | **0 eventos** |
+
+---
+
+[⬅️ Volume Anterior: 04 - Operação e Troubleshooting](04_operacao_troubleshooting_e_backup.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 06 - Observabilidade Kiali ➡️](06_observabilidade_kiali_e_injecao_trafego.md)
+

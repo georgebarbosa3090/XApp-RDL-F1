@@ -1,5 +1,7 @@
 # Volume 01: Arquitetura, Módulos Core e Modelagem Matemática
 
+> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+
 **Documento:** Volume Temático 01  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
 **Escopo:** Fundamentos, Clean Architecture / DDD, Módulos Core, Heurísticas Determinísticas, Protocolos O-RAN e Modelagem Matemática  
@@ -137,3 +139,7 @@ Onde:
 * $f_{\text{QoS}}(\mathbf{a})$ quantifica a satisfação de SLA das conexões ativas.
 * $f_{\text{EE}}(\mathbf{a})$ quantifica a eficiência energética em bits por Joule.
 * $\text{Penalty}_i(\mathbf{a})$ penaliza violações de restrição e oscilações excessivas de controle.
+
+---
+
+[🏠 Início](../README.md) | [📚 Portal de Documentação](README.md) | [Próximo Volume: 02 - Infraestrutura k3d e Rancher ➡️](02_infraestrutura_cluster_k3d_e_rancher.md)

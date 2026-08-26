@@ -1,33 +1,62 @@
-[![Open RAN](https://img.shields.io/badge/O--RAN-Near--RT--RIC-orange.svg)](https://o-ran.org)
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/georgebarbosa3090/XApp-RDL-F1)
-[![Helm](https://img.shields.io/badge/Helm-v3%20Chart%202.0.0-informational.svg)](deploy/helm/iqos-xapp-rdl)
-[![Kubernetes](https://img.shields.io/badge/K8s-Native%20Kustomize-326CE5.svg)](deploy/kubernetes)
-[![Tests](https://img.shields.io/badge/Tests-14%2F14%20Passing-success.svg)](tests/)
+# xApp RDL (Resource and Decision Layer) — O-RAN Conflict Mitigation
+
+![xApp RDL Banner](docs/assets/rdl_commercial_banner.jpg)
+
+<div align="center">
+
+[![O-RAN WG3 Compliant](https://img.shields.io/badge/O--RAN-WG3%20Near--RT%20RIC-blue.svg)](https://www.o-ran.org/)
+[![Status: Implemented](https://img.shields.io/badge/Fase%201-Implementada%20%26%20Segura-brightgreen.svg)](#)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Helm 3](https://img.shields.io/badge/Helm-3.x-informational.svg)](https://helm.sh/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+</div>
 
 ---
 
-# xApp RDL (Resource and Decision Layer) - O-RAN Conflict Mitigation
+## 🧭 Navegação do Ecossistema Multi-Fases
+
+Selecione a versão correspondente da plataforma **xApp RDL**:
+
+| Fase | Título & Paradigma | Status do Projeto | Repositório Oficial |
+| :---: | :--- | :---: | :---: |
+| **Fase 1** *(Este Repositório)* | **RDL Determinística & Segura (H-RDL)**<br>• Janelas de decisão em lote (200ms)<br>• Heurísticas de utilidade TVS / EEVS<br>• *Safety Guards* físicos de potência e PRB | 🟢 **Implementada & Estável**<br>*(Produção / Baseline)* | **[georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1)** |
+| **Fase 2** | **RDL Baseada em Contexto (CA-RDL)**<br>• Aprendizado por Reforço Multi-Agente (MARL / MAPPO)<br>• Redes Neurais com Atenção Contextual<br>• Arbitragem adaptativa em tempo real | 🔵 **Ativa / Em Evolução**<br>*(Cognitiva / MARL)* | **[georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2)** |
+| **Fase 3** | **RDL Autônoma & Federada 6G**<br>• Zero-Touch Network & Intent-Driven Arbitration<br>• Multi-RIC Federated Learning & Graph Neural Networks<br>• Otimização semântica 6G | 🟣 **Roadmap / Planejada**<br>*(Ainda não implementada)* | *Em especificação técnica* |
+
+---
 
 ## 1. Visão Geral
-A **xApp RDL** é um orquestrador determinístico e cognitivo para o O-RAN Near-RT RIC. Sua principal função é arbitrar intenções de controle concorrentes provenientes de múltiplas xApps em uma rede, decidindo a alocação ótima de recursos utilizando regras determinísticas e funções de utilidade multiobjetivo (**Fase 1: H-RDL**) e modelos de aprendizado por reforço multi-agente MARL/MAPPO (**Fase 2: CA-RDL**).
+
+A **xApp RDL (Resource and Decision Layer)** é uma camada de inteligência e arbitragem para o **O-RAN Near-RT RIC** (Radio Access Network Intelligent Controller). Sua missão central é resolver **conflitos diretos e indiretos de controle de rádio** decorrentes da execução concorrente de múltiplas xApps (ex: *Traffic Steering*, *Energy Savings*, *QoS Management* e *Handover Optimization*).
+
+Na **Fase 1 (H-RDL)**, a mitigação de conflitos opera sob rigor matemático determinístico:
+* **Janela Temporal de Decisão:** Agrupamento em buffer thread-safe ($\le 200\text{ ms}$) para cruzamento combinatório par a par das intenções de rádio.
+* **Heurísticas de Utilidade:** Otimização multiobjetivo por Throughput vs. Prioridade de Serviço (**TVS**) e Eficiência Energética vs. Prioridade (**EEVS**).
+* **Safety Guards Físicos:** Validação e clamp incondicional contra violações de potência máxima ($P_{\text{max}}$), orçamento de PRBs e limites de taxa de dados.
 
 ---
 
-## 2. Estrutura Arquitetural
-A arquitetura foi desenhada utilizando **Clean Architecture** e **Domain-Driven Design (DDD)**:
-* `src/agents/`: Motores de percepção (Decision Window de 200ms), raciocínio (Heurísticas TVS/EEVS e MAPPO) e *Safety Guards*.
-* `src/coordination/`: Despachante de controle e correlacionador de ACKs.
-* `src/domain/`: Entidades imutáveis (`Proposals`, `Conflicts`, `Decisions`).
-* `src/e2/`: Decodificadores e encoders E2AP / KPM e E2SM-RC Control (isolamento ASN.1 APER).
-* `src/infrastructure/`: Clientes RMR (`RMRXapp`), SDL (Redis), Subscription Manager e Config Manager.
-* `src/observability/`: Métricas no padrão Prometheus na porta 8081 (`/metrics`), healthcheck na porta 8080 (`/health`) e logs estruturados em JSON.
+## 2. Estrutura Arquitetural (Clean Architecture & DDD)
+
+O projeto adota **Clean Architecture** com isolamento total das regras de negócio em relação a drivers de comunicação e frameworks:
+
+```text
+src/
+├── agents/                  # Motores de percepção (200ms), raciocínio (TVS/EEVS) e Safety Guards
+├── coordination/            # Despachante de controle e correlacionador de ACKs E2
+├── domain/                  # Entidades de domínio imutáveis (Proposals, Conflicts, Decisions)
+├── e2/                      # Codecs ASN.1 APER (E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0)
+├── infrastructure/          # Conectores RMRXapp, SDL (Redis / Fake-SDL) e Config Manager
+└── observability/           # Servidores HTTP (porta 8080) e Prometheus Metrics (porta 8081)
+```
 
 ---
 
 ## 3. Guia de Execução Rápida
 
-### Opção A: Deploy Helm Automatizado (Recomendado)
-Compila o container, importa automaticamente nos nós `k3d`, empacota o Helm Chart e faz o deploy:
+### Opção A: Deploy Helm Automatizado no Cluster k3d (Recomendado)
+Compila o container, importa no containerd dos nós k3d, empacota o Helm Chart e faz o rollout:
 ```bash
 make helm-deploy
 ```
@@ -42,7 +71,7 @@ make k8s-deploy
 make smoke-test
 ```
 
-### Opção D: Testes Unitários
+### Opção D: Testes Unitários e Validação de CI
 ```bash
 make test
 ```
@@ -51,28 +80,39 @@ make test
 
 ## 4. Observabilidade e Monitoramento
 
-* **Rancher Dashboard (Padrão):** Acesse `https://127.0.0.1:8443` para gerenciar nós, namespaces (`ricplt`, `ricxapp`), ver gráficos de consumo de CPU/RAM em tempo real e acompanhar logs.
-* **Kiali Service Mesh (Opcional):** Para visualização em grafo animado da topologia de rede entre xApps e o RIC, instale opcionalmente com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
-* **Injetor de Tráfego O-RAN:** Para ver o grafo animado no Kiali com tráfego em tempo real, execute `make inject-traffic`.
-* **Testes de Endpoints:**
+* **Rancher Dashboard:** Acesse `https://127.0.0.1:8443` para gerenciar namespaces (`ricplt`, `ricxapp`), nós e telemetria de CPU/RAM em tempo real.
+* **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC, instale com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
+* **Injetor de Tráfego O-RAN:** Execute `make inject-traffic` para alimentar a malha com fluxos contínuos.
+* **Teste de Endpoints HTTP & Prometheus:**
   ```bash
   make helm-test   # ou make k8s-test
   ```
-* **Logs em Tempo Real:**
+* **Acompanhamento de Logs:**
   ```bash
   make logs
   ```
 
 ---
 
-## 5. Índice de Documentação Técnica Consolidada (`docs/`)
+## 5. Portal de Documentação Técnica (`docs/`)
 
-| Volume | Título Temático | Conteúdo Abrangente |
+A documentação do projeto está **estruturada e separada em 7 Volumes Temáticos**. Para acessar o índice completo, visite o **[📚 Portal de Documentação Técnica](docs/README.md)**.
+
+| Volume | Título Temático | Domínio Técnico & Escopo |
 | :---: | :--- | :--- |
-| **[Volume 01](docs/01_arquitetura_e_modelagem_matematica.md)** | Arquitetura, Módulos Core e Modelagem Matemática | Clean Architecture, DDD, agentes de percepção/raciocínio/refinamento, heurísticas TVS/EEVS, protocolos E2AP/KPM/RC/RMR e modelagem matemática. |
-| **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d, Rancher Dashboard e Operações O-RAN | Topologias de cluster no WSL2 (1S+1A vs Single-Node), instalação do Near-RT RIC, visualização no Rancher UI e agente especialista `07-k8s-oran-cluster-operator`. |
-| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Implantação e Automação de Deploy (Helm & K8s) | Estrutura e empacotamento Helm Chart (`1.1.0`), deploy declarativo com Kustomize (`deploy/kubernetes/`), pipelines automatizados e onboarding O-RAN DMS. |
-| **[Volume 04](docs/04_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnósticos de erro (`ErrImageNeverPull`, Rancher agent), soluções offline e backup/restauração bare-metal do WSL Ubuntu 20.04. |
-| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação em ns-3 O-RAN e Benchmarks Científicos | Estratégia de testes unitários (10/10 PASS), relatório do Smoke Test (HTTP 200/Prometheus), código C++ de simulação 5G NR no `ns-O-RAN` (SCTP 36422) e métricas comparativas. |
-| **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | Observabilidade Service Mesh com Kiali e Injeção de Tráfego | Checklist de dependências, Service Mesh com Istio, Kiali Dashboard (opcional) e script gerador contínuo de tráfego O-RAN (`make inject-traffic`). |
-| **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica, Governança e Manual Consolidado | Matriz de rastreabilidade de requisitos, avaliação de conformidade aos padrões O-RAN Alliance e sumário executivo de governança. |
+| **[Volume 01](docs/01_arquitetura_e_modelagem_matematica.md)** | 🏗️ Arquitetura, Módulos Core e Modelagem Matemática | Clean Architecture, DDD, agentes de percepção/raciocínio/refinamento, heurísticas TVS/EEVS, codecs ASN.1 APER (KPM/RC) e formulação analítica. |
+| **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | ⚙️ Infraestrutura k3d, Rancher Dashboard e Operações | Topologias de cluster no WSL2 (Single-Node vs Multi-Node), mapeamento de portas O-RAN (SCTP/RMR/HTTP) e agente `07-k8s-oran-cluster-operator`. |
+| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | 🚀 Guia de Implantação e Automação de Deploy | Estrutura Helm Chart (`1.1.0`), deploy declarativo com Kustomize (`deploy/kubernetes/`), pipelines automatizados e onboarding O-RAN DMS. |
+| **[Volume 04](docs/04_operacao_troubleshooting_e_backup.md)** | 🛠️ Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico de erros (`ErrImageNeverPull`, Rancher agent) e backup bare-metal WSL Ubuntu 20.04. |
+| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | 🧪 Testes, Simulação em ns-3 O-RAN e Benchmarks | Testes unitários (10/10 PASS), Smoke Test em Docker, código de simulação 5G NR no `ns-O-RAN` (SCTP 36422) e benchmarks comparativos. |
+| **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | 📊 Observabilidade Service Mesh com Kiali e Tráfego | Checklist de dependências, Istio Service Mesh, Kiali Dashboard em tempo real e injetor sintético de tráfego (`make inject-traffic`). |
+| **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | 📜 Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade de requisitos (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3) e segurança K8s. |
+
+---
+
+<div align="center">
+
+**Projeto xApp RDL — O-RAN Near-RT RIC Conflict Mitigation**  
+*Desenvolvido em conformidade com as diretrizes O-RAN Alliance e 3GPP.*
+
+</div>

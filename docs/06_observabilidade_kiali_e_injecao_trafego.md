@@ -1,5 +1,7 @@
 # Volume 06: Observabilidade Service Mesh com Kiali e Injeção de Tráfego O-RAN
 
+> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+
 **Documento:** Volume Temático 06  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
 **Escopo:** Checklist de Dependências, Istio Service Mesh, Kiali Dashboard e Injetor Contínuo de Tráfego  
@@ -55,3 +57,8 @@ make inject-traffic
    - ✅ **`Traffic Animation`** (Bolinhas verdes animadas indicando o fluxo de dados).
    - ✅ **`Response Time`** (Latência em milissegundos de cada conexão).
    - ✅ **`Request Rate`** (Taxa de requisições por segundo - RPS).
+
+---
+
+[⬅️ Volume Anterior: 05 - Testes e Simulação ns-3](05_testes_simulacao_ns3_e_benchmarks.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 07 - Conformidade e Governança ➡️](07_relatorios_conformidade_e_governanca.md)
+

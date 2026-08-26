@@ -1,5 +1,7 @@
 # Volume 04: Operação, Troubleshooting e Procedimentos de Backup
 
+> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+
 **Documento:** Volume Temático 04  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
 **Escopo:** Procedimento Operacional Padrão (SOP), Diagnósticos de Falha, Soluções Offline e Backup/Restore WSL2  
@@ -90,3 +92,8 @@ tar -czvf /mnt/c/BackupsWSL/backup-configs-$(date +%Y%m%d).tar.gz \
   ~/.kube \
   ~/.config
 ```
+
+---
+
+[⬅️ Volume Anterior: 03 - Guia de Deploy Helm & K8s](03_guia_deploy_helm_e_k8s.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 05 - Testes e Simulação ns-3 ➡️](05_testes_simulacao_ns3_e_benchmarks.md)
+
