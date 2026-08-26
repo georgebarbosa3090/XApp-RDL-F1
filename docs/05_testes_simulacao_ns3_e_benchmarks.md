@@ -44,6 +44,8 @@ make smoke-test
 
 ## 3. Construção do Cenário de Simulação no `ns-O-RAN` (ns-3)
 
+Para o guia detalhado de instalação, dicionário de variáveis e replicação passo-a-passo, consulte o **[Volume 08: Guia de Instalação ns-3 NORI e Experimentos](08_guia_experimentos_ns3_nori.md)**.
+
 Para avaliar o comportamento da RDL em condições realistas de tráfego de rádio 5G NR, o cenário de simulação no **ns-3** utiliza o módulo `ns-O-RAN` com conexões **E2 Agent (SCTP na porta 36422)**.
 
 ### 3.1. Topologia do Cenário de Teste:

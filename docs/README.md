@@ -11,7 +11,7 @@
 
 ## 📖 Visão Geral da Documentação
 
-A documentação da **xApp RDL (Fase 1 — H-RDL)** está categorizada e modularizada em **7 Volumes Temáticos Independentes**, permitindo que diferentes perfis de engenharia (Arquitetos de Software, Engenheiros DevOps/SRE, Pesquisadores de Redes e Auditores de Governança) encontrem rapidamente as diretrizes necessárias.
+A documentação da **xApp RDL (Fase 1 — H-RDL)** está categorizada e modularizada em **8 Volumes Temáticos Independentes**, permitindo que diferentes perfis de engenharia (Arquitetos de Software, Engenheiros DevOps/SRE, Pesquisadores de Redes e Auditores de Governança) encontrem rapidamente as diretrizes necessárias.
 
 ```mermaid
 graph TD
@@ -30,6 +30,7 @@ graph TD
         V04["[Vol 04] Operação, SOP & Backup Bare-Metal"]
         V05["[Vol 05] Testes, Simulação ns-3 & Benchmarks"]
         V06["[Vol 06] Observabilidade Kiali & Injeção de Tráfego"]
+        V08["[Vol 08] Guia ns-3 NORI, Variáveis & Experimentos"]
     end
 
     subgraph Compliance["📜 Governança"]
@@ -43,6 +44,7 @@ graph TD
     DOCS --> V05
     DOCS --> V06
     DOCS --> V07
+    DOCS --> V08
 ```
 
 ---
@@ -80,7 +82,11 @@ graph TD
 ### 5. 🧪 Validação Científica, Testes & Simulação em Rede
 * 📄 **[Volume 05: Testes, Simulação em ns-3 O-RAN e Benchmarks Científicos](05_testes_simulacao_ns3_e_benchmarks.md)**
   - **Público:** Cientistas de Redes, Engenheiros de Teste e Pesquisadores.
-  - **Conteúdo:** Bateria de testes unitários (10/10 aprovados com 100% de cobertura nos componentes críticos); Smoke test automatizado em Docker; Cenário de simulação 5G NR no simulador `ns-O-RAN` com tráfego SCTP real; Benchmarks de tempo de resposta e taxas de mitigação de conflito.
+  - **Conteúdo:** Bateria de testes unitários (10/10 aprovados); Smoke test automatizado em Docker; Cenário de simulação 5G NR no `ns-O-RAN` com tráfego SCTP real; Benchmarks comparativos.
+
+* 📄 **[Volume 08: Guia de Instalação do ns-3 NORI, Parâmetros e Experimentos O-RAN](08_guia_experimentos_ns3_nori.md)**
+  - **Público:** Pesquisadores 5G/6G, Engenheiros de Simulação e Cientistas de Dados.
+  - **Conteúdo:** Passo-a-passo de compilação do ns-3 NORI / 5G-LENA; Análise comparativa dos scripts do curso; Dicionário completo de parâmetros (Rádio, E2, Slices, Utilidade); Cenários C++ prontos (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento de replicação de experimentos ponta a ponta.
 
 ---
 
@@ -94,7 +100,7 @@ graph TD
 ### 7. 📜 Governança, Conformidade & Rastreabilidade
 * 📄 **[Volume 07: Relatórios de Conformidade Técnica e Governança O-RAN](07_relatorios_conformidade_e_governanca.md)**
   - **Público:** Gestores Técnicos, Auditores de Segurança e Comitê de Governança.
-  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Conformidade com os padrões O-RAN Alliance (WG2/WG3) e especificações 3GPP; Relatório de segurança Kubernetes (perfil não-root e descarte de privilégios).
+  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Conformidade com os padrões O-RAN Alliance (WG2/WG3) e especificações 3GPP; Relatório de segurança Kubernetes.
 
 ---
 
@@ -102,10 +108,11 @@ graph TD
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
-| **Arquiteto de Software / Pesquisador** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) ➔ [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) ➔ [Volume 07](07_relatorios_conformidade_e_governanca.md) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) ➔ [Volume 08](08_guia_experimentos_ns3_nori.md) ➔ [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) |
+| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) ➔ [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) ➔ [Volume 07](07_relatorios_conformidade_e_governanca.md) |
 | **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) ➔ [Volume 03](03_guia_deploy_helm_e_k8s.md) ➔ [Volume 04](04_operacao_troubleshooting_e_backup.md) |
 | **Operador de NOC / Observabilidade** | [Volume 03](03_guia_deploy_helm_e_k8s.md) ➔ [Volume 06](06_observabilidade_kiali_e_injecao_trafego.md) ➔ [Volume 04](04_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 07](07_relatorios_conformidade_e_governanca.md) ➔ [Volume 01](01_arquitetura_e_modelagem_matematica.md) ➔ [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) |
+| **Auditor de Qualidade e Governança** | [Volume 07](07_relatorios_conformidade_e_governanca.md) ➔ [Volume 01](01_arquitetura_e_modelagem_matematica.md) ➔ [Volume 08](08_guia_experimentos_ns3_nori.md) |
 
 ---
 

@@ -107,6 +107,7 @@ A documentação do projeto está **estruturada e separada em 7 Volumes Temátic
 | **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | 🧪 Testes, Simulação em ns-3 O-RAN e Benchmarks | Testes unitários (10/10 PASS), Smoke Test em Docker, código de simulação 5G NR no `ns-O-RAN` (SCTP 36422) e benchmarks comparativos. |
 | **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | 📊 Observabilidade Service Mesh com Kiali e Tráfego | Checklist de dependências, Istio Service Mesh, Kiali Dashboard em tempo real e injetor sintético de tráfego (`make inject-traffic`). |
 | **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | 📜 Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade de requisitos (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3) e segurança K8s. |
+| **[Volume 08](docs/08_guia_experimentos_ns3_nori.md)** | 🔬 Guia de Instalação ns-3 NORI, Parâmetros e Experimentos | Instalação passo-a-passo do ns-3 NORI / 5G-LENA, dicionário de variáveis, identificação de componentes e guia de replicação experimental. |
 
 ---
 
