@@ -1,6 +1,6 @@
 # Volume 01: Arquitetura, Módulos Core e Modelagem Matemática
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 01  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
@@ -142,4 +142,5 @@ Onde:
 
 ---
 
-[🏠 Início](../README.md) | [📚 Portal de Documentação](README.md) | [Próximo Volume: 02 - Infraestrutura k3d e Rancher ➡️](02_infraestrutura_cluster_k3d_e_rancher.md)
+[Início](../README.md) | [Portal de Documentação](README.md) | [Próximo Volume: 02 - Infraestrutura k3d e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md)
+

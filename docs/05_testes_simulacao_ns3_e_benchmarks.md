@@ -1,6 +1,6 @@
 # Volume 05: Testes, Simulação em ns-3 O-RAN e Benchmarks Científicos
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 05  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
@@ -32,9 +32,9 @@ O Smoke Test valida a integridade dos serviços HTTP e Prometheus em container i
 
 | Endpoint / Serviço | Porta | Método | Resposta Esperada | Status |
 | :--- | :---: | :---: | :--- | :---: |
-| **Liveness / Health** | `8090` | `GET /health` | HTTP `200 OK` `{"status":"UP"}` | ✅ APROVADO |
-| **Readiness** | `8090` | `GET /ready` | HTTP `200 OK` `{"ready":true}` | ✅ APROVADO |
-| **Prometheus Metrics** | `8091` | `GET /metrics` | Métricas `rdl_decision_latency_seconds`, `dl_kpm_indications_total` | ✅ APROVADO |
+| **Liveness / Health** | `8090` | `GET /health` | HTTP `200 OK` `{"status":"UP"}` | APROVADO |
+| **Readiness** | `8090` | `GET /ready` | HTTP `200 OK` `{"ready":true}` | APROVADO |
+| **Prometheus Metrics** | `8091` | `GET /metrics` | Métricas `rdl_decision_latency_seconds`, `dl_kpm_indications_total` | APROVADO |
 
 ```bash
 make smoke-test
@@ -103,5 +103,6 @@ int main(int argc, char *argv[]) {
 
 ---
 
-[⬅️ Volume Anterior: 04 - Operação e Troubleshooting](04_operacao_troubleshooting_e_backup.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 06 - Observabilidade Kiali ➡️](06_observabilidade_kiali_e_injecao_trafego.md)
+[Volume Anterior: 04 - Operação e Troubleshooting](04_operacao_troubleshooting_e_backup.md) | [Portal de Docs](README.md) | [Próximo Volume: 06 - Observabilidade Kiali](06_observabilidade_kiali_e_injecao_trafego.md)
+
 

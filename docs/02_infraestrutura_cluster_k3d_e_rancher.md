@@ -1,6 +1,6 @@
 # Volume 02: Infraestrutura de Cluster k3d, Rancher Dashboard e Operações O-RAN
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 02  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
@@ -142,5 +142,6 @@ O agente especialista atua autonomamente no diagnóstico e resolução de proble
 
 ---
 
-[⬅️ Volume Anterior: 01 - Arquitetura e Modelagem](01_arquitetura_e_modelagem_matematica.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 03 - Guia de Deploy Helm & K8s ➡️](03_guia_deploy_helm_e_k8s.md)
+[Volume Anterior: 01 - Arquitetura e Modelagem](01_arquitetura_e_modelagem_matematica.md) | [Portal de Docs](README.md) | [Próximo Volume: 03 - Guia de Deploy Helm & K8s](03_guia_deploy_helm_e_k8s.md)
+
 

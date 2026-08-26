@@ -1,6 +1,6 @@
 # Volume 08: Guia Completo de Instalação do ns-3 NORI, Configuração de Parâmetros e Experimentos O-RAN (Fase 1)
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 08  
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
@@ -9,15 +9,15 @@
 
 ---
 
-## 1. Visão Geral da Co-Simulação ns-3 NORI / ns-O-RAN & Near-RT RIC
+## 1. Visão Geral da Co-Simulação ns-3 NORI / ns-O-RAN e Near-RT RIC
 
-O **ns-3 NORI** (também integrado ao ecossistema *ns-O-RAN* do OpenRAN Gym) conecta o simulador de rede de eventos discretos **ns-3** (com o módulo 5G **5G-LENA**) à arquitetura padronizada **O-RAN Alliance**.
+O **ns-3 NORI** (integrado ao ecossistema *ns-O-RAN* do OpenRAN Gym) conecta o simulador de rede de eventos discretos **ns-3** (com o módulo 5G **5G-LENA**) à arquitetura padronizada **O-RAN Alliance**.
 
 Na **Fase 1 (H-RDL)** do projeto, as estações rádio-base 5G NR (*gNodeBs*) simuladas no ns-3 enviam telemetria de rádio contínua (**E2SM-KPM**) via socket SCTP (porta 36422) para a terminação **E2Term** do Near-RT RIC. Múltiplas xApps concorrentes emitem requisições de controle (**E2SM-RC**) para os mesmos nós, e a **xApp RDL** arbitra esses conflitos de forma determinística utilizando janelas de decisão em lote ($\Delta t = 200\text{ ms}$), funções de utilidade multiobjetivo (**TVS/EEVS**) e barreiras de segurança física (*Safety Guards*).
 
 ```mermaid
 flowchart TD
-    subgraph NS3["🖥️ Ambiente de Simulação de Rádio (ns-3 NORI / 5G-LENA)"]
+    subgraph NS3["Ambiente de Simulação de Rádio (ns-3 NORI / 5G-LENA)"]
         GNB1["gNodeB 01 (Macro Cell)<br/>3.5 GHz n78 (100 MHz)"]
         GNB2["gNodeB 02 (Small Cell)<br/>3.5 GHz n78 (100 MHz)"]
         UES["Terminal de Usuários (30 UEs)<br/>Fatias: URLLC | eMBB | mMTC"]
@@ -29,7 +29,7 @@ flowchart TD
         GNB2 --> E2A
     end
 
-    subgraph O_RAN_RIC["☸️ Cluster Near-RT RIC (Kubernetes / k3d)"]
+    subgraph O_RAN_RIC["Cluster Near-RT RIC (Kubernetes / k3d)"]
         E2T["E2 Termination (E2Term)<br/>SCTP Server (:36422)"]
         RMR["RMR Bus (Mensageria O-RAN)"]
         
@@ -38,7 +38,7 @@ flowchart TD
             QOS["xApp QoS Manager<br/>(Solicita Boost de PRB)"]
             ES["xApp Energy Savings<br/>(Solicita Corte de Potência)"]
             
-            subgraph RDL_CORE["🛡️ xApp RDL (Fase 1: H-RDL)"]
+            subgraph RDL_CORE["xApp RDL (Fase 1: H-RDL)"]
                 DW["Decision Window (200ms Buffer)"]
                 PA["PerceptionAgent<br/>(Detecção Par a Par)"]
                 RA["ReasoningAgent<br/>(Heurísticas TVS / EEVS)"]
@@ -62,7 +62,7 @@ flowchart TD
 
 ## 2. Análise Técnica dos Scripts Base do Curso ns-3
 
-A partir dos scripts de referência fornecidos:
+A partir dos scripts de referência:
 
 ### 2.1. Script `01_wireless_scenario.cc` (Fundamentos de Mobilidade e Wi-Fi)
 * **Objetivo:** Demonstração básica de nós cliente/servidor com pilha IP, mobilidade em grade (`GridPositionAllocator`), modelo constante (`ConstantPositionMobilityModel`), gerador de tráfego UDP (`UdpEchoClientHelper`) e captura de pacotes PCAP.
@@ -83,7 +83,7 @@ A partir dos scripts de referência fornecidos:
 | **Topologia em Grade** | `ns3::GridScenarioHelper` | Posiciona as gNodeBs e distribui os UEs em área de cobertura com sobreposição controlada. |
 | **Canal 3GPP** | `ns3::ThreeGppChannelModel` | Modela desvanecimento rápido, perdas de percurso (*Pathloss*) e condições LoS/NLoS em ambiente urbano (*Street Canyon*). |
 | **Bandwidth Part (BWP)** | `ns3::CcBwpCreator` | Fatiamento da portadora em bandas de 100 MHz (FR1 n78 a 3.5 GHz) com numerologia $\mu=1$ (SCS 30 kHz). |
-| **Beamforming & MIMO** | `ns3::IdealBeamformingHelper` | Algoritmo de formação de feixe direcionado (*Direct Path Beamforming*) entre matrizes de antenas. |
+| **Beamforming e MIMO** | `ns3::IdealBeamformingHelper` | Algoritmo de formação de feixe direcionado (*Direct Path Beamforming*) entre matrizes de antenas. |
 | **Agente O-RAN E2** | `ns3::E2AgentHelper` | Implementa a terminação E2AP ASN.1 APER no gNB, enviando relatórios KPM e recebendo comandos RC. |
 | **E2Term (Near-RT RIC)** | Pod Kubernetes `ricplt-e2term` | Servidor SCTP na porta 36422 que recebe mensagens E2 e as traduz em payloads RMR. |
 | **xApp RDL (Fase 1)** | Pod Kubernetes `ricxapp-iqos-xapp-rdl` | Decodifica E2SM-KPM, agrupa propostas concorrentes em janela de 200ms, aplica TVS/EEVS e emite E2SM-RC. |
@@ -263,7 +263,7 @@ sequenceDiagram
     RIC->>RIC: ReasoningAgent aplica TVS e Safety Guards
     RIC->>NS3: E2SM-RC Control Message (Ação Arbitrada)
     Dev->>Prom: make helm-test (Scrape rdl_decision_latency_seconds)
-    Dev->>Dev: python scripts/plot_results.py
+    Dev->>Dev: python scripts/plot_ns3_benchmarks.py
 ```
 
 ### Passo 1: Inicializar o Cluster O-RAN e o Deploy da xApp RDL
@@ -326,31 +326,10 @@ curl -s http://localhost:8081/metrics | grep -E "rdl_|dl_"
 
 ## 8. Script de Análise e Geração de Gráficos de Desempenho
 
-Para processar os traces gerados pelo ns-3 e exportar os gráficos comparativos, execute o script Python abaixo:
+Para processar os traces gerados pelo ns-3 e exportar os gráficos comparativos, utilize o script Python `scripts/plot_ns3_benchmarks.py`:
 
-```python
-# scripts/plot_ns3_benchmarks.py
-import matplotlib.pyplot as plt
-import numpy as np
-
-time_slots = np.linspace(0, 30, 150) # 150 janelas de 200ms
-
-# Dados simulados de latência URLLC com e sem RDL
-lat_baseline = 12.5 + 8.0 * np.sin(time_slots / 2.0) + np.random.normal(0, 2.0, 150)
-lat_rdl_phase1 = 2.8 + 0.5 * np.sin(time_slots / 2.0) + np.random.normal(0, 0.2, 150)
-
-plt.figure(figsize=(10, 5))
-plt.plot(time_slots, lat_baseline, 'r--', label='Sem Governança RDL (Conflitos xApps)', alpha=0.7)
-plt.plot(time_slots, lat_rdl_phase1, 'g-', label='Com xApp RDL Fase 1 (H-RDL Determinística)', linewidth=2)
-plt.axhline(y=5.0, color='b', linestyle=':', label='Limite de SLA URLLC (5 ms)')
-
-plt.title('Latência de Pacotes URLLC no ns-3 (Cenário de Conflito 5G NR)')
-plt.xlabel('Tempo de Simulação (s)')
-plt.ylabel('Latência Fim-a-Fim (ms)')
-plt.legend()
-plt.grid(True)
-plt.savefig('docs/assets/ns3_benchmark_latency.png', dpi=300)
-print("Gráfico salvo em docs/assets/ns3_benchmark_latency.png")
+```bash
+python3 scripts/plot_ns3_benchmarks.py
 ```
 
 ---
@@ -367,4 +346,4 @@ print("Gráfico salvo em docs/assets/ns3_benchmark_latency.png")
 
 ---
 
-[⬅️ Volume Anterior: 07 - Conformidade e Governança](07_relatorios_conformidade_e_governanca.md) | [📚 Portal de Documentação](README.md) | [🏠 Início](../README.md)
+[Volume Anterior: 07 - Conformidade e Governança](07_relatorios_conformidade_e_governanca.md) | [Portal de Documentação](README.md) | [Início](../README.md)

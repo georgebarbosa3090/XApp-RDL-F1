@@ -1,6 +1,6 @@
 # Volume 07: Relatórios de Conformidade Técnica e Governança O-RAN
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 07  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
@@ -13,16 +13,16 @@
 
 | ID Requisito | Descrição Técnica do Requisito | Status de Implementação | Módulo Responsável | Evidência de Validação |
 | :--- | :--- | :---: | :--- | :--- |
-| **REQ-RDL-01** | Janela de decisão em lote ($\le 200\text{ ms}$) | ✅ APROVADO | `PerceptionAgent` | Testado em `test_perception_agent.py` |
-| **REQ-RDL-02** | Detecção de conflitos diretos e indiretos | ✅ APROVADO | `PerceptionAgent` | Testado em `test_perception_agent.py` |
-| **REQ-RDL-03** | Resolução determinística por TVS/EEVS | ✅ APROVADO | `ReasoningAgent` | Testado em `test_reasoning_agent.py` |
-| **REQ-RDL-04** | Validação física de barreiras (*Safety Guards*) | ✅ APROVADO | `RefinementAgent` | Testado em `test_refinement_agent.py` |
-| **REQ-RDL-05** | Suporte a Codecs ASN.1 APER (KPM e RC) | ✅ APROVADO | `src/e2/` | Testado em `test_aper_codecs.py` |
-| **REQ-RDL-06** | Endpoints de Liveness/Readiness na porta 8080 | ✅ APROVADO | `HealthServer` | Smoke Test HTTP 200 OK |
-| **REQ-RDL-07** | Exportação de métricas Prometheus na porta 8081 | ✅ APROVADO | `MetricsServer` | Smoke Test Prometheus Scrape |
-| **REQ-RDL-08** | Empacotamento Helm Chart oficial | ✅ APROVADO | `deploy/helm/` | Helm Lint & Package 100% OK |
-| **REQ-RDL-09** | Deploy declarativo em Kubernetes Puro | ✅ APROVADO | `deploy/kubernetes/` | Kustomize e Kubectl rollout OK |
-| **REQ-RDL-10** | Suporte a Observabilidade Rancher & Kiali | ✅ APROVADO | `scripts/` | Integrado e documentado |
+| **REQ-RDL-01** | Janela de decisão em lote ($\le 200\text{ ms}$) | APROVADO | `PerceptionAgent` | Testado em `test_perception_agent.py` |
+| **REQ-RDL-02** | Detecção de conflitos diretos e indiretos | APROVADO | `PerceptionAgent` | Testado em `test_perception_agent.py` |
+| **REQ-RDL-03** | Resolução determinística por TVS/EEVS | APROVADO | `ReasoningAgent` | Testado em `test_reasoning_agent.py` |
+| **REQ-RDL-04** | Validação física de barreiras (*Safety Guards*) | APROVADO | `RefinementAgent` | Testado em `test_refinement_agent.py` |
+| **REQ-RDL-05** | Suporte a Codecs ASN.1 APER (KPM e RC) | APROVADO | `src/e2/` | Testado em `test_aper_codecs.py` |
+| **REQ-RDL-06** | Endpoints de Liveness/Readiness na porta 8080 | APROVADO | `HealthServer` | Smoke Test HTTP 200 OK |
+| **REQ-RDL-07** | Exportação de métricas Prometheus na porta 8081 | APROVADO | `MetricsServer` | Smoke Test Prometheus Scrape |
+| **REQ-RDL-08** | Empacotamento Helm Chart oficial | APROVADO | `deploy/helm/` | Helm Lint & Package 100% OK |
+| **REQ-RDL-09** | Deploy declarativo em Kubernetes Puro | APROVADO | `deploy/kubernetes/` | Kustomize e Kubectl rollout OK |
+| **REQ-RDL-10** | Suporte a Observabilidade Rancher & Kiali | APROVADO | `scripts/` | Integrado e documentado |
 
 ---
 
@@ -46,5 +46,4 @@
 
 ---
 
-[⬅️ Volume Anterior: 06 - Observabilidade Kiali e Injeção de Tráfego](06_observabilidade_kiali_e_injecao_trafego.md) | [📚 Portal de Documentação](README.md) | [Próximo Volume: 08 - Guia ns-3 NORI e Experimentos ➡️](08_guia_experimentos_ns3_nori.md)
-
+[Volume Anterior: 06 - Observabilidade Kiali e Injeção de Tráfego](06_observabilidade_kiali_e_injecao_trafego.md) | [Portal de Documentação](README.md) | [Próximo Volume: 08 - Guia ns-3 NORI e Experimentos](08_guia_experimentos_ns3_nori.md)

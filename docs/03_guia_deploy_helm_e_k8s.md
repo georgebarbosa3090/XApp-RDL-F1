@@ -1,6 +1,6 @@
 # Volume 03: Guia de Implantação e Automação de Deploy (Helm e Kubernetes Puro)
 
-> **Navegação Rápida:** [🏠 Home (Fase 1)](../README.md) | [📚 Portal de Docs](README.md) | [🌐 Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [🚀 Fase 3 (6G Roadmap)](#)
+> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
 
 **Documento:** Volume Temático 03  
 **Projeto:** xApp RDL (Resource and Decision Layer)  
@@ -113,5 +113,6 @@ dms_cli status iqos-xapp-rdl
 
 ---
 
-[⬅️ Volume Anterior: 02 - Infraestrutura k3d e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) | [📚 Portal de Docs](README.md) | [Próximo Volume: 04 - Operação e Troubleshooting ➡️](04_operacao_troubleshooting_e_backup.md)
+[Volume Anterior: 02 - Infraestrutura k3d e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) | [Portal de Docs](README.md) | [Próximo Volume: 04 - Operação e Troubleshooting](04_operacao_troubleshooting_e_backup.md)
+
 
