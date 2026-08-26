@@ -16,6 +16,7 @@
 #include "ns3/nr-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/flow-monitor-module.h"
 
 // Inclusão condicional dos cabeçalhos do módulo E2 / ns-O-RAN
 #if __has_include("ns3/oran-interface.h")
@@ -231,17 +232,23 @@ int main (int argc, char *argv[])
     }
 
     // =========================================================================
-    // 7. Rastreamento e Execução da Simulação
+    // 7. Rastreamento, FlowMonitor e Execução da Simulação
     // =========================================================================
     nrHelper->EnableTraces ();
     Config::Connect ("/NodeList/*/DeviceList/*/$ns3::NrUeNetDevice/ComponentCarrierMapUe/*/NrUePhy/ReportCurrentCellRsrpSinr",
                      MakeCallback (&RxPdcpCallback));
 
+    FlowMonitorHelper flowHelper;
+    Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
+
     NS_LOG_INFO ("Executando simulação por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
+
+    flowMonitor->SerializeToXmlFile ("flowmonitor_results.xml", true, true);
     Simulator::Destroy ();
 
-    NS_LOG_INFO ("Simulação concluída com sucesso.");
+    NS_LOG_INFO ("Simulação concluída com sucesso. Métricas de fluxo salvas em flowmonitor_results.xml.");
     return 0;
 }
+

@@ -25,9 +25,10 @@ if [ -d "$NS3_DIR" ]; then
     cd "$NS3_DIR"
     ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30" > "$EXP_DIR/baseline/ns3_output.log" 2>&1 || true
     
-    # Coletar traces gerados pelo ns-3
+    # Coletar traces gerados pelo ns-3 e FlowMonitor XML
     mv "$NS3_DIR"/RxPacketTrace*.txt "$EXP_DIR/baseline/" 2>/dev/null || true
     mv "$NS3_DIR"/DlPdcp*.txt "$EXP_DIR/baseline/" 2>/dev/null || true
+    mv "$NS3_DIR"/flowmonitor_results.xml "$EXP_DIR/baseline/" 2>/dev/null || true
     cd "$BASE_DIR"
 else
     echo "Diretorio ns-3 nao encontrado em $NS3_DIR. Gerando dados de simulacao sintetizados."
@@ -50,11 +51,13 @@ if [ -d "$NS3_DIR" ]; then
     cd "$NS3_DIR"
     ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=${E2TERM_IP} --ricPort=36422 --simTime=30" > "$EXP_DIR/rdl_phase1/ns3_output.log" 2>&1 || true
     
-    # Coletar traces
+    # Coletar traces e FlowMonitor XML
     mv "$NS3_DIR"/RxPacketTrace*.txt "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
     mv "$NS3_DIR"/DlPdcp*.txt "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
+    mv "$NS3_DIR"/flowmonitor_results.xml "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
     cd "$BASE_DIR"
 fi
+
 
 # 2.2 Coletar Logs Estruturados da xApp RDL
 kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl --tail=500 > "$EXP_DIR/rdl_phase1/rdl_logs.jsonl" 2>/dev/null || echo "Sem logs k8s disponiveis."

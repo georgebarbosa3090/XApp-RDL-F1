@@ -15,6 +15,8 @@
 #include "ns3/mobility-module.h"
 #include "ns3/nr-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/flow-monitor-module.h"
+
 
 #if __has_include("ns3/oran-interface.h")
 #include "ns3/oran-interface.h"
@@ -140,10 +142,16 @@ int main (int argc, char *argv[])
 
     nrHelper->EnableTraces ();
 
+    FlowMonitorHelper flowHelper;
+    Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
+
     NS_LOG_INFO ("Executando simulação EEVS por " << simTime << "s...");
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
+
+    flowMonitor->SerializeToXmlFile ("flowmonitor_results.xml", true, true);
     Simulator::Destroy ();
-    NS_LOG_INFO ("Simulação EEVS concluída.");
+    NS_LOG_INFO ("Simulação EEVS concluída com sucesso. Métricas salvas em flowmonitor_results.xml.");
     return 0;
 }
+

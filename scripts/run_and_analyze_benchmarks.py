@@ -7,9 +7,46 @@ Compara: Baseline Sem RDL vs Fase 1: H-RDL (Heurística Determinística)
 import os
 import sys
 import json
+import xml.etree.ElementTree as ET
 import numpy as np
 
+def parse_flowmonitor_xml(xml_path):
+    """Extrai estatísticas de fluxos do XML gerado pelo FlowMonitor do ns-3."""
+    if not os.path.exists(xml_path):
+        return None
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        flows = []
+        for flow in root.findall(".//Flow"):
+            flow_id = flow.attrib.get("flowId")
+            tx_bytes = float(flow.attrib.get("txBytes", 0))
+            rx_bytes = float(flow.attrib.get("rxBytes", 0))
+            tx_pkts = float(flow.attrib.get("txPackets", 0))
+            rx_pkts = float(flow.attrib.get("rxPackets", 0))
+            lost_pkts = float(flow.attrib.get("lostPackets", 0))
+            delay_sum = float(flow.attrib.get("delaySum", "0ns").replace("ns", "")) / 1e6 # ms
+            
+            mean_delay = delay_sum / rx_pkts if rx_pkts > 0 else 0.0
+            pdr = (rx_pkts / tx_pkts) * 100.0 if tx_pkts > 0 else 0.0
+            
+            flows.append({
+                "flow_id": flow_id,
+                "tx_bytes": tx_bytes,
+                "rx_bytes": rx_bytes,
+                "tx_pkts": tx_pkts,
+                "rx_pkts": rx_pkts,
+                "lost_pkts": lost_pkts,
+                "mean_delay_ms": mean_delay,
+                "delivery_ratio_pct": pdr
+            })
+        return flows
+    except Exception as e:
+        print(f"[AVISO] Falha ao processar {xml_path}: {e}")
+        return None
+
 def run_analysis(output_dir="experiments/results"):
+
     os.makedirs(output_dir, exist_ok=True)
     baseline_dir = os.path.join(output_dir, "baseline")
     rdl_dir = os.path.join(output_dir, "rdl_phase1")
