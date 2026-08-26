@@ -2,7 +2,6 @@
 
 <div align="center">
 
-%%![xApp RDL Banner](docs/assets/rdl_commercial_banner.jpg)%%
 
 **Camada de Mitigação de Conflitos e Arbitragem Inteligente de Recursos para o Near-RT RIC (O-RAN)**  
 *Arquitetura determinística, segura e em conformidade com os padrões O-RAN WG3, E2AP v2.0, E2SM-KPM v2.0 e E2SM-RC v1.0.*
