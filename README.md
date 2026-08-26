@@ -96,7 +96,7 @@ make test
 
 ## 5. Portal de Documentação Técnica (`docs/`)
 
-A documentação do projeto está estruturada e separada em **8 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
+A documentação do projeto está estruturada e separada em **7 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
 
 | Volume | Título Temático | Domínio Técnico e Escopo |
 | :---: | :--- | :--- |
@@ -104,10 +104,10 @@ A documentação do projeto está estruturada e separada em **8 Volumes Temátic
 | **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d, Rancher Dashboard e Operações | Topologias de cluster no WSL2 (Single-Node vs Multi-Node), mapeamento de portas O-RAN (SCTP/RMR/HTTP) e agente `07-k8s-oran-cluster-operator`. |
 | **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Implantação e Automação de Deploy | Estrutura Helm Chart (`1.1.0`), deploy declarativo com Kustomize (`deploy/kubernetes/`), pipelines automatizados e onboarding O-RAN DMS. |
 | **[Volume 04](docs/04_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico de erros (`ErrImageNeverPull`, Rancher agent) e backup bare-metal WSL Ubuntu 20.04. |
-| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação em ns-3 O-RAN e Benchmarks | Testes unitários (10/10 PASS), Smoke Test em Docker, código de simulação 5G NR no `ns-O-RAN` (SCTP 36422) e benchmarks comparativos. |
+| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks | Testes unitários/CI, Smoke Test, instalação ns-3 NORI, parâmetros 5G NR, cenários C++, replicação passo-a-passo (Baseline vs H-RDL) e relatórios. |
 | **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | Observabilidade Service Mesh com Kiali e Tráfego | Checklist de dependências, Istio Service Mesh, Kiali Dashboard em tempo real e injetor sintético de tráfego (`make inject-traffic`). |
 | **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade de requisitos (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3) e segurança K8s. |
-| **[Volume 08](docs/08_guia_experimentos_ns3_nori.md)** | Guia de Instalação ns-3 NORI, Parâmetros e Experimentos | Instalação passo-a-passo do ns-3 NORI / 5G-LENA, dicionário de variáveis, identificação de componentes e guia de replicação experimental. |
+
 
 ---
 
