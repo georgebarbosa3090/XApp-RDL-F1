@@ -94,7 +94,19 @@ make test
 
 ---
 
-## 5. Portal de Documentação Técnica (`docs/`)
+## 5. Análise de Dados e Machine Learning no Google Colab
+
+Os dados experimentais gerados pelo ns-3 FlowMonitor e pela xApp RDL podem ser importados diretamente no Google Colab para geração de gráficos, relatórios e treinamento de modelos de classificação do **Scikit-Learn**:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb)
+
+* **Notebook:** [`notebooks/rdl_colab_scikit_learn.ipynb`](notebooks/rdl_colab_scikit_learn.ipynb)
+* **Datasets CSV:** [`experiments/results/dataset_flow_metrics.csv`](experiments/results/dataset_flow_metrics.csv) e [`experiments/results/dataset_rdl_decisions_ml.csv`](experiments/results/dataset_rdl_decisions_ml.csv)
+* **Modelos Inclusos:** Random Forest, Decision Tree e Gradient Boosting para predição de conflitos O-RAN e análise de importância de variáveis.
+
+---
+
+## 6. Portal de Documentação Técnica (`docs/`)
 
 A documentação do projeto está estruturada e separada em **7 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
 
@@ -107,6 +119,7 @@ A documentação do projeto está estruturada e separada em **7 Volumes Temátic
 | **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks | Testes unitários/CI, Smoke Test, instalação ns-3 NORI, parâmetros 5G NR, cenários C++, replicação passo-a-passo (Baseline vs H-RDL) e relatórios. |
 | **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | Observabilidade Service Mesh com Kiali e Tráfego | Checklist de dependências, Istio Service Mesh, Kiali Dashboard em tempo real e injetor sintético de tráfego (`make inject-traffic`). |
 | **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade de requisitos (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3) e segurança K8s. |
+
 
 
 ---
