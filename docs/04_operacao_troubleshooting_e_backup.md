@@ -47,6 +47,27 @@ done
 * **Causa:** O agente do Rancher tenta acessar `127.0.0.1:8443` (loopback interno do Pod) ou sofre rejeição TLS.
 * **Solução:** Conecte o container do Rancher na rede do k3d (`docker network connect k3d-rancher-lab rancher-server`) e aponte a URL interna do agente para `https://rancher-server:443` com `CATTLE_SSL_NO_VERIFY=true`.
 
+### 2.4. Erro: `/bin/sh: 1: pytest: not found (Error 127)`
+* **Causa:** O binário do `pytest` não está instalado no ambiente global do host ou o ambiente virtual (`.venv`) não foi ativado antes de executar `make test`.
+* **Solução:**
+  ```bash
+  apt update && apt install -y python3-pip python3-venv
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install --upgrade pip
+  pip install -r requirements.txt -r requirements-dev.txt
+  make test
+  ```
+
+### 2.5. Erro: `Could not find a version that satisfies the requirement networkx==3.2.1`
+* **Causa:** Versões estritas de pacotes que exigem Python $\ge 3.9$ sendo instaladas em distros com Python 3.8 (ex: Ubuntu 20.04 LTS).
+* **Solução:**
+  1. Atualize os arquivos `requirements.txt` e `requirements-dev.txt` para utilizarem operadores de versão flexíveis (`>=`).
+  2. Alternativamente, execute a suíte de testes diretamente via Docker:
+     ```bash
+     docker run --rm -v $(pwd):/app -w /app -u 0 iqos-xapp-rdl:1.1.0 sh -c "pip install -r requirements-dev.txt && pytest tests/ -v"
+     ```
+
 ---
 
 ## 3. Procedimento de Backup e Restauração do WSL Ubuntu 20.04

@@ -18,10 +18,26 @@ A suíte de testes unitários cobre 100% dos componentes críticos da xApp RDL, 
 * **Testes de Raciocínio (`tests/test_reasoning_agent.py`):** Resolução por prioridade de fatias de serviço (URLLC > eMBB > mMTC).
 * **Testes de Refinamento (`tests/test_refinement_agent.py`):** Validação dos *Safety Guards* (limites de potência, PRB e taxa).
 
-### Execução dos Testes:
+### Execução dos Testes Unitários:
+
+#### Opção A: Execução no Host (Virtualenv)
 ```bash
+# 1. Criar e ativar o ambiente virtual (caso ainda não exista)
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Atualizar pip e instalar dependências
+pip install --upgrade pip
+pip install -r requirements.txt -r requirements-dev.txt
+
+# 3. Executar a suíte de testes
 make test
 # Saída esperada: 10 passed in 1.20s (100% green)
+```
+
+#### Opção B: Execução via Contêiner Docker (Sem instalar pacotes no host)
+```bash
+docker run --rm -v $(pwd):/app -w /app -u 0 iqos-xapp-rdl:1.1.0 sh -c "pip install -r requirements-dev.txt && pytest tests/ -v"
 ```
 
 ---

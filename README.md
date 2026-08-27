@@ -89,8 +89,15 @@ make smoke-test
 
 ### Opção D: Testes Unitários e Validação de CI
 ```bash
+# Configuração do ambiente virtual (uma única vez):
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt -r requirements-dev.txt
+
+# Execução dos testes:
 make test
-# Saída: 10 passed in 0.21s (100% green)
+# Saída esperada: 10 passed in 1.20s (100% green)
 ```
 
 ---
