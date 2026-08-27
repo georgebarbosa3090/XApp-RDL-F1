@@ -122,6 +122,12 @@ make test
 
 O projeto inclui suporte nativo ao **ns-3 NORI / 5G-LENA** com telemetria via **FlowMonitor** e interface **SCTP (porta 36422)**.
 
+### Instalação Automatizada do Simulador:
+```bash
+# Instala dependências apt, clona e compila o ns-3 de forma otimizada:
+make setup-ns3
+```
+
 ### Executar Pipeline Experimental Completo (Baseline vs H-RDL):
 ```bash
 # Executa a Rodada 1 (Baseline), Rodada 2 (Com RDL), coleta traces e gera CSVs/relatórios:

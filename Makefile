@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate setup-ns3 run-experiments analyze-benchmarks
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -139,6 +139,9 @@ smoke-test:
 
 uninstall:
 	kubectl delete -k $(K8S_DIR) || helm uninstall $(RELEASE_NAME) -n $(NAMESPACE)
+
+setup-ns3:
+	bash scripts/setup_ns3.sh
 
 run-experiments:
 	bash scripts/run_full_experiment.sh

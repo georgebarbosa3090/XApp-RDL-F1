@@ -135,6 +135,64 @@ done
 
 ---
 
+### 2.7. Erro: `Command 'sudo' not found`
+* **Sintomas:**
+  - `bash: sudo: command not found`
+  - `Command 'sudo' not found, but can be installed with: apt install sudo`
+* **Causa:** O terminal está executando diretamente como usuário `root` (comum em instâncias WSL2 ou contêineres Docker mínimos). Como o usuário já possui os privilégios mais altos do sistema, o utilitário `sudo` não vem instalado e não é necessário para gerenciar pacotes.
+* **Solução:**
+  1. Execute comandos administrativos (como `apt-get`) diretamente, sem prefixar `sudo`:
+     ```bash
+     apt-get update && apt-get install -y build-essential cmake git
+     ```
+  2. Caso deseje disponibilizar o comando `sudo` para compatibilidade com scripts de terceiros:
+     ```bash
+     apt-get update && apt-get install -y sudo
+     ```
+
+---
+
+### 2.8. Erro no ns-3: `Exception: Refusing to run as root. --enable-sudo will request your password when needed`
+* **Sintomas:**
+  - `./ns3 configure` ou `./ns3 build` falha com `Exception: Refusing to run as root`.
+* **Causa:** O front-end em Python do simulador ns-3 (`./ns3`) contém uma validação intencional (`refuse_run_as_root()`) que impede a compilação como superusuário (`UID 0`) para evitar modificações acidentais em arquivos do sistema.
+* **Solução:**
+  1. **Opção Recomendada (Bypass de verificação no WSL2/Docker):** Desative a chamada no próprio script `./ns3` com o utilitário `sed`:
+     ```bash
+     cd ~/ns3-oran-workspace/ns-3-oran
+     sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' ./ns3
+     ./ns3 configure -d optimized --enable-examples --enable-tests
+     ./ns3 build -j$(nproc)
+     ```
+  2. **Opção Alternativa:** Utilize o script automatizado do projeto a partir de `~/XApp-RDL-F1`:
+     ```bash
+     make setup-ns3
+     ```
+  3. **Opção por Usuário sem privilégios:** Crie um usuário padrão Linux e execute a compilação:
+     ```bash
+     useradd -m -s /bin/bash oran
+     chown -R oran:oran ~/ns3-oran-workspace ~/XApp-RDL-F1
+     su - oran
+     cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 configure -d optimized && ./ns3 build -j$(nproc)
+     ```
+
+---
+
+### 2.9. Erro: `make: *** No rule to make target 'run-experiments'. Stop.`
+* **Sintomas:**
+  - `make: *** No rule to make target 'run-experiments'. Stop.`
+  - `make: *** No rule to make target 'analyze-benchmarks'. Stop.`
+* **Causa:** O comando `make` foi invocado dentro do diretório do simulador (`~/ns3-oran-workspace/ns-3-oran`) em vez de no diretório raiz do repositório da xApp RDL. O `Makefile` que declara os alvos de orquestração experimental reside em `~/XApp-RDL-F1`.
+* **Solução:** Navegue de volta ao diretório raiz do projeto antes de invocar os alvos do `make`:
+  ```bash
+  cd ~/XApp-RDL-F1
+  make run-experiments
+  # ou
+  make analyze-benchmarks
+  ```
+
+---
+
 ## 3. Procedimento de Backup e Restauração do WSL Ubuntu 20.04
 
 Para garantir recuperação instantânea contra desastres ou corrupção do disco virtual do WSL:

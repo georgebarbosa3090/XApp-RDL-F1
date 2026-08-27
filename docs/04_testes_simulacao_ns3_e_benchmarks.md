@@ -130,11 +130,23 @@ flowchart TD
 
 ---
 
-## 5. Guia de Instalação do ns-3 NORI
+## 5. Guia de Instalação e Compilação do ns-3 NORI
+
+O simulador pode ser configurado de forma totalmente automatizada através do script de automação ou manualmente.
+
+### 5.1. Opção A: Instalação Automatizada (Recomendada)
+A partir da raiz do repositório (`~/XApp-RDL-F1`), execute:
+```bash
+make setup-ns3
+# ou: bash scripts/setup_ns3.sh
+```
+*O script detecta automaticamente privilégios root/não-root, instala todos os pacotes via `apt-get`, clona o `ns-3-dev`, aplica compatibilidade para execução no WSL2/Docker e compila de forma otimizada com `-j$(nproc)`.*
+
+### 5.2. Opção B: Instalação Manual Passo a Passo
 
 ```bash
-# 1. Instalar dependências essenciais no WSL2 / Ubuntu
-sudo apt-get update && sudo apt-get install -y \
+# 1. Instalar dependências essenciais no WSL2 / Ubuntu (se root, omita o sudo):
+apt-get update && apt-get install -y \
   build-essential cmake ninja-build git python3-dev \
   libsctp-dev lksctp-tools libzmq3-dev libboost-all-dev \
   libsqlite3-dev libgsl-dev libxml2-dev tcpdump wireshark
@@ -144,10 +156,13 @@ mkdir -p ~/ns3-oran-workspace && cd ~/ns3-oran-workspace
 git clone https://gitlab.com/nsnam/ns-3-dev.git ns-3-oran --depth 1
 cd ns-3-oran
 
-# 3. Configurar compilação com CMake
+# 3. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
+sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' ./ns3
+
+# 4. Configurar compilação com CMake
 ./ns3 configure -d optimized --enable-examples --enable-tests
 
-# 4. Compilar o simulador
+# 5. Compilar o simulador
 ./ns3 build -j$(nproc)
 ```
 
