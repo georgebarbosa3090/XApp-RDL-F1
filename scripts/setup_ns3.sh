@@ -40,6 +40,11 @@ $SUDO_CMD apt-get install -y \
     ninja-build \
     git \
     python3-dev \
+    python3-pip \
+    pkg-config \
+    wget \
+    curl \
+    ca-certificates \
     libsctp-dev \
     lksctp-tools \
     libzmq3-dev \
@@ -48,9 +53,52 @@ $SUDO_CMD apt-get install -y \
     libgsl-dev \
     libxml2-dev \
     tcpdump \
-    wireshark \
-    curl \
-    ca-certificates
+    wireshark
+
+# 2.1 Validação e atualização automática do CMake (ns-3 moderno exige CMake >= 3.25)
+check_cmake_version() {
+    if command -v cmake >/dev/null 2>&1; then
+        local ver
+        ver=$(cmake --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")
+        local major minor
+        major=$(echo "$ver" | cut -d. -f1)
+        minor=$(echo "$ver" | cut -d. -f2)
+        if [ "$major" -gt 3 ] || ([ "$major" -eq 3 ] && [ "$minor" -ge 25 ]); then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+if ! check_cmake_version; then
+    echo -e "${YELLOW}[INFO] Versão do CMake no sistema: $(cmake --version 2>/dev/null | head -n1 || echo 'nenhuma').${NC}"
+    echo -e "${YELLOW}[INFO] ns-3 requer CMake >= 3.25. Atualizando CMake...${NC}"
+
+    # Método 1: pip3
+    if command -v pip3 >/dev/null 2>&1; then
+        echo -e "Tentando atualizar CMake via pip3..."
+        $SUDO_CMD pip3 install --upgrade cmake --break-system-packages 2>/dev/null || $SUDO_CMD pip3 install --upgrade cmake 2>/dev/null || true
+    fi
+
+    hash -r 2>/dev/null || true
+
+    # Método 2: Binário oficial Kitware (fallback)
+    if ! check_cmake_version; then
+        echo -e "Instalando CMake moderno diretamente do release oficial (Kitware v3.28.3)..."
+        CMAKE_TAR="cmake-3.28.3-linux-x86_64.tar.gz"
+        wget -q --show-progress "https://github.com/Kitware/CMake/releases/download/v3.28.3/${CMAKE_TAR}" -O "/tmp/${CMAKE_TAR}" || \
+            curl -fsSL "https://github.com/Kitware/CMake/releases/download/v3.28.3/${CMAKE_TAR}" -o "/tmp/${CMAKE_TAR}"
+        $SUDO_CMD tar -xzf "/tmp/${CMAKE_TAR}" -C /usr/local --strip-components=1
+        rm -f "/tmp/${CMAKE_TAR}"
+        hash -r 2>/dev/null || true
+    fi
+
+    if check_cmake_version; then
+        echo -e "${GREEN}[OK] CMake atualizado com sucesso! Versão: $(cmake --version | head -n1)${NC}"
+    else
+        echo -e "${RED}[AVISO] Não foi possível atualizar o CMake automaticamente para >= 3.25.${NC}"
+    fi
+fi
 
 echo -e "${GREEN}[OK] Dependências do sistema instaladas com sucesso!${NC}"
 
@@ -79,6 +127,9 @@ fi
 
 # 5. Configuração CMake e Compilação
 echo -e "\n${YELLOW}[ETAPA 4/4] Configurando e compilando ns-3 com CMake...${NC}"
+# Limpar cache de compilações antigas/incompletas
+rm -rf cmake-cache build .lock-waf*
+
 ./ns3 configure -d optimized --enable-examples --enable-tests
 ./ns3 build -j"$(nproc)"
 

@@ -147,22 +147,26 @@ make setup-ns3
 ```bash
 # 1. Instalar dependências essenciais no WSL2 / Ubuntu (se root, omita o sudo):
 apt-get update && apt-get install -y \
-  build-essential cmake ninja-build git python3-dev \
+  build-essential cmake ninja-build git python3-dev python3-pip \
   libsctp-dev lksctp-tools libzmq3-dev libboost-all-dev \
-  libsqlite3-dev libgsl-dev libxml2-dev tcpdump wireshark
+  libsqlite3-dev libgsl-dev libxml2-dev tcpdump wireshark pkg-config wget curl
 
-# 2. Clonar repositório do ns-3 com módulos 5G-LENA
+# 2. Garantir CMake >= 3.25 (o Ubuntu 20.04 possui CMake 3.16 por padrão; o ns-3 exige >= 3.25)
+pip3 install --upgrade cmake
+
+# 3. Clonar repositório do ns-3 com módulos 5G-LENA
 mkdir -p ~/ns3-oran-workspace && cd ~/ns3-oran-workspace
 git clone https://gitlab.com/nsnam/ns-3-dev.git ns-3-oran --depth 1
 cd ns-3-oran
 
-# 3. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
+# 4. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
 sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
 
-# 4. Configurar compilação com CMake
+# 5. Limpar cache anterior e configurar compilação com CMake
+rm -rf cmake-cache build
 ./ns3 configure -d optimized --enable-examples --enable-tests
 
-# 5. Compilar o simulador
+# 6. Compilar o simulador
 ./ns3 build -j$(nproc)
 ```
 

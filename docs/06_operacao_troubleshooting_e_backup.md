@@ -216,6 +216,34 @@ done
 
 ---
 
+### 2.11. Erro no ns-3: `CMake Error: CMake 3.25..3.25 or higher is required. You are running version 3.16.3`
+* **Sintomas:**
+  - `CMake Error at CMakeLists.txt:4 (cmake_minimum_required): CMake 3.25..3.25 or higher is required. You are running version 3.16.3`
+  - Falha durante a etapa 4 de `./ns3 configure` ou `make setup-ns3`.
+* **Causa:** O repositório de pacotes padrão do Ubuntu 20.04 (Focal) fornece a versão 3.16.3 do CMake. As versões recentes do ns-3 (ns-3-dev / 5G-LENA) utilizam recursos modernos de compilação que exigem CMake $\ge 3.25$.
+* **Solução Rápida:**
+  1. Instale/atualize o CMake via `pip3`:
+     ```bash
+     apt-get update && apt-get install -y python3-pip
+     pip3 install --upgrade cmake
+     hash -r
+     ```
+  2. Ou limpe os diretórios de cache e reexecute o script automatizado:
+     ```bash
+     cd ~/XApp-RDL-F1
+     git fetch origin && git reset --hard origin/main
+     make setup-ns3
+     ```
+  3. Se compilar manualmente no diretório do ns-3:
+     ```bash
+     cd ~/ns3-oran-workspace/ns-3-oran
+     rm -rf cmake-cache build
+     ./ns3 configure -d optimized --enable-examples --enable-tests
+     ./ns3 build -j$(nproc)
+     ```
+
+---
+
 ## 3. Procedimento de Backup e Restauração do WSL Ubuntu 20.04
 
 Para garantir recuperação instantânea contra desastres ou corrupção do disco virtual do WSL:
