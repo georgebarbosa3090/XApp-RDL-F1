@@ -17,6 +17,9 @@ elif command -v g++-12 >/dev/null 2>&1; then
     export CXX=g++-12
 fi
 
+export GIT_EDITOR=true
+export GIT_MERGE_AUTOEDIT=no
+
 echo "========================================================================"
 echo "Iniciando Pipeline Experimental: xApp RDL Fase 1 vs Baseline"
 echo "========================================================================"
