@@ -33,9 +33,11 @@ fi
 
 # 2. Instalação de dependências do sistema
 echo -e "\n${YELLOW}[ETAPA 1/4] Instalando dependências essenciais do sistema (apt)...${NC}"
+export DEBIAN_FRONTEND=noninteractive
 $SUDO_CMD apt-get update -y
 $SUDO_CMD apt-get install -y \
     build-essential \
+    software-properties-common \
     cmake \
     ninja-build \
     git \
@@ -55,7 +57,55 @@ $SUDO_CMD apt-get install -y \
     tcpdump \
     wireshark
 
-# 2.1 Validação e atualização automática do CMake (ns-3 moderno exige CMake >= 3.25)
+# 2.1 Validação e atualização automática do compilador C++ (ns-3 moderno exige GCC/G++ >= 11 para C++20)
+check_compiler_version() {
+    if command -v g++ >/dev/null 2>&1; then
+        local ver
+        ver=$(g++ -dumpfullversion -dumpversion 2>/dev/null || g++ -dumpversion 2>/dev/null || echo "0")
+        local major
+        major=$(echo "$ver" | cut -d. -f1)
+        if [ "$major" -ge 11 ]; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+if ! check_compiler_version; then
+    echo -e "${YELLOW}[INFO] Versão do compilador C++ no sistema: $(g++ --version 2>/dev/null | head -n1 || echo 'nenhum').${NC}"
+    echo -e "${YELLOW}[INFO] ns-3 moderno requer GCC/G++ >= 11 (suporte a C++20). Atualizando compilador...${NC}"
+
+    # Adicionar repositório oficial de toolchain para Ubuntu Focal (20.04) / Debian
+    $SUDO_CMD add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
+    $SUDO_CMD apt-get update -y
+
+    # Instalar gcc-11 / g++-11 ou gcc-12 / g++-12
+    $SUDO_CMD apt-get install -y gcc-11 g++-11 || $SUDO_CMD apt-get install -y gcc-12 g++-12 || true
+
+    if command -v g++-11 >/dev/null 2>&1; then
+        $SUDO_CMD update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11 || true
+        $SUDO_CMD update-alternatives --set gcc /usr/bin/gcc-11 || true
+        export CC=gcc-11
+        export CXX=g++-11
+    elif command -v g++-12 >/dev/null 2>&1; then
+        $SUDO_CMD update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 120 --slave /usr/bin/g++ g++ /usr/bin/g++-12 --slave /usr/bin/gcov gcov /usr/bin/gcov-12 || true
+        $SUDO_CMD update-alternatives --set gcc /usr/bin/gcc-12 || true
+        export CC=gcc-12
+        export CXX=g++-12
+    fi
+
+    hash -r 2>/dev/null || true
+
+    if check_compiler_version; then
+        echo -e "${GREEN}[OK] Compilador C++ atualizado com sucesso! Versão: $(g++ --version | head -n1)${NC}"
+    elif command -v g++-11 >/dev/null 2>&1; then
+        export CC=gcc-11
+        export CXX=g++-11
+        echo -e "${GREEN}[OK] GCC 11 detectado e configurado via CC/CXX.${NC}"
+    fi
+fi
+
+# 2.2 Validação e atualização automática do CMake (ns-3 moderno exige CMake >= 3.25)
 check_cmake_version() {
     if command -v cmake >/dev/null 2>&1; then
         local ver
@@ -129,6 +179,14 @@ fi
 echo -e "\n${YELLOW}[ETAPA 4/4] Configurando e compilando ns-3 com CMake...${NC}"
 # Limpar cache de compilações antigas/incompletas
 rm -rf cmake-cache build .lock-waf*
+
+if command -v g++-11 >/dev/null 2>&1; then
+    export CC=gcc-11
+    export CXX=g++-11
+elif command -v g++-12 >/dev/null 2>&1; then
+    export CC=gcc-12
+    export CXX=g++-12
+fi
 
 ./ns3 configure -d optimized --enable-examples --enable-tests
 ./ns3 build -j"$(nproc)"

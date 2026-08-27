@@ -9,6 +9,14 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXP_DIR="$BASE_DIR/experiments/results"
 NS3_DIR="${NS3_DIR:-$HOME/ns3-oran-workspace/ns-3-oran}"
 
+if command -v g++-11 >/dev/null 2>&1; then
+    export CC=gcc-11
+    export CXX=g++-11
+elif command -v g++-12 >/dev/null 2>&1; then
+    export CC=gcc-12
+    export CXX=g++-12
+fi
+
 echo "========================================================================"
 echo "Iniciando Pipeline Experimental: xApp RDL Fase 1 vs Baseline"
 echo "========================================================================"
