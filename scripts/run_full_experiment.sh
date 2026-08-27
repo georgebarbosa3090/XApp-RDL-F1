@@ -85,8 +85,27 @@ echo "[OK] Rodada 2 (RDL) finalizada e dados salvos em: $EXP_DIR/rdl_phase1/"
 # ETAPA 3: Consolidacao, Analise Estatistica e Plotagem de Graficos
 # ------------------------------------------------------------------------------
 echo ""
-echo "[ETAPA 3/3] Processando dados, gerando relatorio comparativo e graficos..."
+echo "[ETAPA 3/4] Processando dados, gerando relatorio comparativo e graficos..."
 python3 "$BASE_DIR/scripts/run_and_analyze_benchmarks.py"
+
+# ------------------------------------------------------------------------------
+# ETAPA 4: Sincronizacao e Publicacao Automatica no GitHub
+# ------------------------------------------------------------------------------
+echo ""
+echo "[ETAPA 4/4] Sincronizando e publicando resultados automaticamente no GitHub..."
+cd "$BASE_DIR"
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    git add experiments/results/
+    COMMIT_MSG="chore(experiments): update simulation results and datasets ($(date '+%Y-%m-%d %H:%M:%S')) [skip ci]"
+    if git commit -m "$COMMIT_MSG"; then
+        echo "[INFO] Enviando resultados para a branch main no GitHub..."
+        git push origin main || echo "[AVISO] Falha ao enviar para o GitHub. Verifique conexao/credenciais."
+    else
+        echo "[INFO] Nenhum dado novo alterado para commit."
+    fi
+else
+    echo "[AVISO] Repositorio Git nao detectado para sincronizacao automatica."
+fi
 
 echo ""
 echo "========================================================================"
@@ -94,5 +113,11 @@ echo "Experimento concluido com sucesso!"
 echo "Resultados disponiveis em: $EXP_DIR/"
 echo "Relatorio formal: $EXP_DIR/relatorio_comparativo.md"
 echo "Metricas JSON:    $EXP_DIR/relatorio_comparativo.json"
+echo "Dataset Fluxos:   $EXP_DIR/dataset_flow_metrics.csv"
+echo "Dataset ML Colab: $EXP_DIR/dataset_rdl_decisions_ml.csv"
 echo "Graficos PNG:     $EXP_DIR/graficos_benchmarks_rdl.png"
+echo ""
+echo "Notebook Google Colab pronto para execucao com os novos dados:"
+echo "https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb"
 echo "========================================================================"
+
