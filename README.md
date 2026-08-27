@@ -137,9 +137,39 @@ make run-experiments
 make analyze-benchmarks
 ```
 
-### Estrutura de Resultados em `experiments/results/`:
+### 5.2. Acesso, Visualização e Sincronização dos Resultados com o GitHub:
+
+* **Visualizar Relatório Comparativo no Terminal:**
+  ```bash
+  make view-results
+  # ou: cat experiments/results/relatorio_comparativo.md
+  ```
+
+* **Enviar Resultados e Datasets para o GitHub (Automático):**
+  ```bash
+  make push-results
+  ```
+  *Ou via Git manual:*
+  ```bash
+  git add experiments/results/
+  git commit -m "chore(experiments): upload latest ns-3 simulation results and datasets"
+  git push origin main
+  ```
+
+* **Acessar Datasets no Windows Explorer (WSL2):**
+  Pressione `Win + R` e acerte o caminho: `\\wsl$\Ubuntu\root\XApp-RDL-F1\experiments\results`
+
+* **Baixar Resultados via SCP (Máquina Remota):**
+  ```bash
+  scp -r root@<IP_DO_HOST>:~/XApp-RDL-F1/experiments/results ./meus_resultados
+  ```
+
+### 5.3. Estrutura de Resultados em `experiments/results/`:
 * **`baseline/`**: Traces brutos do ns-3 e XML do FlowMonitor sem governança da RDL.
 * **`rdl_phase1/`**: Traces do ns-3, XML do FlowMonitor, logs estruturados da RDL e dump de métricas Prometheus.
+* **`dataset_flow_metrics.csv`**: Métricas de fluxo para análise estatística e visualização.
+* **`dataset_rdl_decisions_ml.csv`**: Dataset de transições de estado para treinamento de modelos de Machine Learning (Scikit-Learn).
+* **`relatorio_comparativo.json`**: Métricas consolidadas em JSON para pipelines e automações.
 * **`relatorio_comparativo.md`**: Tabela executiva com comprovação científica de redução de conflitos em 96.8% e latência URLLC $< 3\text{ ms}$.
 
 ---

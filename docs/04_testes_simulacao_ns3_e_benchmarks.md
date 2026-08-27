@@ -228,7 +228,39 @@ make run-experiments
 make analyze-benchmarks
 ```
 
+### 7.2. Acesso, Visualização e Sincronização com o GitHub
+
+Após a conclusão dos experimentos, os resultados podem ser inspecionados ou enviados para o GitHub com os seguintes comandos:
+
+```bash
+# 1. Visualizar o relatório executivo formatado no terminal:
+make view-results
+# ou: cat experiments/results/relatorio_comparativo.md
+
+# 2. Inspecionar métricas JSON estruturadas:
+python3 -m json.tool experiments/results/relatorio_comparativo.json
+
+# 3. Inspecionar primeiras linhas dos datasets:
+head -n 10 experiments/results/dataset_rdl_decisions_ml.csv
+head -n 10 experiments/results/dataset_flow_metrics.csv
+
+# 4. Sincronizar e enviar todos os resultados e datasets para o GitHub:
+make push-results
+# ou manualmente:
+# git add experiments/results/
+# git commit -m "chore(experiments): upload ns-3 benchmark results"
+# git push origin main
+```
+
+#### Acesso aos Arquivos via Host (Windows / WSL2 / Remoto)
+* **No Windows Explorer (WSL2):** Pressione `Win + R` e acesse `\\wsl$\Ubuntu\root\XApp-RDL-F1\experiments\results` para abrir os arquivos `.csv` e `.md` diretamente no Excel ou VS Code.
+* **Via SSH Remoto (SCP):**
+  ```bash
+  scp -r root@<IP_DO_SERVIDOR>:~/XApp-RDL-F1/experiments/results ./meus_resultados
+  ```
+
 ---
+
 
 ## 8. Resultados Consolidados de Benchmarks
 

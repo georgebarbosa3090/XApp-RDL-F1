@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate setup-ns3 run-experiments analyze-benchmarks
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-package helm-test helm-uninstall k8s-deploy k8s-uninstall k8s-test kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate setup-ns3 run-experiments analyze-benchmarks view-results push-results
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -148,3 +148,13 @@ run-experiments:
 
 analyze-benchmarks:
 	python3 scripts/run_and_analyze_benchmarks.py
+
+view-results:
+	@cat experiments/results/relatorio_comparativo.md
+
+push-results:
+	@echo "Sincronizando resultados experimentais com o GitHub..."
+	git add experiments/results/
+	git commit -m "chore(experiments): upload latest ns-3 benchmark results and datasets [skip ci]" || echo "Nenhuma alteração nova para commit."
+	git push origin main || echo "Aviso: Verifique as credenciais do Git / chave SSH para o push."
+
