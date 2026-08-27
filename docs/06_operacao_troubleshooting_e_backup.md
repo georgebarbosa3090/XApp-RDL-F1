@@ -194,6 +194,28 @@ done
 
 ---
 
+### 2.10. Erro no Git: `fatal: detected dubious ownership in repository at '/root/XApp-RDL-F1'`
+* **Sintomas:**
+  - `fatal: detected dubious ownership in repository at '/root/XApp-RDL-F1'`
+  - Comandos como `git pull`, `git fetch` ou `git reset` são bloqueados pelo Git.
+* **Causa:** Medida de segurança introduzida a partir do Git 2.35.2 (CVE-2022-24765) que impede a execução de operações Git quando o dono do diretório no sistema de arquivos é diferente do usuário que está executando o comando (muito comum ao alternar entre usuário comum e `root` no WSL2 ou contêineres).
+* **Solução:**
+  1. **Para este repositório específico:**
+     ```bash
+     git config --global --add safe.directory /root/XApp-RDL-F1
+     ```
+  2. **Para todos os repositórios (Recomendado para ambientes de laboratório/WSL2):**
+     ```bash
+     git config --global --add safe.directory '*'
+     ```
+  3. Após configurar, execute normalmente:
+     ```bash
+     git fetch origin
+     git reset --hard origin/main
+     ```
+
+---
+
 ## 3. Procedimento de Backup e Restauração do WSL Ubuntu 20.04
 
 Para garantir recuperação instantânea contra desastres ou corrupção do disco virtual do WSL:
