@@ -41,6 +41,10 @@ cluster-delete:
 cluster-recreate: cluster-delete cluster-create
 	@echo "Cluster recriado com sucesso!"
 
+rancher-connect:
+	@echo "Conectando Rancher Server ao cluster k3d e ajustando agente..."
+	bash scripts/register_rancher.sh "$(URL)"
+
 # -------------------------------------------------------------
 # Pipeline Kubernetes Nativo (K8s Puro / Kustomize)
 # -------------------------------------------------------------

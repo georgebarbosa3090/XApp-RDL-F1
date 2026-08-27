@@ -1,33 +1,76 @@
-# Volume 02: Infraestrutura de Cluster k3d, Rancher Dashboard e Operações O-RAN
+# Volume 02: Infraestrutura de Cluster (k3d / K8s Puro), 3 Topologias de Cluster, Redis DBAAS e Rancher Dashboard
 
-> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
+> **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> **[Vol 02: Infraestrutura & Rancher]** -> [Vol 03: Deploy & Observabilidade Kiali](03_guia_deploy_helm_e_k8s.md) -> [Vol 04: Testes, ns-3 & Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md) -> [Vol 05: Conformidade O-RAN](05_relatorios_conformidade_e_governanca.md) -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
 
 **Documento:** Volume Temático 02  
-**Projeto:** xApp RDL (Resource and Decision Layer)  
-**Escopo:** Topologias k3d no WSL2, Instalação Near-RT RIC, Rancher Dashboard UI e Agente Especialista de Cluster  
-**Data de Consolidação:** 25/08/2026  
+**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
+**Escopo:** Requisitos do Sistema, Topologias de Cluster k3d no WSL2, Mapeamento de Portas O-RAN, Levantamento do Near-RT RIC com Redis DBAAS e Gestão via Rancher Dashboard  
+**Data de Consolidação:** 27/08/2026  
 
 ---
 
-## 1. Topologias de Cluster k3d para O-RAN no WSL2
+## 1. Requisitos de Sistema e Pré-requisitos
 
-Executar a stack completa do **Near-RT RIC** e xApps no WSL2 exige uma gestão precisa de memória RAM e CPU para evitar que o *OOM Killer* do Linux derrube os nós ou o simulador `ns-3`.
+Para implantar a infraestrutura completa do Near-RT RIC, xApps e simulador ns-3 no ambiente WSL2 ou Linux bare-metal, certifique-se de que os seguintes componentes estão instalados:
 
-### Comparativo de Topologias:
+| Componente | Versão Mínima | Finalidade no Projeto | Comando de Validação |
+| :--- | :---: | :--- | :--- |
+| **Sistema Operacional** | WSL2 (Ubuntu 20.04 ou 22.04 LTS) | Ambiente de execução Linux nativo | `uname -a` |
+| **Docker Engine** | 20.10+ / containerd | Container runtime e isolamento de nós | `docker --version` |
+| **k3d CLI** | v5.x | Orquestrador de clusters Kubernetes leves em Docker | `k3d version` |
+| **kubectl CLI** | v1.24+ | Interface de linha de comando oficial do Kubernetes | `kubectl version --client` |
+| **Helm CLI** | v3.8+ | Gerenciador de pacotes e templates de deploy O-RAN | `helm version --short` |
+| **Python** | 3.8+ (com módulo `venv`) | Ambiente de execução e testes da xApp RDL | `python3 --version` |
+| **Rancher Server** | v2.8+ / v2.14 | Dashboard visual de gestão de clusters e telemetria | `docker ps \| grep rancher` |
 
-| Critério | 1 Server + 2 Agents (3 nós) | Opção 1: 1 Server + 1 Agent (2 nós) | Opção 2: Single-Node (1 Server) |
+---
+
+## 2. As 3 Topologias de Cluster k3d para O-RAN
+
+Executar a stack completa do Near-RT RIC e xApps no WSL2 exige uma gestão precisa de memória RAM para evitar que o *OOM Killer* do kernel Linux derrube os nós ou o simulador `ns-3`. O projeto disponibiliza **3 topologias de cluster padronizadas**:
+
+```mermaid
+graph TD
+    subgraph Topo1["Topologia 1: Single-Node (~450 MB RAM)"]
+        S1["server:0 (Control-Plane + Workloads ricplt / ricxapp)"]
+    end
+
+    subgraph Topo2["Topologia 2: Dual-Node (~900 MB RAM)"]
+        S2["server:0 (Control-Plane + ricplt)"]
+        A2["agent:0 (Workload ricxapp / xApp RDL)"]
+        S2 --- A2
+    end
+
+    subgraph Topo3["Topologia 3: Multi-Node (~1.500 MB RAM)"]
+        S3["server:0 (Control-Plane / K8s Core)"]
+        A3_1["agent:0 (Namespace ricplt / DBAAS / E2Term)"]
+        A3_2["agent:1 (Namespace ricxapp / xApp RDL / KPIMON)"]
+        S3 --- A3_1
+        S3 --- A3_2
+    end
+```
+
+### 2.1. Comparativo Técnico entre as Topologias
+
+| Critério | Topologia 1: Single-Node (1 Server) | Topologia 2: Dual-Node (1 Server + 1 Agent) | Topologia 3: Multi-Node (1 Server + 2 Agents) |
 | :--- | :---: | :---: | :---: |
-| **Overhead de RAM k3d** | ~1.500 MB | ~900 MB | **~450 MB** |
-| **Importação de Imagens Docker** | Exige replicar nos 3 nós | Requer importar no `agent-0` | **Importa direto no nó único** |
-| **Isolamento de Namespaces** | Lógico (`ricplt`/`ricxapp`) | Lógico (`ricplt`/`ricxapp`) | Lógico (`ricplt`/`ricxapp`) |
-| **Estabilidade no WSL2** | Médio / Risco de OOM | Muito Boa | **Excelente (Recomendada)** |
+| **Composição de Nós** | 1 nó (`server-0`) | 2 nós (`server-0`, `agent-0`) | 3 nós (`server-0`, `agent-0`, `agent-1`) |
+| **Overhead de Memória RAM** | **~450 MB (Ultraleve)** | **~900 MB (Balanceada)** | **~1.500 MB (Alta Disponibilidade)** |
+| **Isolamento de Cargas** | Lógico (por Namespaces) | Físico (Control-Plane vs Workloads) | Físico Completo (`ricplt` vs `ricxapp`) |
+| **Importação de Imagens** | Importação direta no nó único | Requer importar no `agent-0` | Requer replicar nos nós de execução |
+| **Caso de Uso Recomendado** | **Desenvolvimento ágil e WSL2 com RAM limitada (< 16 GB)** | **Ambientes de homologação e testes de tolerância a falhas** | **Simulação de produção e clusters dedicados bare-metal** |
 
-### 1.1. Como Criar o Cluster k3d Otimizado (Single-Node com Portas O-RAN)
+---
+
+### 2.2. Comandos de Criação das 3 Topologias
+
+#### Opção A: Topologia 1 — Single-Node (Recomendada / Padrão do Repositório)
+Cria um cluster ultraleve de 1 nó com todas as portas O-RAN mapeadas:
 ```bash
 # Deletar cluster antigo (se existir)
 k3d cluster delete rancher-lab 2>/dev/null || true
 
-# Criar cluster com portas SCTP (36422), HTTP (8080/8081) e RMR (4560/4561)
+# Criar cluster Single-Node
 k3d cluster create rancher-lab \
   --servers 1 \
   --agents 0 \
@@ -36,26 +79,76 @@ k3d cluster create rancher-lab \
   --port "8081:8081@server:0" \
   --port "4560:4560@server:0" \
   --port "4561:4561@server:0"
+
+# Configurar kubeconfig local
+mkdir -p ~/.kube && k3d kubeconfig get rancher-lab > ~/.kube/config && chmod 600 ~/.kube/config
+```
+
+#### Opção B: Topologia 2 — Dual-Node (1 Server + 1 Agent)
+Separa o plano de controle dos nós de execução de xApps:
+```bash
+k3d cluster delete rancher-lab 2>/dev/null || true
+
+k3d cluster create rancher-lab \
+  --servers 1 \
+  --agents 1 \
+  --port "36422:36422/SCTP@server:0" \
+  --port "8080:8080@agent:0" \
+  --port "8081:8081@agent:0" \
+  --port "4560:4560@agent:0" \
+  --port "4561:4561@agent:0"
+
+mkdir -p ~/.kube && k3d kubeconfig get rancher-lab > ~/.kube/config && chmod 600 ~/.kube/config
+```
+
+#### Opção C: Topologia 3 — Multi-Node (1 Server + 2 Agents)
+Isola o plano da plataforma Near-RT RIC (`ricplt`) no `agent-0` e as xApps (`ricxapp`) no `agent-1`:
+```bash
+k3d cluster delete rancher-lab 2>/dev/null || true
+
+k3d cluster create rancher-lab \
+  --servers 1 \
+  --agents 2 \
+  --port "36422:36422/SCTP@server:0" \
+  --port "8080:8080@agent:0" \
+  --port "8081:8081@agent:0" \
+  --port "4560:4560@agent:0" \
+  --port "4561:4561@agent:0"
+
+mkdir -p ~/.kube && k3d kubeconfig get rancher-lab > ~/.kube/config && chmod 600 ~/.kube/config
 ```
 
 ---
 
-## 2. Instalação e Estrutura da Plataforma Near-RT RIC
+## 3. Mapeamento de Portas O-RAN e Conectividade de Rede
 
-A plataforma Near-RT RIC é organizada em dois namespaces centrais:
-* **`ricplt` (Plataforma):**
-  - **Redis DBAAS:** Shared Data Layer (SDL) para persistência de topologia e histórico de UEs (`porta 6379`).
-  - **E2Term:** Ponto de terminação das conexões SCTP com as antenas gNodeB / simulador `ns-3` (`porta 36422`).
-  - **AppMgr & RouteMgr:** Gerenciamento do ciclo de vida de xApps e distribuição de tabelas de rotas RMR.
-* **`ricxapp` (Aplicações):**
-  - Execução da `ricxapp-iqos-xapp-rdl`, `ric-app-ts`, `ric-app-kpimon`.
+O cluster k3d expõe as portas fundamentais para a arquitetura O-RAN:
 
-### Provisionamento Rápido dos Namespaces e Redis DBAAS:
+| Porta | Protocolo | Camada / Módulo | Função Técnica |
+| :---: | :---: | :--- | :--- |
+| **`36422`** | **SCTP** | E2 Termination (`E2Term`) | Canal de transporte de mensagens E2AP / E2SM-KPM / E2SM-RC com gNodeBs ou simulador ns-3 |
+| **`8080`** | **HTTP** | xApp RDL Core | Probes de Liveness (`/health`) e Readiness (`/ready`) para o Kubernetes |
+| **`8081`** | **HTTP** | xApp Observability | Endpoint `/metrics` para raspagem do Prometheus |
+| **`4560`** | **TCP** | RMR Data Channel | Transporte interno de payloads de decisão entre xApps |
+| **`4561`** | **TCP** | RMR Route Manager | Distribuição dinâmica de tabelas de rotas (`routes.rt`) |
+| **`6379`** | **TCP** | Redis DBAAS (SDL) | Shared Data Layer para persistência de topologia e histórico de decisões |
+
+---
+
+## 4. Levantamento da Infraestrutura Near-RT RIC (Namespaces & Redis DBAAS)
+
+A arquitetura O-RAN exige o isolamento em dois namespaces centrais:
+* **`ricplt`:** Plataforma Near-RT RIC (DBAAS Redis, E2Term, RouteMgr, AppMgr).
+* **`ricxapp`:** Execução das aplicações inteligentes (xApp RDL, KPIMON, Traffic Steering).
+
+### 4.1. Criação dos Namespaces
 ```bash
 kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
+```
 
-# Subir Redis DBAAS no namespace ricplt
+### 4.2. Deploy Declarativo do Redis DBAAS (Shared Data Layer) no `ricplt`
+```bash
 kubectl apply -n ricplt -f - <<EOF
 apiVersion: apps/v1
 kind: Deployment
@@ -77,8 +170,16 @@ spec:
       containers:
       - name: redis
         image: redis:6.2-alpine
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 6379
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -96,33 +197,60 @@ spec:
 EOF
 ```
 
+### 4.3. Validação do Status do Redis DBAAS
+```bash
+kubectl get pods -n ricplt -o wide
+# Saída esperada: deployment-ricplt-dbaas-redis-xxx   1/1   Running
+```
+
 ---
 
-## 3. Guia de Operação e Visualização no Rancher Dashboard
+## 5. Integração e Gestão no Rancher Dashboard
 
-O **Rancher Dashboard** (`https://127.0.0.1:8443`) centraliza o gerenciamento visual do cluster.
+O **Rancher Dashboard** (`https://127.0.0.1:8443`) centraliza o gerenciamento visual do cluster, monitoramento de nós, inspeção de logs em tempo real e abertura de terminais nos pods.
 
 ```mermaid
 flowchart TD
-    DASH["Rancher Dashboard (Cluster: rancher-lab)"]
-    DASH --> NODES["1. Cluster Management -> Nodes (CPU/RAM real, nós k3d)"]
-    DASH --> RICPLT["2. Workloads -> ricplt (E2Term, Redis DBAAS)"]
-    DASH --> RICXAPP["3. Workloads -> ricxapp (xApp RDL, Logs em tempo real, Shell)"]
-    DASH --> SVC["4. Service Discovery -> Services (Portas HTTP 8080/8081 e RMR 4560/4561)"]
-    DASH --> CFG["5. Storage -> ConfigMaps (Visualização de routes.rt)"]
+    DASH["Rancher Dashboard (https://127.0.0.1:8443)"]
+    DASH --> NODES["Cluster Management -> Nodes (CPU/RAM real dos nós k3d)"]
+    DASH --> RICPLT["Workloads -> Namespace: ricplt (Redis DBAAS, E2Term)"]
+    DASH --> RICXAPP["Workloads -> Namespace: ricxapp (xApp RDL, Logs ao Vivo, Shell)"]
+    DASH --> SVCS["Service Discovery -> Services (Portas 8080/8081 e 4560/4561)"]
 ```
 
-### 3.1. Navegação Passo a Passo no Rancher:
-1. **Selecionar o Cluster:** Na tela inicial, clique no cluster **`rancher-lab`**.
-2. **Filtrar por Namespace:** No seletor superior, selecione **`ricxapp`** (ou `ricplt`).
-3. **Inspecionar a xApp RDL:**
-   - Vá em **Workloads -> Deployments** -> clique em `ricxapp-iqos-xapp-rdl`.
-   - **Métricas:** Visualize os gráficos de uso de CPU e Memória RAM.
-   - **Logs ao Vivo:** Clique em `⋮` -> **Ver Registros** (*View Logs*) para acompanhar a arbitragem em tempo real.
-   - **Terminal Integrado:** Clique em `⋮` -> **Executar Shell** (*Execute Shell*) para abrir o terminal dentro da xApp.
+### 5.1. Vinculação Automatizada do Cluster no Rancher
+
+Para importar o cluster `rancher-lab` no Rancher sem sofrer com problemas de resolução DNS do WSL2 ou conflitos de porta (`8443` no host vs `443` no Docker):
+
+```bash
+# 1. No painel do Rancher, clique em: Cluster Management -> Import Existing -> Nomeie 'rancher-lab'
+# 2. Copie o link do comando gerado (ex: https://rancher-server:443/v3/import/<token>.yaml)
+# 3. Execute o helper automatizado do repositório:
+make rancher-connect URL="https://rancher-server:443/v3/import/<token>.yaml"
+```
+
+#### Procedimento Manual Equivalente (Passo a Passo):
+```bash
+# A. Conectar o container do Rancher à rede Docker do cluster k3d
+docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
+
+# B. Baixar e aplicar o manifesto diretamente de dentro do container do Rancher
+docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/<token>.yaml | kubectl apply -f -
+
+# C. Configurar o agente para comunicação direta com bypass de SSL interno
+kubectl set env deployment/cattle-cluster-agent -n cattle-system \
+  CATTLE_SERVER="https://rancher-server:443" \
+  CATTLE_SSL_NO_VERIFY="true"
+
+# D. Reiniciar e validar o Pod do Agente
+kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
+kubectl get pods -n cattle-system -w
+```
 
 ---
 
-[Volume Anterior: 01 - Arquitetura e Modelagem](01_arquitetura_e_modelagem_matematica.md) | [Portal de Docs](README.md) | [Próximo Volume: 03 - Guia de Deploy Helm & K8s](03_guia_deploy_helm_e_k8s.md)
+## 6. Próximo Passo Sequencial
 
+Com a infraestrutura de cluster k3d provisionada, Redis DBAAS ativo no namespace `ricplt` e o cluster registrado com sucesso no Rancher Dashboard, avance para o deploy da xApp RDL e ativação imediata da observabilidade com Kiali:
 
+➡️ **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**

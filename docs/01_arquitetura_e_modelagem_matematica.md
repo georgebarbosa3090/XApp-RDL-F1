@@ -1,11 +1,11 @@
 # Volume 01: Arquitetura, Módulos Core e Modelagem Matemática
 
-> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
+> **Navegação Sequencial:** **[Vol 01: Arquitetura Core]** -> [Vol 02: Infraestrutura & Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Vol 03: Deploy & Observabilidade Kiali](03_guia_deploy_helm_e_k8s.md) -> [Vol 04: Testes, ns-3 & Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md) -> [Vol 05: Conformidade O-RAN](05_relatorios_conformidade_e_governanca.md) -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
 
 **Documento:** Volume Temático 01  
-**Projeto:** xApp RDL (Resource and Decision Layer)  
+**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
 **Escopo:** Fundamentos, Clean Architecture / DDD, Módulos Core, Heurísticas Determinísticas, Protocolos O-RAN e Modelagem Matemática  
-**Data de Consolidação:** 25/08/2026  
+**Data de Consolidação:** 27/08/2026  
 
 ---
 
@@ -141,6 +141,5 @@ Onde:
 * $\text{Penalty}_i(\mathbf{a})$ penaliza violações de restrição e oscilações excessivas de controle.
 
 ---
-
-[Início](../README.md) | [Portal de Documentação](README.md) | [Próximo Volume: 02 - Infraestrutura k3d e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md)
-
+ 
+➡️ **[Próximo Volume: 02 - Infraestrutura de Cluster k3d, 3 Topologias, Redis DBAAS e Rancher Dashboard](02_infraestrutura_cluster_k3d_e_rancher.md)** | [Portal de Documentação](README.md) | [Início](../README.md)

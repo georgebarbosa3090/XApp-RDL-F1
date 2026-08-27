@@ -152,17 +152,16 @@ Os datasets gerados pela co-simulação podem ser importados diretamente no Goog
 
 ## 7. Portal de Documentação Técnica (`docs/`)
 
-A documentação do projeto está estruturada e separada em **7 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
+A documentação do projeto está estruturada em uma **jornada sequencial de 6 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
 
 | Volume | Título Temático | Domínio Técnico e Escopo |
 | :---: | :--- | :--- |
 | **[Volume 01](docs/01_arquitetura_e_modelagem_matematica.md)** | Arquitetura, Módulos Core e Modelagem Matemática | Clean Architecture, DDD, agentes de percepção/raciocínio/refinamento, heurísticas TVS/EEVS, codecs ASN.1 APER (KPM/RC) e formulação analítica. |
-| **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d, Rancher Dashboard e Operações | Topologias de cluster no WSL2 (Single-Node vs Multi-Node), mapeamento de portas O-RAN (SCTP/RMR/HTTP) e agente `07-k8s-oran-cluster-operator`. |
-| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Implantação e Automação de Deploy | Estrutura Helm Chart (`1.1.0`), deploy declarativo com Kustomize (`deploy/kubernetes/`), pipelines automatizados e onboarding O-RAN DMS. |
-| **[Volume 04](docs/04_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico de erros (`ErrImageNeverPull`, Rancher agent) e backup bare-metal WSL Ubuntu 20.04. |
-| **[Volume 05](docs/05_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks | Testes unitários/CI, Smoke Test, instalação ns-3 NORI, parâmetros 5G NR, cenários C++, replicação passo-a-passo (Baseline vs H-RDL) e relatórios. |
-| **[Volume 06](docs/06_observabilidade_kiali_e_injecao_trafego.md)** | Observabilidade Service Mesh com Kiali e Tráfego | Checklist de dependências, Istio Service Mesh, Kiali Dashboard em tempo real e injetor sintético de tráfego (`make inject-traffic`). |
-| **[Volume 07](docs/07_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade de requisitos (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3) e segurança K8s. |
+| **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d (3 Topologias), Redis DBAAS e Rancher | Requisitos completos, topologias k3d (Single, Dual, Multi-Node), mapeamento de portas O-RAN, namespaces `ricplt`/`ricxapp`, Redis DBAAS e gestão no Rancher UI. |
+| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Deploy da xApp RDL e Observabilidade Kiali | Estrutura Helm Chart (`1.1.0`), deploy Kustomize, onboarding DMS, Istio Service Mesh, Kiali Dashboard em tempo real e injeção contínua de tráfego. |
+| **[Volume 04](docs/04_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação no ns-3 NORI e Benchmarks | Testes unitários (10/10 PASS), Smoke Test, instalação ns-3 NORI, parâmetros 5G NR, cenários C++, replicação (Baseline vs H-RDL) e relatórios. |
+| **[Volume 05](docs/05_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3), 3GPP e segurança Kubernetes. |
+| **[Volume 06](docs/06_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico exaustivo de falhas (DNS/Rancher, ErrImageNeverPull, Python) e backup bare-metal WSL2 Ubuntu 20.04. |
 
 ---
 

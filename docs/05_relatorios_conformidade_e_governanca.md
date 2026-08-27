@@ -1,11 +1,11 @@
-# Volume 07: Relatórios de Conformidade Técnica e Governança O-RAN
+# Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN
 
-> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
+> **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> [Vol 02: Infraestrutura & Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Vol 03: Deploy & Observabilidade Kiali](03_guia_deploy_helm_e_k8s.md) -> [Vol 04: Testes, ns-3 & Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md) -> **[Vol 05: Conformidade O-RAN]** -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
 
-**Documento:** Volume Temático 07  
-**Projeto:** xApp RDL (Resource and Decision Layer)  
+**Documento:** Volume Temático 05  
+**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
 **Escopo:** Matriz de Rastreabilidade de Requisitos, Relatório de Conformidade O-RAN e Auditoria Técnica de Segurança  
-**Data de Consolidação:** 25/08/2026  
+**Data de Consolidação:** 27/08/2026  
 
 ---
 
@@ -46,5 +46,8 @@
 
 ---
 
-[Volume Anterior: 06 - Observabilidade Kiali e Injeção de Tráfego](06_observabilidade_kiali_e_injecao_trafego.md) | [Portal de Documentação](README.md) | [Início](../README.md)
+## 4. Próximo Passo Sequencial
 
+Para guias de operação contínua, procedimentos de backup bare-metal do WSL e resolução de falhas comuns de infraestrutura e rede:
+
+➡️ **[Volume 06: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](06_operacao_troubleshooting_e_backup.md)**

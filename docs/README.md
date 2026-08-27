@@ -9,92 +9,82 @@
 
 ---
 
-## Visão Geral da Documentação
+## Jornada de Engenharia e Estrutura Sequencial
 
-A documentação da **xApp RDL (Fase 1 — H-RDL)** está categorizada e modularizada em **7 Volumes Temáticos Independentes**, permitindo que diferentes perfis de engenharia (Arquitetos de Software, Engenheiros DevOps/SRE, Pesquisadores de Redes e Auditores de Governança) encontrem rapidamente as diretrizes necessárias.
+A documentação da **xApp RDL (Fase 1 — H-RDL)** está organizada em uma **jornada técnica estritamente sequencial** em **6 Volumes Temáticos**, guiando o engenheiro desde os conceitos de modelagem e provisionamento de infraestrutura até a observabilidade imediata, simulação em rádio 5G e procedimentos finais de troubleshooting/backup:
 
 ```mermaid
 graph TD
-    DOCS["Portal de Documentação (docs/)"]
-    
-    subgraph Core["Arquitetura e Teoria"]
+    subgraph S1["1. Fundamentação & Arquitetura"]
         V01["[Vol 01] Arquitetura, DDD e Modelagem Matemática"]
     end
 
-    subgraph InfraDeploy["Infraestrutura e Deploy"]
-        V02["[Vol 02] Cluster k3d, Rancher e WSL2"]
-        V03["[Vol 03] Deploy Automatizado (Helm e K8s)"]
+    subgraph S2["2. Infraestrutura & Plataforma"]
+        V02["[Vol 02] Cluster k3d (3 Topologias), Redis DBAAS e Rancher"]
     end
 
-    subgraph OpsResilience["Operações e Validação"]
-        V04["[Vol 04] Operação, SOP e Backup Bare-Metal"]
-        V05["[Vol 05] Testes, Simulação ns-3 NORI e Benchmarks"]
-        V06["[Vol 06] Observabilidade Kiali e Injeção de Tráfego"]
+    subgraph S3["3. Deploy & Observabilidade"]
+        V03["[Vol 03] Deploy xApp RDL (Helm/K8s) & Kiali Service Mesh"]
     end
 
-    subgraph Compliance["Governança"]
-        V07["[Vol 07] Conformidade O-RAN e Rastreabilidade"]
+    subgraph S4["4. Validação & Simulação"]
+        V04["[Vol 04] Testes, Simulação ns-3 NORI e Benchmarks"]
     end
 
-    DOCS --> V01
-    DOCS --> V02
-    DOCS --> V03
-    DOCS --> V04
-    DOCS --> V05
-    DOCS --> V06
-    DOCS --> V07
+    subgraph S5["5. Governança & Padrões"]
+        V05["[Vol 05] Relatórios de Conformidade e Governança O-RAN"]
+    end
+
+    subgraph S6["6. Suporte, Resiliência & Troubleshooting"]
+        V06["[Vol 06] Operação, SOP, Troubleshooting e Backup WSL2"]
+    end
+
+    V01 --> V02 --> V03 --> V04 --> V05 --> V06
 ```
 
 ---
 
-## Volumes Temáticos Separados
+## Volumes Temáticos Sequenciais
 
-### 1. Arquitetura, Engenharia Core e Teoria
+### 1. Arquitetura Core e Teoria
 * **[Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](01_arquitetura_e_modelagem_matematica.md)**
   - **Público:** Engenheiros de Software, Arquitetos O-RAN e Pesquisadores.
-  - **Conteúdo:** Fundamentos de Clean Architecture e DDD; Agentes de Percepção (janela 200ms), Raciocínio (TVS/EEVS) e Refinamento (*Safety Guards*); Codecs ASN.1 APER para E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0; Modelagem matemática formal e formulação analítica do problema de arbitragem.
+  - **Conteúdo:** Fundamentos de Clean Architecture e DDD; Agentes de Percepção (janela 200ms), Raciocínio (TVS/EEVS) e Refinamento (*Safety Guards*); Codecs ASN.1 APER para E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0; Formulação matemática formal da arbitragem multiobjetivo.
 
 ---
 
-### 2. Infraestrutura e Plataforma de Execução
-* **[Volume 02: Infraestrutura de Cluster k3d, Rancher Dashboard e Operações O-RAN](02_infraestrutura_cluster_k3d_e_rancher.md)**
+### 2. Infraestrutura de Cluster e Plataforma
+* **[Volume 02: Infraestrutura de Cluster (k3d / K8s Puro), 3 Topologias, Redis DBAAS e Rancher Dashboard](02_infraestrutura_cluster_k3d_e_rancher.md)**
   - **Público:** Engenheiros DevOps, SysAdmins e Operadores de Infraestrutura.
-  - **Conteúdo:** Topologias de cluster no WSL2 (1 Server + 0 Agents vs Multi-Node); Mapeamento de portas O-RAN (SCTP 36422, RMR 4560/4561, HTTP 8080/8081); Instalação e gestão via Rancher Dashboard UI; Agente especialista `07-k8s-oran-cluster-operator`.
+  - **Conteúdo:** Requisitos completos de sistema; Configuração detalhada das **3 Topologias de Cluster k3d** (Single-Node ~450MB, Dual-Node ~900MB e Multi-Node ~1.500MB); Mapeamento de portas O-RAN (SCTP 36422, HTTP 8080/8081, RMR 4560/4561, Redis 6379); Levantamento dos namespaces `ricplt` e `ricxapp` com **Redis DBAAS** (Shared Data Layer); Vinculação e importação resiliente no **Rancher Dashboard UI** (`https://127.0.0.1:8443`).
 
 ---
 
-### 3. Implantação, Empacotamento e Automação (CI/CD)
-* **[Volume 03: Guia de Implantação e Automação de Deploy (Helm e Kubernetes Puro)](03_guia_deploy_helm_e_k8s.md)**
-  - **Público:** Engenheiros de Deploy, SRE e Integradores de Sistemas.
-  - **Conteúdo:** Empacotamento de Helm Charts oficiais (`v1.1.0`); Deploy declarativo com Kustomize (`deploy/kubernetes/`); Scripts de automação `make helm-deploy` e `make k8s-deploy`; Onboarding no O-RAN App Manager / DMS CLI.
+### 3. Deploy da Aplicação e Observabilidade Imediata
+* **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**
+  - **Público:** Engenheiros de Deploy, SRE e Operadores de NOC.
+  - **Conteúdo:** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize); Onboarding O-RAN DMS CLI; **Observabilidade Imediata com Istio & Kiali Dashboard** (`http://localhost:20001/kiali`); Injeção contínua de tráfego sintético (`make start-traffic`); Grafo topológico animado em tempo real e monitoramento de métricas no Rancher.
 
 ---
 
-### 4. Operação Contínua, Resiliência e Backup
-* **[Volume 04: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](04_operacao_troubleshooting_e_backup.md)**
-  - **Público:** Equipes de Suporte N2/N3, SRE e Administradores de Redes.
-  - **Conteúdo:** Procedimento Operacional Padrão (SOP) de inicialização e desligamento; Diagnóstico e correção de falhas comuns (`ErrImageNeverPull`, desconexão de agente Rancher, falha de rotas RMR); Procedimento de backup e restauração bare-metal de imagens WSL2 Ubuntu 20.04.
-
----
-
-### 5. Validação Científica, Testes, Simulação em ns-3 NORI e Benchmarks
-* **[Volume 05: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks](05_testes_simulacao_ns3_e_benchmarks.md)**
+### 4. Validação Científica, Simulação 5G e Benchmarks
+* **[Volume 04: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md)**
   - **Público:** Cientistas de Redes, Engenheiros de Teste e Pesquisadores de Simulação 5G/6G.
-  - **Conteúdo:** Bateria de testes unitários (10/10 aprovados) e Smoke Test; Guia completo de instalação e compilação do ns-3 NORI / 5G-LENA; Dicionário completo de parâmetros (Rádio, E2, Slices, Utilidade TVS/EEVS); Cenários C++ de simulação (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento experimental passo-a-passo (Baseline vs H-RDL); Scripts de automação (`make run-experiments`) e geração de gráficos e relatórios.
+  - **Conteúdo:** Bateria de testes unitários (10/10 PASS) e Smoke Test; Guia de instalação do ns-3 NORI / 5G-LENA; Dicionário completo de parâmetros de rádio e fatias de serviço (URLLC, eMBB, mMTC); Cenários C++ (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento experimental passo a passo (Baseline sem RDL vs Com H-RDL); Datasets CSV, gráficos estatísticos e integração com Google Colab / Scikit-Learn.
 
 ---
 
-### 6. Observabilidade de Rede e Service Mesh
-* **[Volume 06: Observabilidade Service Mesh com Kiali e Injeção de Tráfego O-RAN](06_observabilidade_kiali_e_injecao_trafego.md)**
-  - **Público:** Engenheiros de Observabilidade e Operadores de NOC.
-  - **Conteúdo:** Integração de Service Mesh com Istio no cluster O-RAN; Visualização em grafo topológico animado em tempo real no Kiali Dashboard (`http://localhost:20001/kiali`); Injetor de tráfego contínuo sintético (`make inject-traffic`).
+### 5. Governança, Conformidade e Rastreabilidade
+* **[Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN](05_relatorios_conformidade_e_governanca.md)**
+  - **Público:** Gestores Técnicos, Auditores de Segurança e Comitês de Governança.
+  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Auditoria de conformidade com os padrões O-RAN Alliance (WG2/WG3), 3GPP e Linux Foundation O-RAN SC; Relatório de segurança Kubernetes (SecurityContext não-root).
 
 ---
 
-### 7. Governança, Conformidade e Rastreabilidade
-* **[Volume 07: Relatórios de Conformidade Técnica e Governança O-RAN](07_relatorios_conformidade_e_governanca.md)**
-  - **Público:** Gestores Técnicos, Auditores de Segurança e Comitê de Governança.
-  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Conformidade com os padrões O-RAN Alliance (WG2/WG3) e especificações 3GPP; Relatório de segurança Kubernetes.
+### 6. Operação Contínua, Troubleshooting e Backup
+* **[Volume 06: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](06_operacao_troubleshooting_e_backup.md)**
+  - **Público:** Equipes de Suporte N2/N3, SRE e Administradores de Redes.
+  - **Conteúdo:** Procedimento Operacional Padrão (SOP) de ciclo de vida e sincronização; **Guia Exaustivo de Troubleshooting** (resolução de erros de DNS/Rancher, `cattle-cluster-agent` CrashLoop, `ErrImageNeverPull`, `stat deploy/helm` ausente, falhas de dependências Python); Procedimento de Backup e Restauração bare-metal de snapshots WSL2 Ubuntu 20.04 via PowerShell.
 
 ---
 
@@ -102,11 +92,11 @@ graph TD
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) -> [Volume 07](07_relatorios_conformidade_e_governanca.md) |
-| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) -> [Volume 07](07_relatorios_conformidade_e_governanca.md) |
-| **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 04](04_operacao_troubleshooting_e_backup.md) |
-| **Operador de NOC / Observabilidade** | [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 06](06_observabilidade_kiali_e_injecao_trafego.md) -> [Volume 04](04_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 07](07_relatorios_conformidade_e_governanca.md) -> [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 05](05_testes_simulacao_ns3_e_benchmarks.md) |
+| **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 06](06_operacao_troubleshooting_e_backup.md) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) -> [Volume 05](05_relatorios_conformidade_e_governanca.md) |
+| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) |
+| **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 06](06_operacao_troubleshooting_e_backup.md) |
+| **Auditor de Qualidade e Governança** | [Volume 05](05_relatorios_conformidade_e_governanca.md) -> [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) |
 
 ---
 

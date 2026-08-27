@@ -1,11 +1,11 @@
-# Volume 05: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks
+# Volume 04: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks
 
-> **Navegação:** [Home (Fase 1)](../README.md) | [Portal de Docs](README.md) | [Fase 2 (Context-Aware)](https://github.com/georgebarbosa3090/XApp-RDL-F2) | [Fase 3 (6G Roadmap)](#)
+> **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> [Vol 02: Infraestrutura & Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Vol 03: Deploy & Observabilidade Kiali](03_guia_deploy_helm_e_k8s.md) -> **[Vol 04: Testes, ns-3 & Benchmarks]** -> [Vol 05: Conformidade O-RAN](05_relatorios_conformidade_e_governanca.md) -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
 
-**Documento:** Volume Temático 05  
+**Documento:** Volume Temático 04  
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Escopo:** Testes Unitários/CI, Smoke Test, Guia de Instalação do ns-3 NORI / 5G-LENA, Dicionário de Parâmetros, Cenários em C++, Guia de Replicação Passo-a-Passo (Baseline vs H-RDL) e Coleta de Métricas  
-**Data de Consolidação:** 26/08/2026  
+**Escopo:** Testes Unitários/CI, Smoke Test, Guia de Instalação do ns-3 NORI / 5G-LENA, Dicionário de Parâmetros, Cenários em C++, Protocolo Experimental Passo-a-Passo (Baseline vs H-RDL) e Benchmarks  
+**Data de Consolidação:** 27/08/2026  
 
 ---
 
@@ -18,15 +18,15 @@ A suíte de testes unitários cobre 100% dos componentes críticos da xApp RDL, 
 * **Testes de Raciocínio (`tests/test_reasoning_agent.py`):** Resolução por prioridade de fatias de serviço (URLLC > eMBB > mMTC).
 * **Testes de Refinamento (`tests/test_refinement_agent.py`):** Validação dos *Safety Guards* (limites de potência, PRB e taxa).
 
-### Execução dos Testes Unitários:
+### 1.1. Execução dos Testes Unitários:
 
 #### Opção A: Execução no Host (Virtualenv)
 ```bash
-# 1. Criar e ativar o ambiente virtual (caso ainda não exista)
+# 1. Criar e ativar o ambiente virtual
 python3 -m venv .venv
 source .venv/bin/activate
 
-# 2. Atualizar pip e instalar dependências
+# 2. Instalar dependências
 pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 
@@ -35,7 +35,7 @@ make test
 # Saída esperada: 10 passed in 1.20s (100% green)
 ```
 
-#### Opção B: Execução via Contêiner Docker (Sem instalar pacotes no host)
+#### Opção B: Execução via Contêiner Docker (Sem dependências no host)
 ```bash
 docker run --rm -v $(pwd):/app -w /app -u 0 iqos-xapp-rdl:1.1.0 sh -c "pip install -r requirements-dev.txt && pytest tests/ -v"
 ```
@@ -109,62 +109,31 @@ flowchart TD
 
 ---
 
-## 4. Identificação dos Componentes Principais
+## 4. Dicionário de Parâmetros de Simulação e Slices 5G
 
-| Componente | Módulo / Classe no ns-3 | Função no Experimento O-RAN / RDL |
-| :--- | :--- | :--- |
-| **Pilha 5G NR** | `ns3::NrHelper` | Executa a camada física, MAC, RLC e PDCP 5G NR Release 16. |
-| **Core / EPC** | `ns3::NrPointToPointEpcHelper` | Gerencia plano de controle, endereçamento IP e túneis GTP-U. |
-| **Topologia em Grade** | `ns3::GridScenarioHelper` | Posiciona as gNodeBs e distribui os UEs em área de cobertura com sobreposição controlada. |
-| **Canal 3GPP** | `ns3::ThreeGppChannelModel` | Modela perda de percurso, desvanecimento urbano e condições LoS/NLoS. |
-| **Bandwidth Part (BWP)** | `ns3::CcBwpCreator` | Fatiamento da portadora em bandas de 100 MHz (FR1 n78 a 3.5 GHz) com numerologia $\mu=1$ (SCS 30 kHz). |
-| **Beamforming e MIMO** | `ns3::IdealBeamformingHelper` | Algoritmo de formação de feixe direcionado (*Direct Path Beamforming*) entre matrizes de antenas. |
-| **Agente O-RAN E2** | `ns3::E2AgentHelper` | Implementa a terminação E2AP ASN.1 APER no gNB, enviando relatórios KPM e recebendo comandos RC. |
-| **E2Term (RIC)** | Pod Kubernetes `ricplt-e2term` | Servidor SCTP na porta 36422 que recebe mensagens E2 e as traduz em payloads RMR. |
-| **xApp RDL (Fase 1)** | Pod Kubernetes `ricxapp-iqos-xapp-rdl` | Decodifica E2SM-KPM, agrupa propostas concorrentes em janela de 200ms, aplica TVS/EEVS e emite E2SM-RC. |
-
----
-
-## 5. Dicionário de Parâmetros e Variáveis de Configuração
-
-### 5.1. Parâmetros de Rádio e Camada Física (5G-LENA)
-
+### 4.1. Parâmetros de Camada Física e Rádio (5G-LENA)
 | Parâmetro | Variável C++ / ns-3 | Valor Padrão | Descrição Técnica |
 | :--- | :--- | :---: | :--- |
 | **Frequência Central** | `centralFrequencyBand1` | `3.5e9` (3.5 GHz) | Banda n78 (FR1) padrão para redes 5G privativas e públicas. |
 | **Largura de Banda** | `bandwidthBand1` | `100e6` (100 MHz) | Largura de canal fornecendo até 273 Resource Blocks (PRBs). |
 | **Numerologia ($\mu$)** | `numerologyBwp1` | `1` | Espaçamento de subportadora $\Delta f = 30\text{ kHz}$ ($14 \text{ slots/ms}$). |
 | **Modulação e Codificação** | `FixedMcsDl` / `StartingMcsDl` | Adaptativo (MCS 0-28) | Ajuste dinâmico de taxa com base no CQI/SINR reportado pelos UEs. |
-| **Altura da gNodeB** | `gridScenario.SetBsHeight()` | `25.0 m` | Altura típica de torre de macro/micro célula urbana. |
-| **Altura do Terminal (UE)** | `gridScenario.SetUtHeight()` | `1.5 m` | Altura do usuário pedestre ou terminal veicular. |
 | **Distância entre gNBs** | `gridScenario.SetHorizontalBsDistance()` | `80.0 m` | Distância que força sobreposição de cobertura e conflitos de ação. |
 | **Elementos de Antena gNB** | `NumRows=4, NumColumns=8` | 32 elementos | Matriz planar uniforme para beamforming massivo (mMIMO). |
-| **Elementos de Antena UE** | `NumRows=2, NumColumns=4` | 8 elementos | Matriz receptora integrada no terminal do usuário. |
 
-### 5.2. Parâmetros de Tráfego por Fatia de Serviço (Network Slicing)
-
+### 4.2. Parâmetros de Tráfego por Fatia de Serviço (Network Slicing)
 | Fatia de Rede | Tipo de Tráfego | Tamanho do Pacote | Intervalo de Envio | Taxa / Vazão | Prioridade na RDL |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **Fatia 1: URLLC** | Missão Crítica / Controle | 128 Bytes | $1\text{ ms}$ | ~1.02 Mbps | **1 (Máxima)** |
 | **Fatia 2: eMBB** | Streaming 4K / Alta Taxa | 1400 Bytes | $200\text{ }\mu\text{s}$ | ~56 Mbps | **2 (Média)** |
 | **Fatia 3: mMTC** | Telemetria Sensores IoT | 64 Bytes | $100\text{ ms}$ | ~5.12 kbps | **3 (Baixa)** |
 
-### 5.3. Pesos da Função de Utilidade H-RDL (Fase 1)
-
-$$\max_{\mathbf{a}} U(\mathbf{a}) = 0.60 \cdot f_{\text{QoS}}(\mathbf{a}) + 0.30 \cdot f_{\text{EE}}(\mathbf{a}) - 0.10 \cdot \sum_{i} \text{Penalty}_i(\mathbf{a})$$
-
-* **Janela de Decisão:** $\Delta t = 200\text{ ms}$.
-* **Potência Máxima ($P_{\text{max}}$):** $43\text{ dBm}$ ($20\text{ W}$, clamp incondicional por Safety Guard).
-* **PRB Máximo por Fatia:** $273\text{ PRBs}$.
-
 ---
 
-## 6. Guia de Instalação e Compilação do ns-3 NORI / ns-O-RAN
-
-O ambiente deve ser preparado no **WSL2 (Ubuntu 20.04 ou 22.04 LTS)** ou em Linux nativo:
+## 5. Guia de Instalação do ns-3 NORI
 
 ```bash
-# 1. Instalar dependências essenciais de build, SCTP, ZeroMQ e Python
+# 1. Instalar dependências essenciais no WSL2 / Ubuntu
 sudo apt-get update && sudo apt-get install -y \
   build-essential cmake ninja-build git python3-dev \
   libsctp-dev lksctp-tools libzmq3-dev libboost-all-dev \
@@ -184,7 +153,7 @@ cd ns-3-oran
 
 ---
 
-## 7. Cenários de Simulação Implementados em C++
+## 6. Cenários de Simulação Implementados em C++
 
 1. **Cenário 1: Mitigação de Conflitos TVS (`simulations/ns3/scenario_rdl_tvs_conflict.cc`):**
    - 2 células com 30 UEs sob alta interferência.
@@ -198,9 +167,7 @@ cd ns-3-oran
 
 ---
 
-## 8. Guia Passo-a-Passo de Execução Experimental e Coleta de Métricas
-
-O experimento compara duas rodadas em condições idênticas de tráfego e rádio:
+## 7. Procedimento Experimental Passo a Passo
 
 ```mermaid
 sequenceDiagram
@@ -231,94 +198,20 @@ sequenceDiagram
     Collector-->>Dev: relatorio_comparativo.md / json / graficos_benchmarks_rdl.png
 ```
 
-### Passo 8.1: Executar a Rodada 1 (Baseline Sem RDL)
-```bash
-# 1. Copiar o cenário para o scratch do ns-3
-cp simulations/ns3/scenario_rdl_tvs_conflict.cc ~/ns3-oran-workspace/ns-3-oran/scratch/
-
-cd ~/ns3-oran-workspace/ns-3-oran
-./ns3 build
-
-# 2. Executar em modo Standalone (sem intervenção da RDL)
-./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30" > ~/XApp-RDL-F1/experiments/results/baseline/ns3_output.log 2>&1
-
-# 3. Salvar os traces brutos gerados pelo ns-3
-mkdir -p ~/XApp-RDL-F1/experiments/results/baseline
-mv RxPacketTrace*.txt ~/XApp-RDL-F1/experiments/results/baseline/ 2>/dev/null || true
-mv DlPdcp*.txt ~/XApp-RDL-F1/experiments/results/baseline/ 2>/dev/null || true
-```
-
-### Passo 8.2: Executar a Rodada 2 (Com xApp RDL Fase 1)
-```bash
-cd ~/XApp-RDL-F1
-
-# 1. Iniciar o cluster k3d e fazer o deploy da RDL
-make cluster-create
-make helm-deploy
-
-# 2. Obter IP do E2Term no cluster
-E2TERM_IP=$(kubectl get svc -n ricplt e2term-sctp -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "127.0.0.1")
-
-# 3. Executar o ns-3 com E2 Agent ativo
-cd ~/ns3-oran-workspace/ns-3-oran
-./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=${E2TERM_IP} --ricPort=36422 --simTime=30" > ~/XApp-RDL-F1/experiments/results/rdl_phase1/ns3_output.log 2>&1
-
-# 4. Salvar traces da Rodada 2
-mkdir -p ~/XApp-RDL-F1/experiments/results/rdl_phase1
-mv RxPacketTrace*.txt ~/XApp-RDL-F1/experiments/results/rdl_phase1/ 2>/dev/null || true
-mv DlPdcp*.txt ~/XApp-RDL-F1/experiments/results/rdl_phase1/ 2>/dev/null || true
-```
-
-### Passo 8.3: Coletar Logs Estruturados da RDL e Métricas Prometheus
-```bash
-cd ~/XApp-RDL-F1
-
-# 1. Coletar logs da janela de decisão (200ms)
-kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl --tail=1000 > experiments/results/rdl_phase1/rdl_logs.jsonl
-
-# 2. Coletar scrape de métricas Prometheus
-curl -s http://localhost:8081/metrics > experiments/results/rdl_phase1/prometheus_metrics.prom
-```
-
----
-
-## 9. Estrutura de Armazenamento dos Resultados
-
-Todos os dados brutos e relatórios gerados ficam armazenados de forma estruturada:
-
-```text
-experiments/results/
-├── baseline/
-│   ├── ns3_output.log                # Log de execução ns-3 sem E2
-│   ├── RxPacketTrace.txt             # Pacotes recebidos, atraso por fluxo e perdas
-│   └── DlPdcpRxTrace.txt             # Vazão e latência no nível de rádio (PDCP)
-├── rdl_phase1/
-│   ├── ns3_output.log                # Log de execução ns-3 com E2 conectado
-│   ├── RxPacketTrace.txt             # Pacotes recebidos sob governança RDL
-│   ├── rdl_logs.jsonl                # Histórico de conflitos e decisões tomadas
-│   └── prometheus_metrics.prom       # Métricas de latência e contadores de KPM
-├── relatorio_comparativo.md          # Relatório executivo consolidado em Markdown
-├── relatorio_comparativo.json        # Dados consolidados para gráficos e APIs
-└── graficos_benchmarks_rdl.png       # 4 gráficos comparativos de alta resolução
-```
-
----
-
-## 10. Automação do Pipeline de Experimentos e Análise
-
-Disponibilizamos comandos Make automatizados:
+### 7.1. Execução do Pipeline Automatizado
+Para executar as duas rodadas experimentais, processar os traces com FlowMonitor e gerar relatórios comparativos:
 
 ```bash
-# Executar pipeline completo (Rodada 1 + Rodada 2 + Coleta + Relatórios + Gráficos):
+# Executar pipeline completo (Baseline + H-RDL + Análise):
 make run-experiments
 
-# Reprocessar métricas e gerar novos gráficos a qualquer momento:
+# Reprocessar métricas e regenerar datasets CSV a qualquer momento:
 make analyze-benchmarks
 ```
 
 ---
 
-## 11. Resumo das Métricas de Validação do Experimento
+## 8. Resultados Consolidados de Benchmarks
 
 | Métrica Científica | Baseline (Sem RDL) | Fase 1: H-RDL (Heurística TVS/EEVS) | Ganho Observado |
 | :--- | :---: | :---: | :---: |
@@ -330,4 +223,19 @@ make analyze-benchmarks
 
 ---
 
-[Volume Anterior: 04 - Operação e Troubleshooting](04_operacao_troubleshooting_e_backup.md) | [Portal de Documentação](README.md) | [Próximo Volume: 06 - Observabilidade Kiali](06_observabilidade_kiali_e_injecao_trafego.md)
+## 9. Análise com Scikit-Learn e Google Colab
+
+Os datasets estruturados gerados pela simulação (`experiments/results/dataset_flow_metrics.csv` e `experiments/results/dataset_rdl_decisions_ml.csv`) alimentam diretamente o notebook de Machine Learning:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb)
+
+* **Notebook:** [`notebooks/rdl_colab_scikit_learn.ipynb`](../notebooks/rdl_colab_scikit_learn.ipynb)
+* **Modelos Treinados:** Random Forest, Decision Tree e Gradient Boosting para predição antecipada de conflitos O-RAN e relevância de variáveis (*Feature Importance*).
+
+---
+
+## 10. Próximo Passo Sequencial
+
+Avance para a análise de governança e matriz de conformidade com as normas O-RAN Alliance:
+
+➡️ **[Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN](05_relatorios_conformidade_e_governanca.md)**
