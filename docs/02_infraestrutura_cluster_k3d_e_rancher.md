@@ -123,25 +123,6 @@ flowchart TD
 
 ---
 
-## 4. Agente Especialista: `07-k8s-oran-cluster-operator`
-
-O agente especialista atua autonomamente no diagnóstico e resolução de problemas de cluster:
-* **Playbook de Correção do Rancher Agent (`cattle-cluster-agent`):**
-  ```bash
-  # 1. Conectar Rancher na rede Docker do k3d
-  docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
-
-  # 2. Configurar o agente para falar diretamente com o container do Rancher
-  kubectl set env deployment/cattle-cluster-agent -n cattle-system \
-    CATTLE_SERVER="https://rancher-server:443" \
-    CATTLE_SSL_NO_VERIFY="true" 2>/dev/null || true
-
-  # 3. Reiniciar o pod do agente
-  kubectl delete pod -n cattle-system -l app=cattle-cluster-agent --force --grace-period=0
-  ```
-
----
-
 [Volume Anterior: 01 - Arquitetura e Modelagem](01_arquitetura_e_modelagem_matematica.md) | [Portal de Docs](README.md) | [Próximo Volume: 03 - Guia de Deploy Helm & K8s](03_guia_deploy_helm_e_k8s.md)
 
 
