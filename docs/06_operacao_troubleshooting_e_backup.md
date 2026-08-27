@@ -157,10 +157,11 @@ done
   - `./ns3 configure` ou `./ns3 build` falha com `Exception: Refusing to run as root`.
 * **Causa:** O front-end em Python do simulador ns-3 (`./ns3`) contém uma validação intencional (`refuse_run_as_root()`) que impede a compilação como superusuário (`UID 0`) para evitar modificações acidentais em arquivos do sistema.
 * **Solução:**
-  1. **Opção Recomendada (Bypass de verificação no WSL2/Docker):** Desative a chamada no próprio script `./ns3` com o utilitário `sed`:
+  1. **Opção Recomendada (Bypass de verificação no WSL2/Docker):** Restaure o arquivo e insira o retorno imediato na função:
      ```bash
      cd ~/ns3-oran-workspace/ns-3-oran
-     sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' ./ns3
+     git checkout ./ns3
+     sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
      ./ns3 configure -d optimized --enable-examples --enable-tests
      ./ns3 build -j$(nproc)
      ```

@@ -157,7 +157,7 @@ git clone https://gitlab.com/nsnam/ns-3-dev.git ns-3-oran --depth 1
 cd ns-3-oran
 
 # 3. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
-sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' ./ns3
+sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
 
 # 4. Configurar compilação com CMake
 ./ns3 configure -d optimized --enable-examples --enable-tests

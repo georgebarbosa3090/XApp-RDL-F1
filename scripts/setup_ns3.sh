@@ -70,9 +70,10 @@ cd "${NS3_DIR}"
 # 4. Tratar trava de segurança para execução como root
 echo -e "\n${YELLOW}[ETAPA 3/4] Ajustando permissões e compatibilidade do script ns3...${NC}"
 if [ -f "./ns3" ]; then
-    if grep -q "refuse_run_as_root()" "./ns3" && ! grep -q "# refuse_run_as_root()" "./ns3"; then
-        echo -e "Desativando trava 'refuse_run_as_root' para permitir compilação segura no container/WSL..."
-        sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' ./ns3
+    git checkout ./ns3 2>/dev/null || true
+    if grep -q "def refuse_run_as_root():" "./ns3"; then
+        echo -e "Ajustando 'refuse_run_as_root' para permitir compilação segura como root..."
+        sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
     fi
 fi
 

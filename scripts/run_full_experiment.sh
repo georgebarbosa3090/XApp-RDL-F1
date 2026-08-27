@@ -21,8 +21,11 @@ echo ""
 echo "[ETAPA 1/3] Executando Rodada 1: Baseline Sem Governanca RDL..."
 if [ -d "$NS3_DIR" ]; then
     echo "Compilando e executando cenario no ns-3 em modo Standalone (Sem E2)..."
-    if [ -f "$NS3_DIR/ns3" ] && grep -q "refuse_run_as_root()" "$NS3_DIR/ns3" && ! grep -q "# refuse_run_as_root()" "$NS3_DIR/ns3"; then
-        sed -i 's/refuse_run_as_root()/# refuse_run_as_root()/g' "$NS3_DIR/ns3"
+    if [ -f "$NS3_DIR/ns3" ]; then
+        git -C "$NS3_DIR" checkout ./ns3 2>/dev/null || true
+        if grep -q "def refuse_run_as_root():" "$NS3_DIR/ns3"; then
+            sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' "$NS3_DIR/ns3"
+        fi
     fi
     cp "$BASE_DIR/simulations/ns3/scenario_rdl_tvs_conflict.cc" "$NS3_DIR/scratch/"
     cd "$NS3_DIR"
