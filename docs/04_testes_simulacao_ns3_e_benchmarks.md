@@ -261,20 +261,7 @@ make push-results
 
 ---
 
-
-## 8. Resultados Consolidados de Benchmarks
-
-| Métrica Científica | Baseline (Sem RDL) | Fase 1: H-RDL (Heurística TVS/EEVS) | Ganho Observado |
-| :--- | :---: | :---: | :---: |
-| **Taxa de Conflito de Ações (%)** | 38.4% | **< 1.2%** | **Redução de 96.8%** |
-| **Latência Média de Decisão RDL** | N/A | **14.2 ms** | **Atende meta estrita < 50ms** |
-| **Violação de SLA URLLC ($>5\text{ ms}$)** | 12.8% | **< 0.8%** | **Queda de 93.7%** |
-| **Eficiência Energética da Rede** | 1.0x (Baseline) | **+14.5%** | **Economia significativa** |
-| **Estabilidade de Handover (Ping-Pong)** | 22 eventos/min | **0 eventos** | **100% mitigado por Safety Guards** |
-
----
-
-## 9. Análise com Scikit-Learn e Google Colab
+## 8. Análise com Scikit-Learn e Google Colab
 
 Os datasets estruturados gerados pela simulação (`experiments/results/dataset_flow_metrics.csv` e `experiments/results/dataset_rdl_decisions_ml.csv`) alimentam diretamente o notebook de Machine Learning:
 
