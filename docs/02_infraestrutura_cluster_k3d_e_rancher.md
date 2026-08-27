@@ -223,21 +223,30 @@ flowchart TD
 Para importar o cluster `rancher-lab` no Rancher sem sofrer com problemas de resolução DNS do WSL2 ou conflitos de porta (`8443` no host vs `443` no Docker):
 
 ```bash
-# 1. No painel do Rancher, clique em: Cluster Management -> Import Existing -> Nomeie 'rancher-lab'
-# 2. Copie o link do comando gerado (ex: https://rancher-server:443/v3/import/<token>.yaml)
-# 3. Execute o helper automatizado do repositório:
-make rancher-connect URL="https://rancher-server:443/v3/import/<token>.yaml"
+# 1. No painel do Rancher, clique em: Cluster Management -> Clusters -> Import Existing -> Nomeie 'rancher-lab'
+# 2. Copie o comando de registro gerado na UI do Rancher (ele conterá a URL com o token gerado, ex: https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml)
+# 3. Execute o helper automatizado do repositório passando a URL ou o nome do arquivo com token:
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
+
+# Ou simplesmente execute o script (ele tentará autodescobrir o token se não informado):
+bash scripts/register_rancher.sh
 ```
+
+> [!IMPORTANT]
+> **Atenção ao Placeholder `<token>`:**
+> Não digite literalmente `<token>` no terminal Bash, pois os caracteres `<` e `>` são interpretados como redirecionamento de arquivo (`-bash: token: No such file or directory`), impedindo o download do manifesto e a criação do namespace `cattle-system`. Sempre substitua pelo token real (ex: `c-m-abcdef123_c-m-abcdef123.yaml`).
 
 #### Procedimento Manual Equivalente (Passo a Passo):
 ```bash
 # A. Conectar o container do Rancher à rede Docker do cluster k3d
 docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
 
-# B. Baixar e aplicar o manifesto diretamente de dentro do container do Rancher
-docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/<token>.yaml | kubectl apply -f -
+# B. Baixar e aplicar o manifesto usando o TOKEN REAL gerado pela UI do Rancher
+# (Substitua TOKEN_REAL.yaml pelo nome do arquivo gerado pelo Rancher, ex: c-m-xxxx_c-m-xxxx.yaml)
+docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
 
 # C. Configurar o agente para comunicação direta com bypass de SSL interno
+kubectl wait --for=condition=available --timeout=60s deployment/cattle-cluster-agent -n cattle-system 2>/dev/null || true
 kubectl set env deployment/cattle-cluster-agent -n cattle-system \
   CATTLE_SERVER="https://rancher-server:443" \
   CATTLE_SSL_NO_VERIFY="true"

@@ -43,25 +43,41 @@ done
   2. O Rancher expõe a porta `8443` no host Windows/WSL2, enquanto internamente no container e na rede Docker a porta padrão é `443`.
 * **Solução Automatizada (Recomendada):**
   ```bash
-  # Execute o comando make informando a URL de importação:
-  make rancher-connect URL="https://rancher-server:443/v3/import/<token>.yaml"
+  # Execute o comando make informando a URL/Token real de importação:
+  make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
+
+  # Ou execute diretamente o script com auto-descoberta de token:
+  bash scripts/register_rancher.sh
   ```
-* **Solução Manual Direta:**
-  ```bash
-  # 1. Conectar container do Rancher na rede Docker do cluster k3d
-  docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
 
-  # 2. Baixar o manifesto direto de dentro do container (evita problemas de porta e DNS)
-  docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/<token>.yaml | kubectl apply -f -
+---
 
-  # 3. Configurar agente para comunicação direta com bypass de validação SSL
-  kubectl set env deployment/cattle-cluster-agent -n cattle-system \
-    CATTLE_SERVER="https://rancher-server:443" \
-    CATTLE_SSL_NO_VERIFY="true"
+### 2.2. Erro: `-bash: token: No such file or directory` e `Error from server (NotFound): namespaces "cattle-system" not found`
+* **Sintomas:**
+  - `-bash: token: No such file or directory`
+  - `error: no objects passed to apply`
+  - `Error from server (NotFound): namespaces "cattle-system" not found`
+* **Causa:**
+  - Digitar literalmente `<token>` no terminal Bash faz com que o shell interprete os caracteres `<` e `>` como operadores de redirecionamento de entrada (`stdin`), procurando por um arquivo inexistente chamado `token`.
+  - Como o manifesto de registro não é baixado nem aplicado, o namespace `cattle-system` e o deployment `cattle-cluster-agent` não são criados no cluster k3d.
+* **Solução:**
+  1. Obtenha o comando de registro real na UI do Rancher (**Cluster Management** > **Clusters** > Seu cluster).
+  2. Substitua `TOKEN_REAL.yaml` pelo nome exato do arquivo (ex: `c-m-abcdef123_c-m-abcdef123.yaml`):
+     ```bash
+     # Conectar container à rede do cluster
+     docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
 
-  # 4. Reiniciar pod do agente
-  kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
-  ```
+     # Baixar manifesto usando o token real
+     docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
+
+     # Configurar o agente e reiniciar
+     kubectl wait --for=condition=available --timeout=60s deployment/cattle-cluster-agent -n cattle-system 2>/dev/null || true
+     kubectl set env deployment/cattle-cluster-agent -n cattle-system \
+       CATTLE_SERVER="https://rancher-server:443" \
+       CATTLE_SSL_NO_VERIFY="true"
+     kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
+     ```
+  3. Ou execute `bash scripts/register_rancher.sh` para detecção e correção automática.
 
 ---
 
