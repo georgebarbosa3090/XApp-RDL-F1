@@ -138,9 +138,15 @@ fi
 
 # 6. Validação de Rollout e Status
 echo -e "\n${YELLOW}[6/6] Validando rollout dos Pods no namespace ${NAMESPACE_XAPP}...${NC}"
+kubectl rollout restart deployment/ricxapp-qos-xslice deployment/ricxapp-energy-saving deployment/ricxapp-traffic-steering -n ${NAMESPACE_XAPP} 2>/dev/null || true
+if [ "$DEPLOY_RDL" = true ]; then
+    kubectl rollout restart deployment/ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} 2>/dev/null || true
+fi
+
 kubectl rollout status deployment/ricxapp-qos-xslice -n ${NAMESPACE_XAPP} --timeout=60s
 kubectl rollout status deployment/ricxapp-energy-saving -n ${NAMESPACE_XAPP} --timeout=60s
 kubectl rollout status deployment/ricxapp-traffic-steering -n ${NAMESPACE_XAPP} --timeout=60s
+
 
 if [ "$DEPLOY_RDL" = true ]; then
     kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} --timeout=60s
