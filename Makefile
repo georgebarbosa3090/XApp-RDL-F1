@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 run-experiments analyze-benchmarks view-results push-results
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 run-experiments analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -195,3 +195,25 @@ push-results:
 	git add experiments/results/
 	git commit -m "chore(experiments): upload latest ns-3 benchmark results and datasets [skip ci]" || echo "Nenhuma alteração nova para commit."
 	git push origin main || echo "Aviso: Verifique as credenciais do Git / chave SSH para o push."
+
+# -------------------------------------------------------------
+# Sincronização Contínua e Rollback Seguro com GitHub
+# -------------------------------------------------------------
+sync:
+	@bash scripts/git_sync.sh "$(MSG)"
+
+auto-sync:
+	@bash scripts/git_auto_sync.sh $(INTERVAL)
+
+rollback:
+	@bash scripts/git_rollback.sh $(if $(COMMIT),--commit $(COMMIT),) $(if $(STEPS),--steps $(STEPS),)
+
+rollback-push:
+	@bash scripts/git_rollback.sh --push $(if $(COMMIT),--commit $(COMMIT),) $(if $(STEPS),--steps $(STEPS),)
+
+rollback-clean:
+	@bash scripts/git_rollback.sh --clean
+
+rollback-list:
+	@bash scripts/git_rollback.sh --list
+

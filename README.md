@@ -148,6 +148,14 @@ make analyze-benchmarks
   git push origin main
   ```
 
+* **Sincronização Automática e Rollback do Repositório:**
+  ```bash
+  make sync          # Sincronização rápida e segura com o GitHub
+  make auto-sync     # Monitor contínuo (auto-commit & push a cada alteração salva)
+  make rollback      # Rollback seguro com criação de tag de backup
+  make rollback-push # Rollback sincronizado no repositório GitHub remoto
+  ```
+
 * **Acessar Datasets no Windows Explorer (WSL2):**
   Pressione `Win + R` e acerte o caminho: `\\wsl$\Ubuntu\root\XApp-RDL-F1\experiments\results`
 

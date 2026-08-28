@@ -29,6 +29,41 @@ for node in $(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)")
 done
 ```
 
+### 1.2. Sincronização Contínua e Atualização Automática para o GitHub
+Para agilizar o desenvolvimento, o projeto disponibiliza scripts de sincronização instantânea e monitoramento contínuo de alterações:
+
+```bash
+# Sincronização pontual com mensagem automática ou personalizada:
+make sync
+# ou especificando mensagem: make sync MSG="feat(rdl): add new safety clamp logic"
+
+# Atualização automática contínua (monitora alterações em arquivos e envia ao salvar):
+make auto-sync
+# ou com intervalo customizado em segundos: make auto-sync INTERVAL=10
+```
+
+### 1.3. Procedimento de Rollback Seguro (Desfazer Alterações com Backup Tag)
+Caso precise reverter commits ou descartar alterações de trabalho com segurança:
+
+```bash
+# 1. Listar histórico de commits e tags de backup disponíveis:
+make rollback-list
+
+# 2. Rollback do último commit local (cria tag backup/rollback_* antes de reverter):
+make rollback
+
+# 3. Rollback de múltiplos commits ou para um commit específico:
+make rollback STEPS=2
+# ou: make rollback COMMIT=399173a
+
+# 4. Rollback sincronizado diretamente com o GitHub (force-with-lease):
+make rollback-push
+# ou: make rollback-push COMMIT=399173a
+
+# 5. Descartar apenas alterações de trabalho não commitadas locais (clean):
+make rollback-clean
+```
+
 ---
 
 ## 2. Guia de Troubleshooting e Diagnóstico de Falhas

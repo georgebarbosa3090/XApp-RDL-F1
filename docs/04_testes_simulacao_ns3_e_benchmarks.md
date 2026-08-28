@@ -134,6 +134,13 @@ flowchart TD
 
 O simulador pode ser configurado de forma totalmente automatizada através do script de automação ou manualmente.
 
+> **Pré-requisito (Opcional - caso ainda não esteja na raiz do projeto):**  
+> Para utilizar os comandos do `Makefile` e os scripts de automação, clone o repositório e acesse o diretório:
+> ```bash
+> git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+> cd XApp-RDL-F1
+> ```
+
 ### 5.1. Opção A: Instalação Automatizada (Recomendada)
 A partir da raiz do repositório (`~/XApp-RDL-F1`), execute:
 ```bash
