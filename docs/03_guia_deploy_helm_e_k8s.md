@@ -51,18 +51,17 @@ flowchart TD
 
 ## 3. Deploy via Helm (Padrão O-RAN)
 
-### 3.1. Modo Governança Completa (Near-RT RIC + 3 Reference xApps + RDL)
-Implanta a plataforma Near-RT RIC, as 3 xApps concorrentes e a camada de arbitragem RDL:
-```bash
-make helm-deploy
-```
 
-### 3.2. Modo Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
+### 3.1. Modo Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
 Implanta a plataforma Near-RT RIC e as 3 xApps concorrentes isoladas, sem o arbitrador RDL, para fins de coleta de dados de referência e validação de conflitos:
 ```bash
 make helm-deploy-baseline
 ```
-
+### 3.2. Modo Governança Completa (Near-RT RIC + 3 Reference xApps + RDL)
+Implanta a plataforma Near-RT RIC, as 3 xApps concorrentes e a camada de arbitragem RDL:
+```bash
+make helm-deploy
+```
 ---
 
 ## 4. Deploy Kubernetes Puro / Kustomize
