@@ -96,7 +96,7 @@ flowchart TD
         end
     end
 
-    E2A <==|"SCTP 36422: E2SM-KPM / E2SM-RC"|==> E2T
+    E2A <-->|"SCTP 36422: E2SM-KPM / E2SM-RC"| E2T
     E2T <-->|RMR Internal Msg| RMR
     RMR <--> TS
     RMR <--> QOS
