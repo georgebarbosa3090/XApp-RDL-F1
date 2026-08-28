@@ -54,8 +54,9 @@ RUN useradd -m -s /bin/bash xapp
 USER xapp
 WORKDIR /app
 
-# Copy source code and configs
+# Copy source code, reference xapps, and configs
 COPY --chown=xapp:xapp src/ /app/src/
+COPY --chown=xapp:xapp reference-xapps/ /app/reference-xapps/
 COPY --chown=xapp:xapp configs/ /app/configs/
 
 # Ports for HTTP and Metrics
