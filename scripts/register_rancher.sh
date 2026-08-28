@@ -24,6 +24,9 @@ IMPORT_URL="$1"
 echo -e "\n${YELLOW}[1/4] Conectando container ${RANCHER_CONTAINER} à rede k3d-${CLUSTER_NAME}...${NC}"
 docker network connect k3d-${CLUSTER_NAME} ${RANCHER_CONTAINER} 2>/dev/null || true
 
+# 2.1 Garantir que o server-url no Rancher aponte para o endpoint acessível pelos pods
+docker exec ${RANCHER_CONTAINER} kubectl patch settings server-url --type=merge -p '{"value":"https://rancher-server"}' 2>/dev/null || true
+
 # 3. Descobrir ou validar URL/Token do manifesto
 if [ -z "$IMPORT_URL" ] || [[ "$IMPORT_URL" == *"<token>"* ]]; then
     echo -e "${CYAN} -> Tentando autodescobrir token de importação diretamente do ${RANCHER_CONTAINER}...${NC}"
@@ -75,7 +78,7 @@ for i in {1..12}; do
 done
 
 kubectl set env deployment/cattle-cluster-agent -n cattle-system \
-  CATTLE_SERVER="https://rancher-server:443" \
+  CATTLE_SERVER="https://rancher-server" \
   CATTLE_SSL_NO_VERIFY="true" 2>/dev/null || true
 
 # 6. Reiniciar o pod do agente

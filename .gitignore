@@ -24,3 +24,7 @@ wheels/
 .vscode/
 .idea/
 .agents/
+
+# PowerShell scripts (ignore for GitHub)
+*.ps1
+
