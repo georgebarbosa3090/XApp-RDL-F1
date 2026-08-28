@@ -19,6 +19,7 @@ class ResolutionStrategy(Enum):
     ROLLBACK = "ROLLBACK"
     TVS = "TVS"
     EEVS = "EEVS"
+    MARL_AGENT = "MARL_AGENT"
 
 @dataclass
 class XAppAction:

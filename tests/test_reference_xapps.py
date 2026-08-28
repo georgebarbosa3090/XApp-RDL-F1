@@ -83,4 +83,4 @@ def test_multi_xapp_conflict_triad_detection_and_resolution():
 
     assert resolution is not None
     assert resolution.winning_actions[0].xapp_id == "xslice_oran"
-    assert resolution.strategy_used in (ResolutionStrategy.PRIORITY_TABLE, ResolutionStrategy.TVS, ResolutionStrategy.EEVS)
+    assert resolution.strategy_used in (ResolutionStrategy.PRIORITY_TABLE, ResolutionStrategy.TVS, ResolutionStrategy.EEVS, ResolutionStrategy.MARL_AGENT)
