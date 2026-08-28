@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ricxapp-qos-xslice
+  namespace: ricxapp
+  labels:
+    app: ricxapp-qos-xslice
+    app.kubernetes.io/name: qos-xslice
+    app.kubernetes.io/part-of: reference-xapps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricxapp-qos-xslice
+  template:
+    metadata:
+      labels:
+        app: ricxapp-qos-xslice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8083"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: qos-xslice
+        image: iqos-xapp-rdl:1.1.0
+        imagePullPolicy: Never
+        env:
+        - name: XAPP_ROLE
+          value: "xslice"
+        - name: HTTP_PORT
+          value: "8082"
+        - name: METRICS_PORT
+          value: "8083"
+        - name: RMR_PORT
+          value: "4562"
+        ports:
+        - containerPort: 8082
+          name: http-health
+        - containerPort: 8083
+          name: http-metrics
+        - containerPort: 4562
+          name: rmr-data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ricxapp-qos-xslice-http
+  namespace: ricxapp
+  labels:
+    app: ricxapp-qos-xslice
+spec:
+  type: ClusterIP
+  selector:
+    app: ricxapp-qos-xslice
+  ports:
+  - name: http-health
+    port: 8082
+    targetPort: 8082
+  - name: http-metrics
+    port: 8083
+    targetPort: 8083

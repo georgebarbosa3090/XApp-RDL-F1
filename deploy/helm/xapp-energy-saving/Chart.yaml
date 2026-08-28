@@ -1,0 +1,8 @@
+apiVersion: v2
+name: xapp-energy-saving
+description: Reference Energy Saving xApp based on Orange-OpenSource/ns-O-RAN-flexric for O-RAN Near-RT RIC
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: OpenRAN Energy Efficiency Working Group

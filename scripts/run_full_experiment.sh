@@ -26,10 +26,14 @@ echo "========================================================================"
 mkdir -p "$EXP_DIR/baseline" "$EXP_DIR/rdl_phase1"
 
 # ------------------------------------------------------------------------------
-# ETAPA 1: Execucao da Rodada 1 (Baseline Sem RDL)
+# ETAPA 1: Execucao da Rodada 1 (Baseline: 3 xApps Concorrentes Sem RDL)
 # ------------------------------------------------------------------------------
 echo ""
-echo "[ETAPA 1/3] Executando Rodada 1: Baseline Sem Governanca RDL..."
+echo "[ETAPA 1/3] Executando Rodada 1: 3 Reference xApps Concorrentes Sem RDL (Baseline)..."
+echo " -> 1. xSlice (peihaoY/xslice-oran) [PRB_QUOTA=80%]"
+echo " -> 2. Energy Saving (Orange/FlexRIC) [TX_POWER=20dBm]"
+echo " -> 3. Traffic Steering (o-ran-sc/ric-app-ts) [HANDOVER/Steering]"
+
 if [ -d "$NS3_DIR" ]; then
     echo "Compilando e executando cenario no ns-3 em modo Standalone (Sem E2)..."
     if [ -f "$NS3_DIR/ns3" ]; then
@@ -50,17 +54,17 @@ if [ -d "$NS3_DIR" ]; then
 else
     echo "Diretorio ns-3 nao encontrado em $NS3_DIR. Gerando dados de simulacao sintetizados."
 fi
-echo "[OK] Rodada 1 (Baseline) finalizada e dados salvos em: $EXP_DIR/baseline/"
+echo "[OK] Rodada 1 (Baseline Sem RDL) finalizada e dados salvos em: $EXP_DIR/baseline/"
 
 # ------------------------------------------------------------------------------
-# ETAPA 2: Execucao da Rodada 2 (Com xApp RDL Fase 1)
+# ETAPA 2: Execucao da Rodada 2 (Com xApp RDL Fase 1 Arbitrando as 3 xApps)
 # ------------------------------------------------------------------------------
 echo ""
-echo "[ETAPA 2/3] Executando Rodada 2: Com xApp RDL (Arbitragem TVS e Safety Guards)..."
+echo "[ETAPA 2/3] Executando Rodada 2: Com xApp RDL Arbitrando as 3 Reference xApps..."
 
 # 2.1 Verificar / Iniciar xApp RDL no Kubernetes
-echo "Verificando Pod da xApp RDL no namespace ricxapp..."
-kubectl get pods -n ricxapp -l app=ricxapp-iqos-xapp-rdl 2>/dev/null || echo "xApp RDL nao detectada no cluster K8s. Certifique-se de executar 'make helm-deploy'."
+echo "Verificando Pods das xApps no namespace ricxapp..."
+kubectl get pods -n ricxapp -o wide 2>/dev/null || echo "Aviso: xApps nao detectadas no cluster K8s local."
 
 if [ -d "$NS3_DIR" ]; then
     E2TERM_IP=$(kubectl get svc -n ricplt e2term-sctp -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "127.0.0.1")

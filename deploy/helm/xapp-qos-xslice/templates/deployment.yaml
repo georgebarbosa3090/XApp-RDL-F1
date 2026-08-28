@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xapp-qos-xslice.fullname" . }}
+  labels:
+    {{- include "xapp-qos-xslice.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "xapp-qos-xslice.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "xapp-qos-xslice.fullname" . }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: qos-xslice
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: XAPP_ROLE
+              value: "{{ .Values.env.xappRole }}"
+            - name: HTTP_PORT
+              value: "{{ .Values.env.httpPort }}"
+            - name: METRICS_PORT
+              value: "{{ .Values.env.metricsPort }}"
+            - name: RMR_PORT
+              value: "{{ .Values.env.rmrPort }}"
+          ports:
+            - name: http-health
+              containerPort: {{ .Values.service.httpPort }}
+              protocol: TCP
+            - name: http-metrics
+              containerPort: {{ .Values.service.metricsPort }}
+              protocol: TCP
+            - name: rmr-data
+              containerPort: {{ .Values.service.rmrPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.httpPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.service.httpPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

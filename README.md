@@ -22,12 +22,15 @@
 
 ## 1. Visão Geral da Arquitetura (Fase 1: H-RDL)
 
-A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de governança no **Near-RT RIC**, mitigando colisões e decisões conflitantes emitidas por múltiplas xApps concorrentes (*Traffic Steering*, *Energy Savings*, *QoS Manager*):
+A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de governança no **Near-RT RIC**, interceptando e mitigando colisões geradas por **3 xApps de referência abertas da literatura**:
 
-* **Agente de Percepção (`PerceptionAgent`):** Agrupa propostas de controle E2 em **janelas de decisão em lote ($\Delta t = 200\text{ ms}$)** e identifica conflitos diretos (mesmo PRB/potência) e indiretos (trade-off energia vs QoS).
-* **Agente de Raciocínio (`ReasoningAgent`):** Aplica funções de utilidade multiobjetivo determinísticas (**TVS — Time-Varying Slicing** e **EEVS — Energy-Efficiency vs SLA**), priorizando incondicionalmente fatias de missão crítica (URLLC > eMBB > mMTC).
-* **Agente de Refinamento (`RefinementAgent`):** Garante a segurança física da rede (*Safety Guards*), aplicando *clamping* incondicional de potência de transmissão ($P_{\text{tx}} \le 43\text{ dBm}$), orçamento de PRBs ($\le 273$) e bloqueio de oscilações de *handover* (efeito ping-pong).
-* **Codecs ASN.1 APER:** Suporte de baixo nível a E2AP, E2SM-KPM v2.0 (telemetria de rádio) e E2SM-RC v1.0 (mensagens de controle arbitradas).
+1. **xSlice (QoS & Slicing Optimizer) — [`peihaoY/xslice-oran`](https://github.com/peihaoY/xslice-oran):** Solicita cotas elevadas de PRBs (`PRB_QUOTA = 80%`, prioridade 90) para fatias URLLC/eMBB.
+2. **Energy Saving (Green RAN Optimizer) — [`Orange-OpenSource/ns-O-RAN-flexric`](https://github.com/Orange-OpenSource/ns-O-RAN-flexric):** Solicita redução de potência (`TX_POWER = 20 dBm`, prioridade 65) e sono de células, colidindo com a garantia de QoS.
+3. **Traffic Steering (Mobility Optimizer) — [`o-ran-sc/ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts):** Solicita migração e balanceamento de tráfego (`HANDOVER`, prioridade 80).
+
+* **Agente de Percepção (`PerceptionAgent`):** Agrupa propostas de controle E2 em **janelas de decisão em lote ($\Delta t = 200\text{ ms}$)** e identifica conflitos diretos e indiretos entre as 3 xApps.
+* **Agente de Raciocínio (`ReasoningAgent`):** Aplica funções de utilidade multiobjetivo determinísticas (**TVS** e **EEVS**), priorizando incondicionalmente fatias de missão crítica (URLLC > eMBB > mMTC).
+* **Agente de Refinamento (`RefinementAgent`):** Garante a segurança física da rede (*Safety Guards*), aplicando *clamping* de potência ($P_{\text{tx}} \le 43\text{ dBm}$), orçamento de PRBs ($\le 273$) e bloqueio de ping-pong.
 
 ---
 
@@ -35,36 +38,25 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 
 ```text
 .
-├── configs/                     # Descritores de configuração xApp (config-file.json)
+├── configs/                     # Descritores de configuração xApp (config-file.json, routes.rt)
 ├── deploy/                      # Manifestos de Implantação
-│   ├── helm/                    # Helm Chart oficial (versão 1.1.0)
-│   └── kubernetes/              # Manifestos K8s declarativos (Kustomize)
-├── docs/                        # Portal de Documentação Técnica (Volumes 01 a 07)
-│   ├── assets/                  # Imagens e banners comerciais do projeto
+│   ├── helm/                    # Helm Charts oficiais (RDL, xSlice, Energy Saving, Traffic Steering)
+│   └── kubernetes/              # Manifestos K8s puros (Near-RT RIC ricplt + 3 xApps + RDL ricxapp)
+├── docs/                        # Portal de Documentação Técnica (Volumes 01 a 06)
 │   └── README.md                # Índice e trilhas de leitura da documentação
-├── experiments/                 # Resultados de Simulação e Evidências
-│   └── results/                 # Diretório estruturado de coleta (Baseline vs H-RDL)
-│       ├── baseline/            # Evidências brutas da Rodada 1 (Sem RDL)
-│       ├── rdl_phase1/          # Evidências brutas da Rodada 2 (Com H-RDL)
-│       ├── dataset_flow_metrics.csv      # Dataset tabular por fluxo para Colab
-│       ├── dataset_rdl_decisions_ml.csv  # Dataset temporal para Scikit-Learn
-│       ├── relatorio_comparativo.json    # Métricas consolidadas em JSON
-│       └── relatorio_comparativo.md      # Relatório executivo formal
-├── notebooks/                   # Jupyter Notebooks para Google Colab & Scikit-Learn
-│   └── rdl_colab_scikit_learn.ipynb
-├── scripts/                     # Automação de Deploy, Testes e Análise de Benchmarks
-│   ├── deploy_helm.sh           # Script de implantação via Helm
-│   ├── run_full_experiment.sh   # Pipeline de execução experimental completa
-│   └── run_and_analyze_benchmarks.py # Parser de FlowMonitor, gerador de CSVs e gráficos
+├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
+│   ├── qos-xslice/              # Baseado em peihaoY/xslice-oran
+│   ├── energy-saving/           # Baseado em Orange-OpenSource/ns-O-RAN-flexric
+│   └── traffic-steering/        # Baseado em o-ran-sc/ric-app-ts
+├── experiments/                 # Resultados de Simulação e Evidências (Baseline vs H-RDL)
+├── scripts/                     # Automação de Deploy, Testes e Verificação
+│   ├── deploy_helm.sh           # Pipeline Helm (Near-RT RIC -> 3 xApps -> RDL)
+│   ├── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
+│   ├── verify_3_xapps.sh        # Smoke test unificado de todas as xApps
+│   └── run_full_experiment.sh   # Pipeline de execução experimental completa
 ├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA
-│   └── ns3/
-│       ├── scenario_rdl_tvs_conflict.cc   # Cenário de conflito TVS (URLLC vs eMBB vs mMTC)
-│       └── scenario_rdl_energy_vs_qos.cc  # Cenário de economia de energia vs SLA
 ├── src/                         # Código-Fonte Python da xApp RDL (Clean Architecture)
-│   ├── core/                    # Agentes de Percepção, Raciocínio e Refinamento
-│   ├── e2/                      # Codecs ASN.1 APER (E2AP, KPM, RC)
-│   └── web/                     # Servidores FastAPI (Health na 8080, Métricas na 8081)
-├── tests/                       # Suíte de Testes Unitários com pytest (10/10 PASS)
+├── tests/                       # Suíte de Testes Unitários com pytest (14/14 PASS)
 └── Makefile                     # CLI unificada de operação, testes e benchmarks
 ```
 
@@ -72,32 +64,26 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 
 ## 3. Guia Rápido de Execução e Deploy
 
-### Opção A: Deploy Oficial no Kubernetes via Helm
+### Opção A: Deploy Governança Completa (Near-RT RIC + 3 Reference xApps + RDL)
 ```bash
 make helm-deploy
 ```
 
-### Opção B: Deploy Kubernetes Puro (K8s / Kustomize)
+### Opção B: Deploy Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
 ```bash
-make k8s-deploy
+make helm-deploy-baseline
 ```
 
-### Opção C: Smoke Test Standalone no Docker
+### Opção C: Validação e Smoke Test das xApps
 ```bash
-make smoke-test
+make test-3xapps
 ```
 
 ### Opção D: Testes Unitários e Validação de CI
 ```bash
-# Configuração do ambiente virtual (uma única vez):
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
-
-# Execução dos testes:
+# Execução dos testes unitários (14/14 PASS):
 make test
-# Saída esperada: 10 passed in 1.20s (100% green)
+```
 ```
 
 ---

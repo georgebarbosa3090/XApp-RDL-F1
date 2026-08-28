@@ -1,10 +1,19 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: ricxapp
-
 resources:
+  # 1. Namespaces
   - namespace.yaml
+
+  # 2. Near-RT RIC Platform (ricplt: Redis DBAAS, E2Term, SubMgr)
+  - near-rt-ric.yaml
+
+  # 3. Reference xApps (ricxapp: xSlice QoS, Energy Saving, Traffic Steering)
+  - xapp-qos-xslice.yaml
+  - xapp-energy-saving.yaml
+  - xapp-traffic-steering.yaml
+
+  # 4. RDL Arbitrator xApp (ricxapp: Resource and Decision Layer)
   - configmap.yaml
   - deployment.yaml
   - service-http.yaml

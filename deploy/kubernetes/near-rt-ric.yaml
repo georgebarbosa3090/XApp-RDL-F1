@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-ricplt-dbaas-redis
+  namespace: ricplt
+  labels:
+    app: ricplt-dbaas
+    app.kubernetes.io/name: ricplt-dbaas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricplt-dbaas
+  template:
+    metadata:
+      labels:
+        app: ricplt-dbaas
+    spec:
+      containers:
+      - name: redis
+        image: redis:6.2-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 6379
+          name: redis
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ricplt-dbaas-tcp
+  namespace: ricplt
+  labels:
+    app: ricplt-dbaas
+spec:
+  type: ClusterIP
+  selector:
+    app: ricplt-dbaas
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ricplt-e2term-rmr
+  namespace: ricplt
+  labels:
+    app: ricplt-e2term
+spec:
+  type: ClusterIP
+  selector:
+    app: ricplt-dbaas # mock endpoint mapping
+  ports:
+  - name: rmr-data
+    port: 38000
+    targetPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ricplt-submgr-rmr
+  namespace: ricplt
+  labels:
+    app: ricplt-submgr
+spec:
+  type: ClusterIP
+  selector:
+    app: ricplt-dbaas # mock endpoint mapping
+  ports:
+  - name: rmr-data
+    port: 4560
+    targetPort: 6379

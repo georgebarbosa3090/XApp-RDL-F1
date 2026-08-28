@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: iqos-xapp-rdl
+  pullPolicy: Never
+  tag: "1.1.0"
+
+fullnameOverride: "ricxapp-qos-xslice"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8083"
+  prometheus.io/path: "/metrics"
+
+env:
+  xappRole: "xslice"
+  httpPort: 8082
+  metricsPort: 8083
+  rmrPort: 4562
+
+service:
+  httpPort: 8082
+  metricsPort: 8083
+  rmrPort: 4562
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

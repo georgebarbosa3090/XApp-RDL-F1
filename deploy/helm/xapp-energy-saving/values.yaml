@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: iqos-xapp-rdl
+  pullPolicy: Never
+  tag: "1.1.0"
+
+fullnameOverride: "ricxapp-energy-saving"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8085"
+  prometheus.io/path: "/metrics"
+
+env:
+  xappRole: "energy_saving"
+  httpPort: 8084
+  metricsPort: 8085
+  rmrPort: 4563
+
+service:
+  httpPort: 8084
+  metricsPort: 8085
+  rmrPort: 4563
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

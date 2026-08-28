@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ricxapp-traffic-steering
+  namespace: ricxapp
+  labels:
+    app: ricxapp-traffic-steering
+    app.kubernetes.io/name: traffic-steering
+    app.kubernetes.io/part-of: reference-xapps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricxapp-traffic-steering
+  template:
+    metadata:
+      labels:
+        app: ricxapp-traffic-steering
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8087"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: traffic-steering
+        image: iqos-xapp-rdl:1.1.0
+        imagePullPolicy: Never
+        env:
+        - name: XAPP_ROLE
+          value: "traffic_steering"
+        - name: HTTP_PORT
+          value: "8086"
+        - name: METRICS_PORT
+          value: "8087"
+        - name: RMR_PORT
+          value: "4564"
+        ports:
+        - containerPort: 8086
+          name: http-health
+        - containerPort: 8087
+          name: http-metrics
+        - containerPort: 4564
+          name: rmr-data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8086
+          initialDelaySeconds: 5
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8086
+          initialDelaySeconds: 5
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ricxapp-traffic-steering-http
+  namespace: ricxapp
+  labels:
+    app: ricxapp-traffic-steering
+spec:
+  type: ClusterIP
+  selector:
+    app: ricxapp-traffic-steering
+  ports:
+  - name: http-health
+    port: 8086
+    targetPort: 8086
+  - name: http-metrics
+    port: 8087
+    targetPort: 8087

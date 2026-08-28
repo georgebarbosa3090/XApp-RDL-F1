@@ -1,0 +1,8 @@
+apiVersion: v2
+name: xapp-qos-xslice
+description: Reference xSlice QoS & Slicing xApp based on peihaoY/xslice-oran for O-RAN Near-RT RIC
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: OpenRAN Slicing Working Group

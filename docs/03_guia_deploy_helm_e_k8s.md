@@ -1,171 +1,146 @@
-# Volume 03: Guia de Deploy da xApp RDL (Helm & Kubernetes Puro) e Observabilidade Imediata com Kiali
+# Volume 03: Guia de Deploy do Near-RT RIC, das 3 Reference xApps e da xApp RDL (Helm & K8s)
 
 > **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> [Vol 02: Infraestrutura & Rancher](02_infraestrutura_cluster_k3d_e_rancher.md) -> **[Vol 03: Deploy & Observabilidade Kiali]** -> [Vol 04: Testes, ns-3 & Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md) -> [Vol 05: Conformidade O-RAN](05_relatorios_conformidade_e_governanca.md) -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
 
 **Documento:** Volume Temático 03  
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Escopo:** Empacotamento Helm, Deploy Declarativo Kustomize, Onboarding DMS, Integração de Service Mesh Istio, Kiali Dashboard e Injeção Contínua de Tráfego  
-**Data de Consolidação:** 27/08/2026  
+**Escopo:** Sequência de Deploy Near-RT RIC (`ricplt`), Implantação das 3 Reference xApps (`xSlice`, `Energy Saving`, `Traffic Steering`) no `ricxapp`, Modos Baseline vs Governança e Validação de Observabilidade  
+**Data de Consolidação:** 28/08/2026  
 
 ---
 
-## 1. Visão Geral das Estratégias de Deploy
+## 1. Visão Geral da Arquitetura de Implantação
 
-A xApp RDL suporta duas modalidades oficiais de implantação no Kubernetes Near-RT RIC:
-
-1. **Modalidade Helm Chart (Padrão O-RAN / Produção):** Utiliza a estrutura declarativa `deploy/helm/iqos-xapp-rdl` gerenciada via Helm CLI v3 ou AppMgr DMS.
-2. **Modalidade Kubernetes Puro / Kustomize (Desenvolvimento / K8s Nativo):** Utiliza os manifestos puros em `deploy/kubernetes/` aplicados diretamente com `kubectl apply -k`.
-
----
-
-## 2. Deploy via Helm Chart Oficial (`deploy/helm/iqos-xapp-rdl/`)
-
-```text
-deploy/helm/iqos-xapp-rdl/
-├── Chart.yaml                  # Metadados do Chart (versão 1.1.0)
-├── values.yaml                 # Parâmetros configuráveis (portas, recursos, sondas)
-└── templates/
-    ├── _helpers.tpl            # Nomes e labels padronizados
-    ├── deployment.yaml         # Pod da xApp com healthcheck e security context
-    ├── service-http.yaml       # Serviços HTTP (porta 8080 health / 8081 metrics)
-    └── service-rmr.yaml        # Serviços RMR (portas 4560 data / 4561 route)
-```
-
-### 2.1. Deploy Helm Automatizado em 1 Comando
-O comando compila a imagem Docker local, importa nos nós containerd do k3d, valida a sintaxe com `helm lint`, empacota o chart e realiza o deploy no namespace `ricxapp`:
-
-```bash
-cd ~/XApp-RDL-F1
-make helm-deploy
-```
-
-### 2.2. Execução Manual Passo a Passo
-```bash
-# 1. Build da imagem Docker
-docker build -f docker/Dockerfile -t iqos-xapp-rdl:1.1.0 .
-
-# 2. Importação no containerd do k3d
-for node in $(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)"); do
-    docker save iqos-xapp-rdl:1.1.0 | docker exec -i $node ctr images import -
-done
-
-# 3. Validar e empacotar
-helm lint deploy/helm/iqos-xapp-rdl
-helm package deploy/helm/iqos-xapp-rdl
-
-# 4. Deploy no namespace ricxapp
-helm upgrade --install ricxapp-iqos-xapp-rdl ./iqos-xapp-rdl-1.1.0.tgz \
-  --namespace ricxapp \
-  --create-namespace \
-  --set image.pullPolicy=Never \
-  --set env.useFakeSdl="true" \
-  --set env.rmrWaitForReady="false"
-
-# 5. Aguardar Rollout
-kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ricxapp --timeout=60s
-```
-
----
-
-## 3. Deploy Kubernetes Puro / Kustomize (`deploy/kubernetes/`)
-
-Para operadores que preferem K8s nativo sem a dependência do Helm:
-
-```bash
-# Deploy automatizado:
-make k8s-deploy
-
-# Ou aplicação direta via Kustomize:
-kubectl apply -k deploy/kubernetes/
-kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ricxapp --timeout=60s
-```
-
----
-
-## 4. Observabilidade Imediata com Kiali Service Mesh e Rancher UI
-
-Assim que o deploy da xApp e da plataforma Near-RT RIC for concluído, ative imediatamente a stack de **Observabilidade em Tempo Real** para validar a saúde dos componentes, a topologia de rede e o fluxo de dados.
+O pipeline de implantação orquestra os componentes em dois namespaces isolados com dependência estrita de ordem:
 
 ```mermaid
 flowchart TD
-    subgraph Observabilidade["Painel de Observabilidade Integrada"]
-        RANCHER["1. Rancher Dashboard (https://127.0.0.1:8443)<br/>Visão de Nós, Pods, CPU/RAM e Logs"]
-        KIALI["2. Kiali Dashboard (http://localhost:20001/kiali)<br/>Grafo Topológico Animado em Tempo Real"]
-        PROM["3. Prometheus Metrics (:8081/metrics)<br/>Taxa de Decisões, Conflitos e Latência"]
+    subgraph STAGE1["Etapa 1: Infraestrutura Near-RT RIC (Namespace: ricplt)"]
+        REDIS["Redis DBAAS (:6379)<br/>Shared Data Layer"]
+        E2TERM["E2Term SCTP/RMR (:36422 / :38000)"]
+        SUBMGR["Subscription Manager (:4560)"]
     end
-    
-    TRAFFIC["Gerador Contínuo de Tráfego (make start-traffic)"]
-    TRAFFIC -->|Requisições HTTP/RMR| RIC["Namespace: ricxapp & ricplt"]
-    RIC --> Observabilidade
+
+    subgraph STAGE2["Etapa 2: Workloads Concorrentes (Namespace: ricxapp)"]
+        XSLICE["1. xSlice QoS xApp<br/>(peihaoY/xslice-oran)<br/>HTTP :8082 | Metrics :8083"]
+        ES["2. Energy Saving xApp<br/>(Orange-OpenSource/ns-O-RAN-flexric)<br/>HTTP :8084 | Metrics :8085"]
+        TS["3. Traffic Steering xApp<br/>(o-ran-sc/ric-app-ts)<br/>HTTP :8086 | Metrics :8087"]
+    end
+
+    subgraph STAGE3["Etapa 3: Arbitragem & Governança (Namespace: ricxapp)"]
+        RDL["4. xApp RDL (Fase 1: H-RDL)<br/>Arbitrador TVS/EEVS & Safety Guards<br/>HTTP :8080 | Metrics :8081 | RMR :4560"]
+    end
+
+    STAGE1 -->|Plataforma Pronta| STAGE2
+    STAGE2 -.->|Modo Baseline (Sem RDL)| NS3_BASELINE["Conflitos Diretos na RAN (Sem Governança)"]
+    STAGE2 -->|Modo Governança (Com RDL)| STAGE3
+    STAGE3 -->|Decisões Arbitradas E2SM-RC| E2TERM
 ```
 
-### 4.1. Instalação e Inicialização do Kiali
-O script instala o **Istio Service Mesh**, injeta os sidecars de telemetria e disponibiliza o **Kiali UI**:
+---
+
+## 2. As 3 Reference xApps da Literatura Integradas
+
+| xApp | Projeto Base / Repositório | Porta HTTP / Métricas | Parâmetro Emitido (`RDL_ACTION_PROPOSAL`) |
+| :--- | :--- | :---: | :--- |
+| **1. xSlice (QoS & Slicing)** | [`peihaoY/xslice-oran`](https://github.com/peihaoY/xslice-oran) | `:8082` / `:8083` | `PRB_QUOTA = 80%` (Prioridade: 90 / Fatias URLLC) |
+| **2. Energy Saving (ES)** | [`Orange-OpenSource/ns-O-RAN-flexric`](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) | `:8084` / `:8085` | `TX_POWER = 20 dBm` (Prioridade: 65 / Green RAN) |
+| **3. Traffic Steering (TS)** | [`o-ran-sc/ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | `:8086` / `:8087` | `HANDOVER = UE-07 -> gNB-02` (Prioridade: 80) |
+
+---
+
+## 3. Deploy via Helm (Padrão O-RAN)
+
+### 3.1. Modo Governança Completa (Near-RT RIC + 3 Reference xApps + RDL)
+Implanta a plataforma Near-RT RIC, as 3 xApps concorrentes e a camada de arbitragem RDL:
+```bash
+make helm-deploy
+```
+
+### 3.2. Modo Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
+Implanta a plataforma Near-RT RIC e as 3 xApps concorrentes isoladas, sem o arbitrador RDL, para fins de coleta de dados de referência e validação de conflitos:
+```bash
+make helm-deploy-baseline
+```
+
+---
+
+## 4. Deploy Kubernetes Puro / Kustomize
+
+### 4.1. Modo Governança (Com RDL):
+```bash
+make k8s-deploy
+```
+
+### 4.2. Modo Baseline (Sem RDL):
+```bash
+make k8s-deploy-baseline
+```
+
+---
+
+## 5. Validação Automatizada e Smoke Test (`make test-3xapps`)
+
+O repositório disponibiliza um verificador em tempo real que abre conexões e valida a saúde e as métricas Prometheus de todas as xApps ativas:
 
 ```bash
-# 1. Instalar Istio e Kiali no cluster
+make test-3xapps
+# Ou diretamente:
+bash scripts/verify_3_xapps.sh
+```
+
+**Saída Esperada no Terminal:**
+```text
+======================================================================
+   Validação e Smoke Test das xApps O-RAN no namespace 'ricxapp'
+======================================================================
+
+[1/4] Listando Pods em execucao no namespace ricxapp...
+NAME                                       READY   STATUS    RESTARTS   AGE
+ricxapp-qos-xslice-5c49d8c977-ab12         1/1     Running   0          45s
+ricxapp-energy-saving-6d8b9487c-ef34       1/1     Running   0          45s
+ricxapp-traffic-steering-747d95b5cb-xy56   1/1     Running   0          45s
+ricxapp-iqos-xapp-rdl-84cfbb996b-zw78      1/1     Running   0          40s
+
+[2/4] Validando 1. xSlice QoS xApp (peihaoY/xslice-oran)...
+  -> Healthcheck /health: {"status":"UP","xapp":"xslice_oran","role":"QoS_Slicing"}
+  -> Proposta Recente /proposals/latest: {"xapp_id":"xslice_oran","parameter":"PRB_QUOTA","value":80.0,"priority":90}
+  -> Metricas Prometheus: xslice_proposals_total 12.0
+
+[3/4] Validando 2. Energy Saving xApp (Orange-OpenSource/ns-O-RAN-flexric)...
+  -> Healthcheck /health: {"status":"UP","xapp":"energy_saving_orange","role":"Energy_Saving"}
+  -> Proposta Recente /proposals/latest: {"xapp_id":"energy_saving_orange","parameter":"TX_POWER","value":20.0,"priority":65}
+  -> Metricas Prometheus: es_proposals_total 10.0
+
+[4/4] Validando 3. Traffic Steering xApp (o-ran-sc/ric-app-ts)...
+  -> Healthcheck /health: {"status":"UP","xapp":"traffic_steering_oransc","role":"Traffic_Steering"}
+  -> Proposta Recente /proposals/latest: {"xapp_id":"traffic_steering_oransc","parameter":"HANDOVER","priority":80}
+  -> Metricas Prometheus: ts_proposals_total 8.0
+
+[EXTRA] Validando 4. xApp RDL (Resource and Decision Layer - Fase 1)...
+  -> Healthcheck /health: {"status":"UP","ready":true}
+  -> Metricas Prometheus: rdl_decisions_total 30.0
+
+======================================================================
+   Verificação Concluída com SUCESSO!
+======================================================================
+```
+
+---
+
+## 6. Observabilidade Service Mesh (Kiali & Rancher)
+
+```bash
+# Instalar Service Mesh Istio e Dashboard Kiali:
 make kiali-install
 
-# 2. Abrir o Kiali Dashboard no navegador
+# Abrir painel Kiali (http://localhost:20001/kiali):
 make kiali-dashboard
-# URL: http://localhost:20001/kiali
-```
 
-### 4.2. Injeção Contínua de Tráfego O-RAN
-Para visualizar os fluxos de mensagens trafegando entre os namespaces `ricplt` e `ricxapp` no Kiali, inicie o gerador contínuo de tráfego sintético:
-
-```bash
-# Iniciar tráfego contínuo em segundo plano no cluster:
+# Iniciar gerador de tráfego para visualizar grafo animado:
 make start-traffic
-
-# Ou executar o injetor interativo via terminal:
-make inject-traffic
 ```
 
-### 4.3. Como Navegar e Interpretar os Painéis:
-
-1. **No Kiali Dashboard (`http://localhost:20001/kiali`):**
-   - Acesse a aba **Graph** no menu lateral esquerdo.
-   - Selecione os namespaces **`ricxapp`** e **`ricplt`**.
-   - No menu superior **Display**, marque:
-     - ✅ **Traffic Animation** (setas e partículas animadas indicando o fluxo).
-     - ✅ **Response Time** (latência em milissegundos).
-     - ✅ **Request Rate** (taxa de requisições por segundo - RPS).
-
-2. **No Rancher Dashboard (`https://127.0.0.1:8443`):**
-   - Vá em **Workloads -> Deployments -> `ricxapp-iqos-xapp-rdl`**.
-   - Acompanhe o consumo de CPU e RAM em tempo real.
-   - Clique em `⋮` -> **Ver Registros (View Logs)** para ver as decisões da RDL sendo tomadas em tempo real.
-
-3. **Smoke Test de Endpoints HTTP e Métricas Prometheus:**
-   ```bash
-   make helm-test
-   # Ou manualmente:
-   curl -s http://localhost:8080/health
-   curl -s http://localhost:8081/metrics | grep -E "rdl_|dl_"
-   ```
-
 ---
 
-## 5. Tabela de Comandos de Deploy e Observabilidade
-
-| Ação Desejada | Comando Make | Ação Executada |
-| :--- | :--- | :--- |
-| **Deploy Helm Completo** | `make helm-deploy` | Build, importação containerd, lint e deploy Helm |
-| **Deploy K8s Nativo** | `make k8s-deploy` | Aplicação dos manifestos Kustomize |
-| **Instalar Kiali / Istio** | `make kiali-install` | Provisiona Istio e Kiali no cluster |
-| **Abrir Dashboard Kiali** | `make kiali-dashboard` | Port-forward na porta `20001` |
-| **Iniciar Tráfego Contínuo** | `make start-traffic` | Deploy do pod gerador de carga |
-| **Parar Tráfego** | `make stop-traffic` | Remove o pod gerador de carga |
-| **Injetar Tráfego CLI** | `make inject-traffic` | Dispara rajadas de teste interativas |
-| **Testar Endpoints** | `make helm-test` | Valida `/health`, `/ready` e `/metrics` |
-| **Ver Logs da xApp** | `make logs` | Streaming de logs em tempo real |
-| **Desinstalar xApp** | `make helm-uninstall` | Remove a release Helm do namespace `ricxapp` |
-
----
-
-## 6. Próximo Passo Sequencial
-
-Com a xApp RDL implantada e a observabilidade ativa no Kiali e no Rancher, avance para a suíte de testes unitários, simulação no ns-3 NORI e execução do pipeline experimental:
-
-➡️ **[Volume 04: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md)**
+➡️ **[Volume 04: Testes, Simulação no ns-3 NORI e Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md)**

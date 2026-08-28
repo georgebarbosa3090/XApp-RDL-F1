@@ -1,0 +1,8 @@
+apiVersion: v2
+name: xapp-traffic-steering
+description: Reference Traffic Steering xApp based on o-ran-sc/ric-app-ts for O-RAN Near-RT RIC
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: OpenRAN Traffic Steering Working Group

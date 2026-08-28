@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ricxapp-energy-saving
+  namespace: ricxapp
+  labels:
+    app: ricxapp-energy-saving
+    app.kubernetes.io/name: energy-saving
+    app.kubernetes.io/part-of: reference-xapps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricxapp-energy-saving
+  template:
+    metadata:
+      labels:
+        app: ricxapp-energy-saving
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8085"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: energy-saving
+        image: iqos-xapp-rdl:1.1.0
+        imagePullPolicy: Never
+        env:
+        - name: XAPP_ROLE
+          value: "energy_saving"
+        - name: HTTP_PORT
+          value: "8084"
+        - name: METRICS_PORT
+          value: "8085"
+        - name: RMR_PORT
+          value: "4563"
+        ports:
+        - containerPort: 8084
+          name: http-health
+        - containerPort: 8085
+          name: http-metrics
+        - containerPort: 4563
+          name: rmr-data
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8084
+          initialDelaySeconds: 5
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8084
+          initialDelaySeconds: 5
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ricxapp-energy-saving-http
+  namespace: ricxapp
+  labels:
+    app: ricxapp-energy-saving
+spec:
+  type: ClusterIP
+  selector:
+    app: ricxapp-energy-saving
+  ports:
+  - name: http-health
+    port: 8084
+    targetPort: 8084
+  - name: http-metrics
+    port: 8085
+    targetPort: 8085

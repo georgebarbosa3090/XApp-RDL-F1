@@ -1,4 +1,7 @@
 #!/bin/bash
+# ==============================================================================
+# Pipeline Automatizado de Deploy Helm: Near-RT RIC + 3 Reference xApps (+ RDL)
+# ==============================================================================
 set -e
 
 # Cores para output
@@ -11,14 +14,33 @@ NC='\033[0m'
 
 IMAGE_NAME="iqos-xapp-rdl"
 IMAGE_TAG="1.1.0"
-CHART_DIR="deploy/helm/iqos-xapp-rdl"
-NAMESPACE="ricxapp"
-RELEASE_NAME="ricxapp-iqos-xapp-rdl"
+NAMESPACE_RIC="ricplt"
+NAMESPACE_XAPP="ricxapp"
 CLUSTER_NAME="rancher-lab"
 
-echo -e "${BLUE}====================================================${NC}"
-echo -e "${BLUE}   Pipeline Automatizado de Deploy Helm - xApp RDL  ${NC}"
-echo -e "${BLUE}====================================================${NC}"
+# Flag para deploy do RDL (padrão: true; use --baseline para subir apenas as 3 xApps concorrentes sem RDL)
+DEPLOY_RDL=true
+for arg in "$@"; do
+    case $arg in
+        --baseline|--no-rdl)
+            DEPLOY_RDL=false
+            shift
+            ;;
+        --with-rdl)
+            DEPLOY_RDL=true
+            shift
+            ;;
+    esac
+done
+
+echo -e "${BLUE}======================================================================${NC}"
+echo -e "${BLUE}   Pipeline de Deploy Helm: Near-RT RIC + 3 Reference xApps           ${NC}"
+if [ "$DEPLOY_RDL" = true ]; then
+    echo -e "${CYAN}   [Modo Governança: Near-RT RIC + 3 Reference xApps + xApp RDL]      ${NC}"
+else
+    echo -e "${YELLOW}   [Modo Baseline: Near-RT RIC + 3 Reference xApps (SEM RDL)]         ${NC}"
+fi
+echo -e "${BLUE}======================================================================${NC}"
 
 # 0. Verificar se o cluster k3d existe; se não existir, criar automaticamente
 if ! k3d cluster list ${CLUSTER_NAME} 2>/dev/null | grep -q "${CLUSTER_NAME}"; then
@@ -30,6 +52,12 @@ if ! k3d cluster list ${CLUSTER_NAME} 2>/dev/null | grep -q "${CLUSTER_NAME}"; t
       --port "36422:36422/SCTP@server:0" \
       --port "8080:8080@server:0" \
       --port "8081:8081@server:0" \
+      --port "8082:8082@server:0" \
+      --port "8083:8083@server:0" \
+      --port "8084:8084@server:0" \
+      --port "8085:8085@server:0" \
+      --port "8086:8086@server:0" \
+      --port "8087:8087@server:0" \
       --port "4560:4560@server:0" \
       --port "4561:4561@server:0"
     mkdir -p ~/.kube
@@ -41,11 +69,11 @@ else
 fi
 export KUBECONFIG=~/.kube/config
 
-# 1. Build da Imagem Docker
-echo -e "\n${YELLOW}[1/6] Construindo imagem Docker (${IMAGE_NAME}:${IMAGE_TAG})...${NC}"
+# 1. Build da Imagem Docker Unificada
+echo -e "\n${YELLOW}[1/6] Construindo imagem Docker unificada (${IMAGE_NAME}:${IMAGE_TAG})...${NC}"
 docker build --file docker/Dockerfile --tag ${IMAGE_NAME}:${IMAGE_TAG} .
 
-# 2. Importação Automática para os nós do k3d (filtrando apenas nós reais de containerd, sem serverlb)
+# 2. Importação Automática para os nós do k3d
 echo -e "\n${YELLOW}[2/6] Importando imagem para os nós do k3d...${NC}"
 K3D_NODES=$(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server-[0-9]|agent-[0-9])" || true)
 if [ -n "$K3D_NODES" ]; then
@@ -60,74 +88,70 @@ else
     fi
 fi
 
-# 3. Criação de Namespaces e Near-RT RIC DBAAS
-echo -e "\n${YELLOW}[3/6] Garantindo namespaces e plataforma Near-RT RIC (ricplt)...${NC}"
-kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+# 3. Criação de Namespaces e Near-RT RIC Plataforma (ricplt)
+echo -e "\n${YELLOW}[3/6] Provisionando plataforma Near-RT RIC (namespace ${NAMESPACE_RIC})...${NC}"
+kubectl create namespace ${NAMESPACE_RIC} --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace ${NAMESPACE_XAPP} --dry-run=client -o yaml | kubectl apply -f -
 
-# Subir Redis DBAAS no ricplt se não existir
-if ! kubectl get deployment deployment-ricplt-dbaas-redis -n ricplt &>/dev/null; then
-    echo " -> Provisionando Redis DBAAS (Shared Data Layer) no ricplt..."
-    kubectl apply -n ricplt -f - <<EOF
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: deployment-ricplt-dbaas-redis
-  namespace: ricplt
-  labels:
-    app: ricplt-dbaas
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ricplt-dbaas
-  template:
-    metadata:
-      labels:
-        app: ricplt-dbaas
-    spec:
-      containers:
-      - name: redis
-        image: redis:6.2-alpine
-        ports:
-        - containerPort: 6379
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: service-ricplt-dbaas-tcp
-  namespace: ricplt
-  labels:
-    app: ricplt-dbaas
-spec:
-  selector:
-    app: ricplt-dbaas
-  ports:
-  - port: 6379
-    targetPort: 6379
-EOF
+# Subir Redis DBAAS, E2Term e SubMgr no ricplt
+echo " -> Aplicando manifestos do Near-RT RIC (Redis DBAAS, E2Term, SubMgr)..."
+kubectl apply -f deploy/kubernetes/near-rt-ric.yaml
+
+# Aguardar Redis DBAAS estar Running
+echo " -> Aguardando Redis DBAAS atingir estado Ready no ricplt..."
+kubectl rollout status deployment/deployment-ricplt-dbaas-redis -n ${NAMESPACE_RIC} --timeout=60s
+
+# 4. Deploy das 3 Reference xApps via Helm (ricxapp)
+echo -e "\n${YELLOW}[4/6] Realizando deploy das 3 Reference xApps via Helm no namespace ${NAMESPACE_XAPP}...${NC}"
+
+echo " -> 4.1 Instalando 1. xSlice QoS xApp (peihaoY/xslice-oran)..."
+helm upgrade --install ricxapp-qos-xslice deploy/helm/xapp-qos-xslice \
+  --namespace ${NAMESPACE_XAPP} \
+  --create-namespace \
+  --set image.pullPolicy=Never
+
+echo " -> 4.2 Instalando 2. Energy Saving xApp (Orange-OpenSource/ns-O-RAN-flexric)..."
+helm upgrade --install ricxapp-energy-saving deploy/helm/xapp-energy-saving \
+  --namespace ${NAMESPACE_XAPP} \
+  --create-namespace \
+  --set image.pullPolicy=Never
+
+echo " -> 4.3 Instalando 3. Traffic Steering xApp (o-ran-sc/ric-app-ts)..."
+helm upgrade --install ricxapp-traffic-steering deploy/helm/xapp-traffic-steering \
+  --namespace ${NAMESPACE_XAPP} \
+  --create-namespace \
+  --set image.pullPolicy=Never
+
+# 5. Deploy do RDL (se habilitado)
+if [ "$DEPLOY_RDL" = true ]; then
+    echo -e "\n${YELLOW}[5/6] Instalando 4. xApp RDL (Resource and Decision Layer - Fase 1)...${NC}"
+    helm upgrade --install ricxapp-iqos-xapp-rdl deploy/helm/iqos-xapp-rdl \
+      --namespace ${NAMESPACE_XAPP} \
+      --create-namespace \
+      --set image.pullPolicy=Never \
+      --set env.useFakeSdl="false" \
+      --set env.rmrWaitForReady="false"
+else
+    echo -e "\n${YELLOW}[5/6] Modo Baseline ativo: xApp RDL NAO será implantada neste momento.${NC}"
+    helm uninstall ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} 2>/dev/null || true
 fi
 
-# 4. Validação e Empacotamento Helm
-echo -e "\n${YELLOW}[4/6] Validando e empacotando Helm Chart...${NC}"
-helm lint ${CHART_DIR}
-helm package ${CHART_DIR}
+# 6. Validação de Rollout e Status
+echo -e "\n${YELLOW}[6/6] Validando rollout dos Pods no namespace ${NAMESPACE_XAPP}...${NC}"
+kubectl rollout status deployment/ricxapp-qos-xslice -n ${NAMESPACE_XAPP} --timeout=60s
+kubectl rollout status deployment/ricxapp-energy-saving -n ${NAMESPACE_XAPP} --timeout=60s
+kubectl rollout status deployment/ricxapp-traffic-steering -n ${NAMESPACE_XAPP} --timeout=60s
 
-# 5. Instalação / Upgrade no Kubernetes
-echo -e "\n${YELLOW}[5/6] Executando Helm Upgrade/Install no namespace ${NAMESPACE}...${NC}"
-helm upgrade --install ${RELEASE_NAME} ./${IMAGE_NAME}-${IMAGE_TAG}.tgz \
-  --namespace ${NAMESPACE} \
-  --create-namespace \
-  --set image.pullPolicy=Never \
-  --set env.useFakeSdl="true" \
-  --set env.rmrWaitForReady="false"
+if [ "$DEPLOY_RDL" = true ]; then
+    kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} --timeout=60s
+fi
 
-# 6. Aguardar Pod estar 1/1 Running e Pronto
-echo -e "\n${YELLOW}[6/6] Aguardando Pod atingir estado Ready...${NC}"
-kubectl rollout status deployment/${RELEASE_NAME} -n ${NAMESPACE} --timeout=60s
+echo -e "\n${GREEN}======================================================================${NC}"
+echo -e "${GREEN}   Deploy Concluído com SUCESSO!                                      ${NC}"
+echo -e "${GREEN}======================================================================${NC}"
 
-echo -e "\n${GREEN}====================================================${NC}"
-echo -e "${GREEN}   Deploy Helm Concluído com SUCESSO!               ${NC}"
-echo -e "${GREEN}====================================================${NC}"
+echo -e "\n--- Pods Near-RT RIC (ricplt) ---"
+kubectl get pods -n ${NAMESPACE_RIC} -o wide
 
-kubectl get pods -n ${NAMESPACE} -l app=${RELEASE_NAME} -o wide
+echo -e "\n--- xApps Ativas (ricxapp) ---"
+kubectl get pods -n ${NAMESPACE_XAPP} -o wide

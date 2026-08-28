@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: iqos-xapp-rdl
+  pullPolicy: Never
+  tag: "1.1.0"
+
+fullnameOverride: "ricxapp-traffic-steering"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8087"
+  prometheus.io/path: "/metrics"
+
+env:
+  xappRole: "traffic_steering"
+  httpPort: 8086
+  metricsPort: 8087
+  rmrPort: 4564
+
+service:
+  httpPort: 8086
+  metricsPort: 8087
+  rmrPort: 4564
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
