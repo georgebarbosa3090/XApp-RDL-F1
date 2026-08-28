@@ -66,16 +66,15 @@ make helm-deploy
 
 ## 4. Deploy Kubernetes Puro / Kustomize
 
-### 4.1. Modo Governança (Com RDL):
-```bash
-make k8s-deploy
-```
-
-### 4.2. Modo Baseline (Sem RDL):
+### 4.1. Modo Baseline (Sem RDL):
 ```bash
 make k8s-deploy-baseline
 ```
 
+### 4.2. Modo Governança (Com RDL):
+```bash
+make k8s-deploy
+```
 ---
 
 ## 5. Validação Automatizada e Smoke Test (`make test-3xapps`)
