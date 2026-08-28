@@ -276,4 +276,4 @@ Os datasets estruturados gerados pela simulação (`experiments/results/dataset_
 
 Avance para a análise de governança e matriz de conformidade com as normas O-RAN Alliance:
 
-➡️ **[Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN](05_relatorios_conformidade_e_governanca.md)**
+-> **[Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN](05_relatorios_conformidade_e_governanca.md)**

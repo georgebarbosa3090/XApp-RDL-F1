@@ -50,4 +50,4 @@
 
 Para guias de operação contínua, procedimentos de backup bare-metal do WSL e resolução de falhas comuns de infraestrutura e rede:
 
-➡️ **[Volume 06: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](06_operacao_troubleshooting_e_backup.md)**
+-> **[Volume 06: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](06_operacao_troubleshooting_e_backup.md)**

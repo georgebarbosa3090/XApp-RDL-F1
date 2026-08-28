@@ -480,7 +480,7 @@ notebook_data = {
     "</style>\n",
     "</head>\n",
     "<body>\n",
-    "<h1>📊 Relatório Completo de Avaliação: Baseline vs Fase 1 (H-RDL)</h1>\n",
+    "<h1> Relatório Completo de Avaliação: Baseline vs Fase 1 (H-RDL)</h1>\n",
     "<div class='card'>\n",
     "<strong>Data:</strong> {timestamp_str} | <strong>Ambiente:</strong> ns-3 5G-LENA + Near-RT RIC | <strong>Banda:</strong> 3.5 GHz (n78)\n",
     "</div>\n",

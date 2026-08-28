@@ -262,4 +262,4 @@ kubectl get pods -n cattle-system -w
 
 Com a infraestrutura de cluster k3d provisionada, Redis DBAAS ativo no namespace `ricplt` e o cluster registrado com sucesso no Rancher Dashboard, avance para o deploy da xApp RDL e ativação imediata da observabilidade com Kiali:
 
-➡️ **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**
+-> **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**

@@ -1,20 +1,20 @@
 # Traffic Steering Reference xApp (O-RAN SC)
 
-## 📌 Referência Científica e Projeto Base
+## Referência Científica e Projeto Base
 * **Repositório Oficial:** [`o-ran-sc/ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts)
 * **Implementação Simplificada / Testbed:** [`natanzi/ts-xapp`](https://github.com/natanzi/ts-xapp) (OAIC Testbed)
 * **Ambiente Original:** O-RAN Software Community (O-RAN SC) Near-RT RIC / App Manager / xApp Onboarder.
 
 ---
 
-## 🎯 Papel no Projeto XApp-RDL-F1
+## Papel no Projeto XApp-RDL-F1
 * **Categoria:** Workload Concorrente / Controlador de Mobilidade e Steering.
 * **Objetivo de Controle:** Avalia métricas de sinal (RSRP/RSRQ) e predição de QoE, emitindo comandos de handover e balanceamento de tráfego entre estações rádio-base (`HANDOVER`).
 * **Comportamento Conflitante:** Tenta direcionar UEs para células secundárias ou aumentar potência para manter cobertura contínua, colidindo com políticas de economia de energia (`Energy Saving`) que visam manter essas mesmas células desligadas ou com potência mínima.
 
 ---
 
-## 📡 Interface de Interceptação RDL
+## Interface de Interceptação RDL
 * **MsgType:** `RDL_ACTION_PROPOSAL` (30000)
 * **Parâmetros Emitidos:**
   ```json

@@ -294,4 +294,4 @@ tar -czvf /mnt/c/BackupsWSL/backup-configs-$(date +%Y%m%d).tar.gz \
 
 Voltar para a página inicial e índice temático da documentação:
 
-🏠 **[Voltar ao Portal de Documentação (docs/README.md)](README.md)** | **[Página Inicial do Repositório (README.md)](../README.md)**
+ **[Voltar ao Portal de Documentação (docs/README.md)](README.md)** | **[Página Inicial do Repositório (README.md)](../README.md)**
