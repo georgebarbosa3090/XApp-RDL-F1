@@ -32,8 +32,8 @@ flowchart TD
     end
 
     STAGE1 -->|Plataforma Pronta| STAGE2
-    STAGE2 -.->|Modo Baseline (Sem RDL)| NS3_BASELINE["Conflitos Diretos na RAN (Sem Governança)"]
-    STAGE2 -->|Modo Governança (Com RDL)| STAGE3
+    STAGE2 -.->|"Modo Baseline (Sem RDL)"| NS3_BASELINE["Conflitos Diretos na RAN (Sem Governança)"]
+    STAGE2 -->|"Modo Governança (Com RDL)"| STAGE3
     STAGE3 -->|Decisões Arbitradas E2SM-RC| E2TERM
 ```
 
