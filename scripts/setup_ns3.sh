@@ -14,6 +14,7 @@ NC='\033[0m' # No Color
 
 WORKSPACE_DIR="${HOME}/ns3-oran-workspace"
 NS3_DIR="${WORKSPACE_DIR}/ns-3-oran"
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "${BLUE}======================================================================${NC}"
 echo -e "${BLUE}  Instalação e Configuração do Ambiente ns-3 NORI / 5G-LENA           ${NC}"
@@ -152,8 +153,8 @@ fi
 
 echo -e "${GREEN}[OK] Dependências do sistema instaladas com sucesso!${NC}"
 
-# 3. Clonagem do repositório ns-3 (se ainda não existir)
-echo -e "\n${YELLOW}[ETAPA 2/4] Preparando repositório ns-3 no workspace: ${WORKSPACE_DIR}...${NC}"
+# 3. Clonagem do repositório ns-3 e módulo 5G-LENA (nr)
+echo -e "\n${YELLOW}[ETAPA 2/4] Preparando repositório ns-3 e 5G-LENA no workspace: ${WORKSPACE_DIR}...${NC}"
 mkdir -p "${WORKSPACE_DIR}"
 
 if [ ! -d "${NS3_DIR}" ]; then
@@ -164,6 +165,24 @@ else
 fi
 
 cd "${NS3_DIR}"
+
+# 3.1 Clonar módulo 5G-LENA (nr) em contrib/nr se ausente
+if [ ! -d "${NS3_DIR}/contrib/nr" ] && [ ! -d "${NS3_DIR}/src/nr" ]; then
+    echo -e "Clonando módulo 5G-LENA (nr) em ${NS3_DIR}/contrib/nr..."
+    mkdir -p "${NS3_DIR}/contrib"
+    git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr" --depth 1 || {
+        echo -e "${YELLOW}[AVISO] Falha ao clonar 5G-LENA diretamente. Prosseguindo com fallback...${NC}"
+    }
+else
+    echo -e "${GREEN}[OK] Módulo 5G-LENA (nr) detectado em ${NS3_DIR}.${NC}"
+fi
+
+# 3.2 Copiar cenários de simulação do projeto para o diretório scratch do ns-3
+if [ -d "${BASE_DIR}/simulations/ns3" ]; then
+    mkdir -p "${NS3_DIR}/scratch"
+    cp -f "${BASE_DIR}/simulations/ns3/"*.cc "${NS3_DIR}/scratch/" 2>/dev/null || true
+    echo -e "${GREEN}[OK] Cenários C++ sincronizados com ${NS3_DIR}/scratch/.${NC}"
+fi
 
 # 4. Tratar trava de segurança para execução como root
 echo -e "\n${YELLOW}[ETAPA 3/4] Ajustando permissões e compatibilidade do script ns3...${NC}"

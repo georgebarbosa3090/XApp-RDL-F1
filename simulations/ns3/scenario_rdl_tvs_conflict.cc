@@ -13,10 +13,17 @@
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
-#include "ns3/nr-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
+
+// Inclusão condicional do módulo 5G-LENA (nr)
+#if __has_include("ns3/nr-module.h")
+#include "ns3/nr-module.h"
+#define HAS_NR_MODULE 1
+#else
+#define HAS_NR_MODULE 0
+#endif
 
 // Inclusão condicional dos cabeçalhos do módulo E2 / ns-O-RAN
 #if __has_include("ns3/oran-interface.h")
@@ -68,8 +75,9 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Iniciando Cenário RDL Fase 1 - TVS Conflict Mitigation...");
     NS_LOG_INFO ("gNBs: " << gNbNum << " | Total UEs: " << (gNbNum * ueNumPerGnb) << " | Banda: " << (bandwidthBand1 / 1e6) << " MHz");
 
+#if HAS_NR_MODULE
     // =========================================================================
-    // 2. Criação da Topologia e Grid de Nós
+    // 2. Criação da Topologia e Grid de Nós 5G-LENA
     // =========================================================================
     GridScenarioHelper gridScenario;
     gridScenario.SetRows (1);
@@ -231,13 +239,60 @@ int main (int argc, char *argv[])
         }
     }
 
-    // =========================================================================
-    // 7. Rastreamento, FlowMonitor e Execução da Simulação
-    // =========================================================================
     nrHelper->EnableTraces ();
     Config::Connect ("/NodeList/*/DeviceList/*/$ns3::NrUeNetDevice/ComponentCarrierMapUe/*/NrUePhy/ReportCurrentCellRsrpSinr",
                      MakeCallback (&RxPdcpCallback));
 
+#else
+    // =========================================================================
+    // Fallback: Topologia Padrão RAN (Caso o módulo 5G-LENA não esteja instalado)
+    // =========================================================================
+    NS_LOG_WARN ("Módulo 5G-LENA (nr) não detectado no build ns-3. Executando em modo RAN Fallback.");
+    NodeContainer gnbNodes;
+    gnbNodes.Create (gNbNum);
+    NodeContainer ueNodes;
+    ueNodes.Create (ueNumPerGnb * gNbNum);
+
+    MobilityHelper mobility;
+    mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+    mobility.Install (gnbNodes);
+    mobility.Install (ueNodes);
+
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("10Gbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("1ms"));
+
+    InternetStackHelper internet;
+    internet.Install (gnbNodes);
+    internet.Install (ueNodes);
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.1.0.0", "255.255.0.0");
+
+    for (uint32_t i = 0; i < ueNodes.GetN (); ++i)
+    {
+        NetDeviceContainer link = p2p.Install (gnbNodes.Get (i % gNbNum), ueNodes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 1234 + i;
+        UdpServerHelper server (port);
+        ApplicationContainer serverApp = server.Install (ueNodes.Get (i));
+        serverApp.Start (Seconds (1.0));
+        serverApp.Stop (Seconds (simTime - 1.0));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (i % 3 == 0 ? 1 : 10)));
+        client.SetAttribute ("PacketSize", UintegerValue (i % 3 == 0 ? 128 : 1024));
+        ApplicationContainer clientApp = client.Install (gnbNodes.Get (i % gNbNum));
+        clientApp.Start (Seconds (1.5));
+        clientApp.Stop (Seconds (simTime - 1.0));
+    }
+#endif
+
+    // =========================================================================
+    // 7. Rastreamento, FlowMonitor e Execução da Simulação
+    // =========================================================================
     FlowMonitorHelper flowHelper;
     Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
 
@@ -251,4 +306,3 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Simulação concluída com sucesso. Métricas de fluxo salvas em flowmonitor_results.xml.");
     return 0;
 }
-

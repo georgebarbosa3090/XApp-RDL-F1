@@ -1,6 +1,6 @@
 # Volume 02: Infraestrutura de Cluster (k3d / K8s Puro), 3 Topologias de Cluster, Redis DBAAS e Rancher Dashboard
 
-> **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> **[Vol 02: Infraestrutura & Rancher]** -> [Vol 03: Deploy & Observabilidade Kiali](03_guia_deploy_helm_e_k8s.md) -> [Vol 04: Testes, ns-3 & Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md) -> [Vol 05: Conformidade O-RAN](05_relatorios_conformidade_e_governanca.md) -> [Vol 06: Operação & Troubleshooting](06_operacao_troubleshooting_e_backup.md)
+> **Navegação Sequencial:** [Vol 01: Arquitetura Core](01_arquitetura_e_modelagem_matematica.md) -> **[Vol 02: Infraestrutura & Rancher]** -> [Vol 03: Deploy, Testes & Simulações ns-3](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Vol 04: Conformidade O-RAN](04_relatorios_conformidade_e_governanca.md) -> [Vol 05: Operação & Troubleshooting](05_operacao_troubleshooting_e_backup.md)
 
 **Documento:** Volume Temático 02  
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
@@ -308,4 +308,4 @@ kubectl get pods -n cattle-system -w
 
 Com a infraestrutura de cluster k3d provisionada, Redis DBAAS ativo no namespace `ricplt` e o cluster registrado com sucesso no Rancher Dashboard, avance para o deploy da xApp RDL e ativação imediata da observabilidade com Kiali:
 
--> **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**
+-> **[Volume 03: Guia de Deploy, Observabilidade, Testes e Simulações no ns-3 NORI / 5G-LENA](03_guia_deploy_testes_e_simulacoes_ns3.md)**

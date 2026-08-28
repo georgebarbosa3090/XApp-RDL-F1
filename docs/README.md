@@ -11,7 +11,7 @@
 
 ## Jornada de Engenharia e Estrutura Sequencial
 
-A documentação da **xApp RDL (Fase 1 — H-RDL)** está organizada em uma **jornada técnica estritamente sequencial** em **6 Volumes Temáticos**, guiando o engenheiro desde os conceitos de modelagem e provisionamento de infraestrutura até a observabilidade imediata, simulação em rádio 5G e procedimentos finais de troubleshooting/backup:
+A documentação da **xApp RDL (Fase 1 — H-RDL)** está organizada em uma **jornada técnica estritamente sequencial** em **5 Volumes Temáticos**, guiando o engenheiro desde os conceitos de modelagem e provisionamento de infraestrutura até o deploy, observabilidade imediata, simulação em rádio 5G, governança e procedimentos finais de troubleshooting/backup:
 
 ```mermaid
 graph TD
@@ -23,23 +23,19 @@ graph TD
         V02["[Vol 02] Cluster k3d (3 Topologias), Redis DBAAS e Rancher"]
     end
 
-    subgraph S3["3. Deploy & Observabilidade"]
-        V03["[Vol 03] Deploy xApp RDL (Helm/K8s) & Kiali Service Mesh"]
+    subgraph S3["3. Deploy, Testes & Simulações"]
+        V03["[Vol 03] Deploy Helm/K8s, Observabilidade Kiali, Testes & ns-3 5G-LENA"]
     end
 
-    subgraph S4["4. Validação & Simulação"]
-        V04["[Vol 04] Testes, Simulação ns-3 NORI e Benchmarks"]
+    subgraph S4["4. Governança & Padrões"]
+        V04["[Vol 04] Relatórios de Conformidade e Governança O-RAN"]
     end
 
-    subgraph S5["5. Governança & Padrões"]
-        V05["[Vol 05] Relatórios de Conformidade e Governança O-RAN"]
+    subgraph S5["5. Suporte, Resiliência & Troubleshooting"]
+        V05["[Vol 05] Operação, SOP, Troubleshooting e Backup WSL2"]
     end
 
-    subgraph S6["6. Suporte, Resiliência & Troubleshooting"]
-        V06["[Vol 06] Operação, SOP, Troubleshooting e Backup WSL2"]
-    end
-
-    V01 --> V02 --> V03 --> V04 --> V05 --> V06
+    V01 --> V02 --> V03 --> V04 --> V05
 ```
 
 ---
@@ -60,31 +56,26 @@ graph TD
 
 ---
 
-### 3. Deploy da Aplicação e Observabilidade Imediata
-* **[Volume 03: Guia de Deploy da xApp RDL (Helm & K8s) e Observabilidade Imediata com Kiali](03_guia_deploy_helm_e_k8s.md)**
-  - **Público:** Engenheiros de Deploy, SRE e Operadores de NOC.
-  - **Conteúdo:** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize); Onboarding O-RAN DMS CLI; **Observabilidade Imediata com Istio & Kiali Dashboard** (`http://localhost:20001/kiali`); Injeção contínua de tráfego sintético (`make start-traffic`); Grafo topológico animado em tempo real e monitoramento de métricas no Rancher.
+### 3. Deploy, Observabilidade, Testes e Simulações no ns-3
+* **[Volume 03: Guia de Deploy, Observabilidade, Testes e Simulações no ns-3 NORI / 5G-LENA](03_guia_deploy_testes_e_simulacoes_ns3.md)**
+  - **Público:** Engenheiros de Deploy, SRE, Pesquisadores de Simulação 5G/6G e Engenheiros de Teste.
+  - **Conteúdo:** 
+    - **Parte I (Deploy & Observabilidade):** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize) em modos Baseline e Governança; Smoke test das 3 Reference xApps (`make test-3xapps`); Painéis Rancher e **Kiali Dashboard** (`http://localhost:20001/kiali`) com injeção de tráfego.
+    - **Parte II (Testes & Simulação ns-3):** Suíte de testes unitários (10/10 PASS) e Smoke Test; Instalação automatizada e compilação do **ns-3 NORI / 5G-LENA** com módulo `contrib/nr`; Dicionário de parâmetros de rádio e fatias de serviço (URLLC, eMBB, mMTC); Cenários C++ (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento experimental passo a passo (Baseline vs H-RDL); Datasets CSV, relatórios executivos e integração com Google Colab / Scikit-Learn.
 
 ---
 
-### 4. Validação Científica, Simulação 5G e Benchmarks
-* **[Volume 04: Testes, Simulação no ns-3 NORI, Procedimento Experimental e Benchmarks](04_testes_simulacao_ns3_e_benchmarks.md)**
-  - **Público:** Cientistas de Redes, Engenheiros de Teste e Pesquisadores de Simulação 5G/6G.
-  - **Conteúdo:** Bateria de testes unitários (10/10 PASS) e Smoke Test; Guia de instalação do ns-3 NORI / 5G-LENA; Dicionário completo de parâmetros de rádio e fatias de serviço (URLLC, eMBB, mMTC); Cenários C++ (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento experimental passo a passo (Baseline sem RDL vs Com H-RDL); Datasets CSV, gráficos estatísticos e integração com Google Colab / Scikit-Learn.
-
----
-
-### 5. Governança, Conformidade e Rastreabilidade
-* **[Volume 05: Relatórios de Conformidade Técnica e Governança O-RAN](05_relatorios_conformidade_e_governanca.md)**
+### 4. Governança, Conformidade e Rastreabilidade
+* **[Volume 04: Relatórios de Conformidade Técnica e Governança O-RAN](04_relatorios_conformidade_e_governanca.md)**
   - **Público:** Gestores Técnicos, Auditores de Segurança e Comitês de Governança.
   - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Auditoria de conformidade com os padrões O-RAN Alliance (WG2/WG3), 3GPP e Linux Foundation O-RAN SC; Relatório de segurança Kubernetes (SecurityContext não-root).
 
 ---
 
-### 6. Operação Contínua, Troubleshooting e Backup
-* **[Volume 06: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](06_operacao_troubleshooting_e_backup.md)**
+### 5. Operação Contínua, Troubleshooting e Backup
+* **[Volume 05: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](05_operacao_troubleshooting_e_backup.md)**
   - **Público:** Equipes de Suporte N2/N3, SRE e Administradores de Redes.
-  - **Conteúdo:** Procedimento Operacional Padrão (SOP) de ciclo de vida e sincronização; **Guia Exaustivo de Troubleshooting** (resolução de erros de DNS/Rancher, `cattle-cluster-agent` CrashLoop, `ErrImageNeverPull`, `stat deploy/helm` ausente, falhas de dependências Python); Procedimento de Backup e Restauração bare-metal de snapshots WSL2 Ubuntu 20.04 via PowerShell.
+  - **Conteúdo:** Procedimento Operacional Padrão (SOP) de ciclo de vida e sincronização; **Guia Exaustivo de Troubleshooting** (resolução de erros de DNS/Rancher, `cattle-cluster-agent` CrashLoop, `ErrImageNeverPull`, compilação ns-3 `nr-module.h`, CMake >= 3.25); Procedimento de Backup e Restauração bare-metal de snapshots WSL2 Ubuntu 20.04 via PowerShell.
 
 ---
 
@@ -92,11 +83,11 @@ graph TD
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
-| **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 06](06_operacao_troubleshooting_e_backup.md) |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) -> [Volume 05](05_relatorios_conformidade_e_governanca.md) |
-| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) |
-| **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_helm_e_k8s.md) -> [Volume 06](06_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 05](05_relatorios_conformidade_e_governanca.md) -> [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 04](04_testes_simulacao_ns3_e_benchmarks.md) |
+| **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
+| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
+| **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
+| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) |
 
 ---
 

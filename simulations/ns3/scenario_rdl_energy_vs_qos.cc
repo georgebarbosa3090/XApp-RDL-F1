@@ -13,10 +13,17 @@
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
-#include "ns3/nr-module.h"
+#include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
 
+// Inclusão condicional do módulo 5G-LENA (nr)
+#if __has_include("ns3/nr-module.h")
+#include "ns3/nr-module.h"
+#define HAS_NR_MODULE 1
+#else
+#define HAS_NR_MODULE 0
+#endif
 
 #if __has_include("ns3/oran-interface.h")
 #include "ns3/oran-interface.h"
@@ -50,6 +57,7 @@ int main (int argc, char *argv[])
 
     NS_LOG_INFO ("Iniciando Cenário RDL Fase 1 - EEVS (Energy Saving vs SLA URLLC)...");
 
+#if HAS_NR_MODULE
     // Grid com 2 células (Macro + Small Cell com 50m de separação)
     GridScenarioHelper gridScenario;
     gridScenario.SetRows (1);
@@ -141,6 +149,49 @@ int main (int argc, char *argv[])
     }
 
     nrHelper->EnableTraces ();
+#else
+    NS_LOG_WARN ("Módulo 5G-LENA (nr) não detectado. Executando cenário EEVS em modo Fallback.");
+    NodeContainer gnbNodes;
+    gnbNodes.Create (gNbNum);
+    NodeContainer ueNodes;
+    ueNodes.Create (ueNum);
+
+    MobilityHelper mobility;
+    mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+    mobility.Install (gnbNodes);
+    mobility.Install (ueNodes);
+
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("10Gbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("1ms"));
+
+    InternetStackHelper internet;
+    internet.Install (gnbNodes);
+    internet.Install (ueNodes);
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.2.0.0", "255.255.0.0");
+
+    for (uint32_t i = 0; i < ueNum; ++i)
+    {
+        NetDeviceContainer link = p2p.Install (gnbNodes.Get (i % gNbNum), ueNodes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 5000 + i;
+        UdpServerHelper server (port);
+        ApplicationContainer serverApp = server.Install (ueNodes.Get (i));
+        serverApp.Start (Seconds (1.0));
+        serverApp.Stop (Seconds (simTime - 1.0));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (i < 10 ? 2 : 20)));
+        client.SetAttribute ("PacketSize", UintegerValue (i < 10 ? 256 : 512));
+        ApplicationContainer clientApp = client.Install (gnbNodes.Get (i % gNbNum));
+        clientApp.Start (Seconds (i < 10 ? 10.0 : 2.0));
+        clientApp.Stop (Seconds (i < 10 ? 25.0 : simTime - 2.0));
+    }
+#endif
 
     FlowMonitorHelper flowHelper;
     Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
@@ -154,4 +205,3 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Simulação EEVS concluída com sucesso. Métricas salvas em flowmonitor_results.xml.");
     return 0;
 }
-

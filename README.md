@@ -188,16 +188,15 @@ Os datasets gerados pela co-simulação podem ser importados diretamente no Goog
 
 ## 7. Portal de Documentação Técnica (`docs/`)
 
-A documentação do projeto está estruturada em uma **jornada sequencial de 6 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
+A documentação do projeto está estruturada em uma **jornada sequencial de 5 Volumes Temáticos**. Para acessar o índice completo, visite o **[Portal de Documentação Técnica](docs/README.md)**.
 
 | Volume | Título Temático | Domínio Técnico e Escopo |
 | :---: | :--- | :--- |
 | **[Volume 01](docs/01_arquitetura_e_modelagem_matematica.md)** | Arquitetura, Módulos Core e Modelagem Matemática | Clean Architecture, DDD, agentes de percepção/raciocínio/refinamento, heurísticas TVS/EEVS, codecs ASN.1 APER (KPM/RC) e formulação analítica. |
 | **[Volume 02](docs/02_infraestrutura_cluster_k3d_e_rancher.md)** | Infraestrutura k3d (3 Topologias), Redis DBAAS e Rancher | Requisitos completos, topologias k3d (Single, Dual, Multi-Node), mapeamento de portas O-RAN, namespaces `ricplt`/`ricxapp`, Redis DBAAS e gestão no Rancher UI. |
-| **[Volume 03](docs/03_guia_deploy_helm_e_k8s.md)** | Guia de Deploy da xApp RDL e Observabilidade Kiali | Estrutura Helm Chart (`1.1.0`), deploy Kustomize, onboarding DMS, Istio Service Mesh, Kiali Dashboard em tempo real e injeção contínua de tráfego. |
-| **[Volume 04](docs/04_testes_simulacao_ns3_e_benchmarks.md)** | Testes, Simulação no ns-3 NORI e Benchmarks | Testes unitários (10/10 PASS), Smoke Test, instalação ns-3 NORI, parâmetros 5G NR, cenários C++, replicação (Baseline vs H-RDL) e relatórios. |
-| **[Volume 05](docs/05_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3), 3GPP e segurança Kubernetes. |
-| **[Volume 06](docs/06_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico exaustivo de falhas (DNS/Rancher, ErrImageNeverPull, Python) e backup bare-metal WSL2 Ubuntu 20.04. |
+| **[Volume 03](docs/03_guia_deploy_testes_e_simulacoes_ns3.md)** | Guia de Deploy, Observabilidade, Testes e Simulações ns-3 | Deploy Helm (`1.1.0`) e K8s das 3 Reference xApps e RDL, Kiali Dashboard, testes unitários, smoke test, instalação e co-simulação no ns-3 NORI / 5G-LENA, cenários C++ e benchmarks. |
+| **[Volume 04](docs/04_relatorios_conformidade_e_governanca.md)** | Relatórios de Conformidade Técnica e Governança | Matriz de rastreabilidade (REQ-RDL-01 a 10), auditoria técnica de conformidade O-RAN Alliance (WG2/WG3), 3GPP e segurança Kubernetes. |
+| **[Volume 05](docs/05_operacao_troubleshooting_e_backup.md)** | Operação, Troubleshooting e Procedimentos de Backup | Procedimento Operacional Padrão (SOP), diagnóstico exaustivo de falhas (DNS/Rancher, ErrImageNeverPull, ns-3 build) e backup bare-metal WSL2 Ubuntu 20.04. |
 
 ---
 
