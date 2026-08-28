@@ -126,8 +126,23 @@ ricxapp-iqos-xapp-rdl-84cfbb996b-zw78      1/1     Running   0          40s
 
 ---
 
-## 6. Observabilidade Service Mesh (Kiali & Rancher)
+## 6. Observabilidade e Gestão de Cluster (Rancher & Kiali)
 
+### 6.1. Rancher Dashboard (Gestão Global do Cluster e Nós)
+```bash
+# 1. Iniciar o contêiner do Rancher Server:
+make rancher-start
+
+# 2. Obter a senha de primeiro acesso (Bootstrap Password):
+make rancher-password
+
+# 3. Acessar https://localhost:8443 no navegador e importar o cluster 'rancher-lab'
+# 4. Conectar o cluster ao Rancher automaticamente:
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
+```
+> *Para o passo a passo detalhado de configuração de rede e certificados TLS, consulte o **[Volume 02: Infraestrutura de Cluster e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md)**.*
+
+### 6.2. Kiali Service Mesh (Visualização do Grafo de Tráfego entre xApps)
 ```bash
 # Instalar Service Mesh Istio e Dashboard Kiali:
 make kiali-install

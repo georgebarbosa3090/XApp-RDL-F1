@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate setup-ns3 run-experiments analyze-benchmarks view-results push-results
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 run-experiments analyze-benchmarks view-results push-results
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -47,6 +47,26 @@ cluster-delete:
 
 cluster-recreate: cluster-delete cluster-create
 	@echo "Cluster recriado com sucesso!"
+
+rancher-start:
+	@echo "Iniciando contêiner do Rancher Server (rancher-server)..."
+	docker run -d --restart=unless-stopped \
+	  -p 8088:80 -p 8443:443 \
+	  --privileged \
+	  --name rancher-server \
+	  rancher/rancher:v2.8.5 || echo "Container rancher-server já existe ou está rodando."
+	@echo "Aguarde ~60-90 segundos para a inicialização e acesse: https://localhost:8443"
+
+rancher-stop:
+	@echo "Parando e removendo contêiner do Rancher Server..."
+	docker rm -f rancher-server 2>/dev/null || true
+
+rancher-logs:
+	docker logs -f rancher-server
+
+rancher-password:
+	@echo "Obtendo Bootstrap Password do Rancher Server:"
+	@docker logs rancher-server 2>&1 | grep "Bootstrap Password:" || echo "Ainda inicializando ou senha já redefinida."
 
 rancher-connect:
 	@echo "Conectando Rancher Server ao cluster k3d e ajustando agente..."

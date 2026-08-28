@@ -218,12 +218,58 @@ flowchart TD
     DASH --> SVCS["Service Discovery -> Services (Portas 8080/8081 e 4560/4561)"]
 ```
 
-### 5.1. Vinculação Automatizada do Cluster no Rancher
+### 5.1. Passo 1: Inicialização do Contêiner do Rancher Server
+
+O Rancher Server precisa ser iniciado como contêiner Docker antes de tentar acessar a interface web:
+
+```bash
+# Opção A: Via Makefile (Recomendado)
+make rancher-start
+
+# Opção B: Comando Docker Direto
+docker run -d --restart=unless-stopped \
+  -p 8088:80 -p 8443:443 \
+  --privileged \
+  --name rancher-server \
+  rancher/rancher:v2.8.5
+```
+
+> [!NOTE]
+> **Mapeamento de Portas:** Utilizamos a porta `8088:80` para a interface HTTP do Rancher para evitar conflito com a porta `8080`, que é dedicada às sondas de liveness `/health` das xApps no cluster k3d. O acesso seguro principal é feito via HTTPS na porta `8443`.
+
+---
+
+### 5.2. Passo 2: Acompanhar Prontidão e Obter Senha Inicial (Bootstrap Password)
+
+Na primeira execução, o Rancher leva cerca de **60 a 90 segundos** para inicializar seu plano de controle interno e certificados:
+
+```bash
+# 1. Acompanhar logs até a inicialização completa (Pressione Ctrl+C quando pronto):
+make rancher-logs
+# ou: docker logs -f rancher-server
+
+# 2. Obter a senha de primeiro acesso (Bootstrap Password):
+make rancher-password
+# ou: docker logs rancher-server 2>&1 | grep "Bootstrap Password:"
+```
+
+---
+
+### 5.3. Passo 3: Acesso ao Dashboard e Configuração Inicial
+
+1. Abra no navegador: **`https://localhost:8443`** (ou `https://127.0.0.1:8443`).
+2. **Aviso de Certificado TLS:** Como o Rancher gera certificados autoassinados para o ambiente de laboratório, o navegador exibirá o aviso *"Sua conexão não é particular"*:
+   - Clique em **"Avançado"** -> **"Continuar para localhost (não seguro)"** (no Google Chrome, se o botão não aparecer, basta digitar `thisisunsafe` na janela).
+3. Cole a **Bootstrap Password** obtida no Passo 2, defina sua nova senha definitiva de administrador e confirme a URL de acesso (`https://localhost:8443`).
+
+---
+
+### 5.4. Passo 4: Importação e Vinculação Automatizada do Cluster k3d
 
 Para importar o cluster `rancher-lab` no Rancher sem sofrer com problemas de resolução DNS do WSL2 ou conflitos de porta (`8443` no host vs `443` no Docker):
 
 ```bash
-# 1. No painel do Rancher, clique em: Cluster Management -> Clusters -> Import Existing -> Nomeie 'rancher-lab'
+# 1. No painel do Rancher, acesse: Cluster Management -> Clusters -> Import Existing -> Selecione 'Generic' -> Nomeie como 'rancher-lab'
 # 2. Copie o comando de registro gerado na UI do Rancher (ele conterá a URL com o token gerado, ex: https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml)
 # 3. Execute o helper automatizado do repositório passando a URL ou o nome do arquivo com token:
 make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
@@ -236,7 +282,7 @@ bash scripts/register_rancher.sh
 > **Atenção ao Placeholder `<token>`:**
 > Não digite literalmente `<token>` no terminal Bash, pois os caracteres `<` e `>` são interpretados como redirecionamento de arquivo (`-bash: token: No such file or directory`), impedindo o download do manifesto e a criação do namespace `cattle-system`. Sempre substitua pelo token real (ex: `c-m-abcdef123_c-m-abcdef123.yaml`).
 
-#### Procedimento Manual Equivalente (Passo a Passo):
+#### Procedimento Manual Equivalente (Passo a Passo Interno):
 ```bash
 # A. Conectar o container do Rancher à rede Docker do cluster k3d
 docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true

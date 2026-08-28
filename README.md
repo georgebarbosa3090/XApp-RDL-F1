@@ -90,7 +90,13 @@ make test
 
 ## 4. Observabilidade e Monitoramento
 
-* **Rancher Dashboard:** Acesse `https://127.0.0.1:8443` para gerenciar namespaces (`ricplt`, `ricxapp`), nós e telemetria de CPU/RAM em tempo real.
+* **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
+  ```bash
+  make rancher-start      # 1. Inicia o container do Rancher Server (:8443)
+  make rancher-password   # 2. Obtém a Bootstrap Password inicial
+  # 3. Acesse https://localhost:8443, configure a senha e importe o cluster 'rancher-lab'
+  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 4. Vincula o cluster
+  ```
 * **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC, instale com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
 * **Injetor de Tráfego O-RAN:** Execute `make inject-traffic` para alimentar a malha com fluxos contínuos.
 * **Teste de Endpoints HTTP e Prometheus:**
