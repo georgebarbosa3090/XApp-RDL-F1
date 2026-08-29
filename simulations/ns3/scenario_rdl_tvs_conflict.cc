@@ -119,7 +119,6 @@ int main (int argc, char *argv[])
     Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
     nrHelper->SetSchedulerAttribute ("FixedMcsDl", BooleanValue (false)); // MCS adaptativo baseado em CQI
 
-    nrHelper->InitializeOperationBand (&band);
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     // Configuração de Antenas (MIMO / Beamforming)
