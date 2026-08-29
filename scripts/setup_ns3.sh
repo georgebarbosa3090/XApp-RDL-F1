@@ -180,6 +180,7 @@ fi
 # 3.2 Copiar cenários de simulação do projeto para o diretório scratch do ns-3
 if [ -d "${BASE_DIR}/simulations/ns3" ]; then
     mkdir -p "${NS3_DIR}/scratch"
+    rm -f "${NS3_DIR}/scratch/scenario_rdl_"*.cc 2>/dev/null || true
     cp -f "${BASE_DIR}/simulations/ns3/"*.cc "${NS3_DIR}/scratch/" 2>/dev/null || true
     echo -e "${GREEN}[OK] Cenários C++ sincronizados com ${NS3_DIR}/scratch/.${NC}"
 fi

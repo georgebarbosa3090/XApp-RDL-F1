@@ -40,11 +40,13 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioRdlTvsConflict");
 
+#if HAS_NR_MODULE
 // Callbacks de Rastreamento de Métricas (PDCP / RLC)
 void RxPdcpCallback (std::string path, uint16_t rnti, uint8_t lcid, uint32_t bytes, double delay)
 {
     NS_LOG_INFO ("[PDCP RX] RNTI: " << rnti << " LCID: " << (uint32_t)lcid << " Bytes: " << bytes << " Latencia: " << delay * 1000.0 << " ms");
 }
+#endif
 
 int main (int argc, char *argv[])
 {
