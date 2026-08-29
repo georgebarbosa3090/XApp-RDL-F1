@@ -13,6 +13,7 @@
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
+#include "ns3/antenna-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
@@ -69,6 +70,7 @@ int main (int argc, char *argv[])
     cmd.AddValue ("simTime", "Tempo de simulação em segundos", simTime);
     cmd.AddValue ("centralFrequency", "Frequência central em Hz (padrão 3.5GHz)", centralFrequencyBand1);
     cmd.AddValue ("bandwidth", "Largura de banda em Hz (padrão 100MHz)", bandwidthBand1);
+    cmd.AddValue ("numerology", "Numerologia 5G NR (0: 15kHz, 1: 30kHz, etc.)", numerologyBwp1);
     cmd.AddValue ("ricIp", "IP do E2Term no Near-RT RIC", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP do E2Term", ricPort);
     cmd.AddValue ("enableE2", "Ativar interface O-RAN E2", enableE2Agent);
@@ -110,15 +112,15 @@ int main (int argc, char *argv[])
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFrequencyBand1,
                                                    bandwidthBand1,
                                                    numCcPerBand,
-                                                   BandwidthPartInfo::UMi_StreetCanyon_LoS);
+                                                   BandwidthPartInfo::UMi_StreetCanyon);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
     Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
-    nrHelper->SetChannelConditionModelAttribute ("UpdatePeriod", TimeValue (MilliSeconds (100)));
-    nrHelper->SetPathlossAttribute ("ShadowingEnabled", BooleanValue (true));
+    Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+    Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
     nrHelper->SetSchedulerAttribute ("FixedMcsDl", BooleanValue (false)); // MCS adaptativo baseado em CQI
 
-    nrHelper->InitializeOperationBand (&band);
+    nrHelper->InitializeOperationBand (band);
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     // Configuração de Antenas (MIMO / Beamforming)
@@ -139,15 +141,6 @@ int main (int argc, char *argv[])
     // =========================================================================
     NetDeviceContainer gnbNetDev = nrHelper->InstallGnbDevice (gridScenario.GetBaseStations (), allBwps);
     NetDeviceContainer ueNetDev = nrHelper->InstallUeDevice (gridScenario.GetUserTerminals (), allBwps);
-
-    for (auto it = gnbNetDev.Begin (); it != gnbNetDev.End (); ++it)
-    {
-        DynamicCast<NrGnbNetDevice> (*it)->UpdateConfig ();
-    }
-    for (auto it = ueNetDev.Begin (); it != ueNetDev.End (); ++it)
-    {
-        DynamicCast<NrUeNetDevice> (*it)->UpdateConfig ();
-    }
 
     // Instalação da Pilha de Internet e Atribuição de Endereços IP
     InternetStackHelper internet;

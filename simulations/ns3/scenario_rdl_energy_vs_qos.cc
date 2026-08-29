@@ -13,6 +13,7 @@
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/mobility-module.h"
+#include "ns3/antenna-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
@@ -80,25 +81,20 @@ int main (int argc, char *argv[])
     nrHelper->SetEpcHelper (nrEpcHelper);
 
     CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon_LoS);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
-    nrHelper->InitializeOperationBand (&band);
+    Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+    Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
+    Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
+
+    nrHelper->InitializeOperationBand (band);
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     idealBeamformingHelper->SetAttribute ("BeamformingMethod", TypeIdValue (DirectPathBeamforming::GetTypeId ()));
 
     NetDeviceContainer gnbNetDev = nrHelper->InstallGnbDevice (gridScenario.GetBaseStations (), allBwps);
     NetDeviceContainer ueNetDev = nrHelper->InstallUeDevice (gridScenario.GetUserTerminals (), allBwps);
-
-    for (auto it = gnbNetDev.Begin (); it != gnbNetDev.End (); ++it)
-    {
-        DynamicCast<NrGnbNetDevice> (*it)->UpdateConfig ();
-    }
-    for (auto it = ueNetDev.Begin (); it != ueNetDev.End (); ++it)
-    {
-        DynamicCast<NrUeNetDevice> (*it)->UpdateConfig ();
-    }
 
     InternetStackHelper internet;
     internet.Install (gridScenario.GetUserTerminals ());
