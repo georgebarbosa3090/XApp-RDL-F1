@@ -111,8 +111,7 @@ int main (int argc, char *argv[])
     const uint8_t numCcPerBand = 1;
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFrequencyBand1,
                                                    bandwidthBand1,
-                                                   numCcPerBand,
-                                                   BandwidthPartInfo::UMa);
+                                                   numCcPerBand);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
     Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
