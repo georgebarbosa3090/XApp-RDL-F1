@@ -112,7 +112,7 @@ int main (int argc, char *argv[])
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFrequencyBand1,
                                                    bandwidthBand1,
                                                    numCcPerBand,
-                                                   BandwidthPartInfo::UMi_StreetCanyon);
+                                                   BandwidthPartInfo::UMa);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
     Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100)));
@@ -120,7 +120,7 @@ int main (int argc, char *argv[])
     Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
     nrHelper->SetSchedulerAttribute ("FixedMcsDl", BooleanValue (false)); // MCS adaptativo baseado em CQI
 
-    nrHelper->InitializeOperationBand (band);
+    nrHelper->InitializeOperationBand (&band);
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     // Configuração de Antenas (MIMO / Beamforming)
