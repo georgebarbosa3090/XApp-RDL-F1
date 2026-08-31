@@ -1,4 +1,4 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 run-experiments analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
+.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-experiments analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
@@ -178,8 +178,21 @@ smoke-test:
 uninstall:
 	kubectl delete -k $(K8S_DIR) || $(MAKE) helm-uninstall
 
+# -------------------------------------------------------------
+# Simulações ns-3 NORI e Pipeline Experimental Modular
+# -------------------------------------------------------------
 setup-ns3:
 	bash scripts/setup_ns3.sh
+
+deploy-rdl: helm-deploy
+
+deploy-baseline: helm-deploy-baseline
+
+run-baseline:
+	bash scripts/run_baseline_experiment.sh
+
+run-rdl:
+	bash scripts/run_rdl_experiment.sh
 
 run-experiments:
 	bash scripts/run_full_experiment.sh

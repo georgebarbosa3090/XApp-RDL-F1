@@ -60,8 +60,13 @@ graph TD
 * **[Volume 03: Guia de Deploy, Observabilidade, Testes e Simulações no ns-3 NORI / 5G-LENA](03_guia_deploy_testes_e_simulacoes_ns3.md)**
   - **Público:** Engenheiros de Deploy, SRE, Pesquisadores de Simulação 5G/6G e Engenheiros de Teste.
   - **Conteúdo:** 
-    - **Parte I (Deploy & Observabilidade):** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize) em modos Baseline e Governança; Smoke test das 3 Reference xApps (`make test-3xapps`); Painéis Rancher e **Kiali Dashboard** (`http://localhost:20001/kiali`) com injeção de tráfego.
-    - **Parte II (Testes & Simulação ns-3):** Suíte de testes unitários (10/10 PASS) e Smoke Test; Instalação automatizada e compilação do **ns-3 NORI / 5G-LENA** com módulo `contrib/nr`; Dicionário de parâmetros de rádio e fatias de serviço (URLLC, eMBB, mMTC); Cenários C++ (`scenario_rdl_tvs_conflict.cc`, `scenario_rdl_energy_vs_qos.cc`); Procedimento experimental passo a passo (Baseline vs H-RDL); Datasets CSV, relatórios executivos e integração com Google Colab / Scikit-Learn.
+    - **Parte I (Deploy & Observabilidade):** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize) em modos Baseline e Governança; Smoke test das 3 Reference xApps (`make test-3xapps`); Painéis Rancher e **Kiali Dashboard** (`http://localhost:20001/kiali`) com injeção contínua de tráfego.
+    - **Parte II (Pipeline Experimental em 5 Etapas no ns-3 5G-LENA):**
+      1. *Etapa 1 (Baseline):* Execução isolada no ns-3 sem mediação (`make run-baseline`, traces em `experiments/results/baseline/`).
+      2. *Etapa 2 (Deploy):* Implantação e prontidão da xApp RDL no Near-RT RIC (`make helm-deploy`).
+      3. *Etapa 3 (Mediação RDL):* Execução dos mesmos cenários 5G com a RDL mediando via E2 (`make run-rdl`, traces em `experiments/results/rdl_phase1/`).
+      4. *Etapa 4 (Benchmarks):* Geração do relatório comparativo e datasets CSV para ML (`make analyze-benchmarks` e `make view-results`).
+      5. *Etapa 5 (Sincronização):* Publicação e push automatizado de traces e dados no GitHub (`make push-results`).
 
 ---
 

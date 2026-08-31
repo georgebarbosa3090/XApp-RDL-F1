@@ -269,12 +269,12 @@ make rollback-clean
      git fetch origin && git reset --hard origin/main
      make setup-ns3
      ```
-  3. Se compilar manualmente no diretório do ns-3:
+  3. Se compilar manualmente no diretório do ns-3 (recomenda-se `-j 2` para evitar OOM no WSL2):
      ```bash
      cd ~/ns3-oran-workspace/ns-3-oran
      rm -rf cmake-cache build
      ./ns3 configure -d optimized --enable-examples --enable-tests
-     ./ns3 build -j$(nproc)
+     ./ns3 build -j 2
      ```
 
 ---
@@ -290,12 +290,99 @@ make rollback-clean
      git clone https://gitlab.com/cttc-lena/nr.git contrib/nr --depth 1
      rm -rf cmake-cache build
      ./ns3 configure -d optimized --enable-examples --enable-tests
-     ./ns3 build -j$(nproc)
+     ./ns3 build -j 2
      ```
   2. Ou execute o script automatizado atualizado:
      ```bash
      cd ~/XApp-RDL-F1 && make setup-ns3
      ```
+
+---
+
+### 2.14. Erro / Travamento: WSL2 Congelado e Rancher Inacessível após Build do ns-3 5G-LENA (OOM Lockup & Roteamento de Rede)
+* **Sintomas:**
+  - A interface web do **Rancher** (`https://localhost:8443` ou `http://localhost:8088`) para de responder com erro de *Timeout* ou *Connection Refused*.
+  - Comandos no terminal WSL2 (`wsl.exe`, `bash`, `docker ps`, `kubectl`) congelam ou demoram minutos para responder.
+  - O processo `vmmemWSL` no Gerenciador de Tarefas do Windows consome mais de 7.5 GB de RAM, deixando o host sem memória livre.
+  - O pod `cattle-cluster-agent` no namespace `cattle-system` entra em `CrashLoopBackOff` ou `Error` com mensagens:
+    - `ERROR: https://rancher-server:443/ping is not accessible (Could not connect to server)`
+    - `proxy error from 127.0.0.1:6443 while dialing 172.18.0.4:10250, code 502: 502 Bad Gateway`
+    - `100% packet loss` no ping entre os containers na rede Docker bridge.
+
+* **Causa Raiz:**
+  1. **Esgotamento de Memória (OOM) no WSL2:** A compilação C++ do ns-3 / 5G-LENA via Ninja/CMake sem limitar jobs (`-j`) dispara compilação paralela em todos os núcleos da CPU (ex.: 12 threads). Cada unidade de compilação consome 1.5 GB a 2.5 GB de RAM, ultrapassando os 8 GB padrão do WSL2 e travando o kernel Linux por *memory starvation / swap thrashing*.
+  2. **Bloqueio de Roteamento na Bridge Docker:** Após reiniciar o Docker ou recriar containers no WSL2, as tabelas de iptables/nftables podem resetar a política de encaminhamento (`FORWARD`) para `DROP`, bloqueando a comunicação inter-container entre o nó `k3d-rancher-lab-server-0` e o container `rancher-server`.
+  3. **Resolução de Hostname vs CoreDNS:** Dentro do pod `cattle-cluster-agent`, o nome `rancher-server` não é resolvido pelo CoreDNS interno do Kubernetes (`10.43.0.10`), exigindo o IP direto do container ou roteamento interno.
+
+* **Procedimento de Recuperação Passo a Passo:**
+
+#### Passo 1: Desbloquear o WSL2 e liberar a memória no PowerShell do Windows
+Abra o **PowerShell como Administrador** no Windows:
+```powershell
+# 1. Finalizar processos travados do cliente WSL
+Stop-Process -Name wsl, wslhost, wslrelay -Force -ErrorAction SilentlyContinue
+
+# 2. Reiniciar o serviço do WSL
+Restart-Service -Name WSLService -Force
+
+# 3. Desligar o subsistema WSL2 para liberar a RAM
+wsl --shutdown
+```
+
+#### Passo 2: Configuração Preventiva Definitiva (`~/.wslconfig`)
+Para evitar novos travamentos durante futuras compilações do ns-3, crie ou edite o arquivo `C:\Users\<SEU_USUARIO>\.wslconfig` (no PowerShell do Windows):
+```powershell
+Set-Content -Path "$env:USERPROFILE\.wslconfig" -Value "[wsl2]`nmemory=10GB`nswap=8GB`nprocessors=4" -Encoding UTF8
+```
+* **`memory=10GB`:** Reserva teto estável de RAM para o WSL2.
+* **`swap=8GB`:** Garante espaço de troca seguro para evitar panic no kernel.
+* **`processors=4`:** Evita que comandos de build saturem a CPU e disparem 12+ compilações simultâneas.
+
+#### Passo 3: Limpar Travas Órfãs (index.lock / reset-flag) e Restabelecer Roteamento de Rede
+Após paradas não planejadas, o Rancher pode entrar em crash loop devido a locks de git ou flags de reset corrompidas. Execute no Ubuntu / WSL2:
+```bash
+# 1. Limpar travas órfãs do Git e flags de reset nos volumes do Docker
+find /var/lib/docker/volumes -name 'index.lock' -delete 2>/dev/null || true
+find /var/lib/docker/volumes -name 'reset-flag' -delete 2>/dev/null || true
+
+# 2. Habilitar encaminhamento IPv4 e regras de iptables
+sysctl -w net.ipv4.ip_forward=1
+iptables -I FORWARD 1 -j ACCEPT
+iptables -P FORWARD ACCEPT
+
+# 3. Reiniciar o container do Rancher
+docker restart rancher-server
+```
+
+#### Passo 4: Reiniciar o Cluster k3d e Ressincronizar o Agente do Rancher
+```bash
+# 1. Reiniciar os containers do cluster k3d
+k3d cluster stop rancher-lab && k3d cluster start rancher-lab
+
+# 2. Obter o IP interno do container rancher-server na rede k3d-rancher-lab
+RANCHER_IP=$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{if eq $k "k3d-rancher-lab"}}{{$v.IPAddress}}{{end}}{{end}}' rancher-server)
+echo "IP do Rancher Server: $RANCHER_IP"
+
+# 3. Atualizar as variáveis de ambiente do cattle-cluster-agent com o IP direto e bypass TLS
+docker exec k3d-rancher-lab-server-0 kubectl set env deployment/cattle-cluster-agent -n cattle-system \
+  CATTLE_SERVER="https://${RANCHER_IP}:443" \
+  CATTLE_SSL_NO_VERIFY="true"
+
+# 4. Reiniciar o rollout do agente
+docker exec k3d-rancher-lab-server-0 kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
+
+# 5. Validar que todos os pods voltaram ao status 1/1 Running
+docker exec k3d-rancher-lab-server-0 kubectl get pods -A
+```
+
+#### Passo 5: Boas Práticas para Compilação do ns-3 5G-LENA
+Sempre que for recompilar o ns-3 ou seus cenários C++, utilize explicitamente a flag `-j 2` ou `-j 3`:
+```bash
+cd ~/ns3-oran-workspace/ns-3-oran
+./ns3 build -j 2
+# ou
+ninja -j 2
+```
 
 ---
 

@@ -298,7 +298,19 @@ A partir da raiz do repositório (`~/XApp-RDL-F1`), execute:
 make setup-ns3
 # ou: bash scripts/setup_ns3.sh
 ```
-*O script detecta privilégios de root, instala todas as dependências apt, valida GCC/G++ >= 11 e CMake >= 3.25, clona o `ns-3-dev`, baixa o módulo oficial `5G-LENA` em `contrib/nr`, copia os cenários para `scratch/` e compila com `-j$(nproc)`.*
+*O script detecta privilégios de root, instala todas as dependências apt, valida GCC/G++ >= 11 e CMake >= 3.25, clona o `ns-3-dev`, baixa o módulo oficial `5G-LENA` em `contrib/nr`, copia os cenários para `scratch/` e compila com `-j 2`.*
+
+> [!IMPORTANT]
+> **Recomendação Crítica de Memória e CPU para WSL2:**  
+> A compilação C++ do ns-3 / 5G-LENA consome entre 1.5 GB e 2.5 GB de RAM por processo. Para evitar esgotamento de memória (*OOM Lockup*) e travamento do host Windows ou do Rancher:
+> 1. Configure limites no arquivo `C:\Users\<USUARIO>\.wslconfig`:
+>    ```ini
+>    [wsl2]
+>    memory=10GB
+>    swap=8GB
+>    processors=4
+>    ```
+> 2. Sempre compile limitando threads paralelas: `./ns3 build -j 2` (ou `ninja -j 2`).
 
 ### 11.2. Opção B: Instalação Manual Passo a Passo
 
@@ -328,8 +340,8 @@ cp ~/XApp-RDL-F1/simulations/ns3/*.cc ./scratch/
 rm -rf cmake-cache build
 ./ns3 configure -d optimized --enable-examples --enable-tests
 
-# 7. Compilar o simulador
-./ns3 build -j$(nproc)
+# 7. Compilar o simulador (recomenda-se -j 2 para segurança de memória)
+./ns3 build -j 2
 ```
 
 ---
@@ -350,47 +362,153 @@ rm -rf cmake-cache build
 
 ## 13. Procedimento Experimental Passo a Passo
 
+A metodologia experimental foi estruturada em **cinco fases modulares e estritamente sequenciais**, permitindo ao pesquisador e engenheiro:
+1. Executar inicialmente apenas os experimentos de **Baseline (Sem RDL)** para quantificar as colisões e violações de SLA no 5G-LENA;
+2. Implantar subsequentemente a **xApp RDL (H-RDL)** e o Near-RT RIC no Kubernetes local;
+3. Reexecutar os **exatos mesmos cenários** sob governança e arbitragem determinística via interface E2;
+4. Consolidar os relatórios comparativos, tabelas de benchmark e datasets de treinamento para Machine Learning;
+5. Sincronizar e versionar todos os artefatos de teste diretamente no repositório GitHub.
+
 ```mermaid
 sequenceDiagram
     autonumber
     actor Dev as Engenheiro / Pesquisador
     participant K8s as Cluster k3d / Rancher
     participant RIC as Near-RT RIC (E2Term + RDL)
-    participant NS3 as ns-3 NORI Simulation
+    participant NS3 as ns-3 5G-LENA Simulation
     participant Collector as Coleta e Relatórios
+    participant Git as GitHub Repositório Remoto
 
-    Note over Dev,NS3: Rodada 1: Baseline Sem RDL
-    Dev->>NS3: ./ns3 run "scenario_rdl_tvs_conflict --enableE2=false"
+    Note over Dev,NS3: Fase 1: Execução Isolada do Baseline (Sem RDL)
+    Dev->>NS3: make run-baseline (enableE2=false)
     NS3-->>Collector: Salva traces em experiments/results/baseline/
 
-    Note over Dev,RIC: Rodada 2: Com xApp RDL (H-RDL)
-    Dev->>K8s: make cluster-create
-    Dev->>RIC: make helm-deploy
-    Dev->>NS3: ./ns3 run "scenario_rdl_tvs_conflict --enableE2=true"
-    NS3->>RIC: E2SM-KPM Indications (200ms)
+    Note over Dev,RIC: Fase 2: Implantação e Deploy da xApp RDL
+    Dev->>K8s: make cluster-create (se necessário)
+    Dev->>RIC: make helm-deploy (ou make deploy-rdl)
+    Dev->>RIC: make test-3xapps (Valida sondas /health e /metrics 2/2)
+
+    Note over Dev,NS3: Fase 3: Execução dos Mesmos Cenários com Orquestrador RDL
+    Dev->>NS3: make run-rdl (enableE2=true)
+    NS3->>RIC: E2SM-KPM Indications (Janela 200ms)
     RIC->>RIC: RDL Perception + Reasoning TVS + Safety Guards
     RIC->>NS3: E2SM-RC Control Message (Ação Arbitrada)
     RIC-->>Collector: Salva logs em experiments/results/rdl_phase1/rdl_logs.jsonl
     RIC-->>Collector: Dump Prometheus em experiments/results/rdl_phase1/prometheus_metrics.prom
     NS3-->>Collector: Salva traces em experiments/results/rdl_phase1/
 
-    Note over Collector: Etapa 3: Consolidação e Gráficos
-    Dev->>Collector: python3 scripts/run_and_analyze_benchmarks.py
-    Collector-->>Dev: relatorio_comparativo.md / json / graficos_benchmarks_rdl.png
+    Note over Collector: Fase 4: Análise Comparativa e Datasets
+    Dev->>Collector: make analyze-benchmarks
+    Collector-->>Dev: relatorio_comparativo.md / json / datasets CSV / graficos
+
+    Note over Dev,Git: Fase 5: Sincronização com GitHub
+    Dev->>Git: make push-results (ou make sync)
+    Git-->>Dev: Repositório Remoto Atualizado
 ```
 
-### 13.1. Execução do Pipeline Automatizado
-Para executar as duas rodadas experimentais, processar os traces com FlowMonitor e gerar relatórios comparativos:
+---
+
+### 13.1. Fase 1: Execução Isolada dos Experimentos de Baseline (Sem RDL)
+
+Nesta primeira fase, o simulador **ns-3 NORI / 5G-LENA** é executado em modo *Standalone* (`--enableE2=false`), sem a presença do orquestrador RDL. As 3 reference xApps operam de maneira não coordenada, competindo pelos mesmos recursos de rádio (PRBs, potência de transmissão e handovers).
 
 ```bash
-# Executar pipeline completo (Baseline + H-RDL + Análise):
-make run-experiments
+# Executar unicamente os cenários de Baseline no ns-3:
+make run-baseline
+# ou diretamente via script:
+# bash scripts/run_baseline_experiment.sh
+```
 
-# Reprocessar métricas e regenerar datasets CSV a qualquer momento:
+#### O que é executado nesta fase:
+1. **Compilação e Execução dos Cenários:**
+   - `scenario_rdl_tvs_conflict.cc`: 2 células 5G NR (n78, 3.5 GHz), 30 UEs com tráfego heterogêneo (URLLC, eMBB e mMTC).
+   - `scenario_rdl_energy_vs_qos.cc`: Conflito direto entre corte de potência da micro-célula e rajadas críticas de URLLC.
+2. **Coleta de Dados Brutos:**
+   - Traces de recepção e atraso: `experiments/results/baseline/RxPacketTrace*.txt`.
+   - Traces de PDCP/RLC: `experiments/results/baseline/DlPdcp*.txt`.
+   - Relatório XML do FlowMonitor: `experiments/results/baseline/flowmonitor_results.xml`.
+3. **Métricas Caracterizadas no Baseline:**
+   - **Taxa de Conflito Não Resolvido:** ~33.3% dos time slots com sobreposição destrutiva.
+   - **Latência Média URLLC:** $\approx 11.41\text{ ms}$ (Violação severa do SLA de 5 ms).
+   - **Latência P99 URLLC:** $\approx 18.66\text{ ms}$.
+   - **Taxa de Violação de SLA URLLC:** $> 93.3\%$.
+   - **Instabilidade de Handover:** $\approx 22\text{ eventos de Ping-Pong/minuto}$.
+
+---
+
+### 13.2. Fase 2: Implantação e Ativação do Orquestrador xApp RDL no Near-RT RIC
+
+Após estabelecer a linha de base de degradação, o cluster Kubernetes local (k3d/Rancher) e o Near-RT RIC são provisionados, implantando a **xApp RDL (H-RDL)** juntamente com as xApps de referência sob o framework de mediação.
+
+```bash
+# 1. (Opcional) Garantir que o cluster k3d e Rancher estejam ativos:
+make cluster-create
+# ou verificar status atual:
+make status
+
+# 2. Realizar o deploy da infraestrutura Near-RT RIC + 3 Reference xApps + RDL via Helm:
+make helm-deploy
+# ou: make deploy-rdl
+
+# 3. Validar a prontidão dos Pods e executar Smoke Tests nos endpoints:
+make test-3xapps
+# ou: make smoke-test
+```
+
+---
+
+### 13.3. Fase 3: Execução dos Mesmos Cenários com o Orquestrador xApp RDL Ativo
+
+Com a xApp RDL operacional e escutando no Near-RT RIC, os **mesmos cenários de simulação** são executados no ns-3 com a interface E2 habilitada (`--enableE2=true`).
+
+```bash
+# Executar a simulação ns-3 conectada via E2 com mediação da xApp RDL:
+make run-rdl
+# ou diretamente via script:
+# bash scripts/run_rdl_experiment.sh
+```
+
+#### Dinâmica de Mediação em Tempo Real:
+1. **E2SM-KPM Indications:** O simulador transmite periodicamente (janela de 200 ms) as métricas de RSRP, SINR, carga de tráfego e requisições de PRB/Potência.
+2. **Percepção e Raciocínio TVS:** O motor determinístico H-RDL identifica colisões entre as ações das 3 xApps, consulta o grafo causal e os invariantes de SLA.
+3. **E2SM-RC Control Messages:** A ação arbitrada é injetada no simulador (ex.: priorização da fatia URLLC, bloqueio de handover ping-pong e modulação gradual de potência).
+4. **Coleta de Telemetria:**
+   - Logs estruturados de decisão: `experiments/results/rdl_phase1/rdl_logs.jsonl`.
+   - Métricas Prometheus de latência de decisão e conflitos evitados: `experiments/results/rdl_phase1/prometheus_metrics.prom`.
+   - Traces de rádio e FlowMonitor pós-arbitragem: `experiments/results/rdl_phase1/flowmonitor_results.xml`.
+
+---
+
+### 13.4. Fase 4: Análise Comparativa e Consolidação de Benchmarks
+
+Para processar todos os traces coletados (Baseline vs RDL), calcular os ganhos percentuais e gerar os datasets formatados para Machine Learning:
+
+```bash
+# Processar métricas, gerar relatórios comparativos e gráficos:
 make analyze-benchmarks
 ```
 
-### 13.2. Acesso, Visualização e Sincronização com o GitHub
+#### Artefatos Gerados Automaticamente:
+* **Relatório Executivo Comparativo:** [`experiments/results/relatorio_comparativo.md`](../experiments/results/relatorio_comparativo.md)
+* **Métricas Estruturadas JSON:** [`experiments/results/relatorio_comparativo.json`](../experiments/results/relatorio_comparativo.json)
+* **Dataset de Fluxos e SLAs:** [`experiments/results/dataset_flow_metrics.csv`](../experiments/results/dataset_flow_metrics.csv)
+* **Dataset para Scikit-Learn (Google Colab):** [`experiments/results/dataset_rdl_decisions_ml.csv`](../experiments/results/dataset_rdl_decisions_ml.csv)
+* **Gráficos Comparativos em Alta Resolução (300 DPI):** `experiments/results/graficos_benchmarks_rdl.png`
+
+---
+
+### 13.5. Pipeline Integrado de Ponta a Ponta (Execução Completa em 1 Comando)
+
+Caso deseje executar todo o ciclo experimental (Fases 1, 2, 3 e 4) de forma 100% automatizada e sequencial em lote único:
+
+```bash
+# Executa Baseline -> Deploy RDL -> Simulação RDL -> Análise Comparativa -> Auto-Commit:
+make run-experiments
+```
+
+---
+
+### 13.6. Acesso, Visualização e Sincronização com o GitHub
 
 Após a conclusão dos experimentos, os resultados podem ser inspecionados ou enviados para o GitHub com os seguintes comandos:
 

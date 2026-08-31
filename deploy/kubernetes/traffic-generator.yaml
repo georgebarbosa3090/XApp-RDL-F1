@@ -21,10 +21,22 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          echo "Iniciando gerador de carga contínuo para a xApp RDL..."
+          echo "Iniciando gerador de carga contínuo para o Service Mesh O-RAN (3 Reference xApps + xApp RDL)..."
           while true; do
+            # 1. Tráfego contínuo para as 3 Reference xApps
+            curl -s http://ricxapp-qos-xslice-http.ricxapp.svc.cluster.local:8082/health >/dev/null || true
+            curl -s http://ricxapp-qos-xslice-http.ricxapp.svc.cluster.local:8082/metrics >/dev/null || true
+
+            curl -s http://ricxapp-energy-saving-http.ricxapp.svc.cluster.local:8084/health >/dev/null || true
+            curl -s http://ricxapp-energy-saving-http.ricxapp.svc.cluster.local:8084/metrics >/dev/null || true
+
+            curl -s http://ricxapp-traffic-steering-http.ricxapp.svc.cluster.local:8086/health >/dev/null || true
+            curl -s http://ricxapp-traffic-steering-http.ricxapp.svc.cluster.local:8086/metrics >/dev/null || true
+
+            # 2. Tráfego para o orquestrador xApp RDL (quando implantado)
             curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8080/health >/dev/null || true
             curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8080/ready >/dev/null || true
             curl -s http://ricxapp-iqos-xapp-rdl-http.ricxapp.svc.cluster.local:8081/metrics >/dev/null || true
-            sleep 0.2
+
+            sleep 0.1
           done

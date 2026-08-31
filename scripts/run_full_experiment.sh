@@ -1,105 +1,28 @@
 #!/bin/bash
 # ==============================================================================
-# Pipeline Completo de Execucao Experimental e Coleta de Metricas:
-# Rodada 1: Baseline Sem RDL vs Rodada 2: Com xApp RDL (Fase 1: H-RDL)
+# Pipeline Completo de Execucao Experimental e Coleta de Metricas (Ponta a Ponta):
+# Fase 1: Baseline Sem RDL -> Fase 2: Deploy RDL -> Fase 3: Com RDL -> Fase 4: Analise
 # ==============================================================================
 set -e
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXP_DIR="$BASE_DIR/experiments/results"
-NS3_DIR="${NS3_DIR:-$HOME/ns3-oran-workspace/ns-3-oran}"
-
-if command -v g++-11 >/dev/null 2>&1; then
-    export CC=gcc-11
-    export CXX=g++-11
-elif command -v g++-12 >/dev/null 2>&1; then
-    export CC=gcc-12
-    export CXX=g++-12
-fi
-
-export GIT_EDITOR=true
-export GIT_MERGE_AUTOEDIT=no
 
 echo "========================================================================"
-echo "Iniciando Pipeline Experimental: xApp RDL Fase 1 vs Baseline"
+echo "Iniciando Pipeline Experimental Completo (Baseline -> RDL -> Analise)"
 echo "========================================================================"
-mkdir -p "$EXP_DIR/baseline" "$EXP_DIR/rdl_phase1"
 
-# ------------------------------------------------------------------------------
-# ETAPA 1: Execucao da Rodada 1 (Baseline: 3 xApps Concorrentes Sem RDL)
-# ------------------------------------------------------------------------------
+# ETAPA 1: Executar Baseline
+bash "$BASE_DIR/scripts/run_baseline_experiment.sh"
+
+# ETAPA 2: Garantir Deploy da xApp RDL no Kubernetes
 echo ""
-echo "[ETAPA 1/3] Executando Rodada 1: 3 Reference xApps Concorrentes Sem RDL (Baseline)..."
-echo " -> 1. xSlice (peihaoY/xslice-oran) [PRB_QUOTA=80%]"
-echo " -> 2. Energy Saving (Orange/FlexRIC) [TX_POWER=20dBm]"
-echo " -> 3. Traffic Steering (o-ran-sc/ric-app-ts) [HANDOVER/Steering]"
+echo "[PIPELINE] Garantindo deploy do orquestrador xApp RDL..."
+bash "$BASE_DIR/scripts/deploy_helm.sh" --with-rdl || true
 
-if [ -d "$NS3_DIR" ]; then
-    echo "Compilando e executando cenario no ns-3 em modo Standalone (Sem E2)..."
-    if [ -f "$NS3_DIR/ns3" ]; then
-        git -C "$NS3_DIR" checkout ./ns3 2>/dev/null || true
-        if grep -q "def refuse_run_as_root():" "$NS3_DIR/ns3"; then
-            sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' "$NS3_DIR/ns3"
-        fi
-    fi
-    cp "$BASE_DIR/simulations/ns3/scenario_rdl_tvs_conflict.cc" "$NS3_DIR/scratch/"
-    cd "$NS3_DIR"
-    ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30" > "$EXP_DIR/baseline/ns3_output.log" 2>&1 || true
-    
-    # Coletar traces gerados pelo ns-3 e FlowMonitor XML
-    mv "$NS3_DIR"/RxPacketTrace*.txt "$EXP_DIR/baseline/" 2>/dev/null || true
-    mv "$NS3_DIR"/DlPdcp*.txt "$EXP_DIR/baseline/" 2>/dev/null || true
-    mv "$NS3_DIR"/flowmonitor_results.xml "$EXP_DIR/baseline/" 2>/dev/null || true
-    cd "$BASE_DIR"
-else
-    echo "Diretorio ns-3 nao encontrado em $NS3_DIR. Gerando dados de simulacao sintetizados."
-fi
-echo "[OK] Rodada 1 (Baseline Sem RDL) finalizada e dados salvos em: $EXP_DIR/baseline/"
+# ETAPA 3: Executar Cenarios com RDL e Analisar Resultados
+bash "$BASE_DIR/scripts/run_rdl_experiment.sh"
 
-# ------------------------------------------------------------------------------
-# ETAPA 2: Execucao da Rodada 2 (Com xApp RDL Fase 1 Arbitrando as 3 xApps)
-# ------------------------------------------------------------------------------
-echo ""
-echo "[ETAPA 2/3] Executando Rodada 2: Com xApp RDL Arbitrando as 3 Reference xApps..."
-
-# 2.1 Verificar / Iniciar xApp RDL no Kubernetes
-echo "Verificando Pods das xApps no namespace ricxapp..."
-kubectl get pods -n ricxapp -o wide 2>/dev/null || echo "Aviso: xApps nao detectadas no cluster K8s local."
-
-if [ -d "$NS3_DIR" ]; then
-    E2TERM_IP=$(kubectl get svc -n ricplt e2term-sctp -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "127.0.0.1")
-    echo "Executando cenario no ns-3 conectando ao E2Term em $E2TERM_IP:36422..."
-    cd "$NS3_DIR"
-    ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=${E2TERM_IP} --ricPort=36422 --simTime=30" > "$EXP_DIR/rdl_phase1/ns3_output.log" 2>&1 || true
-    
-    # Coletar traces e FlowMonitor XML
-    mv "$NS3_DIR"/RxPacketTrace*.txt "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
-    mv "$NS3_DIR"/DlPdcp*.txt "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
-    mv "$NS3_DIR"/flowmonitor_results.xml "$EXP_DIR/rdl_phase1/" 2>/dev/null || true
-    cd "$BASE_DIR"
-fi
-
-
-# 2.2 Coletar Logs Estruturados da xApp RDL
-kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl --tail=500 > "$EXP_DIR/rdl_phase1/rdl_logs.jsonl" 2>/dev/null || echo "Sem logs k8s disponiveis."
-
-# 2.3 Coletar Metricas Prometheus
-curl -s http://localhost:8081/metrics > "$EXP_DIR/rdl_phase1/prometheus_metrics.prom" 2>/dev/null || echo "Prometheus endpoint offline."
-
-echo "[OK] Rodada 2 (RDL) finalizada e dados salvos em: $EXP_DIR/rdl_phase1/"
-
-# ------------------------------------------------------------------------------
-# ETAPA 3: Consolidacao, Analise Estatistica e Plotagem de Graficos
-# ------------------------------------------------------------------------------
-echo ""
-echo "[ETAPA 3/4] Processando dados, gerando relatorio comparativo e graficos..."
-python3 "$BASE_DIR/scripts/run_and_analyze_benchmarks.py"
-
-# ------------------------------------------------------------------------------
-# ETAPA 4: Sincronizacao e Publicacao Automatica no GitHub
-# ------------------------------------------------------------------------------
-echo ""
-echo "[ETAPA 4/4] Sincronizando e publicando resultados automaticamente no GitHub..."
+# ETAPA 4: Sincronizacao Automatica com GitHub (opcional)
 cd "$BASE_DIR"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     git add experiments/results/
@@ -110,21 +33,4 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     else
         echo "[INFO] Nenhum dado novo alterado para commit."
     fi
-else
-    echo "[AVISO] Repositorio Git nao detectado para sincronizacao automatica."
 fi
-
-echo ""
-echo "========================================================================"
-echo "Experimento concluido com sucesso!"
-echo "Resultados disponiveis em: $EXP_DIR/"
-echo "Relatorio formal: $EXP_DIR/relatorio_comparativo.md"
-echo "Metricas JSON:    $EXP_DIR/relatorio_comparativo.json"
-echo "Dataset Fluxos:   $EXP_DIR/dataset_flow_metrics.csv"
-echo "Dataset ML Colab: $EXP_DIR/dataset_rdl_decisions_ml.csv"
-echo "Graficos PNG:     $EXP_DIR/graficos_benchmarks_rdl.png"
-echo ""
-echo "Notebook Google Colab pronto para execucao com os novos dados:"
-echo "https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb"
-echo "========================================================================"
-

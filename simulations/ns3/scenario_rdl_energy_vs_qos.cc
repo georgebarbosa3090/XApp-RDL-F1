@@ -103,6 +103,10 @@ int main (int argc, char *argv[])
     // Criacao da estrutura de banda de operacao contigua
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
+    // Inicializacao dos modelos de canal no NrChannelHelper e vinculacao a banda
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
+
     // Parametrizacao dos modelos de canal e propagacao 3GPP TR 38.901
     Config::SetDefault ("ns3::ThreeGppChannelModel::UpdatePeriod", TimeValue (MilliSeconds (100)));           // Atualizacao da matriz de canal a cada 100ms
     Config::SetDefault ("ns3::ThreeGppChannelConditionModel::UpdatePeriod", TimeValue (MilliSeconds (100)));  // Atualizacao de condicao LoS/NLoS a cada 100ms
@@ -145,6 +149,29 @@ int main (int argc, char *argv[])
     // =========================================================================
     // 7. Geracao de Trafego Flutuante e Rajadas de Carga Critica
     // =========================================================================
+    // Criacao do Remote Host no nucleo EPC para envio de trafego aos UEs
+    Ptr<Node> pgw = nrEpcHelper->GetPgwNode ();
+    NodeContainer remoteHostContainer;
+    remoteHostContainer.Create (1);
+    Ptr<Node> remoteHost = remoteHostContainer.Get (0);
+    internet.Install (remoteHostContainer);
+
+    PointToPointHelper p2ph;
+    p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
+    p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
+    p2ph.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (1)));
+    NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
+
+    Ipv4AddressHelper ipv4h;
+    ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
+    Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
+
+    Ipv4StaticRoutingHelper ipv4RoutingHelper;
+    Ptr<Ipv4StaticRouting> remoteHostStaticRouting = ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
+    remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
+
+    double stopTrafficTime = (simTime > 2.0) ? (simTime - 1.0) : simTime;
+
     for (uint32_t i = 0; i < ueNum; ++i)
     {
         Ptr<Node> ueNode = gridScenario.GetUserTerminals ().Get (i); // Obtem o no correspondente ao terminal i
@@ -154,10 +181,10 @@ int main (int argc, char *argv[])
         // Instalacao do receptor UDP Server no terminal de usuario
         UdpServerHelper server (port);
         ApplicationContainer serverApp = server.Install (ueNode);
-        serverApp.Start (Seconds (1.0));                             // Inicio da escuta aos 1.0s
-        serverApp.Stop (Seconds (simTime - 1.0));                     // Fim da escuta 1s antes do termino da simulacao
+        serverApp.Start (Seconds (0.5));                             // Inicio da escuta aos 0.5s
+        serverApp.Stop (Seconds (stopTrafficTime));                  // Fim da escuta
 
-        // Configuracao do transmissor UDP Client a partir da estacao base
+        // Configuracao do transmissor UDP Client a partir do Remote Host
         UdpClientHelper client (ueAddr, port);
         if (i < 10)
         {
@@ -165,9 +192,11 @@ int main (int argc, char *argv[])
             client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));          // Envio continuo de pacotes
             client.SetAttribute ("Interval", TimeValue (MilliSeconds (2)));          // Intervalo de 2ms entre pacotes (500 pkt/s)
             client.SetAttribute ("PacketSize", UintegerValue (256));                 // Tamanho do pacote: 256 Bytes
-            ApplicationContainer clientApp = client.Install (gridScenario.GetBaseStations ().Get (1)); // Transmissao pela gNB 1
-            clientApp.Start (Seconds (10.0));                                        // Inicio da rajada critica aos 10.0s
-            clientApp.Stop (Seconds (25.0));                                         // Termino da rajada aos 25.0s (retorna a condicao nominal)
+            ApplicationContainer clientApp = client.Install (remoteHost);            // Transmissao pelo Remote Host
+            double burstStart = (simTime > 15.0) ? 10.0 : 1.0;
+            double burstStop = (simTime > 25.0) ? 25.0 : stopTrafficTime;
+            clientApp.Start (Seconds (burstStart));
+            clientApp.Stop (Seconds (burstStop));
         }
         else
         {
@@ -175,9 +204,9 @@ int main (int argc, char *argv[])
             client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));          // Envio continuo de pacotes
             client.SetAttribute ("Interval", TimeValue (MilliSeconds (20)));         // Intervalo de 20ms entre pacotes (50 pkt/s)
             client.SetAttribute ("PacketSize", UintegerValue (512));                 // Tamanho do pacote: 512 Bytes
-            ApplicationContainer clientApp = client.Install (gridScenario.GetBaseStations ().Get (0)); // Transmissao pela gNB 0
-            clientApp.Start (Seconds (2.0));                                         // Inicio do trafego nominal aos 2.0s
-            clientApp.Stop (Seconds (simTime - 2.0));                                 // Termino do trafego nominal
+            ApplicationContainer clientApp = client.Install (remoteHost);            // Transmissao pelo Remote Host
+            clientApp.Start (Seconds (1.0));                                         // Inicio do trafego nominal
+            clientApp.Stop (Seconds (stopTrafficTime));                              // Termino do trafego nominal
         }
     }
 
