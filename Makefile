@@ -99,6 +99,30 @@ helm-deploy-baseline:
 	@echo "Implantando Near-RT RIC + 3 Reference xApps via Helm (Modo Baseline SEM RDL)..."
 	bash scripts/deploy_helm.sh --baseline
 
+# Deploy Exclusivo RDL Fase 2 (CA-RDL / MARL)
+helm-deploy-f2:
+	@echo "Implantando exclusivamente a xApp RDL Fase 2 (ricxapp-iqos-xapp-rdl-f2)..."
+	bash scripts/deploy_rdl_phase2.sh
+
+helm-uninstall-f2:
+	@echo "Removendo exclusivamente a xApp RDL Fase 2..."
+	helm uninstall ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) || echo "Release ricxapp-iqos-xapp-rdl-f2 nao encontrada."
+
+status-f2:
+	@echo "=== Status das xApps no Namespace $(NAMESPACE) ==="
+	@kubectl get pods -n $(NAMESPACE) -o wide
+	@echo "\n=== Pod da xApp RDL Fase 2 ==="
+	@kubectl get pods -n $(NAMESPACE) -l app=ricxapp-iqos-xapp-rdl-f2 -o wide
+
+logs-f2:
+	kubectl logs -l app=ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) -f
+
+test-f2:
+	@echo "Testando endpoints da xApp RDL Fase 2 (CA-RDL / MARL)..."
+	@curl -i http://localhost:8080/health || true
+	@echo "\nMétricas Prometheus:"
+	@curl -s http://localhost:8081/metrics | grep -E "rdl_|marl_" || true
+
 helm-package:
 	@echo "Validando e empacotando os 4 Helm Charts..."
 	helm lint deploy/helm/iqos-xapp-rdl
@@ -121,6 +145,7 @@ helm-uninstall:
 	helm uninstall ricxapp-energy-saving -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall ricxapp-traffic-steering -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE) 2>/dev/null || true
+	helm uninstall ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) 2>/dev/null || true
 
 # -------------------------------------------------------------
 # [OPCIONAL] Observabilidade Service Mesh (Kiali / Istio)
