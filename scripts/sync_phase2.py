@@ -113,11 +113,17 @@ with open(os.path.join(p2, 'src/rdl_xapp.py'), 'w', encoding='utf-8') as f:
     f.write(rdl_content)
 print("5. Synced src/rdl_xapp.py in Phase 2")
 
-# 6. Update Makefile in Phase 2
-makefile_p2 = """.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall
+# 6. Update Makefile in Phase 2 with full simulation & cluster pipeline
+makefile_p2 = """.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-experiments run-suite analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 2.0.0
+CHART_DIR ?= deploy/helm/iqos-xapp-rdl
+K8S_DIR ?= deploy/kubernetes
+NAMESPACE_RIC ?= ricplt
+NAMESPACE ?= ricxapp
+RELEASE_NAME ?= ricxapp-iqos-xapp-rdl
+CLUSTER_NAME ?= rancher-lab
 
 build:
 	docker build --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
@@ -128,35 +134,93 @@ build-no-cache:
 test:
 	PYTHONPATH=. pytest tests/ -v
 
-validate:
-	echo "Schema Validated"
+# Gestão do Cluster k3d
+cluster-create:
+	@echo "Criando cluster k3d $(CLUSTER_NAME)..."
+	k3d cluster create $(CLUSTER_NAME) --servers 1 --agents 0 --port "36422:36422/SCTP@server:0" --port "8080:8080@server:0" --port "8081:8081@server:0" --port "4560:4560@server:0" --port "4561:4561@server:0"
+	mkdir -p ~/.kube
+	k3d kubeconfig get $(CLUSTER_NAME) > ~/.kube/config
 
-smoke-test:
-	docker rm -f xapp-rdl-test 2>/dev/null || true
-	docker run -d --name xapp-rdl-test -p 8090:8080 -p 8091:8081 -e USE_FAKE_SDL=true $(IMAGE_NAME):$(IMAGE_TAG)
-	sleep 3
-	curl -i http://localhost:8090/health
-	curl http://localhost:8091/metrics | grep -E "rdl_|dl_"
-	docker logs xapp-rdl-test
-	docker rm -f xapp-rdl-test
+cluster-delete:
+	k3d cluster delete $(CLUSTER_NAME)
+
+# Deploy Helm / K8s
+helm-deploy:
+	bash scripts/deploy_helm.sh --with-rdl
+
+helm-deploy-baseline:
+	bash scripts/deploy_helm.sh --baseline
+
+test-3xapps:
+	bash scripts/verify_3_xapps.sh
+
+# Simulações ns-3 e Pipelines Experimentais
+setup-ns3:
+	bash scripts/setup_ns3.sh
+
+run-baseline:
+	bash scripts/run_baseline_experiment.sh
+
+run-rdl:
+	bash scripts/run_rdl_experiment.sh
+
+run-experiments:
+	bash scripts/run_full_experiment.sh
+
+run-suite:
+	python3 scripts/run_experiment_suite.py
+
+analyze-benchmarks:
+	python3 scripts/run_experiment_suite.py
+
+view-results:
+	@cat experiments/results/relatorio_comparativo.md
+
+push-results:
+	@echo "Sincronizando resultados com o GitHub..."
+	git add experiments/results/ docs/ scripts/
+	git commit -m "chore(experiments): upload latest ns-3 MARL benchmark results [skip ci]" || echo "Nenhum dado novo."
+	git push origin main || echo "Aviso no push."
+
+sync:
+	@bash scripts/git_sync.sh "$(MSG)"
+
+auto-sync:
+	@bash scripts/git_auto_sync.sh $(INTERVAL)
 """
 
 with open(os.path.join(p2, 'Makefile'), 'w', encoding='utf-8') as f:
     f.write(makefile_p2)
-print("6. Updated Makefile in Phase 2")
+print("6. Updated Makefile in Phase 2 with full simulation & cluster pipeline")
 
-# 7. Copy all documentation from Phase 1 to Phase 2
-docs_to_sync = [
-    '07_modelagem_matematica.md',
-    '08_guia_instalacao_osc_near_rt_ric.md',
-    '09_cenarios_de_teste_e_benchmark_fase1_fase2.md',
-    '10_relatorio_smoke_test_fase1.md'
+# 7. Sync simulations directory
+sim_src = os.path.join(p1, 'simulations')
+sim_dst = os.path.join(p2, 'simulations')
+if os.path.exists(sim_src):
+    shutil.copytree(sim_src, sim_dst, dirs_exist_ok=True)
+    print("7. Synced simulations/ (ns-3 scenarios) to Phase 2")
+
+# 8. Sync experiment and maintenance scripts
+scripts_to_sync = [
+    'setup_ns3.sh',
+    'run_baseline_experiment.sh',
+    'run_rdl_experiment.sh',
+    'run_full_experiment.sh',
+    'run_experiment_suite.py',
+    'run_and_analyze_benchmarks.py',
+    'evaluate_and_improve_algorithms.py',
+    'git_sync.ps1',
+    'git_sync.sh',
+    'git_auto_sync.ps1',
+    'git_auto_sync.sh',
+    'git_rollback.ps1',
+    'git_rollback.sh'
 ]
-for doc in docs_to_sync:
-    src_doc = os.path.join(p1, 'docs', doc)
-    dst_doc = os.path.join(p2, 'docs', doc)
-    if os.path.exists(src_doc):
-        shutil.copy2(src_doc, dst_doc)
-        print(f"7. Copied docs/{doc} to Phase 2")
+for sc in scripts_to_sync:
+    src_sc = os.path.join(p1, 'scripts', sc)
+    dst_sc = os.path.join(p2, 'scripts', sc)
+    if os.path.exists(src_sc):
+        shutil.copy2(src_sc, dst_sc)
+        print(f"8. Synced scripts/{sc} to Phase 2")
 
 print("All Phase 2 sync tasks completed successfully!")
