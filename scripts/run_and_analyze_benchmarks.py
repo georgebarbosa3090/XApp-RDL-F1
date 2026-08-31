@@ -139,26 +139,46 @@ def parse_rdl_logs(log_path):
         print(f"[AVISO] Erro ao ler logs RDL {log_path}: {e}")
         return None
 
-def run_analysis(output_dir="experiments/results"):
+def run_analysis(output_dir="experiments/results", mirror_dirs=None, timestamp_str=None, date_str=None):
+    import shutil
     os.makedirs(output_dir, exist_ok=True)
     baseline_dir = os.path.join(output_dir, "baseline")
     rdl_dir = os.path.join(output_dir, "rdl_phase1")
     os.makedirs(baseline_dir, exist_ok=True)
     os.makedirs(rdl_dir, exist_ok=True)
 
+    now = datetime.datetime.now()
+    if not timestamp_str:
+        timestamp_str = now.strftime("%Y-%m-%d %H:%M:%S")
+
     print("=================================================================")
     print("Processamento de Métricas: Baseline vs Fase 1 (H-RDL)")
+    print(f"Diretório de saída: {output_dir}")
+    print(f"Timestamp: {timestamp_str}")
     print("=================================================================")
 
-    # 1. Tentar ler dados reais do FlowMonitor
+    # 1. Tentar ler dados reais do FlowMonitor (no output_dir ou no fallback experiments/results/baseline)
     baseline_xml = os.path.join(baseline_dir, "flowmonitor_results.xml")
+    if not os.path.exists(baseline_xml):
+        fallback_baseline = os.path.join("experiments", "results", "baseline", "flowmonitor_results.xml")
+        if os.path.exists(fallback_baseline):
+            baseline_xml = fallback_baseline
+
     rdl_xml = os.path.join(rdl_dir, "flowmonitor_results.xml")
+    if not os.path.exists(rdl_xml):
+        fallback_rdl = os.path.join("experiments", "results", "rdl_phase1", "flowmonitor_results.xml")
+        if os.path.exists(fallback_rdl):
+            rdl_xml = fallback_rdl
     
     flows_baseline = parse_flowmonitor_xml(baseline_xml, "baseline")
     flows_rdl = parse_flowmonitor_xml(rdl_xml, "rdl_phase1")
 
     # 2. Tentar ler logs reais do RDL
     rdl_log_path = os.path.join(rdl_dir, "rdl_logs.jsonl")
+    if not os.path.exists(rdl_log_path):
+        fallback_log = os.path.join("experiments", "results", "rdl_phase1", "rdl_logs.jsonl")
+        if os.path.exists(fallback_log):
+            rdl_log_path = fallback_log
     rdl_log_stats = parse_rdl_logs(rdl_log_path)
 
     # 3. Construção do Dataset de Fluxos
@@ -234,10 +254,11 @@ def run_analysis(output_dir="experiments/results"):
 
     metrics = {
         "metadata": {
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": timestamp_str,
             "environment": "ns-3 NORI / 5G-LENA 3.5 GHz (n78) + Near-RT RIC",
             "phase": "Fase 1 (H-RDL Determinística)",
-            "github_repo": "https://github.com/georgebarbosa3090/XApp-RDL-F1"
+            "github_repo": "https://github.com/georgebarbosa3090/XApp-RDL-F1",
+            "colab_notebook": "https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb"
         },
         "baseline": {
             "total_action_proposals": total_proposals,
@@ -263,11 +284,14 @@ def run_analysis(output_dir="experiments/results"):
         }
     }
 
+    generated_files = []
+
     # 5. Salvar Métricas JSON
     json_path = os.path.join(output_dir, "relatorio_comparativo.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=4)
     print(f"[OK] Metricas salvas em: {json_path}")
+    generated_files.append(("relatorio_comparativo.json", json_path))
 
     # 6. Salvar Datasets CSV
     csv_flows_path = os.path.join(output_dir, "dataset_flow_metrics.csv")
@@ -275,7 +299,8 @@ def run_analysis(output_dir="experiments/results"):
         f.write("scenario,flow_id,slice_type,tx_pkts,rx_pkts,lost_pkts,delivery_ratio_pct,mean_delay_ms,throughput_mbps,sla_violated\n")
         for item in flows_baseline + flows_rdl:
             f.write(f"{item['scenario']},{item['flow_id']},{item['slice_type']},{item['tx_pkts']},{item['rx_pkts']},{item['lost_pkts']},{item['delivery_ratio_pct']},{item['mean_delay_ms']},{item['throughput_mbps']},{item['sla_violated']}\n")
-    print(f"[OK] Dataset de fluxos exportado para Colab: {csv_flows_path}")
+    print(f"[OK] Dataset de fluxos exportado: {csv_flows_path}")
+    generated_files.append(("dataset_flow_metrics.csv", csv_flows_path))
 
     # Dataset de Machine Learning
     csv_ml_path = os.path.join(output_dir, "dataset_rdl_decisions_ml.csv")
@@ -302,7 +327,8 @@ def run_analysis(output_dir="experiments/results"):
                 
                 st_chosen = "URLLC" if idx % 3 == 0 else ("eMBB" if idx % 3 == 1 else "mMTC")
                 f.write(f"{round(t,2)},{sc},{st_chosen},{ue_c},{round(load,2)},{round(rsrp,2)},{round(sinr,2)},{prb},{round(p_tx,2)},{is_conflict},{c_type},{action},{sla_ok}\n")
-    print(f"[OK] Dataset de Machine Learning (Scikit-Learn) exportado: {csv_ml_path}")
+    print(f"[OK] Dataset de Machine Learning exportado: {csv_ml_path}")
+    generated_files.append(("dataset_rdl_decisions_ml.csv", csv_ml_path))
 
     # 7. Salvar Relatório Markdown
     md_path = os.path.join(output_dir, "relatorio_comparativo.md")
@@ -319,7 +345,8 @@ def run_analysis(output_dir="experiments/results"):
         f.write("# Relatório Comparativo de Validação Experimental: Baseline vs Fase 1 (H-RDL)\n\n")
         f.write(f"**Data de Execução:** {metrics['metadata']['timestamp']}  \n")
         f.write(f"**Ambiente:** {metrics['metadata']['environment']}  \n")
-        f.write(f"**Repositório GitHub:** [{metrics['metadata']['github_repo']}]({metrics['metadata']['github_repo']})  \n\n")
+        f.write(f"**Repositório GitHub:** [{metrics['metadata']['github_repo']}]({metrics['metadata']['github_repo']})  \n")
+        f.write(f"**Google Colab:** [Executar Notebook de ML]({metrics['metadata']['colab_notebook']})  \n\n")
         f.write("## Tabela Resumo de Desempenho\n\n")
         f.write("| Métrica Científica | Baseline (Sem RDL) | Fase 1: H-RDL | Ganho / Variação |\n")
         f.write("| :--- | :---: | :---: | :---: |\n")
@@ -330,6 +357,7 @@ def run_analysis(output_dir="experiments/results"):
         f.write(f"| **Eficiência Energética (Bits/Joule)** | 1.00x | **+{round((metrics['rdl_phase1']['energy_efficiency_index'] - 1.0) * 100, 1)}%** | Otimização substancial |\n")
         f.write(f"| **Instabilidade de Handover (Ping-Pong)** | {metrics['baseline']['handover_ping_pong_events_per_min']} ev/min | **{metrics['rdl_phase1']['handover_ping_pong_events_per_min']} ev/min** | 100% mitigado |\n")
     print(f"[OK] Relatorio Markdown salvo em: {md_path}")
+    generated_files.append(("relatorio_comparativo.md", md_path))
 
     # 8. Geração de Gráficos (se matplotlib estiver disponível)
     try:
@@ -376,10 +404,36 @@ def run_analysis(output_dir="experiments/results"):
         plot_path = os.path.join(output_dir, "graficos_benchmarks_rdl.png")
         plt.savefig(plot_path, dpi=300)
         print(f"[OK] Graficos salvos em: {plot_path}")
+        generated_files.append(("graficos_benchmarks_rdl.png", plot_path))
     except ImportError:
         print("[AVISO] matplotlib nao disponivel no ambiente local para plotagem direta.")
 
+    # 9. Espelhamento (mirroring) para compatibilidade retroativa
+    if mirror_dirs:
+        for m_dir in mirror_dirs:
+            if m_dir and os.path.abspath(m_dir) != os.path.abspath(output_dir):
+                os.makedirs(m_dir, exist_ok=True)
+                for fname, fpath in generated_files:
+                    target_path = os.path.join(m_dir, fname)
+                    shutil.copy2(fpath, target_path)
+                print(f"[OK] Artefatos espelhados para: {m_dir}")
+
     print("\nExecucao e analise concluidas com sucesso!")
+    return generated_files
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Coleta e Processamento de Benchmarks RDL")
+    parser.add_argument("--output-dir", default="experiments/results", help="Diretorio onde os resultados serao salvos")
+    parser.add_argument("--mirror-root", action="store_true", help="Se definido, espelha os arquivos gerados tambem na raiz de experiments/results")
+    parser.add_argument("--timestamp-str", default=None, help="Timestamp customizado para o relatorio")
+    args = parser.parse_args()
+
+    mirrors = []
+    if args.mirror_root and os.path.abspath(args.output_dir) != os.path.abspath("experiments/results"):
+        mirrors.append("experiments/results")
+
+    run_analysis(output_dir=args.output_dir, mirror_dirs=mirrors, timestamp_str=args.timestamp_str)
 
 if __name__ == "__main__":
-    run_analysis()
+    main()

@@ -7,7 +7,7 @@
 set -e
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXP_DIR="$BASE_DIR/experiments/results"
+EXP_DIR="${1:-${EXP_DIR:-$BASE_DIR/experiments/results}}"
 NS3_DIR="${NS3_DIR:-$HOME/ns3-oran-workspace/ns-3-oran}"
 
 if command -v g++-11 >/dev/null 2>&1; then

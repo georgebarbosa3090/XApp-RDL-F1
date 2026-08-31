@@ -7,7 +7,7 @@
 set -e
 
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXP_DIR="$BASE_DIR/experiments/results"
+EXP_DIR="${1:-${EXP_DIR:-$BASE_DIR/experiments/results}}"
 NS3_DIR="${NS3_DIR:-$HOME/ns3-oran-workspace/ns-3-oran}"
 
 if command -v g++-11 >/dev/null 2>&1; then
@@ -74,7 +74,7 @@ curl -s http://localhost:8081/metrics > "$EXP_DIR/rdl_phase1/prometheus_metrics.
 # 4. Consolidacao e Analise Comparativa
 echo ""
 echo "[Analise] Consolidando resultados e gerando relatorio comparativo (Baseline vs RDL)..."
-python3 "$BASE_DIR/scripts/run_and_analyze_benchmarks.py"
+python3 "$BASE_DIR/scripts/run_and_analyze_benchmarks.py" --output-dir "$EXP_DIR"
 
 echo ""
 echo "========================================================================"

@@ -32,6 +32,7 @@ import os
 import sys
 import json
 import math
+import datetime
 import warnings
 import numpy as np
 import pandas as pd
@@ -449,13 +450,30 @@ def generate_evaluation_visualizations(df_flows, df_ml, scenario_eval, ml_result
 # 5. CONSTRUÇÃO DO RELATÓRIO CIENTÍFICO E EXPORTAÇÃO
 # -------------------------------------------------------------
 
-def generate_comprehensive_reports(scenario_eval, ml_results, output_dir="experiments/results"):
+def generate_comprehensive_reports(scenario_eval, ml_results, output_dir="experiments/results", date_str=None, timestamp_str=None):
+    os.makedirs(output_dir, exist_ok=True)
+    now = datetime.datetime.now()
+    
+    if not timestamp_str:
+        timestamp_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        
+    if not date_str:
+        months_pt = {
+            1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+            5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+            9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+        }
+        date_str = f"{now.day} de {months_pt.get(now.month, 'Agosto')} de {now.year}"
+
     # 1. Relatório JSON
     json_data = {
         "metadata": {
             "title": "Avaliação Comparativa Completa: Baseline (Sem RDL) vs Fase 1 (H-RDL)",
+            "timestamp": timestamp_str,
+            "evaluation_date": date_str,
             "environment": "ns-3 NORI / 5G-LENA 3.5 GHz (n78) + Near-RT RIC",
             "repository": "https://github.com/georgebarbosa3090/XApp-RDL-F1",
+            "colab_notebook": "https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb",
             "models_evaluated": list(ml_results['trained_models'].keys())
         },
         "scenarios_comparison": scenario_eval,
@@ -485,8 +503,10 @@ def generate_comprehensive_reports(scenario_eval, ml_results, output_dir="experi
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
 **Ambiente de Co-Simulação:** ns-3 v3.40 (5G-LENA + NORI) / Near-RT RIC (k3d Cluster)  
 **Banda de Operação:** 3.5 GHz (n78), Largura de Banda: 50 MHz  
-**Data da Avaliação:** 27 de Agosto de 2026  
-**Repositório:** [https://github.com/georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1)
+**Data da Avaliação:** {date_str}  
+**Timestamp de Execução:** {timestamp_str}  
+**Repositório:** [https://github.com/georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1)  
+**Google Colab:** [Executar Notebook de ML](https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb)
 
 ---
 
@@ -546,11 +566,21 @@ Os resultados comprovam empiricamente que a **xApp RDL (Fase 1: H-RDL)** estabel
 # -------------------------------------------------------------
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Aprimoramento de Algoritmos & Avaliação Multidimensional RDL")
+    parser.add_argument("--input-dir", default="experiments/results", help="Diretorio de entrada contendo CSVs de fluxos e ML")
+    parser.add_argument("--output-dir", default="experiments/results", help="Diretorio de destino para salvar os relatorios e graficos")
+    parser.add_argument("--date-str", default=None, help="String de data personalizada (ex: '31 de Agosto de 2026')")
+    parser.add_argument("--timestamp-str", default=None, help="String de timestamp personalizada (ex: '2026-08-31 10:30:00')")
+    args = parser.parse_args()
+
     print("=========================================================================")
     print("Iniciando Aprimoramento de Algoritmos & Avaliação Multidimensional RDL")
+    print(f"Entrada: {args.input_dir} | Saida: {args.output_dir}")
     print("=========================================================================")
     
-    df_flows, df_ml = load_and_preprocess_data()
+    os.makedirs(args.output_dir, exist_ok=True)
+    df_flows, df_ml = load_and_preprocess_data(results_dir=args.input_dir)
     print(f"[1/4] Datasets carregados: Flows={df_flows.shape}, ML={df_ml.shape}")
     
     scenario_eval = evaluate_network_scenarios(df_flows, df_ml)
@@ -559,8 +589,8 @@ def main():
     ml_results = build_and_evaluate_ml_models(df_ml)
     print("[3/4] Benchmark e calibração de 6 modelos de Machine Learning concluídos.")
     
-    generate_evaluation_visualizations(df_flows, df_ml, scenario_eval, ml_results)
-    generate_comprehensive_reports(scenario_eval, ml_results)
+    generate_evaluation_visualizations(df_flows, df_ml, scenario_eval, ml_results, output_dir=args.output_dir)
+    generate_comprehensive_reports(scenario_eval, ml_results, output_dir=args.output_dir, date_str=args.date_str, timestamp_str=args.timestamp_str)
     print("[4/4] Gráficos de alta resolução e relatórios científicos exportados.")
     print("=========================================================================\n")
 

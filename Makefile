@@ -197,16 +197,19 @@ run-rdl:
 run-experiments:
 	bash scripts/run_full_experiment.sh
 
+run-suite:
+	python3 scripts/run_experiment_suite.py
+
 analyze-benchmarks:
-	python3 scripts/run_and_analyze_benchmarks.py
+	python3 scripts/run_experiment_suite.py
 
 view-results:
 	@cat experiments/results/relatorio_comparativo.md
 
 push-results:
 	@echo "Sincronizando resultados experimentais com o GitHub..."
-	git add experiments/results/
-	git commit -m "chore(experiments): upload latest ns-3 benchmark results and datasets [skip ci]" || echo "Nenhuma alteração nova para commit."
+	git add experiments/results/ docs/ scripts/
+	git commit -m "chore(experiments): upload latest ns-3 benchmark results, datasets and LaTeX report [skip ci]" || echo "Nenhuma alteração nova para commit."
 	git push origin main || echo "Aviso: Verifique as credenciais do Git / chave SSH para o push."
 
 # -------------------------------------------------------------
