@@ -219,6 +219,18 @@ run-baseline:
 run-rdl:
 	bash scripts/run_rdl_experiment.sh
 
+run-scenario1:
+	@echo "Executando Cenário 1: Energy Saving vs QoS (EEVS) com logs em tempo real..."
+	@mkdir -p $(NS3_DIR)/scratch
+	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
+
+run-scenario2:
+	@echo "Executando Cenário 2: Traffic Steering vs QoS (TVS) com logs em tempo real..."
+	@mkdir -p $(NS3_DIR)/scratch
+	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
+
 run-experiments:
 	bash scripts/run_full_experiment.sh
 

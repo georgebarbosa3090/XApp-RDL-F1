@@ -222,7 +222,29 @@ make sync MSG="feat(experiments): atualizacao dos resultados de baseline e RDL x
 
 ---
 
-### 5.7. Execução em Lote Único (Pipeline Completo de Ponta a Ponta)
+### 5.7. Acompanhamento em Tempo Real dos 2 Cenários no Console
+
+Para executar e visualizar em tempo real no prompt de comando (PowerShell / WSL2 / CMD):
+
+```bash
+# 1. Acompanhar streaming contínuo de logs da RDL:
+make logs       # Para Fase 1 (H-RDL)
+make logs-f2    # Para Fase 2 (CA-RDL / MARL)
+
+# 2. Executar Cenário 1 (Energy vs QoS / EEVS) com logs ao vivo:
+make run-scenario1
+
+# 3. Executar Cenário 2 (Traffic Steering vs QoS / TVS) com logs ao vivo:
+make run-scenario2
+
+# 4. Executar a suíte de IA e visualização das tabelas comparativas:
+python scripts/evaluate_and_improve_algorithms.py
+python scripts/run_experiment_suite.py
+```
+
+---
+
+### 5.8. Execução em Lote Único (Pipeline Completo de Ponta a Ponta)
 Caso deseje executar as Etapas 1, 2, 3, 4 e 5 sequencialmente em uma única chamada:
 ```bash
 make run-experiments

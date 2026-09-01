@@ -535,6 +535,46 @@ make push-results
   scp -r root@<IP_DO_SERVIDOR>:~/XApp-RDL-F1/experiments/results ./meus_resultados
   ```
 
+### 13.7. Execução e Acompanhamento em Tempo Real no Prompt de Comando (2 Cenários)
+
+Para executar e visualizar em tempo real no console (PowerShell, CMD ou WSL2/Bash) as decisões e métricas de ambos os cenários:
+
+#### 1. Monitorar o Deploy e Pods no Kubernetes:
+```bash
+# Acompanhar mudanças de estado dos Pods:
+kubectl get pods -n ricxapp -w
+
+# Streaming de logs em tempo real (Fase 1):
+make logs
+
+# Streaming de logs em tempo real (Fase 2 - CA-RDL / MARL):
+make logs-f2
+# ou no PowerShell: kubectl logs -l app=ricxapp-iqos-xapp-rdl-f2 -n ricxapp -f
+```
+
+#### 2. Execução dos 2 Cenários de Simulação com Saída ao Vivo no Console:
+```bash
+# Cenário 1 (Energy vs QoS / EEVS):
+make run-scenario1
+# ou no ns-3: export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --simTime=30"
+
+# Cenário 2 (Traffic Steering vs QoS / TVS):
+make run-scenario2
+# ou no ns-3: export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --simTime=30"
+```
+
+#### 3. Execução da Suíte Comparativa e IA no Prompt:
+```powershell
+# No Windows (PowerShell/CMD):
+python scripts/evaluate_and_improve_algorithms.py
+python scripts/run_experiment_suite.py
+```
+```bash
+# No Linux / WSL2:
+python3 scripts/evaluate_and_improve_algorithms.py
+python3 scripts/run_experiment_suite.py
+```
+
 ---
 
 ## 14. Análise com Scikit-Learn e Google Colab

@@ -20,6 +20,13 @@ try:
 except ImportError:
     FastAPI = None
     Server = None
+    class _DummyMetric:
+        def __init__(self, *args, **kwargs): pass
+        def labels(self, *args, **kwargs): return self
+        def inc(self, *args, **kwargs): pass
+        def set(self, *args, **kwargs): pass
+    Counter = Gauge = _DummyMetric
+    def generate_latest(): return b""
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] [xSlice-xApp] %(message)s')
 logger = logging.getLogger("xslice_xapp")
