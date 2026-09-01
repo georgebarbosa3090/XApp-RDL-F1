@@ -392,16 +392,6 @@ make run-suite
     with open(os.path.join(P2_DIR, "README.md"), "w", encoding="utf-8") as f:
         f.write(readme_content)
     print("[OK] README.md formalizado na Fase 2.")
-
-    # -------------------------------------------------------------
-    # 4. Copiar relatorio_tecnico_experimentos_2026-08-31.tex para docs/ da Fase 2
-    # -------------------------------------------------------------
-    tex_src = os.path.join(P1_DIR, "docs", "relatorio_tecnico_experimentos_2026-08-31.tex")
-    tex_dst = os.path.join(P2_DIR, "docs", "relatorio_tecnico_experimentos_2026-08-31.tex")
-    if os.path.exists(tex_src):
-        shutil.copy2(tex_src, tex_dst)
-        print("[OK] docs/relatorio_tecnico_experimentos_2026-08-31.tex copiado para a Fase 2.")
-
     print("\nFormalizacao documental da Fase 2 concluida com sucesso!")
 
 if __name__ == "__main__":
