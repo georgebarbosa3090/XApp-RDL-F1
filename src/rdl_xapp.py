@@ -1,14 +1,15 @@
-import time
+﻿import time
 import threading
 import json
 import os
+import uuid
 from typing import Dict, Any, List
 
 try:
     from ricxappframe.xapp_frame import RMRXapp, Xapp
 except ImportError:
     class RMRXapp:  # type: ignore
-        """Fallback mock para execução local/testes sem dependência binária C/RMR."""
+        """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
         def __init__(self, default_handler=None, rmr_port=4560, rmr_wait_for_ready=False, use_fake_sdl=True, post_init=None):
             self.default_handler = default_handler
             self.post_init = post_init
@@ -73,6 +74,9 @@ class RDLxApp:
         self.buffer_lock = threading.Lock()
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
+
+        # ACK & Transaction Tracking
+        self.pending_transactions: Dict[str, float] = {}
         
         self.xapp = RMRXapp(
             default_handler=self._default_handler,
@@ -88,7 +92,7 @@ class RDLxApp:
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
 
     def start(self):
-        logger.info("Iniciando xApp RDL")
+        logger.info("Iniciando xApp RDL (H-RDL Fase 1 com Pass-Through)")
         self.health.run()
         self.metrics.start()
         self.running = True
@@ -100,7 +104,7 @@ class RDLxApp:
         self.xapp.stop()
         
     def _default_handler(self, xapp_instance, summary, sbuf):
-        logger.debug("Mensagem RMR não mapeada recebida", mtype=summary.get("mtype"))
+        logger.debug("Mensagem RMR nao mapeada recebida", mtype=summary.get("mtype"))
         xapp_instance.rmr_free(sbuf)
 
     def _entrypoint(self, xapp_instance):
@@ -127,7 +131,7 @@ class RDLxApp:
         xapp_instance.rmr_free(sbuf)
 
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
-        """Recebe ações propostas por outras xApps via RMR e enfileira na janela temporal."""
+        """Recebe acoes propostas por outras xApps via RMR e enfileira na janela temporal."""
         payload = summary.get("payload")
         if payload:
             try:
@@ -149,6 +153,17 @@ class RDLxApp:
         xapp_instance.rmr_free(sbuf)
 
     def _control_ack_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
+        """Trata confirmacoes de execucao de controle emitidas pelo E2 Node / E2Term."""
+        payload = summary.get("payload")
+        if payload:
+            try:
+                data = json.loads(payload.decode('utf-8'))
+                tx_id = data.get("transaction_id")
+                if tx_id and tx_id in self.pending_transactions:
+                    rtt_ms = (now_ts() - self.pending_transactions.pop(tx_id)) * 1000.0
+                    logger.info("RIC_CONTROL_ACK recebido", transaction_id=tx_id, rtt_ms=f"{rtt_ms:.2f}ms")
+            except Exception:
+                pass
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
         xapp_instance.rmr_free(sbuf)
 
@@ -157,14 +172,19 @@ class RDLxApp:
         xapp_instance.rmr_free(sbuf)
 
     def inject_xapp_action(self, action: XAppAction):
-        """API pública para injeção de ações simuladas (usada em testes)"""
+        """API publica para injecao de acoes simuladas (usada em testes)"""
         with self.buffer_lock:
             if not self.proposal_buffer:
                 self.window_start = now_ts()
             self.proposal_buffer.append(action)
 
     def _process_action_group(self, actions: List[XAppAction]):
-        """Processa todas as ações acumuladas na Decision Window (Feature 2)"""
+        """
+        Processa todas as acoes acumuladas na Decision Window (Feature 2):
+        1. Identifica conflitos diretos e indiretos;
+        2. Arbitra conflitos via ReasoningAgent e valida via RefinementAgent;
+        3. Executa Pass-Through de acoes sem conflito validadas individualmente.
+        """
         t0 = now_ts()
         for act in actions:
             self.memory.add_action(act)
@@ -172,15 +192,19 @@ class RDLxApp:
         conflicts = self.perception.register_action_group(actions)
         self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
         
-        # Resolve conflitos do grupo
+        # Mapeia acoes em conflito para isolar as acoes limpas
+        conflicting_action_keys = set()
+        for conflict in conflicts:
+            for act in conflict.involved_xapps:
+                conflicting_action_keys.add((act.node_id, act.parameter, act.xapp_id))
+
+        # 1. Resolver conflitos do grupo
         for conflict in conflicts:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
             self.memory.add_conflict(conflict)
             self.metrics.record_conflict(conflict)
             
             resolution = self.reasoning.resolve(conflict)
-            # Para validação, passamos a primeira ação ou validamos separadamente
-            # Assumimos que Refinement pode validar um lote ou validamos 1 a 1.
             is_valid, level, reason = self.refinement.validate(resolution, conflict)
             latency = now_ts() - t0
             
@@ -192,12 +216,21 @@ class RDLxApp:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
                     self._send_control(act.node_id, act.parameter, act.value)
             else:
-                logger.warning("Resolução Rejeitada ou Lote Vazio", reason=reason)
+                logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
 
-        # Se alguma ação da janela não esteve em conflito, ela deveria ser executada livremente.
-        # Aqui, para simplificar o protótipo, assumimos que as ações sem conflito 
-        # (não retornadas pela Perception) podem ser enviadas diretamente se o caso permitir.
-        # (Omitted here for brevity, mas o Perception detecta conflitos contra o histórico).
+        # 2. Despacho Continuo de Acoes Limpas (Conflict-Free Pass-Through Pipeline)
+        clean_actions = [
+            act for act in actions 
+            if (act.node_id, act.parameter, act.xapp_id) not in conflicting_action_keys
+        ]
+        
+        for clean_act in clean_actions:
+            is_safe, level, reason = self.refinement.validate_single_action(clean_act)
+            if is_safe:
+                logger.info("Acao Limpa Despachada (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
+                self._send_control(clean_act.node_id, clean_act.parameter, clean_act.value)
+            else:
+                logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
 
     def _decision_loop(self):
         while self.running:
@@ -213,16 +246,19 @@ class RDLxApp:
                         self.window_start = 0.0
                         logger.info(f"Decision Window Expired. Processing batch of {len(actions_to_process)} actions.")
                         
-                        # Processa fora do lock para não travar RMR
+                        # Processa fora do lock para nao travar RMR
                         threading.Thread(target=self._process_action_group, args=(actions_to_process,), daemon=True).start()
 
     def _send_control(self, node_id: str, parameter: str, value: float):
         try:
             # Encodifica APER ASN.1 Nativo
             aper_payload = self.rc_encoder.encode_control_request(node_id, parameter, value)
+            tx_id = str(uuid.uuid4())[:8]
+            self.pending_transactions[tx_id] = now_ts()
             
             # Formata para o dispatcher RMR do E2 Term
             payload_dict = {
+                "transaction_id": tx_id,
                 "node_id": node_id,
                 "parameter": parameter,
                 "value": value,
