@@ -1,6 +1,6 @@
 # Relatório Comparativo de Validação Experimental: Baseline vs Fase 1 (H-RDL)
 
-**Data de Execução:** 2026-08-31 13:59:26  
+**Data de Execução:** 2026-09-04 08:33:18  
 **Ambiente:** ns-3 NORI / 5G-LENA 3.5 GHz (n78) + Near-RT RIC  
 **Repositório Fase 1:** [https://github.com/georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1)  
 **Google Colab:** [Executar Notebook de ML](https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb)  
