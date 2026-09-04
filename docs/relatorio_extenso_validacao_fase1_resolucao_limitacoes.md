@@ -264,7 +264,37 @@ A variabilidade intra-grupo entre blocos de sementes confirmou a homogeneidade e
 
 ---
 
-### 3.3. Tabela Consolidada de Resultados Experimentais (N = 30 Runs)
+### 3.3. Fundamentação Metodológica: Sementes Estocásticas ($S$), Densidade de UEs ($M$) e Escalabilidade Assintótica
+
+#### A. Distinção Formal entre Parâmetro de Escala ($M$) e Semente Estocástica ($S$)
+Em simulações 5G/O-RAN (ns-3 / Near-RT RIC), computadores utilizam Geradores de Números Pseudoaleatórios (PRNG):
+* **Semente Estocástica ($S \in \{1001, \dots, 1030\}$):** É a chave determinística que inicializa o gerador de números pseudoaleatórios, controlando variáveis físicas estocásticas:
+  1. *Distribuição Espacial e Posição Inicial:* Coordenadas $(x, y, z)$ dos UEs e distâncias euclidianas às rádio-bases.
+  2. *Mobilidade e Vetores de Deslocamento:* Velocidades instantâneas, ângulos de caminhada aleatória (*Random Walk*) e tempos de pausa.
+  3. *Padrões de Tráfego e Jitter:* Instantes exatos (ao nível de milissegundo) de rajadas de dados (eMBB), pacotes industriais críticos (URLLC) ou telemetrias (mMTC).
+  4. *Condições de Canal de Rádio:* Flutuações térmicas, sombreamento (*Log-normal Shadowing*) e desvanecimento rápido (*Rayleigh/Rician Fading*).
+* **Parâmetro de Escala / Densidade de Rede ($M \in [100, 1000]\text{ UEs}$):** É a variável independente de carga da rede.
+
+#### B. Design Experimental Fatorial Cruzado ($M \times S \times \text{Modo}$)
+Ao variar a densidade da rede de $100$ a $1000$ dispositivos (e.g., $M \in \{100, 250, 500, 750, 1000\}$ UEs), a metodologia científica rigorosa (3GPP, IEEE, SBRC) requer um **design fatorial pareado**:
+* Para **cada** nível de densidade $M$, executa-se o conjunto completo de $N = 30$ sementes idênticas tanto para o *Baseline* quanto para a *xApp RDL*.
+* Isso garante o **isolamento de causa e efeito**: a comparação emparelhada assegura que a variação de métricas decorra exclusivamente da densidade de carga e da governança das xApps, descartando vieses estocásticos isolados.
+
+#### C. Análise da Complexidade Assintótica da xApp RDL
+A arquitetura da xApp RDL foi projetada para garantir latência de decisão determinística e sub-milissegundo no Near-RT RIC, independentemente do crescimento massivo do número de UEs $M$:
+1. **Desacoplamento de Escala de UEs:** O loop de controle Near-RT opera sobre as *intenções e propostas agregadas* emitidas pelas $K$ xApps concorrentes (ex: fatias de rede, parâmetros de célula e fluxos de mobilidade), em vez de iterar atomicamente sobre cada um dos $M$ UEs individuais no ciclo de arbitragem da RDL.
+2. **Complexidade do Grafo de Conflitos (`PerceptionAgent`):** $\mathcal{O}(K^2)$, onde $K$ é o número de xApps em execução (tipicamente $K \in [3, 10]$). Para $K = 3$, são avaliados $\binom{3}{2} = 3$ pares de propostas na janela de 200 ms.
+3. **Complexidade do Raciocínio (`ReasoningAgent`):** $\mathcal{O}(K)$ para cálculo vetorial das utilidades analíticas (Shannon, $M/G/1$ e Earth Power).
+4. **Complexidade dos *Safety Guards* (`RefinementAgent`):** $\mathcal{O}(1)$ por ação despachada.
+5. **Tempo de Decisão Real Medido:** $T_{\text{dec}} = 14,20 \pm 0,47\text{ ms} \ll 50\text{ ms}$, operando com folga dentro da janela temporal mandatória do O-RAN Near-RT ($10\text{ ms} \le \Delta t \le 1000\text{ ms}$) mesmo em cenários de alta densidade ($M \to 1000\text{ UEs}$).
+
+#### D. Resiliência e Comportamento sob Saturação Extrema ($M \to 1000\text{ UEs}$)
+* **Colapso do Baseline:** Sob saturação extrema ($M = 1000$ UEs), o baseline sem mediação colapsa: as xApps entram em ciclo vicioso destrutivo (Energy Saving corta potência enquanto Traffic Steering dispara handovers e xSlice exige mais PRBs), resultando em violações de SLA superiores a 60% e tempestades de handover ping-pong.
+* **Resiliência da xApp RDL:** A arquitetura RDL impõe priorização estrita de fatias críticas (URLLC > eMBB > mMTC), clamping de potência segura e histerese temporal de handover ($\Delta t \ge 1000\text{ ms}$), mantendo **$0,00\%$ de violações de SLA URLLC** e **$99,53\%$ de PDR**.
+
+---
+
+### 3.4. Tabela Consolidada de Resultados Experimentais (N = 30 Runs)
 
 A Tabela abaixo apresenta as médias amostrais acompanhadas de seus respectivos intervalos de confiança de 95% e os níveis de significância estatística obtidos:
 

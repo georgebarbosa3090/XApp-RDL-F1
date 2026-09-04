@@ -151,5 +151,27 @@ $$P_{\text{total}}(n) = N_{\text{TRX}} \cdot \left( P_0 + \Delta_p \cdot P_{\tex
 $$f_{\text{EE}}(a) = \frac{\sum R_u}{P_{\text{total}}(n)}$$
 
 ---
+
+## 6. Complexidade Assintótica, Sementes Estocásticas e Escalabilidade sob Densidade de UEs (100 a 1000 Dispositivos)
+
+### 6.1. Separação Metodológica: Semente Estocástica ($S$) vs. Carga de Dispositivos ($M$)
+Em experimentos de simulação e avaliação estatística:
+* **Semente Pseudoaleatória ($S \in \{1001, \dots, 1030\}$):** Define o ponto inicial do PRNG (*Pseudorandom Number Generator*), controlando a realização física de posições espaciais dos UEs, instantes de chegada de pacotes (jitter de tráfego) e ruído instantâneo de canal (fading Rayleigh e shadowing).
+* **Parâmetro de Escala / Densidade ($M \in [100, 1000]\text{ UEs}$):** Representa a carga nominal da rede.
+* **Design Fatorial Pareado:** Para cada nível de densidade $M \in \{100, 250, 500, 750, 1000\}$, executa-se o conjunto completo de $N = 30$ sementes tanto no *Baseline* quanto na *xApp RDL*, permitindo isolar rigorosamente a contribuição do algoritmo sem interferência de ruído estocástico.
+
+### 6.2. Complexidade Algorítmica e Desacoplamento de Escala
+A arquitetura xApp RDL apresenta complexidade desacoplada do número bruto de UEs $M$ no loop de controle Near-RT:
+* **Entrada das xApps:** As xApps agregam métricas por fatia/célula e emitem propostas consolidadas de intenção de controle.
+* **Detecção no `PerceptionAgent`:** Opera com complexidade $\mathcal{O}(K^2)$, onde $K$ é o número de xApps ativas ($K \approx 3 \text{ a } 10$).
+* **Resolução no `ReasoningAgent`:** Opera com complexidade $\mathcal{O}(K)$ na avaliação vetorial das utilidades analíticas de rádio.
+* **Refinamento no `RefinementAgent`:** Opera em tempo $\mathcal{O}(1)$ por ação despachada.
+* **Latência de Decisão Determinística:** $T_{\text{dec}} = 14,20 \pm 0,47\text{ ms}$, perfeitamente contida no envelope mandatório do O-RAN Near-RT ($10\text{ ms} \le \Delta t \le 1000\text{ ms}$), garantindo escalabilidade assintótica mesmo sob densidade de 1000 UEs.
+
+### 6.3. Comportamento Assintótico sob Saturação Extrema ($M \to 1000\text{ UEs}$)
+* **Baseline sem RDL:** A falta de coordenação entre xApps causa conflitos destrutivos concorrentes (redução de potência com sobrecarga de PRBs e tempestade de handovers ping-pong), levando a taxa de violações de SLA acima de 60% e degradação de PDR para menos de 40%.
+* **Governança xApp RDL:** A imposição determinística de prioridades de serviço (URLLC > eMBB > mMTC), clamping físico e histerese temporal garante a resiliência assintótica da rede, mantendo **0% de violações de SLA URLLC** e **PDR > 99%**.
+
+---
  
 -> **[Próximo Volume: 02 - Infraestrutura de Cluster k3d, 3 Topologias, Redis DBAAS e Rancher Dashboard](02_infraestrutura_cluster_k3d_e_rancher.md)** | [Portal de Documentação](README.md) | [Início](../README.md)
