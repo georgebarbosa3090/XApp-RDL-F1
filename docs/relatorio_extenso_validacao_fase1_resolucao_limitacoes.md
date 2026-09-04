@@ -175,7 +175,7 @@ def _control_ack_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbu
 
 ## 3. Desenvolvimento e Fundamentação do Motor Estatístico Multi-Semente (N = 30 Runs) com Média ± IC (95%)
 
-Para garantir inferência estatística inquestionável segundo as melhores práticas metodológicas da ACM e SBC, foi concebido e implementado o motor estatístico em [`scripts/run_multi_seed_evaluation.py`](file:///c:/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1/scripts/run_multi_seed_evaluation.py).
+Para garantir inferência estatística inquestionável segundo as melhores práticas metodológicas da ACM e SBC, foi concebido e implementado o motor estatístico em [`scripts/run_multi_seed_evaluation.py`](../scripts/run_multi_seed_evaluation.py).
 
 ```mermaid
 flowchart TD
@@ -287,20 +287,48 @@ A Tabela abaixo apresenta as médias amostrais acompanhadas de seus respectivos 
 
 Esta seção estabelece o protocolo de auditoria e reprodução independente para verificar a eficácia de todos os componentes da xApp RDL e a resolução formal das limitações identificadas.
 
-### 4.1. Preparação e Inicialização do Ambiente de Teste
+> **Regra de Auditoria e Reprodutibilidade:** É estritamente mandatório que todas as verificações sejam conduzidas a partir de um repositório baixado e atualizado diretamente do GitHub oficial (`https://github.com/georgebarbosa3090/XApp-RDL-F1.git`), descartando qualquer acoplamento com caminhos locais arbitrários.
 
-Para executar qualquer teste ou script de validação, inicialize o ambiente virtual Python 3.10:
+### 4.1. Download, Atualização e Inicialização do Ambiente a partir do GitHub
 
-**Comando (PowerShell / Windows):**
+#### Opção A: Execução em Ambiente Windows (PowerShell)
 ```powershell
-Set-Location "c:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase1"
+# 1. Clonar o repositorio oficial (ou atualizar se ja clonado)
+if (-not (Test-Path "XApp-RDL-F1")) {
+    git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+}
+Set-Location "XApp-RDL-F1"
+git fetch origin main
+git checkout main
+git pull origin main
+
+# 2. Criar e ativar o ambiente virtual Python 3.10
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+
+# 3. Instalar dependencias de execucao e teste
+pip install --upgrade pip
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
-**Comando (Bash / Linux / WSL):**
+#### Opção B: Execução em Ambiente Linux / WSL (Bash)
 ```bash
-cd /mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1
+# 1. Clonar o repositorio oficial (ou atualizar se ja clonado)
+if [ ! -d "XApp-RDL-F1" ]; then
+    git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+fi
+cd XApp-RDL-F1
+git fetch origin main
+git checkout main
+git pull origin main
+
+# 2. Criar e ativar o ambiente virtual Python 3.10
+python3 -m venv .venv
 source .venv/bin/activate
+
+# 3. Instalar dependencias de execucao e teste
+pip install --upgrade pip
+pip install -r requirements.txt -r requirements-dev.txt
 ```
 
 ---

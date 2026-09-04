@@ -264,7 +264,7 @@ A validação experimental é realizada com o simulador de eventos discretos **n
 
 ## 2. Parâmetros Reais dos Cenários em C++
 
-Os parâmetros implementados no código C++ [`simulations/ns3/scenario_rdl_tvs_conflict.cc`](file:///c:/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase2/simulations/ns3/scenario_rdl_tvs_conflict.cc) são:
+Os parâmetros implementados no código C++ [`simulations/ns3/scenario_rdl_tvs_conflict.cc`](simulations/ns3/scenario_rdl_tvs_conflict.cc) são:
 
 | Parâmetro | Valor Configurado no C++ | Justificativa Técnica |
 | :--- | :--- | :--- |
