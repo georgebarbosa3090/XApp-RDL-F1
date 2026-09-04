@@ -98,27 +98,30 @@ flowchart TD
   - Verifica se os parâmetros de controle colidem (ex: alteração de potência, fatiamento de PRB, handover forçado).
   - Emite eventos estruturados `ConflictEvent` contendo as propostas envolvidas e o grau de severidade.
 
-### 3.2. ReasoningAgent (Raciocínio e Resolução)
-* **Heurística TVS (Throughput vs. Service Priority):** Prioriza fatias de serviço de missão crítica (URLLC > eMBB > mMTC).
-* **Heurística EEVS (Energy Efficiency vs. QoS Satisfaction):** Avalia a perda marginal de throughput frente ao ganho percentual de economia de energia.
-* **Decisão Ótima:** Produz uma decisão consolidada `Decision(action, approved_params, rejected_proposals)`.
+### 3.2. ReasoningAgent (Raciocínio e Resolução com Modelos Físicos 5G)
+* **Capacidade de Shannon com SINR Real:** Calcula a taxa alcançável considerando perdas de percurso 3GPP TR 38.901 e overhead de sinalização ($\eta_{\text{OH}} = 0.86$).
+* **Função de Satisfação de SLA Sigmoide ($M/G/1$):** Modela o tempo de transmissão e espera em fila RLC, calibrada com $D_{\text{budget}} = 5\text{ ms}$ ($\kappa = 1.5$) para URLLC e $D_{\text{budget}} = 20\text{ ms}$ ($\kappa = 0.5$) para eMBB.
+* **Modelo Linear de Potência Earth/3GPP:** Modela a potência da gNB $P_{\text{total}} = N_{\text{TRX}} \cdot (P_0 + \Delta_p \cdot P_{\text{tx}})$ ($P_0 = 130\text{ W}$, $\Delta_p = 4.7$).
+* **Penalidade Estrita por Inversão de Prioridade:** Garante que subconjuntos que descartam requisições críticas sofram penalidade proporcional $(\rho_{\text{max}} - \rho_{\text{subset}})/30.0$.
 
-### 3.3. RefinementAgent (Safety Guards)
+### 3.3. RefinementAgent (Safety Guards & Validação Unária)
 * Atua como barreira estrita de segurança antes de qualquer comando sair para a rede de rádio:
-  - **Limite de Potência Máxima:** Impede que a potência exceda o teto de saturação da antena (ex: 43 dBm).
-  - **Limite de Frequência de Churn:** Bloqueia comandos de handover consecutivos em um intervalo menor que o tempo de histerese (ex: < 1 segundo), prevenindo efeito *ping-pong*.
-  - **Conservação de Recursos:** Garante que a soma das frações de PRB alocadas não ultrapasse 100% da capacidade do canal.
+  - **Limite de Potência Máxima:** Clamping incondicional de potência $P_{\text{tx}} \in [-10, 23]\text{ dBm}$.
+  - **Limite de Frequência de Churn:** Bloqueia comandos de handover consecutivos em um intervalo menor que o tempo de histerese ($\Delta t_{\text{HO}} \ge 1000\text{ ms}$), prevenindo efeito *ping-pong*.
+  - **Conservação de Recursos:** Garante que a soma das frações de PRB alocadas não ultrapasse 100% da capacidade do canal ($\sum \text{PRB} \le 100\%$).
+  - **Validação Unária (`validate_single_action`):** Valida ações limpas de *pass-through* com as mesmas garantias de segurança física.
 
 ---
 
-## 4. Comunicação no Near-RT RIC (Protocolos e RMR)
+## 4. Comunicação no Near-RT RIC (Protocolos, RMR e Rastreamento E2)
 
-### 4.1. Mensageria RMR (RIC Message Router)
+### 4.1. Mensageria RMR (RIC Message Router) e Transações Assíncronas
 O RMR provê entrega de mensagens de latência sub-milissegundo entre xApps sem acoplamento de endereço IP:
 * **`RIC_INDICATION` (MsgType 12050):** Recepção de relatórios de métricas KPM da rádio.
 * **`RDL_ACTION_PROPOSAL` (MsgType 30000):** Recepção de propostas de controle enviadas por outras xApps.
-* **`RIC_CONTROL_REQ` (MsgType 12010):** Envio de comandos E2SM-RC arbitrados para a gNodeB.
-* **`RIC_CONTROL_ACK` (MsgType 12011):** Confirmação de execução emitida pela rádio-base.
+* **`RIC_CONTROL_REQ` (MsgType 12010):** Envio de comandos E2SM-RC arbitrados para a gNodeB (carregando `transaction_id` único).
+* **`RIC_CONTROL_ACK` (MsgType 12011):** Confirmação de execução emitida pela rádio-base, utilizada para fechar o ciclo de controle e mensurar o RTT em tempo real.
+* **`RIC_CONTROL_FAILURE` (MsgType 12012):** Notificação de falha de execução pelo nó E2.
 
 ### 4.2. Codecs ASN.1 APER (Pycrate)
 * **`kpm_decoder.py`:** Decodifica octet strings APER em estruturas Python contendo métricas de `DRB.UEThpDl`, `RRU.PrbTotDl` e `QoS.FlowDelay`.
@@ -128,17 +131,24 @@ O RMR provê entrega de mensagens de latência sub-milissegundo entre xApps sem 
 
 ## 5. Modelagem Matemática Formal e Funções de Utilidade
 
-A tomada de decisão na xApp RDL é formulada como um problema de otimização multiobjetivo restrito:
+A tomada de decisão na xApp RDL é formulada como um problema de otimização combinatória restrita:
 
-$$\max_{\mathbf{a} \in \mathcal{A}} U(\mathbf{a}) = w_{\text{QoS}} \cdot f_{\text{QoS}}(\mathbf{a}) + w_{\text{EE}} \cdot f_{\text{EE}}(\mathbf{a}) - w_{\text{pen}} \cdot \sum_{i} \text{Penalty}_i(\mathbf{a})$$
+$$\max_{\mathcal{A}^* \subseteq \mathcal{A}} U(\mathcal{A}^*) = w_{\text{QoS}} f_{\text{QoS}}(\mathcal{A}^*) + w_{\text{EE}} f_{\text{EE}}(\mathcal{A}^*) + w_{\text{Stab}} f_{\text{Stab}}(\mathcal{A}^*) - \sum_{i} \text{Penalty}_i(\mathcal{A}^*)$$
 
 Sujeito às restrições físicas de rádio:
-$$\sum_{s \in \mathcal{S}} \text{PRB}_s \le \text{PRB}_{\text{total}}, \quad P_{\text{tx}} \le P_{\text{max}}, \quad \text{Delay}_u \le \text{Budget}_u$$
+$$\sum_{s \in \mathcal{S}} \text{PRB}_s \le 100\%, \quad -10\text{ dBm} \le P_{\text{tx}} \le 23\text{ dBm}, \quad \Delta t_{\text{HO}} \ge 1000\text{ ms}$$
 
-Onde:
-* $f_{\text{QoS}}(\mathbf{a})$ quantifica a satisfação de SLA das conexões ativas.
-* $f_{\text{EE}}(\mathbf{a})$ quantifica a eficiência energética em bits por Joule.
-* $\text{Penalty}_i(\mathbf{a})$ penaliza violações de restrição e oscilações excessivas de controle.
+### 5.1. Capacidade Espectral e Vazão (Shannon com SINR Real)
+$$R_u(\omega_s, P_{\text{tx}}) = \omega_s \cdot B \cdot \log_2 \left( 1 + \gamma_u(P_{\text{tx}}) \right) \cdot \eta_{\text{OH}}$$
+Onde $B = 100\text{ MHz}$, $\eta_{\text{OH}} = 0.86$ e $\gamma_u$ é a relação SINR do terminal calculada com perda de percurso 3GPP TR 38.901.
+
+### 5.2. Atraso Fim-a-Fim e Função de Satisfação de SLA ($M/G/1$ Sigmoide)
+$$D_u(\omega_s, \lambda_u) = \frac{L_p}{R_u(\omega_s)} + \frac{\lambda_u \cdot \overline{X_u^2}}{2(1 - \rho_u)}$$
+$$f_{\text{SLA}}(a) = \frac{1}{1 + \exp\left( \kappa \cdot (D_u - D_{\text{budget}}) \right)}$$
+
+### 5.3. Consumo Elétrico e Eficiência Energética (Earth Model 3GPP)
+$$P_{\text{total}}(n) = N_{\text{TRX}} \cdot \left( P_0 + \Delta_p \cdot P_{\text{tx}}(n) \right)$$
+$$f_{\text{EE}}(a) = \frac{\sum R_u}{P_{\text{total}}(n)}$$
 
 ---
  

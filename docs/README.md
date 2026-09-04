@@ -45,7 +45,7 @@ graph TD
 ### 1. Arquitetura Core e Teoria
 * **[Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](01_arquitetura_e_modelagem_matematica.md)**
   - **Público:** Engenheiros de Software, Arquitetos O-RAN e Pesquisadores.
-  - **Conteúdo:** Fundamentos de Clean Architecture e DDD; Agentes de Percepção (janela 200ms), Raciocínio (TVS/EEVS) e Refinamento (*Safety Guards*); Codecs ASN.1 APER para E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0; Formulação matemática formal da arbitragem multiobjetivo.
+  - **Conteúdo:** Fundamentos de Clean Architecture e DDD; Agentes de Percepção (janela 200ms), Raciocínio (modelos analíticos 5G Shannon/MG1/Earth) e Refinamento (*Safety Guards*); Codecs ASN.1 APER para E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0; Formulação matemática combinatória restrita.
 
 ---
 
@@ -61,19 +61,14 @@ graph TD
   - **Público:** Engenheiros de Deploy, SRE, Pesquisadores de Simulação 5G/6G e Engenheiros de Teste.
   - **Conteúdo:** 
     - **Parte I (Deploy & Observabilidade):** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize) em modos Baseline e Governança; Smoke test das 3 Reference xApps (`make test-3xapps`); Painéis Rancher e **Kiali Dashboard** (`http://localhost:20001/kiali`) com injeção contínua de tráfego.
-    - **Parte II (Pipeline Experimental em 5 Etapas no ns-3 5G-LENA):**
-      1. *Etapa 1 (Baseline):* Execução isolada no ns-3 sem mediação (`make run-baseline`, traces em `experiments/results/baseline/`).
-      2. *Etapa 2 (Deploy):* Implantação e prontidão da xApp RDL no Near-RT RIC (`make helm-deploy`).
-      3. *Etapa 3 (Mediação RDL):* Execução dos mesmos cenários 5G com a RDL mediando via E2 (`make run-rdl`, traces em `experiments/results/rdl_phase1/`).
-      4. *Etapa 4 (Benchmarks):* Geração do relatório comparativo e datasets CSV para ML (`make analyze-benchmarks` e `make view-results`).
-      5. *Etapa 5 (Sincronização):* Publicação e push automatizado de traces e dados no GitHub (`make push-results`).
+    - **Parte II (Pipeline Experimental no ns-3 5G-LENA):** Execução de cenários C++ 5G (`scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc`), geração de traces e análise comparativa.
 
 ---
 
 ### 4. Governança, Conformidade e Rastreabilidade
 * **[Volume 04: Relatórios de Conformidade Técnica e Governança O-RAN](04_relatorios_conformidade_e_governanca.md)**
   - **Público:** Gestores Técnicos, Auditores de Segurança e Comitês de Governança.
-  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a REQ-RDL-10); Auditoria de conformidade com os padrões O-RAN Alliance (WG2/WG3), 3GPP e Linux Foundation O-RAN SC; Relatório de segurança Kubernetes (SecurityContext não-root).
+  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a 10, RF-01 a 04, RNF-01 a 03); Auditoria de conformidade com os padrões O-RAN Alliance (WG2/WG3), 3GPP e Linux Foundation O-RAN SC; Relatório de segurança Kubernetes (SecurityContext não-root).
 
 ---
 
@@ -84,15 +79,21 @@ graph TD
 
 ---
 
+### 6. Relatório Extenso de Validação e Artigo Científico SBRC
+* **[Relatório Extenso de Validação e Resolução de Limitações](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md)**: Documento exaustivo com as deduções matemáticas dos modelos de rádio 5G, fundamentação da distribuição $t$-Student ($\nu = 29$, $t_{\text{crítico}} = 2{,}04523$), motor estatístico multi-semente ($N = 30$ runs com $\text{Média} \pm \text{IC}_{95\%}$, $p < 0{,}001$), testes pareados e roteiro de auditoria para todos os requisitos.
+* **[Artigo Científico SBRC (LaTeX)](../paper_sbrc/sbrc_rdl_phase1.tex)**: Artigo completo submetível no padrão SBC com modelagem, resultados empíricos consolidados e figuras vetoriais 300 DPI.
+
+---
+
 ## Trilhas de Leitura Recomendadas
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
 | **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
-| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Relatório de Validação](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md) -> [Artigo SBRC](../paper_sbrc/sbrc_rdl_phase1.tex) |
+| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
 | **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) |
+| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Relatório de Validação](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md) |
 
 ---
 

@@ -270,3 +270,9 @@ rollback-clean:
 rollback-list:
 	@bash scripts/git_rollback.sh --list
 
+eval-multiseed:
+	python3 scripts/run_multi_seed_evaluation.py
+
+generate-figures:
+	python3 scripts/generate_sbrc_figures.py
+
