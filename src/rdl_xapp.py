@@ -1,4 +1,4 @@
-﻿import time
+import time
 import threading
 import json
 import os
@@ -165,11 +165,13 @@ class RDLxApp:
             except Exception:
                 pass
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
-        xapp_instance.rmr_free(sbuf)
+        if xapp_instance and sbuf:
+            xapp_instance.rmr_free(sbuf)
 
     def _control_failure_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         logger.warning("Recebido RIC_CONTROL_FAILURE", summary=summary)
-        xapp_instance.rmr_free(sbuf)
+        if xapp_instance and sbuf:
+            xapp_instance.rmr_free(sbuf)
 
     def inject_xapp_action(self, action: XAppAction):
         """API publica para injecao de acoes simuladas (usada em testes)"""

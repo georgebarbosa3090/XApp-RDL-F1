@@ -1,7 +1,7 @@
 # Relatório Técnico Extenso de Validação e Resolução de Limitações — xApp RDL (Fase 1: H-RDL)
 
 **Projeto:** xApp RDL (Resource and Decision Layer) — Near-RT RIC (O-RAN)  
-**Documento:** Plano Diretor de Resolução de Limitações, Modelagem Analítica e Validação Estatística Multi-Semente  
+**Documento:** Plano Diretor de Resolução de Limitações, Modelagem Analítica, Validação Estatística Multi-Semente e Guia de Auditoria e Averiguação  
 **Autor:** George Alexandro F. Barbosa / PPGC-UFPA  
 **Data:** 04 de Setembro de 2026  
 **Status:** Concluído e Validado (N = 30 Sementes Independentes, 16/16 Testes PASS)
@@ -278,26 +278,255 @@ A Tabela abaixo apresenta as médias amostrais acompanhadas de seus respectivos 
 | **Packet Delivery Ratio (PDR)** | 39,54 ± 2,13% | **99,53 ± 0,11%** | **+59,99 p.p.** | < 10⁻¹⁹ | < 10⁻¹⁹ | Rejeita H_0 (p < 0.001) |
 | **Índice de Equidade de Jain** | 0,1420 ± 0,011 | **0,9160 ± 0,007** | **+545,1%** | < 10⁻²¹ | < 10⁻²¹ | Rejeita H_0 (p < 0.001) |
 | **Instabilidade de Handover (Ping-Pong)** | 21,93 ± 1,47 ev/min | **0,00 ± 0,00 ev/min** | **-100%** | < 10⁻²⁰ | < 10⁻²⁰ | Rejeita H_0 (Mitigação Total) |
-| **Potência Média de Transmissão** | 39,01 ± 0.39 dBm | **33,89 ± 0,28 dBm** | **-13,1%** | < 10⁻¹² | < 10⁻¹² | Rejeita H_0 (Green RAN Ativo) |
+| **Potência Média de Transmissão** | 39,01 ± 0,39 dBm | **33,89 ± 0,28 dBm** | **-13,1%** | < 10⁻¹² | < 10⁻¹² | Rejeita H_0 (Green RAN Ativo) |
 | **Tempo de Decisão da RDL** | N/A (Sem mediação) | **14,20 ± 0,47 ms** | **< 50 ms** | N/A | N/A | Conforme O-RAN Near-RT |
 
 ---
 
-## 4. Matriz de Conformidade dos Requisitos de Aceite
+## 4. Procedimentos, Comandos e Metodologias para Averiguação de Validade
 
-| ID do Requisito | Critério Formal de Aceite | Implementação & Evidência Numérica | Status |
-| :--- | :--- | :--- | :---: |
-| **RF-01** | Modelagem analítica de rádio sem mock scores | Fórmulas de Shannon (SINR), Fila M/G/1 (SLA) e Earth Power Model implementadas em `ReasoningAgent`. | **Aprovado** |
-| **RF-02** | Despacho de 100% das ações sem conflito | Pipeline de pass-through ativo no `RDLxApp` com testes unitários em `test_refinement_agent.py`. | **Aprovado** |
-| **RF-03** | Rastreamento assíncrono de transações e ACKs E2 | Dicionário de transações pendentes no `RDLxApp` com registro de RTT de controle. | **Aprovado** |
-| **RF-04** | Barreiras físicas estritas (*Safety Guards*) | Clamping de `P_tx ∈ [-10, 23] dBm`, `PRB ≤ 100%` e histerese `Δt ≥ 1000 ms`. | **Aprovado** |
-| **RNF-01** | Rigor estatístico (N = 30 runs, p < 0.001, IC 95%) | 30 sementes independentes com t-Student e Mann-Whitney confirmando rejeição de H_0. | **Aprovado** |
-| **RNF-02** | Latência de decisão Near-RT < 50 ms | `T_dec = 14,20 ± 0,47 ms` (opera com folga dentro do intervalo de 10 ms a 1 s). | **Aprovado** |
-| **RNF-03** | Integridade criptográfica e reprodutibilidade | Manifesto `manifest_experiment.json` gerado com hash SHA-256 do dataset consolidado. | **Aprovado** |
+Esta seção estabelece o protocolo de auditoria e reprodução independente para verificar a eficácia de todos os componentes da xApp RDL e a resolução formal das limitações identificadas.
+
+### 4.1. Preparação e Inicialização do Ambiente de Teste
+
+Para executar qualquer teste ou script de validação, inicialize o ambiente virtual Python 3.10:
+
+**Comando (PowerShell / Windows):**
+```powershell
+Set-Location "c:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase1"
+.\.venv\Scripts\Activate.ps1
+```
+
+**Comando (Bash / Linux / WSL):**
+```bash
+cd /mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1
+source .venv/bin/activate
+```
 
 ---
 
-## 5. Conclusão e Transição para a Fase 2 (CA-RDL)
+### 4.2. Procedimento de Averiguação: Modelos Físicos de Rádio 5G NR (`ReasoningAgent`)
+
+**Objetivo:** Averiguar que os *mock scores* foram eliminados e substituídos pelos modelos analíticos calibrados de Shannon com SINR real, curva sigmoide de SLA $M/G/1$, consumo de potência Earth/3GPP e penalidade por descarte de fatia crítica.
+
+**Metodologia de Teste:**
+1. Instanciar o `ReasoningAgent` com pesos multiobjetivo padrão (`w_qos = 0.5`, `w_energy = 0.3`, `w_stability = 0.2`).
+2. Submeter uma colisão de ações onde a fatia URLLC compete com corte de potência agressivo de Energy Saving.
+3. Verificar se o cálculo analítico calcula a vazão via Shannon e se a penalidade `Penalty_prio` impede a inversão de prioridade em favor do Energy Saving.
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_reasoning_agent.py -v -k "test_resolve_by_tvs_priority or test_indirect_heuristic"
+```
+
+**Comando de Auditoria Direta via Python REPL:**
+```powershell
+python -c "from src.agents.reasoning_agent import ReasoningAgent; from src.models.action_proposal import ActionProposal; r = ReasoningAgent(); print('ReasoningAgent inicializado com modelos analiticos 5G NR:', r.weights)"
+```
+
+**Critério de Aceite:**
+- Ambas as asserções de resolução retornam `status: RESOLVED`.
+- A ação da xApp com maior criticidade de SLA (URLLC, prioridade 90) é estritamente selecionada como vencedora frente ao corte de potência (prioridade 65).
+
+---
+
+### 4.3. Procedimento de Averiguação: Pipeline de Pass-Through de Ações Limpas
+
+**Objetivo:** Verificar se ações de xApps que não geram conflito direto ou indireto são despachadas continuamente para os E2 Nodes sem retenção arbitrária, respeitando as barreiras de segurança física (*Safety Guards*).
+
+**Metodologia de Teste:**
+1. Submeter uma ação individual válida fora de conflito (e.g., ajuste de PRB de 50%).
+2. Submeter uma ação individual inválida (e.g., potência de transmissão de 45 dBm, acima do teto de 23 dBm).
+3. Verificar se a primeira é aprovada para despacho imediato (`is_valid = True`) e a segunda é bloqueada/mutada (`is_valid = False`).
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_refinement_agent.py -v -k "test_safety_guard_single_action"
+```
+
+**Critério de Aceite:**
+- `test_safety_guard_single_action_pass_through` -> `PASSED` (retorna `(True, SafetyLevel.SAFE, ...)`).
+- `test_safety_guard_single_action_invalid_bounds` -> `PASSED` (retorna `(False, SafetyLevel.BLOCKED, ...)`).
+
+---
+
+### 4.4. Procedimento de Averiguação: Rastreamento Assíncrono de Transações E2 e ACKs
+
+**Objetivo:** Averiguar se o Near-RT RIC registra o `transaction_id` de cada comando `RIC_CONTROL_REQ` emitido e calcula o RTT de controle ao receber o `RIC_CONTROL_ACK` correspondente.
+
+**Metodologia de Teste:**
+1. Instanciar `RDLxApp` em modo desacoplado de hardware.
+2. Injetar comando de controle via `_send_control(...)` e confirmar que a transação é gravada em `self.pending_transactions`.
+3. Disparar o callback `_control_ack_handler(...)` com payload JSON contendo o `transaction_id`.
+4. Verificar se a transação é desempilhada e o RTT em milissegundos é logado com sucesso.
+
+**Comando de Execução:**
+```powershell
+python -c "from src.rdl_xapp import RDLxApp, now_ts; import json; app = RDLxApp(); tx_id = 'test-tx-101'; app.pending_transactions[tx_id] = now_ts() - 0.012; app._control_ack_handler(None, {'payload': json.dumps({'transaction_id': tx_id}).encode('utf-8')}, None); assert tx_id not in app.pending_transactions; print('[OK] Transacao rastreada e desempilhada com RTT calculado com sucesso!')"
+```
+
+**Critério de Aceite:**
+- A chave `test-tx-101` é removida de `pending_transactions`.
+- O log exibe a mensagem de confirmação com RTT medido em milissegundos (`rtt_ms ≈ 12.00ms`).
+
+---
+
+### 4.5. Procedimento de Averiguação: Registros de UE e Mensagens de Controle (Codecs APER E2)
+
+**Objetivo:** Verificar a decodificação de telemetria `RIC_INDICATION` (E2SM-KPM v2.0) e a codificação de comandos `RIC_CONTROL_REQ` (E2SM-RC v1.0) em formato ASN.1 / APER.
+
+**Metodologia de Teste:**
+1. Decodificar mensagens de telemetria contendo identificadores de UE e medições de rádio (`DRB.UEThpDl`, `DRB.RlcSduDelayDl`, `RRU.PrbUsedDl`).
+2. Codificar estruturas de controle contendo cotas de PRB e comandos de handover.
+3. Verificar a integridade dos bytes binários e fallback para mock estruturado na ausência de ASN1C.
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_aper_codecs.py -v
+```
+
+**Critério de Aceite:**
+- 3/3 testes passam (`test_e2ap_decoder_mock_fallback`, `test_kpm_decoder_fallback`, `test_rc_encoder_generates_bytes`).
+- A saída do codificador RC gera um `bytes` não vazio válido.
+
+---
+
+### 4.6. Procedimento de Averiguação: Agente de Percepção (`PerceptionAgent`)
+
+**Objetivo:** Averiguar a capacidade de detecção de conflitos diretos (mesmo nó e parâmetro com valores discordantes) e conflitos indiretos (cruzamento no grafo de dependência de KPIs).
+
+**Metodologia de Teste:**
+1. Teste de Conflito Direto: Duas propostas para `node_1` no parâmetro `TX_POWER` com valores `20 dBm` e `23 dBm`.
+2. Teste de Conflito Indireto: Proposta de `PRB_QUOTA` (xSlice) colidindo com `TX_POWER` (Energy Saving) sobre a métrica de latência da fatia.
+3. Teste Sem Conflito: Propostas ortogonais em nós distintos ou parâmetros independentes.
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_perception_agent.py -v
+```
+
+**Critério de Aceite:**
+- 3/3 testes passam (`test_detect_direct_conflict`, `test_detect_indirect_conflict`, `test_no_conflict`).
+- O grafo de KPIs classifica perfeitamente cada colisão com nível de severidade adequado.
+
+---
+
+### 4.7. Procedimento de Averiguação: Propostas das 3 Reference xApps
+
+**Objetivo:** Averiguar se as três xApps abertas de referência (`xSlice`, `Energy Saving` e `Traffic Steering`) geram propostas válidas em conformidade com o protocolo RMR.
+
+**Metodologia de Teste:**
+1. Executar geradores de proposta de cada uma das xApps.
+2. Validar se os parâmetros emitidos (`PRB_QUOTA = 80%`, `TX_POWER = 20 dBm`, `HANDOVER`) carregam os identificadores corretos (`xapp_id`, `node_id`, `priority`, `timestamp`).
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_reference_xapps.py -v
+```
+
+**Critério de Aceite:**
+- 4/4 testes passam com sucesso.
+- O teste de integração da tríade (`test_multi_xapp_conflict_triad_detection_and_resolution`) detecta a contenda tríplice e produz resolução determinística.
+
+---
+
+### 4.8. Procedimento de Averiguação: Agente de Refinamento (`RefinementAgent` & Safety Guards)
+
+**Objetivo:** Verificar se limites físicos absolutos de rádio são impostos incondicionalmente antes de qualquer comando sair para a gNodeB.
+
+**Metodologia de Teste:**
+1. Tentar despachar potência fora do envelope físico (`P_tx = 35 dBm` ou `P_tx = -20 dBm`).
+2. Tentar despachar múltiplos handovers em janela inferior a 1000 ms para o mesmo UE (teste de ping-pong).
+3. Confirmar que o `RefinementAgent` bloqueia ou realiza o clamping para os limites operacionais seguros.
+
+**Comando de Execução:**
+```powershell
+pytest tests/test_refinement_agent.py -v
+```
+
+**Critério de Aceite:**
+- 4/4 testes passam (`test_safety_guard_out_of_bounds`, `test_safety_guard_frequency_limit`, `test_safety_guard_single_action_pass_through`, `test_safety_guard_single_action_invalid_bounds`).
+
+---
+
+### 4.9. Procedimento de Averiguação: Suíte Completa de Testes Unitários e de Integração
+
+**Objetivo:** Executar em lote todas as 16 asserções de teste do projeto para validação de regressão.
+
+**Comando de Execução:**
+```powershell
+pytest -v
+```
+
+**Saída Esperada no Terminal:**
+```text
+tests/test_aper_codecs.py::test_e2ap_decoder_mock_fallback PASSED        [  6%]
+tests/test_aper_codecs.py::test_kpm_decoder_fallback PASSED              [ 12%]
+tests/test_aper_codecs.py::test_rc_encoder_generates_bytes PASSED        [ 18%]
+tests/test_perception_agent.py::test_detect_direct_conflict PASSED       [ 25%]
+tests/test_perception_agent.py::test_detect_indirect_conflict PASSED     [ 31%]
+tests/test_perception_agent.py::test_no_conflict PASSED                  [ 37%]
+tests/test_reasoning_agent.py::test_resolve_by_tvs_priority PASSED       [ 43%]
+tests/test_reasoning_agent.py::test_indirect_heuristic PASSED            [ 50%]
+tests/test_reference_xapps.py::test_xslice_proposal_generation PASSED    [ 56%]
+tests/test_reference_xapps.py::test_energy_saving_proposal_generation PASSED [ 62%]
+tests/test_reference_xapps.py::test_traffic_steering_proposal_generation PASSED [ 68%]
+tests/test_reference_xapps.py::test_multi_xapp_conflict_triad_detection_and_resolution PASSED [ 75%]
+tests/test_refinement_agent.py::test_safety_guard_out_of_bounds PASSED   [ 81%]
+tests/test_refinement_agent.py::test_safety_guard_frequency_limit PASSED [ 87%]
+tests/test_refinement_agent.py::test_safety_guard_single_action_pass_through PASSED [ 93%]
+tests/test_refinement_agent.py::test_safety_guard_single_action_invalid_bounds PASSED [100%]
+
+============================= 16 passed in 0.49s ==============================
+```
+
+---
+
+### 4.10. Procedimento de Averiguação: Motor Estatístico Multi-Semente (N = 30 Runs)
+
+**Objetivo:** Executar o motor estatístico sobre as 30 sementes independentes (`seed = 1001 ... 1030`), calcular médias amostrais, intervalos de confiança de 95% via distribuição t-Student, testes pareados e gerar o manifesto criptográfico.
+
+**Comando de Execução:**
+```powershell
+python scripts/run_multi_seed_evaluation.py
+```
+
+**Verificação de Artefatos Gerados:**
+```powershell
+# 1. Verificar existencia do dataset consolidado de 30 sementes
+Get-Item "experiments/results/dataset_multi_seed_metrics.csv"
+
+# 2. Inspecionar o manifesto com hash SHA-256
+Get-Content "experiments/results/manifest_experiment.json"
+
+# 3. Ler o relatorio estatistico detalhado
+Get-Content "experiments/results/relatorio_estatistico_multi_semente.md" -TotalCount 40
+```
+
+**Critério de Aceite:**
+- Dataset gerado com 30 linhas de observação para cada cenário (`baseline` e `rdl_phase1`).
+- Margem de erro do IC 95% inferior a ± 3% em todas as métricas contínuas.
+- Rejeição da hipótese nula com `p < 0.001` no teste t pareado e no teste de Mann-Whitney.
+
+---
+
+## 5. Roteiro de Auditoria para Todos os Itens da Matriz de Conformidade
+
+A Tabela a seguir consolida os critérios formais, comandos de inspeção e status de aprovação de cada requisito:
+
+| ID do Requisito | Tipo | Critério Formal de Aceite | Comando Exato de Auditoria | Evidência Numérica de Aprovação | Status |
+| :--- | :---: | :--- | :--- | :--- | :---: |
+| **RF-01** | Funcional | Modelagem analítica de rádio sem mock scores | `pytest tests/test_reasoning_agent.py -v` | Fórmulas de Shannon (SINR), Fila M/G/1 (SLA) e Earth Power integradas. | **Aprovado** |
+| **RF-02** | Funcional | Despacho de 100% das ações sem conflito | `pytest tests/test_refinement_agent.py -k single_action -v` | `validate_single_action` aprova ações não conflitantes com Safety Guards. | **Aprovado** |
+| **RF-03** | Funcional | Rastreamento assíncrono de transações e ACKs E2 | `python -c "from src.rdl_xapp import RDLxApp; app = RDLxApp(); print(hasattr(app, 'pending_transactions'))"` | Retorna `True`; `_control_ack_handler` calcula RTT em ms. | **Aprovado** |
+| **RF-04** | Funcional | Barreiras físicas estritas (*Safety Guards*) | `pytest tests/test_refinement_agent.py -k out_of_bounds -v` | Clamping de `P_tx ∈ [-10, 23] dBm`, `PRB ≤ 100%` e `Δt ≥ 1000 ms`. | **Aprovado** |
+| **RNF-01** | Não Funcional | Rigor estatístico (N = 30 runs, p < 0.001, IC 95%) | `python scripts/run_multi_seed_evaluation.py` | 30 sementes com t-Student (`df=29`, `t=2.04523`) e Mann-Whitney com `p < 10⁻¹⁵`. | **Aprovado** |
+| **RNF-02** | Não Funcional | Latência de decisão Near-RT < 50 ms | `python -c "import pandas as pd; df=pd.read_csv('experiments/results/dataset_multi_seed_metrics.csv'); print('Latencia Media RDL:', round(df[df['scenario']=='RDL_Phase1']['decision_latency_ms'].mean(), 2), 'ms')"` | `T_dec = 14,20 ± 0,47 ms` (opera com folga dentro da janela de 10 ms a 1 s). | **Aprovado** |
+| **RNF-03** | Não Funcional | Integridade criptográfica e reprodutibilidade | `python -c "import json; m=json.load(open('experiments/results/manifest_experiment.json')); print('Checksum SHA-256:', m['dataset_sha256'])"` | Hash SHA-256 válido registrado no manifesto de proveniência. | **Aprovado** |
+
+---
+
+## 6. Conclusão e Transição para a Fase 2 (CA-RDL)
 
 A **Fase 1 (H-RDL Reforçada)** encontra-se com **100% das limitações e ameaças à validade sanadas**, com rigor matemático, integridade de código, suíte de 16 testes automatizados aprovados e documentação científica alinhada aos padrões SBC/SBRC e IEEE.
 
