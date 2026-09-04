@@ -97,23 +97,16 @@ LEAF \cite{santos2025managing} & SLMs + S-LoRA + FSM & 60 a 70 ms & Inexistente 
 % -----------------------------------------------------------------------------
 \section{Arquitetura da xApp RDL (H-RDL)}
 % -----------------------------------------------------------------------------
-A arquitetura da xApp RDL é estruturada sob os princípios de \textit{Clean Architecture}, garantindo isolamento estrito entre a inteligência de decisão, os protocolos de comunicação e os módulos de persistência. A Figura \ref{fig:arquitetura} ilustra a visão global da solução implantada no Near-RT RIC.
+A arquitetura da xApp RDL é estruturada sob os princípios de \textit{Clean Architecture}, garantindo isolamento estrito entre a inteligência de decisão, os protocolos de comunicação e os módulos de persistência. A Figura \ref{fig:fluxo_funcional} detalha o fluxo funcional da arquitetura proposta, destacando os módulos operacionais da H-RDL Fase 1 (Governança Determinística) e os componentes previstos para a evolução arquitetural (Fase 2).
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/fig_arquitetura_rdl_sbrc.png}
-\caption{Arquitetura em camadas da xApp RDL no Near-RT RIC (Namespace \texttt{ricxapp})}
-\label{fig:arquitetura}
+\includegraphics[width=0.98\textwidth]{figures/fig_fluxo_funcional_arquitetura_rdl.pdf}
+\caption{Fluxo funcional da arquitetura proposta para a xApp RDL: componentes da H-RDL Fase 1 e módulos da evolução arquitetural}
+\label{fig:fluxo_funcional}
 \end{figure}
 
-A operação da camada RDL divide-se em quatro componentes especializados, cujo fluxo de execução integrado é apresentado na Figura \ref{fig:fluxo_decisao}:
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/fig_componentes_fluxo_decisao.png}
-\caption{Pipeline de decisão em lote e \textit{pass-through} contínuo da xApp RDL}
-\label{fig:fluxo_decisao}
-\end{figure}
+A operação da camada RDL divide-se em quatro componentes especializados, cujo pipeline detalhado de decisão em lote e \textit{pass-through} contínuo é apresentado a seguir:
 
 \subsubsection{1. Buffer de Decisão em Lote ($\Delta t = 200\text{ ms}$) e Pipeline de Pass-Through}
 As intenções de controle emitidas pelas xApps via RMR (\texttt{RDL\_ACTION\_PROPOSAL}) são agrupadas em um acumulador \textit{thread-safe} durante uma janela temporal de 200 ms. O pipeline separa ações em conflito daquelas totalmente independentes, permitindo o despacho imediato (\textit{pass-through}) das ações limpas após validação de segurança via \texttt{validate\_single\_action}.

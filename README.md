@@ -34,6 +34,8 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 * **Pipeline de Pass-Through de Ações Limpas:** Despacha imediatamente ações não conflitantes para as gNodeBs após validação de segurança.
 * **Rastreamento Assíncrono de Transações E2:** Mapeia `transaction_id` para mensagens `RIC_CONTROL_REQ` e mede o RTT de controle via `RIC_CONTROL_ACK`.
 
+![Fluxo funcional da arquitetura proposta para a xApp-RDL](docs/figures/fig_fluxo_funcional_arquitetura_rdl.png)
+
 ---
 
 ## 2. Estrutura do Repositório
