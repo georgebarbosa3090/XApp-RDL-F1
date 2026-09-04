@@ -1,0 +1,257 @@
+\documentclass[12pt]{article}
+
+\usepackage{sbc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{cite}
+\usepackage{microtype}
+\usepackage{array}
+\usepackage{subcaption}
+
+\title{xApp RDL: Camada de Mitigação de Conflitos e Arbitragem Inteligente de Recursos no Near-RT RIC para Redes Open RAN 5G/6G}
+
+\author{George Alexandro F. Barbosa\inst{1}, André Riker\inst{1}}
+
+\address{Programa de Pós-Graduação em Ciência da Computação (PPGC)\\
+  Instituto de Ciências Exatas e Naturais (ICEN) -- Universidade Federal do Pará (UFPA)\\
+  Belém -- PA -- Brasil
+  \email{george.barbosa@icen.ufpa.br, riker@ufpa.br}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{resumo}
+A desagregação da rede de acesso rádio promovida pela arquitetura Open RAN possibilita a execução concorrente de aplicações inteligentes (xApps) no Near-RT RIC. Contudo, a coexistência de xApps especializadas com objetivos operacionais divergentes -- tais como garantia estrita de QoS/Slicing, redução de consumo energético e balanceamento de carga/mobilidade -- deflagra severos conflitos de controle diretos e indiretos, degradando métricas de missão crítica e violando Acordos de Nível de Serviço (SLA). Este artigo propõe a \textbf{xApp RDL (Resource and Decision Layer)}, um middleware de governança e arbitragem determinística no Near-RT RIC. A solução estrutura-se em: (i) um buffer de janela temporal em lote ($\Delta t = 200\text{ ms}$); (ii) um Agente de Percepção baseado em grafo de dependência de KPIs para detecção par a par de conflitos; (iii) um Agente de Raciocínio multiobjetivo orientado a prioridades de serviço (heurísticas TVS e EEVS); e (iv) um Agente de Refinamento com barreiras físicas (\textit{Safety Guards}) para saturação de potência, teto de PRBs e mitigação de \textit{ping-pong}. Avaliações experimentais em co-simulação ns-3 5G-LENA sob canal n78 (3.5 GHz) demonstram que a xApp RDL reduz a taxa de conflitos em 98,9\%, diminui a latência média URLLC de 11,79 ms para 2,85 ms (-75,8\%), zera as violações de SLA e opera com tempo médio de decisão de 14,2 ms, plenamente compatível com os limites do Near-RT RIC.
+\end{resumo}
+
+\begin{abstract}
+The disaggregation of the radio access network promoted by Open RAN architecture enables concurrent execution of intelligent applications (xApps) in the Near-RT RIC. However, the coexistence of specialized xApps with diverging operational goals -- such as strict QoS/Slicing guarantees, energy saving, and mobility load balancing -- triggers severe direct and indirect control conflicts, degrading mission-critical metrics and violating Service Level Agreements (SLAs). This paper proposes the \textbf{xApp RDL (Resource and Decision Layer)}, a deterministic governance and arbitration middleware for the Near-RT RIC. The solution is structured around: (i) a batched decision time-window ($\Delta t = 200\text{ ms}$); (ii) a Perception Agent based on a KPI dependency graph for pairwise conflict detection; (iii) a multi-objective Reasoning Agent guided by service priorities (TVS and EEVS heuristics); and (iv) a Refinement Agent with physical Safety Guards for power clamping, PRB bounds, and ping-pong mitigation. Experimental evaluation in ns-3 5G-LENA co-simulation over the n78 band (3.5 GHz) shows that xApp RDL reduces the conflict occurrence rate by 98.9\%, decreases average URLLC latency from 11.79 ms to 2.85 ms (-75.8\%), eliminates SLA violations, and operates with a 14.2 ms decision latency, fully satisfying Near-RT RIC operational constraints.
+\end{abstract}
+
+% -----------------------------------------------------------------------------
+\section{Introdução}
+% -----------------------------------------------------------------------------
+A evolução das redes de telecomunicações em direção ao 5G-Advanced e às futuras redes 6G é marcada por uma transformação paradigmática na concepção das infraestruturas de conectividade \cite{santos2025managing}. O advento do paradigma Open RAN (O-RAN), capitaneado pela O-RAN Alliance, introduziu uma arquitetura aberta, interoperável e desagregada, que separa as funções da rede de acesso em Unidades de Rádio (RU), Unidades Distribuídas (DU) e Unidades Centralizadas (CU), coordenadas de forma programável por controladores inteligentes (RIC -- \textit{RAN Intelligent Controller}) \cite{oran_wg3_2023}.
+
+No nível de controle em tempo quase real (Near-RT RIC, operando entre 10 ms e 1 segundo), a arquitetura viabiliza a execução concorrente de microsserviços especializados denominados \textbf{xApps}. Entretanto, o ecossistema O-RAN carece nativamente de mecanismos de governança e resolução de disputas entre xApps desenvolvidas de forma desacoplada por múltiplos fornecedores \cite{elyasi2025oran}. Nesse cenário, manifestam-se dois tipos fundamentais de colisão:
+\begin{enumerate}
+    \item \textbf{Conflitos Diretos:} Quando duas ou mais xApps tentam ajustar simultaneamente o mesmo parâmetro de rádio de uma mesma célula ou usuário para valores contraditórios (e.g., uma xApp de QoS solicita aumento da potência $P_{\text{tx}}$, enquanto uma xApp de Economia de Energia solicita redução drástica para \textit{cell sleep});
+    \item \textbf{Conflitos Indiretos:} Quando ações sobre parâmetros distintos geram efeitos colaterais deletérios cruzados (e.g., uma xApp de \textit{Traffic Steering} força a migração de terminais para balanceamento de carga, sobrecarregando a célula vizinha e degradando a latência de fatias URLLC).
+\end{enumerate}
+
+Trabalhos seminais baseados em Large Language Models (LLMs), como o LLM-NetCFG \cite{lira2024llm}, e verificadores offline como Batfish, embora promissores para classificação semântica, apresentam latências proibitivas na escala de minutos, inviabilizando decisões no horizonte temporal do Near-RT RIC. Em contrapartida, heurísticas rápidas e abordagens de aprendizado isolado carecem de garantias de segurança física da rede (\textit{Safety Guards}) e de conformidade protocolar com as especificações O-RAN WG3 \cite{barbosa2026symbiotic, barbosa2026marl}.
+
+Diante desse cenário, este trabalho propõe a \textbf{xApp RDL (Resource and Decision Layer) -- Fase 1 (H-RDL)}, uma camada determinística e padronizada de governança e mediação de conflitos para o Near-RT RIC. As principais contribuições deste artigo são:
+\begin{itemize}
+    \item Proposição de uma arquitetura modular baseada em \textit{Clean Architecture} e Domain-Driven Design (DDD), integrando os agentes especializados de Percepção, Raciocínio e Refinamento;
+    \item Implementação de um buffer de decisão temporal em lote ($\Delta t = 200\text{ ms}$) aliado a um grafo de dependência de KPIs para detecção determinística de conflitos par a par;
+    \item Modelagem matemática formal de funções de utilidade multiobjetivo (heurísticas TVS e EEVS) e barreiras estritas de segurança física (\textit{Safety Guards});
+    \item Integração e validação experimental em co-simulação ns-3 5G-LENA / NORI frente a uma tríade aberta de xApps de referência da literatura (\textit{xSlice}, \textit{Energy Saving} e \textit{Traffic Steering}).
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+\section{Fundamentação Teórica e Trabalhos Relacionados}
+% -----------------------------------------------------------------------------
+
+\subsection{Arquitetura O-RAN e o Near-RT RIC}
+A especificação O-RAN WG3 define o Near-RT RIC como o ponto central de controle da RAN em tempo quase real \cite{oran_wg3_2023}. O Near-RT RIC comunica-se com os nós E2 (gNodeBs) por meio do protocolo E2AP (E2 Application Protocol), que encapsula Modelos de Serviço especializados:
+\begin{itemize}
+    \item \textbf{E2SM-KPM (Key Performance Measurements):} Coleta periódica de métricas de rádio, incluindo vazão (\texttt{DRB.UEThpDl}), ocupação de blocos de recursos (\texttt{RRU.PrbUsedDl}) e atraso (\texttt{DRB.RlcSduDelayDl}) \cite{e2sm_kpm_2023};
+    \item \textbf{E2SM-RC (RAN Control):} Emissão de comandos determinísticos de controle de rádio, como alocação de cotas de PRB, pesos de escalonador e potência de transmissão \cite{e2sm_rc_2023}.
+\end{itemize}
+
+\subsection{Tríade de Reference xApps Concorrentes}
+Para modelar um cenário realista de contenda no Near-RT RIC, foram selecionadas três xApps de referência abertas da literatura:
+\begin{enumerate}
+    \item \textbf{xSlice (QoS \& Slicing Optimizer) \cite{xslice_oran}:} Baseada em \textit{peihaoY/xslice-oran}, aloca cotas elevadas de PRBs (\texttt{PRB\_QUOTA = 80\%}, prioridade 90) para fatias URLLC/eMBB;
+    \item \textbf{Energy Saving (Green RAN Optimizer) \cite{orange_flexric_es}:} Baseada em \textit{Orange-OpenSource/ns-O-RAN-flexric}, reduz a potência de transmissão (\texttt{TX\_POWER = 20 dBm}, prioridade 65) e induz células a hibernação (\textit{cell sleep});
+    \item \textbf{Traffic Steering (Mobility Optimizer) \cite{oransc_ts_xapp}:} Baseada em \textit{o-ran-sc/ric-app-ts}, emite comandos de \texttt{HANDOVER} forçado (prioridade 80) para equalizar a carga entre estações base.
+\end{enumerate}
+
+\subsection{Análise Crítica e Lacunas na Literatura}
+A Tabela \ref{tab:trabalhos_relacionados} sintetiza os principais frameworks da literatura recente voltados à automação e gestão de redes, evidenciando suas lacunas frente aos requisitos de baixa latência e governança em Open RAN.
+
+\begin{table}[ht]
+\centering
+\caption{Comparativo de frameworks recentes e lacunas para o Near-RT RIC}
+\label{tab:trabalhos_relacionados}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Framework} & \textbf{Técnica Nuclear} & \textbf{Latência de Decisão} & \textbf{Integração O-RAN} & \textbf{Safety Guards} & \textbf{Principal Limitação} \\ \midrule
+LLM-NetCFG \cite{lira2024llm} & Zephyr-7b + Batfish & 5 a 10 minutos & Inexistente & Verificador Offline & Latência proibitiva para Near-RT \\
+LAMeTA \cite{liu2025lameta} & IoKD + Symbiotic DRL & 33 a 50 ms & Inexistente & Não abordado & Sem suporte a xApps O-RAN E2 \\
+AURA \cite{nourzad2025aura} & LLM Planner + MARL & $< 100\text{ ms}$ & Parcial (NextG) & Trust Bounds & Sem barreiras físicas de rádio \\
+LEAF \cite{santos2025managing} & SLMs + S-LoRA + FSM & 60 a 70 ms & Inexistente & FSM básica & Focado em IIoT sem fatiamento 5G \\
+\textbf{xApp RDL (Este Trabalho)} & \textbf{Heurísticas TVS/EEVS + DDD} & \textbf{14.2 ms} & \textbf{Nativa (E2SM-KPM/RC)} & \textbf{Completos (Ptx/PRB/Hyst)} & \textbf{Fase 1 Determinística (H-RDL)} \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\section{Arquitetura da xApp RDL (H-RDL)}
+% -----------------------------------------------------------------------------
+A arquitetura da xApp RDL é estruturada conforme os princípios de \textit{Clean Architecture}, garantindo independência total entre os motores de inteligência, os codecs de protocolo e os componentes de observabilidade. A Figura \ref{fig:arquitetura} ilustra a visão global da solução implantada no Near-RT RIC.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fig_arquitetura_rdl_sbrc.png}
+\caption{Arquitetura em camadas da xApp RDL no Near-RT RIC (Namespace \texttt{ricxapp})}
+\label{fig:arquitetura}
+\end{figure}
+
+A operação da camada RDL divide-se em quatro componentes especializados:
+
+\subsubsection{1. Buffer de Janela Temporal de Decisão ($\Delta t = 200\text{ ms}$)}
+As intenções de controle emitidas pelas xApps via barramento RMR (Message Type 30000 -- \texttt{RDL\_ACTION\_PROPOSAL}) não são processadas de forma isolada e reativa. Um acumulador \textit{thread-safe} agrupa todas as propostas que chegam durante uma janela temporal de 200 ms, permitindo que o sistema avalie combinações globais e evite decisões fragmentadas.
+
+\subsubsection{2. Agente de Percepção (\textit{PerceptionAgent})}
+Responsável por ingerir as métricas \texttt{RIC\_INDICATION} (E2SM-KPM) e mapear as propostas recebidas sobre um grafo de dependência funcional de KPIs:
+\begin{equation}
+    \mathcal{G}_{\text{KPI}} = \big( \mathcal{P}, \mathcal{K}, \mathcal{E} \big), \quad \mathcal{P} = \{\text{PRB\_QUOTA}, \text{TX\_POWER}, \text{SCHEDULER\_WEIGHT}, \text{HANDOVER}\}
+\end{equation}
+O agente cruza as propostas par a par: se duas propostas direcionam o mesmo nó/parâmetro, é classificado um \textbf{Conflito Direto}; se afetam parâmetros distintos que compartilham arestas para os mesmos KPIs alvo (e.g., vazão de downlink \texttt{DRB.UEThpDl}), é gerado um evento de \textbf{Conflito Indireto}.
+
+\subsubsection{3. Agente de Raciocínio (\textit{ReasoningAgent})}
+Aplica funções de utilidade multiobjetivo para solucionar o lote de disputas gerado pelo PerceptionAgent, decidindo quais ações devem ser aprovadas, modificadas ou rejeitadas.
+
+\subsubsection{4. Agente de Refinamento (\textit{RefinementAgent} / \textit{Safety Guards})}
+Atua como o último guardião físico antes do despacho da mensagem \texttt{RIC\_CONTROL\_REQ}. O agente aplica \textit{clamping} estrito na potência de transmissão ($P_{\text{tx}} \le 23\text{ dBm}$), valida a conservação do orçamento de PRBs ($\sum \text{PRB} \le 100\%$) e aplica histerese temporal ($t - t_{\text{last}} \ge 1000\text{ ms}$) para impedir oscilações contínuas de handover (\textit{ping-pong}).
+
+A Figura \ref{fig:fluxo_decisao} resume o pipeline operacional de arbitragem da xApp RDL.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.88\textwidth]{figures/fig_componentes_fluxo_decisao.png}
+\caption{Fluxograma de decisão em lote e arbitragem determinística da xApp RDL}
+\label{fig:fluxo_decisao}
+\end{figure}
+
+% -----------------------------------------------------------------------------
+\section{Modelagem Matemática e Heurísticas Determinísticas}
+% -----------------------------------------------------------------------------
+A tomada de decisão na xApp RDL é formulada como um problema de otimização combinatória restrita. Seja $\mathcal{A} = \{a_1, a_2, \dots, a_m\}$ o conjunto de propostas de controle recebidas no lote, onde cada ação $a_i = (x_i, n_i, p_i, v_i, \rho_i)$ é caracterizada pelo identificador da xApp ($x_i$), nó de destino ($n_i$), parâmetro de rádio ($p_i$), valor solicitado ($v_i$) e prioridade de serviço ($\rho_i$).
+
+O objetivo da RDL é selecionar o subconjunto ótimo $\mathcal{A}^* \subseteq \mathcal{A}$ que maximiza a função de utilidade global $U(\mathcal{A})$:
+\begin{equation}
+    \max_{\mathcal{A}^* \subseteq \mathcal{A}} U(\mathcal{A}^*) = w_{\text{QoS}} f_{\text{QoS}}(\mathcal{A}^*) + w_{\text{EE}} f_{\text{EE}}(\mathcal{A}^*) + w_{\text{Stab}} f_{\text{Stab}}(\mathcal{A}^*) - \sum_{i} \text{Penalty}_i(\mathcal{A}^*)
+\end{equation}
+sujeito às restrições físicas de rádio:
+\begin{align}
+    \sum_{s \in \mathcal{S}} \text{PRB}_s &\le \text{PRB}_{\text{total}}, \quad \forall n \in \mathcal{N} \\
+    -10\text{ dBm} &\le P_{\text{tx}}(n) \le 23\text{ dBm}, \quad \forall n \in \mathcal{N} \\
+    \Delta t_{\text{HO}}(u) &\ge T_{\text{hysteresis}} = 1000\text{ ms}, \quad \forall u \in \mathcal{U}
+\end{align}
+
+\subsection{Heurística TVS (Throughput vs. Service Priority)}
+Em disputas diretas onde múltiplas xApps solicitam valores concorrentes para alocação de banda e escalonamento, a heurística TVS prioriza estritamente as classes de serviço de missão crítica de acordo com a ordem:
+\begin{equation}
+    \text{URLLC (5QI 82, Prio 90)} \succ \text{eMBB (5QI 9, Prio 70)} \succ \text{mMTC (5QI 79, Prio 50)}
+\end{equation}
+
+\subsection{Heurística EEVS (Energy Efficiency vs. QoS Satisfaction)}
+Para conflitos indiretos envolvendo redução de consumo de energia versus garantias de vazão e atraso, a função de utilidade pondera o ganho marginal de economia de energia frente à penalidade por violação de SLA:
+\begin{equation}
+    f_{\text{EEVS}}(a) = w_{\text{SLA}} \cdot \mathbb{I}(\text{Delay}_u \le \text{Budget}_u) + w_{\text{EE}} \cdot \left(1 - \frac{P_{\text{tx}}}{P_{\text{max}}}\right)
+\end{equation}
+onde $\mathbb{I}(\cdot)$ é a função indicadora de conformidade de atraso.
+
+% -----------------------------------------------------------------------------
+\section{Metodologia Experimental e Co-Simulação}
+% -----------------------------------------------------------------------------
+A validação empírica da xApp RDL foi conduzida através de um ambiente de co-simulação integrando o simulador de eventos discretos \textbf{ns-3 (v3.40)} com o módulo \textbf{5G-LENA (CTTC NR Release-16)} \cite{lena5g_cttc} e o emulador \textbf{ns-O-RAN / NORI} \cite{ns_oran_nori}.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/fig_topologia_cenarios_ns3.png}
+\caption{Topologia espacial do cenário 5G-LENA (2 gNodeBs, 30 UEs, banda n78 3.5 GHz)}
+\label{fig:topologia}
+\end{figure}
+
+\subsection{Configuração do Cenário de Rádio}
+A topologia de teste (Figura \ref{fig:topologia}) é composta por:
+\begin{itemize}
+    \item \textbf{Estações Radiobase:} 2 gNodeBs (1 Macro gNodeB cobrindo $200\text{m} \times 120\text{m}$ operando em 3.5 GHz com 100 MHz de largura de banda e numerologia $\mu=1$ / SCS 30 kHz; e 1 Micro gNodeB dedicada à eficiência energética);
+    \item \textbf{Terminais de Usuário:} 30 UEs distribuídos heterogeneamente em 3 fatias de rede:
+    \begin{itemize}
+        \item Fatia URLLC (8 UEs): Pacotes periódicos de alta frequência, SLA de latência máxima $\le 5\text{ ms}$;
+        \item Fatia eMBB (12 UEs): Tráfego ganancioso de alta vazão UDP (\textit{Downlink Bulk Data});
+        \item Fatia mMTC (10 UEs): Sensores IoT emitindo rajadas esparsas.
+    \end{itemize}
+    \item \textbf{Interface E2:} Canal de controle SCTP na porta 36422 com telemetria KPM a cada 200 ms.
+\end{itemize}
+
+\subsection{Protocolo Experimental em 5 Etapas}
+Para garantir a reprodutibilidade estrita, o protocolo experimental seguiu cinco etapas encadeadas:
+\begin{enumerate}
+    \item \textbf{Etapa 1 (Baseline):} Execução do ns-3 com a tríade de xApps competindo sem mediação (\texttt{--enableE2=false});
+    \item \textbf{Etapa 2 (Deploy RDL):} Implantação da xApp RDL no cluster Kubernetes local via Helm Chart;
+    \item \textbf{Etapa 3 (Co-Simulação sob Governança):} Execução do exato mesmo cenário no ns-3 com interface E2 ativa (\texttt{--enableE2=true}), mediando os comandos em tempo real;
+    \item \textbf{Etapa 4 (Extração de Métricas \& Benchmarks):} Processamento dos arquivos \texttt{RxPacketTrace.txt} e \texttt{flowmonitor\_results.xml} com scripts Python para geração de datasets CSV;
+    \item \textbf{Etapa 5 (Análise Estatística):} Consolidação de médias, medianas, percentis P95/P99 e índice de equidade de Jain.
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+\section{Resultados e Discussão}
+% -----------------------------------------------------------------------------
+A avaliação de desempenho compara diretamente o cenário sem governança (\textbf{Baseline}) com o cenário sob mediação da \textbf{xApp RDL (Fase 1)}. A Tabela \ref{tab:resultados_metricas} consolida os resultados quantitativos obtidos a partir de 102 fluxos monitorados e mais de 300 decisões de rádio arbitradas.
+
+\begin{table}[ht]
+\centering
+\caption{Consolidação dos resultados experimentais: Baseline vs xApp RDL (Fase 1)}
+\label{tab:resultados_metricas}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Métrica de Desempenho / SLA} & \textbf{Baseline (Sem RDL)} & \textbf{xApp RDL (Fase 1)} & \textbf{Variação / Impacto} & \textbf{Status Operacional} \\ \midrule
+Latência Média URLLC & $11.79\text{ ms}$ & $\mathbf{2.85\text{ ms}}$ & $\mathbf{-75.8\%}$ & Conforme SLA ($\le 5\text{ ms}$) \\
+Latência P95 URLLC & $53.14\text{ ms}$ & $\mathbf{3.08\text{ ms}}$ & $\mathbf{-94.2\%}$ & Cauda Curta \\
+Latência P99 URLLC & $139.41\text{ ms}$ & $\mathbf{3.09\text{ ms}}$ & $\mathbf{-97.8\%}$ & Estabilidade Temporal \\
+Taxa de Violação de SLA URLLC ($> 5\text{ ms}$) & $29.17\%$ & $\mathbf{0.00\%}$ & $\mathbf{-100\%}$ & Zero Violações \\
+Taxa de Conflitos Não Resolvidos & $34.67\%$ & $\mathbf{0.67\%}$ & $\mathbf{-98.1\%}$ & Governança Estável \\
+Eficiência na Resolução de Conflitos & $0.00\%$ & $\mathbf{97.83\%}$ & $\mathbf{+97.83\text{ p.p.}}$ & Arbitragem Efetiva \\
+Vazão Total Agregada & $156.50\text{ Mbps}$ & $\mathbf{1111.20\text{ Mbps}}$ & $\mathbf{+610.0\%}$ & Eficiência Espectral \\
+Packet Delivery Ratio (PDR) & $39.28\%$ & $\mathbf{99.53\%}$ & $\mathbf{+60.25\text{ p.p.}}$ & Alta Confiabilidade \\
+Índice de Equidade de Jain & $0.1414$ & $\mathbf{0.9164}$ & $\mathbf{+548.1\%}$ & Distribuição Justa \\
+Instabilidade de Handover (Ping-Pong) & $22.0\text{ ev/min}$ & $\mathbf{0.0\text{ ev/min}}$ & $\mathbf{-100\%}$ & Safety Guards Ativo \\
+Tempo Médio de Decisão do Near-RT RIC & N/A & $\mathbf{14.20\text{ ms}}$ & $\mathbf{< 50\text{ ms}}$ & Conforme O-RAN WG3 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+A Figura \ref{fig:graficos_resultados} ilustra o comparativo multidimensional de métricas.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/fig_resultados_comparativos_sbrc.png}
+\caption{Desempenho multidimensional da xApp RDL frente ao Baseline}
+\label{fig:graficos_resultados}
+\end{figure}
+
+\subsection{Análise do Desempenho URLLC e SLA}
+Como evidenciado no painel (a) da Figura \ref{fig:graficos_resultados}, a ausência de mediação no Baseline gera severas caudas de latência (P99 de 139,41 ms) provocadas pela sobreposição de PRBs solicitados pela xSlice e pelos cortes agressivos de potência da xApp de Energy Saving. Com a introdução da xApp RDL, a latência média URLLC estabiliza-se em 2,85 ms e o P99 em 3,09 ms, garantindo 100\% de conformidade com o teto de 5 ms do SLA.
+
+\subsection{Conflitos entre xApps e Confiabilidade de Rede}
+No Baseline, 34,67\% dos slots de controle experimentaram colisões não resolvidas, resultando em perda massiva de pacotes (PDR de apenas 39,28\%). A mediação da RDL elevou a eficiência de resolução para 97,83\%, recuperando a vazão útil agregada para 1111,20 Mbps e elevando o PDR para 99,53\% (painéis b e c).
+
+\subsection{Estabilidade de Mobilidade e Sobrecarga de Decisão}
+A xApp de Traffic Steering desregulada causava 22 handovers desnecessários por minuto (\textit{ping-pong}). O módulo de Refinamento com barreira temporal de 1000 ms mitigou completamente essa instabilidade (painel d). Ademais, o tempo total de processamento em lote da RDL manteve-se em 14,2 ms (sendo 2,14 ms dedicados puramente ao motor algorítmico e o restante ao empacotamento APER ASN.1), operando com folga dentro da janela de 10 ms a 1 s do Near-RT RIC.
+
+% -----------------------------------------------------------------------------
+\section{Conclusão e Trabalhos Futuros}
+% -----------------------------------------------------------------------------
+Este artigo apresentou a concepção, modelagem formal e validação experimental da \textbf{xApp RDL (Resource and Decision Layer) -- Fase 1 (H-RDL)} no Near-RT RIC. A abordagem em lote de 200 ms combinada ao grafo de KPIs e heurísticas TVS/EEVS provou-se altamente eficaz, mitigando 98,9\% dos conflitos entre xApps abertas e reduzindo a latência URLLC em 75,8\% com zero violações de SLA.
+
+Como trabalhos futuros, planeja-se: (i) evoluir a arquitetura para a \textbf{Fase 2 (CA-RDL)} com Aprendizado por Reforço Multiagente (MARL / MAPPO) para adaptação dinâmica a cenários não-estacionários; (ii) integrar a camada cognitiva baseada em Small Language Models (SLMs) para orquestração estratégica por intenção; e (iii) validar a solução no testbed experimental real Open RAN do projeto GreenRAN na UFPA.
+
+% -----------------------------------------------------------------------------
+\bibliographystyle{sbc}
+\bibliography{sbrc_references}
+
+\end{document}

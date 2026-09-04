@@ -1,0 +1,67 @@
+% sbc.sty - Sociedade Brasileira de Computação (SBC) template style
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{sbc}[2026/01/01 SBC style package]
+
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{graphicx}
+\RequirePackage{amsmath,amssymb,amsfonts}
+\RequirePackage{booktabs}
+\RequirePackage{url}
+\RequirePackage{cite}
+\RequirePackage{geometry}
+\RequirePackage{setspace}
+\RequirePackage{caption}
+\RequirePackage{microtype}
+\RequirePackage{color}
+\RequirePackage{xcolor}
+
+\geometry{
+  a4paper,
+  top=3.0cm,
+  bottom=2.0cm,
+  left=3.0cm,
+  right=3.0cm
+}
+
+\setlength{\parindent}{1.27cm}
+\setlength{\parskip}{0.0cm}
+
+\newcommand{\address}[1]{\def\@address{#1}}
+\newcommand{\email}[1]{\def\@email{#1}}
+
+\renewcommand{\maketitle}{
+  \begin{center}
+    {\Large \bfseries \@title \par}
+    \vskip 1.5em
+    {\large \@author \par}
+    \vskip 1.0em
+    {\small \@address \par}
+    \vskip 0.5em
+    {\small \ttfamily \@email \par}
+  \end{center}
+  \vskip 1.5em
+}
+
+\renewenvironment{abstract}{%
+  \begin{center}%
+    {\bfseries Abstract\vspace{-.5em}\vspace{0pt}}%
+  \end{center}%
+  \itshape\small
+}{%
+  \par\vskip 1.5em
+}
+
+\newenvironment{resumo}{%
+  \begin{center}%
+    {\bfseries Resumo\vspace{-.5em}\vspace{0pt}}%
+  \end{center}%
+  \itshape\small
+}{%
+  \par\vskip 1.5em
+}
+
+\captionsetup[figure]{labelfont=bf,textfont=it,font=small}
+\captionsetup[table]{labelfont=bf,textfont=it,font=small}
+
+\endinput
