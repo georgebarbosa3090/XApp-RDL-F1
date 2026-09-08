@@ -93,6 +93,10 @@ k8s-uninstall:
 
 k8s-test: test-3xapps
 
+deploy-reference-xapps:
+	@echo "Implantando Reference xApps no namespace $(NAMESPACE)..."
+	bash scripts/deploy_reference_xapps.sh
+
 # -------------------------------------------------------------
 # Pipeline Helm Chart (Padrão O-RAN)
 # -------------------------------------------------------------
