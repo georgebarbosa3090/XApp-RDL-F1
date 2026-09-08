@@ -50,11 +50,16 @@ cluster-recreate: cluster-delete cluster-create
 
 rancher-start:
 	@echo "Iniciando contêiner do Rancher Server (rancher-server)..."
-	docker run -d --restart=unless-stopped \
-	  -p 8088:80 -p 8443:443 \
-	  --privileged \
-	  --name rancher-server \
-	  rancher/rancher:v2.8.5 || echo "Container rancher-server já existe ou está rodando."
+	@if [ "$$(docker ps -a -q -f name=^/rancher-server$$)" ]; then \
+		echo "Contêiner 'rancher-server' já existe. Garantindo inicialização..."; \
+		docker start rancher-server; \
+	else \
+		docker run -d --restart=unless-stopped \
+		  -p 8088:80 -p 8443:443 \
+		  --privileged \
+		  --name rancher-server \
+		  rancher/rancher:v2.8.5; \
+	fi
 	@echo "Aguarde ~60-90 segundos para a inicialização e acesse: https://localhost:8443"
 
 rancher-stop:

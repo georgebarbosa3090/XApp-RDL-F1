@@ -115,10 +115,12 @@ make generate-figures
 
 * **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
   ```bash
+  make rancher-stop       # (Opcional) Para e remove container anterior
   make rancher-start      # 1. Inicia o container do Rancher Server (:8443)
-  make rancher-password   # 2. Obtém a Bootstrap Password inicial
-  # 3. Acesse https://localhost:8443, configure a senha e importe o cluster 'rancher-lab'
-  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 4. Vincula o cluster
+  make rancher-logs       # 2. Acompanha os logs (ou: docker logs -f rancher-server)
+  make rancher-password   # 3. Obtém a Bootstrap Password inicial
+  # 4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
+  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 5. Vincula o cluster
   ```
 * **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC, instale com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
 * **Injetor de Tráfego O-RAN:** Execute `make inject-traffic` para alimentar a malha com fluxos contínuos.

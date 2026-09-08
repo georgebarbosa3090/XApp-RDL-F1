@@ -136,14 +136,23 @@ ricxapp-iqos-xapp-rdl-84cfbb996b-zw78      1/1     Running   0          40s
 
 ### 6.1. Rancher Dashboard (Gestão Global do Cluster e Nós)
 ```bash
+# (Opcional) Parar e remover container anterior se houver conflito:
+make rancher-stop
+
 # 1. Iniciar o contêiner do Rancher Server:
 make rancher-start
 
-# 2. Obter a senha de primeiro acesso (Bootstrap Password):
+# 2. Acompanhar os logs de prontidão:
+make rancher-logs
+# ou: docker logs -f rancher-server
+
+# 3. Obter a senha de primeiro acesso (Bootstrap Password):
 make rancher-password
 
-# 3. Acessar https://localhost:8443 no navegador e importar o cluster 'rancher-lab'
-# 4. Conectar o cluster ao Rancher automaticamente:
+# 4. Acesse no navegador:
+# URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
+
+# 5. Conectar o cluster ao Rancher automaticamente:
 make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
 ```
 > *Para o passo a passo detalhado de configuração de rede e certificados TLS, consulte o **[Volume 02: Infraestrutura de Cluster e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md)**.*

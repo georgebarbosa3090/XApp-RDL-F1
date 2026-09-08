@@ -223,6 +223,9 @@ flowchart TD
 O Rancher Server precisa ser iniciado como contêiner Docker antes de tentar acessar a interface web:
 
 ```bash
+# Se houver contêiner anterior em conflito ou para recriar:
+make rancher-stop
+
 # Opção A: Via Makefile (Recomendado)
 make rancher-start
 
@@ -257,7 +260,8 @@ make rancher-password
 
 ### 5.3. Passo 3: Acesso ao Dashboard e Configuração Inicial
 
-1. Abra no navegador: **`https://localhost:8443`** (ou `https://127.0.0.1:8443`).
+1. **Acesse no navegador:**
+   - **URL:** `https://localhost:8443` (ou `https://<IP_DO_HOST>:8443` / `https://127.0.0.1:8443`)
 2. **Aviso de Certificado TLS:** Como o Rancher gera certificados autoassinados para o ambiente de laboratório, o navegador exibirá o aviso *"Sua conexão não é particular"*:
    - Clique em **"Avançado"** -> **"Continuar para localhost (não seguro)"** (no Google Chrome, se o botão não aparecer, basta digitar `thisisunsafe` na janela).
 3. Cole a **Bootstrap Password** obtida no Passo 2, defina sua nova senha definitiva de administrador e confirme a URL de acesso (`https://localhost:8443`).
