@@ -1,5 +1,7 @@
 .PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-experiments analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
 
+NS3_DIR ?= $(HOME)/ns3-oran-workspace/ns-3-oran
+
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
 CHART_DIR ?= deploy/helm/iqos-xapp-rdl
@@ -230,15 +232,59 @@ run-rdl:
 
 run-scenario1:
 	@echo "Executando Cenário 1: Energy Saving vs QoS (EEVS) com logs em tempo real..."
+	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
+		echo ""; \
+		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
+		echo " [DICA] Para instalar e compilar o ns-3 NORI / 5G-LENA automaticamente, execute:"; \
+		echo "        make setup-ns3"; \
+		echo "        ou execute com o caminho personalizado: make run-scenario1 NS3_DIR=/caminho/do/ns-3-oran"; \
+		echo ""; \
+		exit 1; \
+	fi
 	@mkdir -p $(NS3_DIR)/scratch
 	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
 
+run-scenario1-baseline:
+	@echo "Executando Baseline Cenário 1: Energy Saving vs QoS (EEVS) [enableE2=false]..."
+	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
+		echo ""; \
+		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
+		echo " [DICA] Execute 'make setup-ns3' para compilar o ambiente."; \
+		echo ""; \
+		exit 1; \
+	fi
+	@mkdir -p $(NS3_DIR)/scratch
+	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=false --simTime=30"
+
 run-scenario2:
 	@echo "Executando Cenário 2: Traffic Steering vs QoS (TVS) com logs em tempo real..."
+	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
+		echo ""; \
+		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
+		echo " [DICA] Para instalar e compilar o ns-3 NORI / 5G-LENA automaticamente, execute:"; \
+		echo "        make setup-ns3"; \
+		echo "        ou execute com o caminho personalizado: make run-scenario2 NS3_DIR=/caminho/do/ns-3-oran"; \
+		echo ""; \
+		exit 1; \
+	fi
 	@mkdir -p $(NS3_DIR)/scratch
 	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
+
+run-scenario2-baseline:
+	@echo "Executando Baseline Cenário 2: Traffic Steering vs QoS (TVS) [enableE2=false]..."
+	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
+		echo ""; \
+		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
+		echo " [DICA] Execute 'make setup-ns3' para compilar o ambiente."; \
+		echo ""; \
+		exit 1; \
+	fi
+	@mkdir -p $(NS3_DIR)/scratch
+	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
 
 run-experiments:
 	bash scripts/run_full_experiment.sh
