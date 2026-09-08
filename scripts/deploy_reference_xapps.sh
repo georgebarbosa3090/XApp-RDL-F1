@@ -15,7 +15,23 @@ echo "==========================================================================
 # 1. Garantir namespace
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
-# 2. Se existirem os manifestos em deploy/kubernetes, aplica-os prioritariamente:
+# 2. Garantir que as imagens necessárias (1.1.0 e 2.0.0) estejam presentes nos nós containerd do k3d
+echo "[+] Sincronizando imagens Docker nos nós do cluster k3d..."
+if docker image inspect iqos-xapp-rdl:2.0.0 >/dev/null 2>&1 && ! docker image inspect iqos-xapp-rdl:1.1.0 >/dev/null 2>&1; then
+    docker tag iqos-xapp-rdl:2.0.0 iqos-xapp-rdl:1.1.0
+elif docker image inspect iqos-xapp-rdl:1.1.0 >/dev/null 2>&1 && ! docker image inspect iqos-xapp-rdl:2.0.0 >/dev/null 2>&1; then
+    docker tag iqos-xapp-rdl:1.1.0 iqos-xapp-rdl:2.0.0
+fi
+
+for IMG in "iqos-xapp-rdl:1.1.0" "iqos-xapp-rdl:2.0.0"; do
+    if docker image inspect "$IMG" >/dev/null 2>&1; then
+        for node in $(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)"); do
+            docker save "$IMG" | docker exec -i "$node" ctr images import - 2>/dev/null || true
+        done
+    fi
+done
+
+# 3. Se existirem os manifestos em deploy/kubernetes, aplica-os prioritariamente:
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 K8S_DIR="$ROOT_DIR/deploy/kubernetes"
@@ -25,6 +41,9 @@ if [ -f "$K8S_DIR/xapp-qos-xslice.yaml" ]; then
     kubectl apply -f "$K8S_DIR/xapp-qos-xslice.yaml" -n "$NAMESPACE"
     kubectl apply -f "$K8S_DIR/xapp-energy-saving.yaml" -n "$NAMESPACE"
     kubectl apply -f "$K8S_DIR/xapp-traffic-steering.yaml" -n "$NAMESPACE"
+    kubectl rollout restart deployment ricxapp-qos-xslice -n "$NAMESPACE" 2>/dev/null || true
+    kubectl rollout restart deployment ricxapp-energy-saving -n "$NAMESPACE" 2>/dev/null || true
+    kubectl rollout restart deployment ricxapp-traffic-steering -n "$NAMESPACE" 2>/dev/null || true
 fi
 
 # 3. Provisiona xApps complementares (Beamformer, ISAC Radar, Rogue Stress) de forma limpa e resiliente
