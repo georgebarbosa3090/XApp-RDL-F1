@@ -24,7 +24,7 @@ spec:
       containers:
       - name: traffic-steering
         image: iqos-xapp-rdl:1.1.0
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         env:
         - name: XAPP_ROLE
           value: "traffic_steering"

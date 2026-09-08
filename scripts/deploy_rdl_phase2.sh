@@ -38,20 +38,29 @@ fi
 # 2. Build da Imagem Docker da Fase 2 (v2.0.0)
 echo -e "\n${YELLOW}[1/4] Construindo imagem Docker da Fase 2 (${IMAGE_NAME}:${IMAGE_TAG})...${NC}"
 docker build --file docker/Dockerfile --tag ${IMAGE_NAME}:${IMAGE_TAG} .
+docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:1.1.0 2>/dev/null || true
+docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest 2>/dev/null || true
 
-# 3. Importação da Imagem para os nós do k3d
-echo -e "\n${YELLOW}[2/4] Importando imagem ${IMAGE_NAME}:${IMAGE_TAG} para o cluster k3d...${NC}"
+# 3. Importação das Imagens para os nós do k3d
+echo -e "\n${YELLOW}[2/4] Importando imagens (${IMAGE_NAME}:${IMAGE_TAG} e :1.1.0) para o cluster k3d...${NC}"
 K3D_NODES=$(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server-[0-9]|agent-[0-9])" || true)
 if [ -n "$K3D_NODES" ]; then
     for node in $K3D_NODES; do
         echo " -> Importando no containerd do nó: $node"
         docker save ${IMAGE_NAME}:${IMAGE_TAG} | docker exec -i $node ctr images import - || true
+        docker save ${IMAGE_NAME}:1.1.0 | docker exec -i $node ctr images import - || true
     done
 else
     if command -v k3d &> /dev/null; then
         k3d image import ${IMAGE_NAME}:${IMAGE_TAG} -c ${CLUSTER_NAME} || true
+        k3d image import ${IMAGE_NAME}:1.1.0 -c ${CLUSTER_NAME} || true
     fi
 fi
+
+# 3.1. Reinicia pods de reference xApps caso estejam aguardando imagem
+kubectl rollout restart deployment ricxapp-qos-xslice -n ${NAMESPACE_XAPP} 2>/dev/null || true
+kubectl rollout restart deployment ricxapp-energy-saving -n ${NAMESPACE_XAPP} 2>/dev/null || true
+kubectl rollout restart deployment ricxapp-traffic-steering -n ${NAMESPACE_XAPP} 2>/dev/null || true
 
 # 4. Deploy/Upgrade Helm Exclusivo da Fase 2
 echo -e "\n${YELLOW}[3/4] Executando Helm Upgrade/Install da release '${RELEASE_NAME}'...${NC}"
