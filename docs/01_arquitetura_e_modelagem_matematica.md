@@ -58,7 +58,7 @@ src/
 ### 2.1. Fluxo Funcional da Arquitetura Proposta (H-RDL Fase 1 & Evolução)
 A Figura abaixo apresenta o fluxo funcional completo da arquitetura proposta para a xApp RDL, destacando os módulos em execução na Fase 1 (Governança Determinística) e os componentes de evolução cognitiva:
 
-![Fluxo funcional da arquitetura proposta para a xApp-RDL](figures/fig_fluxo_funcional_arquitetura_rdl.png)
+![Fluxo funcional da arquitetura proposta para a xApp-RDL](figures/01_arquitetura_e_modelagem/fig_fluxo_funcional_arquitetura_rdl.png)
 
 ```mermaid
 flowchart TD
