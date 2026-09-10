@@ -17,11 +17,11 @@ skills/
 docs/relatorio_extenso*
 
 # 3. Resultados de Experimentos e Datasets (Fase 1 e Fase 2)
-experiments/*
-!experiments/results/
+experiments/results/*
 !experiments/results/.gitkeep
 results/*
 !results/.gitkeep
+
 *.csv
 *.tsv
 *.parquet
