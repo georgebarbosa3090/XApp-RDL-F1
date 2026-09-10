@@ -1,53 +1,61 @@
 # Runbook de Execução e Reprodutibilidade Experimental — Fase 1 (H-RDL)
 
-**Projeto:** xApp RDL (Resource and Decision Layer)  
-**Autor:** George Alexandro F. Barbosa / PPGC-UFPA  
-**Data:** 10 de Setembro de 2026  
+<div align="center">
+
+**Protocolo de Reprodutibilidade Determinística, Simulações ns-3 5G-LENA e Auditoria de Conformidade O-RAN**  
+*Autor: George Alexandro F. Barbosa — PPGC / Universidade Federal do Pará (UFPA)*
+
+</div>
 
 ---
 
 ## 1. Pré-Requisitos do Sistema
 
-* Linux Ubuntu 22.04 LTS (Nativo ou WSL2 no Windows 11);
-* Docker CE 24.0+ e k3d v5.6.0+;
-* Python 3.10+ / 3.12 com ambiente virtual `.venv`;
-* Toolchain de compilação CMake 3.22+, Ninja e g++ 11+;
-* Árvore de fontes do `ns-3.48` com módulo `5G-LENA v5.1` e `NORI`.
+* **Sistema Operacional:** Linux Ubuntu 22.04 LTS (WSL2 no Windows 11 ou Bare-Metal);
+* **Contêineres e Cluster:** Docker Engine 24.0+ e k3d v5.6.0+;
+* **Ambiente Python:** Python 3.10+ / 3.12 com dependências instaladas (`pip install -r requirements.txt`);
+* **Toolchain de Compilação:** CMake 3.25+, Ninja e g++ 11+;
+* **Simulador de Rádio 5G:** Árvore de fontes do `ns-3.48` integrada com `5G-LENA v5.1` e `NORI`.
 
 ---
 
 ## 2. Roteiro Passo a Passo de Execução
 
-### Passo 1: Inicialização do Cluster de Simulação e Near-RT RIC
+### Passo 1: Inicialização do Cluster k3d (Escolha sua topologia)
 ```bash
-# Cria o cluster k3d com mapeamento de portas SCTP e RMR
-make cluster-create
+# Opção 1: Single-Node (~450 MB RAM)
+k3d cluster create rdl-cluster --servers 1 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
 
-# Implanta a plataforma Near-RT RIC e as 3 Reference xApps
-make helm-deploy
+# Opção 2: Dual-Node (~900 MB RAM)
+k3d cluster create rdl-cluster --servers 1 --agents 1 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
+
+# Opção 3: Multi-Node (~1.5 GB RAM)
+k3d cluster create rdl-cluster --servers 1 --agents 2 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
 ```
 
-### Passo 2: Inicialização da xApp RDL em Modo O-RAN Interoperável
+### Passo 2: Implantação da Infraestrutura Near-RT RIC e xApps
 ```bash
-# Execução local / contêiner
-export RDL_MODE="O_RAN_INTEROP"
-export USE_FAKE_SDL="false"
-export DISPATCH_RAW_APER_CONTROL="true"
-python src/rdl_xapp.py
+# Deploy via manifestos Kubernetes puros (Perfil OpenRAN@Brasil Blueprint v3)
+kubectl apply -f deploy/openran-br-v3/config-map.yaml
+kubectl apply -f deploy/openran-br-v3/service.yaml
+kubectl apply -f deploy/openran-br-v3/deployment.yaml
+
+# Verificar prontidão dos pods
+kubectl get pods -n ricxapp -l app=iqos-xapp-rdl
 ```
 
-### Passo 3: Execução do Cenário Closed-Loop ns-3/NORI
+### Passo 3: Execução da Suíte de 3 Simulações Consecutivas
 ```bash
-cd $HOME/ns3-oran-workspace/ns-3-oran
-./ns3 run "scenario_rdl_closed_loop_nori --ricIp=172.18.0.4 --ricPort=36422 --simTime=30"
+# Executa em sequência rigorosa os cenários TVS, EEVS e Closed-Loop NORI (N = 30 Runs)
+python scripts/run_3_consecutive_simulations.py
 ```
 
-### Passo 4: Execução da Avaliação Estatística Multi-Semente ($N = 30$ Runs)
+### Passo 4: Execução dos Testes Automatizados e Interoperabilidade
 ```bash
-python scripts/run_multi_seed_evaluation.py
+pytest tests/ -v
 ```
 
-### Passo 5: Geração de Figuras Científicas em Alta Resolução (300 DPI)
+### Passo 5: Geração do Catálogo Visual e Figuras em Alta Resolução (300 DPI)
 ```bash
 python scripts/generate_sbrc_figures.py
 ```
