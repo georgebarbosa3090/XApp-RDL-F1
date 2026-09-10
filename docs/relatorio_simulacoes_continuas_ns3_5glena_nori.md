@@ -24,6 +24,14 @@ graph LR
     end
 ```
 
+<div align="center">
+
+![Traces Temporais das Simulações Contínuas ns-3 / NORI](figures/03_resultados_e_benchmarks/fig_relatorio_simulacoes_continuas_ns3_nori.png)
+
+*Figura 1: Dinâmica Temporal das Séries de Simulação Contínua ns-3.48 / 5G-LENA v5.1 / NORI E2Sim (Simulações 1, 2 e 3).*
+
+</div>
+
 ---
 
 ## 2. Detalhamento e Resultados por Simulação

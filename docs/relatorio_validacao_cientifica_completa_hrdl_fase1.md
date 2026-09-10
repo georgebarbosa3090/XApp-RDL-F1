@@ -130,6 +130,14 @@ $$
 \text{Safety Intervention Rate} = 4.0\% \quad \big| \quad \text{Unsafe Actions Executed on RAN} = 0.0\%
 $$
 
+<div align="center">
+
+![Auditoria de Conflitos C1-C5 e Safety Guards](figures/03_resultados_e_benchmarks/fig_relatorio_taxonomia_conflitos_safety.png)
+
+*Figura 1: Auditoria de Detecção e Resolução de Conflitos (C1-C5), Safety Guards e Decomposição Temporal H-RDL ($N = 30$ Sementes).*
+
+</div>
+
 ---
 
 ## 8. Validação de Conformidade E2AP, E2SM-KPM, E2SM-RC e RMR
@@ -206,6 +214,14 @@ Tabela 5: Impacto Individual dos Subsistemas no Estudo de Ablação
 | *Sem Histerese Temporal* | $2.95\text{ ms}$ | 1.8% | 8.40% | 18.5 | $740.1\text{ Mbps}$ | Elimina oscilações Ping-Pong |
 | *Sem Raciocínio Shannon*| $5.10\text{ ms}$ | 11.5% | 0.66% | 0.0 | $610.4\text{ Mbps}$ | Garante equidade de capacidade |
 | *Sem Detecção de Conflito*| $11.68\text{ ms}$ | 29.0% | 33.66% | 21.8 | $153.3\text{ Mbps}$ | Núcleo de arbitragem indispensável |
+
+<div align="center">
+
+![Comparativo de Baselines e Ablação Estrutural](figures/03_resultados_e_benchmarks/fig_relatorio_comparativo_baselines_ablacao.png)
+
+*Figura 2: Comparativo Multidimensional de Baselines ($B_0, B_1, B_2, B_3$) e Estudo de Ablação Estrutural dos Subsistemas H-RDL ($N = 30$ Sementes).*
+
+</div>
 
 ---
 

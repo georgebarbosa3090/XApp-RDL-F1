@@ -49,6 +49,14 @@ Tabela 1: Métricas Globais de Desempenho da Camada de Rádio (RAN)
 | **Packet Delivery Ratio (PDR)** | 40.37% $\pm$ 7.31% | **99.48% $\pm$ 0.27%** | +59.11% | **+146.42%** | $t = -44.26$ ($p < 10^{-27}$) | $g = +11.28$ (Extremo) |
 | **Packet Loss Rate** | 59.63% $\pm$ 7.31% | **0.52% $\pm$ 0.27%** | -59.11% | **-99.13%** | $t = 44.26$ ($p < 10^{-27}$) | $g = -11.28$ |
 
+<div align="center">
+
+![Painel Completo de Métricas RAN](figures/03_resultados_e_benchmarks/fig_relatorio_baseline_vs_hrdl_metricas.png)
+
+*Figura 1: Painel Completo de Desempenho e Robustez da Camada de Rádio (RAN) — Baseline sem RDL ($B_0$) vs. H-RDL ($B_1$) ($N = 30$ Sementes, IC 95%).*
+
+</div>
+
 A análise dos percentis de cauda (P95 e P99) revela que no Baseline ($B_0$), a colisão entre decisões das xApps provoca filas de retransmissão no buffer RLC/MAC da gNB, elevando o P99 de latência para $141.54\text{ ms}$, violando catastroficamente os requisitos de Ultra-Reliable Low-Latency Communication (URLLC). O H-RDL conteve a latência de cauda P99 em **$3.08\text{ ms}$**, garantindo conformidade estrita com o SLA da 3GPP ($\le 5.0\text{ ms}$).
 
 ---
@@ -289,6 +297,14 @@ Tempo t = 10.222s: E2SM-RC despacha Control Request 12040 com parâmetros coorde
 Tempo t = 10.235s: gNB-2 confirma execução (ACK 12041).
 Tempo t = 10.4s: KPM subsequente registra Latência URLLC estável em 2.81 ms e 0 Handover drops.
 ```
+
+<div align="center">
+
+![Dinâmica Temporal das Simulações Contínuas](figures/03_resultados_e_benchmarks/fig_relatorio_simulacoes_continuas_ns3_nori.png)
+
+*Figura 2: Dinâmica Temporal das Séries de Simulação Contínua ns-3 / 5G-LENA / NORI (Simulações 1, 2 e 3).*
+
+</div>
 
 ---
 

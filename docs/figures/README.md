@@ -72,6 +72,10 @@ Resultados estatísticos rigorosos com múltiplas sementes ($N=30$), intervalos 
 
 | Arquivo | Métricas Avaliadas e Finalidade Científica | Formato / Resolução |
 | :--- | :--- | :---: |
+| [`fig_relatorio_baseline_vs_hrdl_metricas.png`](03_resultados_e_benchmarks/fig_relatorio_baseline_vs_hrdl_metricas.png) | **Painel Principal Baseline ($B_0$) vs. H-RDL ($B_1$):** Painel 2x3 contendo Throughput (+624.8%), Latência URLLC e Cauda P99 (-97.8%), PDR/Perda, PRB Efficiency (+790.4%), Jain's Fairness (+523.5%), Eficiência Energética (+2631.9%) e Conflitos/Ping-Pong (0 ev/min). | PNG / 300 DPI |
+| [`fig_relatorio_taxonomia_conflitos_safety.png`](03_resultados_e_benchmarks/fig_relatorio_taxonomia_conflitos_safety.png) | **Auditoria de Conflitos C1-C5 e Safety Guards:** Ocorrência vs Detecção 100%, Ações Auditadas (96% Pass-Through, 4% Clamped, 0% Inseguras), Decomposição Temporal H-RDL (14.39 ms) e Escalabilidade até 100 UEs / 12 xApps. | PNG / 300 DPI |
+| [`fig_relatorio_comparativo_baselines_ablacao.png`](03_resultados_e_benchmarks/fig_relatorio_comparativo_baselines_ablacao.png) | **Comparativo dos 4 Baselines e Ablação Estrutural:** Comparação multidimensional de $B_0, B_1, B_2, B_3$ e ablação sistemática (Sem Safety, Sem Histerese, Sem Shannon, Sem Detecção). | PNG / 300 DPI |
+| [`fig_relatorio_simulacoes_continuas_ns3_nori.png`](03_resultados_e_benchmarks/fig_relatorio_simulacoes_continuas_ns3_nori.png) | **Dinâmica Temporal das Simulações Contínuas ns-3 / NORI:** Séries temporais das Simulações 1 (Slicing TVS), 2 (Energy Saving vs QoS) e 3 (Traffic Steering e Supressão de Ping-Pong). | PNG / 300 DPI |
 | [`fig_estatistica_multi_semente_ic95.png`](03_resultados_e_benchmarks/fig_estatistica_multi_semente_ic95.png) | **Validação Estatística Multi-Semente (IC 95%):** Comparativo de $N=30$ execuções comprovando redução de conflitos em 87,5% e violação de SLA < 1,5%. | PNG / 300 DPI |
 | [`graficos_benchmarks_rdl.png`](03_resultados_e_benchmarks/graficos_benchmarks_rdl.png) | **Painel de Benchmarks RDL (2x2):** (A) Latência de Decisão E2E, (B) Taxa de Conflitos Mitigados, (C) Taxa de Violação de SLA, (D) Eficiência Espectral. | PNG / 300 DPI |
 | [`fig_resultados_comparativos_sbrc.png`](03_resultados_e_benchmarks/fig_resultados_comparativos_sbrc.png) | **Resultados Comparativos Padrão SBRC:** Painel multidimensional consolidado para publicação na conferência SBRC/IEEE. | PNG / 300 DPI |
@@ -82,10 +86,21 @@ Resultados estatísticos rigorosos com múltiplas sementes ($N=30$), intervalos 
 | [`avaliacao_modelos_ml_rdl.png`](03_resultados_e_benchmarks/avaliacao_modelos_ml_rdl.png) | **Avaliação de Modelos de Detecção:** Acurácia, F1-Score e matriz de confusão para classificadores de conflito RAN. | PNG / 300 DPI |
 | [`comparativo_completo_cenarios_rdl.png`](03_resultados_e_benchmarks/comparativo_completo_cenarios_rdl.png) | **Painel Integrado de Cenários:** Visão consolidada de desempenho em todos os regimes operacionais. | PNG / 300 DPI |
 
-### Miniatura em Destaque: Validação Multi-Semente IC 95%
+### Miniaturas em Destaque: Resultados dos Relatórios Científicos
+
 <div align="center">
 
-![Estatística Multi-Semente IC 95%](03_resultados_e_benchmarks/fig_estatistica_multi_semente_ic95.png)
+**Painel Global de Métricas Baseline vs. H-RDL**  
+![Painel Global Baseline vs H-RDL](03_resultados_e_benchmarks/fig_relatorio_baseline_vs_hrdl_metricas.png)
+
+**Auditoria de Conflitos C1-C5, Safety Guards e Orçamento Temporal**  
+![Taxonomia C1-C5 e Safety](03_resultados_e_benchmarks/fig_relatorio_taxonomia_conflitos_safety.png)
+
+**Comparativo de 4 Baselines e Estudo de Ablação Estrutural**  
+![Baselines e Ablacao](03_resultados_e_benchmarks/fig_relatorio_comparativo_baselines_ablacao.png)
+
+**Traces das Simulações Contínuas ns-3 / 5G-LENA / NORI**  
+![Simulações Contínuas](03_resultados_e_benchmarks/fig_relatorio_simulacoes_continuas_ns3_nori.png)
 
 </div>
 
@@ -95,4 +110,4 @@ Resultados estatísticos rigorosos com múltiplas sementes ($N=30$), intervalos 
 
 1. **Resolução e Vetorização:** Todas as figuras foram geradas na resolução de **300 DPI** com tipografia limpa (sans-serif) para perfeita legibilidade tanto em tela quanto em impressão.
 2. **Paleta de Cores e Acessibilidade:** As cores utilizam esquemas contrastantes com suporte a leitores monocromáticos e conformidade visual para daltônicos.
-3. **Reprodução:** Os dados brutos que originaram os gráficos de resultados são gerados deterministicamente via `scripts/generate_sbrc_figures.py` e simulações em `simulations/ns3/`.
+3. **Reprodução:** Os dados brutos que originaram os gráficos de resultados são gerados deterministicamente via `scripts/generate_publication_report_figures.py` e simulações em `simulations/ns3/`.
