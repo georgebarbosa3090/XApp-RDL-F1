@@ -144,9 +144,14 @@ $$
 
 * **E2AP-PDU:** Validado contra a gramática ASN.1 oficial da O-RAN ALLIANCE WG3, estruturado canonicamente como:
 
-$$
-\text{E2AP-PDU} ::= \text{CHOICE} \left\{ \text{initiatingMessage}, \text{successfulOutcome}, \text{unsuccessfulOutcome} \right\}
-$$
+```asn1
+E2AP-PDU ::= CHOICE {
+    initiatingMessage      InitiatingMessage,
+    successfulOutcome      SuccessfulOutcome,
+    unsuccessfulOutcome    UnsuccessfulOutcome,
+    ...
+}
+```
 
   com `procedureCode = 4` (`id-RICcontrol`) e `ProtocolIE-Container` contendo `id-RICrequestID (29)`, `id-RANfunctionID (5)`, `id-RICcontrolHeader (22)`, `id-RICcontrolMessage (23)` e `id-RICcontrolAckRequest (21)`;
 * **RMR Message Routing:** Roteamento auditado sem *mocks* ou fallbacks silenciosos:
