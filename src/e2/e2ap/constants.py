@@ -3,7 +3,7 @@ Constantes e Códigos de Procedimento do E2 Application Protocol (E2AP v02.03 / 
 Conforme especificação normativa O-RAN.WG3.E2AP e O-RAN Software Community.
 """
 
-# Message Types RMR (O-RAN SC Convention)
+# Message Types RMR (O-RAN SC Convention Oficial)
 RIC_SUBSCRIPTION_REQ = 12010
 RIC_SUBSCRIPTION_RESP = 12011
 RIC_SUBSCRIPTION_FAILURE = 12012
@@ -11,23 +11,32 @@ RIC_SUBSCRIPTION_DELETE_REQ = 12020
 RIC_SUBSCRIPTION_DELETE_RESP = 12021
 RIC_SUBSCRIPTION_DELETE_FAILURE = 12022
 
-RIC_CONTROL_REQ = 12010
-RIC_CONTROL_ACK = 12011
-RIC_CONTROL_FAILURE = 12012
+# RMR Message Types para E2 Control (Corrigido conforme padrão O-RAN SC)
+RIC_CONTROL_REQ = 12040
+RIC_CONTROL_ACK = 12041
+RIC_CONTROL_FAILURE = 12042
 
 RIC_INDICATION = 12050
 
 RDL_ACTION_PROPOSAL = 30000
 
-# Procedimentos E2AP Elementares (Elementary Procedures)
-PROC_RIC_SUBSCRIPTION = 201
-PROC_RIC_SUBSCRIPTION_DELETE = 202
-PROC_RIC_CONTROL = 204
-PROC_RIC_INDICATION = 205
-PROC_E2_SETUP = 1
-PROC_RESET = 3
+# Procedimentos E2AP Elementares (Elementary Procedures O-RAN WG3)
+ID_RIC_CONTROL = 4                      # id-RICcontrol (ProcedureCode = 4)
+ID_RIC_SUBSCRIPTION = 201               # id-RICsubscription (ProcedureCode = 201)
+ID_RIC_SUBSCRIPTION_DELETE = 202        # id-RICsubscriptionDelete (ProcedureCode = 202)
+ID_RIC_INDICATION = 205                 # id-RICindication (ProcedureCode = 205)
+ID_E2_SETUP = 1                         # id-e2setup (ProcedureCode = 1)
+ID_RESET = 3                            # id-reset (ProcedureCode = 3)
 
-# IDs de Protocol IE Padronizados E2AP
+# Aliases para retrocompatibilidade
+PROC_RIC_CONTROL = ID_RIC_CONTROL
+PROC_RIC_SUBSCRIPTION = ID_RIC_SUBSCRIPTION
+PROC_RIC_SUBSCRIPTION_DELETE = ID_RIC_SUBSCRIPTION_DELETE
+PROC_RIC_INDICATION = ID_RIC_INDICATION
+PROC_E2_SETUP = ID_E2_SETUP
+PROC_RESET = ID_RESET
+
+# IDs de Protocol IE Padronizados E2AP (O-RAN.WG3.E2AP)
 IE_RIC_REQUEST_ID = 29
 IE_RAN_FUNCTION_ID = 5
 IE_RIC_SUBSCRIPTION_DETAILS = 30

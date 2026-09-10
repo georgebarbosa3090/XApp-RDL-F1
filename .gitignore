@@ -75,6 +75,7 @@ scripts/run_experiment_suite.py
 scripts/run_full_experiment.sh
 scripts/run_rdl_experiment.sh
 scripts/update_realtime_tracking_docs.py
+scripts/run_3_consecutive_simulations.py
 
 # 8. Scripts Locais de Sincronização, Rollback, Backup e Manutenção
 scripts/git_*.sh

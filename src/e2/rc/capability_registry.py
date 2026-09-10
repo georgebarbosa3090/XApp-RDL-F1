@@ -4,12 +4,17 @@ Implementa o desacoplamento formal entre a ontologia interna da xApp e os Contro
 declarados pelos E2 Nodes / NORI em tempo de execução.
 """
 
+import os
 from typing import Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from src.e2.rc.control_parameter import RANParameterDefinition, RAN_PARAMETERS
 from src.observability.logging import setup_logger
 
 logger = setup_logger("RanFunctionCapabilityRegistry")
+
+class CapabilityNotDiscoveredError(Exception):
+    """Exceção levantada em modo O_RAN_INTEROP quando uma capacidade de controle é solicitada para um nó não registrado via RANFunctionDefinition."""
+    pass
 
 @dataclass
 class ControlActionCapability:
@@ -27,7 +32,7 @@ class RanFunctionCapabilityRegistry:
     Catálogo dinâmico de capacidades expostas por E2 Nodes para o Service Model E2SM-RC.
     """
     def __init__(self):
-        # Mapeamento padrão alinhado com o perfil NORI / O-RAN SC Release I/J
+        # Mapeamento padrão para simulação offline / retrocompatibilidade
         self._default_capabilities: Dict[str, ControlActionCapability] = {
             "PRB_QUOTA": ControlActionCapability(
                 style_type=1, # Radio Resource Allocation
@@ -108,11 +113,28 @@ class RanFunctionCapabilityRegistry:
     def resolve_action(
         self,
         param_name: str,
-        node_id: Optional[str] = None
+        node_id: Optional[str] = None,
+        strict_mode: Optional[bool] = None
     ) -> Tuple[int, int, int]:
         """
         Resolve a tupla normativa (style_type, action_id, param_id) para um determinado parâmetro e nó.
+        Em modo O_RAN_INTEROP (strict_mode=True), defaults são estritamente proibidos e o nó deve estar previamente descoberto.
         """
+        is_interop = strict_mode if strict_mode is not None else (os.getenv("RDL_MODE", "OFFLINE_SIMULATION") == "O_RAN_INTEROP")
+
+        if is_interop:
+            if not node_id or node_id not in self._node_capabilities:
+                raise CapabilityNotDiscoveredError(
+                    f"[O_RAN_INTEROP] Nó E2 '{node_id}' não possui RANFunctionDefinition descoberta em runtime."
+                )
+            if param_name not in self._node_capabilities[node_id]:
+                raise CapabilityNotDiscoveredError(
+                    f"[O_RAN_INTEROP] Parâmetro '{param_name}' não exposto nas capacidades do nó '{node_id}'."
+                )
+            cap = self._node_capabilities[node_id][param_name]
+            return cap.style_type, cap.action_id, cap.param_id
+
+        # Modo OFFLINE_SIMULATION / Fallback
         cap_map = self._default_capabilities
         if node_id and node_id in self._node_capabilities:
             cap_map = self._node_capabilities[node_id]
