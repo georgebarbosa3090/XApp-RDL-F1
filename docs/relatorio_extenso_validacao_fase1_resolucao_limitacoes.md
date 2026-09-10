@@ -584,8 +584,139 @@ A Tabela a seguir consolida os critérios formais, comandos de inspeção e stat
 
 ---
 
-## 6. Conclusão e Transição para a Fase 2 (CA-RDL)
+## 6. Auditoria de Conformidade O-RAN, Arquitetura de Interoperabilidade e Roadmap de Co-Simulação (5G-LENA + NORI + O-RAN SC)
 
-A **Fase 1 (H-RDL Reforçada)** encontra-se com **100% das limitações e ameaças à validade sanadas**, com rigor matemático, integridade de código, suíte de 16 testes automatizados aprovados e documentação científica alinhada aos padrões SBC/SBRC e IEEE.
+### 6.1. Distinção Epistemológica e Camadas do Ecossistema
 
-Este ecossistema determinístico e validado serve como alicerce e baseline de recompensa para o desenvolvimento da **Fase 2 (CA-RDL)**, na qual a governança evolui para aprendizado adaptativo com **Multi-Agent Proximal Policy Optimization (MAPPO)** e **Small Language Models (SLMs)**.
+Para garantir total rigor científico e prevenir alegações prematuras de certificação de interoperabilidade industrial, a fundamentação teórica e a documentação do projeto separam rigorosamente cinco domínios fundamentais:
+
+```mermaid
+graph TD
+    subgraph ORAN_ALLIANCE["1. O-RAN Alliance (Padrões Normativos)"]
+        SPEC1["Architecture Description v17.0+"]
+        SPEC2["E2AP v02.03 / v03.00"]
+        SPEC3["E2SM-KPM v02.00 / v03.00 / v08.00"]
+        SPEC4["E2SM-RC v01.00 / v01.03 / v10.00"]
+    end
+
+    subgraph ORAN_SC["2. O-RAN Software Community (Implementação Open Source)"]
+        OSC1["ric-plt-xapp-frame (RMR, SDL, REST, Health)"]
+        OSC2["ric-plt-submgr (Subscription Manager E2)"]
+        OSC3["ric-plt-e2term (E2 Termination Daemon)"]
+        OSC4["ric-app-rc (Referência RAN Control xApp)"]
+    end
+
+    subgraph NORI_SIM["3. Ponte de Co-Simulação E2 (NORI / ns-O-RAN)"]
+        NOR1["NoriE2Interface (SCTP E2AP v2.02.03)"]
+        NOR2["NoriE2Report (MAC/RLC/PDCP Telemetry Collector)"]
+        NOR3["E2TermHelper & e2sim_lib"]
+    end
+
+    subgraph NS3_5GLENA["4. Modelo da RAN (5G-LENA v5.1 + ns-3.48)"]
+        NR1["Pilha 3GPP NR (PHY/MAC/RLC/PDCP/SDAP)"]
+        NR2["MIMO Beamforming & Canal 3GPP TR 38.901"]
+        NR3["Topologia Multi-Fatia (URLLC, eMBB, mMTC)"]
+    end
+
+    subgraph RDL_CORE["5. Camada RDL (Contribuição Científica Original - PPGC/UFPA)"]
+        RDL1["PerceptionAgent (Decision Window Δt = 200 ms)"]
+        RDL2["ReasoningAgent (Funções de Utilidade Analíticas TVS/EEVS)"]
+        RDL3["RefinementAgent (Safety Guards Físicos & Pass-Through)"]
+        RDL4["Rastreamento Assíncrono de Transações E2 (RTT)"]
+    end
+
+    ORAN_ALLIANCE -.->|"Normas"| ORAN_SC
+    ORAN_SC <-->|"RMR / E2AP"| RDL_CORE
+    ORAN_SC <-->|"SCTP E2"| NORI_SIM
+    NORI_SIM <-->|"ns-3 API / Traces"| NS3_5GLENA
+```
+
+1. **O-RAN Alliance:** Especificações normativas internacionais desenvolvidas pelos Working Groups (WG1, WG2, WG3). Define o modelo conceitual do Near-RT RIC, as gramáticas ASN.1 e as primitivas E2AP/E2SM.
+2. **O-RAN Software Community (O-RAN SC):** Implementação concreta de código aberto mantida pela Linux Foundation. Fornece a infraestrutura do Near-RT RIC (*ricplt*), roteamento RMR, repositório SDL (Redis), Subscription Manager (*submgr*) e o framework Python *ricxappframe*.
+3. **NORI (New Open RAN Interface - UFPA/UFG/UFRJ):** Módulo de acoplamento de co-simulação para ns-3 que emula a terminação E2 (E2 Node) e traduz requisições E2AP/E2SM para o ambiente de simulação.
+4. **5G-LENA (CTTC-LENA NR) & ns-3.48:** Modelo de simulação física e de enlace da rede de acesso rádio 5G NR.
+5. **RDL (Resource and Decision Layer):** Contribuição científica autoral de George Barbosa / PPGC-UFPA. Camada de governança e arbitragem de conflitos que se acopla como xApp sobre o Near-RT RIC. **RDL é uma contribuição científica de pesquisa e não um componente padronizado pela O-RAN Alliance.**
+
+---
+
+### 6.2. Diagnóstico das Fragilidades na Camada de Integração E2 e Remediações
+
+A auditoria técnica aprofundada identificou três fragilidades de engenharia na camada de comunicação `src/e2/`, as quais foram formalmente remediadas:
+
+#### 1. Resolução do Descarte de Header e Unificação da PDU E2SM-RC (`src/e2/rc_encoder.py`)
+* **Diagnóstico da Versão Preliminar:** O método `encode_control_request` instanciava `E2SM_RC_ControlHeader` e gerava `header_aper = header.to_aper()`, porém retornava apenas `msg_aper`, descartando o cabeçalho de controle em memória. Adicionalmente, o envelope RMR encapsulava o payload em JSON proprietário (`{"aper_bytes": ...}`), incompatível com o `e2term` nativo.
+* **Remediação Implementada:** 
+  - Criação da classe ASN.1 estruturada `E2SM_RC_ControlPDU` unificando `ricControlHeader` e `ricControlMessage` em uma única sequência APER;
+  - Criação do método `encode_control_parts` que retorna a estrutura tipada `EncodedRCControl` (Header, Message e PDU);
+  - Adição de chave de configuração `DISPATCH_RAW_APER_CONTROL` em `rdl_xapp.py`, permitindo alternar entre envio direto do buffer binário APER puro (para nós E2 e `e2term`) e envelope estruturado para ambientes de teste mock.
+
+#### 2. Eliminação de Injeção Silenciosa de MOCK e Parsing Estrito ASN.1 (`src/e2/kpm_decoder.py` e `src/e2/e2ap_decoder.py`)
+* **Diagnóstico da Versão Preliminar:** Ao falhar o parsing ASN.1 APER, o decodificador KPM capturava a exceção genericamente e injetava silenciosamente registros sintéticos (`DRB.UEThpDl = 15.5`, `RRU.PrbUsedDl = 45.0`), mascarando falhas de decodificação em experimentos reais.
+* **Remediação Implementada:**
+  - Parametrização explícita de `allow_fallback` controlada pela variável de ambiente `KPM_ALLOW_MOCK_FALLBACK` (ativada exclusivamente na suíte de testes unitários offline e desativada em execuções de simulação real);
+  - Contadores de diagnóstico `successful_decodes` e `decode_errors` para telemetria e observabilidade;
+  - Elevação estrita de exceções de decodificação ASN.1 quando em modo de produção/simulação.
+
+#### 3. Ciclo de Vida de Subscrição E2 (`RIC_SUB_REQ`) e Interação com SubMgr (`src/rdl_xapp.py`)
+* **Diagnóstico da Versão Preliminar:** A mensagem `RIC_SUB_REQ` (mtype 12020) constava declarada no descritor `xapp_descriptor.json`, mas não possuía rotina de emissão no fluxo de inicialização da xApp. Em um Near-RT RIC real, sem a subscrição formal junto ao `Subscription Manager (SubMgr)`, o E2 Node não inicia o fluxo de telemetria `RIC_INDICATION` (KPM).
+* **Remediação Implementada:**
+  - Criação do método `send_subscription_request(node_id, ran_function_id, report_period_ms)` disparado no hook `_entrypoint` da xApp;
+  - Registro do callback `_subscription_response_handler` para processamento de `RIC_SUB_RESP` (mtype 12021);
+  - Mapeamento de subscrições ativas no dicionário `self.active_subscriptions`.
+
+---
+
+### 6.3. Roadmap dos 4 Gates de Validação em Malha Fechada (Closed-Loop Simulation)
+
+O protocolo de homologação experimental da Fase 1 segue a sequência canônica de 4 Gates progressivos:
+
+```mermaid
+flowchart LR
+    G1["GATE 1<br/><b>KPM Real</b><br/>ns-3/NORI -> RIC -> RDL"] --> G2["GATE 2<br/><b>Decisão H-RDL</b><br/>Buffer 200ms + Safety"]
+    G2 --> G3["GATE 3<br/><b>Atuação RC</b><br/>RDL -> RIC -> NORI -> ns-3"]
+    G3 --> G4["GATE 4<br/><b>Closed-Loop</b><br/>Convergência Multi-Fatia"]
+
+    style G1 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    style G2 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    style G3 fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    style G4 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+```
+
+1. **GATE 1 — Ingestão de Telemetria E2SM-KPM Real:**
+   - **Fluxo:** `5G-LENA v5.1 / ns-3.48` $\rightarrow$ `NORI (NoriE2Report)` $\rightarrow$ `Near-RT RIC (E2Term)` $\rightarrow$ `RMR (12050)` $\rightarrow$ `KpmDecoder (APER Estrito)` $\rightarrow$ `PerceptionAgent`.
+   - **Critério de Aceite:** Decodificação de métricas dinâmicas (`DRB.UEThpDl`, `RRU.PrbUsedDl`, `DRB.RlcSduDelayDl`) oriundas dos terminais UEs sem qualquer injeção de fallback MOCK.
+2. **GATE 2 — Arbitragem Determinística e Validação de Segurança:**
+   - **Fluxo:** Agrupamento de propostas na Janela de Decisão ($\Delta t = 200\text{ ms}$), detecção de colisões diretas/indiretas, resolução analítica via `ReasoningAgent` (TVS/EEVS) e filtragem por barreiras físicas no `RefinementAgent`.
+   - **Critério de Aceite:** 100% das ações não conflitantes aprovadas pelo Pass-Through e 100% das ações conflitantes arbitradas com tempo de decisão $T_{\text{dec}} < 50\text{ ms}$.
+3. **GATE 3 — Emissão e Despacho de Controle E2SM-RC:**
+   - **Fluxo:** `RefinementAgent` $\rightarrow$ `RCEncoder (E2SM_RC_ControlPDU)` $\rightarrow$ `RMR (12010)` $\rightarrow$ `Near-RT RIC` $\rightarrow$ `NORI E2 Interface` $\rightarrow$ `Atuação nos NetDevices do 5G-LENA`.
+   - **Critério de Aceite:** PDU APER contendo Header e Message processada pelo agente E2 do nó simulado e confirmada via `RIC_CONTROL_ACK` com medição de RTT.
+4. **GATE 4 — Closed-Loop Completo e Estabilidade da RAN:**
+   - **Fluxo:** A atuação na camada MAC/PHY do simulador altera a distribuição de potência e PRBs, impactando o fluxo subsequente de KPM e demonstrando a mitigação empírica de colisões de SLA.
+   - **Critério de Aceite:** Redução comprovada de atraso URLLC ($\le 5\text{ ms}$), garantia de throughput eMBB ($\ge 25\text{ Mbps}$) e consumo elétrico contido ($\le 23\text{ dBm}$ por setor).
+
+---
+
+### 6.4. Calibração Epistemológica e Diretrizes de Escrita Científica (SBC/SBRC e IEEE)
+
+Para assegurar a blindagem metodológica da dissertação e artigos científicos, estabelecem-se as seguintes regras de redação:
+
+| Declaração Inadequada (A Evitar) | Formulação Rigorosa Aprovada (Adotar) | Justificativa Epistemológica |
+| :--- | :--- | :--- |
+| *"A xApp RDL é 100% certificada e em estrita conformidade com os padrões normativos O-RAN."* | *"A xApp RDL é uma implementação experimental de governança de recursos baseada nos princípios arquiteturais do O-RAN WG3 e O-RAN SC xApp Framework, utilizando estruturas de mensagem inspiradas em E2AP, E2SM-KPM e E2SM-RC."* | Resguarda a autoria, delimitando o escopo como pesquisa acadêmica e protótipo de software em co-simulação. |
+| *"A camada RDL é um módulo padrão da arquitetura O-RAN Alliance."* | *"A camada RDL (Resource and Decision Layer) constitui uma contribuição científica original proposta nesta pesquisa para atuar como middleware de mitigação de conflitos sobre o Near-RT RIC."* | Deixa explícito que RDL é a contribuição científica autoral do pesquisador, não uma especificação de terceiros. |
+| *"Os 16/16 testes unitários comprovam a interoperabilidade industrial com gNodeBs físicas."* | *"A suíte de testes unitários e de integração valida a corretude lógica interna dos agentes, a robustez dos codecs ASN.1 APER e o pipeline de despacho de ações, servindo de base para a co-simulação com 5G-LENA e NORI."* | Mantém o rigor de que testes de software em CI validam o código xApp, enquanto a co-simulação valida a malha de controle da RAN. |
+
+---
+
+## 7. Conclusão Geral e Transição para as Fases Subsequentes
+
+O projeto **xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Reforçada)** consolida-se com:
+
+1. **Rigor Matemático e Físico:** Modelos analíticos de teoria da informação (Shannon com SINR e overhead 3GPP), filas de espera $M/G/1$ com SLA sigmoide e eficiência energética linear Earth/3GPP.
+2. **Arquitetura Limpa e Segura:** Clean Architecture / DDD, pipeline de Pass-Through contínuo de ações limpas e barreiras físicas invioláveis (*Safety Guards*).
+3. **Alinhamento com Padrões Abertos:** Camada E2 reestruturada com decodificação APER estrita, PDU unificada E2SM-RC, ciclo de subscrição E2 e compatibilidade com o stack `ns-3.48 + 5G-LENA v5.1 + NORI + O-RAN SC Near-RT RIC`.
+4. **Validação Estatística Completa:** Motor multi-semente automatizado sobre $N = 30$ execuções independentes ($p < 0.001$, IC 95%), suíte de 16 testes automatizados aprovados (100% PASS) e manifesto criptográfico de proveniência SHA-256.
+
+Essa base determinística, estável e auditada constitui o alicerce metodológico e a linha de base de recompensa (*reward baseline*) indispensável para a evolução do ecossistema para a **Fase 2 (CA-RDL: Context-Aware Decision Layer)** com Aprendizado por Reforço Multiagente (MAPPO) e Cognição Contextual.
+

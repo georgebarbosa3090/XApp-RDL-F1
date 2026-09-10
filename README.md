@@ -4,7 +4,7 @@
 
 
 **Camada de Mitigação de Conflitos e Arbitragem Inteligente de Recursos para o Near-RT RIC (O-RAN)**  
-*Arquitetura determinística, segura e em conformidade com os padrões O-RAN WG3, E2AP v2.0, E2SM-KPM v2.0 e E2SM-RC v1.0.*
+*Arquitetura determinística, segura e baseada nos princípios arquiteturais do O-RAN WG3 e O-RAN SC xApp Framework, utilizando modelos de mensagem estruturados sobre E2AP, E2SM-KPM e E2SM-RC com validação em co-simulação 5G-LENA v5.1 / ns-3.48 via NORI.*
 
 </div>
 

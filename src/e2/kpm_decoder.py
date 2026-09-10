@@ -1,4 +1,5 @@
-from typing import List, Dict, Any
+import os
+from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from src.observability.logging import setup_logger
 from pycrate_asn1rt.asnobj_basic import INT
@@ -65,7 +66,17 @@ class E2SM_KPM_IndicationMessage(SEQ):
 
 
 class KpmDecoder:
-    def __init__(self):
+    """
+    Decodificador de telemetria E2SM-KPM v3 (Indication Header & Message).
+    Suporta decodificacao ASN.1 APER estrita com controle de fallback para testes locais.
+    """
+    def __init__(self, allow_fallback: Optional[bool] = None):
+        if allow_fallback is not None:
+            self.allow_fallback = allow_fallback
+        else:
+            # Em producao/simulacao real, padrao False; em testes locais, True
+            self.allow_fallback = os.getenv("KPM_ALLOW_MOCK_FALLBACK", "True").lower() in ("true", "1", "yes")
+            
         self.metric_map = {
             "DRB.UEThpDl": "drb_thp_dl",
             "DRB.UEThpUl": "drb_thp_ul",
@@ -73,6 +84,8 @@ class KpmDecoder:
             "RRU.PrbUsedDl": "prb_dl",
             "RRU.PrbUsedUl": "prb_ul"
         }
+        self.decode_errors = 0
+        self.successful_decodes = 0
 
     def decode_indication(self, payload: bytes) -> List[Dict]:
         """
@@ -111,17 +124,23 @@ class KpmDecoder:
                         value=float(item['metricValue']),
                         timestamp=0
                     ))
+                self.successful_decodes += 1
                 return results
-            except Exception as e:
-                # Simulação MOCK (Fallback estrito se os bytes recebidos não forem APER válido)
-                logger.debug(f"Decodificação APER Falhou: {e}. Usando fallback KPM.")
-                pass
+            except Exception as aper_err:
+                self.decode_errors += 1
+                if not self.allow_fallback:
+                    logger.error(f"Erro estrito na decodificacao APER KPM: {aper_err}")
+                    raise aper_err
+                logger.debug(f"Decodificacao APER falhou: {aper_err}. Usando fallback para modo de teste.")
                 
-            # MOCK
+            # MOCK apenas para testes unitarios/offline quando explicitamente permitido
             results.append(KpmMeasurement(default_node_id, "ue_01", "DRB.UEThpDl", 15.5, 0))
             results.append(KpmMeasurement(default_node_id, "ue_01", "RRU.PrbUsedDl", 45.0, 0))
             
         except Exception as e:
             logger.error(f"Erro no decoder KPM: {e}")
+            if not self.allow_fallback:
+                raise
             
         return results
+

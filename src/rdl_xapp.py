@@ -46,6 +46,9 @@ RIC_INDICATION = 12050
 RIC_CONTROL_REQ = 12010
 RIC_CONTROL_ACK = 12011
 RIC_CONTROL_FAILURE = 12012
+RIC_SUB_REQ = 12020
+RIC_SUB_RESP = 12021
+RIC_SUB_FAILURE = 12022
 RDL_ACTION_PROPOSAL = 30000
 
 class RDLxApp:
@@ -54,6 +57,7 @@ class RDLxApp:
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
         use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
         rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
+        self.dispatch_raw_aper = os.getenv("DISPATCH_RAW_APER_CONTROL", "False").lower() in ("true", "1", "yes")
         
         if use_fake_sdl:
             self.memory = MemoryModule()
@@ -77,6 +81,7 @@ class RDLxApp:
 
         # ACK & Transaction Tracking
         self.pending_transactions: Dict[str, float] = {}
+        self.active_subscriptions: Dict[str, bool] = {}
         
         self.xapp = RMRXapp(
             default_handler=self._default_handler,
@@ -90,9 +95,10 @@ class RDLxApp:
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
+        self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
 
     def start(self):
-        logger.info("Iniciando xApp RDL (H-RDL Fase 1 com Pass-Through)")
+        logger.info("Iniciando xApp RDL (H-RDL Fase 1 com Pass-Through e Conformidade E2)")
         self.health.run()
         self.metrics.start()
         self.running = True
@@ -110,7 +116,44 @@ class RDLxApp:
     def _entrypoint(self, xapp_instance):
         logger.info("xApp Framework Ready")
         self.health.set_state(AppState.READY)
+        # Inicia subscricao E2SM-KPM com o Subscription Manager / E2 Nodes
+        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200)
         threading.Thread(target=self._decision_loop, daemon=True).start()
+
+    def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200) -> bool:
+        """
+        Emite requisicao de subscricao E2 (RIC_SUB_REQ) para iniciar o streaming de telemetria E2SM-KPM.
+        Requisito de integracao O-RAN SC (Subscription Manager) e NORI/ns-3.
+        """
+        try:
+            sub_req_payload = {
+                "subscription_id": f"sub-kpm-{node_id}",
+                "target_node": node_id,
+                "ran_function_id": ran_function_id,
+                "event_trigger_definition": {
+                    "report_period_ms": report_period_ms
+                },
+                "action_definitions": [
+                    {"action_id": 1, "action_type": "report", "style_type": 1}
+                ]
+            }
+            payload_bytes = json.dumps(sub_req_payload).encode('utf-8')
+            success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_SUB_REQ)
+            if success:
+                logger.info("RIC_SUB_REQ emitido com sucesso para Subscription Manager", target_node=node_id, period_ms=report_period_ms)
+                self.active_subscriptions[node_id] = True
+            else:
+                logger.warning("Falha ao enviar RIC_SUB_REQ via RMR")
+            return bool(success)
+        except Exception as e:
+            logger.error(f"Erro ao construir e emitir RIC_SUB_REQ: {e}")
+            return False
+
+    def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
+        """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
+        logger.info("RIC_SUB_RESP recebido com sucesso", summary=summary)
+        if xapp_instance and sbuf:
+            xapp_instance.rmr_free(sbuf)
 
     def _kpm_indication_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         self.metrics.record_kpm()
@@ -253,29 +296,33 @@ class RDLxApp:
 
     def _send_control(self, node_id: str, parameter: str, value: float):
         try:
-            # Encodifica APER ASN.1 Nativo
+            # Encodifica APER ASN.1 Nativo com PDU unificada (Header + Message)
             aper_payload = self.rc_encoder.encode_control_request(node_id, parameter, value)
             tx_id = str(uuid.uuid4())[:8]
             self.pending_transactions[tx_id] = now_ts()
             
-            # Formata para o dispatcher RMR do E2 Term
-            payload_dict = {
-                "transaction_id": tx_id,
-                "node_id": node_id,
-                "parameter": parameter,
-                "value": value,
-                "aper_bytes": aper_payload.hex()
-            }
-            payload_bytes = json.dumps(payload_dict).encode('utf-8')
-            
-            success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_CONTROL_REQ)
+            if self.dispatch_raw_aper:
+                # Envio direto do buffer binario APER para o E2Term / NORI
+                success = self.xapp.rmr_send(payload=aper_payload, mtype=RIC_CONTROL_REQ)
+            else:
+                # Formata para o dispatcher RMR com envelope estruturado e hex APER
+                payload_dict = {
+                    "transaction_id": tx_id,
+                    "node_id": node_id,
+                    "parameter": parameter,
+                    "value": value,
+                    "aper_bytes": aper_payload.hex()
+                }
+                payload_bytes = json.dumps(payload_dict).encode('utf-8')
+                success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_CONTROL_REQ)
         except Exception as e:
             logger.error(f"Falha ao gerar APER Control: {e}")
             success = False
         if success:
-            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value)
+            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, raw_aper=self.dispatch_raw_aper)
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
+
 
 if __name__ == "__main__":
     app = RDLxApp()
