@@ -17,8 +17,11 @@ skills/
 docs/relatorio_extenso*
 
 # 3. Resultados de Experimentos e Datasets (Fase 1 e Fase 2)
-experiments/
-results/
+experiments/*
+!experiments/results/
+!experiments/results/.gitkeep
+results/*
+!results/.gitkeep
 *.csv
 *.tsv
 *.parquet
@@ -31,6 +34,7 @@ dataset_multi_seed_metrics.csv
 dataset_rdl_decisions_ml.csv
 flowmonitor_results.xml
 RxPacketTrace.txt
+
 
 # 4. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
 *rdl_phase2*
