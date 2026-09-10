@@ -81,32 +81,33 @@ Para desenvolvimento ágil e validação de baixo consumo de recursos, o projeto
 
 ### 3.1. Topologias de Cluster k3d Disponíveis
 
+#### Opção 1: Single-Node (1 Servidor/Worker Unificado, ~450 MB RAM)
+> *Ideal para desenvolvimento local rápido, CI/CD e máquinas com recursos limitados.*
+
 ```bash
-# -------------------------------------------------------------------------
-# Opção 1: Single-Node (1 Servidor/Worker Unificado, ~450 MB RAM)
-# Ideal para desenvolvimento local rápido, CI/CD e máquinas com recursos limitados
-# -------------------------------------------------------------------------
 k3d cluster create rdl-cluster \
   --servers 1 \
   -p "36422:36422/sctp@server:0" \
   -p "8080-8087:8080-8087@server:0" \
   -p "4560-4561:4560-4561@server:0"
+```
 
-# -------------------------------------------------------------------------
-# Opção 2: Dual-Node (1 Control-Plane + 1 Worker Node, ~900 MB RAM)
-# Separação entre plano de controle do cluster e execução dos Pods de rede
-# -------------------------------------------------------------------------
+#### Opção 2: Dual-Node (1 Control-Plane + 1 Worker Node, ~900 MB RAM)
+> *Separação física de pods entre plano de controle do cluster e nós de execução.*
+
+```bash
 k3d cluster create rdl-cluster \
   --servers 1 \
   --agents 1 \
   -p "36422:36422/sctp@server:0" \
   -p "8080-8087:8080-8087@server:0" \
   -p "4560-4561:4560-4561@server:0"
+```
 
-# -------------------------------------------------------------------------
-# Opção 3: 3-Nodes / Multi-Node (1 Control-Plane + 2 Worker Nodes, ~1.5 GB RAM)
-# Topologia de produção: Isolamento estrito de namespaces (ricplt no worker-1 e ricxapp no worker-2)
-# -------------------------------------------------------------------------
+#### Opção 3: 3-Nodes / Multi-Node (1 Control-Plane + 2 Worker Nodes, ~1.5 GB RAM)
+> *Topologia de produção: Isolamento estrito de namespaces (`ricplt` no worker-1 e `ricxapp` no worker-2).*
+
+```bash
 k3d cluster create rdl-cluster \
   --servers 1 \
   --agents 2 \
