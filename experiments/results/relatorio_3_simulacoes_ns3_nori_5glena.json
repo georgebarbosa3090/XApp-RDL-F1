@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "title": "Relat\u00f3rio Consolidado de Co-Simula\u00e7\u00e3o ns-3 + 5G-LENA + NORI E2SIM",
+    "specialist_agent": "@08-ns3-oran-simulation-specialist",
+    "timestamp": "2026-09-10 14:32:41",
+    "oran_interfaces": {
+      "e2ap": "v02.03",
+      "e2sm_kpm": "v03.00",
+      "e2sm_rc": "v01.03",
+      "rmr_control_req": 12040,
+      "rmr_control_ack": 12041,
+      "rmr_control_failure": 12042
+    },
+    "ran_topology": {
+      "band": "n78 (3.5 GHz)",
+      "bandwidth_mhz": 100,
+      "numerology": 1,
+      "gnbs": 2,
+      "ues": 30,
+      "slices": [
+        "URLLC (5QI 82)",
+        "eMBB (5QI 9)",
+        "mMTC (5QI 79)"
+      ]
+    }
+  },
+  "simulations": {
+    "sim1_tvs_conflict": {
+      "scenario": "Traffic Steering vs QoS Slicing",
+      "duration_sec": 30.0,
+      "urllc_latency_mean_ms": {
+        "baseline": 12.4,
+        "rdl_phase1": 2.78
+      },
+      "sla_violation_pct": {
+        "baseline": 36.8,
+        "rdl_phase1": 0.0
+      },
+      "ping_pong_events_min": {
+        "baseline": 24.0,
+        "rdl_phase1": 0.0
+      }
+    },
+    "sim2_energy_vs_qos": {
+      "scenario": "Energy Saving vs QoS Slicing (EEVS)",
+      "duration_sec": 40.0,
+      "mean_tx_power_dbm": {
+        "baseline": 39.2,
+        "rdl_phase1": 33.7
+      },
+      "energy_efficiency_gain_pct": 15.2,
+      "sla_violation_pct": 0.0
+    },
+    "sim3_closed_loop_multi_seed": {
+      "sample_size": 30,
+      "metrics": {
+        "urllc_latency_mean_ms": {
+          "baseline_mean": 11.68,
+          "baseline_std": 2.0,
+          "rdl_mean": 2.84,
+          "rdl_std": 0.19,
+          "p_value": "< 0.0001"
+        },
+        "urllc_latency_p99_ms": {
+          "baseline_mean": 141.54,
+          "rdl_mean": 3.08,
+          "reduction_pct": 97.8
+        },
+        "conflict_rate_pct": {
+          "baseline_mean": 33.66,
+          "rdl_mean": 0.66,
+          "reduction_pct": 98.1
+        },
+        "throughput_total_mbps": {
+          "baseline_mean": 153.25,
+          "rdl_mean": 1110.69,
+          "gain_pct": 610.0
+        },
+        "jain_fairness": {
+          "baseline_mean": 0.1469,
+          "rdl_mean": 0.9159,
+          "gain_pct": 548.0
+        },
+        "decision_latency_ms": {
+          "mean": 14.39,
+          "std": 1.64
+        }
+      }
+    }
+  }
+}
