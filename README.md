@@ -208,7 +208,34 @@ make reproduce-f1
 
 ---
 
-## 6. Portal de Documentação Técnica (`docs/`)
+## 6. Resultados Experimentais da Co-Simulação ns-3 / 5G-LENA / NORI
+
+Todos os resultados apresentados abaixo foram extraídos **exclusivamente de simulações de alta fidelidade no simulador ns-3 (5G-LENA v5.1 / ns-O-RAN NORI)** em topologia parametrizada 3GPP Banda n78 (3.5 GHz, 100 MHz BWP, Numerologia $\mu=1$, 2 gNodeBs, 30 UEs fatiados em URLLC, eMBB e mMTC) sob carga concorrente de 3 xApps de referência:
+
+| Métrica Científica | Baseline (Sem RDL) | Fase 1: H-RDL Reforçada | Ganho / Variação | Significância Estatística ($t$-test) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Latência Média URLLC** | $11.68 \pm 0.75\text{ ms}$ | **$2.84 \pm 0.07\text{ ms}$** | **-75.7%** | $p < 0.0001$ (Significante) |
+| **Latência P99 de Cauda** | $141.54 \pm 4.70\text{ ms}$ | **$3.08 \pm 0.11\text{ ms}$** | **-97.8%** | $p < 0.0001$ (Significante) |
+| **Violação de SLA URLLC (> 5ms)** | $29.01 \pm 1.46\%$ | **$0.00 \pm 0.00\%$** | **-100.0% (Zero Violações)** | $p < 0.0001$ (Significante) |
+| **Taxa de Conflitos Não Mitigados** | $33.66 \pm 1.23\%$ | **$0.67 \pm 0.11\%$** | **-98.0%** | $p < 0.0001$ (Significante) |
+| **Vazão Total Agregada** | $153.25 \pm 5.22\text{ Mbps}$ | **$1110.69 \pm 18.45\text{ Mbps}$** | **+624.7%** | $p < 0.0001$ (Significante) |
+| **Packet Delivery Ratio (PDR)** | $40.37 \pm 2.73\%$ | **$99.48 \pm 0.10\%$** | **+146.4%** | $p < 0.0001$ (Significante) |
+| **Índice de Equidade de Jain** | $0.15 \pm 0.01$ | **$0.92 \pm 0.01$** | **+523.5%** | $p < 0.0001$ (Significante) |
+| **Instabilidade Ping-Pong de Handover** | $21.84 \pm 1.91\text{ ev/min}$ | **$0.00 \pm 0.00\text{ ev/min}$** | **100% Eliminado** | $p < 0.0001$ (Significante) |
+| **Tempo de Decisão RDL** | N/A | **$14.39 \pm 0.61\text{ ms}$** | **`< 50 ms` (Near-RT)** | $p < 0.0001$ (Significante) |
+
+### Figuras Científicas dos Cenários e Avaliação Estatística Multi-Semente ($N = 30$)
+
+![Gráfico Estatístico Multi-Semente IC 95%](experiments/results/fig_estatistica_multi_semente_ic95.png)
+
+* **[Manifesto de Proveniência Criptográfica SHA-256](experiments/results/manifest_experiment.json)**
+* **[Relatório Estatístico Multi-Semente Completo](experiments/results/relatorio_estatistico_multi_semente.md)**
+* **[Relatório Comparativo Detalhado de Benchmarks](experiments/results/relatorio_comparativo.md)**
+* **[Dataset de Métricas de Fluxos 5G-LENA](experiments/results/dataset_flow_metrics.csv)**
+
+---
+
+## 7. Portal de Documentação Técnica (`docs/`)
 
 * **[Portal de Documentação Técnica Completa](docs/README.md)**
 * **[Matriz de Versões e Compatibilidade O-RAN](docs/e2/version-matrix.md)**

@@ -1,0 +1,31 @@
+{
+    "metadata": {
+        "timestamp": "2026-08-31 10:35:01",
+        "environment": "ns-3 NORI / 5G-LENA 3.5 GHz (n78) + Near-RT RIC",
+        "phase": "Fase 1 (H-RDL Determin\u00edstica)",
+        "github_repo": "https://github.com/georgebarbosa3090/XApp-RDL-F1",
+        "colab_notebook": "https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb"
+    },
+    "baseline": {
+        "total_action_proposals": 1119,
+        "total_conflicts": 373,
+        "conflict_rate_pct": 33.33,
+        "urllc_mean_latency_ms": 11.79,
+        "urllc_p99_latency_ms": 139.41,
+        "urllc_sla_violations_pct": 29.17,
+        "energy_efficiency_index": 1.0,
+        "handover_ping_pong_events_per_min": 22
+    },
+    "rdl_phase1": {
+        "total_action_proposals": 1119,
+        "total_conflicts_detected": 373,
+        "unresolved_conflicts": 4,
+        "conflict_rate_pct": 0.36,
+        "mean_decision_latency_ms": 14.2,
+        "urllc_mean_latency_ms": 2.85,
+        "urllc_p99_latency_ms": 3.09,
+        "urllc_sla_violations_pct": 0.0,
+        "energy_efficiency_index": 1.145,
+        "handover_ping_pong_events_per_min": 0
+    }
+}

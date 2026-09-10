@@ -3,50 +3,30 @@
 # Regras Permanentes de Exclusão e Higienização de Repositório
 # =============================================================================
 
-# 1. Diretórios de Agentes e Skills Locais
+# 1. Diretórios de Agentes e Skills Locais (Permanentemente Proibido)
 .agents/
 agents/
 skills/
 .system_generated/
 
-# 2. Auditoria Técnica e Relatórios Extensos
+# 2. Auditoria Técnica e Relatórios Extensos Internos (Permanentemente Proibido)
 *auditoria*
 *Auditoria*
 *relatorio_extenso*
 *.audit.md
 docs/relatorio_extenso*
 
-# 3. Resultados de Experimentos e Datasets (Fase 1 e Fase 2)
-experiments/results/*
-!experiments/results/.gitkeep
-results/*
-!results/.gitkeep
-
-*.csv
-*.tsv
-*.parquet
-*.h5
-*.hdf5
-manifest_experiment.json
-avaliacao_completa_metricas.json
-dataset_flow_metrics.csv
-dataset_multi_seed_metrics.csv
-dataset_rdl_decisions_ml.csv
-flowmonitor_results.xml
-RxPacketTrace.txt
-
-
-# 4. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
+# 3. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
+experiments/results/rdl_phase2/
 *rdl_phase2*
 *phase2*
 
-# 5. Notebooks do Google Colab e Análises Locais
+# 4. Notebooks do Google Colab e Análises Locais
 notebooks/
 *.ipynb
 .ipynb_checkpoints/
-scripts/update_colab_notebook.py
 
-# 6. Artigos Científicos, Papers e Fontes LaTeX
+# 5. Artigos Científicos, Papers e Fontes LaTeX
 paper/
 paper_sbrc/
 *.tex
@@ -60,11 +40,8 @@ paper_sbrc/
 *.synctex.gz
 *.fls
 *.fdb_latexmk
-scripts/generate_sbrc_figures.py
-scripts/generate_scenario_figures.py
-scripts/generate_single_seed_publication_figures.py
 
-# 7. Scripts de Experimentos e Benchmarks Locais
+# 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
 scripts/run_multi_seed_evaluation.py
 scripts/run_and_analyze_benchmarks.py
 scripts/plot_ns3_benchmarks.py
@@ -76,8 +53,10 @@ scripts/run_full_experiment.sh
 scripts/run_rdl_experiment.sh
 scripts/update_realtime_tracking_docs.py
 scripts/run_3_consecutive_simulations.py
-
-# 8. Scripts Locais de Sincronização, Rollback, Backup e Manutenção
+scripts/generate_sbrc_figures.py
+scripts/generate_scenario_figures.py
+scripts/generate_single_seed_publication_figures.py
+scripts/update_colab_notebook.py
 scripts/git_*.sh
 scripts/git_*.ps1
 scripts/fix_mermaid.py
@@ -85,8 +64,6 @@ scripts/test_batching.py
 *backup*
 *rollback*
 *sync*
-
-
 
 # 7. Byte-compiled / Python Cache / DLLs
 __pycache__/
@@ -119,5 +96,3 @@ Thumbs.db
 
 # 12. Scripts PowerShell locais de automação IDE
 *.ps1
-
-
