@@ -59,3 +59,20 @@ class KPMReport:
     drb_delay_dl: float
     prb_used_dl: int
     timestamp: float = field(default_factory=time.time)
+
+@dataclass
+class RDLDecision:
+    """
+    Contrato formal de saída da Camada de Decisão (H-RDL).
+    Separa estritamente a inteligência determinística/analítica da camada de transporte E2.
+    """
+    decision_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
+    state: dict = field(default_factory=dict)
+    proposals: List[XAppAction] = field(default_factory=list)
+    conflicts: List[ConflictEvent] = field(default_factory=list)
+    safety_result: dict = field(default_factory=dict)
+    selected_actions: List[XAppAction] = field(default_factory=list)
+    reason: str = "PASS_THROUGH_CLEAN"
+    strategy_used: str = "DETERMINISTIC_H_RDL"
+    timestamp: float = field(default_factory=time.time)
+

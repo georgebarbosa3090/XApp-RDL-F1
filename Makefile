@@ -18,7 +18,13 @@ build-no-cache:
 	docker build --no-cache --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
 
 test:
-	bash scripts/verify_3_xapps.sh
+	pytest tests/ -v
+
+test-pytest:
+	pytest tests/ -v
+
+reproduce-f1:
+	bash scripts/reproduce_f1.sh
 
 
 # -------------------------------------------------------------

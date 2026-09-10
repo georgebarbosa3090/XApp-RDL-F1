@@ -2,9 +2,8 @@
 
 <div align="center">
 
-
-**Camada de Mitigação de Conflitos e Arbitragem Inteligente de Recursos para o Near-RT RIC (O-RAN)**  
-*Arquitetura determinística, segura e baseada nos princípios arquiteturais do O-RAN WG3 e O-RAN SC xApp Framework, utilizando modelos de mensagem estruturados sobre E2AP, E2SM-KPM e E2SM-RC com validação em co-simulação 5G-LENA v5.1 / ns-3.48 via NORI.*
+**Implementação experimental de uma xApp H-RDL para Near-RT RIC, com suporte em evolução às interfaces E2AP, E2SM-KPM e E2SM-RC.**  
+*A interoperabilidade normativa ponta a ponta é validada incrementalmente contra O-RAN ALLIANCE, O-RAN SC (Release J), NORI (5G-LENA v5.1 / ns-3.48) e OpenRAN@Brasil Blueprint v3.*
 
 </div>
 
@@ -14,7 +13,7 @@
 
 | Fase do Projeto | Descrição e Paradigma de Controle | Status de Implementação | Repositório Oficial |
 | :---: | :--- | :---: | :---: |
-| **Fase 1 (Atual)** | **RDL Determinística e Segura (H-RDL)**<br/>*Janela em lote (200ms), heurísticas TVS/EEVS e Safety Guards físicos.* | **Implementada e Operacional** | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
+| **Fase 1 (Atual)** | **RDL Determinística e Segura (H-RDL)**<br/>*Janela em lote (200ms), heurísticas TVS/EEVS, Safety Guards físicos e mapeamento formal E2AP/E2SM.* | **Implementada e Operacional** | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
 | **Fase 2** | **RDL Baseada em Contexto (CA-RDL)**<br/>*Aprendizado por Reforço Multiagente (MARL / MAPPO) e cognição contextual.* | **Ativa / Em Evolução** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
 | **Fase 3** | **RDL Autônoma e Federada 6G (Zero-Touch)**<br/>*Inteligência distribuída, orquestração por intenção (Intent-Driven) e O-Cloud 6G.* | **Roadmap / Planejada** | *Em especificação futura* |
 
@@ -31,6 +30,10 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 * **Agente de Percepção (`PerceptionAgent`):** Agrupa propostas de controle E2 em **janelas de decisão em lote ($\Delta t = 200\text{ ms}$)** e identifica conflitos diretos e indiretos entre as 3 xApps.
 * **Agente de Raciocínio (`ReasoningAgent`):** Aplica funções de utilidade multiobjetivo fundamentadas em **modelos analíticos calibrados de rádio 5G** (capacidade espectral de Shannon com SINR real e overhead 3GPP, atraso sigmoide de fila $M/G/1$ e modelo linear de consumo elétrico Earth/3GPP).
 * **Agente de Refinamento (`RefinementAgent`):** Garante a segurança física da rede (*Safety Guards*), aplicando *clamping* de potência ($P_{\text{tx}} \in [-10, 23]\text{ dBm}$), orçamento de PRBs ($\le 100\%$) e bloqueio de ping-pong ($\Delta t \ge 1000\text{ ms}$).
+* **Camada E2 e Mapeadores Normativos (`src/e2/`):**
+  * `e2ap/`: Serialização e parsing ASN.1 APER de `RICsubscriptionRequest`, `RICcontrolRequest`, `RICcontrolAcknowledge` e `RICcontrolFailure` (E2AP v02.03).
+  * `kpm/`: Construtores normativos de `E2SM_KPM_EventTriggerDefinition` (Formato 1) e `E2SM_KPM_ActionDefinition` (Formato 1) com métricas 3GPP 28.552 (`DRB.UEThpDl`, `RRU.PrbTotDl`, `DRB.PacketLossRateDl`).
+  * `rc/`: Mapeador `RCMapper` que traduz `RDLDecision` em `E2SM_RC_ControlHeader` e `E2SM_RC_ControlMessage` (Formato 1, Estilo 1) com tabela canônica de parâmetros RAN (`PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER`, `HANDOVER`).
 * **Pipeline de Pass-Through de Ações Limpas:** Despacha imediatamente ações não conflitantes para as gNodeBs após validação de segurança.
 * **Rastreamento Assíncrono de Transações E2:** Mapeia `transaction_id` para mensagens `RIC_CONTROL_REQ` e mede o RTT de controle via `RIC_CONTROL_ACK`.
 
@@ -45,30 +48,31 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 ├── configs/                     # Descritores de configuração xApp (config-file.json, routes.rt)
 ├── deploy/                      # Manifestos de Implantação
 │   ├── helm/                    # Helm Charts oficiais (RDL, xSlice, Energy Saving, Traffic Steering)
-│   └── kubernetes/              # Manifestos K8s puros (Near-RT RIC ricplt + 3 xApps + RDL ricxapp)
-├── docs/                        # Portal de Documentação Técnica (Volumes 01 a 05 + Relatório de Validação)
+│   ├── kubernetes/              # Manifestos K8s puros (Near-RT RIC ricplt + 3 xApps + RDL ricxapp)
+│   └── openran-br-v3/           # Perfil de Implantação OpenRAN@Brasil Blueprint v3 (Release J)
+├── docs/                        # Portal de Documentação Técnica e Referências Normativas
+│   ├── e2/                      # Matriz de Versões e Fontes Normativas O-RAN (E2AP/KPM/RC)
 │   ├── README.md                # Índice e trilhas de leitura da documentação
 │   └── relatorio_extenso_validacao_fase1_resolucao_limitacoes.md # Relatório de Resolução & Motor N=30
 ├── paper_sbrc/                  # Artigo Científico em LaTeX para o SBRC (Template SBC)
-│   ├── sbrc_rdl_phase1.tex      # Artigo completo com modelagem, N=30 runs e figuras
-│   ├── sbrc_references.bib      # Referências bibliográficas BibTeX
-│   └── figures/                 # Figuras científicas em 300 DPI (Tema Claro)
 ├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
-│   ├── qos-xslice/              # Baseado em peihaoY/xslice-oran
-│   ├── energy-saving/           # Baseado em Orange-OpenSource/ns-O-RAN-flexric
-│   └── traffic-steering/        # Baseado em o-ran-sc/ric-app-ts
 ├── experiments/                 # Resultados de Simulação e Evidências (Baseline vs H-RDL)
-│   └── results/                 # Datasets CSV, manifesto SHA-256 e relatórios estatísticos
-├── scripts/                     # Automação de Deploy, Testes, Figuras e Avaliação Multi-Semente
+├── reproducibility/             # Bloqueio de versões (versions.lock) e Runbook de reprodução
+├── scripts/                     # Automação de Deploy, Testes, Reprodução e Avaliação Multi-Semente
+│   ├── reproduce_f1.sh          # Pipeline completo de reprodução determinística (Fase 1)
 │   ├── run_multi_seed_evaluation.py # Motor estatístico N=30 runs com IC 95% e testes pareados
 │   ├── generate_sbrc_figures.py # Gerador de figuras científicas 300 DPI em tema claro
 │   ├── deploy_helm.sh           # Pipeline Helm (Near-RT RIC -> 3 xApps -> RDL)
-│   ├── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
-│   ├── verify_3_xapps.sh        # Smoke test unificado de todas as xApps
-│   └── run_full_experiment.sh   # Pipeline de execução experimental completa
+│   └── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
 ├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA
+│   └── ns3/                     # scenario_rdl_closed_loop_nori.cc (Closed-Loop E2 Report & Control)
 ├── src/                         # Código-Fonte Python da xApp RDL (Clean Architecture)
-├── tests/                       # Suíte de Testes Unitários com pytest (16/16 PASS)
+│   ├── conflict_types.py        # Contratos formais desacoplados (RDLDecision, XAppAction)
+│   ├── rdl_xapp.py              # Ciclo de vida xApp e despacho via E2/RCMapper
+│   ├── e2/                      # Pilha de protocolos E2 (e2ap/, kpm/, rc/)
+│   ├── agents/                  # Agentes cognitivos (Perception, Reasoning, Refinement)
+│   └── models/                  # Modelos analíticos físicos (Shannon, M/G/1, Earth)
+├── tests/                       # Suíte de Testes Modulares (tests/codec, tests/unit, tests/integration)
 └── Makefile                     # CLI unificada de operação, testes e benchmarks
 ```
 

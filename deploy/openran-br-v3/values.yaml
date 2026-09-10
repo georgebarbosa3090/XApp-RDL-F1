@@ -1,0 +1,47 @@
+# OpenRAN@Brasil Blueprint v3 - Valores de Configuração para xApp RDL (H-RDL)
+# Referência: https://github.com/LABORA-INF-UFG/openran-br-blueprint/wiki/OpenRAN@Brasil-Blueprint-v3
+
+global:
+  namespace: ricxapp
+  ricNamespace: ricplt
+  clusterType: k3s-openran-br
+
+xapp:
+  name: iqos-xapp-rdl
+  version: "1.1.0"
+  image:
+    repository: localhost:5000/iqos-xapp-rdl
+    tag: "1.1.0"
+    pullPolicy: IfNotPresent
+
+ports:
+  rmrData: 4560
+  rmrRoute: 4561
+  httpHealth: 8080
+  prometheusMetrics: 8081
+
+rmr:
+  maxMessageSize: 65536
+  waitForReady: true
+  numWorkers: 2
+
+e2:
+  e2mgrUrl: "http://service-ricplt-e2mgr-http.ricplt:3800"
+  submgrUrl: "http://service-ricplt-submgr-http.ricplt:8088"
+  kpmReportingPeriodMs: 200
+  ranFunctionIdKpm: 2
+  ranFunctionIdRc: 3
+
+rdl:
+  mode: "O_RAN_INTEROP" # O_RAN_INTEROP | OFFLINE_SIMULATION
+  useFakeSdl: false
+  decisionWindowMs: 200
+  dispatchRawAper: true
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"

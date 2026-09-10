@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iqos-xapp-rdl
+  namespace: ricxapp
+  labels:
+    app: iqos-xapp-rdl
+    version: "1.1.0"
+    app.kubernetes.io/name: iqos-xapp-rdl
+    app.kubernetes.io/part-of: openran-br-blueprint-v3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iqos-xapp-rdl
+  template:
+    metadata:
+      labels:
+        app: iqos-xapp-rdl
+        version: "1.1.0"
+    spec:
+      containers:
+        - name: iqos-xapp-rdl
+          image: localhost:5000/iqos-xapp-rdl:1.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: CONFIG_FILE
+              value: /app/configs/config-file.json
+            - name: RMR_RTG_SVC
+              value: "4561"
+            - name: RMR_SEED_RT
+              value: /app/configs/routes.rt
+            - name: RMR_WAIT_FOR_READY
+              value: "true"
+            - name: RDL_MODE
+              value: "O_RAN_INTEROP"
+            - name: USE_FAKE_SDL
+              value: "false"
+            - name: DBAAS_SERVICE_HOST
+              value: "service-ricplt-dbaas-tcp.ricplt"
+            - name: DBAAS_SERVICE_PORT
+              value: "6379"
+            - name: DISPATCH_RAW_APER_CONTROL
+              value: "true"
+          ports:
+            - name: rmr-data
+              containerPort: 4560
+              protocol: TCP
+            - name: rmr-route
+              containerPort: 4561
+              protocol: TCP
+            - name: http-health
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 8081
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health/alive
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/configs
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: iqos-xapp-rdl-config

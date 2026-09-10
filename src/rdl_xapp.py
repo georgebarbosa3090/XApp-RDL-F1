@@ -37,7 +37,9 @@ from src.agents.refinement_agent import RefinementAgent
 from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
-from src.conflict_types import XAppAction, KPMReport, ConflictSeverity
+from src.e2.rc.mapper import RCMapper
+from src.e2.e2ap.subscription import build_ric_subscription_request_payload
+from src.conflict_types import XAppAction, KPMReport, ConflictSeverity, RDLDecision
 
 logger = setup_logger("rdl_xapp")
 
@@ -55,9 +57,17 @@ class RDLxApp:
     def __init__(self):
         self.running = True
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
-        use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
-        rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
-        self.dispatch_raw_aper = os.getenv("DISPATCH_RAW_APER_CONTROL", "False").lower() in ("true", "1", "yes")
+        
+        # Modos de Operação (O_RAN_INTEROP | OFFLINE_SIMULATION | STANDALONE)
+        self.mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
+        if self.mode == "O_RAN_INTEROP":
+            use_fake_sdl = False
+            rmr_wait_for_ready = True
+            self.dispatch_raw_aper = True
+        else:
+            use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
+            rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
+            self.dispatch_raw_aper = os.getenv("DISPATCH_RAW_APER_CONTROL", "False").lower() in ("true", "1", "yes")
         
         if use_fake_sdl:
             self.memory = MemoryModule()
@@ -72,6 +82,7 @@ class RDLxApp:
         self.metrics = MetricsServer(port=8081)
         self.asn1_decoder = KpmDecoder()
         self.rc_encoder = RCEncoder()
+        self.rc_mapper = RCMapper(ran_function_id=3)
         
         # Decision Window properties (Feature 1)
         self.proposal_buffer: List[XAppAction] = []
@@ -98,7 +109,7 @@ class RDLxApp:
         self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
 
     def start(self):
-        logger.info("Iniciando xApp RDL (H-RDL Fase 1 com Pass-Through e Conformidade E2)")
+        logger.info(f"Iniciando xApp RDL (H-RDL Fase 1 | Modo: {self.mode})")
         self.health.run()
         self.metrics.start()
         self.running = True
@@ -114,7 +125,7 @@ class RDLxApp:
         xapp_instance.rmr_free(sbuf)
 
     def _entrypoint(self, xapp_instance):
-        logger.info("xApp Framework Ready")
+        logger.info(f"xApp Framework Ready (Modo {self.mode})")
         self.health.set_state(AppState.READY)
         # Inicia subscricao E2SM-KPM com o Subscription Manager / E2 Nodes
         self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200)
@@ -122,21 +133,14 @@ class RDLxApp:
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200) -> bool:
         """
-        Emite requisicao de subscricao E2 (RIC_SUB_REQ) para iniciar o streaming de telemetria E2SM-KPM.
-        Requisito de integracao O-RAN SC (Subscription Manager) e NORI/ns-3.
+        Emite requisicao de subscricao E2 (RIC_SUB_REQ) com payloads APER normativos.
         """
         try:
-            sub_req_payload = {
-                "subscription_id": f"sub-kpm-{node_id}",
-                "target_node": node_id,
-                "ran_function_id": ran_function_id,
-                "event_trigger_definition": {
-                    "report_period_ms": report_period_ms
-                },
-                "action_definitions": [
-                    {"action_id": 1, "action_type": "report", "style_type": 1}
-                ]
-            }
+            sub_req_payload = build_ric_subscription_request_payload(
+                target_node=node_id,
+                ran_function_id=ran_function_id,
+                report_period_ms=report_period_ms
+            )
             payload_bytes = json.dumps(sub_req_payload).encode('utf-8')
             success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_SUB_REQ)
             if success:
@@ -148,6 +152,7 @@ class RDLxApp:
         except Exception as e:
             logger.error(f"Erro ao construir e emitir RIC_SUB_REQ: {e}")
             return False
+
 
     def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
@@ -244,6 +249,8 @@ class RDLxApp:
                 conflicting_action_keys.add((act.node_id, act.parameter, act.xapp_id))
 
         # 1. Resolver conflitos do grupo
+        selected_winning_actions = []
+        strategy_names = []
         for conflict in conflicts:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
             self.memory.add_conflict(conflict)
@@ -259,7 +266,9 @@ class RDLxApp:
             if is_valid and resolution.winning_actions:
                 for act in resolution.winning_actions:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
+                    selected_winning_actions.append(act)
                     self._send_control(act.node_id, act.parameter, act.value)
+                strategy_names.append(resolution.strategy_used.name)
             else:
                 logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
 
@@ -269,13 +278,29 @@ class RDLxApp:
             if (act.node_id, act.parameter, act.xapp_id) not in conflicting_action_keys
         ]
         
+        selected_clean_actions = []
         for clean_act in clean_actions:
             is_safe, level, reason = self.refinement.validate_single_action(clean_act)
             if is_safe:
                 logger.info("Acao Limpa Despachada (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
+                selected_clean_actions.append(clean_act)
                 self._send_control(clean_act.node_id, clean_act.parameter, clean_act.value)
             else:
                 logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
+
+        # 3. Formalização do Contrato RDLDecision
+        all_selected = selected_winning_actions + selected_clean_actions
+        decision = RDLDecision(
+            state={"active_xapps": len(self.perception.get_active_xapps())},
+            proposals=actions,
+            conflicts=conflicts,
+            safety_result={"admitted_count": len(all_selected), "rejected_count": len(actions) - len(all_selected)},
+            selected_actions=all_selected,
+            reason="RESOLVED_AND_PASSTHROUGH",
+            strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH"
+        )
+        logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
+
 
     def _decision_loop(self):
         while self.running:

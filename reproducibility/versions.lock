@@ -1,0 +1,46 @@
+# XApp-RDL-F1 Reproducibility Lock
+# Data de Fixação: 2026-09-10
+# Padrão: O-RAN Alliance / O-RAN SC / 5G-LENA / NORI / OpenRAN@Brasil
+
+[o-ran-specs]
+e2ap = "v02.03"
+e2sm_kpm = "v03.00"
+e2sm_rc = "v01.03"
+near_rt_ric_arch = "v17.00"
+
+[simulators]
+ns3 = "3.48"
+5g_lena = "v5.1"
+nori_commit = "9b64c12" # lasseufpa/nori
+
+[oran-sc]
+release = "Release J (Cherry/Dawn)"
+ric_plt_xapp_frame_py = "3.2.2"
+ric_plt_submgr = "0.9.1"
+ric_plt_e2mgr = "5.4.9"
+ric_plt_e2term = "6.0.4"
+ric_plt_dbaas = "0.6.1"
+
+[python-dependencies]
+python = ">=3.10,<3.13"
+pycrate = ">=0.8.1"
+networkx = ">=3.0"
+pydantic = ">=2.0.0"
+fastapi = ">=0.100.0"
+uvicorn = ">=0.20.0"
+structlog = ">=23.0.0"
+prometheus_client = ">=0.19.0"
+pandas = ">=1.5.0"
+numpy = ">=1.24.0"
+scipy = ">=1.10.0"
+
+[infrastructure]
+os = "Ubuntu 22.04 LTS (WSL2 / Linux Kernel 5.15+)"
+kubernetes = "v1.28+"
+k3s = "v1.28.8+k3s1"
+k3d = "v5.6.0"
+helm = "v3.14+"
+rancher = "v2.8.5"
+cmake = ">=3.22.1"
+ninja = ">=1.10.1"
+gcc = ">=11.4.0"
