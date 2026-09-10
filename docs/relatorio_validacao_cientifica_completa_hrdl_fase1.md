@@ -1,6 +1,6 @@
 # Relatório de Validação Científica, Técnica e Experimental Completa do H-RDL (Fase 1)
 
-**Projeto:** xApp H-RDL (Hierarchical Resource and Decision Layer) — Fase 1 (Deterministica e Segura)  
+**Projeto:** xApp H-RDL (Hierarchical Resource and Decision Layer) — Fase 1 (Determinística e Segura)  
 **Repositório:** `georgebarbosa3090/XApp-RDL-F1`  
 **Validador Responsável:** Dr. George Alexandro Ferreira Barbosa (Pós-Doutor em Redes de Computadores, O-RAN, Near-RT RIC e Avaliação Experimental)  
 **Data da Auditoria:** 10 de Setembro de 2026  
@@ -13,7 +13,10 @@
 Este documento estabelece a validação científica, técnica, de conformidade normativa O-RAN, experimental e de reprodutibilidade da arquitetura **H-RDL (Fase 1)**. O H-RDL opera como uma camada intermediária de decisão e coordenação determinística e segura integrada ao **Near-RT RIC (RAN Intelligent Controller)** do ecossistema O-RAN, posicionada entre xApps concorrentes de terceiros (`xslice`, `energy-saving`, `traffic-steering`) e as interfaces de controle da RAN (**E2AP v02.03 / E2SM-KPM v03.00 / E2SM-RC v01.03**).
 
 Sob a premissa epistemológica fundamental:
-$$\text{Implementado} \neq \text{Integrado} \neq \text{Interoperável} \neq \text{Experimentalmente Validado} \neq \text{Cientificamente Demonstrado}$$
+
+$$
+\text{Implementado} \neq \text{Integrado} \neq \text{Interoperável} \neq \text{Experimentalmente Validado} \neq \text{Cientificamente Demonstrado}
+$$
 
 A auditoria confirmou que a Fase 1 do H-RDL alcançou o nível **L6 — Scientifically Validated / L7 — Reproducible Research Artifact**, fechando com sucesso todos os **4 Gates Mandatórios de Interoperabilidade O-RAN**:
 1. **Gate 1 (Real KPM Telemetry):** PASS 🟢
@@ -26,9 +29,9 @@ A auditoria confirmou que a Fase 1 do H-RDL alcançou o nível **L6 — Scientif
 ## 2. Objetivo da Validação Científica
 
 O objetivo primário é demonstrar causal e estatisticamente que a camada H-RDL:
-1. **Detecta e mitiga $98.02\%$ dos conflitos** paramétricos diretos e indiretos gerados por xApps não coordenadas;
-2. **Elimina $100\%$ das violações de SLA URLLC** ($\le 5.0\text{ ms}$), reduzindo a latência de cauda P99 de $141.54\text{ ms}$ para **$3.08\text{ ms}$**;
-3. **Eleva a vazão agregada da rede em $+624.8\%$** e a eficiência espectral de PRBs em **$+790.4\%$**, extinguindo o fenômeno de oscilação e ping-pong de handover ($0.0\text{ ev/min}$);
+1. **Detecta e mitiga 98.02% dos conflitos** paramétricos diretos e indiretos gerados por xApps não coordenadas;
+2. **Elimina 100% das violações de SLA URLLC** ($\le 5.0\text{ ms}$), reduzindo a latência de cauda P99 de $141.54\text{ ms}$ para **$3.08\text{ ms}$**;
+3. **Eleva a vazão agregada da rede em +624.8%** e a eficiência espectral de PRBs em **+790.4%**, extinguindo o fenômeno de oscilação e ping-pong de handover ($0.0\text{ ev/min}$);
 4. **Opera com overhead computacional estritamente determinístico ($14.39 \pm 1.64\text{ ms}$)**, consumindo apenas $28.8\%$ do *time budget* Near-RT de $50\text{ ms}$;
 5. **Apresenta reprodutibilidade criptográfica integral** auditada via manifestos SHA-256 e $N = 30$ sementes pseudoaleatórias independentes ($p < 10^{-20}$, Hedges' $g > 6.0$).
 
@@ -104,14 +107,14 @@ A varredura estática e dinâmica do repositório classificou os apontamentos de
 Tabela 2: Avaliação da Detecção e Resolução de Conflitos por Categoria
 ```
 
-| Categoria de Conflito | Descrição Operacional | Ground Truth ($N=30$) | Conflitos Detectados | Precisão (\%) | Recall (\%) | Taxa de Resolução (\%) |
+| Categoria de Conflito | Descrição Operacional | Ground Truth ($N=30$) | Conflitos Detectados | Precisão (%) | Recall (%) | Taxa de Resolução (%) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **C1 — Conflito Direto** | Duas xApps alteram o mesmo parâmetro (ex: PRB Quota: $80\%$ vs $30\%$) | $1.850$ eventos | $1.850$ | **$100.0\%$** | **$100.0\%$** | **$99.45\%$** |
-| **C2 — Conflito Indireto** | Ações em parâmetros distintos que degradam o mesmo SLA (ex: ES atenua potência enquanto TS desvia tráfego) | $1.210$ eventos | $1.210$ | **$100.0\%$** | **$100.0\%$** | **$99.17\%$** |
-| **C3 — Conflito Temporal** | Oscilação contínua $A \to B \to A$ (Ping-Pong de Handover) | $980$ eventos | $980$ | **$100.0\%$** | **$100.0\%$** | **$100.0\%$** |
-| **C4 — Conflito de Objetivo** | Trade-off antagônico de Eficiência Energética vs SLA URLLC | $460$ eventos | $460$ | **$100.0\%$** | **$100.0\%$** | **$98.70\%$** |
-| **C5 — Conflito de Segurança** | Comandos sintaticamente válidos que violam limites físicos | $180$ eventos | $180$ | **$100.0\%$** | **$100.0\%$** | **$100.0\%$** |
-| **Média Ponderada Global** | **Comportamento Consolidado do H-RDL** | **$4.680$ eventos** | **$4.680$** | **$100.0\%$** | **$100.0\%$** | **$99.34\%$** |
+| **C1 — Conflito Direto** | Duas xApps alteram o mesmo parâmetro (ex: PRB Quota: $80\%$ vs $30\%$) | $1.850$ eventos | $1.850$ | **100.0%** | **100.0%** | **99.45%** |
+| **C2 — Conflito Indireto** | Ações em parâmetros distintos que degradam o mesmo SLA (ex: ES atenua potência enquanto TS desvia tráfego) | $1.210$ eventos | $1.210$ | **100.0%** | **100.0%** | **99.17%** |
+| **C3 — Conflito Temporal** | Oscilação contínua $A \to B \to A$ (Ping-Pong de Handover) | $980$ eventos | $980$ | **100.0%** | **100.0%** | **100.0%** |
+| **C4 — Conflito de Objetivo** | Trade-off antagônico de Eficiência Energética vs SLA URLLC | $460$ eventos | $460$ | **100.0%** | **100.0%** | **98.70%** |
+| **C5 — Conflito de Segurança** | Comandos sintaticamente válidos que violam limites físicos | $180$ eventos | $180$ | **100.0%** | **100.0%** | **100.0%** |
+| **Média Ponderada Global** | **Comportamento Consolidado do H-RDL** | **$4.680$ eventos** | **$4.680$** | **100.0%** | **100.0%** | **99.34%** |
 
 ---
 
@@ -123,14 +126,20 @@ Foram executados testes automatizados de injeção de falhas e entradas hostis (
 3. **Frequência Excessiva de Handover ($< 100\text{ ms}$ entre comandos):** Bloqueada por histerese temporal (**Pass 🟢**);
 4. **Mensagem ASN.1 Corrompida ou Payload Truncado:** Descarte seguro com log estruturado de erro e envio de `RIC_CONTROL_FAILURE` (RMR 12042) sem interrupção do daemon (**Pass 🟢**).
 
-$$\text{Safety Intervention Rate} = 4.0\% \quad | \quad \text{Unsafe Actions Executed on RAN} = 0.0\%$$
+$$
+\text{Safety Intervention Rate} = 4.0\% \quad \big| \quad \text{Unsafe Actions Executed on RAN} = 0.0\%
+$$
 
 ---
 
 ## 8. Validação de Conformidade E2AP, E2SM-KPM, E2SM-RC e RMR
 
 * **E2AP-PDU:** Validado contra a gramática ASN.1 oficial da O-RAN ALLIANCE WG3, estruturado canonicamente como:
-  $$\text{E2AP-PDU} ::= \text{CHOICE} \{ \text{initiatingMessage}, \text{successfulOutcome}, \text{unsuccessfulOutcome} \}$$
+
+$$
+\text{E2AP-PDU} ::= \text{CHOICE} \left\{ \text{initiatingMessage}, \text{successfulOutcome}, \text{unsuccessfulOutcome} \right\}
+$$
+
   com `procedureCode = 4` (`id-RICcontrol`) e `ProtocolIE-Container` contendo `id-RICrequestID (29)`, `id-RANfunctionID (5)`, `id-RICcontrolHeader (22)`, `id-RICcontrolMessage (23)` e `id-RICcontrolAckRequest (21)`;
 * **RMR Message Routing:** Roteamento auditado sem *mocks* ou fallbacks silenciosos:
   * `12040`: `RIC_CONTROL_REQ` (Despacho de controle E2SM-RC);
@@ -169,15 +178,15 @@ Tabela 4: Comparativo Multidimensional dos Baselines vs. H-RDL (N = 30 Seeds)
 
 | Métrica Avaliada | Baseline Sem RDL ($B_0$) | Prioridade Fixa ($B_1$) | Threshold Policy ($B_2$) | H-RDL Fase 1 ($B_3$) | Ganho $B_3$ vs $B_0$ |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Throughput Agregado (Mbps)** | $153.25 \pm 13.98$ | $420.10 \pm 28.40$ | $680.50 \pm 35.10$ | **$1110.69 \pm 49.40$** | **$+624.8\%$** ($g = +26.03$) |
-| **Latência Média URLLC (ms)** | $11.68 \pm 2.00$ | $6.45 \pm 0.85$ | $4.80 \pm 0.42$ | **$2.84 \pm 0.19$** | **$-75.7\%$** ($g = -6.14$) |
-| **Latência P99 (Tail) (ms)** | $141.54 \pm 12.60$ | $48.20 \pm 5.10$ | $28.40 \pm 3.20$ | **$3.08 \pm 0.29$** | **$-97.8\%$** ($g = -15.34$) |
-| **Violação de SLA URLLC (\%)** | $29.01 \pm 3.90\%$ | $12.40 \pm 2.10\%$ | $5.60 \pm 1.10\%$ | **$0.00 \pm 0.00\%$** | **$-100.0\%$** ($100\%$ proteção) |
-| **Packet Delivery Ratio (\%)** | $40.37 \pm 7.31\%$ | $72.10 \pm 4.20\%$ | $88.50 \pm 2.30\%$ | **$99.48 \pm 0.27\%$** | **$+146.4\%$** ($g = +11.28$) |
-| **Eficiência PRB (Mbps/PRB)** | $0.667$ | $1.950$ | $3.240$ | **$5.939$** | **$+790.4\%$** |
-| **Jain's Fairness Index** | $0.1469$ | $0.4850$ | $0.6820$ | **$0.9159$** | **$+523.5\%$** ($g = +26.84$) |
-| **Instabilidade Ping-Pong** | $21.8\text{ ev/min}$ | $14.2\text{ ev/min}$ | $6.5\text{ ev/min}$ | **$0.0\text{ ev/min}$** | **$-100.0\%$** (Mitigação Total) |
-| **Eficiência Energética (Mb/J)** | $17.60$ | $65.20$ | $148.00$ | **$480.82$** | **$+2631.9\%$** |
+| **Throughput Agregado (Mbps)** | $153.25 \pm 13.98$ | $420.10 \pm 28.40$ | $680.50 \pm 35.10$ | **$1110.69 \pm 49.40$** | **+624.8%** ($g = +26.03$) |
+| **Latência Média URLLC (ms)** | $11.68 \pm 2.00$ | $6.45 \pm 0.85$ | $4.80 \pm 0.42$ | **$2.84 \pm 0.19$** | **-75.7%** ($g = -6.14$) |
+| **Latência P99 (Tail) (ms)** | $141.54 \pm 12.60$ | $48.20 \pm 5.10$ | $28.40 \pm 3.20$ | **$3.08 \pm 0.29$** | **-97.8%** ($g = -15.34$) |
+| **Violação de SLA URLLC (%)** | 29.01% $\pm$ 3.90% | 12.40% $\pm$ 2.10% | 5.60% $\pm$ 1.10% | **0.00% $\pm$ 0.00%** | **-100.0%** (100% proteção) |
+| **Packet Delivery Ratio (%)** | 40.37% $\pm$ 7.31% | 72.10% $\pm$ 4.20% | 88.50% $\pm$ 2.30% | **99.48% $\pm$ 0.27%** | **+146.4%** ($g = +11.28$) |
+| **Eficiência PRB (Mbps/PRB)** | $0.667$ | $1.950$ | $3.240$ | **$5.939$** | **+790.4%** |
+| **Jain's Fairness Index** | $0.1469$ | $0.4850$ | $0.6820$ | **$0.9159$** | **+523.5%** ($g = +26.84$) |
+| **Instabilidade Ping-Pong** | $21.8\text{ ev/min}$ | $14.2\text{ ev/min}$ | $6.5\text{ ev/min}$ | **$0.0\text{ ev/min}$** | **-100.0%** (Mitigação Total) |
+| **Eficiência Energética (Mb/J)** | $17.60$ | $65.20$ | $148.00$ | **$480.82$** | **+2631.9%** |
 | **Tempo de Decisão RDL (ms)** | $0.00$ | $1.20 \pm 0.10$ | $3.40 \pm 0.25$ | **$14.39 \pm 1.64$** | Budget $< 50\text{ ms}$ |
 
 ---
@@ -192,11 +201,11 @@ Tabela 5: Impacto Individual dos Subsistemas no Estudo de Ablação
 
 | Configuração Avaliada | Latência URLLC | Violação SLA | Taxa Conflito | Ping-Pong (ev/min) | Throughput | Papel Funcional Comprovado |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **H-RDL Completo** | **$2.84\text{ ms}$** | **$0.0\%$** | **$0.66\%$** | **$0.0$** | **$1110.7\text{ Mbps}$** | **Operação Ótima Coordenada** |
-| *Sem Safety Guards* | $3.45\text{ ms}$ | $4.2\%$ | $0.66\%$ | $0.0$ | $985.2\text{ Mbps}$ | Previne RLFs por sub-potência TX |
-| *Sem Histerese Temporal* | $2.95\text{ ms}$ | $1.8\%$ | $8.40\%$ | $18.5$ | $740.1\text{ Mbps}$ | Elimina oscilações Ping-Pong |
-| *Sem Raciocínio Shannon*| $5.10\text{ ms}$ | $11.5\%$ | $0.66\%$ | $0.0$ | $610.4\text{ Mbps}$ | Garante equidade de capacidade |
-| *Sem Detecção de Conflito*| $11.68\text{ ms}$ | $29.0\%$ | $33.66\%$ | $21.8$ | $153.3\text{ Mbps}$ | Núcleo de arbitragem indispensável |
+| **H-RDL Completo** | **$2.84\text{ ms}$** | **0.0%** | **0.66%** | **0.0** | **$1110.7\text{ Mbps}$** | **Operação Ótima Coordenada** |
+| *Sem Safety Guards* | $3.45\text{ ms}$ | 4.2% | 0.66% | 0.0 | $985.2\text{ Mbps}$ | Previne RLFs por sub-potência TX |
+| *Sem Histerese Temporal* | $2.95\text{ ms}$ | 1.8% | 8.40% | 18.5 | $740.1\text{ Mbps}$ | Elimina oscilações Ping-Pong |
+| *Sem Raciocínio Shannon*| $5.10\text{ ms}$ | 11.5% | 0.66% | 0.0 | $610.4\text{ Mbps}$ | Garante equidade de capacidade |
+| *Sem Detecção de Conflito*| $11.68\text{ ms}$ | 29.0% | 33.66% | 21.8 | $153.3\text{ Mbps}$ | Núcleo de arbitragem indispensável |
 
 ---
 
@@ -211,10 +220,10 @@ Avaliando a sobrecarga do H-RDL sob aumento progressivo de carga:
 
 ## 13. Verificação das Hipóteses Científicas (H1 a H8)
 
-* **H1 (Redução de Conflitos):** **SUPPORTED 🟢** (Redução de $98.02\%$, $p < 10^{-30}$);
-* **H2 (Redução de Violações de SLA):** **SUPPORTED 🟢** (Redução de $100.0\%$, $p < 10^{-26}$);
-* **H3 (Redução de Oscilações Ping-Pong):** **SUPPORTED 🟢** ($100\%$ mitigado, $0\text{ ev/min}$);
-* **H4 (Preservação/Ganho de Desempenho RAN):** **SUPPORTED 🟢** ($+624.8\%$ throughput, $+146.4\%$ PDR);
+* **H1 (Redução de Conflitos):** **SUPPORTED 🟢** (Redução de 98.02%, $p < 10^{-30}$);
+* **H2 (Redução de Violações de SLA):** **SUPPORTED 🟢** (Redução de 100.0%, $p < 10^{-26}$);
+* **H3 (Redução de Oscilações Ping-Pong):** **SUPPORTED 🟢** (100% mitigado, $0\text{ ev/min}$);
+* **H4 (Preservação/Ganho de Desempenho RAN):** **SUPPORTED 🟢** (+624.8% throughput, +146.4% PDR);
 * **H5 (Overhead Compatível com Near-RT RIC):** **SUPPORTED 🟢** ($14.39\text{ ms} \le 50\text{ ms}$);
 * **H6 (Segurança sob Entradas Inválidas):** **SUPPORTED 🟢** ($0$ comandos inseguros repassados à RAN);
 * **H7 (Reprodutibilidade Experimental):** **SUPPORTED 🟢** (100% reproduzível via seeds e manifestos SHA-256);
@@ -224,12 +233,12 @@ Avaliando a sobrecarga do H-RDL sob aumento progressivo de carga:
 
 ## 14. Resposta às Questões de Pesquisa (Research Questions RQ1 a RQ10)
 
-1. **RQ1 (Detecção e Resolução):** Detecta com $100\%$ de precisão e resolve $99.34\%$ dos conflitos;
-2. **RQ2 (Proteção de SLA):** Mitigação total ($0.0\%$ de violações URLLC contra $29.0\%$ do baseline);
+1. **RQ1 (Detecção e Resolução):** Detecta com 100% de precisão e resolve 99.34% dos conflitos;
+2. **RQ2 (Proteção de SLA):** Mitigação total (0.0% de violações URLLC contra 29.0% do baseline);
 3. **RQ3 (Estabilidade da RAN):** Supressão absoluta de ping-pong de handover ($0\text{ ev/min}$);
-4. **RQ4 (Impacto Multidimensional):** Throughput $+624.8\%$, PDR $99.48\%$, Jain $+523.5\%$, Energia $+2631.9\%$;
-5. **RQ5 (Overhead e Sinalização):** Latência média de $14.39\text{ ms}$ e sinalização representando $0.0024\%$ da banda;
-6. **RQ6 (Eficácia de Controle):** $95.51\%$ das decisões resultam em ganho líquido imediato no KPM posterior;
+4. **RQ4 (Impacto Multidimensional):** Throughput +624.8%, PDR 99.48%, Jain +523.5%, Energia +2631.9%;
+5. **RQ5 (Overhead e Sinalização):** Latência média de $14.39\text{ ms}$ e sinalização representando 0.0024% da banda;
+6. **RQ6 (Eficácia de Controle):** 95.51% das decisões resultam em ganho líquido imediato no KPM posterior;
 7. **RQ7 (Interoperabilidade O-RAN SC/NORI):** Total conformidade com E2AP v02.03 e E2SM-RC v01.03;
 8. **RQ8 (Significância Estatística):** $p < 10^{-20}$ e efeito extremo $g > 6.0$ em todas as métricas vitais;
 9. **RQ9 (Reprodutibilidade):** Reprodutibilidade estrita comprovada via sementes 1001 a 1030 e traces XML;
@@ -246,7 +255,7 @@ Tabela 6: Matriz Final de Validação de Requisitos do H-RDL Fase 1
 | Requisito Auditado | Evidência Necessária | Evidência Encontrada no Projeto | Veredito |
 | :--- | :--- | :--- | :--- |
 | **Arquitetura Clean Modular** | Testes de integração e isolamento | `src/agents/`, `src/domain/`, 19/19 testes unitários aprovados | **PASS 🟢** |
-| **Conflict Detection** | Ground Truth de concorrência | Taxonomia C1-C5 validada em `src/conflict_types.py` (Recall $100\%$) | **PASS 🟢** |
+| **Conflict Detection** | Ground Truth de concorrência | Taxonomia C1-C5 validada em `src/conflict_types.py` (Recall 100%) | **PASS 🟢** |
 | **Safety Guards** | Injeção de entradas adversas | 18 ações saturadas com sucesso em `tests/unit/test_safety_guards.py` | **PASS 🟢** |
 | **E2AP Protocol** | ASN.1 APER CHOICE & ProtocolIEs | Codec canônico verificado em `src/e2/e2ap_decoder.py` | **PASS 🟢** |
 | **E2SM-KPM Model** | Decodificação de métricas reais | Decodificador ASN.1 APER em `src/e2/kpm_decoder.py` | **PASS 🟢** |
@@ -256,10 +265,10 @@ Tabela 6: Matriz Final de Validação de Requisitos do H-RDL Fase 1
 | **Gate 2 — H-RDL Decision** | Raciocínio determinístico comprovado | Validação formal de latência ($14.39\text{ ms}$) e ausência de deadlocks | **PASS 🟢** |
 | **Gate 3 — Real Control** | ACK real do nó E2 | $4.500$ ACKs confirmados em `dataset_rdl_decisions.csv` | **PASS 🟢** |
 | **Gate 4 — Closed-Loop** | $\text{KPM}(t_0) \to \text{RC} \to \text{RAN} \to \text{KPM}(t_1)$ | Co-simulação contínua ns-3 validada com 30 sementes independentes | **PASS 🟢** |
-| **SLA Protection** | Comparativo $B_0 \times B_3$ | Redução de $100\%$ nas violações de SLA URLLC ($p < 10^{-26}$) | **PASS 🟢** |
+| **SLA Protection** | Comparativo $B_0 \times B_3$ | Redução de 100% nas violações de SLA URLLC ($p < 10^{-26}$) | **PASS 🟢** |
 | **Estabilidade** | Supressão de Ping-Pong | Queda de $21.8\text{ ev/min}$ para $0.0\text{ ev/min}$ | **PASS 🟢** |
-| **Overhead Near-RT** | Latência $< 50\text{ ms}$ | $14.39 \pm 1.64\text{ ms}$ (Margem de segurança de $60.4\%$) | **PASS 🟢** |
-| **Rigor Estatístico** | $N \ge 30$, Welch $t$, Effect Size | $N=30$, $p < 10^{-20}$, Hedges' $g = +26.03$, IC 95\% documentado | **PASS 🟢** |
+| **Overhead Near-RT** | Latência $< 50\text{ ms}$ | $14.39 \pm 1.64\text{ ms}$ (Margem de segurança de 60.4%) | **PASS 🟢** |
+| **Rigor Estatístico** | $N \ge 30$, Welch $t$, Effect Size | $N=30$, $p < 10^{-20}$, Hedges' $g = +26.03$, IC 95% documentado | **PASS 🟢** |
 | **Reprodutibilidade** | Runbook, metadados e hashes | `manifest_experiment.json` com SHA-256 e `reproducibility/runbook.md` | **PASS 🟢** |
 
 ---

@@ -138,22 +138,43 @@ O RMR provê entrega de mensagens de latência sub-milissegundo entre xApps sem 
 
 A tomada de decisão na xApp RDL é formulada como um problema de otimização combinatória restrita:
 
-$$\max_{\mathcal{A}^* \subseteq \mathcal{A}} U(\mathcal{A}^*) = w_{\text{QoS}} f_{\text{QoS}}(\mathcal{A}^*) + w_{\text{EE}} f_{\text{EE}}(\mathcal{A}^*) + w_{\text{Stab}} f_{\text{Stab}}(\mathcal{A}^*) - \sum_{i} \text{Penalty}_i(\mathcal{A}^*)$$
+$$
+\max_{\mathcal{A}^* \subseteq \mathcal{A}} U(\mathcal{A}^*) = w_{\text{QoS}} f_{\text{QoS}}(\mathcal{A}^*) + w_{\text{EE}} f_{\text{EE}}(\mathcal{A}^*) + w_{\text{Stab}} f_{\text{Stab}}(\mathcal{A}^*) - \sum_{i} \text{Penalty}_i(\mathcal{A}^*)
+$$
 
 Sujeito às restrições físicas de rádio:
-$$\sum_{s \in \mathcal{S}} \text{PRB}_s \le 100\%, \quad -10\text{ dBm} \le P_{\text{tx}} \le 23\text{ dBm}, \quad \Delta t_{\text{HO}} \ge 1000\text{ ms}$$
+
+$$
+\sum_{s \in \mathcal{S}} \text{PRB}_s \le 100\%, \quad -10\text{ dBm} \le P_{\text{tx}} \le 23\text{ dBm}, \quad \Delta t_{\text{HO}} \ge 1000\text{ ms}
+$$
 
 ### 5.1. Capacidade Espectral e Vazão (Shannon com SINR Real)
-$$R_u(\omega_s, P_{\text{tx}}) = \omega_s \cdot B \cdot \log_2 \left( 1 + \gamma_u(P_{\text{tx}}) \right) \cdot \eta_{\text{OH}}$$
+
+$$
+R_u(\omega_s, P_{\text{tx}}) = \omega_s \cdot B \cdot \log_2 \left( 1 + \gamma_u(P_{\text{tx}}) \right) \cdot \eta_{\text{OH}}
+$$
+
 Onde $B = 100\text{ MHz}$, $\eta_{\text{OH}} = 0.86$ e $\gamma_u$ é a relação SINR do terminal calculada com perda de percurso 3GPP TR 38.901.
 
 ### 5.2. Atraso Fim-a-Fim e Função de Satisfação de SLA ($M/G/1$ Sigmoide)
-$$D_u(\omega_s, \lambda_u) = \frac{L_p}{R_u(\omega_s)} + \frac{\lambda_u \cdot \overline{X_u^2}}{2(1 - \rho_u)}$$
-$$f_{\text{SLA}}(a) = \frac{1}{1 + \exp\left( \kappa \cdot (D_u - D_{\text{budget}}) \right)}$$
+
+$$
+D_u(\omega_s, \lambda_u) = \frac{L_p}{R_u(\omega_s)} + \frac{\lambda_u \cdot \overline{X_u^2}}{2(1 - \rho_u)}
+$$
+
+$$
+f_{\text{SLA}}(a) = \frac{1}{1 + \exp\left( \kappa \cdot (D_u - D_{\text{budget}}) \right)}
+$$
 
 ### 5.3. Consumo Elétrico e Eficiência Energética (Earth Model 3GPP)
-$$P_{\text{total}}(n) = N_{\text{TRX}} \cdot \left( P_0 + \Delta_p \cdot P_{\text{tx}}(n) \right)$$
-$$f_{\text{EE}}(a) = \frac{\sum R_u}{P_{\text{total}}(n)}$$
+
+$$
+P_{\text{total}}(n) = N_{\text{TRX}} \cdot \left( P_0 + \Delta_p \cdot P_{\text{tx}}(n) \right)
+$$
+
+$$
+f_{\text{EE}}(a) = \frac{\sum R_u}{P_{\text{total}}(n)}
+$$
 
 ---
 
