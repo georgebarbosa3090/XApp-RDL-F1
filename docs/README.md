@@ -85,6 +85,11 @@ graph TD
 
 ---
 
+### 7. Catálogo Temático de Figuras e Ilustrações Científicas
+* **[Catálogo Temático de Figuras (docs/figures/README.md)](figures/README.md)**: Galeria visual completa e estruturada em 3 temas (Arquitetura & Modelagem, Topologias 5G NR e Resultados/Benchmarks Multi-Semente em 300 DPI).
+
+---
+
 ## Trilhas de Leitura Recomendadas
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
