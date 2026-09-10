@@ -72,6 +72,16 @@ scripts/run_full_experiment.sh
 scripts/run_rdl_experiment.sh
 scripts/update_realtime_tracking_docs.py
 
+# 8. Scripts Locais de Sincronização, Rollback, Backup e Manutenção
+scripts/git_*.sh
+scripts/git_*.ps1
+scripts/fix_mermaid.py
+scripts/test_batching.py
+*backup*
+*rollback*
+*sync*
+
+
 
 # 7. Byte-compiled / Python Cache / DLLs
 __pycache__/

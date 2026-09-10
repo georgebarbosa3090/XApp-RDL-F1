@@ -1,4 +1,5 @@
-.PHONY: build build-no-cache test validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-experiments analyze-benchmarks view-results push-results sync auto-sync rollback rollback-push rollback-clean rollback-list
+.PHONY: build build-no-cache test test-pytest reproduce-f1 validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-scenario1-rdl run-scenario1-baseline run-scenario2-rdl run-scenario2-baseline
+
 
 NS3_DIR ?= $(HOME)/ns3-oran-workspace/ns-3-oran
 
@@ -292,49 +293,4 @@ run-scenario2-baseline:
 	@mkdir -p $(NS3_DIR)/scratch
 	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
-
-run-experiments:
-	bash scripts/run_full_experiment.sh
-
-run-suite:
-	python3 scripts/run_experiment_suite.py
-
-analyze-benchmarks:
-	python3 scripts/run_experiment_suite.py
-
-view-results:
-	@cat experiments/results/relatorio_comparativo.md
-
-push-results:
-	@echo "Sincronizando resultados experimentais com o GitHub..."
-	git add experiments/results/ docs/ scripts/
-	git commit -m "chore(experiments): upload latest ns-3 benchmark results, datasets and LaTeX report [skip ci]" || echo "Nenhuma alteração nova para commit."
-	git push origin main || echo "Aviso: Verifique as credenciais do Git / chave SSH para o push."
-
-# -------------------------------------------------------------
-# Sincronização Contínua e Rollback Seguro com GitHub
-# -------------------------------------------------------------
-sync:
-	@bash scripts/git_sync.sh "$(MSG)"
-
-auto-sync:
-	@bash scripts/git_auto_sync.sh $(INTERVAL)
-
-rollback:
-	@bash scripts/git_rollback.sh $(if $(COMMIT),--commit $(COMMIT),) $(if $(STEPS),--steps $(STEPS),)
-
-rollback-push:
-	@bash scripts/git_rollback.sh --push $(if $(COMMIT),--commit $(COMMIT),) $(if $(STEPS),--steps $(STEPS),)
-
-rollback-clean:
-	@bash scripts/git_rollback.sh --clean
-
-rollback-list:
-	@bash scripts/git_rollback.sh --list
-
-eval-multiseed:
-	python3 scripts/run_multi_seed_evaluation.py
-
-generate-figures:
-	python3 scripts/generate_sbrc_figures.py
 
