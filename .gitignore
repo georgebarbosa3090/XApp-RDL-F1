@@ -1,30 +1,108 @@
-# Byte-compiled / optimized / DLL files
+# =============================================================================
+# .gitignore — XApp-RDL-F1 (H-RDL)
+# Regras Permanentes de Exclusão e Higienização de Repositório
+# =============================================================================
+
+# 1. Diretórios de Agentes e Skills Locais
+.agents/
+agents/
+skills/
+.system_generated/
+
+# 2. Auditoria Técnica e Relatórios Extensos
+*auditoria*
+*Auditoria*
+*relatorio_extenso*
+*.audit.md
+docs/relatorio_extenso*
+
+# 3. Resultados de Experimentos e Datasets (Fase 1 e Fase 2)
+experiments/
+results/
+*.csv
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+manifest_experiment.json
+avaliacao_completa_metricas.json
+dataset_flow_metrics.csv
+dataset_multi_seed_metrics.csv
+dataset_rdl_decisions_ml.csv
+flowmonitor_results.xml
+RxPacketTrace.txt
+
+# 4. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
+*rdl_phase2*
+*phase2*
+
+# 5. Notebooks do Google Colab e Análises Locais
+notebooks/
+*.ipynb
+.ipynb_checkpoints/
+scripts/update_colab_notebook.py
+
+# 6. Artigos Científicos, Papers e Fontes LaTeX
+paper/
+paper_sbrc/
+*.tex
+*.bib
+*.sty
+*.cls
+*.bbl
+*.blg
+*.aux
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+scripts/generate_sbrc_figures.py
+scripts/generate_scenario_figures.py
+scripts/generate_single_seed_publication_figures.py
+
+# 7. Scripts de Experimentos e Benchmarks Locais
+scripts/run_multi_seed_evaluation.py
+scripts/run_and_analyze_benchmarks.py
+scripts/plot_ns3_benchmarks.py
+scripts/evaluate_and_improve_algorithms.py
+scripts/collect_evidence.sh
+scripts/run_baseline_experiment.sh
+scripts/run_experiment_suite.py
+scripts/run_full_experiment.sh
+scripts/run_rdl_experiment.sh
+scripts/update_realtime_tracking_docs.py
+
+
+# 7. Byte-compiled / Python Cache / DLLs
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
 
-# Virtual environments
+# 8. Ambientes Virtuais
 .venv/
 venv/
 ENV/
 env/
 
-# Testing and coverage
+# 9. Testes e Cobertura
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Logs and databases
+# 10. Logs, Bancos de Dados e Binários Locais
 *.log
 *.sqlite3
 wheels/
 
-# OS and IDE
+# 11. Sistema Operacional e IDEs
 .DS_Store
 .vscode/
 .idea/
-.agents/
+Thumbs.db
 
-# PowerShell scripts (ignore for GitHub)
+# 12. Scripts PowerShell locais de automação IDE
 *.ps1
+
 

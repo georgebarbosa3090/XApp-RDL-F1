@@ -53,17 +53,14 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 ├── docs/                        # Portal de Documentação Técnica e Referências Normativas
 │   ├── e2/                      # Matriz de Versões e Fontes Normativas O-RAN (E2AP/KPM/RC)
 │   ├── README.md                # Índice e trilhas de leitura da documentação
-│   └── relatorio_extenso_validacao_fase1_resolucao_limitacoes.md # Relatório de Resolução & Motor N=30
-├── paper_sbrc/                  # Artigo Científico em LaTeX para o SBRC (Template SBC)
+│   └── 01 a 05                  # Volumes temáticos de arquitetura, cluster, deploy e operação
 ├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
-├── experiments/                 # Resultados de Simulação e Evidências (Baseline vs H-RDL)
 ├── reproducibility/             # Bloqueio de versões (versions.lock) e Runbook de reprodução
-├── scripts/                     # Automação de Deploy, Testes, Reprodução e Avaliação Multi-Semente
+├── scripts/                     # Automação de Deploy, Testes e Reprodução
 │   ├── reproduce_f1.sh          # Pipeline completo de reprodução determinística (Fase 1)
-│   ├── run_multi_seed_evaluation.py # Motor estatístico N=30 runs com IC 95% e testes pareados
-│   ├── generate_sbrc_figures.py # Gerador de figuras científicas 300 DPI em tema claro
 │   ├── deploy_helm.sh           # Pipeline Helm (Near-RT RIC -> 3 xApps -> RDL)
-│   └── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
+│   ├── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
+│   └── verify_3_xapps.sh        # Smoke test unificado de todas as xApps
 ├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA
 │   └── ns3/                     # scenario_rdl_closed_loop_nori.cc (Closed-Loop E2 Report & Control)
 ├── src/                         # Código-Fonte Python da xApp RDL (Clean Architecture)
@@ -95,22 +92,14 @@ make helm-deploy-baseline
 make test-3xapps
 ```
 
-### Opção D: Testes Unitários e Validação de CI
+### Opção D: Testes Modulares e Validação de CI (11/11 PASS)
 ```bash
-# Execução dos testes unitários (16/16 PASS):
 make test
 ```
 
-### Opção E: Avaliação Estatística Rigorosa Multi-Semente ($N = 30$ Runs)
+### Opção E: Reprodução Determinística do Ambiente
 ```bash
-# Executa as 30 sementes independentes com cálculo de Média ± IC 95%:
-make eval-multiseed
-```
-
-### Opção F: Geração de Figuras Científicas em Tema Claro (300 DPI)
-```bash
-# Gera todas as figuras da arquitetura, fluxo, topologia e cenários:
-make generate-figures
+make reproduce-f1
 ```
 
 ---
@@ -139,44 +128,11 @@ make generate-figures
 
 ---
 
-## 5. Avaliação Experimental Multi-Semente ($N = 30$ Runs com $\text{Média} \pm \text{IC}_{95\%}$)
-
-O framework experimental foi executado sobre **$N = 30$ sementes independentes** ($\text{seed} \in [1001, 1030]$) no simulador **ns-3 (v3.40) com 5G-LENA NR Release-16** sob canal n78 (3.5 GHz) e 30 terminais móveis.
-
-### Tabela Consolidada de Resultados ($N = 30$ Runs, Distribuição $t$-Student):
-
-| Métrica Científica / Indicador | Baseline (Sem RDL) $\bar{X} \pm \text{IC}_{95\%}$ | Fase 1: H-RDL Reforçada $\bar{X} \pm \text{IC}_{95\%}$ | Variação (%) | Significância Estatística |
-| :--- | :---: | :---: | :---: | :---: |
-| **Latência Média URLLC** | $11.66 \pm 0.61\text{ ms}$ | $\mathbf{2.82 \pm 0.08\text{ ms}}$ | $\mathbf{-75.8\%}$ | $p < 0.001$ ($t$-test pareado) |
-| **Latência P99 URLLC (Cauda)** | $139.73 \pm 4.96\text{ ms}$ | $\mathbf{3.09 \pm 0.10\text{ ms}}$ | $\mathbf{-97.8\%}$ | $p < 0.001$ (Mann-Whitney) |
-| **Violação de SLA URLLC ($> 5\text{ ms}$)** | $28.98 \pm 1.15\%$ | $\mathbf{0.00 \pm 0.00\%}$ | $\mathbf{-100\%}$ | Zero Violações |
-| **Taxa de Conflitos entre xApps** | $34.81 \pm 1.05\%$ | $\mathbf{0.68 \pm 0.08\%}$ | $\mathbf{-98.1\%}$ | $p < 0.001$ |
-| **Vazão Total Agregada** | $156.40 \pm 7.18\text{ Mbps}$ | $\mathbf{1110.87 \pm 15.69\text{ Mbps}}$ | $\mathbf{+610.3\%}$ | $p < 0.001$ |
-| **Packet Delivery Ratio (PDR)** | $39.54 \pm 2.13\%$ | $\mathbf{99.53 \pm 0.11\%}$ | $\mathbf{+59.99\text{ p.p.}}$ | $p < 0.001$ |
-| **Índice de Equidade de Jain** | $0.1420 \pm 0.011$ | $\mathbf{0.9160 \pm 0.007}$ | $\mathbf{+545.1\%}$ | $p < 0.001$ |
-| **Instabilidade de Handover (Ping-Pong)** | $21.93 \pm 1.47\text{ ev/min}$ | $\mathbf{0.00 \pm 0.00\text{ ev/min}}$ | $\mathbf{-100\%}$ | Mitigado (Safety Guards) |
-| **Potência Média de Transmissão** | $39.01 \pm 0.39\text{ dBm}$ | $\mathbf{33.89 \pm 0.28\text{ dBm}}$ | $\mathbf{-13.1\%}$ | $p < 0.001$ |
-| **Tempo de Decisão da RDL** | N/A (Sem mediação) | $\mathbf{14.20 \pm 0.47\text{ ms}}$ | $\mathbf{< 50\text{ ms}}$ | Conforme O-RAN Near-RT |
-
----
-
-## 6. Análise de Dados e Machine Learning no Google Colab
-
-Os datasets gerados pela co-simulação podem ser importados diretamente no Google Colab para geração de gráficos estatísticos e treinamento de algoritmos de classificação do **Scikit-Learn**:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb)
-
-* **Notebook:** [`notebooks/rdl_colab_scikit_learn.ipynb`](notebooks/rdl_colab_scikit_learn.ipynb)
-* **Datasets CSV:** [`experiments/results/dataset_multi_seed_metrics.csv`](experiments/results/dataset_multi_seed_metrics.csv) e [`experiments/results/dataset_rdl_decisions_ml.csv`](experiments/results/dataset_rdl_decisions_ml.csv)
-* **Manifesto SHA-256:** [`experiments/results/manifest_experiment.json`](experiments/results/manifest_experiment.json)
-
----
-
-## 7. Portal de Documentação Técnica (`docs/`) e Artigo SBRC (`paper_sbrc/`)
+## 5. Portal de Documentação Técnica (`docs/`)
 
 * **[Portal de Documentação Técnica Completa](docs/README.md)**
-* **[Relatório Extenso de Validação e Resolução de Limitações](docs/relatorio_extenso_validacao_fase1_resolucao_limitacoes.md)**
-* **[Artigo Científico SBRC (LaTeX)](paper_sbrc/sbrc_rdl_phase1.tex)**
+* **[Matriz de Versões e Compatibilidade O-RAN](docs/e2/version-matrix.md)**
+* **[Fontes Normativas e Especificações](docs/e2/specification-sources.md)**
 
 | Volume | Título Temático | Domínio Técnico e Escopo |
 | :---: | :--- | :--- |
@@ -194,4 +150,5 @@ Os datasets gerados pela co-simulação podem ser importados diretamente no Goog
 *Desenvolvido em conformidade com as diretrizes O-RAN Alliance e 3GPP.*
 
 </div>
+
 

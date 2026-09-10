@@ -79,9 +79,9 @@ graph TD
 
 ---
 
-### 6. Relatório Extenso de Validação e Artigo Científico SBRC
-* **[Relatório Extenso de Validação e Resolução de Limitações](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md)**: Documento exaustivo com as deduções matemáticas dos modelos de rádio 5G, fundamentação da distribuição $t$-Student ($\nu = 29$, $t_{\text{crítico}} = 2{,}04523$), motor estatístico multi-semente ($N = 30$ runs com $\text{Média} \pm \text{IC}_{95\%}$, $p < 0{,}001$), testes pareados e roteiro de auditoria para todos os requisitos.
-* **[Artigo Científico SBRC (LaTeX)](../paper_sbrc/sbrc_rdl_phase1.tex)**: Artigo completo submetível no padrão SBC com modelagem, resultados empíricos consolidados e figuras vetoriais 300 DPI.
+### 6. Matriz Normativa e Especificações E2
+* **[Matriz de Versões e Compatibilidade O-RAN](e2/version-matrix.md)**: Matriz formal de versões entre E2AP v02.03, E2SM-KPM v03.00, E2SM-RC v01.03, O-RAN SC Release J, 5G-LENA v5.1 e OpenRAN@Brasil Blueprint v3.
+* **[Fontes Normativas e Especificações](e2/specification-sources.md)**: Mapeamento de repositórios oficiais e especificações normativas de referência.
 
 ---
 
@@ -90,11 +90,12 @@ graph TD
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
 | **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Relatório de Validação](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md) -> [Artigo SBRC](../paper_sbrc/sbrc_rdl_phase1.tex) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Matriz E2](e2/version-matrix.md) |
 | **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
 | **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Relatório de Validação](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md) |
+| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Matriz E2](e2/version-matrix.md) |
 
 ---
 
 [Voltar para a Página Inicial (README.md)](../README.md)
+
