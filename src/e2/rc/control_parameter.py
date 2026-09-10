@@ -56,7 +56,11 @@ RAN_PARAMETERS: Dict[str, RANParameterDefinition] = {
     )
 }
 
+# Alias para retrocompatibilidade
+PARAM_PROFILES = RAN_PARAMETERS
+
 def validate_ran_parameter(param_name: str, value: float) -> Tuple[bool, int, str]:
+
     """
     Valida se o parâmetro pertence ao modelo E2SM-RC e respeita os limites operacionais.
     """

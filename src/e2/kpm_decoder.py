@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 from src.observability.logging import setup_logger
 from pycrate_asn1rt.asnobj_basic import INT
@@ -84,17 +84,36 @@ class KpmDecoder:
     def decode_indication(self, payload: bytes) -> List[Dict]:
         """
         Wrapper exigido pelo rdl_xapp.py para extrair os reports KPM reais do payload.
+        Em caso de payload corrompido, retorna lista vazia sem sintetizar dados artificiais.
         """
-        measurements = self.decode(payload, payload)
+        try:
+            measurements = self.decode(payload, payload)
+        except Exception:
+            return []
         
-        return [{
-            "node_id": m.node_id,
-            "ue_id": m.ue_id,
-            "drb_thp_dl": m.value if m.metric_name == "DRB.UEThpDl" else 0.0,
-            "drb_thp_ul": m.value if m.metric_name == "DRB.UEThpUl" else 0.0,
-            "drb_delay_dl": m.value if m.metric_name == "DRB.RlcSduDelayDl" else 0.0,
-            "prb_used_dl": int(m.value) if m.metric_name == "RRU.PrbUsedDl" else 0
-        } for m in measurements]
+        aggregated: Dict[Tuple[str, str], Dict[str, Any]] = {}
+        for m in measurements:
+            key = (m.node_id, m.ue_id)
+            if key not in aggregated:
+                aggregated[key] = {
+                    "node_id": m.node_id,
+                    "ue_id": m.ue_id,
+                    "drb_thp_dl": 0.0,
+                    "drb_thp_ul": 0.0,
+                    "drb_delay_dl": 0.0,
+                    "prb_used_dl": 0
+                }
+            if m.metric_name == "DRB.UEThpDl":
+                aggregated[key]["drb_thp_dl"] = m.value
+            elif m.metric_name == "DRB.UEThpUl":
+                aggregated[key]["drb_thp_ul"] = m.value
+            elif m.metric_name == "DRB.RlcSduDelayDl":
+                aggregated[key]["drb_delay_dl"] = m.value
+            elif m.metric_name == "RRU.PrbUsedDl":
+                aggregated[key]["prb_used_dl"] = int(m.value)
+                
+        return list(aggregated.values())
+
 
     def decode(self, indication_header: bytes, indication_message: bytes, default_node_id: str = "gnb_01") -> List[KpmMeasurement]:
         """
