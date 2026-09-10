@@ -23,20 +23,21 @@ class E2SM_KPM_EventTriggerDefinition(SEQ):
     _root = ['eventDefinition_formats']
     _ext = None
 
-def build_kpm_event_trigger(report_period_ms: int = 200) -> bytes:
+def build_kpm_event_trigger(report_period_ms: int = 200, reporting_period_ms: int = None) -> bytes:
     """
     Constrói o buffer binário APER normativo para o Event Trigger Definition do E2SM-KPM.
     Define o intervalo periódico de envio de telemetria pelo nó E2 / simulador 5G-LENA.
     """
+    period = reporting_period_ms if reporting_period_ms is not None else report_period_ms
     try:
         trigger = E2SM_KPM_EventTriggerDefinition()
         trigger.set_val({
             'eventDefinition_formats': {
-                'reportingPeriodMs': int(report_period_ms)
+                'reportingPeriodMs': int(period)
             }
         })
         aper_bytes = trigger.to_aper()
-        logger.debug(f"E2SM-KPM Event Trigger gerado ({len(aper_bytes)} bytes) para período {report_period_ms}ms")
+        logger.debug(f"E2SM-KPM Event Trigger gerado ({len(aper_bytes)} bytes) para período {period}ms")
         return aper_bytes
     except Exception as e:
         logger.error(f"Falha ao gerar E2SM-KPM Event Trigger via APER: {e}")

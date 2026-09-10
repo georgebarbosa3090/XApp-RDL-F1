@@ -55,6 +55,9 @@ class RICcontrolFailure(SEQ):
     _ext = None
 
 
+from src.e2.e2ap.pdu import wrap_initiating_message, unwrap_e2ap_pdu
+from src.e2.e2ap.constants import PROC_RIC_CONTROL, CRITICALITY_IGNORE
+
 @dataclass
 class ControlContext:
     control_id: str
@@ -77,7 +80,8 @@ def build_ric_control_request(
     ack_request: int = 1 # 1 = ack obrigatório
 ) -> ControlContext:
     """
-    Constrói a PDU E2AP normativo RICcontrolRequest contendo o Header e Message do E2SM-RC.
+    Constrói a PDU E2AP normativo completo (E2AP-PDU -> InitiatingMessage -> RICcontrolRequest)
+    contendo o Header e Message do E2SM-RC.
     """
     try:
         ctrl = RICcontrolRequest()
@@ -89,13 +93,13 @@ def build_ric_control_request(
             'ricControlAckRequest': int(ack_request)
         })
 
-
-
-        pdu_aper = ctrl.to_aper()
+        ctrl_bytes = ctrl.to_aper()
+        # Encapsula na E2AP-PDU canônica InitiatingMessage com procedureCode = id-RICcontrol
+        pdu_aper = wrap_initiating_message(PROC_RIC_CONTROL, ctrl_bytes, criticality=CRITICALITY_IGNORE)
         ctrl_id = str(uuid.uuid4())[:8]
         
         logger.debug(
-            f"E2AP RICcontrolRequest montado (ID {ctrl_id}, {len(pdu_aper)} bytes APER) para {node_id}"
+            f"E2AP-PDU RICcontrolRequest montada (ID {ctrl_id}, {len(pdu_aper)} bytes APER) para {node_id}"
         )
         return ControlContext(
             control_id=ctrl_id,
@@ -114,9 +118,17 @@ def build_ric_control_request(
 def parse_ric_control_ack(payload: bytes) -> Dict[str, Any]:
     """
     Decodifica resposta de confirmação E2AP RICcontrolAcknowledge recebida via RMR.
+    Suporta tanto carga direta quanto encapsulada em E2AP-PDU.
     """
+    target_bytes = payload
+    try:
+        pdu_type, proc_code, crit, inner = unwrap_e2ap_pdu(payload)
+        target_bytes = inner
+    except Exception:
+        target_bytes = payload
+
     ack = RICcontrolAcknowledge()
-    ack.from_aper(payload)
+    ack.from_aper(target_bytes)
     val = ack()
     return {
         "requestor_id": val['ricRequestID']['ricRequestorID'],
@@ -128,9 +140,17 @@ def parse_ric_control_ack(payload: bytes) -> Dict[str, Any]:
 def parse_ric_control_failure(payload: bytes) -> Dict[str, Any]:
     """
     Decodifica resposta de falha E2AP RICcontrolFailure recebida via RMR.
+    Suporta tanto carga direta quanto encapsulada em E2AP-PDU.
     """
+    target_bytes = payload
+    try:
+        pdu_type, proc_code, crit, inner = unwrap_e2ap_pdu(payload)
+        target_bytes = inner
+    except Exception:
+        target_bytes = payload
+
     fail = RICcontrolFailure()
-    fail.from_aper(payload)
+    fail.from_aper(target_bytes)
     val = fail()
     return {
         "requestor_id": val['ricRequestID']['ricRequestorID'],

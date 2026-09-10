@@ -1,0 +1,69 @@
+-- ==============================================================================
+-- O-RAN Service Model for RAN Control (E2SM-RC) v01.03
+-- Referência: O-RAN.WG3.E2SM-RC-v01.03 / O-RAN SC Release I/J
+-- ==============================================================================
+
+E2SM-RC-v01.03 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+RIC-ControlStyle-Type ::= INTEGER (1..255, ...)
+RIC-ControlAction-ID ::= INTEGER (1..65535, ...)
+RANParameter-ID ::= INTEGER (1..65535, ...)
+
+E2SM-RC-ControlHeader ::= SEQUENCE {
+    ric-controlHeader-formats CHOICE {
+        controlHeader-Format1 E2SM-RC-ControlHeader-Format1,
+        ...
+    },
+    ...
+}
+
+E2SM-RC-ControlHeader-Format1 ::= SEQUENCE {
+    ric-Style-Type          RIC-ControlStyle-Type,
+    ric-ControlAction-ID    RIC-ControlAction-ID,
+    ueID                    UEID OPTIONAL,
+    ...
+}
+
+UEID ::= CHOICE {
+    gNB-UEID    GNB-UEID,
+    ...
+}
+
+GNB-UEID ::= SEQUENCE {
+    amf-UE-NGAP-ID  INTEGER (0..1099511627775),
+    guami           OCTET STRING (SIZE(6)),
+    ...
+}
+
+E2SM-RC-ControlMessage ::= SEQUENCE {
+    ric-controlMessage-formats CHOICE {
+        controlMessage-Format1 E2SM-RC-ControlMessage-Format1,
+        ...
+    },
+    ...
+}
+
+E2SM-RC-ControlMessage-Format1 ::= SEQUENCE {
+    ranP-List   SEQUENCE (SIZE(1..65535)) OF RANParameter-Item,
+    ...
+}
+
+RANParameter-Item ::= SEQUENCE {
+    ranParameter-ID     RANParameter-ID,
+    ranParameter-valueType RANParameter-ValueType,
+    ...
+}
+
+RANParameter-ValueType ::= CHOICE {
+    ranP-Choice-ElementFalse RANParameter-Value,
+    ...
+}
+
+RANParameter-Value ::= CHOICE {
+    valueInt        INTEGER,
+    valueReal       REAL,
+    valueOctS       OCTET STRING,
+    ...
+}
+
+END

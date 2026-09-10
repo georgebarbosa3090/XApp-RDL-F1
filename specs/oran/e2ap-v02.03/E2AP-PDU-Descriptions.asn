@@ -1,0 +1,49 @@
+-- ==============================================================================
+-- O-RAN Application Protocol (E2AP) v02.03 - PDU Descriptions
+-- Referência: O-RAN.WG3.E2AP-v02.03 / O-RAN SC Release I/J
+-- ==============================================================================
+
+E2AP-PDU-Descriptions {
+    iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 53148 e2(1) version2(2) e2ap(1) e2ap-PDU-Descriptions(0)
+}
+DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+IMPORTS
+    Criticality,
+    ProcedureCode
+FROM E2AP-CommonDataTypes;
+
+E2AP-PDU ::= CHOICE {
+    initiatingMessage           InitiatingMessage,
+    successfulOutcome           SuccessfulOutcome,
+    unsuccessfulOutcome         UnsuccessfulOutcome,
+    ...
+}
+
+InitiatingMessage ::= SEQUENCE {
+    procedureCode   ProcedureCode,
+    criticality     Criticality,
+    value           ANY DEFINED BY procedureCode
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+    procedureCode   ProcedureCode,
+    criticality     Criticality,
+    value           ANY DEFINED BY procedureCode
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+    procedureCode   ProcedureCode,
+    criticality     Criticality,
+    value           ANY DEFINED BY procedureCode
+}
+
+-- Procedure Codes
+id-RICsubscription          ProcedureCode ::= 201
+id-RICsubscriptionDelete    ProcedureCode ::= 202
+id-RICcontrol               ProcedureCode ::= 204
+id-RICindication            ProcedureCode ::= 205
+id-e2setup                  ProcedureCode ::= 1
+id-reset                    ProcedureCode ::= 3
+
+END

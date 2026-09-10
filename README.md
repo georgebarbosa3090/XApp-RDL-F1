@@ -227,7 +227,7 @@ make reproduce-f1
 <div align="center">
 
 **Projeto xApp RDL — O-RAN Near-RT RIC Conflict Mitigation**  
-*Desenvolvido em conformidade com as diretrizes O-RAN Alliance e 3GPP.*
+*Desenvolvido com base nas especificações e diretrizes da O-RAN Alliance e 3GPP, com interoperabilidade normativa em processo de validação.*
 
 </div>
 

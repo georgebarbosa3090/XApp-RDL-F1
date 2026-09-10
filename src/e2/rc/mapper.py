@@ -1,6 +1,7 @@
 from typing import List, Optional
 from src.conflict_types import XAppAction, RDLDecision
 from src.e2.rc.control_parameter import validate_ran_parameter
+from src.e2.rc.capability_registry import rc_capability_registry
 from src.e2.rc_encoder import RCEncoder, EncodedRCControl
 from src.e2.e2ap.control import build_ric_control_request, ControlContext
 from src.observability.logging import setup_logger
@@ -10,7 +11,7 @@ logger = setup_logger("RCMapper")
 class RCMapper:
     """
     Camada de Mapeamento Formal:
-    RDL Decision / Action -> RC Control Action -> RAN Parameter ID -> E2SM-RC ASN.1 APER -> E2AP RICcontrolRequest
+    RDL Decision / Action -> RC Capability Discovery -> Control Style -> Control Action -> RAN Parameter ID -> E2SM-RC ASN.1 APER -> E2AP-PDU RICcontrolRequest
     """
     def __init__(self, ran_function_id: int = 3):
         self.ran_function_id = ran_function_id
@@ -29,13 +30,19 @@ class RCMapper:
         if not is_valid:
             raise ValueError(f"Ação rejeitada no mapeamento E2SM-RC: {reason}")
 
-        # Gera Header e Message APER
+        # Resolve dinamicamente Style Type e Control Action ID a partir das capacidades da RAN Function
+        style_type, action_id, resolved_param_id = rc_capability_registry.resolve_action(
+            param_name=action.parameter,
+            node_id=action.node_id
+        )
+
+        # Gera Header e Message APER normativos
         encoded_rc = self.encoder.encode_control_parts(
             node_id=action.node_id,
             parameter=action.parameter,
             value=action.value,
-            style_type=1,
-            action_id=1
+            style_type=style_type,
+            action_id=action_id
         )
 
         # Encapsula na PDU E2AP RICcontrolRequest

@@ -29,9 +29,16 @@ def test_rc_mapper_decision_to_e2ap_pdu():
     assert ctx1.ran_function_id == 3
     assert len(ctx1.pdu_aper) > 0
     
-    # Desserializa a PDU E2AP pura
+    # Desserializa a E2AP-PDU completa e o RICcontrolRequest interno
+    from src.e2.e2ap.pdu import unwrap_e2ap_pdu
+    from src.e2.e2ap.constants import PROC_RIC_CONTROL
+    
+    pdu_type, proc_code, crit, inner_bytes = unwrap_e2ap_pdu(ctx1.pdu_aper)
+    assert pdu_type == "initiatingMessage"
+    assert proc_code == PROC_RIC_CONTROL
+    
     pdu = RICcontrolRequest()
-    pdu.from_aper(ctx1.pdu_aper)
+    pdu.from_aper(inner_bytes)
     val = pdu()
     assert val['ranFunctionID'] == 3
     assert len(val['ricControlHeader']) > 0

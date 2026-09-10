@@ -145,4 +145,7 @@ class KpmDecoder:
             logger.error(f"Falha estrita ao decodificar E2SM-KPM via APER: {aper_err}")
             raise aper_err
 
+KPMDecoder = KpmDecoder
+
+
 
