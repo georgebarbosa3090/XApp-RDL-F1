@@ -43,23 +43,37 @@ class ControlDispatcher:
                 self.rmr.rmr_send(payload, 12010)
     def handle_ack(self, payload: bytes):
         """
-        Trata o RIC_CONTROL_ACK (12011)
-        Na prática, extraímos o request_id do payload.
+        Trata o RIC_CONTROL_ACK (12011) extraindo o control_request_id real do payload.
         """
-        # Mock de decodificação extraindo ID (usando um estático para exemplo)
-        req_id = "simulated_req_id"
-        logger.info(f"Recebido RIC_CONTROL_ACK para req {req_id}")
-        # Update SDL
-        self.sdl.update_control_result(req_id, "ACKNOWLEDGED")
+        req_id = ""
+        if payload:
+            try:
+                import json
+                data = json.loads(payload.decode('utf-8'))
+                req_id = data.get("transaction_id") or data.get("control_request_id", "")
+            except Exception:
+                req_id = payload.hex()[:8]
+        if req_id:
+            logger.info(f"Recebido RIC_CONTROL_ACK para req {req_id}")
+            self.sdl.update_control_result(req_id, "ACKNOWLEDGED")
 
     def handle_failure(self, payload: bytes):
         """
-        Trata o RIC_CONTROL_FAILURE (12012)
+        Trata o RIC_CONTROL_FAILURE (12012) extraindo o control_request_id real do payload.
         """
-        req_id = "simulated_req_id"
-        logger.error(f"Recebido RIC_CONTROL_FAILURE para req {req_id}")
-        self.sdl.update_control_result(req_id, "FAILED")
-        self.trigger_rollback(req_id)
+        req_id = ""
+        if payload:
+            try:
+                import json
+                data = json.loads(payload.decode('utf-8'))
+                req_id = data.get("transaction_id") or data.get("control_request_id", "")
+            except Exception:
+                req_id = payload.hex()[:8]
+        if req_id:
+            logger.error(f"Recebido RIC_CONTROL_FAILURE para req {req_id}")
+            self.sdl.update_control_result(req_id, "FAILED")
+            self.trigger_rollback(req_id)
+
         
     def trigger_rollback(self, control_request_id: str):
         logger.warning(f"Executando Rollback para controle {control_request_id}")

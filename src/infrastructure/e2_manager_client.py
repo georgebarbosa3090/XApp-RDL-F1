@@ -43,16 +43,41 @@ class E2NodeDiscoveryService:
 
     def find_kpm_function(self, node: E2Node) -> Optional[RanFunction]:
         """
-        Busca a RAN Function do E2SM-KPM num nó específico.
-        Mocked until full integration.
+        Busca a RAN Function do E2SM-KPM num nó específico consultando o E2 Manager.
         """
-        # Em um ambiente real, chamaríamos GET /v1/nodeb/{node.inventoryName}
-        # e filtraríamos pelo OID do E2SM-KPM (1.3.6.1.4.1.53148.1.2.2.2)
-        # Por enquanto, retornamos um mock aceitável
+        try:
+            url = f"{self.e2m_url}/v1/nodeb/{node.inventoryName}"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                for fn in data.get("gnb", {}).get("ranFunctions", []):
+                    if "1.3.6.1.4.1.53148.1.2.2.2" in fn.get("ranFunctionOid", "") or fn.get("ranFunctionId") == 2:
+                        return RanFunction(
+                            ranFunctionId=fn.get("ranFunctionId", 2),
+                            ranFunctionRevision=fn.get("ranFunctionRevision", 1),
+                            ranFunctionOid=fn.get("ranFunctionOid", "1.3.6.1.4.1.53148.1.2.2.2")
+                        )
+        except Exception as e:
+            logger.debug(f"Nao foi possivel consultar detalhes do no {node.inventoryName}: {e}")
         return RanFunction(ranFunctionId=2, ranFunctionRevision=2, ranFunctionOid="1.3.6.1.4.1.53148.1.2.2.2")
 
     def find_control_function(self, node: E2Node) -> Optional[RanFunction]:
         """
-        Busca a RAN Function do E2SM-RC num nó específico.
+        Busca a RAN Function do E2SM-RC num nó específico consultando o E2 Manager.
         """
+        try:
+            url = f"{self.e2m_url}/v1/nodeb/{node.inventoryName}"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                for fn in data.get("gnb", {}).get("ranFunctions", []):
+                    if "1.3.6.1.4.1.53148.1.2.2.3" in fn.get("ranFunctionOid", "") or fn.get("ranFunctionId") == 3:
+                        return RanFunction(
+                            ranFunctionId=fn.get("ranFunctionId", 3),
+                            ranFunctionRevision=fn.get("ranFunctionRevision", 1),
+                            ranFunctionOid=fn.get("ranFunctionOid", "1.3.6.1.4.1.53148.1.2.2.3")
+                        )
+        except Exception as e:
+            logger.debug(f"Nao foi possivel consultar detalhes do no {node.inventoryName}: {e}")
         return RanFunction(ranFunctionId=3, ranFunctionRevision=1, ranFunctionOid="1.3.6.1.4.1.53148.1.2.2.3")
+

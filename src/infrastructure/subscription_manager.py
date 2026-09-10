@@ -59,13 +59,10 @@ class SubscriptionManager:
             url = f"{self.submgr_url}/ric/v1/subscriptions"
             logger.info(f"Enviando REST SubReq para {url} - MEID: {meid}")
             
-            # Na integração real, descomentar a chamada:
-            # response = requests.post(url, json=payload, timeout=5)
-            # response.raise_for_status()
-            # data = response.json()
-            # sub_id = data.get("SubscriptionId", "sim_sub_01")
-            
-            sub_id = "sim_sub_01"  # Mock para teste sem RIC real
+            response = requests.post(url, json=payload, timeout=5)
+            response.raise_for_status()
+            data = response.json() if response.content else {}
+            sub_id = data.get("SubscriptionId") or data.get("subscription_id") or f"sub-{meid}-{ran_function_id}"
             
             ctx = SubscriptionContext(
                 subscription_id=sub_id,
@@ -78,5 +75,6 @@ class SubscriptionManager:
             )
             return ctx
         except Exception as e:
-            logger.error(f"Falha na subscrição do MEID {meid}: {e}")
+            logger.error(f"Falha na subscricao do MEID {meid} junto ao SubMgr: {e}")
             return None
+

@@ -68,15 +68,9 @@ class E2SM_KPM_IndicationMessage(SEQ):
 class KpmDecoder:
     """
     Decodificador de telemetria E2SM-KPM v3 (Indication Header & Message).
-    Suporta decodificacao ASN.1 APER estrita com controle de fallback para testes locais.
+    Executa decodificacao ASN.1 APER estrita conforme especificacao 3GPP/O-RAN WG3.
     """
-    def __init__(self, allow_fallback: Optional[bool] = None):
-        if allow_fallback is not None:
-            self.allow_fallback = allow_fallback
-        else:
-            # Em producao/simulacao real, padrao False; em testes locais, True
-            self.allow_fallback = os.getenv("KPM_ALLOW_MOCK_FALLBACK", "True").lower() in ("true", "1", "yes")
-            
+    def __init__(self):
         self.metric_map = {
             "DRB.UEThpDl": "drb_thp_dl",
             "DRB.UEThpUl": "drb_thp_ul",
@@ -89,7 +83,7 @@ class KpmDecoder:
 
     def decode_indication(self, payload: bytes) -> List[Dict]:
         """
-        Wrapper exigido pelo rdl_xapp.py para extrair os reports KPM simulados/reais.
+        Wrapper exigido pelo rdl_xapp.py para extrair os reports KPM reais do payload.
         """
         measurements = self.decode(payload, payload)
         
@@ -104,43 +98,32 @@ class KpmDecoder:
 
     def decode(self, indication_header: bytes, indication_message: bytes, default_node_id: str = "gnb_01") -> List[KpmMeasurement]:
         """
-        Decodifica o payload E2SM-KPM via APER.
+        Decodifica estritamente o payload E2SM-KPM via APER sem injecao de dados sinteticos.
         """
-        results = []
+        results: List[KpmMeasurement] = []
+        if not indication_message:
+            return results
+
         try:
-            # Parse Message
             msg = E2SM_KPM_IndicationMessage()
-            try:
-                msg.from_aper(indication_message)
-                msg_val = msg()
-                node = msg_val.get('nodeID', default_node_id)
-                ue = msg_val.get('ueID', "ue_01")
-                
-                for item in msg_val.get('measData', []):
-                    results.append(KpmMeasurement(
-                        node_id=node,
-                        ue_id=ue,
-                        metric_name=item['metricName'],
-                        value=float(item['metricValue']),
-                        timestamp=0
-                    ))
-                self.successful_decodes += 1
-                return results
-            except Exception as aper_err:
-                self.decode_errors += 1
-                if not self.allow_fallback:
-                    logger.error(f"Erro estrito na decodificacao APER KPM: {aper_err}")
-                    raise aper_err
-                logger.debug(f"Decodificacao APER falhou: {aper_err}. Usando fallback para modo de teste.")
-                
-            # MOCK apenas para testes unitarios/offline quando explicitamente permitido
-            results.append(KpmMeasurement(default_node_id, "ue_01", "DRB.UEThpDl", 15.5, 0))
-            results.append(KpmMeasurement(default_node_id, "ue_01", "RRU.PrbUsedDl", 45.0, 0))
+            msg.from_aper(indication_message)
+            msg_val = msg()
+            node = msg_val.get('nodeID', default_node_id)
+            ue = msg_val.get('ueID', "ue_01")
             
-        except Exception as e:
-            logger.error(f"Erro no decoder KPM: {e}")
-            if not self.allow_fallback:
-                raise
-            
-        return results
+            for item in msg_val.get('measData', []):
+                results.append(KpmMeasurement(
+                    node_id=node,
+                    ue_id=ue,
+                    metric_name=item['metricName'],
+                    value=float(item['metricValue']),
+                    timestamp=0
+                ))
+            self.successful_decodes += 1
+            return results
+        except Exception as aper_err:
+            self.decode_errors += 1
+            logger.error(f"Falha estrita ao decodificar E2SM-KPM via APER: {aper_err}")
+            raise aper_err
+
 

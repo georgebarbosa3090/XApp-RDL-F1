@@ -18,7 +18,8 @@ build-no-cache:
 	docker build --no-cache --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
 
 test:
-	PYTHONPATH=. pytest tests/ -v
+	bash scripts/verify_3_xapps.sh
+
 
 # -------------------------------------------------------------
 # Gestão e Ciclo de Vida do Cluster k3d
