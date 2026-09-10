@@ -75,36 +75,112 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 
 ---
 
-## 3. Guia Rápido de Execução e Deploy
+## 3. Infraestrutura Leve com k3d, Rancher e Kiali
 
-### Opção A: Deploy Governança Completa (Near-RT RIC + 3 Reference xApps + RDL)
+Para desenvolvimento ágil e validação de baixo consumo de recursos, o projeto suporta provisionamento de clusters Kubernetes leves via **k3d (K3s em Docker)** com exposição das portas padronizadas da arquitetura O-RAN:
+
+### 3.1. Topologias de Cluster k3d Disponíveis
+
+```bash
+# -------------------------------------------------------------------------
+# Opção 1: Single-Node (1 Servidor/Worker Unificado, ~450 MB RAM)
+# Ideal para desenvolvimento local rápido, CI/CD e máquinas com recursos limitados
+# -------------------------------------------------------------------------
+k3d cluster create rdl-cluster \
+  --servers 1 \
+  -p "36422:36422/sctp@server:0" \
+  -p "8080-8087:8080-8087@server:0" \
+  -p "4560-4561:4560-4561@server:0"
+
+# -------------------------------------------------------------------------
+# Opção 2: Dual-Node (1 Control-Plane + 1 Worker Node, ~900 MB RAM)
+# Separação entre plano de controle do cluster e execução dos Pods de rede
+# -------------------------------------------------------------------------
+k3d cluster create rdl-cluster \
+  --servers 1 \
+  --agents 1 \
+  -p "36422:36422/sctp@server:0" \
+  -p "8080-8087:8080-8087@server:0" \
+  -p "4560-4561:4560-4561@server:0"
+
+# -------------------------------------------------------------------------
+# Opção 3: 3-Nodes / Multi-Node (1 Control-Plane + 2 Worker Nodes, ~1.5 GB RAM)
+# Topologia de produção: Isolamento estrito de namespaces (ricplt no worker-1 e ricxapp no worker-2)
+# -------------------------------------------------------------------------
+k3d cluster create rdl-cluster \
+  --servers 1 \
+  --agents 2 \
+  -p "36422:36422/sctp@server:0" \
+  -p "8080-8087:8080-8087@server:0" \
+  -p "4560-4561:4560-4561@server:0"
+```
+
+### 3.2. Mapeamento de Portas e Serviços O-RAN
+
+| Porta / Protocolo | Componente / Serviço | Namespace | Descrição Funcional |
+| :---: | :---: | :---: | :--- |
+| `36422/SCTP` | `service-ricplt-e2term-sctp` | `ricplt` | Terminação E2 (E2AP / E2SM-KPM / E2SM-RC) conectando gNBs/ns-3 |
+| `38000/TCP` | `service-ricplt-e2term-rmr` | `ricplt` | Barramento RMR interno do E2 Termination |
+| `6379/TCP` | `service-ricplt-dbaas-tcp` | `ricplt` | Banco de dados Redis SDL (Shared Data Layer) |
+| `4560/TCP` | `service-ricxapp-iqos-xapp-rdl-rmr` | `ricxapp` | Canal de dados e despacho de ações RMR da xApp-RDL |
+| `4561/TCP` | `service-ricxapp-iqos-xapp-rdl-rmr` | `ricxapp` | Canal de controle e distribuição de tabelas de rota RMR |
+| `8080/TCP` | `service-ricxapp-iqos-xapp-rdl-http` | `ricxapp` | Healthcheck REST (`/health/alive`, `/health/ready`) |
+| `8081/TCP` | `service-ricxapp-iqos-xapp-rdl-http` | `ricxapp` | Métricas Prometheus de Governança e Decisões RDL |
+| `8443/TCP` | `rancher-server` | `cattle-system` | Dashboard Web e gestão centralizada de nós e workloads |
+| `20001/TCP` | `kiali-dashboard` | `istio-system` | Visualização gráfica de topologia e tráfego Service Mesh |
+
+---
+
+## 4. Guia Rápido de Execução e Deploy
+
+### Opção A: Implantação Rápida via Perfil OpenRAN@Brasil Blueprint v3 (`deploy/openran-br-v3/`)
+Manifestos K8s puros e otimizados para o namespace `ricxapp` seguindo a especificação normativa da Release J / OpenRAN@Brasil:
+```bash
+# 1. Criar os namespaces oficiais se ainda não existirem
+kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
+
+# 2. Aplicar ConfigMap e tabela de rotas RMR
+kubectl apply -f deploy/openran-br-v3/config-map.yaml
+
+# 3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081)
+kubectl apply -f deploy/openran-br-v3/service.yaml
+
+# 4. Aplicar o Deployment da xApp RDL
+kubectl apply -f deploy/openran-br-v3/deployment.yaml
+
+# 5. Validar o status da implantação
+kubectl get pods,svc -n ricxapp -l app=iqos-xapp-rdl
+```
+
+### Opção B: Deploy Governança Completa Helm (Near-RT RIC + 3 Reference xApps + RDL)
 ```bash
 make helm-deploy
 ```
 
-### Opção B: Deploy Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
+### Opção C: Deploy Baseline (Near-RT RIC + 3 Reference xApps SEM RDL)
 ```bash
 make helm-deploy-baseline
 ```
 
-### Opção C: Validação e Smoke Test das xApps
+### Opção D: Validação e Smoke Test das 3 xApps de Referência
 ```bash
 make test-3xapps
 ```
 
-### Opção D: Testes Modulares e Validação de CI (11/11 PASS)
+### Opção E: Suíte de Testes Modulares (11/11 PASS)
 ```bash
 make test
 ```
 
-### Opção E: Reprodução Determinística do Ambiente
+### Opção F: Reprodução Determinística do Ambiente
 ```bash
 make reproduce-f1
 ```
 
 ---
 
-## 4. Observabilidade e Monitoramento
+## 5. Observabilidade e Monitoramento
 
 * **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
   ```bash
@@ -115,7 +191,11 @@ make reproduce-f1
   # 4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
   make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 5. Vincula o cluster
   ```
-* **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC, instale com `make kiali-install` e abra em `make kiali-dashboard` (`http://localhost:20001/kiali`).
+* **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC:
+  ```bash
+  make kiali-install      # Instala Istio e Kiali no cluster
+  make kiali-dashboard    # Abre o proxy do dashboard (http://localhost:20001/kiali)
+  ```
 * **Injetor de Tráfego O-RAN:** Execute `make inject-traffic` para alimentar a malha com fluxos contínuos.
 * **Teste de Endpoints HTTP e Prometheus:**
   ```bash
@@ -128,7 +208,7 @@ make reproduce-f1
 
 ---
 
-## 5. Portal de Documentação Técnica (`docs/`)
+## 6. Portal de Documentação Técnica (`docs/`)
 
 * **[Portal de Documentação Técnica Completa](docs/README.md)**
 * **[Matriz de Versões e Compatibilidade O-RAN](docs/e2/version-matrix.md)**
