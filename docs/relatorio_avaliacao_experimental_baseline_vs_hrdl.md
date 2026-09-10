@@ -59,9 +59,9 @@ No canal de $100\text{ MHz}$ em SCS $30\text{ kHz}$, estão disponíveis $273\te
 
 * **Ocupação Média de PRBs em $B_0$:** $84.2\%$ ($229.87\text{ PRBs}$ em média, com P95 de $96.5\%$). Ocorreram saturações frequentes no escalonador decorrentes de conflitos de alocação entre `xslice` e `traffic-steering`;
 * **Ocupação Média de PRBs em $B_1$:** $68.5\%$ ($187.00\text{ PRBs}$ em média, com P95 de $78.0\%$). Inexistência de eventos de saturação;
-* **Eficiência Espectral de Recursos ($\text{PRB\_Efficiency} = \frac{\text{Throughput}}{\text{PRBs Usados}}$):**
-  $$\text{PRB\_Efficiency}_{B_0} = \frac{153.25\text{ Mbps}}{229.87\text{ PRBs}} = 0.667\text{ Mbps/PRB}$$
-  $$\text{PRB\_Efficiency}_{B_1} = \frac{1110.69\text{ Mbps}}{187.00\text{ PRBs}} = 5.939\text{ Mbps/PRB}$$
+* **Eficiência Espectral de Recursos (`PRB_Efficiency` = Throughput / PRB):**
+  $$\text{PRB-Efficiency}_{B_0} = \frac{153.25\text{ Mbps}}{229.87\text{ PRBs}} = 0.667\text{ Mbps/PRB}$$
+  $$\text{PRB-Efficiency}_{B_1} = \frac{1110.69\text{ Mbps}}{187.00\text{ PRBs}} = 5.939\text{ Mbps/PRB}$$
 * **Ganho em Eficiência de Recursos:** **$+790.4\%$**. O H-RDL extraiu quase 9 vezes mais vazão por PRB alocado ao eliminar retransmissões espúrias causadas por colisões no canal.
 
 ---
@@ -71,10 +71,10 @@ No canal de $100\text{ MHz}$ em SCS $30\text{ kHz}$, estão disponíveis $273\te
 A proteção dos Acordos de Nível de Serviço (SLAs) é a métrica central de validação:
 
 * **SLA URLLC Definido:** Latência ponta a ponta unidirecional $T_{\text{E2E}} \le 5.0\text{ ms}$ e $\text{PDR} \ge 99.9\%$;
-* **Taxa de Violação de SLA ($\text{SLA\_Violation\_Rate} = \frac{N_{\text{violado}}}{N_{\text{total}}}$):**
+* **Taxa de Violação de SLA (`SLA_Violation_Rate` = $N_{\text{violado}} / N_{\text{total}}$):**
   * Baseline ($B_0$): **$29.01\% \pm 3.90\%$** das amostras temporais violaram o limite de $5\text{ ms}$;
   * H-RDL ($B_1$): **$0.00\% \pm 0.00\%$** de violação;
-* **Redução de Violações de SLA ($\text{SLA\_Violation\_Reduction}$):** **$100.0\%$** de mitigação ($p < 10^{-26}$);
+* **Redução de Violações de SLA (`SLA_Violation_Reduction`):** **$100.0\%$** de mitigação ($p < 10^{-26}$);
 * **SLA Compliance Rate:** Elevou-se de $70.99\%$ em $B_0$ para **$100.0\%$** em $B_1$;
 * **Slices Beneficiadas:** A fatia URLLC obteve proteção absoluta; as fatias eMBB e mMTC mantiveram vazão sustentada de $42.5\text{ Mbps}$ e latência estável de $24.5\text{ ms}$, respectivamente, sem preempção predatória.
 
@@ -86,9 +86,9 @@ Durante as $150$ janelas de controle em cada uma das $30$ sementes (totalizando 
 
 * **Ações Propostas:** $3$ propostas por janela temporal (1 de `xslice`, 1 de `energy-saving`, 1 de `traffic-steering`);
 * **Ocorrência de Conflitos Reais em $B_0$:** $33.66\% \pm 3.30\%$ dos ciclos apresentaram concorrência direta sobre os mesmos parâmetros (e.g., redução de potência na célula $1$ enquanto `traffic-steering` desviava UEs para a mesma célula);
-* **Detecção no H-RDL ($\text{Conflict\_Detection\_Rate}$):** **$100.0\%$** dos conflitos matematicamente identificáveis na matriz de impacto paramétrico foram detectados pela camada de Percepção;
+* **Detecção no H-RDL (`Conflict_Detection_Rate`):** **$100.0\%$** dos conflitos matematicamente identificáveis na matriz de impacto paramétrico foram detectados pela camada de Percepção;
 * **Taxa Residual de Conflitos em $B_1$:** Reduzida para **$0.66\% \pm 0.29\%$** (conflitos transitórios de início de simulação resolvidos em $< 1$ ciclo);
-* **Taxa de Resolução de Conflitos ($\text{Conflict\_Resolution\_Rate}$):**
+* **Taxa de Resolução de Conflitos (`Conflict_Resolution_Rate`):**
   $$\text{Resolution Rate} = \frac{151 - 1}{151} = 99.34\%$$
 
 ---
@@ -100,7 +100,7 @@ O agente de Refinamento e Segurança física auditou todas as $450$ decisões ge
 * **Ações Aprovadas Diretamente (Pass-Through):** $432$ ações ($96.0\%$);
 * **Ações Modificadas/Refinadas por Guardas de Limite:** $18$ ações ($4.0\%$), onde a potência proposta pela `energy-saving` violaria o limiar de SINR mínimo de $3\text{ dB}$, tendo sido saturada (*clamped*) no valor limite seguro de $33.7\text{ dBm}$;
 * **Ações Rejeitadas Abruptamente:** $0$ ações (o mecanismo de saturação suave e ordenação de prioridade Shannon-SLA evitou rejeições completas desnecessárias);
-* **Taxa de Intervenção de Segurança ($\text{Safety\_Intervention\_Rate}$):** **$4.0\%$**;
+* **Taxa de Intervenção de Segurança (`Safety_Intervention_Rate`):** **$4.0\%$**;
 * **Eficácia da Intervenção:** As $18$ intervenções evitaram com sucesso $18$ potenciais quedas de conexão (*Radio Link Failure - RLF*) e degradação de SINR.
 
 ---
@@ -111,7 +111,7 @@ Em redes 5G-Advanced/6G multi-xApp, o envio assíncrono de comandos contraditór
 
 * **Eventos de Ping-Pong de Handover em $B_0$:** **$21.83 \pm 5.10\text{ eventos/minuto}$** (UEs sofrendo handover alternado entre gNB 1 e gNB 2 em ciclos sucessivos);
 * **Eventos de Ping-Pong em $B_1$:** **$0.00 \pm 0.00\text{ eventos/minuto}$**;
-* **Taxa de Oscilação de Controle ($\text{Control\_Oscillation\_Rate}$):**
+* **Taxa de Oscilação de Controle (`Control_Oscillation_Rate`):**
   * Baseline: $0.364\text{ oscilações/segundo}$;
   * H-RDL: **$0.000\text{ oscilações/segundo}$** ($100\%$ mitigado através da histerese temporal e bloqueio de reversão imediata de handover).
 
@@ -155,7 +155,7 @@ A atuação da xApp `energy-saving` sob a modulação do H-RDL produziu os segui
   * Baseline ($B_0$): $39.40 \pm 1.50\text{ dBm}$ ($8.71\text{ W}$);
   * H-RDL ($B_1$): **$33.64 \pm 0.89\text{ dBm}$** ($2.31\text{ W}$);
   * Redução Absoluta: **$-5.76\text{ dBm}$** (Economia de **$73.48\%$** na potência linear de radiofrequência);
-* **Eficiência Energética Espectral ($\text{Bits/Joule} = \frac{\text{Vazão}}{\text{Potência}}$):**
+* **Eficiência Energética Espectral ($\text{Bits/Joule} = \text{Throughput} / \text{Power}$):**
   $$\text{EE}_{B_0} = \frac{153.25\text{ Mbps}}{8.71\text{ W}} = 17.60\text{ Mbit/Joule}$$
   $$\text{EE}_{B_1} = \frac{1110.69\text{ Mbps}}{2.31\text{ W}} = 480.82\text{ Mbit/Joule}$$
 * **Ganho em Eficiência Energética:** **$+2631.9\%$**;
@@ -168,7 +168,7 @@ A atuação da xApp `energy-saving` sob a modulação do H-RDL produziu os segui
 O tempo de execução do pipeline interno do H-RDL foi decomposto e medido em microssegundos e milissegundos:
 
 $$\begin{aligned}
-T_{\text{HRDL}} &= T_{\text{perception}} + T_{\text{conflict}} + T_{\text{reasoning}} + T_{\text{safety}} + T_{\text{planning\_rc}} \\
+T_{\text{HRDL}} &= T_{\text{perception}} + T_{\text{conflict}} + T_{\text{reasoning}} + T_{\text{safety}} + T_{\text{RC-encoding}} \\
 &= 2.15\text{ ms} + 3.42\text{ ms} + 5.85\text{ ms} + 1.82\text{ ms} + 1.15\text{ ms} = 14.39\text{ ms}
 \end{aligned}$$
 
@@ -206,7 +206,7 @@ sequenceDiagram
 ```
 
 * **Tempo Total de Decisão e Despacho de Controle:** $1.45 + 0.80 + 3.20 + 14.39 + 0.85 + 1.65 = 22.34\text{ ms}$;
-* **Tempo Total de Malha Fechada ($T_{\text{closed\_loop}}$):** **$36.34\text{ ms}$**;
+* **Tempo Total de Malha Fechada ($T_{\text{closed-loop}}$):** **$36.34\text{ ms}$**;
 * **Compatibilidade:** Totalmente compatível com o ciclo de atualização Near-RT de $200\text{ ms}$.
 
 ---
@@ -216,8 +216,8 @@ sequenceDiagram
 * **Taxa de Mensagens KPM:** $5.0\text{ msgs/s}$ por gNB ($1.25\text{ KB/s}$);
 * **Taxa de Mensagens de Controle E2SM-RC:** $3.33\text{ msgs/s}$ ($2.10\text{ KB/s}$);
 * **Overhead Total de Sinalização de Controle:** $3.35\text{ KB/s}$ ($0.0268\text{ Mbps}$);
-* **Razão Controle/Dados ($\text{Control\_Data\_Ratio}$):**
-  $$\text{Control\_Data\_Ratio} = \frac{0.0268\text{ Mbps}}{1110.69\text{ Mbps}} = 0.0024\%$$
+* **Razão Controle/Dados (`Control_Data_Ratio`):**
+  $$\text{Control-Data-Ratio} = \frac{0.0268\text{ Mbps}}{1110.69\text{ Mbps}} = 0.0024\%$$
 * **Conclusão de Sinalização:** O custo de sinalização introduzido pelo H-RDL é estatisticamente desprezível frente ao volume útil de dados transportados.
 
 ---
@@ -228,8 +228,8 @@ sequenceDiagram
 * **RIC Control ACKs Recebidos (RMR 12041):** $4.500$;
 * **RIC Control Failures (RMR 12042):** $0$;
 * **Timeouts de Controle:** $0$;
-* **Taxa de Sucesso de Controle ($\text{Control\_Success\_Rate}$):** **$100.0\%$**;
-* **Taxa de Falhas ($\text{Control\_Failure\_Rate}$):** **$0.0\%$**.
+* **Taxa de Sucesso de Controle (`Control_Success_Rate`):** **$100.0\%$**;
+* **Taxa de Falhas (`Control_Failure_Rate`):** **$0.0\%$**.
 
 ---
 
@@ -240,7 +240,7 @@ Para cada ação executada, avaliou-se a evolução do indicador de rede posteri
 * **Decisões com Efeito Benéfico (Aumento de vazão ou redução de latência):** $4.298$ decisões ($95.51\%$);
 * **Decisões com Efeito Neutro (Manutenção de estabilidade):** $202$ decisões ($4.49\%$);
 * **Decisões com Efeito Prejudicial:** $0$ decisões ($0.00\%$);
-* **Eficácia da Decisão ($\text{Decision\_Effectiveness}$):** **$95.51\%$** de impacto causal diretamente positivo na RAN.
+* **Eficácia da Decisão (`Decision_Effectiveness`):** **$95.51\%$** de impacto causal diretamente positivo na RAN.
 
 ---
 
