@@ -5,7 +5,7 @@
 **Perfil Normativo:** O-RAN Release I/J | ETSI TS 104 039 (E2AP v02.03) | E2SM-KPM v03.00 | E2SM-RC v01.03  
 **Motor de Simulação:** `DiscreteEventRANSimulator` (3GPP TR 38.901 / TR 38.214) + ns-3.48 NORI Framework  
 **Agente Especialista:** `@08-ns3-oran-simulation-specialist` (Especialista em Simulação ns-3, 5G-LENA e O-RAN)  
-**Última Execução:** 2026-09-11 11:50:36  
+**Última Execução:** 2026-09-11 12:07:47  
 **Diretriz Metodológica:** **Zero Dados Sintéticos** (Todas as métricas físicas e de decisão foram computadas a partir do processamento real de slots de rádio, filas e mensagens E2).
 
 ---
@@ -88,10 +88,10 @@ Submeteu o H-RDL a 5 degraus de sobrecarga concorrente emitidos pelas 8 xApps:
 | Nível | Classificação | UEs | xApps Ativas | Ações / Janela | Latência Média ($T_{\text{dec}}$) | Latência P95 | Throughput do Motor | Near-RT Budget ($< 50\text{ ms}$) |
 |:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **L0** | Baixo | 30 | 3 | 1 | $0.001\text{ ms}$ | $0.001\text{ ms}$ | $10000.0\text{ ações/s}$ | **CONFORME** 🟢 |
-| **L1** | Moderado | 60 | 4 | 5 | $0.179\text{ ms}$ | $0.413\text{ ms}$ | $28011.2\text{ ações/s}$ | **CONFORME** 🟢 |
-| **L2** | Alto | 120 | 6 | 15 | $0.502\text{ ms}$ | $0.698\text{ ms}$ | $29861.44\text{ ações/s}$ | **CONFORME** 🟢 |
-| **L3** | Severo | 240 | 8 | 50 | $5.194\text{ ms}$ | $5.952\text{ ms}$ | $9626.42\text{ ações/s}$ | **CONFORME** 🟢 |
-| **L4** | Extremo | 500 | 8 | 100 | $17.881\text{ ms}$ | $18.951\text{ ms}$ | $5592.49\text{ ações/s}$ | **CONFORME** 🟢 |
+| **L1** | Moderado | 60 | 4 | 5 | $0.134\text{ ms}$ | $0.17\text{ ms}$ | $37191.87\text{ ações/s}$ | **CONFORME** 🟢 |
+| **L2** | Alto | 120 | 6 | 15 | $0.577\text{ ms}$ | $0.767\text{ ms}$ | $25988.88\text{ ações/s}$ | **CONFORME** 🟢 |
+| **L3** | Severo | 240 | 8 | 50 | $5.237\text{ ms}$ | $6.206\text{ ms}$ | $9547.44\text{ ações/s}$ | **CONFORME** 🟢 |
+| **L4** | Extremo | 500 | 8 | 100 | $18.266\text{ ms}$ | $20.654\text{ ms}$ | $5474.7\text{ ações/s}$ | **CONFORME** 🟢 |
 
 
 > [!IMPORTANT]

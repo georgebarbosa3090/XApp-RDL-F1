@@ -42,6 +42,9 @@ generate-golden-vectors:
 reproduce-paper:
 	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir results/reproduced_audit_2026
 
+verify-provenance:
+	python scripts/verify_provenance_and_integrity.py
+
 test-campaign:
 	pytest tests/unit/test_campaign_scenarios.py -v
 

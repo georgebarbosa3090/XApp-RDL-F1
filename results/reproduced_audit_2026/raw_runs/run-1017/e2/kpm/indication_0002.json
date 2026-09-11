@@ -1,15 +1,15 @@
 {
   "index": 2,
-  "raw_sha256": "23c163a67433723af5fc2aa0f6df792fb2a6a506e68688b1a8ce5d295fe2e47e",
-  "byte_length": 67,
+  "raw_sha256": "b4d4f33af5ec3c6ca5ba3fddcb81b279983131a3f07763b1fcf3251bf3fd6b81",
+  "byte_length": 71,
   "reports": [
     {
       "node_id": "gnb_01",
-      "ue_id": "ue_01",
-      "drb_thp_dl": 1177423.0,
+      "ue_id": "ue_urllc_0",
+      "drb_thp_dl": 31320.0,
       "drb_thp_ul": 0.0,
-      "drb_delay_dl": 2859.0,
-      "prb_used_dl": 70
+      "drb_delay_dl": 10000.0,
+      "prb_used_dl": 15
     }
   ]
 }

@@ -54,13 +54,13 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
             xapp_id = f"xapp_{i % cfg['xapps']}"
             node_id = f"gnb_{(i % 4) + 1:02d}"
             param = ["PRB_QUOTA", "TX_POWER", "SCHEDULER_WEIGHT", "HANDOVER"][i % 4]
-            val = float(np.random.uniform(20.0, 80.0))
+            val = float(20.0 + ((i * 17) % 60))
             actions_batch.append(XAppAction(
                 xapp_id=xapp_id,
                 node_id=node_id,
                 parameter=param,
                 value=val,
-                priority=int(np.random.choice([50, 70, 90]))
+                priority=[50, 70, 90][i % 3]
             ))
 
         # Medição de tempo de ponta a ponta

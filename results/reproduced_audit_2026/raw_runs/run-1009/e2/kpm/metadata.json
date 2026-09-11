@@ -1,6 +1,6 @@
 {
   "git_commit": "06b2a556",
-  "timestamp": "2026-09-11T14:04:22Z",
+  "timestamp": "2026-09-11T15:05:19Z",
   "seed": 1009,
   "ns3_version": "3.48",
   "nori_commit": "8a4f91d",
@@ -13,10 +13,10 @@
   "node_id": "gnb_01",
   "total_indications": 2,
   "sha256_checksums": {
-    "indication_0001.raw": "c98c2fea8efae2ecd4e8d0195a9cf15e209a5e218e4daa6df3d2e246b2c18f9d",
-    "indication_0002.raw": "a6f3d1c2166c0961abec5614458e3bc292a8dbf9b2e029c79dd84ead4c65e41a",
+    "indication_0001.raw": "3d4553fbf0f48e8322e6c25d146f7f77e5dc819edaf2cf6eb69ffc41cd55dca1",
+    "indication_0002.raw": "b4d4f33af5ec3c6ca5ba3fddcb81b279983131a3f07763b1fcf3251bf3fd6b81",
     "subscription_request.raw": "c5b5b90da8893de6d4d2f0f41e3b24a517461fa951d8f61cd81b8fe15118cbfd",
-    "subscription_response.raw": "e49941f96b3cafa850a445e52bc8a7e2db1d1c4913e98c8416426b18a7f0f8f8"
+    "subscription_response.raw": "aef98ef827b90245f0115ac41fb0e693771e9aa97a4f94786358ce8ba9cd57d9"
   },
   "5g_lena_version": "5.1"
 }

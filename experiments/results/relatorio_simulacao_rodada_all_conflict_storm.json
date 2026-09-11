@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-11 11:50:36",
+  "timestamp": "2026-09-11 12:07:47",
   "methodology": "Strict Discrete-Event RAN Simulation + H-RDL Real Decision Loop (Zero Synthetic Data)",
   "selected_mode": "all",
   "base_seed": 1001,
@@ -46,7 +46,7 @@
         "Actions_Per_Window": 1,
         "Decision_Latency_Mean_ms": 0.001,
         "Decision_Latency_P95_ms": 0.001,
-        "Decision_Latency_P99_ms": 0.004,
+        "Decision_Latency_P99_ms": 0.003,
         "Throughput_Actions_Sec": 10000.0,
         "Near_RT_Compliant": true
       },
@@ -56,10 +56,10 @@
         "UEs": 60,
         "xApps": 4,
         "Actions_Per_Window": 5,
-        "Decision_Latency_Mean_ms": 0.179,
-        "Decision_Latency_P95_ms": 0.413,
-        "Decision_Latency_P99_ms": 1.161,
-        "Throughput_Actions_Sec": 28011.2,
+        "Decision_Latency_Mean_ms": 0.134,
+        "Decision_Latency_P95_ms": 0.17,
+        "Decision_Latency_P99_ms": 0.199,
+        "Throughput_Actions_Sec": 37191.87,
         "Near_RT_Compliant": true
       },
       {
@@ -68,10 +68,10 @@
         "UEs": 120,
         "xApps": 6,
         "Actions_Per_Window": 15,
-        "Decision_Latency_Mean_ms": 0.502,
-        "Decision_Latency_P95_ms": 0.698,
-        "Decision_Latency_P99_ms": 0.909,
-        "Throughput_Actions_Sec": 29861.44,
+        "Decision_Latency_Mean_ms": 0.577,
+        "Decision_Latency_P95_ms": 0.767,
+        "Decision_Latency_P99_ms": 2.328,
+        "Throughput_Actions_Sec": 25988.88,
         "Near_RT_Compliant": true
       },
       {
@@ -80,10 +80,10 @@
         "UEs": 240,
         "xApps": 8,
         "Actions_Per_Window": 50,
-        "Decision_Latency_Mean_ms": 5.194,
-        "Decision_Latency_P95_ms": 5.952,
-        "Decision_Latency_P99_ms": 15.989,
-        "Throughput_Actions_Sec": 9626.42,
+        "Decision_Latency_Mean_ms": 5.237,
+        "Decision_Latency_P95_ms": 6.206,
+        "Decision_Latency_P99_ms": 18.359,
+        "Throughput_Actions_Sec": 9547.44,
         "Near_RT_Compliant": true
       },
       {
@@ -92,10 +92,10 @@
         "UEs": 500,
         "xApps": 8,
         "Actions_Per_Window": 100,
-        "Decision_Latency_Mean_ms": 17.881,
-        "Decision_Latency_P95_ms": 18.951,
-        "Decision_Latency_P99_ms": 28.525,
-        "Throughput_Actions_Sec": 5592.49,
+        "Decision_Latency_Mean_ms": 18.266,
+        "Decision_Latency_P95_ms": 20.654,
+        "Decision_Latency_P99_ms": 29.891,
+        "Throughput_Actions_Sec": 5474.7,
         "Near_RT_Compliant": true
       }
     ]
