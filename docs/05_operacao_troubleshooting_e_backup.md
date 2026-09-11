@@ -386,6 +386,80 @@ ninja -j 2
 
 ---
 
+### 2.15. Erro no Git Clone: `fatal: could not create work tree dir: No such file or directory`
+* **Sintomas:**
+  - `fatal: destination path 'XApp-RDL-F1' already exists and is not an empty directory.`
+  - Após executar `rm -rf ~/XApp-RDL-F1`:
+  - `fatal: could not create work tree dir 'XApp-RDL-F1': No such file or directory`
+  - `cd: no such file or directory: /root/XApp-RDL-F1`
+* **Causa Raiz:**
+  - O comando de remoção recursiva (`rm -rf`) foi executado enquanto o terminal estava posicionado **dentro** do próprio diretório que foi apagado (`~/XApp-RDL-F1`).
+  - O diretório de trabalho atual do shell (`$PWD`) tornou-se órfão/inexistente no sistema de arquivos do Linux, impedindo a criação de novos subdiretórios pelo `git clone`.
+* **Solução:**
+  Retorne explicitamente ao diretório `home` (`cd ~`) antes de invocar o `git clone`:
+  ```bash
+  cd ~
+  rm -rf ~/XApp-RDL-F1
+  git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+  cd ~/XApp-RDL-F1
+  ```
+
+---
+
+### 2.16. Erro no Rancher: Cluster `rancher-lab` em `Unavailable` / `Cluster agent is not connected` e Falha de DNS em `https://rancher-server/...`
+* **Sintomas:**
+  - O **Rancher Dashboard** exibe o cluster `rancher-lab` em vermelho com status `Unavailable` e a mensagem `Cluster agent is not connected`.
+  - Ao executar o comando copiado da UI:
+    - `Unable to connect to the server: dial tcp: lookup rancher-server on 10.255.255.254:53: i/o timeout`
+    - `error: no objects passed to apply`
+* **Causa Raiz:**
+  1. O hostname `rancher-server` é um alias de container Docker e não é resolvível pelo DNS padrão do Windows/WSL2 (`10.255.255.254:53`).
+  2. O servidor Rancher escuta externamente na porta **`:8443`** (`https://localhost:8443` ou no IP do nó WSL2 `https://<NODE_IP>:8443`), e não na porta 443 padrão.
+* **Procedimento de Recuperação Completo:**
+  1. Obtenha o nome do token gerado na UI do Rancher (ex: `65kx9pqxrtlpct7h92qrh4gjb9kfjj6tt5xc6qf2tg5n57kv797pp2_c-m-ltckzzqj.yaml`).
+  2. Baixe e aplique o manifesto apontando para `https://localhost:8443`:
+     ```bash
+     curl --insecure -sfL https://localhost:8443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
+     ```
+  3. Configure o agente com o IP do nó do cluster e bypass de verificação SSL:
+     ```bash
+     NODE_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+     kubectl set env deployment/cattle-cluster-agent -n cattle-system \
+       CATTLE_SERVER="https://${NODE_IP}:8443" \
+       CATTLE_SSL_NO_VERIFY="true"
+     
+     kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
+     ```
+  4. Verifique se o pod do agente atingiu o status `1/1 Running`:
+     ```bash
+     kubectl get pods -n cattle-system
+     ```
+
+---
+
+### 2.17. Erro de Kernel no WSL2 / k3s: `failed to create image import watcher: too many open files` e `k3s.service Failed with result 'protocol'`
+* **Sintomas:**
+  - O serviço `k3s.service` falha ao iniciar (`Active: failed` / `protocol error`).
+  - No log do sistema (`journalctl -u k3s`):
+    `Shutdown request received: "failed to start container runtime: failed to create image import watcher for /var/lib/rancher/k3s/agent: too many open files"`
+  - Comandos `kubectl` retornam: `The connection to the server 127.0.0.1:6443 was refused`.
+* **Causa Raiz:**
+  - O limite padrão de observadores de arquivos (`inotify max_user_watches` e `max_user_instances`) no kernel do WSL2 é excedido quando múltiplos namespaces e diretórios do containerd/k3s são criados.
+* **Solução Definitiva:**
+  1. Aumente os limites do kernel imediatamente no terminal do WSL:
+     ```bash
+     sysctl -w fs.inotify.max_user_watches=1048576 fs.inotify.max_user_instances=8192 fs.file-max=2097152
+     ```
+  2. Torne a configuração permanente gravando em `/etc/sysctl.d/99-k3s.conf`:
+     ```bash
+     echo -e "fs.inotify.max_user_watches=1048576\nfs.inotify.max_user_instances=8192\nfs.file-max=2097152" > /etc/sysctl.d/99-k3s.conf
+     ```
+  3. Reinicie o serviço Kubernetes:
+     ```bash
+     systemctl restart k3s
+     systemctl status k3s --no-pager
+     ```
+
 ## 3. Procedimento de Backup e Restauração do WSL Ubuntu 20.04
 
 Para garantir recuperação instantânea contra desastres ou corrupção do disco virtual do WSL:
