@@ -1,0 +1,8 @@
+{
+  "pdu_type": "successfulOutcome",
+  "procedure_code": 4,
+  "requestor_id": 1,
+  "instance_id": 1,
+  "status": "ACKNOWLEDGED",
+  "hex": "20044019000003001d0005000001000100050002000300204003060100"
+}

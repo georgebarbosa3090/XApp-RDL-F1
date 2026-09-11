@@ -138,16 +138,23 @@ class RCEncoder:
         header.from_aper(header_aper)
         return header.get_val()
 
-    def decode_control_message(self, msg_aper: bytes) -> Dict[str, Any]:
-        msg = E2SM_RC_ControlMessage()
-        msg.from_aper(msg_aper)
-        return msg.get_val()
+    def decode_control_pdu(self, pdu_aper: bytes) -> Dict[str, Any]:
+        pdu = E2SM_RC_ControlPDU()
+        pdu.from_aper(pdu_aper)
+        return pdu.get_val()
 
-    def decode_control_request(self, msg_aper: bytes, parameter: str) -> float:
-        val_dict = self.decode_control_message(msg_aper)
-        raw_int = val_dict['ricControlActionParameters'][0]['ranParameterValue']
+    def decode_control_request(self, payload_aper: bytes, parameter: str) -> float:
+        raw_int = 0
+        try:
+            val_dict = self.decode_control_message(payload_aper)
+            raw_int = val_dict['ricControlActionParameters'][0]['ranParameterValue']
+        except Exception:
+            pdu_dict = self.decode_control_pdu(payload_aper)
+            raw_int = pdu_dict['ricControlMessage']['ricControlActionParameters'][0]['ranParameterValue']
+
         profile = self.profiles.get(parameter, {"scale": 1})
         scale = profile["scale"]
         return float(raw_int) / float(scale)
+
 
 

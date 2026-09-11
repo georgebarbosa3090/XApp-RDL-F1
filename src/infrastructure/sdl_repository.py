@@ -68,6 +68,10 @@ class SdlRepository:
             data["result"] = result
             self._set(f"control_results:{control_id}", data)
 
+    def record_rollback(self, control_id: str):
+        self._set(f"control_rollbacks:{control_id}", {"timestamp": time.time(), "status": "ROLLED_BACK"})
+
+
     # Alias para compatibilidade com o MemoryModule legado
     def add_action(self, action):
         self._local_cache.append(action)

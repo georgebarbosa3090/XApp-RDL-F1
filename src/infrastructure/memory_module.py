@@ -34,3 +34,13 @@ class MemoryModule:
 
     def get_recent_actions(self, n=50) -> list:
         return self._actions[-n:]
+
+    def save_control_request(self, control_id: str, data: dict):
+        logger.debug(f"[MEMORY] Salvando Control Request {control_id}: {data}")
+
+    def update_control_result(self, control_id: str, result: str):
+        logger.debug(f"[MEMORY] Atualizando Control Result {control_id} -> {result}")
+
+    def record_rollback(self, control_id: str):
+        logger.warning(f"[MEMORY] Registrando Rollback para {control_id}")
+

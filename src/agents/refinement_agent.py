@@ -43,6 +43,21 @@ class RefinementAgent:
         elif action.parameter == "HANDOVER":
             if action.value < 0 or action.value > 1:
                 return False, 1, "Handover flag out of bounds (0-1)"
+        elif action.parameter == "VERTICAL_DOWNTILT":
+            if action.value < 0.0 or action.value > 15.0:
+                return False, 1, "Vertical Downtilt out of bounds (0-15 degrees)"
+        elif action.parameter == "SENSING_RATIO":
+            if action.value < 0.0 or action.value > 0.60:
+                return False, 1, "Sensing Ratio out of bounds (0.0-0.60)"
+        elif action.parameter == "LOAD_THRESHOLD":
+            if action.value < 0.0 or action.value > 1.0:
+                return False, 1, "Load threshold out of bounds (0.0-1.0)"
+        elif action.parameter == "PING_INTERVAL":
+            if action.value < 1.0 or action.value > 5000.0:
+                return False, 1, "Ping interval out of bounds (1-5000 ms)"
+        elif action.parameter in ("SCHEDULER_WEIGHT", "BEAM_WEIGHTS"):
+            if action.value < 0.0 or action.value > 100.0:
+                return False, 1, f"{action.parameter} out of bounds (0-100)"
 
         # Atualiza o timestamp da última ação executada para este alvo
         self.last_control_time[target_key] = now
@@ -80,6 +95,21 @@ class RefinementAgent:
             elif action.parameter == "HANDOVER":
                 if action.value < 0 or action.value > 1:
                     return False, 1, "Handover flag out of bounds (0-1)"
+            elif action.parameter == "VERTICAL_DOWNTILT":
+                if action.value < 0.0 or action.value > 15.0:
+                    return False, 1, "Vertical Downtilt out of bounds (0-15 degrees)"
+            elif action.parameter == "SENSING_RATIO":
+                if action.value < 0.0 or action.value > 0.60:
+                    return False, 1, "Sensing Ratio out of bounds (0.0-0.60)"
+            elif action.parameter == "LOAD_THRESHOLD":
+                if action.value < 0.0 or action.value > 1.0:
+                    return False, 1, "Load threshold out of bounds (0.0-1.0)"
+            elif action.parameter == "PING_INTERVAL":
+                if action.value < 1.0 or action.value > 5000.0:
+                    return False, 1, "Ping interval out of bounds (1-5000 ms)"
+            elif action.parameter in ("SCHEDULER_WEIGHT", "BEAM_WEIGHTS"):
+                if action.value < 0.0 or action.value > 100.0:
+                    return False, 1, f"{action.parameter} out of bounds (0-100)"
             
             if action.node_id == "":
                 return False, 1, "Unknown target node"

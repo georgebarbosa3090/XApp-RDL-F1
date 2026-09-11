@@ -1,0 +1,6 @@
+Level,Name,UEs,xApps,Actions_Per_Sec,Total_Actions,Total_Conflicts,Total_Resolutions,Throughput_Actions_Sec,Latency_Mean_ms,Latency_P95_ms,Latency_P99_ms,Latency_Max_ms,Near_RT_Compliant
+L0,Baixo,30,3,5,50,46,2,50000.0,0.01,0.02,0.03,0.04,True
+L1,Moderado,60,3,10,100,96,3,100000.0,0.02,0.02,0.04,0.06,True
+L2,Alto,120,5,25,250,295,3,105223.28,0.05,0.05,0.06,0.06,True
+L3,Severo,240,8,50,500,594,3,93009.41,0.11,0.12,0.23,0.31,True
+L4,Extremo,500,10,100,1000,2784,3,46219.26,0.43,0.59,0.82,0.89,True

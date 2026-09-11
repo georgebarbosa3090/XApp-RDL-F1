@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-09-11 11:25:07",
+  "methodology": "Strict Discrete-Event RAN Simulation + H-RDL Real Decision Loop (Zero Synthetic Data)",
+  "round_1_nominal": {
+    "s0": {
+      "interference_rate_pct": 0.0,
+      "throughput_mbps": 61.49
+    },
+    "s1": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "s2": {
+      "power_saving_pct": 22.1,
+      "baseline_tput": 159.84,
+      "rdl_tput": 148.39
+    }
+  },
+  "round_2_multi_slice_mobility": {
+    "s3": {
+      "urllc_latency_mean_ms": 10.0,
+      "urllc_latency_p99_ms": 10.0,
+      "jain_fairness": 0.5267
+    },
+    "s4": {
+      "handovers": 5,
+      "packets_lost": 0
+    },
+    "s5": {
+      "oscillation_rate_ev_min": 0.0,
+      "cooldown_active": true
+    }
+  },
+  "round_3_extreme_stress_and_closed_loop": {
+    "s7_unsafe_actions_executed": 0,
+    "s8_cre": 100.0,
+    "s6_storm_summary": [
+      {
+        "Tier": "L0",
+        "Name": "Baixo",
+        "UEs": 30,
+        "xApps": 3,
+        "Actions_Per_Window": 1,
+        "Decision_Latency_Mean_ms": 0.001,
+        "Decision_Latency_P95_ms": 0.001,
+        "Decision_Latency_P99_ms": 0.003,
+        "Throughput_Actions_Sec": 10000.0,
+        "Near_RT_Compliant": true
+      },
+      {
+        "Tier": "L1",
+        "Name": "Moderado",
+        "UEs": 60,
+        "xApps": 4,
+        "Actions_Per_Window": 5,
+        "Decision_Latency_Mean_ms": 0.147,
+        "Decision_Latency_P95_ms": 0.23,
+        "Decision_Latency_P99_ms": 0.386,
+        "Throughput_Actions_Sec": 34117.12,
+        "Near_RT_Compliant": true
+      },
+      {
+        "Tier": "L2",
+        "Name": "Alto",
+        "UEs": 120,
+        "xApps": 6,
+        "Actions_Per_Window": 15,
+        "Decision_Latency_Mean_ms": 0.487,
+        "Decision_Latency_P95_ms": 0.617,
+        "Decision_Latency_P99_ms": 0.868,
+        "Throughput_Actions_Sec": 30770.87,
+        "Near_RT_Compliant": true
+      },
+      {
+        "Tier": "L3",
+        "Name": "Severo",
+        "UEs": 240,
+        "xApps": 8,
+        "Actions_Per_Window": 50,
+        "Decision_Latency_Mean_ms": 5.216,
+        "Decision_Latency_P95_ms": 6.073,
+        "Decision_Latency_P99_ms": 17.304,
+        "Throughput_Actions_Sec": 9586.39,
+        "Near_RT_Compliant": true
+      },
+      {
+        "Tier": "L4",
+        "Name": "Extremo",
+        "UEs": 500,
+        "xApps": 8,
+        "Actions_Per_Window": 100,
+        "Decision_Latency_Mean_ms": 18.218,
+        "Decision_Latency_P95_ms": 19.48,
+        "Decision_Latency_P99_ms": 30.368,
+        "Throughput_Actions_Sec": 5489.01,
+        "Near_RT_Compliant": true
+      }
+    ]
+  }
+}

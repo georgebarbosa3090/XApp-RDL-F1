@@ -39,27 +39,41 @@ from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
 from src.e2.rc.mapper import RCMapper
 from src.e2.e2ap.subscription import build_ric_subscription_request_payload
+from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure
+from src.e2.e2ap.constants import (
+    RIC_SUBSCRIPTION_REQ,
+    RIC_SUBSCRIPTION_RESP,
+    RIC_SUBSCRIPTION_FAILURE,
+    RIC_SUBSCRIPTION_DELETE_REQ,
+    RIC_SUBSCRIPTION_DELETE_RESP,
+    RIC_SUBSCRIPTION_DELETE_FAILURE,
+    RIC_CONTROL_REQ,
+    RIC_CONTROL_ACK,
+    RIC_CONTROL_FAILURE,
+    RIC_INDICATION,
+    RDL_ACTION_PROPOSAL,
+    ID_RIC_CONTROL,
+    ID_RIC_SUBSCRIPTION,
+    ID_RIC_INDICATION
+)
 from src.conflict_types import XAppAction, KPMReport, ConflictSeverity, RDLDecision
 
 logger = setup_logger("rdl_xapp")
 
-# Message Types Constants
-RIC_INDICATION = 12050
-RIC_CONTROL_REQ = 12010
-RIC_CONTROL_ACK = 12011
-RIC_CONTROL_FAILURE = 12012
-RIC_SUB_REQ = 12020
-RIC_SUB_RESP = 12021
-RIC_SUB_FAILURE = 12022
-RDL_ACTION_PROPOSAL = 30000
+# Aliases de conveniência
+RIC_SUB_REQ = RIC_SUBSCRIPTION_REQ
+RIC_SUB_RESP = RIC_SUBSCRIPTION_RESP
+RIC_SUB_FAILURE = RIC_SUBSCRIPTION_FAILURE
 
 class RDLxApp:
     def __init__(self):
         self.running = True
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
         
-        # Modos de Operação (O_RAN_INTEROP | OFFLINE_SIMULATION | STANDALONE)
-        self.mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
+        # Modos de Operação (O_RAN_INTEROP / ORAN-STRICT | SIMULATION / OFFLINE_SIMULATION | STANDALONE)
+        raw_mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
+        self.mode = "O_RAN_INTEROP" if raw_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") else raw_mode
+        
         if self.mode == "O_RAN_INTEROP":
             use_fake_sdl = False
             rmr_wait_for_ready = True

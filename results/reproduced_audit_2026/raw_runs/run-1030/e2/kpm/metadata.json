@@ -1,0 +1,22 @@
+{
+  "git_commit": "06b2a556",
+  "timestamp": "2026-09-11T14:04:22Z",
+  "seed": 1030,
+  "ns3_version": "3.48",
+  "nori_commit": "8a4f91d",
+  "e2sim_commit": "b7e21a0",
+  "oran_sc_release": "Release I/J",
+  "e2ap_version": "v02.03",
+  "e2sm_kpm_version": "v03.00",
+  "e2sm_rc_version": "v01.03",
+  "ran_function_id": 2,
+  "node_id": "gnb_01",
+  "total_indications": 2,
+  "sha256_checksums": {
+    "indication_0001.raw": "d0c9f7d0ca1e04416d172d1adcaff7e91985d08336516b9f57fae4f178491f86",
+    "indication_0002.raw": "e587ed5c0b9811f2b1b6aef4e85ae0eedd57ce7261bc82cde9f4ae1f82964f76",
+    "subscription_request.raw": "c5b5b90da8893de6d4d2f0f41e3b24a517461fa951d8f61cd81b8fe15118cbfd",
+    "subscription_response.raw": "e49941f96b3cafa850a445e52bc8a7e2db1d1c4913e98c8416426b18a7f0f8f8"
+  },
+  "5g_lena_version": "5.1"
+}

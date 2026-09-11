@@ -1,0 +1,81 @@
+{
+  "profile_name": "F1_COMPATIBILITY_PROFILE_FROZEN",
+  "phase": "Phase 1 (H-RDL Deterministic & Closed-Loop E2)",
+  "status": "FROZEN_FOR_REPRODUCIBILITY",
+  "generated_at": "2026-09-11T10:00:00Z",
+  "git_commit": "06b2a556",
+  "specifications": {
+    "e2ap": {
+      "normative_version": "v02.03",
+      "etsi_reference": "ETSI TS 104 039 v04.00.00",
+      "pdu_structure": "CHOICE (initiatingMessage, successfulOutcome, unsuccessfulOutcome)",
+      "container_structure": "ProtocolIE-Container (SEQUENCE OF ProtocolIE-Field)",
+      "procedure_codes": {
+        "id-e2setup": 1,
+        "id-errorIndication": 2,
+        "id-reset": 3,
+        "id-RICcontrol": 4,
+        "id-RICindication": 5,
+        "id-RICserviceQuery": 6,
+        "id-RICserviceUpdate": 7,
+        "id-RICsubscription": 8,
+        "id-RICsubscriptionDelete": 9
+      },
+      "rmr_message_types": {
+        "RIC_SUBSCRIPTION_REQ": 12010,
+        "RIC_SUBSCRIPTION_RESP": 12011,
+        "RIC_SUBSCRIPTION_FAILURE": 12012,
+        "RIC_SUBSCRIPTION_DELETE_REQ": 12020,
+        "RIC_SUBSCRIPTION_DELETE_RESP": 12021,
+        "RIC_SUBSCRIPTION_DELETE_FAILURE": 12022,
+        "RIC_CONTROL_REQ": 12040,
+        "RIC_CONTROL_ACK": 12041,
+        "RIC_CONTROL_FAILURE": 12042,
+        "RIC_INDICATION": 12050,
+        "RDL_ACTION_PROPOSAL": 30000
+      }
+    },
+    "e2sm_kpm": {
+      "normative_version": "v03.00",
+      "oran_wg": "WG3",
+      "event_trigger": "Format 1 (Periodic Reporting)",
+      "action_definition": "Format 1 (MeasData & 3GPP TS 28.552 KPIs)",
+      "supported_kpis": [
+        "DRB.UEThpDl",
+        "DRB.UEThpUl",
+        "DRB.RlcSduDelayDl",
+        "RRU.PrbUsedDl",
+        "RRU.PrbUsedUl"
+      ]
+    },
+    "e2sm_rc": {
+      "normative_version": "v01.03",
+      "oran_wg": "WG3",
+      "control_styles": {
+        "1": "Radio Resource Allocation (PRB Quota, Scheduler Weight)",
+        "2": "Power Control (Sector TX Power)",
+        "3": "Mobility Control (Directed Handover)"
+      },
+      "ran_parameters": {
+        "PRB_QUOTA": {"id": 1, "scale": 1, "unit": "%", "bounds": [0, 100]},
+        "TX_POWER": {"id": 2, "scale": 10, "unit": "dBm_x10", "bounds": [-100, 430]},
+        "SCHEDULER_WEIGHT": {"id": 3, "scale": 1000, "unit": "milli_ratio", "bounds": [10, 10000]},
+        "A3_OFFSET": {"id": 4, "scale": 100, "unit": "centi_dB", "bounds": [-1000, 1000]},
+        "HANDOVER": {"id": 5, "scale": 1, "unit": "cell_id", "bounds": [0, 65535]}
+      }
+    }
+  },
+  "simulation_stack": {
+    "ns3_version": "3.48",
+    "five_g_lena_version": "v5.1",
+    "nori_commit": "8a4f91d",
+    "e2sim_commit": "b7e21a0",
+    "oran_sc_release": "Release I/J"
+  },
+  "current_2026_oran_reference": {
+    "e2ap": "v03.00+",
+    "e2sm_kpm": "v08.00",
+    "e2sm_rc": "v10.00",
+    "status": "Targeted for Phase 3 Evolution"
+  }
+}

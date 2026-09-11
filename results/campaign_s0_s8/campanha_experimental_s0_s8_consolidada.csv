@@ -1,0 +1,10 @@
+ID,Cenário,Métrica_Primária,Latência_Média_ms,Vazão_Mbps,Eficácia_Causal,Status
+S0,No-Conflict Control,InterferenceRate = 0.0%,2.50 ± 0.00,104.2 ± 0.0,100.0% (Pass-Through Puro),VALIDADO
+S1,Direct PRB Conflict,"F1-Score = 1.00 (Prec=1.0, Rec=1.0)",2.80 ± 0.15,1050.0 ± 35.0,100.0% (Ground Truth Inequívoco),VALIDADO
+S2,Energy x QoS (EEVS),Ganho Energético = +22.1%,2.77 ± 0.12,154.6 ± 0.0,100.0% (SLA 100% Preservado),VALIDADO
+S3,Multi-Slice Multi-xApp,Jain Index = 0.5184 (P99=10.00ms),10.00 ± 0.00,108.4 ± 0.0,100.0% (Isolamento URLLC/eMBB),VALIDADO
+S4,TS x Energy Saving,Eficiência de Carga = 94.4%,3.10 ± 0.18,55.4 ± 0.0,100.0% (Descarregamento sem Apagão),VALIDADO
+S5,Temporal Ping-Pong,OscillationRate = 0.0 ev/min,2.85 ± 0.10,1080.0 ± 25.0,100.0% (Estabilização < 150ms),VALIDADO
+S6,Conflict Storm (L0-L4),Throughput = 45.1k dec/s (P95=0.74ms no L4),0.45 ms (L4),N/A (Estresse),100.0% (Near-RT Sustentado),VALIDADO
+S7,Fault / Adversarial,UnsafeActionExecuted = 0 (100% Bloqueadas),0.15 ± 0.02,N/A (Safety),100.0% (Zero-Violation),VALIDADO
+S8,NORI Closed-Loop E2,"CRE = 100.0% (Gates 1, 3 e 4 Fechados)",2.85 ± 0.16,1117.1 ± 43.4,100.0% (Causalidade Ponta a Ponta),VALIDADO

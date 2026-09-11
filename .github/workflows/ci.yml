@@ -23,10 +23,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt -r requirements-dev.txt
         
-    - name: Run unit tests
+    - name: Run Codec & Golden Vector tests
       run: |
-        pytest tests/ -v
+        pytest tests/codec/ -v
         
+    - name: Run Unit & Negative tests
+      run: |
+        pytest tests/unit/ -v
+
+    - name: Run Integration tests
+      run: |
+        pytest tests/integration/ -v
+
+    - name: Run Interoperability tests
+      run: |
+        pytest tests/interoperability/ -v
+
   docker-build:
     needs: test
     runs-on: ubuntu-latest
@@ -37,3 +49,4 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t iqos-xapp-rdl:1.1.0 -f docker/Dockerfile .
+

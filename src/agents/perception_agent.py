@@ -6,11 +6,16 @@ import itertools
 class PerceptionAgent:
     def __init__(self):
         # Grafo de dependências KPI modelando as relações lógicas da rede
-        # Parâmetro -> Afeta -> KPI
         self.kpi_dependency_graph = {
             "PRB_QUOTA": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
             "SCHEDULER_WEIGHT": ["DRB.UEThpDl", "DRB.RlcSduDelayDl"],
-            "TX_POWER": ["L1M.DL-sinr", "DRB.UEThpDl"]
+            "TX_POWER": ["L1M.DL-sinr", "DRB.UEThpDl"],
+            "HANDOVER": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
+            "VERTICAL_DOWNTILT": ["L1M.DL-sinr", "DRB.UEThpDl"],
+            "BEAM_WEIGHTS": ["L1M.DL-sinr", "DRB.UEThpDl"],
+            "SENSING_RATIO": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
+            "LOAD_THRESHOLD": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
+            "PING_INTERVAL": ["DRB.RlcSduDelayDl"]
         }
         # Registro das últimas ações: node_id -> parameter -> XAppAction
         self._action_registry: Dict[str, Dict[str, XAppAction]] = {}

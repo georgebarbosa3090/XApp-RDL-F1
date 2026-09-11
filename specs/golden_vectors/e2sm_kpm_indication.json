@@ -1,0 +1,19 @@
+{
+  "nodeID": "gnb_01",
+  "ueID": "ue_01",
+  "metrics": [
+    {
+      "name": "DRB.UEThpDl",
+      "value": 45000
+    },
+    {
+      "name": "DRB.RlcSduDelayDl",
+      "value": 2800
+    },
+    {
+      "name": "RRU.PrbUsedDl",
+      "value": 65
+    }
+  ],
+  "hex": "030b4452422e5545546870446c0300afc8114452422e526c6353647544656c6179446c020af00d5252552e50726255736564446c014106676e625f30310575655f3031"
+}

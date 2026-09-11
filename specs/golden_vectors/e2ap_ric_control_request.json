@@ -1,0 +1,8 @@
+{
+  "pdu_type": "initiatingMessage",
+  "procedure_code": 4,
+  "requestor_id": 1,
+  "instance_id": 1,
+  "ran_function_id": 3,
+  "hex": "00044024000005001d00050000010001000500020003001600020101001700030201410015000120"
+}

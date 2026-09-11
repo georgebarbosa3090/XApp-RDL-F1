@@ -1,0 +1,15 @@
+{
+  "index": 2,
+  "raw_sha256": "7684d16e954f3149267f07edea2520eaba582dd25123b62e3f1159bd05564c29",
+  "byte_length": 67,
+  "reports": [
+    {
+      "node_id": "gnb_01",
+      "ue_id": "ue_01",
+      "drb_thp_dl": 1084160.0,
+      "drb_thp_ul": 0.0,
+      "drb_delay_dl": 2736.0,
+      "prb_used_dl": 70
+    }
+  ]
+}

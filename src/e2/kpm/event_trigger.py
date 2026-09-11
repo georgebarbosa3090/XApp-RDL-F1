@@ -42,3 +42,6 @@ def build_kpm_event_trigger(report_period_ms: int = 200, reporting_period_ms: in
     except Exception as e:
         logger.error(f"Falha ao gerar E2SM-KPM Event Trigger via APER: {e}")
         raise
+
+build_kpm_event_trigger_definition = build_kpm_event_trigger
+

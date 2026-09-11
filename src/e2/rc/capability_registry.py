@@ -1,7 +1,7 @@
 """
 Registro e Descoberta Dinâmica de Capacidades RAN Function (E2SM-RC v01.03)
 Implementa o desacoplamento formal entre a ontologia interna da xApp e os Control Styles / Actions / RAN Parameter IDs
-declarados pelos E2 Nodes / NORI em tempo de execução.
+declarados pelos E2 Nodes / NORI em tempo de execução via RANFunctionDefinition (E2 Setup / RIC Service Update).
 """
 
 import os
@@ -13,7 +13,7 @@ from src.observability.logging import setup_logger
 logger = setup_logger("RanFunctionCapabilityRegistry")
 
 class CapabilityNotDiscoveredError(Exception):
-    """Exceção levantada em modo O_RAN_INTEROP quando uma capacidade de controle é solicitada para um nó não registrado via RANFunctionDefinition."""
+    """Exceção levantada em modo O_RAN_INTEROP / oran-strict quando uma capacidade de controle é solicitada para um nó ou parâmetro não registrado via RANFunctionDefinition."""
     pass
 
 @dataclass
@@ -30,9 +30,12 @@ class ControlActionCapability:
 class RanFunctionCapabilityRegistry:
     """
     Catálogo dinâmico de capacidades expostas por E2 Nodes para o Service Model E2SM-RC.
+    Suporta formalmente dois modos de operação:
+      1. RDL_MODE=simulation (OFFLINE_SIMULATION): catálogo desacoplado estático para testes e benchmarks sintéticos.
+      2. RDL_MODE=oran-strict (O_RAN_INTEROP): conformidade estrita O-RAN onde fallbacks e defaults são proibidos.
     """
     def __init__(self):
-        # Mapeamento padrão para simulação offline / retrocompatibilidade
+        # Mapeamento padrão exclusivo para simulação offline / retrocompatibilidade
         self._default_capabilities: Dict[str, ControlActionCapability] = {
             "PRB_QUOTA": ControlActionCapability(
                 style_type=1, # Radio Resource Allocation
@@ -78,6 +81,12 @@ class RanFunctionCapabilityRegistry:
         # Tabela de capacidades por E2 Node ID específico: Dict[node_id, Dict[param_name, ControlActionCapability]]
         self._node_capabilities: Dict[str, Dict[str, ControlActionCapability]] = {}
 
+    def is_strict_mode(self, override: Optional[bool] = None) -> bool:
+        if override is not None:
+            return bool(override)
+        mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
+        return mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT")
+
     def register_node_capability(
         self,
         node_id: str,
@@ -87,13 +96,16 @@ class RanFunctionCapabilityRegistry:
         param_id: int,
         min_val: float,
         max_val: float,
-        unit: str = "raw"
+        unit: str = "raw",
+        strict_mode: Optional[bool] = None
     ) -> None:
         """
         Registra dinamicamente uma capacidade/parâmetro descoberto a partir da RANFunctionDefinition de um E2 Node.
+        Em modo estrito, novos nós iniciam estritamente vazios sem herdar defaults não anunciados.
         """
+        strict = self.is_strict_mode(strict_mode)
         if node_id not in self._node_capabilities:
-            self._node_capabilities[node_id] = dict(self._default_capabilities)
+            self._node_capabilities[node_id] = {} if strict else dict(self._default_capabilities)
             
         self._node_capabilities[node_id][param_name] = ControlActionCapability(
             style_type=style_type,
@@ -106,7 +118,7 @@ class RanFunctionCapabilityRegistry:
             unit=unit
         )
         logger.info(
-            f"Capacidade E2SM-RC registrada para E2 Node '{node_id}': "
+            f"Capacidade E2SM-RC registrada para E2 Node '{node_id}' [Strict={strict}]: "
             f"Param={param_name} -> Style={style_type}, Action={action_id}, ParamID={param_id}"
         )
 
@@ -118,23 +130,24 @@ class RanFunctionCapabilityRegistry:
     ) -> Tuple[int, int, int]:
         """
         Resolve a tupla normativa (style_type, action_id, param_id) para um determinado parâmetro e nó.
-        Em modo O_RAN_INTEROP (strict_mode=True), defaults são estritamente proibidos e o nó deve estar previamente descoberto.
+        Em modo estrito (RDL_MODE=oran-strict / O_RAN_INTEROP), defaults são estritamente proibidos e o nó/parâmetro
+        deve ter sido explicitamente descoberto via RANFunctionDefinition.
         """
-        is_interop = strict_mode if strict_mode is not None else (os.getenv("RDL_MODE", "OFFLINE_SIMULATION") == "O_RAN_INTEROP")
+        is_strict = self.is_strict_mode(strict_mode)
 
-        if is_interop:
+        if is_strict:
             if not node_id or node_id not in self._node_capabilities:
                 raise CapabilityNotDiscoveredError(
-                    f"[O_RAN_INTEROP] Nó E2 '{node_id}' não possui RANFunctionDefinition descoberta em runtime."
+                    f"[ORAN-STRICT] Nó E2 '{node_id}' não possui RANFunctionDefinition descoberta em runtime."
                 )
             if param_name not in self._node_capabilities[node_id]:
                 raise CapabilityNotDiscoveredError(
-                    f"[O_RAN_INTEROP] Parâmetro '{param_name}' não exposto nas capacidades do nó '{node_id}'."
+                    f"[ORAN-STRICT] Parâmetro '{param_name}' não foi anunciado nas capacidades descobertas do nó '{node_id}'."
                 )
             cap = self._node_capabilities[node_id][param_name]
             return cap.style_type, cap.action_id, cap.param_id
 
-        # Modo OFFLINE_SIMULATION / Fallback
+        # Modo OFFLINE_SIMULATION / Fallback desacoplado
         cap_map = self._default_capabilities
         if node_id and node_id in self._node_capabilities:
             cap_map = self._node_capabilities[node_id]
@@ -152,3 +165,4 @@ class RanFunctionCapabilityRegistry:
 
 # Instância Singleton do Registry
 rc_capability_registry = RanFunctionCapabilityRegistry()
+

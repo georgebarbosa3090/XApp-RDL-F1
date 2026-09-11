@@ -98,3 +98,70 @@ def test_nori_rc_strict_mode_capability_not_discovered():
     """
     with pytest.raises(CapabilityNotDiscoveredError):
         rc_capability_registry.resolve_action("PRB_QUOTA", node_id="gnb_unknown_node", strict_mode=True)
+
+def test_nori_rc_control_failure_with_cause_and_rollback():
+    """
+    Valida o fluxo do Gate 3 quando um comando inválido ou rejeitado dispara RICcontrolFailure (12042)
+    com causa normativa id-Cause=1 e aciona o mecanismo de compensação/rollback.
+    """
+    from src.coordination.control_dispatcher import ControlDispatcher
+    from src.infrastructure.memory_module import MemoryModule
+    
+    sdl_mock = MemoryModule()
+    dispatcher = ControlDispatcher(rmr_client=None, sdl_repo=sdl_mock)
+
+    # Monta Failure interno com causa 3 (e.g. safety-rejected / out-of-bounds)
+    fail_ie = RICcontrolFailure()
+    fail_ie.set_val({
+        'ricRequestID': {'ricRequestorID': 101, 'ricInstanceID': 202},
+        'ranFunctionID': 3,
+        'cause': 3
+    })
+    fail_bytes = fail_ie.to_aper()
+    pdu_fail = wrap_unsuccessful_outcome(PROC_RIC_CONTROL, fail_bytes)
+
+    res = parse_ric_control_failure(pdu_fail)
+    assert res["status"] == "FAILED"
+    assert res["requestor_id"] == 101
+    assert res["cause"] == 3
+
+    # Testa o tratamento de failure pelo dispatcher
+    dispatcher.handle_failure(pdu_fail)
+
+def test_nori_rc_causal_gate4_tracking():
+    """
+    Valida a causalidade estrita do Gate 4: registro de KPM(t0), intervenção H-RDL, ACK e KPM(t1) com métrica CRE.
+    """
+    from src.observability.causal_tracker import CausalTracker
+    
+    tracker = CausalTracker()
+    tracker.register_conflict_event("conf_01", "DIRECT_ACTUATION_CONFLICT", num_actions=2)
+
+    # 1. Registra decisão com KPM(t0) degradado
+    kpm_t0 = {"latency_ms": 14.5, "throughput_mbps": 120.0, "pdr_percent": 93.5}
+    rec = tracker.record_decision(
+        action_id="act_01",
+        decision_id="dec_01",
+        ric_request_id=1234,
+        node_id="gnb_01",
+        parameter="PRB_QUOTA",
+        old_val=30.0,
+        new_val=65.0,
+        kpm_before=kpm_t0,
+        strategy="SHANNON_OPTIMAL"
+    )
+
+    # 2. Confirma ACK da RAN
+    assert tracker.record_ack(ric_request_id=1234, rtt_ms=12.4)
+
+    # 3. Registra KPM(t1) com melhoria observada
+    kpm_t1 = {"latency_ms": 2.7, "throughput_mbps": 850.0, "pdr_percent": 99.8}
+    assert tracker.record_telemetry_effect(action_id="act_01", kpm_after=kpm_t1)
+
+    # 4. Avalia métricas científicas (CRE deve ser 100%)
+    metrics = tracker.compute_metrics()
+    assert metrics.conflict_resolution_rate == 100.0
+    assert metrics.conflict_resolution_effectiveness == 100.0
+    assert metrics.latency_reduction_pct > 70.0
+    assert metrics.unsafe_action_rate == 0.0
+

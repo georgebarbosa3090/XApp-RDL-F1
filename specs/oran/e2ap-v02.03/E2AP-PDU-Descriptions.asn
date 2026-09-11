@@ -38,12 +38,15 @@ UnsuccessfulOutcome ::= SEQUENCE {
     value           ANY DEFINED BY procedureCode
 }
 
--- Procedure Codes
-id-RICsubscription          ProcedureCode ::= 201
-id-RICsubscriptionDelete    ProcedureCode ::= 202
-id-RICcontrol               ProcedureCode ::= 204
-id-RICindication            ProcedureCode ::= 205
+-- Procedure Codes (Normative ETSI TS 104 039 / O-RAN.WG3.E2AP-v02.03)
 id-e2setup                  ProcedureCode ::= 1
+id-errorIndication          ProcedureCode ::= 2
 id-reset                    ProcedureCode ::= 3
+id-RICcontrol               ProcedureCode ::= 4
+id-RICindication            ProcedureCode ::= 5
+id-RICserviceQuery          ProcedureCode ::= 6
+id-RICserviceUpdate         ProcedureCode ::= 7
+id-RICsubscription          ProcedureCode ::= 8
+id-RICsubscriptionDelete    ProcedureCode ::= 9
 
 END

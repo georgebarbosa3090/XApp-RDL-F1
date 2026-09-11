@@ -24,8 +24,39 @@ test:
 test-pytest:
 	pytest tests/ -v
 
+test-unit:
+	pytest tests/unit/ -v
+
+test-codec:
+	pytest tests/codec/ -v
+
+test-integration:
+	pytest tests/integration/ -v
+
+test-interop:
+	pytest tests/interoperability/ -v
+
+generate-golden-vectors:
+	python scripts/generate_golden_vectors.py
+
+reproduce-paper:
+	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir results/reproduced_audit_2026
+
+test-campaign:
+	pytest tests/unit/test_campaign_scenarios.py -v
+
+run-campaign-s0-s8:
+	python scripts/run_full_campaign_s0_s8.py --seeds 30 --output-dir results/campaign_s0_s8
+
+run-3-rounds:
+	python scripts/run_3_consecutive_simulations.py --round all
+
+run-single-round:
+	python scripts/run_single_round_simulation.py --round 3
+
 reproduce-f1:
 	bash scripts/reproduce_f1.sh
+
 
 
 # -------------------------------------------------------------
