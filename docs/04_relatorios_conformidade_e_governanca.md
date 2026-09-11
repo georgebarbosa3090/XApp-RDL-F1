@@ -23,7 +23,7 @@
 | **REQ-RDL-08** | Empacotamento Helm Chart oficial | APROVADO | `deploy/helm/` | Helm Lint & Package 100% OK |
 | **REQ-RDL-09** | Deploy declarativo em Kubernetes Puro | APROVADO | `deploy/kubernetes/` | Kustomize e Kubectl rollout OK |
 | **REQ-RDL-10** | Suporte a Observabilidade Rancher & Kiali | APROVADO | `scripts/` | Integrado e documentado |
-| **RNF-01** | Rigor estatístico multi-semente ($N = 30$ runs, $\text{IC}_{95\%}$, $p < 0.001$) | APROVADO | `scripts/` | `run_multi_seed_evaluation.py` |
+| **RNF-01** | Rigor estatístico multi-semente ($N = 30$ runs, $\text{IC}_{95\%}$, $p < 0.001$) | APROVADO | `scripts/` | `reproduce_paper_artifacts.py` |
 | **RNF-02** | Latência de decisão Near-RT $< 50\text{ ms}$ | APROVADO | `RDLxApp` | $T_{\text{dec}} = 14.20 \pm 0.47\text{ ms}$ |
 | **RNF-03** | Integridade criptográfica e reprodutibilidade | APROVADO | `experiments/results/` | `manifest_experiment.json` (SHA-256) |
 

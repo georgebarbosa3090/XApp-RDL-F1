@@ -37,6 +37,18 @@ spec:
           value: "false"
         - name: LOG_LEVEL
           value: "INFO"
+        - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_HTTP_SERVICE_HOST
+          value: "ricxapp-iqos-xapp-rdl-http.ricxapp"
+        - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_HTTP_SERVICE_PORT
+          value: "8080"
+        - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_RMR_SERVICE_HOST
+          value: "ricxapp-iqos-xapp-rdl-rmr.ricxapp"
+        - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_RMR_SERVICE_PORT
+          value: "4560"
+        - name: SERVICE_RICPLT_APPMGR_HTTP_SERVICE_HOST
+          value: "127.0.0.1"
+        - name: SERVICE_RICPLT_APPMGR_HTTP_SERVICE_PORT
+          value: "8080"
         ports:
         - containerPort: 4560
           name: rmr-data

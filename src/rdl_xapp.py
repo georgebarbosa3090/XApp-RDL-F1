@@ -115,6 +115,9 @@ class RDLxApp:
             use_fake_sdl=use_fake_sdl,
             post_init=self._entrypoint
         )
+        # Em modo standalone / simulação sem AppMgr externo, registro é tratado como no-op limpo
+        self.xapp.register = lambda: True
+        self.xapp.deregister = lambda: True
         
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
@@ -142,10 +145,10 @@ class RDLxApp:
         logger.info(f"xApp Framework Ready (Modo {self.mode})")
         self.health.set_state(AppState.READY)
         # Inicia subscricao E2SM-KPM com o Subscription Manager / E2 Nodes
-        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200)
+        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200, xapp_instance=xapp_instance)
         threading.Thread(target=self._decision_loop, daemon=True).start()
 
-    def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200) -> bool:
+    def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
         """
         Emite requisicao de subscricao E2 (RIC_SUB_REQ) com payloads APER normativos.
         """
@@ -156,7 +159,11 @@ class RDLxApp:
                 report_period_ms=report_period_ms
             )
             payload_bytes = json.dumps(sub_req_payload).encode('utf-8')
-            success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_SUB_REQ)
+            target_xapp = xapp_instance or getattr(self, "xapp", None)
+            if target_xapp:
+                success = target_xapp.rmr_send(payload=payload_bytes, mtype=RIC_SUB_REQ)
+            else:
+                success = False
             if success:
                 logger.info("RIC_SUB_REQ emitido com sucesso para Subscription Manager", target_node=node_id, period_ms=report_period_ms)
                 self.active_subscriptions[node_id] = True
