@@ -21,7 +21,7 @@ docs/figures/
 └── 02_cenarios_e_topologias/                       # Topologias espaciais e cenários experimentais S1-S15
 ```
 
-### Lista de Figuras de Cenários Experimentais
+### Lista de Figuras Conceituais 3D e Ilustrativas
 
 | Cenário | Título / Descrição | Arquivo Imagem |
 | :--- | :--- | :--- |
@@ -37,4 +37,21 @@ docs/figures/
 | **S13** | Disaster Rescue Heterogeneous Mesh (UAV + LEO) | [`s13_disaster_rescue_heterogeneous_mesh.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s13_disaster_rescue_heterogeneous_mesh.png) |
 | **S14** | Rural Agriculture 4.0 & Environmental Sensing | [`s14_rural_agriculture_sensing.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s14_rural_agriculture_sensing.png) |
 | **S15** | 6G Conflict Storm in Dense Smart City | [`s15_6g_dense_city_conflict_storm.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s15_6g_dense_city_conflict_storm.png) / [`s15_6g_cross_tier_governance_dark.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s15_6g_cross_tier_governance_dark.png) |
+
+---
+
+### Lista de Figuras de Topologias Espaciais 2D Geométricas (Planos Espaciais em Metros — Estilo Figura 5)
+
+| Cenário | Descrição da Topologia Espacial 2D | Arquivo Imagem |
+| :--- | :--- | :--- |
+| **S0** | Topologia Base sem Conflito no ns-3 (2 gNodeBs, 30 UEs Fatiados) | [`s0_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png) |
+| **S1** | Topologia Espacial Parametrizada & Zona de Contenção de PRBs (200m x 120m) | [`s1_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s1_topologia_espacial_plano_2d.png) |
+| **S2** | Trade-off Energy Saving vs. QoS & Modo Sleep Pendente | [`s2_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s2_topologia_espacial_plano_2d.png) |
+| **S3** | Corredor de Mobilidade Veicular & Janela de Handover no ns-3 | [`s3_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s3_topologia_espacial_plano_2d.png) |
+| **S4** | Controle Temporal Anti Ping-Pong & Janela de Histerese | [`s4_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s4_topologia_espacial_plano_2d.png) |
+| **S5** | Tempestade de Conflitos Multi-Slice & Hotspots de Sobrecarga | [`s5_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s5_topologia_espacial_plano_2d.png) |
+| **S6** | Protection Active, Safety Guard & Mitigação de Ação Indevida | [`s6_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s6_topologia_espacial_plano_2d.png) |
+| **S7** | Malha Fechada NORI + Interface E2 (SCTP 36422) Closed-Loop | [`s7_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s7_topologia_espacial_plano_2d.png) |
+| **S8** | Extensão Integrada NTN (Satélite LEO) + UAV + Corredor V2X | [`s8_topologia_espacial_plano_2d.png`](file:///c:/Users/georg/XApp-RDL-F1/docs/figures/02_cenarios_e_topologias/s8_topologia_espacial_plano_2d.png) |
+
 

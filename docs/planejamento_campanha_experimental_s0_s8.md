@@ -41,31 +41,43 @@ Para validar o motor determinístico **H-RDL (Hierarchical Conflict Resolution E
 
 ### S0 — No-Conflict Clean Baseline (Controle e Não-Interferência)
 - **Objetivo:** Provar a propriedade de *não-interferência*. Quando 3 xApps emitem comandos que operam em células distintas ou em parâmetros ortogonais, o H-RDL deve aprová-los como *Pass-Through* limpo sem atraso perceptível.
-- **Topologia:** 3 gNodeBs, 15 UEs distribuídos uniformemente.
+- **Topologia:** 2 gNodeBs, 30 UEs distribuídos uniformemente.
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S0: Topologia Base 2D](figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png)
 - **Métrica-Chave:** $\text{InterferenceRate} = \frac{\text{Ações Alteradas}}{\text{Ações Propostas}} = 0.0$.
 
 ### S1 — Direct PRB Resource Collision (Ground Truth de Detecção)
 - **Objetivo:** Avaliar a precisão e exaustividade da camada de percepção (`PerceptionAgent`) contra o *ground truth* de sobrealocação direta de PRBs.
 - **Dinâmica:** xApp-SliceA solicita 75% dos PRBs e xApp-SliceB solicita 35% dos PRBs na mesma célula ($110\% > 100\%$).
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S1: Plano Espacial 2D](figures/02_cenarios_e_topologias/s1_topologia_espacial_plano_2d.png)
 - **Métricas:** $\text{Precision} = 1.0$, $\text{Recall} = 1.0$, $F_1 = 1.0$.
 
 ### S2 — Energy Saving vs. QoS (Trade-off de Shannon)
 - **Objetivo:** Arbitrar entre a redução da potência de transmissão da portadora para economizar energia ($P_{\text{tx}} \downarrow$) e a necessidade de SINR para manter o SLA de vazão ($R_{\text{target}} \ge 25\text{ Mbps}$).
 - **Formulações:**
   $$\text{SINR} = \frac{P_{\text{tx}} \cdot |h|^2}{I + \sigma^2}, \quad C = W \log_2(1 + \text{SINR})$$
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S2: Plano Espacial 2D](figures/02_cenarios_e_topologias/s2_topologia_espacial_plano_2d.png)
 - **Resultado Esperado:** Clamping ótimo de potência em $15\text{ dBm}$, mantendo throughput $> 24.5\text{ Mbps}$ e reduzindo consumo em $18\%$.
 
 ### S3 — Multi-Slice TVS Trade-off (Throughput-Value-Sensitivity)
 - **Objetivo:** Resolver conflitos entre fatias eMBB (alta vazão) e URLLC (baixa latência e alta confiabilidade) usando a função utilidade TVS:
   $$U_{\text{TVS}}(a) = w_{\text{thp}} \cdot \hat{R}(a) + w_{\text{lat}} \cdot \left(1 - \frac{L(a)}{L_{\text{max}}}\right) - \lambda \cdot \text{Cost}(a)$$
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S3: Plano Espacial 2D](figures/02_cenarios_e_topologias/s3_topologia_espacial_plano_2d.png)
 - **Métrica:** Índice de Justiça de Jain ($J \ge 0.85$).
 
 ### S4 — Traffic Steering vs. Energy Saving (Coordenação Espacial)
 - **Objetivo:** Evitar o fenômeno de "transferência cega", onde a xApp de Traffic Steering desvia 10 UEs de uma célula congestionada para uma célula vizinha que a xApp de Economia de Energia está simultaneamente colocando em estado de suspensão (*sleep mode*).
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S4: Plano Espacial 2D](figures/02_cenarios_e_topologias/s4_topologia_espacial_plano_2d.png)
 - **Métrica:** Número de chamadas caídas (*Dropped Sessions*) $= 0$.
 
 ### S5 — Temporal Ping-Pong & Oscillation Suppression
 - **Objetivo:** Validar a histerese temporal e o tempo de *cooldown* do `RefinementAgent`. Se um UE é transferido para a célula B, o H-RDL bloqueia reversões para a célula A dentro da janela mínima $\Delta t_{\text{lock}} = 1000\text{ ms}$.
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S5: Plano Espacial 2D](figures/02_cenarios_e_topologias/s5_topologia_espacial_plano_2d.png)
 - **Métrica:** Redução de $> 85\%$ nas trocas espúrias de handover em relação ao baseline sem coordenação.
 
 ### S6 — Conflict Storm & Scalability Knee Benchmark
@@ -75,6 +87,8 @@ Para validar o motor determinístico **H-RDL (Hierarchical Conflict Resolution E
   - **L2 (Moderate):** 15 ações/janela
   - **L3 (Severe Storm):** 50 ações/janela
   - **L4 (Catastrophic Storm):** 100 ações/janela
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S6: Plano Espacial 2D](figures/02_cenarios_e_topologias/s6_topologia_espacial_plano_2d.png)
 - **Critério de Aceite:** $T_{\text{decisão}} < 50\text{ ms}$ até o nível L3 e $< 100\text{ ms}$ em L4, sem corrupção de memória ou exceções não tratadas.
 
 ### S7 — Fault Injection & Adversarial Safety
@@ -82,15 +96,19 @@ Para validar o motor determinístico **H-RDL (Hierarchical Conflict Resolution E
   - $P_{\text{tx}} = 100\text{ dBm}$ (limite físico estrito: $23\text{ dBm}$).
   - $\text{PRB\_QUOTA} = -20\%$ ou $150\%$.
   - Handover para Target Node ID inexistente ou corrompido (`NaN`/`null`).
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S7: Plano Espacial 2D](figures/02_cenarios_e_topologias/s7_topologia_espacial_plano_2d.png)
 - **Critério de Aceite:** $\text{UnsafeActionsExecuted} = 0$ (100% de rejeição ou clamping seguro).
 
-### S8 — NORI Closed-Loop Causal Proof (E2 End-to-End)
+### S8 — NORI Closed-Loop Causal Proof (E2 End-to-End & NTN/UAV/V2X)
 - **Objetivo:** Demonstrar o ciclo fechado completo com conformidade E2AP v02.03 / E2SM-KPM / E2SM-RC:
   1. Telemetria KPM $T_0$ detecta degradação de SINR e throughput.
   2. xApps geram ações concorrentes.
   3. H-RDL arbitra e gera E2AP RIC Control Request com payload E2SM-RC Format 1 (PRB Allocation).
   4. ns-3 E2 Agent processa o comando e responde com E2AP RIC Control Acknowledge.
   5. Telemetria KPM $T_1$ confirma que o KPI afetado recuperou o SLA.
+- **Plano Espacial 2D Geométrico (em metros):**
+  ![S8: Plano Espacial 2D](figures/02_cenarios_e_topologias/s8_topologia_espacial_plano_2d.png)
 - **Métrica:** $\text{Conflict Resolution Effectiveness } (CRE) = 100.0\%$.
 
 ---

@@ -24,8 +24,9 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.1. Cenário S1: Conflito Direto de PRB em Célula Única (`scenario_rdl_direct_prb_conflict.cc`)
 * **Descrição:** Duas xApps concorrentes (`xSlice` solicitando 75% dos PRBs e `Energy Saver` solicitando 30% dos PRBs) submetem propostas sobre a mesma célula (`gNB_01`). A soma das solicitações ($105\%$) excede a capacidade física total ($100\%$).
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_direct_prb_conflict.cc`.
-* **Figura de Topologia:**
+* **Figuras de Topologia:**
   ![S1: EEVS Energy Saving vs QoS](figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
+  ![S1: Plano Espacial 2D Geométrico em Metros](figures/02_cenarios_e_topologias/s1_topologia_espacial_plano_2d.png)
 * **Métrica de Validação:** Precision, Recall e F1-Score da detecção de colisão estritamente $= 1.0$.
 
 ---
@@ -33,8 +34,9 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.2. Cenário S2: Conflito Indireto TVS (`scenario_rdl_tvs_conflict.cc`)
 * **Descrição:** A xApp `xSlice` expande a cota de eMBB para 80%, causando indiretamente contenção na alocação da fatia URLLC e acionando alertas de queda de vazão detectados pela xApp `KPIMON`.
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_tvs_conflict.cc`.
-* **Figura de Topologia:**
+* **Figuras de Topologia:**
   ![S2: Traffic Steering vs Slicing](figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
+  ![S2: Plano Espacial 2D Geométrico em Metros](figures/02_cenarios_e_topologias/s2_topologia_espacial_plano_2d.png)
 * **Mecanismo H-RDL:** Aplicação do modelo TVS (Throughput-Value Scaling) reduzindo eMBB para $60\%$ e preservando o SLA URLLC.
 
 ---
@@ -42,8 +44,9 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.3. Cenário S3: Otimização Cross-Layer Power x QoS / Multi-Slice (`scenario_rdl_energy_vs_qos.cc`)
 * **Descrição:** Avaliação da função multiobjetivo EEVS entre a economia de energia por redução de potência da gNB e a manutenção da vazão eMBB dos UEs conectados.
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_energy_vs_qos.cc`.
-* **Figura de Topologia:**
+* **Figuras de Topologia:**
   ![S3: Multi-Slice Traffic Steering vs Slicing](figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
+  ![S3: Plano Espacial 2D Geométrico em Metros](figures/02_cenarios_e_topologias/s3_topologia_espacial_plano_2d.png)
 * **Mecanismo H-RDL:** Identificação do ponto de operação Pareto sem violação de cobertura.
 
 ---
@@ -51,6 +54,8 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.4. Cenário S4: Mobilidade vs Economia de Energia (`scenario_rdl_ts_vs_energy.cc`)
 * **Descrição:** A xApp `Energy Saver` solicita a redução de potência/sono da `gNB_01` ($TX\_POWER = -10\text{ dBm}$), enquanto a xApp `Traffic Steering` tenta realizar o Handover de UEs congestionados da `gNB_02` para a `gNB_01`.
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_ts_vs_energy.cc`.
+* **Figura de Topologia:**
+  ![S4: Plano Espacial 2D Geométrico em Metros](figures/02_cenarios_e_topologias/s4_topologia_espacial_plano_2d.png)
 * **Mecanismo H-RDL:** Arbitragem assimétrica priorizando a continuidade da conexão (bloqueio do sono gNB durante handover).
 
 ---
@@ -58,6 +63,8 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.5. Cenário S5: Histerese Temporal e Ping-Pong Lock (`scenario_rdl_temporal_pingpong.cc`)
 * **Descrição:** Solicitações rápidas e repetidas de Handover no mesmo par de células em janelas curtas ($< 1000\text{ ms}$).
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_temporal_pingpong.cc`.
+* **Figura de Topologia:**
+  ![S5: Plano Espacial 2D Geométrico em Metros](figures/02_cenarios_e_topologias/s5_topologia_espacial_plano_2d.png)
 * **Mecanismo H-RDL:** Imposição de janela de Cooldown Lock de $1000\text{ ms}$, eliminando oscilações cíclicas (Ping-Pong Rate $= 0\%$).
 
 ---

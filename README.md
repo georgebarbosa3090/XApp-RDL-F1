@@ -57,9 +57,10 @@ O ecossistema experimental classifica rigorosamente a procedência de cada xApp:
 
 *Consulte a documentação detalhada e o catálogo de figuras dos cenários S1–S15 em [`docs/figures/README.md`](docs/figures/README.md), [`docs/modelagem_cenarios_xapps_terceiros.md`](docs/modelagem_cenarios_xapps_terceiros.md), [`docs/topologia_espacial_e_cenarios_s1_s5.md`](docs/topologia_espacial_e_cenarios_s1_s5.md), [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) e [`reference-xapps/README.md`](reference-xapps/README.md).*
 
-### 1.2. Catálogo Oficial de Figuras dos Cenários Experimentais (S1–S15)
+### 1.2. Catálogo Oficial de Figuras dos Cenários Experimentais (S0–S15)
 
-O repositório conta com um catálogo completo de figuras conceituais e de topologia espacial em alta resolução para a suíte de cenários S1 a S15:
+O repositório conta com um catálogo completo de figuras conceituais 3D e de planos espaciais 2D geométricos (em metros — estilo Figura 5 do artigo H-RDL):
+- **Planos Espaciais 2D Geométricos (S0 a S8):** [`s0_topologia_espacial_plano_2d.png`](docs/figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png) a [`s8_topologia_espacial_plano_2d.png`](docs/figures/02_cenarios_e_topologias/s8_topologia_espacial_plano_2d.png)
 - **S1 (EEVS):** Energy Saving vs. QoS — [`s1_eevs_energy_vs_qos_dark.png`](docs/figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
 - **S2 (TVS):** Traffic Steering vs. Slicing — [`s2_tvs_traffic_steering_dark.png`](docs/figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
 - **S3:** Multi-Slice Traffic Steering vs Slicing — [`s3_multi_slice_traffic_steering.png`](docs/figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
