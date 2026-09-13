@@ -46,15 +46,7 @@ No ecossistema **O-RAN Near-RT RIC**, diferentes xApps de terceiros (comunidade 
 
 ---
 
-## 3. Diagramas de Interação e Trade-Offs de Simulação
-
-![Cenário TVS de Interação entre Traffic Steering e Slicing](figures/02_cenarios_e_topologias/scenario_2_tvs_traffic_steering_slicing_light.png)
-
-![Cenário EEVS de Otimização entre Energy Saver e QoS](figures/02_cenarios_e_topologias/scenario_1_eevs_energy_vs_qos_light.png)
-
----
-
-## 4. Matriz Comparativa de Especificações
+## 3. Matriz Comparativa de Especificações
 
 | xApp | Tipo de Origem (`origin_type`) | Parâmetro Controlado | Faixa Válida | Prioridade | Service Model E2 |
 | :--- | :---: | :--- | :---: | :---: | :---: |

@@ -30,7 +30,9 @@ FORBIDDEN_PATTERNS = [
     ("rng.uniform", re.compile(r"rng\.uniform\(")),
     ("generate_flowmonitor_xml", re.compile(r"generate_flowmonitor_xml", re.IGNORECASE)),
     ("synthetic_metric_generator", re.compile(r"synthetic_metric_generator", re.IGNORECASE)),
+    ("synthetic_tradeoff_figure", re.compile(r"cenario_2_tradeoff_energy_vs_qos\.png", re.IGNORECASE)),
 ]
+
 
 ALLOWED_EXCEPTIONS = [
     "bootstrap",

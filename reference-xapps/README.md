@@ -26,8 +26,9 @@ Para uma descrição completa contendo componentes internos, especificações de
 
 👉 **[`docs/modelagem_cenarios_xapps_terceiros.md`](../docs/modelagem_cenarios_xapps_terceiros.md)**
 
-*Diagrama de Interação das 4 xApps de Terceiros e Middleware H-RDL:*
-![Interação de xApps de Terceiros](../docs/figures/02_cenarios_terceiros/fig_cenarios_xapps_terceiros_interacao.png)
+*Diagrama de Topologia de Simulação das xApps de Terceiros e Middleware H-RDL:*
+![Topologia Espacial Geral](../docs/figures/02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png)
+
 
 ---
 

@@ -1,6 +1,9 @@
-# Topologia Espacial Parametrizada e Modelagem dos Cenários S1 a S5
+# Topologia Espacial Parametrizada e Caracterização dos Cenários S1 a S5
 
-Este documento apresenta a modelagem topológica espacial da rede O-RAN Near-RT RIC e a caracterização dos **Cenários S1 a S5** da campanha experimental do middleware **H-RDL (Resource and Decision Layer)**. As figuras são derivadas diretamente do padrão canônico de alta qualidade de publicação do repositório **XApp-RDL-F2**.
+Este documento apresenta a modelagem topológica espacial da rede O-RAN Near-RT RIC e a caracterização teórica e contratual dos **Cenários S1 a S5** da campanha experimental do middleware **H-RDL (Resource and Decision Layer)**.
+
+> [!IMPORTANT]
+> **Diretriz de Transparência Científica:** Todos os resultados experimentais deste repositório são obtidos pós-processando estritamente os logs brutos de simulação física em malha fechada no **ns-3 + 5G-LENA + NORI + E2 real**. É terminantemente proibido incluir gráficos ou figuras contendo dados sintéticos ou resultados mockados.
 
 ---
 
@@ -8,58 +11,51 @@ Este documento apresenta a modelagem topológica espacial da rede O-RAN Near-RT 
 
 A topologia espacial modela uma implantação multi-célula heterogênea composta por estações-base Macro (`gNB_01` e `gNB_03`) e Small Cells (`gNB_02`), servindo simultaneamente múltiplas fatias de rede (eMBB e URLLC) com zonas de sobreposição e fronteiras dinâmicas de handover.
 
-![Topologia Geral dos Cenários ns-3](figures/02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png)
+![Topologia Espacial Geral dos Cenários ns-3](figures/02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png)
+
+* **`gNB_01` (Macro Cell - eMBB):** Atende fatias de alta taxa com alocação dinâmica de cotas de bloco de recursos físicos (`PRB_QUOTA`).
+* **`gNB_02` (Small Cell - Energy Saver):** Célula de pequena cobertura com capacidade de ajuste de potência de transmissão (`TX_POWER`) e sono micro-desconectado.
+* **`gNB_03` (Macro Cell - URLLC):** Atende fatias de ultra-confiabilidade e baixa latência com garantia estrita de SLA ($< 5\text{ ms}$).
 
 ---
 
-## 2. Modelagem dos Cenários Físicos S1 a S5
+## 2. Caracterização dos Cenários Físicos S1 a S5
 
-### 2.1. Cenário S1: Trade-Off EEVS (Energy Saver vs QoS Slicing)
-
-No Cenário S1, avalia-se o trade-off entre o consumo energético da gNB e a manutenção da vazão eMBB dos UEs conectados via função EEVS (Energy-Efficiency vs Value-SLA).
-
-![Cenário 1 - EEVS Energy vs QoS (Tema Claro)](figures/02_cenarios_e_topologias/scenario_1_eevs_energy_vs_qos_light.png)
-
----
-
-### 2.2. Cenário S2: Conflito TVS (Traffic Steering vs Slicing SLA)
-
-No Cenário S2, solicitações de mobilidade da xApp Traffic Steering concorrem com alocações dinâmicas de cotas de bloco de recursos físicos (PRB) da xApp xSlice, ativando o modelo de arbitragem TVS (Throughput-Value Scaling).
-
-![Cenário 2 - TVS Traffic Steering e Slicing (Tema Claro)](figures/02_cenarios_e_topologias/scenario_2_tvs_traffic_steering_slicing_light.png)
+### 2.1. Cenário S1: Conflito Direto de PRB em Célula Única (`scenario_rdl_direct_prb_conflict.cc`)
+* **Descrição:** Duas xApps concorrentes (`xSlice` solicitando 75% dos PRBs e `Energy Saver` solicitando 30% dos PRBs) submetem propostas sobre a mesma célula (`gNB_01`). A soma das solicitações ($105\%$) excede a capacidade física total ($100\%$).
+* **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_direct_prb_conflict.cc`.
+* **Métrica de Validação:** Precision, Recall e F1-Score da detecção de colisão estritamente $= 1.0$.
 
 ---
 
-### 2.3. Cenário S3: Otimização 5G-Advanced Multi-Carrier & MIMO
-
-No Cenário S3, analisa-se a alocação concorrente de múltiplos portadoras e feixes MIMO sob requisitos rigorosos de taxa de transmissão e retenção de cobertura.
-
-![Cenário 3 - 5G-Advanced Multi-Carrier MIMO (Tema Claro)](figures/02_cenarios_e_topologias/scenario_3_5ga_multicarrier_mimo_light.png)
-
----
-
-### 2.4. Cenário S4: 6G ISAC — Coexistência de Sensoriamento Radar e Comunicação
-
-No Cenário S4, avalia-se a mitigação de interferência mútua entre sinais de sensoriamento radar 6G e comunicação móvel URLLC.
-
-![Cenário 4 - 6G ISAC Sensing Coexistence (Tema Claro)](figures/02_cenarios_e_topologias/scenario_4_6g_isac_sensing_coexistence_light.png)
+### 2.2. Cenário S2: Conflito Indireto TVS (`scenario_rdl_tvs_conflict.cc`)
+* **Descrição:** A xApp `xSlice` expande a cota de eMBB para 80%, causando indiretamente contenção na alocação da fatia URLLC e acionando alertas de queda de vazão detectados pela xApp `KPIMON`.
+* **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_tvs_conflict.cc`.
+* **Mecanismo H-RDL:** Aplicação do modelo TVS (Throughput-Value Scaling) reduzindo eMBB para $60\%$ e preservando o SLA URLLC.
 
 ---
 
-### 2.5. Cenário S5: Governança Hierárquica Cross-Tier 6G
-
-No Cenário S5, valida-se o controle coordenado entre o Non-RT RIC (Políticas A1 de longo prazo) e o Near-RT RIC (Controle E2SM-RC determinístico em sub-50ms) com garantias de segurança Zero-Trust.
-
-![Cenário 5 - Governança Cross-Tier 6G (Tema Claro)](figures/02_cenarios_e_topologias/scenario_5_6g_cross_tier_governance_light.png)
+### 2.3. Cenário S3: Otimização Cross-Layer Power x QoS (`scenario_rdl_energy_vs_qos.cc`)
+* **Descrição:** Avaliação da função multiobjetivo EEVS entre a economia de energia por redução de potência da gNB e a manutenção da vazão eMBB dos UEs conectados.
+* **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_energy_vs_qos.cc`.
+* **Mecanismo H-RDL:** Identificação do ponto de operação Pareto sem violação de cobertura.
 
 ---
 
-## 3. Matriz de Síntese dos Cenários Canônicos
+### 2.4. Cenário S4: Mobilidade vs Economia de Energia (`scenario_rdl_ts_vs_energy.cc`)
+* **Descrição:** A xApp `Energy Saver` solicita a redução de potência/sono da `gNB_01` ($TX\_POWER = -10\text{ dBm}$), enquanto a xApp `Traffic Steering` tenta realizar o Handover de UEs congestionados da `gNB_02` para a `gNB_01`.
+* **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_ts_vs_energy.cc`.
+* **Mecanismo H-RDL:** Arbitragem assimétrica priorizando a continuidade da conexão (bloqueio do sono gNB durante handover).
 
-| Cenário | Descrição | Tipo de Conflito | Mecanismo de Arbitragem H-RDL | Métrica de Validação |
-| :---: | :--- | :---: | :--- | :--- |
-| **S1** | Trade-Off EEVS | Potência x SLA | Otimização Pareto EEVS | Economia de Energia sem quebra de SLA |
-| **S2** | TVS Traffic Steering vs Slice | Mobilidade x PRB | Escalonamento TVS (Throughput-Value) | Precision / Recall / F1 = 1.0 |
-| **S3** | 5G-A Multi-Carrier MIMO | Espectro Multi-Portadora | Alocação Dinâmica de PRB/MIMO | Maximização da Vazão Agregada |
-| **S4** | 6G ISAC Coexistência | Sensoriamento x Comms | Mitigação de Interferência Mútua | Manutenção de Resolução de Radar & QoS |
-| **S5** | Governança Cross-Tier | Hierárquico Near/Non-RT | Safety Guards & Trava Histerese | Zero-Violation & Resolução < 50ms |
+---
+
+### 2.5. Cenário S5: Histerese Temporal e Ping-Pong Lock (`scenario_rdl_temporal_pingpong.cc`)
+* **Descrição:** Solicitações rápidas e repetidas de Handover no mesmo par de células em janelas curtas ($< 1000\text{ ms}$).
+* **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_temporal_pingpong.cc`.
+* **Mecanismo H-RDL:** Imposição de janela de Cooldown Lock de $1000\text{ ms}$, eliminando oscilações cíclicas (Ping-Pong Rate $= 0\%$).
+
+---
+
+## 3. Síntese do Fluxo Experimental
+
+$$\text{Simulação C++ ns-3} \longrightarrow \text{E2AP/E2SM (NORI)} \longrightarrow \text{Logs Brutos} \longrightarrow \text{Calculador Post-Hoc (`compute_scenario_metrics.py`)}$$
