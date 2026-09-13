@@ -95,6 +95,16 @@ graph TD
 
 ---
 
+### 9. Programa de Conformidade O-RAN e Integridade Experimental
+* **[Diretório de Conformidade (docs/compliance/README.md)](compliance/README.md)**: 
+  - **[Perfil de Compatibilidade Congelado (H-RDL F1 Profile)](compliance/HRDL_F1_COMPATIBILITY_PROFILE.md)**
+  - **[Matriz de Rastreabilidade O-RAN (WG2/WG3 / Gates 0-6)](compliance/ORAN_TRACEABILITY_MATRIX.md)**
+  - **[Perfil de Implantação O-RAN SC Release J](compliance/ORAN_SC_IMPLEMENTATION_PROFILE.md)**
+  - **[Política de Evidência Experimental e Proveniência](compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)**
+  - **[Roadmap de Migração para O-RAN Release 5](compliance/MIGRATION_RELEASE5.md)**
+
+---
+
 ## Trilhas de Leitura Recomendadas
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
