@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "xapp-rdl-f1"
 version = "1.1.0"
 description = "O-RAN Near-RT RIC Conflict Mitigation xApp — Phase 1: Deterministic H-RDL"
-authors = [{ name = "George Barbosa", email = "georgebarbosa3090@gmail.com" }]
+authors = [{ name = "George Barbosa", email = "george.barbosa@icen.ufpa.br" }]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
