@@ -1,4 +1,4 @@
-name: CI - RDL xApp
+name: CI-Software - RDL xApp
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  software-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -39,14 +39,16 @@ jobs:
       run: |
         pytest tests/interoperability/ -v
 
-    - name: Run Zero-Synthetic & Scientific Compliance Audits
+    - name: Run Zero-Synthetic Audit
       run: |
         python scripts/check_no_synthetic_results.py
-        python scripts/verify_provenance_and_integrity.py
-        python scripts/validate_experiment_tree.py --check-gate1 || true
+
+    - name: Output Software Status
+      run: |
+        echo "=== SOFTWARE PASS ==="
 
   docker-build:
-    needs: test
+    needs: software-test
     runs-on: ubuntu-latest
     
     steps:
@@ -55,4 +57,5 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t iqos-xapp-rdl:1.1.0 -f docker/Dockerfile .
+
 

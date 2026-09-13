@@ -8,6 +8,32 @@ e2sm_kpm = "v03.00"
 e2sm_rc = "v01.03"
 near_rt_ric_arch = "v17.00"
 
+[profile.nori]
+backend = "NORI_NS3"
+ns3 = "3.48"
+fiveg_lena = "v5.1"
+nori_commit = "9b64c12"
+e2ap = "v02.03"
+e2sm_kpm = "v03.00"
+e2sm_rc = "v01.03"
+oran_sc_release = "J"
+
+[profile.srsran]
+backend = "SRSRAN_OPEN5GS"
+srsran_commit = "9b64c12"
+open5gs_version = "v2.7.0"
+e2ap = "v03.00"
+e2sm_kpm = "v03.00"
+e2sm_rc = "v03.00"
+oran_sc_release = "J"
+
+[profile.openranbr]
+profile = "OPENRANBR_PHYSICAL"
+site = "UFPA_LABORA_CPQD"
+e2ap = "v03.00"
+e2sm_kpm = "v03.00"
+e2sm_rc = "v03.00"
+
 [simulators]
 ns3 = "3.48"
 5g_lena = "v5.1"

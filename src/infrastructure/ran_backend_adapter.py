@@ -18,6 +18,10 @@ from src.observability.logging import setup_logger
 
 logger = setup_logger("RANBackendAdapter")
 
+class UnsupportedBackendError(Exception):
+    """Exceção lançada quando um backend RAN não suportado ou desconhecido é configurado."""
+    pass
+
 @dataclass
 class BackendMetadata:
     backend_id: str

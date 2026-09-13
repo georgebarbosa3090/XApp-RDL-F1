@@ -58,6 +58,8 @@ from src.e2.e2ap.constants import (
 )
 from src.conflict_types import XAppAction, KPMReport, ConflictSeverity, RDLDecision
 
+from src.infrastructure.ran_backend_factory import get_ran_backend_adapter
+
 logger = setup_logger("rdl_xapp")
 
 # Aliases de conveniência
@@ -97,6 +99,7 @@ class RDLxApp:
         self.asn1_decoder = KpmDecoder()
         self.rc_encoder = RCEncoder()
         self.rc_mapper = RCMapper(ran_function_id=3)
+        self.backend = get_ran_backend_adapter(os.getenv("RAN_BACKEND"))
         
         # Decision Window properties (Feature 1)
         self.proposal_buffer: List[XAppAction] = []

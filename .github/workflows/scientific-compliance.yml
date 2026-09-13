@@ -1,0 +1,38 @@
+name: CI-Scientific-Readiness - RDL xApp
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  scientific-readiness:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt -r requirements-dev.txt
+        
+    - name: Run Zero-Synthetic & Provenance Policy Audits
+      run: |
+        python scripts/check_no_synthetic_results.py
+        python scripts/verify_provenance_and_integrity.py
+        python scripts/validate_provenance.py
+
+    - name: Audit Gate 1 & Experimental Tree (Fail-Closed)
+      run: |
+        python scripts/validate_experiment_tree.py --check-gate1
+
+    - name: Output Scientific Readiness Status
+      run: |
+        echo "=== SCIENTIFIC READINESS PASS ==="

@@ -106,6 +106,27 @@ def validate_run_directory(run_dir: str) -> bool:
         print(f"  [PROVENANCE_INVALID] NENHUM artefato bruto {raw_extensions} encontrado em {run_dir}. Exigido para publicação elegível.")
         return False
 
+    # 4. Verifica Integridade Criptográfica (hashes.sha256 se presente)
+    hashes_file = os.path.join(run_dir, "hashes.sha256")
+    if os.path.exists(hashes_file):
+        print(f"  - Verificando integridade SHA256 em {hashes_file}...")
+        with open(hashes_file, "r", encoding="utf-8") as hf:
+            for line in hf:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                parts = line.split(maxsplit=1)
+                if len(parts) == 2:
+                    expected_hash, rel_path = parts[0], parts[1].strip()
+                    target_file = os.path.join(run_dir, rel_path)
+                    if not os.path.exists(target_file):
+                        target_file = os.path.join(os.path.dirname(hashes_file), rel_path)
+                    if os.path.exists(target_file):
+                        actual_hash = hash_file(target_file)
+                        if actual_hash.lower() != expected_hash.lower():
+                            print(f"  [PROVENANCE_INVALID] Divergência SHA256 em '{rel_path}': esperado {expected_hash[:8]}..., obtido {actual_hash[:8]}...")
+                            return False
+
     print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)} [Backend={backend_id}]")
     return True
 
