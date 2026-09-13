@@ -1,44 +1,61 @@
-# Catálogo Completo de Figuras de Topologia Espacial e Cenários (S0 a S15)
+# Catálogo Oficial da Suíte de Figuras Científicas XApp-RDL (S0 a S15)
 
-Este documento registra a rastreabilidade completa de todas as **21 figuras topológicas e cenariais** mantidas em `docs/figures/02_cenarios_e_topologias/`, cobrindo o núcleo da Fase 1 ($S_0$ a $S_8$) e a suíte avançada 5G-A/6G ($S_9$ a $S_{15}$), incluindo todas as xApps de Terceiros e xApps Propostas/Experimentais.
-
----
-
-## 1. Tabela de Mapeamento Completo por Cenário e xApp Relacionada
-
-| Identificador | Nome do Cenário | xApps Relacionadas (Terceiros / Propostas) | Figura Tema Claro | Figura Tema Escuro | Documento de Referência |
-| :---: | :--- | :--- | :--- | :--- | :--- |
-| **S0** | Passthrough Limpo / Topologia Geral | `kpimon`, `qos-xslice`, `traffic-steering` | [`fig_topologia_cenarios_ns3.png`](02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png) | [`fig_topologia_cenarios_ns3.png`](02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
-| **S1** | Trade-Off EEVS (Energy Saver x QoS) | `energy-saving`, `qos-xslice` | [`scenario_1_eevs_energy_vs_qos_light.png`](02_cenarios_e_topologias/scenario_1_eevs_energy_vs_qos_light.png) | [`scenario_1_eevs_energy_vs_qos.png`](02_cenarios_e_topologias/scenario_1_eevs_energy_vs_qos.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
-| **S2** | Conflito TVS (Traffic Steering x Slice) | `traffic-steering`, `qos-xslice` | [`scenario_2_tvs_traffic_steering_slicing_light.png`](02_cenarios_e_topologias/scenario_2_tvs_traffic_steering_slicing_light.png) | [`scenario_2_tvs_traffic_steering_slicing.png`](02_cenarios_e_topologias/scenario_2_tvs_traffic_steering_slicing.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
-| **S3** | 5G-A Multi-Carrier MIMO | `load-balancer`, `beamformer` *(PROPOSED)* | [`scenario_3_5ga_multicarrier_mimo_light.png`](02_cenarios_e_topologias/scenario_3_5ga_multicarrier_mimo_light.png) | [`scenario_3_5ga_multicarrier_mimo.png`](02_cenarios_e_topologias/scenario_3_5ga_multicarrier_mimo.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S4** | 6G ISAC Radar & Coexistência | `isac-radar` *(PROPOSED)* | [`scenario_4_6g_isac_sensing_coexistence_light.png`](02_cenarios_e_topologias/scenario_4_6g_isac_sensing_coexistence_light.png) | [`scenario_4_6g_isac_sensing_coexistence.png`](02_cenarios_e_topologias/scenario_4_6g_isac_sensing_coexistence.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S5** | Governança Cross-Tier 6G | `sec-guardian` *(PROPOSED)* | [`scenario_5_6g_cross_tier_governance_light.png`](02_cenarios_e_topologias/scenario_5_6g_cross_tier_governance_light.png) | [`scenario_5_6g_cross_tier_governance.png`](02_cenarios_e_topologias/scenario_5_6g_cross_tier_governance.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S9** | NTN Orbital Handover & Doppler | `ntn-steering`, `satellite-ho` *(PROPOSED)* | [`scenario_9_ntn_orbital_handover_light.png`](02_cenarios_e_topologias/scenario_9_ntn_orbital_handover_light.png) | [`scenario_9_ntn_orbital_handover.png`](02_cenarios_e_topologias/scenario_9_ntn_orbital_handover.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S10** | UAV Swarm Coverage & Battery | `uav-mobility`, `energy-conserver-uav` *(PROPOSED)* | [`scenario_10_uav_swarm_coverage_light.png`](02_cenarios_e_topologias/scenario_10_uav_swarm_coverage_light.png) | [`scenario_10_uav_swarm_coverage.png`](02_cenarios_e_topologias/scenario_10_uav_swarm_coverage.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S11** | V2X Highway Platoon URLLC | `v2x-mobility`, `platoon-qos` *(PROPOSED)* | [`scenario_11_v2x_highway_platoon_light.png`](02_cenarios_e_topologias/scenario_11_v2x_highway_platoon_light.png) | [`scenario_11_v2x_highway_platoon.png`](02_cenarios_e_topologias/scenario_11_v2x_highway_platoon.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S12** | IIoT Factory TSN Determinística | `industrial-qos` *(PROPOSED)* | [`scenario_12_iiot_factory_tsn_light.png`](02_cenarios_e_topologias/scenario_12_iiot_factory_tsn_light.png) | [`scenario_12_iiot_factory_tsn.png`](02_cenarios_e_topologias/scenario_12_iiot_factory_tsn.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
-| **S13** | Emergency SAGIN Multi-Domain | `rescue-qos` *(PROPOSED)* | [`scenario_13_emergency_sagin_multidomain_light.png`](02_cenarios_e_topologias/scenario_13_emergency_sagin_multidomain_light.png) | [`scenario_13_emergency_sagin_multidomain.png`](02_cenarios_e_topologias/scenario_13_emergency_sagin_multidomain.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+Este documento registra a rastreabilidade completa de todas as **32 figuras científicas de arquitetura e cenários experimentais** mantidas em `docs/figures/02_cenarios_e_topologias/`, cobrindo os cenários da Fase 1 ($S_0$ a $S_8$) e a suíte avançada 5G-A/6G ($S_9$ a $S_{15}$), cada um disponível em **Tema Claro (Light)** e **Tema Escuro (Dark)**.
 
 ---
 
-## 2. Rastreabilidade Arquitetural Geral
+## 1. Diretriz Científica de Isenção de Dados Sintéticos
+
+Conforme a regra do **Prompt Master IEEE/ACM XApp-RDL**:
+> *"Experimental scenario — metrics shown are monitored variables, not experimental results."*
+
+Nenhuma figura contém números aleatórios, curvas sintetizadas ou metas tratadas como resultados medidos. As figuras representam diagramas técnicos de arquitetura, topologia RAN, pilha Near-RT RIC / H-RDL, vetor de telemetria/controle E2 e marcadores temporais ($t_{conflict} \dots t_{recovery}$).
+
+---
+
+## 2. Mapeamento Completo por Cenário ($S_0$ a $S_{15}$)
+
+| ID | Nome Oficial do Cenário | Fase | xApps Participantes | Figura Tema Claro | Figura Tema Escuro | Documento de Referência |
+| :---: | :--- | :---: | :--- | :--- | :--- | :--- |
+| **S0** | No-Conflict Control | Fase 1 | `QoS/Slicing xApp`, `Traffic Steering xApp` | [`s0_architecture_light.png`](02_cenarios_e_topologias/s0_architecture_light.png) | [`s0_architecture_dark.png`](02_cenarios_e_topologias/s0_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S1** | Direct PRB Conflict | Fase 1 | `QoS/Slicing xApp`, `Energy Saving xApp` | [`s1_architecture_light.png`](02_cenarios_e_topologias/s1_architecture_light.png) | [`s1_architecture_dark.png`](02_cenarios_e_topologias/s1_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S2** | Energy Saving × QoS | Fase 1 | `Energy Saving xApp`, `QoS/Slicing xApp` | [`s2_architecture_light.png`](02_cenarios_e_topologias/s2_architecture_light.png) | [`s2_architecture_dark.png`](02_cenarios_e_topologias/s2_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S3** | Traffic Steering × Slicing | Fase 1 | `Traffic Steering xApp`, `QoS/Slicing xApp` | [`s3_architecture_light.png`](02_cenarios_e_topologias/s3_architecture_light.png) | [`s3_architecture_dark.png`](02_cenarios_e_topologias/s3_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S4** | Traffic Steering × Energy Saving | Fase 1 | `Traffic Steering xApp`, `Energy Saving xApp` | [`s4_architecture_light.png`](02_cenarios_e_topologias/s4_architecture_light.png) | [`s4_architecture_dark.png`](02_cenarios_e_topologias/s4_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S5** | Temporal Ping-Pong | Fase 1 | `Traffic Steering / MRO xApp`, `Energy / QoS xApp` | [`s5_architecture_light.png`](02_cenarios_e_topologias/s5_architecture_light.png) | [`s5_architecture_dark.png`](02_cenarios_e_topologias/s5_architecture_dark.png) | [`docs/topologia_espacial_e_cenarios_s1_s5.md`](../topologia_espacial_e_cenarios_s1_s5.md) |
+| **S6** | Multi-xApp Conflict Storm | Fase 1 | `QoS`, `Traffic Steering`, `Energy`, `Load Balancer`, `Beamformer` | [`s6_architecture_light.png`](02_cenarios_e_topologias/s6_architecture_light.png) | [`s6_architecture_dark.png`](02_cenarios_e_topologias/s6_architecture_dark.png) | [`docs/modelagem_cenarios_xapps_terceiros.md`](../modelagem_cenarios_xapps_terceiros.md) |
+| **S7** | Fault / Rogue xApp / Adversarial Control | Fase 1 | `xApps Legítimas`, `Rogue / Fault-Injection xApp` | [`s7_architecture_light.png`](02_cenarios_e_topologias/s7_architecture_light.png) | [`s7_architecture_dark.png`](02_cenarios_e_topologias/s7_architecture_dark.png) | [`docs/modelagem_cenarios_xapps_terceiros.md`](../modelagem_cenarios_xapps_terceiros.md) |
+| **S8** | Real NORI Closed Loop | Fase 1 | `KPM Monitor xApp`, `Traffic Steering xApp`, `H-RDL Core` | [`s8_architecture_light.png`](02_cenarios_e_topologias/s8_architecture_light.png) | [`s8_architecture_dark.png`](02_cenarios_e_topologias/s8_architecture_dark.png) | [`docs/relatorio_simulacoes_continuas_ns3_5glena_nori.md`](../relatorio_simulacoes_continuas_ns3_5glena_nori.md) |
+| **S9** | NTN Terrestrial–Satellite Conflict | Fase 2 / 6G | `NTN Steering xApp`, `QoS / Latency Slicing`, `Load Balancer` | [`s9_architecture_light.png`](02_cenarios_e_topologias/s9_architecture_light.png) | [`s9_architecture_dark.png`](02_cenarios_e_topologias/s9_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S10** | UAV / Flying gNB / Swarm | Fase 2 / 6G | `UAV Mobility xApp`, `Energy Saving xApp`, `Load Balancer` | [`s10_architecture_light.png`](02_cenarios_e_topologias/s10_architecture_light.png) | [`s10_architecture_dark.png`](02_cenarios_e_topologias/s10_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S11** | V2X High-Mobility Platoon | Fase 2 / 6G | `Traffic Steering xApp`, `Mobility / MRO xApp`, `Platoon QoS xApp` | [`s11_architecture_light.png`](02_cenarios_e_topologias/s11_architecture_light.png) | [`s11_architecture_dark.png`](02_cenarios_e_topologias/s11_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S12** | IIoT / TSN Mission-Critical | Fase 2 / 6G | `Industrial QoS xApp`, `Energy Saving xApp`, `Load Balancer` | [`s12_architecture_light.png`](02_cenarios_e_topologias/s12_architecture_light.png) | [`s12_architecture_dark.png`](02_cenarios_e_topologias/s12_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S13** | SAGIN Multi-Domain | Fase 3 / 6G | `NTN Steering`, `UAV Coordination`, `QoS Slicing`, `Energy Saving` | [`s13_architecture_light.png`](02_cenarios_e_topologias/s13_architecture_light.png) | [`s13_architecture_dark.png`](02_cenarios_e_topologias/s13_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S14** | ISAC Sensing × Communication | Fase 3 / 6G | `ISAC / Sensing xApp`, `eMBB / QoS xApp`, `Beamformer xApp` | [`s14_architecture_light.png`](02_cenarios_e_topologias/s14_architecture_light.png) | [`s14_architecture_dark.png`](02_cenarios_e_topologias/s14_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+| **S15** | Cross-Tier Governance / Anti-Rogue | Fase 3 / 6G | `QoS`, `Steering`, `Energy`, `Load Balancer`, `Beamformer`, `ISAC`, `Rogue xApp` | [`s15_architecture_light.png`](02_cenarios_e_topologias/s15_architecture_light.png) | [`s15_architecture_dark.png`](02_cenarios_e_topologias/s15_architecture_dark.png) | [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](../analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) |
+
+---
+
+## 3. Rastreabilidade de Arquivos no Repositório
 
 ```text
 docs/figures/
-├── README.md                                       # Catálogo consolidado de rastreabilidade S0-S15
-├── 01_arquitetura_e_modelagem/
-│   └── fig_fluxo_funcional_arquitetura_rdl.png      # Fluxo funcional do middleware H-RDL
+├── README.md                                       # Catálogo consolidado oficial S0-S15 (32 figuras)
 └── 02_cenarios_e_topologias/
-    ├── fig_topologia_cenarios_ns3.png               # Topologia espacial geral
-    ├── scenario_1_eevs_energy_vs_qos*.png           # Cenário S1 (EEVS)
-    ├── scenario_2_tvs_traffic_steering_slicing*.png # Cenário S2 (TVS)
-    ├── scenario_3_5ga_multicarrier_mimo*.png        # Cenário S3 (5G-A MIMO)
-    ├── scenario_4_6g_isac_sensing_coexistence*.png  # Cenário S4 (6G ISAC)
-    ├── scenario_5_6g_cross_tier_governance*.png     # Cenário S5 (Zero-Trust)
-    ├── scenario_9_ntn_orbital_handover*.png         # Cenário S9 (NTN LEO)
-    ├── scenario_10_uav_swarm_coverage*.png          # Cenário S10 (UAV Swarm)
-    ├── scenario_11_v2x_highway_platoon*.png         # Cenário S11 (V2X 110km/h)
-    ├── scenario_12_iiot_factory_tsn*.png            # Cenário S12 (IIoT TSN)
-    └── scenario_13_emergency_sagin_multidomain*.png # Cenário S13 (SAGIN Emergência)
+    ├── s0_architecture_light.png / s0_architecture_dark.png
+    ├── s1_architecture_light.png / s1_architecture_dark.png
+    ├── s2_architecture_light.png / s2_architecture_dark.png
+    ├── s3_architecture_light.png / s3_architecture_dark.png
+    ├── s4_architecture_light.png / s4_architecture_dark.png
+    ├── s5_architecture_light.png / s5_architecture_dark.png
+    ├── s6_architecture_light.png / s6_architecture_dark.png
+    ├── s7_architecture_light.png / s7_architecture_dark.png
+    ├── s8_architecture_light.png / s8_architecture_dark.png
+    ├── s9_architecture_light.png / s9_architecture_dark.png
+    ├── s10_architecture_light.png / s10_architecture_dark.png
+    ├── s11_architecture_light.png / s11_architecture_dark.png
+    ├── s12_architecture_light.png / s12_architecture_dark.png
+    ├── s13_architecture_light.png / s13_architecture_dark.png
+    ├── s14_architecture_light.png / s14_architecture_dark.png
+    └── s15_architecture_light.png / s15_architecture_dark.png
 ```
