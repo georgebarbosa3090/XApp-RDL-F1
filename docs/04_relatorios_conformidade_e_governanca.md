@@ -34,65 +34,65 @@
 * **Aderência aos Padrões O-RAN Alliance:** O projeto implementa os padrões O-RAN WG3 (Near-RT RIC Architecture), O-RAN WG2 (Non-RT RIC A1 Interface) e especificações E2SM-KPM v03.00 e E2SM-RC v01.03.
 * **Política Rígida de Providência Científica:** Todos os geradores sintéticos, mocks e dados de codecs foram desacoplados da publicação experimental ($\text{Resultado Científico Válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}$).
 * **Segurança e Privilégios no Kubernetes:** O Pod opera estritamente como usuário não-root (`runAsUser: 1000`), sem escalada de privilégios (`allowPrivilegeEscalation: false`) e com capacidades de kernel descartadas (`drop: ALL`).
-* **Validação por Gates:** Os relatórios e tabelas de publicação exigem aprovação prévia dos **Gates 1 a 4**.
-* **Conclusão:** A Fase 1 (H-RDL) atinge **100% de conformidade técnica e arquitetural**.
+* **Validação por Gates:** Os relatórios e tabelas de publicação exigem aprovação prévia dos **Gates 0 a 6**.
+* **Conclusão:** A Fase 1 (H-RDL) atinge **conformidade técnica e estrutural completa com as normas O-RAN**.
 
 ---
 
 ## 3. Matriz de Auditoria e Conformidade por Padrão
 
-| Norma / Organismo | Especificação | Cláusula / Requisito | Aderência RDL Fase 1 |
+| Norma / Organismo | Especificação | Cláusula / Requisito | Aderência Estrutural H-RDL Fase 1 |
 | :--- | :--- | :--- | :---: |
-| **O-RAN Alliance** | O-RAN.WG3.RICARCH-v03.00 | Near-RT RIC Architecture & Conflict Mitigation | 100% |
-| **O-RAN Alliance** | O-RAN.WG3.E2SM-KPM-v02.00 | Performance Management KPM Service Model | 100% |
-| **O-RAN Alliance** | O-RAN.WG3.E2SM-RC-v01.00 | RAN Control (RC) Action & Control Service Model | 100% |
-| **3GPP** | TS 38.300 / TS 38.401 | 5G NR Overall Description & Architecture | 100% |
-| **Linux Foundation** | O-RAN SC (Software Community) | RMR Messaging Protocol & Shared Data Layer (SDL) | 100% |
+| **O-RAN Alliance** | O-RAN.WG3.RICARCH-v03.00 | Near-RT RIC Architecture & Conflict Mitigation | Conformidade Estrutural |
+| **O-RAN Alliance** | O-RAN.WG3.E2SM-KPM-v03.00 | Performance Management KPM Service Model (v03.00) | Conformidade Estrutural |
+| **O-RAN Alliance** | O-RAN.WG3.E2SM-RC-v01.03 | RAN Control (RC) Action & Control Service Model (v01.03) | Conformidade Estrutural |
+| **3GPP** | TS 38.300 / TS 38.401 | 5G NR Overall Description & Architecture | Conformidade Estrutural |
+| **Linux Foundation** | O-RAN SC (Software Community) | RMR Messaging Protocol & Shared Data Layer (SDL) | Conformidade Estrutural |
 
 ---
 
 ## 4. Resiliência e Escalabilidade Assintótica sob Densidade de UEs (100 a 1000 Dispositivos)
 
-A arquitetura xApp RDL apresenta **resiliência e escalabilidade assintótica comprovadas** para redes 5G-Advanced e 6G. Os pilares de governança que asseguram este desempenho são:
+A arquitetura xApp RDL apresenta **metas de resiliência e escalabilidade assintótica** projetadas para redes 5G-Advanced e 6G. Os pilares de governança que asseguram este desempenho são:
 
 ### 4.1. Desacoplamento Algorítmico do Loop Near-RT em Relação ao Número de UEs
 O gargalo comum em arquiteturas ingênuas de controle é iterar sobre cada usuário $M$ individualmente a cada milissegundo ($\mathcal{O}(M)$). A xApp RDL adota a governança desacoplada preconizada pela O-RAN Alliance:
 
 ```text
-           Telemetria E2SM-KPM (M = 100 a 1000 UEs)
-                              │
-                              ▼
-           xApps Especializadas (xSlice, ES, TS)
-           [Agregação por Fatia / Célula / Fluxo]
-                              │
-                              ▼
-              Propostas Consolidadas (K xApps)
-                              │
-                              ▼
- ┌─────────────────────────────────────────────────────────┐
- │                   xApp RDL (Pipeline)                   │
- │                                                         │
- │  1. PerceptionAgent: Detecção de Conflitos   ──► O(K²)  │
- │  2. ReasoningAgent:  Modelos Físicos / TVS   ──► O(K)   │
- │  3. RefinementAgent: Safety Guards Físicos   ──► O(1)   │
- └─────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                  Comandos E2SM-RC Control
+            Telemetria E2SM-KPM (M = 100 a 1000 UEs)
+                               │
+                               ▼
+            xApps Especializadas (xSlice, ES, TS)
+            [Agregação por Fatia / Célula / Fluxo]
+                               │
+                               ▼
+               Propostas Consolidadas (K xApps)
+                               │
+                               ▼
+  ┌─────────────────────────────────────────────────────────┐
+  │                   xApp RDL (Pipeline)                   │
+  │                                                         │
+  │  1. PerceptionAgent: Detecção de Conflitos   ──► O(K²)  │
+  │  2. ReasoningAgent:  Modelos Físicos / TVS   ──► O(K)   │
+  │  3. RefinementAgent: Safety Guards Físicos   ──► O(1)   │
+  └─────────────────────────────────────────────────────────┘
+                               │
+                               ▼
+                   Comandos E2SM-RC Control
 ```
 
 * **Complexidade do Grafo de Conflitos (`PerceptionAgent`):** $\mathcal{O}(K^2)$, onde $K$ é o número de xApps em execução ($K \in [3, 10]$). Com $K = 3$, são avaliados apenas $\binom{3}{2} = 3$ pares de propostas por janela temporal de 200 ms.
 * **Complexidade de Arbitragem (`ReasoningAgent`):** $\mathcal{O}(K)$ para cálculo vetorial das funções de utilidade (Shannon, $M/G/1$ e Earth Power).
 * **Complexidade dos *Safety Guards* (`RefinementAgent`):** $\mathcal{O}(1)$ por ação atômica validada.
-* **Manutenção Determinística da Latência Near-RT:** Como a escala depende de $K$ (número de xApps) e não de $M$ (número de terminais), o tempo de decisão medido permanece constante: **$T_{\text{dec}} = 14,20 \pm 0,47\text{ ms} \ll 50\text{ ms}$**, cumprindo com folga o limite O-RAN Near-RT ($10\text{ ms} \le \Delta t \le 1000\text{ ms}$).
+* **Meta de Latência Near-RT:** Como a escala depende de $K$ (número de xApps) e não de $M$ (número de terminais), a meta de tempo de decisão é mantida estritamente abaixo do orçamento de tempo real: **$T_{\text{dec}} \le 50\text{ ms}$** (com alvo nominal H-RDL Core $< 15\text{ ms}$), cumprindo com folga o limite O-RAN Near-RT ($10\text{ ms} \le \Delta t \le 1000\text{ ms}$).
 
-### 4.2. Comportamento Assintótico sob Saturação Extrema ($M \to 1000\text{ UEs}$)
+### 4.2. Hipóteses de Comportamento sob Saturação Extrema ($M \to 1000\text{ UEs}$)
 
-| Comportamento da Rede | Baseline (Sem Mediação RDL) | Com Governança xApp RDL |
+| Comportamento da Rede | Baseline (Sem Mediação RDL) | Com Governança xApp RDL (Hipótese/Alvo) |
 | :--- | :--- | :--- |
-| **Carga Baixa ($M = 100\text{ UEs}$)** | Rede opera com folga; conflitos esporádicos. PDR $> 90\%$. | Opera em regime ótimo; $0\%$ de violações de SLA. |
-| **Carga Média ($M = 500\text{ UEs}$)** | Conflitos disparam: *Energy Saving* corta potência enquanto *xSlice* disputa PRBs. | RDL detecta conflitos indiretos no grafo e prioriza tráfego crítico. |
-| **Saturação Extrema ($M = 1000\text{ UEs}$)** | **Colapso Sistêmico:** Tempestade de handovers *ping-pong*, colapso de SINR e violações de SLA superiores a $60\%$. PDR cai para $< 40\%$. | **Resiliência Assintótica:** Clamping de potência, histerese de handover ($\Delta t \ge 1000\text{ ms}$) e garantia de URLLC. **$0,00\%$ de violações de SLA e PDR de $99,53\%$**. |
+| **Carga Baixa ($M = 100\text{ UEs}$)** | Rede opera com folga; conflitos esporádicos. PDR $> 90\%$. | Regime ótimo; mitigação pass-through sem alteração de ações limpas. |
+| **Carga Média ($M = 500\text{ UEs}$)** | Conflitos disparam: *Energy Saving* corta potência enquanto *xSlice* disputa PRBs. | RDL detecta conflitos indiretos no grafo e prioriza tráfego crítico URLLC. |
+| **Saturação Extrema ($M = 1000\text{ UEs}$)** | **Degradação Concorrente:** Riscos de handovers *ping-pong*, colapso de SINR e violações de SLA. | **Resiliência de Governança:** Clamping de potência, histerese de handover ($\Delta t \ge 1000\text{ ms}$) e sustentação de PDR URLLC elevado. |
 
 ### 4.3. Síntese Metodológica de Validação
 1. **Design Fatorial Cruzado ($M \times S \times \text{Modo}$):** A variação de 100 a 1000 UEs é analisada executando o bloco de $N = 30$ sementes estocásticas idênticas para cada nível de carga $M$, isolando o ganho algorítmico de ruídos de canal ou mobilidade.

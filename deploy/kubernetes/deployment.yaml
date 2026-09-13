@@ -27,6 +27,8 @@ spec:
         image: iqos-xapp-rdl:1.1.0
         imagePullPolicy: Never
         env:
+        - name: RDL_MODE
+          value: "oran-strict"
         - name: USE_FAKE_SDL
           value: "true"
         - name: RMR_SEED_RT

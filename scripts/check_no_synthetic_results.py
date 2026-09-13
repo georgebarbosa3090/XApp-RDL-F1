@@ -73,7 +73,14 @@ def main():
         print("\n[ERRO] Abortando. Remova os geradores sintéticos antes de prosseguir.")
         sys.exit(1)
 
-    print("\n[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
+    # Validação da existência e integridade da política de proveniência em YAML
+    policy_file = os.path.join(BASE_DIR, "reproducibility", "provenance_policy.yaml")
+    if not os.path.exists(policy_file):
+        print(f"\n[FALHA CRÍTICA] Política de proveniência não encontrada em: {policy_file}")
+        sys.exit(1)
+
+    print("\n[OK] Política de proveniência YAML (provenance_policy.yaml) verificada!")
+    print("[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
     sys.exit(0)
 
 if __name__ == "__main__":

@@ -28,6 +28,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: RDL_MODE
+              value: {{ .Values.env.rdlMode | default "oran-strict" | quote }}
             - name: USE_FAKE_SDL
               value: {{ .Values.env.useFakeSdl | quote }}
             - name: RMR_SEED_RT
