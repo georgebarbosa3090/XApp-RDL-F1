@@ -79,7 +79,24 @@ def main():
         print(f"\n[FALHA CRÍTICA] Política de proveniência não encontrada em: {policy_file}")
         sys.exit(1)
 
-    print("\n[OK] Política de proveniência YAML (provenance_policy.yaml) verificada!")
+    import yaml
+    try:
+        with open(policy_file, "r", encoding="utf-8") as pf:
+            policy_data = yaml.safe_load(pf)
+        pub_sources = policy_data.get("publication_eligible_sources", [])
+        non_pub_sources = policy_data.get("non_publication_sources", [])
+        firewall = policy_data.get("firewall_rules", {})
+        if not pub_sources or not non_pub_sources:
+            print(f"\n[FALHA CRÍTICA] provenance_policy.yaml está ausente de seções mandatárias de fontes!")
+            sys.exit(1)
+        print(f"\n[OK] Política de proveniência YAML (provenance_policy.yaml) parsed e validada!")
+        print(f"  - Fontes Elegíveis: {pub_sources}")
+        print(f"  - Fontes Restritas: {non_pub_sources}")
+        print(f"  - Regra de Ouro: {firewall.get('golden_rule', 'N/A')}")
+    except Exception as e:
+        print(f"\n[FALHA CRÍTICA] Erro ao carregar provenance_policy.yaml: {e}")
+        sys.exit(1)
+
     print("[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
     sys.exit(0)
 

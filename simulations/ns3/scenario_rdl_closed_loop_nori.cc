@@ -40,6 +40,16 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioRdlClosedLoopNori");
 
+static void InjectConflictEvent ()
+{
+    NS_LOG_UNCOND (">>> [EVENTO CRÍTICO t=" << Simulator::Now ().GetSeconds () << "s] Injetando tempestade de tráfego e colisão de PRBs (Conflito TVS/QoS)");
+}
+
+static void RecoverConflictEvent ()
+{
+    NS_LOG_UNCOND (">>> [EVENTO RECUPERAÇÃO t=" << Simulator::Now ().GetSeconds () << "s] Encerrando tempestade de tráfego; iniciando janela de observação H-RDL");
+}
+
 int main (int argc, char *argv[])
 {
     uint16_t gNbNum = 2;
@@ -192,7 +202,7 @@ int main (int argc, char *argv[])
         Ptr<E2AgentHelper> e2AgentHelper = CreateObject<E2AgentHelper> ();
         e2AgentHelper->SetAttribute ("RicIpAddress", Ipv4AddressValue (ricIpAddress.c_str ()));
         e2AgentHelper->SetAttribute ("RicPort", UintegerValue (ricPort));
-        e2AgentHelper->SetAttribute ("KpmReportIntervalMs", UintegerValue (200));
+        e2AgentHelper->SetAttribute ("KpmReportIntervalMs", UintegerValue (static_cast<uint32_t>(kpmPeriod * 1000.0)));
         e2AgentHelper->Install (gridScenario.GetBaseStations ());
     }
 #endif
@@ -284,6 +294,23 @@ int main (int argc, char *argv[])
 
     FlowMonitorHelper flowHelper;
     Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
+
+    #if !HAS_NR_MODULE
+        if (demoMode == "experiment")
+        {
+            NS_FATAL_ERROR ("Cenário S8 em modo experimento exige o módulo 5G-LENA (ns3/nr-module.h). Abortando.");
+        }
+    #endif
+    #if !HAS_ORAN_MODULE
+        if (demoMode == "experiment")
+        {
+            NS_FATAL_ERROR ("Cenário S8 em modo experimento exige o módulo NORI E2 (ns3/oran-interface.h). Abortando.");
+        }
+    #endif
+
+    NS_LOG_INFO ("Agendando evento de inicio de conflito para t=" << conflictStart << "s e fim para t=" << conflictEnd << "s");
+    Simulator::Schedule (Seconds (conflictStart), &InjectConflictEvent);
+    Simulator::Schedule (Seconds (conflictEnd), &RecoverConflictEvent);
 
     NS_LOG_INFO ("Executando simulacao closed-loop por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));

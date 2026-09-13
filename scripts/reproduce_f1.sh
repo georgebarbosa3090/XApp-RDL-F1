@@ -21,7 +21,7 @@ python3 scripts/reproduce_paper_artifacts.py
 
 # 3. Geração de Figuras Científicas
 echo "[3/4] Gerando figuras científicas em alta resolução (300 DPI)..."
-python3 scripts/generate_sbrc_figures.py
+python3 scripts/generate_publication_report_figures.py || python3 scripts/generate_advanced_spatial_topology_figures.py
 
 # 4. Auditoria de Proveniência e Integridade
 echo "[4/4] Auditando integridade e conformidade de zero dados sintéticos..."

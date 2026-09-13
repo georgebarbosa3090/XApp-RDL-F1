@@ -17,7 +17,7 @@ O projeto estabelece uma hierarquia rigorosa em 5 camadas para evitar ambiguidad
 | **2. Implementação de Referência** | **O-RAN Software Community (O-RAN SC)** | Release J: E2Term (SCTP/RMR), Subscription Manager (REST API), RMR Router, DBAAS (Redis). |
 | **3. Ambiente Experimental** | **ns-3 + 5G-LENA + NORI** | ns-3.48, 5G-LENA v5.1, NORI E2SIM (Commit fixado). |
 | **4. Contribuição Científica** | **H-RDL Core (Fase 1)** | Algoritmos de Percepção (200ms), Raciocínio TVS/EEVS, Safety Guards e Causal Tracker. |
-| **5. Reprodutibilidade & Evidência** | **Metodologia ACM / IEEE** | Rastreabilidade de seeds, hashes SHA-256, logs brutos read-only e 6 Gates formais. |
+| **5. Reprodutibilidade & Evidência** | **Metodologia ACM / IEEE** | Rastreabilidade de seeds, hashes SHA-256, logs brutos read-only e 7 Gates formais (G0 a G6). |
 
 ---
 
@@ -59,7 +59,7 @@ kpm_reporting_period_s: 0.20
 
 Nas publicações científicas (SBRC, SBrT, IEEE WCNC, IEEE TNSM), o perfil de compatibilidade deve ser citado utilizando estritamente o enunciado formal:
 
-> *"H-RDL F1 implements an explicitly defined O-RAN compatibility profile based on E2AP v02.03, E2SM-KPM v03.00, and E2SM-RC v01.03, selected to preserve full interoperability with the experimental O-RAN Software Community (Release J) and NORI / 5G-LENA v5.1 co-simulation stack."*
+> *"H-RDL F1 implements an explicitly defined O-RAN compatibility profile based on E2AP v02.03, E2SM-KPM v03.00, and E2SM-RC v01.03, selected as the target interoperability profile for the experimental O-RAN SC/NORI stack."*
 
 ---
 

@@ -39,6 +39,12 @@ jobs:
       run: |
         pytest tests/interoperability/ -v
 
+    - name: Run Zero-Synthetic & Scientific Compliance Audits
+      run: |
+        python scripts/check_no_synthetic_results.py
+        python scripts/verify_provenance_and_integrity.py
+        python scripts/validate_experiment_tree.py --check-gate1 || true
+
   docker-build:
     needs: test
     runs-on: ubuntu-latest

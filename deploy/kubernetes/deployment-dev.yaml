@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ricxapp-iqos-xapp-rdl-dev
+  namespace: ricxapp
+  labels:
+    app: ricxapp-iqos-xapp-rdl-dev
+    app.kubernetes.io/name: iqos-xapp-rdl-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ricxapp-iqos-xapp-rdl-dev
+  template:
+    metadata:
+      labels:
+        app: ricxapp-iqos-xapp-rdl-dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: iqos-xapp-rdl
+        image: iqos-xapp-rdl:1.1.0
+        imagePullPolicy: Never
+        env:
+        - name: RDL_MODE
+          value: "development"
+        - name: USE_FAKE_SDL
+          value: "true"
+        - name: RMR_SEED_RT
+          value: "/app/configs/routes.rt"
+        - name: CONFIG_FILE
+          value: "/app/configs/config-file.json"
+        - name: RMR_WAIT_FOR_READY
+          value: "false"
+        - name: LOG_LEVEL
+          value: "DEBUG"
+        ports:
+        - containerPort: 4560
+          name: rmr-data
+        - containerPort: 8080
+          name: http-health
+        - containerPort: 8081
+          name: http-metrics

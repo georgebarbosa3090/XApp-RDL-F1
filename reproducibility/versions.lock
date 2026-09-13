@@ -14,7 +14,7 @@ ns3 = "3.48"
 nori_commit = "9b64c12" # lasseufpa/nori
 
 [oran-sc]
-release = "Release J (Cherry/Dawn)"
+release = "J"
 ric_plt_xapp_frame_py = "3.2.2"
 ric_plt_submgr = "0.9.1"
 ric_plt_e2mgr = "5.4.9"
@@ -41,6 +41,6 @@ k3s = "v1.28.8+k3s1"
 k3d = "v5.6.0"
 helm = "v3.14+"
 rancher = "v2.8.5"
-cmake = ">=3.22.1"
+cmake = ">=3.25.2"
 ninja = ">=1.10.1"
 gcc = ">=11.4.0"

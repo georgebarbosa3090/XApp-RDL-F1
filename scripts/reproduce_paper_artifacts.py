@@ -67,8 +67,12 @@ def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/
     os.makedirs(os.path.join(output_dir, "figures"), exist_ok=True)
 
     print(f"================================================================================")
-    print(f" [REPRODUCE-PAPER] Execução Real Pareada (N={seeds_count} Seeds) - Zero Dados Sintéticos")
-    print(f" Metodologia: Simulação Física Discreta 3GPP TR 38.901 + H-RDL E2 Closed-Loop")
+    print(f" [DEV/EVAL] Validação Local de Software Pareada (N={seeds_count} Seeds)")
+    print(f" Metodologia: Modelo Discreto Python (3GPP TR 38.901) + H-RDL E2 Closed-Loop")
+    print(f" [PROVENANCE NOTICE] ATENÇÃO: Conforme reproducibility/provenance_policy.yaml,")
+    print(f" a fonte DISCRETE_EVENT_SIMULATOR é classificada como NON_PUBLICATION.")
+    print(f" Destina-se EXCLUSIVAMENTE a testes locais de software e validação de algoritmos.")
+    print(f" Para evidências elegíveis para publicação (PUBLICATION_ELIGIBLE), execute ns-3 + NORI.")
     print(f" Destino dos Artefatos: {output_dir}")
     print(f"================================================================================")
 

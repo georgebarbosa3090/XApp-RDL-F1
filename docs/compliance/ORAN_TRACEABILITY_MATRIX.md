@@ -2,7 +2,7 @@
 
 **Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
 **Documento:** `ORAN_TRACEABILITY_MATRIX.md`  
-**Escopo:** Mapeamento formal entre requisitos O-RAN ALLIANCE, mensagens E2AP/E2SM, componentes do H-RDL, suíte de testes e os 6 Gates de Evidência Experimental.
+**Escopo:** Mapeamento formal entre requisitos O-RAN ALLIANCE, mensagens E2AP/E2SM, componentes do H-RDL, suíte de testes e os 7 Gates de Evidência Experimental (G0 a G6).
 
 ---
 
@@ -10,19 +10,19 @@
 
 | Requisito O-RAN / Especificação | Protocolo / Mensagem | Componente H-RDL | Suíte de Testes | Evidência / Artefato | Status de Conformidade |
 | :--- | :--- | :--- | :--- | :--- | :---: |
-| **REQ-O-RAN-E2SETUP** | E2AP ProcedureCode 1 | `src/e2/e2ap/` | `tests/codec/test_golden_vectors.py` | `e2/setup/request.raw` | **Conforme ($\checkmark$)** |
-| **REQ-O-RAN-SUBMGR** | E2AP ProcedureCode 8 | `SubMgrClient` | `tests/integration/test_all_reference_xapps.py` | `e2/kpm/subscription.raw` | **Conforme ($\checkmark$)** |
-| **REQ-O-RAN-KPM-IND** | E2AP ProcedureCode 5 / KPM v3 | `KPMDecoder` | `tests/codec/test_kpm_codec.py` | `e2/kpm/indication.raw` | **Conforme ($\checkmark$)** |
-| **REQ-O-RAN-RC-CTRL** | E2AP ProcedureCode 4 / RC v1.03 | `RCEncoder` / `RCMapper` | `tests/integration/test_rc_mapper.py` | `e2/rc/control.raw` | **Conforme ($\checkmark$)** |
-| **REQ-RDL-PERCEPTION** | Janela em Lote (200ms) | `PerceptionAgent` | `tests/unit/test_conflict_detection.py` | `hrdl/conflicts.jsonl` | **Conforme ($\checkmark$)** |
-| **REQ-RDL-REASONING** | Modelos Analíticos TVS/EEVS | `ReasoningAgent` | `tests/unit/test_reasoning_models.py` | `hrdl/decisions.jsonl` | **Conforme ($\checkmark$)** |
-| **REQ-RDL-SAFETY** | Clamping & Handover Lock | `RefinementAgent` | `tests/unit/test_safety_guards.py` | `hrdl/safety.jsonl` | **Conforme ($\checkmark$)** |
-| **REQ-RDL-CAPABILITY** | Strict Discovery Mode | `RanFunctionCapabilityRegistry` | `tests/unit/test_negative_cases.py` | `RDL_MODE=oran-strict` | **Conforme ($\checkmark$)** |
-| **REQ-O-RAN-CLOSED-LOOP** | Closed-Loop Causal | `CausalTracker` | `tests/interoperability/test_closed_loop.py` | `hrdl/causal.jsonl` | **Gate 4 Em Fechamento ($\odot$)** |
+| **REQ-O-RAN-E2SETUP** | E2AP ProcedureCode 1 | `src/e2/e2ap/` | `tests/codec/test_golden_vectors.py` | `e2/setup/request.raw` | **INTEGRATION-VALIDATED** |
+| **REQ-O-RAN-SUBMGR** | E2AP ProcedureCode 8 | `SubscriptionManager` | `tests/integration/test_all_reference_xapps.py` | `e2/kpm/subscription.raw` | **IMPLEMENTED / INTEROP-PENDING** |
+| **REQ-O-RAN-KPM-IND** | E2AP ProcedureCode 5 / KPM v3 | `KPMDecoder` | `tests/codec/test_kpm_codec.py` | `e2/kpm/indication.raw` | **INTEGRATION-VALIDATED** |
+| **REQ-O-RAN-RC-CTRL** | E2AP ProcedureCode 4 / RC v1.03 | `RCEncoder` / `RCMapper` | `tests/integration/test_rc_mapper.py` | `e2/rc/control.raw` | **INTEGRATION-VALIDATED** |
+| **REQ-RDL-PERCEPTION** | Janela em Lote (200ms) | `PerceptionAgent` | `tests/unit/test_conflict_detection.py` | `hrdl/conflicts.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-REASONING** | Modelos Analíticos TVS/EEVS | `ReasoningAgent` | `tests/unit/test_reasoning_models.py` | `hrdl/decisions.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-SAFETY** | Clamping & Handover Lock | `RefinementAgent` | `tests/unit/test_safety_guards.py` | `hrdl/safety.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-CAPABILITY** | Strict Discovery Mode | `RanFunctionCapabilityRegistry` | `tests/unit/test_negative_cases.py` | `RDL_MODE=oran-strict` | **UNIT-VALIDATED** |
+| **REQ-O-RAN-CLOSED-LOOP** | Closed-Loop Causal | `CausalTracker` | `tests/interoperability/test_closed_loop.py` | `hrdl/causal.jsonl` | **INTEROP-PENDING** |
 
 ---
 
-## 2. Rastreabilidade dos 6 Gates Formais de Evidência
+## 2. Rastreabilidade dos 7 Gates Formais de Evidência (G0 a G6)
 
 $$\boxed{\text{Progressão Formal de Maturidade: } G_0 \longrightarrow G_1 \longrightarrow G_2 \longrightarrow G_3 \longrightarrow G_4 \longrightarrow G_5 \longrightarrow G_6}$$
 

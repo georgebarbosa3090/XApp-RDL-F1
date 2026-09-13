@@ -25,7 +25,7 @@ Para proteger os experimentos e publicações da Fase 1, a evolução para o Rel
 | **E2AP** | `v02.03` | `v03.01` | Suporte a novas causas de erro e mensagens estendidas de serviço. |
 | **E2SM-KPM** | `v03.00` | `v08.00` | Mapeamento expandido de métricas 3GPP 28.552, suporte a fatias dinâmicas e ISAC. |
 | **E2SM-RC** | `v01.03` | `v10.00` | Estilos adicionais de controle, suporte estendido a parâmetros MIMO e beamforming. |
-| **O-RAN SC** | Release J | Release K / L | Atualizações no Subscription Manager REST API e suporte a O-Cloud. |
+| **O-RAN SC** | Release J | Empirically Validated Release | Future profile will target the O-RAN SC release empirically validated against the selected O-RAN Alliance Release 5 E2 profile. |
 
 ---
 

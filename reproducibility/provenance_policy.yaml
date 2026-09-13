@@ -25,7 +25,7 @@ non_publication_sources:
   - ESTIMATED
   - DEMO_RUN
 
-# Os 6 Gates Formais de Evidência Experimental
+# Os 7 Gates Formais de Evidência Experimental (G0 a G6)
 gates:
   G0: "Ambiente normativo reproduzível (versões, hashes, build)"
   G1: "E2SM-KPM real (telemetria externa NORI)"

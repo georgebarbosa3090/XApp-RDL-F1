@@ -57,8 +57,21 @@ def audit_codebase_for_synthetic_generators() -> List[Tuple[str, int, str, str]]
                                     violations.append((fpath, lno, name, line.strip()))
     return violations
 
+import yaml
+
+def load_provenance_policy() -> dict:
+    policy_path = os.path.join(BASE_DIR, "reproducibility", "provenance_policy.yaml")
+    if not os.path.exists(policy_path):
+        raise FileNotFoundError(f"Arquivo de política não encontrado: {policy_path}")
+    with open(policy_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
 def audit_datasets_provenance() -> bool:
-    """Verifica se os datasets contêm as tags de proveniência mandatárias."""
+    """Verifica se os datasets contêm as tags de proveniência mandatárias conforme provenance_policy.yaml."""
+    policy = load_provenance_policy()
+    eligible_sources = set(policy.get("publication_eligible_sources", []))
+    non_eligible_sources = set(policy.get("non_publication_sources", []))
+    
     paper_csv = os.path.join(RESULTS_DIR, "reproduced_audit_2026", "statistics", "paper_table.csv")
     if not os.path.exists(paper_csv):
         print(f"[!] Aviso: paper_table.csv não encontrado em {paper_csv}. Execute python scripts/reproduce_paper_artifacts.py primeiro.")
@@ -70,16 +83,23 @@ def audit_datasets_provenance() -> bool:
             print("[!] Erro: Coluna 'Fonte_Dados' ausente em paper_table.csv!")
             return False
 
-        valid_sources = ["DISCRETE_EVENT_SIMULATOR", "DISCRETE_EVENT_SIMULATOR + HRDL_RUNTIME", "NS3_FLOWMONITOR", "NORI_E2"]
         count = 0
+        non_pub_count = 0
         for row in reader:
             src = row.get("Fonte_Dados", "")
-            if src not in valid_sources:
-                print(f"[!] Erro: Fonte de dados desconhecida ou inválida: '{src}'")
+            base_src = src.split("+")[0].strip()
+            if base_src in non_eligible_sources:
+                non_pub_count += 1
+            elif base_src not in eligible_sources:
+                print(f"[!] Erro: Fonte de dados desconhecida ou não registrada no YAML: '{src}'")
                 return False
             count += 1
 
-    print(f"[OK] paper_table.csv validado com 100% de proveniência rastreável ({count} modelos auditados).")
+    if non_pub_count > 0:
+        print(f"[AVISO PROVENIÊNCIA] paper_table.csv contém {non_pub_count} registros marcados como NON_PUBLICATION ({non_eligible_sources}).")
+        print("  Conforme provenance_policy.yaml, estes dados NÃO SÃO ELEGÍVEIS PARA PUBLICAÇÃO CIENTÍFICA (apenas dev/software test).")
+    else:
+        print(f"[OK] paper_table.csv validado com 100% de fontes elegíveis para publicação ({count} registros auditados).")
     return True
 
 def main():

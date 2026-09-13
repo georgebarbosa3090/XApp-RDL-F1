@@ -23,7 +23,7 @@ O H-RDL integra-se com a plataforma O-RAN SC Release J através de duas interfac
                              ▼                            ▼
                ┌────────────────────────────────────────────────────────┐
                │                   xApp RDL (H-RDL)                     │
-               │  - SubMgr REST Client (:4560)                          │
+               │  - SubMgr REST Client (:8088)                          │
                │  - RMR Dispatcher (:4560 / :38000)                     │
                │  - E2AP APER Codec Engine                              │
                └────────────────────────────────────────────────────────┘
@@ -37,9 +37,9 @@ Para evitar qualquer confusão entre os identificadores internos do RMR e os có
 
 | Função / Operação O-RAN | RMR Message Type (`mtype`) | E2AP `ProcedureCode` | Direção da Mensagem |
 | :--- | :---: | :---: | :--- |
-| **E2 Setup Request** | `12011` / REST | `1` | E2 Node $\rightarrow$ Near-RT RIC |
-| **RIC Subscription Request** | `12010` / REST | `8` | H-RDL $\rightarrow$ SubMgr $\rightarrow$ E2Term |
-| **RIC Subscription Response** | `12011` / REST | `8` | SubMgr $\rightarrow$ H-RDL |
+| **E2 Setup Request** | *N/A (SCTP/E2AP)* | `1` | E2 Node (gNB / NORI) $\rightarrow$ E2Term |
+| **RIC Subscription Request** | `12010` / REST (`:8088`) | `8` | H-RDL $\rightarrow$ SubMgr $\rightarrow$ E2Term |
+| **RIC Subscription Response** | `12011` / REST (`:8088`) | `8` | SubMgr $\rightarrow$ H-RDL |
 | **RIC Indication** | `12050` | `5` | E2Term $\rightarrow$ H-RDL |
 | **RIC Control Request** | `12040` | `4` | H-RDL $\rightarrow$ E2Term |
 | **RIC Control Acknowledge** | `12041` | `4` | E2Term $\rightarrow$ H-RDL |
