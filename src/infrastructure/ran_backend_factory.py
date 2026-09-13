@@ -29,9 +29,19 @@ def get_ran_backend_adapter(backend_name: Optional[str] = None) -> RANBackendAda
     """
     Retorna a instância concreta de RANBackendAdapter.
     Prioriza o parâmetro backend_name se informado, depois a variável de ambiente RAN_BACKEND.
-    Lança UnsupportedBackendError se o backend for desconhecido.
+    Em modo O_RAN_INTEROP / ORAN-STRICT, exige a especificação explícita de RAN_BACKEND.
+    Lança UnsupportedBackendError se o backend for desconhecido ou não especificado em modo estrito.
     """
-    selected = (backend_name or os.getenv("RAN_BACKEND", "NORI_NS3")).upper().strip()
+    rdl_mode = os.getenv("RDL_MODE", "").upper().strip()
+    env_backend = os.getenv("RAN_BACKEND", "").strip()
+
+    if rdl_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") and not backend_name and not env_backend:
+        raise UnsupportedBackendError(
+            "Em modo O_RAN_INTEROP / ORAN-STRICT, a variável de ambiente RAN_BACKEND deve ser "
+            "explicitamente definida (ex: 'SRSRAN_OPEN5GS' ou 'NORI_NS3'). O fallback padrão é proibido."
+        )
+
+    selected = (backend_name or env_backend or "NORI_NS3").upper().strip()
 
     if selected not in SUPPORTED_BACKENDS:
         raise UnsupportedBackendError(
@@ -41,3 +51,4 @@ def get_ran_backend_adapter(backend_name: Optional[str] = None) -> RANBackendAda
 
     adapter_cls = SUPPORTED_BACKENDS[selected]
     return adapter_cls()
+

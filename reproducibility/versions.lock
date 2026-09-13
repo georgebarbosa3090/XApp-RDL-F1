@@ -20,8 +20,9 @@ oran_sc_release = "J"
 
 [profile.srsran]
 backend = "SRSRAN_OPEN5GS"
-srsran_commit = "9b64c12"
+srsran_commit = "24.10.1"
 open5gs_version = "v2.7.0"
+
 e2ap = "v03.00"
 e2sm_kpm = "v03.00"
 e2sm_rc = "v03.00"

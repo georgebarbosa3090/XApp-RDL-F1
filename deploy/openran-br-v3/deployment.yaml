@@ -34,8 +34,11 @@ spec:
               value: "true"
             - name: RDL_MODE
               value: "O_RAN_INTEROP"
+            - name: RAN_BACKEND
+              value: "SRSRAN_OPEN5GS"
             - name: USE_FAKE_SDL
               value: "false"
+
             - name: DBAAS_SERVICE_HOST
               value: "service-ricplt-dbaas-tcp.ricplt"
             - name: DBAAS_SERVICE_PORT

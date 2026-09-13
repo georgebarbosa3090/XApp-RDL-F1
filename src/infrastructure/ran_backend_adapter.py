@@ -43,9 +43,16 @@ class RANBackendAdapter(ABC):
         pass
 
     @abstractmethod
-    def discover_capabilities(self, node_id: str) -> bool:
-        """Registra capacidades descobertas via E2 Setup / RANFunctionDefinition."""
+    def register_static_profile_capabilities(self, node_id: str) -> bool:
+        """
+        Registra capacidades estáticas pré-configuradas do perfil de backend (dev/test/standalone).
+        Em ambiente O-RAN estrito real, a descoberta deve advir da RANFunctionDefinition no E2 Setup.
+        """
         pass
+
+    def discover_capabilities(self, node_id: str) -> bool:
+        """Alias de compatibilidade para registro de perfil estático."""
+        return self.register_static_profile_capabilities(node_id)
 
     @abstractmethod
     def decode_kpm(self, payload: bytes) -> List[Dict[str, Any]]:
@@ -64,7 +71,7 @@ class RANBackendAdapter(ABC):
 
     @abstractmethod
     def correlate_ack(self, ack_payload_bytes: bytes) -> Dict[str, Any]:
-        """Correlaciona resposta ACK/Failure do nó E2 com a transação."""
+        """Correlaciona resposta ACK/Failure do nó E2 com a transação E2AP."""
         pass
 
 
@@ -85,7 +92,7 @@ class NoriBackendAdapter(RANBackendAdapter):
             required_raw_evidence=["nori_commit", ".xml", ".raw"]
         )
 
-    def discover_capabilities(self, node_id: str) -> bool:
+    def register_static_profile_capabilities(self, node_id: str) -> bool:
         rc_capability_registry.register_node_capability(
             node_id=node_id,
             param_name="PRB_QUOTA",
@@ -114,7 +121,60 @@ class NoriBackendAdapter(RANBackendAdapter):
         return control_ctx.pdu_aper
 
     def correlate_ack(self, ack_payload_bytes: bytes) -> Dict[str, Any]:
-        return {"status": "ACKNOWLEDGED", "backend": "NORI_NS3"}
+        from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure
+        
+        # 1. Tenta decodificar como RICcontrolAcknowledge APER
+        try:
+            ack_res = parse_ric_control_ack(ack_payload_bytes)
+            if ack_res:
+                return {
+                    "status": "ACK_RECEIVED",
+                    "backend": "NORI_NS3",
+                    "requestor_id": ack_res.requestor_id,
+                    "instance_id": ack_res.instance_id,
+                    "ran_function_id": ack_res.ran_function_id,
+                    "raw_decoded": True
+                }
+        except Exception:
+            pass
+
+        # 2. Tenta decodificar como RICcontrolFailure APER
+        try:
+            fail_res = parse_ric_control_failure(ack_payload_bytes)
+            if fail_res:
+                return {
+                    "status": "FAILURE_RECEIVED",
+                    "backend": "NORI_NS3",
+                    "requestor_id": fail_res.requestor_id,
+                    "instance_id": fail_res.instance_id,
+                    "ran_function_id": fail_res.ran_function_id,
+                    "cause": fail_res.cause,
+                    "raw_decoded": True
+                }
+        except Exception:
+            pass
+
+        # 3. Fallback estruturado para JSON / Stubs de Teste
+        try:
+            import json
+            decoded = json.loads(ack_payload_bytes.decode('utf-8'))
+            if isinstance(decoded, dict):
+                st = decoded.get("status", "ACKNOWLEDGED")
+                return {
+                    "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
+                    "backend": "NORI_NS3",
+                    "details": decoded,
+                    "raw_decoded": False
+                }
+        except Exception:
+            pass
+
+        return {
+            "status": "MALFORMED_RESPONSE",
+            "backend": "NORI_NS3",
+            "payload_len": len(ack_payload_bytes),
+            "raw_decoded": False
+        }
 
 
 class SrsRanBackendAdapter(RANBackendAdapter):
@@ -134,7 +194,7 @@ class SrsRanBackendAdapter(RANBackendAdapter):
             required_raw_evidence=["srsran_version", "open5gs_version", ".pcap", ".log"]
         )
 
-    def discover_capabilities(self, node_id: str) -> bool:
+    def register_static_profile_capabilities(self, node_id: str) -> bool:
         rc_capability_registry.register_node_capability(
             node_id=node_id,
             param_name="PRB_QUOTA",
@@ -158,11 +218,65 @@ class SrsRanBackendAdapter(RANBackendAdapter):
         requestor_id: int = 1,
         instance_id: int = 1
     ) -> bytes:
-        # Registra capacidades específicas srsRAN antes do mapeamento
-        self.discover_capabilities(action.node_id)
+        # Nota: auto-registro foi removido para impor estritamente a verificação de capacidade
         mapper = RCMapper(ran_function_id=3)
         control_ctx = mapper.map_action_to_control_request(action, requestor_id, instance_id)
         return control_ctx.pdu_aper
 
     def correlate_ack(self, ack_payload_bytes: bytes) -> Dict[str, Any]:
-        return {"status": "ACKNOWLEDGED", "backend": "SRSRAN_OPEN5GS"}
+        from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure
+
+        # 1. Tenta decodificar como RICcontrolAcknowledge APER
+        try:
+            ack_res = parse_ric_control_ack(ack_payload_bytes)
+            if ack_res:
+                return {
+                    "status": "ACK_RECEIVED",
+                    "backend": "SRSRAN_OPEN5GS",
+                    "requestor_id": ack_res.requestor_id,
+                    "instance_id": ack_res.instance_id,
+                    "ran_function_id": ack_res.ran_function_id,
+                    "raw_decoded": True
+                }
+        except Exception:
+            pass
+
+        # 2. Tenta decodificar como RICcontrolFailure APER
+        try:
+            fail_res = parse_ric_control_failure(ack_payload_bytes)
+            if fail_res:
+                return {
+                    "status": "FAILURE_RECEIVED",
+                    "backend": "SRSRAN_OPEN5GS",
+                    "requestor_id": fail_res.requestor_id,
+                    "instance_id": fail_res.instance_id,
+                    "ran_function_id": fail_res.ran_function_id,
+                    "cause": fail_res.cause,
+                    "raw_decoded": True
+                }
+        except Exception:
+            pass
+
+        # 3. Fallback para JSON / Stubs de Teste
+        try:
+            import json
+            decoded = json.loads(ack_payload_bytes.decode('utf-8'))
+            if isinstance(decoded, dict):
+                st = decoded.get("status", "ACKNOWLEDGED")
+                return {
+                    "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
+                    "backend": "SRSRAN_OPEN5GS",
+                    "details": decoded,
+                    "raw_decoded": False
+                }
+        except Exception:
+            pass
+
+        return {
+            "status": "MALFORMED_RESPONSE",
+            "backend": "SRSRAN_OPEN5GS",
+            "payload_len": len(ack_payload_bytes),
+            "raw_decoded": False
+        }
+
+

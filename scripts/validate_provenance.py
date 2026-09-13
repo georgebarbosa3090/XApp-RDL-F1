@@ -56,10 +56,20 @@ def validate_run_directory(run_dir: str) -> bool:
     manifest_path = os.path.join(run_dir, "execution_manifest.json")
     if not os.path.exists(manifest_path):
         manifest_path = os.path.join(run_dir, "metadata.json")
+
+    if not os.path.exists(manifest_path):
+        for root, _, files in os.walk(run_dir):
+            if "execution_manifest.json" in files:
+                manifest_path = os.path.join(root, "execution_manifest.json")
+                break
+            elif "metadata.json" in files:
+                manifest_path = os.path.join(root, "metadata.json")
+                break
         
     if not os.path.exists(manifest_path):
         print(f"  [PROVENANCE_INVALID] Manifesto 'execution_manifest.json' ou 'metadata.json' ausente em {run_dir}")
         return False
+
 
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
@@ -106,8 +116,12 @@ def validate_run_directory(run_dir: str) -> bool:
         print(f"  [PROVENANCE_INVALID] NENHUM artefato bruto {raw_extensions} encontrado em {run_dir}. Exigido para publicação elegível.")
         return False
 
-    # 4. Verifica Integridade Criptográfica (hashes.sha256 se presente)
+    # 4. Verifica Integridade Criptográfica (hashes.sha256 é mandatória para publicação elegível)
     hashes_file = os.path.join(run_dir, "hashes.sha256")
+    if is_pub_eligible and not os.path.exists(hashes_file):
+        print(f"  [PROVENANCE_INVALID] Arquivo de hashes 'hashes.sha256' ausente em {run_dir}. Obrigatorio para execucoes elegiveis para publicacao.")
+        return False
+
     if os.path.exists(hashes_file):
         print(f"  - Verificando integridade SHA256 em {hashes_file}...")
         with open(hashes_file, "r", encoding="utf-8") as hf:
@@ -129,6 +143,7 @@ def validate_run_directory(run_dir: str) -> bool:
 
     print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)} [Backend={backend_id}]")
     return True
+
 
 def main():
     print("=" * 80)

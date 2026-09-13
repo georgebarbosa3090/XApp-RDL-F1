@@ -57,7 +57,7 @@ def setup_simulation_environment(seed: int) -> DiscreteEventRANSimulator:
         
     return sim
 
-def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/reproduced_audit_2026"):
+def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "artifacts/non_publication/local_model/reproduced_audit_2026"):
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "B0"), exist_ok=True)
     os.makedirs(os.path.join(output_dir, "B1"), exist_ok=True)
@@ -75,6 +75,7 @@ def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/
     print(f" Para evidências elegíveis para publicação (PUBLICATION_ELIGIBLE), execute ns-3 + NORI.")
     print(f" Destino dos Artefatos: {output_dir}")
     print(f"================================================================================")
+
 
     collector = KpmRawCollector(base_exp_dir=os.path.join(output_dir, "raw_runs"))
     rc_encoder = RCEncoder()
@@ -342,13 +343,13 @@ def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/
     ]
 
     df_paper = pd.DataFrame(paper_table_rows)
-    paper_csv_path = os.path.join(output_dir, "statistics", "paper_table.csv")
+    paper_csv_path = os.path.join(output_dir, "statistics", "software_validation_table.csv")
     df_paper.to_csv(paper_csv_path, index=False)
 
     summary_json = {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "methodology": "Paired Discrete-Event RAN Simulation + H-RDL Real Decision Loop (Zero Synthetic Mock Data)",
-        "provenance_rule": "Strictly Validated (All metrics extracted directly from DiscreteEventRANSimulator physics)",
+        "methodology": "Paired Discrete-Event RAN Simulation + H-RDL Real Decision Loop (Software Validation)",
+        "provenance_rule": "Non-Publication Software Validation (Extracted directly from DiscreteEventRANSimulator physics)",
         "seeds_count": seeds_count,
         "models": {
             "B0_Baseline": {"thp_mean": float(df_b0['thp_total'].mean()), "lat_mean": float(df_b0['lat_mean'].mean()), "sla_viol": float(df_b0['sla_viol'].mean())},
@@ -366,12 +367,13 @@ def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/
         }
     }
     
-    with open(os.path.join(output_dir, "statistics", "scientific_summary.json"), "w", encoding="utf-8") as f:
+    summary_path = os.path.join(output_dir, "statistics", "local_model_summary.json")
+    with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(summary_json, f, indent=2)
 
     print("\n" + "=" * 80)
-    print(" [OK] Tabela Científica Oficial Gravada:", paper_csv_path)
-    print(" [OK] Resumo Estatístico JSON:", os.path.join(output_dir, "statistics", "scientific_summary.json"))
+    print(" [OK] Tabela de Validação de Software Gravada:", paper_csv_path)
+    print(" [OK] Resumo Estatístico JSON:", summary_path)
     print(" [OK] Zero Circularidade: 100% das métricas geradas por física de eventos discretos.")
     print("=" * 80 + "\n")
     print(df_paper.to_string(index=False))
@@ -379,8 +381,9 @@ def run_reproducibility_suite(seeds_count: int = 30, output_dir: str = "results/
 def main():
     parser = argparse.ArgumentParser(description="Reprodução Científica Pareada Rigorosa (Zero Dados Sintéticos)")
     parser.add_argument("--seeds", type=int, default=30, help="Número de sementes pareadas (padrão: 30)")
-    parser.add_argument("--output-dir", type=str, default="results/reproduced_audit_2026", help="Diretório de saída")
+    parser.add_argument("--output-dir", type=str, default="artifacts/non_publication/local_model/reproduced_audit_2026", help="Diretório de saída")
     args = parser.parse_args()
+
     
     run_reproducibility_suite(seeds_count=args.seeds, output_dir=args.output_dir)
 

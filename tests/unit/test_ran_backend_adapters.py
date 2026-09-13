@@ -64,10 +64,11 @@ def test_backend_adapters_decode_kpm_and_correlate_ack():
 
     # Teste correlate_ack
     ack_nori = nori.correlate_ack(b'{"status":"OK"}')
-    assert ack_nori.get("status") == "ACKNOWLEDGED"
+    assert ack_nori.get("status") == "ACK_RECEIVED"
     assert ack_nori.get("backend") == "NORI_NS3"
 
     ack_srsran = srsran.correlate_ack(b'{"status":"OK"}')
-    assert ack_srsran.get("status") == "ACKNOWLEDGED"
+    assert ack_srsran.get("status") == "ACK_RECEIVED"
     assert ack_srsran.get("backend") == "SRSRAN_OPEN5GS"
+
 

@@ -7,7 +7,9 @@ from typing import Dict, Any, List
 
 try:
     from ricxappframe.xapp_frame import RMRXapp, Xapp
+    _HAS_RICXAPPFRAME = True
 except ImportError:
+    _HAS_RICXAPPFRAME = False
     class RMRXapp:  # type: ignore
         """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
         def __init__(self, default_handler=None, rmr_port=4560, rmr_wait_for_ready=False, use_fake_sdl=True, post_init=None):
@@ -77,6 +79,11 @@ class RDLxApp:
         self.mode = "O_RAN_INTEROP" if raw_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") else raw_mode
         
         if self.mode == "O_RAN_INTEROP":
+            if not _HAS_RICXAPPFRAME:
+                raise RuntimeError(
+                    "ImportError: ricxappframe / RMR é obrigatório no modo O_RAN_INTEROP. "
+                    "Fallback para MockRMR é estritamente proibido em ambiente O-RAN estrito."
+                )
             use_fake_sdl = False
             rmr_wait_for_ready = True
             self.dispatch_raw_aper = True
@@ -107,8 +114,8 @@ class RDLxApp:
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
 
-        # ACK & Transaction Tracking
-        self.pending_transactions: Dict[str, float] = {}
+        # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
+        self.pending_transactions: Dict[Any, float] = {}
         self.active_subscriptions: Dict[str, bool] = {}
         
         self.xapp = RMRXapp(
@@ -118,9 +125,11 @@ class RDLxApp:
             use_fake_sdl=use_fake_sdl,
             post_init=self._entrypoint
         )
-        # Em modo standalone / simulação sem AppMgr externo, registro é tratado como no-op limpo
-        self.xapp.register = lambda: True
-        self.xapp.deregister = lambda: True
+        # Em modo standalone / simulação sem AppMgr externo, registro é tratado como no-op limpo.
+        # Em O_RAN_INTEROP, preserva a chamada real de ciclo de vida do xapp_frame.
+        if self.mode != "O_RAN_INTEROP":
+            self.xapp.register = lambda: True
+            self.xapp.deregister = lambda: True
         
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
@@ -148,7 +157,7 @@ class RDLxApp:
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
         self.health.set_state(AppState.READY)
         # Registra capacidades dinâmicas do nó E2 no backend ativo
-        self.backend.discover_capabilities("gnb_01")
+        self.backend.register_static_profile_capabilities("gnb_01")
         # Inicia subscrição E2SM-KPM com o tempo de reporte padrão do backend
         kpm_period = self.backend.metadata.default_kpm_period_ms
         self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
@@ -179,7 +188,6 @@ class RDLxApp:
         except Exception as e:
             logger.error(f"Erro ao construir e emitir RIC_SUB_REQ: {e}")
             return False
-
 
     def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
@@ -233,11 +241,19 @@ class RDLxApp:
         if payload:
             try:
                 ack_info = self.backend.correlate_ack(payload)
-                data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
-                tx_id = data.get("transaction_id")
-                if tx_id and tx_id in self.pending_transactions:
-                    rtt_ms = (now_ts() - self.pending_transactions.pop(tx_id)) * 1000.0
-                    logger.info("RIC_CONTROL_ACK recebido", transaction_id=tx_id, rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
+                req_id = ack_info.get("requestor_id")
+                inst_id = ack_info.get("instance_id")
+                ran_fn_id = ack_info.get("ran_function_id")
+                
+                # Procura por tupla RICrequestId (requestor_id, instance_id, ran_function_id) ou fallback JSON tx_id
+                tx_key = (req_id, inst_id, ran_fn_id) if req_id is not None else None
+                if not tx_key or tx_key not in self.pending_transactions:
+                    data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
+                    tx_key = data.get("transaction_id")
+                
+                if tx_key and tx_key in self.pending_transactions:
+                    rtt_ms = (now_ts() - self.pending_transactions.pop(tx_key)) * 1000.0
+                    logger.info("RIC_CONTROL_ACK recebido", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
             except Exception:
                 pass
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
@@ -261,7 +277,8 @@ class RDLxApp:
         Processa todas as acoes acumuladas na Decision Window (Feature 2):
         1. Identifica conflitos diretos e indiretos;
         2. Arbitra conflitos via ReasoningAgent e valida via RefinementAgent;
-        3. Executa Pass-Through de acoes sem conflito validadas individualmente.
+        3. Formaliza a RDLDecision ANTES do despacho;
+        4. Executa o despacho das ações selecionadas.
         """
         t0 = now_ts()
         for act in actions:
@@ -295,12 +312,11 @@ class RDLxApp:
                 for act in resolution.winning_actions:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
                     selected_winning_actions.append(act)
-                    self._send_control(act.node_id, act.parameter, act.value)
                 strategy_names.append(resolution.strategy_used.name)
             else:
                 logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
 
-        # 2. Despacho Continuo de Acoes Limpas (Conflict-Free Pass-Through Pipeline)
+        # 2. Seleção de Ações Limpas (Conflict-Free Pass-Through Pipeline)
         clean_actions = [
             act for act in actions 
             if (act.node_id, act.parameter, act.xapp_id) not in conflicting_action_keys
@@ -310,13 +326,12 @@ class RDLxApp:
         for clean_act in clean_actions:
             is_safe, level, reason = self.refinement.validate_single_action(clean_act)
             if is_safe:
-                logger.info("Acao Limpa Despachada (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
+                logger.info("Acao Limpa Admitida (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
                 selected_clean_actions.append(clean_act)
-                self._send_control(clean_act.node_id, clean_act.parameter, clean_act.value)
             else:
                 logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
 
-        # 3. Formalização do Contrato RDLDecision
+        # 3. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
         all_selected = selected_winning_actions + selected_clean_actions
         decision = RDLDecision(
             state={"active_xapps": len(self.perception.get_active_xapps())},
@@ -329,6 +344,9 @@ class RDLxApp:
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
 
+        # 4. Despacho de Controle para Ações Admitidas
+        for act in all_selected:
+            self._send_control(act.node_id, act.parameter, act.value, decision_id=decision.decision_id)
 
     def _decision_loop(self):
         while self.running:
@@ -347,12 +365,18 @@ class RDLxApp:
                         # Processa fora do lock para nao travar RMR
                         threading.Thread(target=self._process_action_group, args=(actions_to_process,), daemon=True).start()
 
-    def _send_control(self, node_id: str, parameter: str, value: float):
+    def _send_control(self, node_id: str, parameter: str, value: float, decision_id: Optional[str] = None):
         try:
             action = XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
             # Encodifica APER ASN.1 Nativo via backend configurado (NORI vs srsRAN)
-            aper_payload = self.backend.map_action_to_control_pdu(action)
+            requestor_id = 1
+            instance_id = 1
+            ran_fn_id = 3
+            aper_payload = self.backend.map_action_to_control_pdu(action, requestor_id=requestor_id, instance_id=instance_id)
+            
             tx_id = str(uuid.uuid4())[:8]
+            ric_req_key = (requestor_id, instance_id, ran_fn_id)
+            self.pending_transactions[ric_req_key] = now_ts()
             self.pending_transactions[tx_id] = now_ts()
             
             if self.dispatch_raw_aper:
@@ -362,6 +386,7 @@ class RDLxApp:
                 # Formata para o dispatcher RMR com envelope estruturado e hex APER
                 payload_dict = {
                     "transaction_id": tx_id,
+                    "decision_id": decision_id,
                     "node_id": node_id,
                     "parameter": parameter,
                     "value": value,
@@ -373,9 +398,10 @@ class RDLxApp:
             logger.error(f"Falha ao gerar APER Control via backend {self.backend.metadata.backend_id}: {e}")
             success = False
         if success:
-            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper)
+            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id)
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
+ROL_REQUEST")
 
 
 if __name__ == "__main__":

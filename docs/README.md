@@ -105,7 +105,13 @@ graph TD
 
 ---
 
+### 10. Programa e Roadmap Estratégico de Pesquisa (2026–2028)
+* **[Programa e Roadmap Estratégico de Pesquisa (docs/roadmap_pesquisa_2026_2028_hrdl_cardl.md)](roadmap_pesquisa_2026_2028_hrdl_cardl.md)**: Planejamento formal em 24 meses (Set/2026 a Set/2028) para evolução H-RDL $\rightarrow$ CA-RDL, matriz formal de 95% de conformidade, campanha de 2.130+ runs pareados, validação cross-backend e portfólio de 9 publicações científicas (SBRC, SBrT, CNSM, IEEE TNSM, IEEE TCCN).
+
+---
+
 ## Trilhas de Leitura Recomendadas
+
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |

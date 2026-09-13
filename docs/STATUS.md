@@ -41,7 +41,7 @@ O sistema adota a arquitetura desacoplada onde o **H-RDL Core** gera apenas deci
 
 | Gate | Denominação | Estado | Critério de Aprovação | Evidência Exigida |
 | :---: | :--- | :---: | :--- | :--- |
-| **G0** | Baseline & Proveniência | **PASS** ✅ | `versions.lock` congelado + hashes SHA256 + CI limpa de mocks | `reproducibility/versions.lock`, `provenance_policy.yaml` |
+| **G0** | Baseline & Proveniência | **PARCIAL** 🟡 | `versions.lock` congelado (NORI `9b64c12`, srsRAN `24.10.1`) + hashes SHA256 + CI limpa | `reproducibility/versions.lock`, `provenance_policy.yaml` |
 | **G1** | Telemetria KPM Externa | **PENDING** ⏳ | Recepção e decodificação APER de `RICIndication` real | `e2_setup.pcap`, `kpm_indication.raw`, `hashes.sha256` |
 | **G2** | Mediação H-RDL Interna | **PASS** ✅ | Detecção de conflito espacial/frequencial + Refinamento e Guardas | Testes unitários/integração (S0–S8) 100% verdes |
 | **G3** | Controle E2SM-RC Externo | **PENDING** ⏳ | Emissão de `RICcontrolRequest` e recepção de `RICcontrolAcknowledge` / `Failure` | `ric_control_request.raw`, `ric_control_ack.raw`, `e2term.log` |
@@ -55,7 +55,7 @@ O sistema adota a arquitetura desacoplada onde o **H-RDL Core** gera apenas deci
 
 | Gate Testbed | Descrição do Escopo | Estado | Condição Go/No-Go |
 | :---: | :--- | :---: | :--- |
-| **TB0** | Inventário & Versões Testbed | **PASS** ✅ | Perfil `deploy/openran-br-v3` e `versions.lock` [profile.srsran] definidos |
+| **TB0** | Inventário & Versões Testbed | **PARCIAL** 🟡 | Perfil `deploy/openran-br-v3` e `versions.lock` [profile.srsran] definidos |
 | **TB1** | Registro UE / Core / RAN Baseline | **PENDING** ⏳ | Sessão PDU ativa + `ping` e `iperf3` funcionais sem E2 |
 | **TB2** | Conexão SCTP E2 Setup | **PENDING** ⏳ | `E2SetupRequest` / `E2SetupResponse` trocados com E2Term |
 | **TB3** | KPM Reference xApp | **PENDING** ⏳ | Telemetria recebida por xApp de referência |
@@ -79,18 +79,19 @@ $$\text{DESIGNED} \neq \text{IMPLEMENTED} \neq \text{UNIT\_TESTED} \neq \text{LO
 | :--- | :---: | :--- |
 | Core RDL (Perception/Reasoning/Refinement) | `LOCALLY_INTEGRATED` | Implementado, testado e integrado aos adapters locais |
 | Security Safety Guard | `LOCALLY_INTEGRATED` | Limites fisiológicos e regras de controle validados |
-| `RANBackendAdapter` Abstração & Factory | `LOCALLY_INTEGRATED` | Desacoplamento do runtime concluído com fail-closed |
+| `RANBackendAdapter` Abstração & Factory | `LOCALLY_INTEGRATED` | Desacoplamento do runtime concluído com fail-closed estrito |
 | E2AP APER Codec (pycrate) | `LOCALLY_INTEGRATED` | Decodificação e codificação APER validadas via golden vectors |
-| Capability Discovery Runtime | `LOCALLY_INTEGRATED` | Suporte a `RANFunctionDefinition` e fallback fail-closed |
+| Capability Discovery Runtime | `DESIGNED` | Perfil estático implementado; `RANFunctionDefinition` pendente integração externa |
 | Politica de Proveniência & Fail-Closed Audit | `LOCALLY_INTEGRATED` | Firewall de publicação e validação de evidências brutas ativas |
 | Live E2Term SCTP Capture | `DESIGNED` | Aguardando execução do stack O-RAN SC / srsRAN live |
-| Closed-Loop Causal Tracking ($T_{\text{loop}}$) | `LOCALLY_INTEGRATED` | Estrutura de correlação $KPM \to RC \to ACK$ pronta |
+| Closed-Loop Causal Tracking ($T_{\text{loop}}$) | `LOCALLY_INTEGRATED` | Estrutura de correlação $KPM \to RC \to ACK$ pronta via `RICrequestID` |
 
 ---
 
 ## 5. Indicadores Numéricos Globais (KPIs Tecnológicos)
 
-- **Suíte de Testes Locais (Software):** 57/57 PASS (100%)
+- **Suíte de Testes Locais (Software):** 58/58 PASS (100%)
 - **Zero Synthetic Data Compliance:** 100% (Código e scripts auditados e isentos de geradores mock)
-- **Fail-Closed Backend Check:** PASS (Backends não autorizados disparam `UnsupportedBackendError`)
+- **Fail-Closed Backend Check:** PASS (Backends não autorizados ou omitidos em interop disparam `UnsupportedBackendError`)
 - **Evidências Científicas Elegíveis Publicadas:** 0 (Bloqueadas até a conclusão dos Gates G1, G3, G4 com traces reais)
+

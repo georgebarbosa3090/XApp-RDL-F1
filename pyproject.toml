@@ -21,3 +21,7 @@ dependencies = [
 
 [project.scripts]
 xapp-rdl = "src.main:main"
+
+[tool.pyright]
+extraPaths = ["."]
+

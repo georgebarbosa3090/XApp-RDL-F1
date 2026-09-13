@@ -96,11 +96,13 @@ def audit_datasets_provenance() -> bool:
             count += 1
 
     if non_pub_count > 0:
-        print(f"[AVISO PROVENIÊNCIA] paper_table.csv contém {non_pub_count} registros marcados como NON_PUBLICATION ({non_eligible_sources}).")
-        print("  Conforme provenance_policy.yaml, estes dados NÃO SÃO ELEGÍVEIS PARA PUBLICAÇÃO CIENTÍFICA (apenas dev/software test).")
+        print(f"[ERRO PROVENIÊNCIA CRÍTICO] paper_table.csv contém {non_pub_count} registros marcados como NON_PUBLICATION ({non_eligible_sources}).")
+        print("  Conforme provenance_policy.yaml, dados NON_PUBLICATION NÃO PODEM estar presentes em tabelas destinadas a artigos/papers.")
+        return False
     else:
         print(f"[OK] paper_table.csv validado com 100% de fontes elegíveis para publicação ({count} registros auditados).")
     return True
+
 
 def main():
     print("=" * 80)
