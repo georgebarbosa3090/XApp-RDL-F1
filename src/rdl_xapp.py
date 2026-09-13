@@ -145,10 +145,13 @@ class RDLxApp:
         xapp_instance.rmr_free(sbuf)
 
     def _entrypoint(self, xapp_instance):
-        logger.info(f"xApp Framework Ready (Modo {self.mode})")
+        logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
         self.health.set_state(AppState.READY)
-        # Inicia subscricao E2SM-KPM com o Subscription Manager / E2 Nodes
-        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200, xapp_instance=xapp_instance)
+        # Registra capacidades dinâmicas do nó E2 no backend ativo
+        self.backend.discover_capabilities("gnb_01")
+        # Inicia subscrição E2SM-KPM com o tempo de reporte padrão do backend
+        kpm_period = self.backend.metadata.default_kpm_period_ms
+        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
         threading.Thread(target=self._decision_loop, daemon=True).start()
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
@@ -188,7 +191,7 @@ class RDLxApp:
         self.metrics.record_kpm()
         payload = summary.get("payload")
         if payload:
-            reports_data = self.asn1_decoder.decode_indication(payload)
+            reports_data = self.backend.decode_kpm(payload)
             if reports_data:
                 for data in reports_data:
                     report = KPMReport(
@@ -229,11 +232,12 @@ class RDLxApp:
         payload = summary.get("payload")
         if payload:
             try:
-                data = json.loads(payload.decode('utf-8'))
+                ack_info = self.backend.correlate_ack(payload)
+                data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
                 tx_id = data.get("transaction_id")
                 if tx_id and tx_id in self.pending_transactions:
                     rtt_ms = (now_ts() - self.pending_transactions.pop(tx_id)) * 1000.0
-                    logger.info("RIC_CONTROL_ACK recebido", transaction_id=tx_id, rtt_ms=f"{rtt_ms:.2f}ms")
+                    logger.info("RIC_CONTROL_ACK recebido", transaction_id=tx_id, rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
             except Exception:
                 pass
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
@@ -345,8 +349,9 @@ class RDLxApp:
 
     def _send_control(self, node_id: str, parameter: str, value: float):
         try:
-            # Encodifica APER ASN.1 Nativo com PDU unificada (Header + Message)
-            aper_payload = self.rc_encoder.encode_control_request(node_id, parameter, value)
+            action = XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
+            # Encodifica APER ASN.1 Nativo via backend configurado (NORI vs srsRAN)
+            aper_payload = self.backend.map_action_to_control_pdu(action)
             tx_id = str(uuid.uuid4())[:8]
             self.pending_transactions[tx_id] = now_ts()
             
@@ -360,15 +365,15 @@ class RDLxApp:
                     "node_id": node_id,
                     "parameter": parameter,
                     "value": value,
-                    "aper_bytes": aper_payload.hex()
+                    "aper_bytes": aper_payload.hex() if isinstance(aper_payload, bytes) else str(aper_payload)
                 }
                 payload_bytes = json.dumps(payload_dict).encode('utf-8')
                 success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_CONTROL_REQ)
         except Exception as e:
-            logger.error(f"Falha ao gerar APER Control: {e}")
+            logger.error(f"Falha ao gerar APER Control via backend {self.backend.metadata.backend_id}: {e}")
             success = False
         if success:
-            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, raw_aper=self.dispatch_raw_aper)
+            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper)
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
 

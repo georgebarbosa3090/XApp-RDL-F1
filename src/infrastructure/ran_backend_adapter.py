@@ -48,6 +48,11 @@ class RANBackendAdapter(ABC):
         pass
 
     @abstractmethod
+    def decode_kpm(self, payload: bytes) -> List[Dict[str, Any]]:
+        """Decodifica telemetria KPM recebida pelo backend."""
+        pass
+
+    @abstractmethod
     def map_action_to_control_pdu(
         self,
         action: XAppAction,
@@ -93,6 +98,11 @@ class NoriBackendAdapter(RANBackendAdapter):
         )
         return True
 
+    def decode_kpm(self, payload: bytes) -> List[Dict[str, Any]]:
+        from src.e2.kpm_decoder import KpmDecoder
+        decoder = KpmDecoder()
+        return decoder.decode_indication(payload)
+
     def map_action_to_control_pdu(
         self,
         action: XAppAction,
@@ -136,6 +146,11 @@ class SrsRanBackendAdapter(RANBackendAdapter):
             unit="percent"
         )
         return True
+
+    def decode_kpm(self, payload: bytes) -> List[Dict[str, Any]]:
+        from src.e2.kpm_decoder import KpmDecoder
+        decoder = KpmDecoder()
+        return decoder.decode_indication(payload)
 
     def map_action_to_control_pdu(
         self,
