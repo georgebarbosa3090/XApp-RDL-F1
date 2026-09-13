@@ -401,7 +401,7 @@ class RDLxApp:
             logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id)
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
-ROL_REQUEST")
+
 
 
 if __name__ == "__main__":

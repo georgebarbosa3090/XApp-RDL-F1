@@ -1,0 +1,60 @@
+# Perfil de Compatibilidade da Fase 2 — CA-RDL F2 Compatibility Profile
+
+**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 2 (CA-RDL Context-Aware & MARL)  
+**Documento:** `CARDL_F2_COMPATIBILITY_PROFILE.md`  
+**Status:** **EM CONSTRUÇÃO / DEFINIÇÃO ESTRATÉGICA (Fase 2 Target)**  
+**Escopo:** Definição formal das versões normativas, especificações O-RAN ALLIANCE Release 5, aprendizado por reforço multiagente (MAPPO/MARL), motores de contexto (Knowledge Graph) e cenários avançados $S_9 \dots S_{15}$ para a Fase 2.
+
+---
+
+## 1. Visão Geral e Relação com a Fase 1 (H-RDL)
+
+A Fase 2 (**CA-RDL**) expande a camada de mediação determinística congelada na Fase 1 (**H-RDL**) introduzindo cognição contextual, grafos de conhecimento (*Knowledge Graphs - KG*) e Aprendizado por Reforço Multiagente (**MAPPO / GNN**).
+
+$$\boxed{\text{Fase 1 (H-RDL Determinístico)} \quad \xrightarrow[\text{Contrato de Segurança}]{} \quad \text{Fase 2 (CA-RDL Context-Aware & MARL)}}$$
+
+- A Fase 1 provê o **lower bound** de segurança física (Safety Guards determinísticos, mitigação contra estouro de PRBs, anti-ping-pong e limites de potência em dBm).
+- A Fase 2 atua sobre o espaço de soluções viáveis refinado pela Fase 1, otimizando a distribuição de recursos sob incerteza temporal e cenários dinâmicos complexos.
+
+---
+
+## 2. Parâmetros do CA-RDL F2 Profile
+
+```yaml
+profile_name: "CA-RDL F2 Compatibility Profile"
+status: "ACTIVE_EVOLUTION"
+phase1_compatibility_layer: "H-RDL Core 1.1.x (Deterministic Safety Fallback)"
+e2ap_target_version: "v03.01"
+e2sm_kpm_target_version: "v08.00"
+e2sm_rc_target_version: "v10.00"
+oran_sc_release_target: "Empirically Validated Release (Post-J)"
+ns3_version: "3.48"
+lena_version: "v5.1"
+nori_commit: "9b64c12"
+decision_window_ms: 200
+marl_algorithm: "MAPPO (Multi-Agent PPO) + GNN Context Engine"
+target_scenarios: "S9 a S15 (NTN, UAV, V2X, IIoT, ISAC)"
+```
+
+---
+
+## 3. Matriz de Evolução de Especificações Normativas
+
+| Componente | Fase 1 (H-RDL Frozen) | Fase 2 (CA-RDL Target) | Escopo de Expansão no CA-RDL |
+| :--- | :---: | :---: | :--- |
+| **E2AP** | `v02.03` | `v03.01` | Suporte a mensagens estendidas de controle e tratamento robusto de erros. |
+| **E2SM-KPM** | `v03.00` | `v08.00` | Mapeamento de KPIs 3GPP 28.552 estendidos, fatias dinâmicas e telemetria NTN/V2X. |
+| **E2SM-RC** | `v01.03` | `v10.00` | Estilos adicionais de controle, MIMO massivo, beamforming dinâmico e handover guiado por contexto. |
+| **Cognição** | Regras TVS/EEVS | MAPPO + GNN + KG | Arbitragem aprendida e otimização contextual de utilidade multiobjetivo. |
+| **Cenários** | $S_0 \dots S_8$ | $S_9 \dots S_{15}$ | Redes não-terrestres (NTN), drones (UAV), veículos (V2X), IIoT de ultra-baixa latência e ISAC. |
+
+---
+
+## 4. Garantia de Retrocompatibilidade e Não-Contaminação
+
+1. **Separação Estrita de Repositórios e Branches:**
+   - O código principal da Fase 1 reside em `XApp-RDL-F1` (`georgebarbosa3090/XApp-RDL-F1`).
+   - O código de exploração MARL da Fase 2 reside em `XApp-RDL-F2` (`georgebarbosa3090/XApp-RDL-F2`).
+2. **Safety Guard Barrier:**
+   - Em nenhuma hipótese uma política MARL da Fase 2 pode violar as restrições impostas pelo `RefinementAgent` da Fase 1.
+   - Qualquer ação proposta pelo modelo MARL que falhe na verificação determinística do `RefinementAgent` é rejeitada ou ajustada (*clamped*) para o valor seguro.

@@ -65,6 +65,8 @@ scripts/test_batching.py
 *backup*
 *rollback*
 *sync*
+!docs/compliance/*.md
+
 
 # 7. Byte-compiled / Python Cache / DLLs
 __pycache__/

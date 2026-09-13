@@ -21,3 +21,10 @@
 
 5. **[Roadmap de Migração para O-RAN Release 5 (Migration to Release 5)](MIGRATION_RELEASE5.md)**
    - Planejamento de transição para KPM v08.00 e RC v10.00 na branch `feature/oran-release5-profile` após o encerramento da Fase 1.
+
+6. **[Perfil de Compatibilidade da Fase 2 (CA-RDL F2 Profile)](CARDL_F2_COMPATIBILITY_PROFILE.md)**
+   - Perfil estratégico da Fase 2 (Context-Aware RDL, especificações O-RAN Release 5, modelos MARL/MAPPO, GNN e cenários avançados $S_9 \dots S_{15}$).
+
+7. **[Contrato de Sincronização Fase 1 e Fase 2 (Phase 1 / Phase 2 Sync Contract)](PHASE1_PHASE2_SYNC_CONTRACT.md)**
+   - Contrato formal de interfaces, estabilidade de esquemas de dados (`RDLDecision`, `XAppAction`, `ConflictSet`), protocolo de fallback e diretrizes de repositório entre `XApp-RDL-F1` e `XApp-RDL-F2`.
+

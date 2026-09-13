@@ -182,7 +182,15 @@ test-f2:
 	@echo "\nMétricas Prometheus:"
 	@curl -s http://localhost:8081/metrics | grep -E "rdl_|marl_" || true
 
+sync-f1-f2-check:
+	@echo "=== Validação de Sincronização e Compatibilidade H-RDL (F1) <-> CA-RDL (F2) ==="
+	@python scripts/check_no_synthetic_results.py
+	@python scripts/validate_provenance.py
+	@pytest tests/unit/test_conflict_detection.py tests/unit/test_safety_guards.py -v
+	@echo "[OK] Contrato de Sincronização F1 <-> F2 Validado com Sucesso!"
+
 helm-package:
+
 	@echo "Validando e empacotando os 4 Helm Charts..."
 	helm lint deploy/helm/iqos-xapp-rdl
 	helm lint deploy/helm/xapp-qos-xslice
