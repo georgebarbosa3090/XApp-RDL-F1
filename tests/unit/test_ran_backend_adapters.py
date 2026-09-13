@@ -53,3 +53,21 @@ def test_ran_backend_factory():
 
     default_adapter = get_ran_backend_adapter(None)
     assert isinstance(default_adapter, NoriBackendAdapter)
+
+def test_backend_adapters_decode_kpm_and_correlate_ack():
+    nori = NoriBackendAdapter()
+    srsran = SrsRanBackendAdapter()
+
+    # Teste decode_kpm com payload invalido (deve retornar lista vazia sem quebrar)
+    assert nori.decode_kpm(b"") == []
+    assert srsran.decode_kpm(b"") == []
+
+    # Teste correlate_ack
+    ack_nori = nori.correlate_ack(b'{"status":"OK"}')
+    assert ack_nori.get("status") == "ACKNOWLEDGED"
+    assert ack_nori.get("backend") == "NORI_NS3"
+
+    ack_srsran = srsran.correlate_ack(b'{"status":"OK"}')
+    assert ack_srsran.get("status") == "ACKNOWLEDGED"
+    assert ack_srsran.get("backend") == "SRSRAN_OPEN5GS"
+
