@@ -1,42 +1,52 @@
-# Catálogo Oficial da Suíte de Figuras Científicas XApp-RDL (S0 a S15 — Estilo Figuras 4 e 5)
+# Catálogo Oficial da Suíte de Figuras Científicas XApp-RDL (S0 a S15)
 
-Este documento registra a rastreabilidade completa de todas as **64 figuras científicas** (Figura A — Conceitual e Figura B — Geométrica 2D em Metros) mantidas em `docs/figures/02_cenarios_e_topologias/`, criadas de acordo com a **SKILL `xapp-figure-generator`** ([SKILL.md](../../.agents/skills/xapp-figure-generator/SKILL.md)).
-
----
-
-## 1. Estrutura Visual Estilo Figuras 4 e 5
-
-- **Figura A (Conceitual 3D/Isométrica - Estilo Fig. 4)**: Ilustração operacional com torres gNB, UEs por classe de tráfego (URLLC, eMBB, mMTC), caixa de chamada interna (*Callout*) descrevendo a disputa entre xApps, arbitragem H-RDL e gráfico de trade-off conceitual.
-- **Figura B (Geométrica 2D em Metros - Estilo Fig. 5)**: Gráfico métrico ($X \times Y$ em metros) indicando posições exatas dos nós (`pos_m`), raios de cobertura reais, sombreamento da área de sobreposição, legenda explicativa e anotação do efeito H-RDL.
-- **Conformidade Científica**: Zero dados sintéticos ou números inventados (*"Representação esquemática do cenário; não substitui resultados experimentais."*).
+Este documento registra a rastreabilidade completa de todas as **32 figuras científicas oficiais** mantidas em `docs/figures/02_cenarios_e_topologias/`, geradas estritamente de acordo com a Skill **`xapp-rdl-scenario-figure-generator`** ([SKILL.md](../../.agents/skills/xapp-rdl-scenario-figure-generator/SKILL.md)).
 
 ---
 
-## 2. Tabela de Rastreabilidade ($S_0$ a $S_{15}$)
+## 1. Diretriz de Linguagem Visual e Paleta Semântica
 
-| ID | Nome do Cenário | Figura A (Claro / Escuro) | Figura B (Claro / Escuro) |
-| :---: | :--- | :--- | :--- |
-| **S0** | No-Conflict Control | [`s0_figura_a_light.png`](02_cenarios_e_topologias/s0_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s0_figura_a_dark.png) | [`s0_figura_b_light.png`](02_cenarios_e_topologias/s0_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s0_figura_b_dark.png) |
-| **S1** | Direct PRB Conflict | [`s1_figura_a_light.png`](02_cenarios_e_topologias/s1_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s1_figura_a_dark.png) | [`s1_figura_b_light.png`](02_cenarios_e_topologias/s1_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s1_figura_b_dark.png) |
-| **S2** | Energy Saving vs QoS | [`s2_figura_a_light.png`](02_cenarios_e_topologias/s2_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s2_figura_a_dark.png) | [`s2_figura_b_light.png`](02_cenarios_e_topologias/s2_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s2_figura_b_dark.png) |
-| **S3** | Traffic Steering vs Slicing | [`s3_figura_a_light.png`](02_cenarios_e_topologias/s3_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s3_figura_a_dark.png) | [`s3_figura_b_light.png`](02_cenarios_e_topologias/s3_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s3_figura_b_dark.png) |
-| **S4** | Traffic Steering vs Energy Saving | [`s4_figura_a_light.png`](02_cenarios_e_topologias/s4_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s4_figura_a_dark.png) | [`s4_figura_b_light.png`](02_cenarios_e_topologias/s4_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s4_figura_b_dark.png) |
-| **S5** | Temporal Ping-Pong | [`s5_figura_a_light.png`](02_cenarios_e_topologias/s5_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s5_figura_a_dark.png) | [`s5_figura_b_light.png`](02_cenarios_e_topologias/s5_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s5_figura_b_dark.png) |
-| **S6** | Multi-xApp Conflict Storm | [`s6_figura_a_light.png`](02_cenarios_e_topologias/s6_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s6_figura_a_dark.png) | [`s6_figura_b_light.png`](02_cenarios_e_topologias/s6_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s6_figura_b_dark.png) |
-| **S7** | Fault / Rogue xApp | [`s7_figura_a_light.png`](02_cenarios_e_topologias/s7_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s7_figura_a_dark.png) | [`s7_figura_b_light.png`](02_cenarios_e_topologias/s7_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s7_figura_b_dark.png) |
-| **S8** | Real NORI Closed Loop | [`s8_figura_a_light.png`](02_cenarios_e_topologias/s8_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s8_figura_a_dark.png) | [`s8_figura_b_light.png`](02_cenarios_e_topologias/s8_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s8_figura_b_dark.png) |
-| **S9** | NTN Terrestrial–Satellite | [`s9_figura_a_light.png`](02_cenarios_e_topologias/s9_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s9_figura_a_dark.png) | [`s9_figura_b_light.png`](02_cenarios_e_topologias/s9_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s9_figura_b_dark.png) |
-| **S10** | UAV Swarm Coverage | [`s10_figura_a_light.png`](02_cenarios_e_topologias/s10_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s10_figura_a_dark.png) | [`s10_figura_b_light.png`](02_cenarios_e_topologias/s10_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s10_figura_b_dark.png) |
-| **S11** | V2X High-Mobility Platoon | [`s11_figura_a_light.png`](02_cenarios_e_topologias/s11_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s11_figura_a_dark.png) | [`s11_figura_b_light.png`](02_cenarios_e_topologias/s11_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s11_figura_b_dark.png) |
-| **S12** | IIoT / TSN Mission-Critical | [`s12_figura_a_light.png`](02_cenarios_e_topologias/s12_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s12_figura_a_dark.png) | [`s12_figura_b_light.png`](02_cenarios_e_topologias/s12_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s12_figura_b_dark.png) |
-| **S13** | SAGIN Multi-Domain | [`s13_figura_a_light.png`](02_cenarios_e_topologias/s13_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s13_figura_a_dark.png) | [`s13_figura_b_light.png`](02_cenarios_e_topologias/s13_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s13_figura_b_dark.png) |
-| **S14** | ISAC Sensing × Comms | [`s14_figura_a_light.png`](02_cenarios_e_topologias/s14_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s14_figura_a_dark.png) | [`s14_figura_b_light.png`](02_cenarios_e_topologias/s14_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s14_figura_b_dark.png) |
-| **S15** | Cross-Tier Governance | [`s15_figura_a_light.png`](02_cenarios_e_topologias/s15_figura_a_light.png) / [`dark`](02_cenarios_e_topologias/s15_figura_a_dark.png) | [`s15_figura_b_light.png`](02_cenarios_e_topologias/s15_figura_b_light.png) / [`dark`](02_cenarios_e_topologias/s15_figura_b_dark.png) |
+- **Linguagem Visual**: *Scientific technical infographic / clean vector-isometric hybrid* em **300 DPI** (padrão de publicação IEEE/ACM/SBRC).
+- **Paleta Semântica Normativa**:
+  - **URLLC**: Cyan (`#06B6D4`)
+  - **eMBB**: Roxo (`#8B5CF6`)
+  - **mMTC / IoT**: Âmbar (`#F59E0B`)
+  - **Energy Saving**: Verde (`#10B981`)
+  - **QoS**: Laranja (`#F97316`)
+  - **Traffic Steering**: Azul (`#2563EB`)
+  - **Sensoriamento ISAC**: Cyan (`#06B6D4`)
+  - **Comunicação ISAC**: Verde-Lima (`#84CC16`)
+  - **Rogue / Fault**: Vermelho (`#EF4444`)
+  - **H-RDL / Safety Guard**: Teal (`#0D9488`)
+- **Isenção Científica**: Zero dados sintéticos ou números inventados (*"Scientific conceptual representation — metrics shown are monitored variables, not experimental results."*).
 
 ---
 
-## 3. Artefatos de Suporte e Proveniência
+## 2. Tabela de Rastreabilidade das Figuras ($S_0$ a $S_{15}$)
 
-- **JSON Canônico**: [`cenarios_canonicos_s0_s15.json`](02_cenarios_e_topologias/cenarios_canonicos_s0_s15.json)
-- **Relatório de Correspondência $A \leftrightarrow B$**: [`relatorio_correspondencia_A_B.md`](02_cenarios_e_topologias/relatorio_correspondencia_A_B.md)
+| ID | Nome do Cenário | Fase | Arquétipo Visual | Figura Tema Claro (IEEE/ACM) | Figura Tema Escuro (Apresentação) |
+| :---: | :--- | :---: | :---: | :--- | :--- |
+| **S0** | No-Conflict Control | Fase 1 | TVS | [`s0_figure_light.png`](02_cenarios_e_topologias/s0_figure_light.png) | [`s0_figure_dark.png`](02_cenarios_e_topologias/s0_figure_dark.png) |
+| **S1** | Direct PRB Conflict | Fase 1 | EEVS | [`s1_figure_light.png`](02_cenarios_e_topologias/s1_figure_light.png) | [`s1_figure_dark.png`](02_cenarios_e_topologias/s1_figure_dark.png) |
+| **S2** | Energy Saving vs QoS | Fase 1 | EEVS | [`s2_figure_light.png`](02_cenarios_e_topologias/s2_figure_light.png) | [`s2_figure_dark.png`](02_cenarios_e_topologias/s2_figure_dark.png) |
+| **S3** | Traffic Steering vs Slicing | Fase 1 | TVS | [`s3_figure_light.png`](02_cenarios_e_topologias/s3_figure_light.png) | [`s3_figure_dark.png`](02_cenarios_e_topologias/s3_figure_dark.png) |
+| **S4** | Traffic Steering vs Energy Saving | Fase 1 | EEVS | [`s4_figure_light.png`](02_cenarios_e_topologias/s4_figure_light.png) | [`s4_figure_dark.png`](02_cenarios_e_topologias/s4_figure_dark.png) |
+| **S5** | Temporal Ping-Pong | Fase 1 | TVS | [`s5_figure_light.png`](02_cenarios_e_topologias/s5_figure_light.png) | [`s5_figure_dark.png`](02_cenarios_e_topologias/s5_figure_dark.png) |
+| **S6** | Multi-xApp Conflict Storm | Fase 1 | MIMO | [`s6_figure_light.png`](02_cenarios_e_topologias/s6_figure_light.png) | [`s6_figure_dark.png`](02_cenarios_e_topologias/s6_figure_dark.png) |
+| **S7** | Fault / Rogue xApp | Fase 1 | Anti-Rogue | [`s7_figure_light.png`](02_cenarios_e_topologias/s7_figure_light.png) | [`s7_figure_dark.png`](02_cenarios_e_topologias/s7_figure_dark.png) |
+| **S8** | Real NORI Closed Loop | Fase 1 | Closed Loop | [`s8_figure_light.png`](02_cenarios_e_topologias/s8_figure_light.png) | [`s8_figure_dark.png`](02_cenarios_e_topologias/s8_figure_dark.png) |
+| **S9** | NTN Terrestrial–Satellite | Fase 2 / 6G | ISAC / NTN | [`s9_figure_light.png`](02_cenarios_e_topologias/s9_figure_light.png) | [`s9_figure_dark.png`](02_cenarios_e_topologias/s9_figure_dark.png) |
+| **S10** | UAV Swarm Coverage | Fase 2 / 6G | ISAC / UAV | [`s10_figure_light.png`](02_cenarios_e_topologias/s10_figure_light.png) | [`s10_figure_dark.png`](02_cenarios_e_topologias/s10_figure_dark.png) |
+| **S11** | V2X High-Mobility Platoon | Fase 2 / 6G | MIMO / V2X | [`s11_figure_light.png`](02_cenarios_e_topologias/s11_figure_light.png) | [`s11_figure_dark.png`](02_cenarios_e_topologias/s11_figure_dark.png) |
+| **S12** | IIoT / TSN Mission-Critical | Fase 2 / 6G | MIMO / TSN | [`s12_figure_light.png`](02_cenarios_e_topologias/s12_figure_light.png) | [`s12_figure_dark.png`](02_cenarios_e_topologias/s12_figure_dark.png) |
+| **S13** | SAGIN Multi-Domain | Fase 3 / 6G | ISAC / 3D | [`s13_figure_light.png`](02_cenarios_e_topologias/s13_figure_light.png) | [`s13_figure_dark.png`](02_cenarios_e_topologias/s13_figure_dark.png) |
+| **S14** | ISAC Sensing vs Communication | Fase 3 / 6G | ISAC Dual | [`s14_figure_light.png`](02_cenarios_e_topologias/s14_figure_light.png) | [`s14_figure_dark.png`](02_cenarios_e_topologias/s14_figure_dark.png) |
+| **S15** | Cross-Tier Governance & Anti-Rogue | Fase 3 / 6G | Cross-Tier | [`s15_figure_light.png`](02_cenarios_e_topologias/s15_figure_light.png) | [`s15_figure_dark.png`](02_cenarios_e_topologias/s15_figure_dark.png) |
+
+---
+
+## 3. Artefatos de Rastreabilidade
+
+- **Modelo Canônico JSON**: [`cenarios_canonicos_s0_s15.json`](02_cenarios_e_topologias/cenarios_canonicos_s0_s15.json)
+- **Relatório de Correspondência LIGHT / DARK**: [`relatorio_correspondencia_A_B.md`](02_cenarios_e_topologias/relatorio_correspondencia_A_B.md)
 - **Manifesto de Proveniência SHA-256**: [`manifesto_proveniencia.json`](02_cenarios_e_topologias/manifesto_proveniencia.json)

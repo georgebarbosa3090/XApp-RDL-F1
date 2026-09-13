@@ -1,22 +1,22 @@
-# Relatório de Correspondência Biunívoca entre Figura A e Figura B (S0 a S15)
+# Relatório de Correspondência Biunívoca LIGHT vs DARK (S0 a S15)
 
-Este documento valida a consistência topológica, geométrica e funcional entre as representações conceituais (Figura A) e 2D métricas (Figura B).
+Este documento valida a consistência de topologia, nós, feixes e xApps entre as variantes LIGHT e DARK.
 
-| Cenário ID | Nome do Cenário | Equivalência Topológica (gNodeBs / UEs) | Equivalência Funcional (Callout A vs Retângulo B) |
-| :---: | :--- | :--- | :--- |
-| **S0** | No-Conflict Control | 2 gNBs, 4 UEs | Callout xSlice vs Posições em [200, 120]m |
-| **S1** | Direct PRB Conflict | 1 gNBs, 4 UEs | Callout xSlice vs Posições em [120, 100]m |
-| **S2** | Energy Saving vs QoS | 2 gNBs, 3 UEs | Callout Energy Saving vs Posições em [160, 110]m |
-| **S3** | Traffic Steering vs Slicing | 2 gNBs, 3 UEs | Callout Traffic Steering vs Posições em [180, 120]m |
-| **S4** | Traffic Steering vs Energy Saving | 2 gNBs, 2 UEs | Callout Traffic Steering vs Posições em [200, 120]m |
-| **S5** | Temporal Ping-Pong | 2 gNBs, 1 UEs | Callout MRO / Steering vs Posições em [180, 110]m |
-| **S6** | Cenário Avançado S6 | 2 gNBs, 3 UEs | Callout xApp-A-S6 vs Posições em [200, 140]m |
-| **S7** | Cenário Avançado S7 | 2 gNBs, 3 UEs | Callout xApp-A-S7 vs Posições em [200, 140]m |
-| **S8** | Cenário Avançado S8 | 2 gNBs, 3 UEs | Callout xApp-A-S8 vs Posições em [200, 140]m |
-| **S9** | Cenário Avançado S9 | 2 gNBs, 3 UEs | Callout xApp-A-S9 vs Posições em [200, 140]m |
-| **S10** | Cenário Avançado S10 | 2 gNBs, 3 UEs | Callout xApp-A-S10 vs Posições em [200, 140]m |
-| **S11** | Cenário Avançado S11 | 2 gNBs, 3 UEs | Callout xApp-A-S11 vs Posições em [200, 140]m |
-| **S12** | Cenário Avançado S12 | 2 gNBs, 3 UEs | Callout xApp-A-S12 vs Posições em [200, 140]m |
-| **S13** | Cenário Avançado S13 | 2 gNBs, 3 UEs | Callout xApp-A-S13 vs Posições em [200, 140]m |
-| **S14** | Cenário Avançado S14 | 2 gNBs, 3 UEs | Callout xApp-A-S14 vs Posições em [200, 140]m |
-| **S15** | Cenário Avançado S15 | 2 gNBs, 3 UEs | Callout xApp-A-S15 vs Posições em [200, 140]m |
+| Cenário ID | Nome do Cenário | Arquétipo Visual | Variante LIGHT | Variante DARK |
+| :---: | :--- | :---: | :--- | :--- |
+| **S0** | XApp-RDL Experimental Scenario S0 — No-Conflict Control | TVS | `s0_figure_light.png` | `s0_figure_dark.png` |
+| **S1** | XApp-RDL Experimental Scenario S1 — Direct PRB Conflict | EEVS | `s1_figure_light.png` | `s1_figure_dark.png` |
+| **S2** | XApp-RDL Experimental Scenario S2 — Energy Saving vs QoS | EEVS | `s2_figure_light.png` | `s2_figure_dark.png` |
+| **S3** | XApp-RDL Experimental Scenario S3 — Traffic Steering vs Slicing | TVS | `s3_figure_light.png` | `s3_figure_dark.png` |
+| **S4** | XApp-RDL Experimental Scenario S4 — Traffic Steering vs Energy Saving | EEVS | `s4_figure_light.png` | `s4_figure_dark.png` |
+| **S5** | XApp-RDL Experimental Scenario S5 — Temporal Ping-Pong | TVS | `s5_figure_light.png` | `s5_figure_dark.png` |
+| **S6** | XApp-RDL Experimental Scenario S6 — Multi-xApp Conflict Storm | MIMO | `s6_figure_light.png` | `s6_figure_dark.png` |
+| **S7** | XApp-RDL Experimental Scenario S7 — Fault / Rogue xApp / Adversarial Control | TVS | `s7_figure_light.png` | `s7_figure_dark.png` |
+| **S8** | XApp-RDL Experimental Scenario S8 — Real NORI Closed Loop | TVS | `s8_figure_light.png` | `s8_figure_dark.png` |
+| **S9** | XApp-RDL Future Scenario S9 — NTN Terrestrial–Satellite Conflict | ISAC | `s9_figure_light.png` | `s9_figure_dark.png` |
+| **S10** | XApp-RDL Future Scenario S10 — UAV / Flying gNB / Swarm | ISAC | `s10_figure_light.png` | `s10_figure_dark.png` |
+| **S11** | XApp-RDL Future Scenario S11 — V2X High-Mobility Platoon | MIMO | `s11_figure_light.png` | `s11_figure_dark.png` |
+| **S12** | XApp-RDL Future Scenario S12 — IIoT / TSN Mission-Critical | MIMO | `s12_figure_light.png` | `s12_figure_dark.png` |
+| **S13** | XApp-RDL 6G Scenario S13 — SAGIN Multi-Domain | ISAC | `s13_figure_light.png` | `s13_figure_dark.png` |
+| **S14** | XApp-RDL 6G Scenario S14 — ISAC Sensing vs Communication | ISAC | `s14_figure_light.png` | `s14_figure_dark.png` |
+| **S15** | XApp-RDL 6G Scenario S15 — Cross-Tier Governance & Anti-Rogue | CROSSTIER | `s15_figure_light.png` | `s15_figure_dark.png` |

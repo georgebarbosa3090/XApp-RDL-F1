@@ -1,1868 +1,718 @@
 {
   "S0": {
-    "id": "S0",
-    "nome": "No-Conflict Control",
-    "objetivo_cientifico": "Provar não interferência do H-RDL na ausência de conflitos entre xApps",
-    "tipo_conflito": "sem_conflito",
-    "topologia": {
-      "area_m": [
-        200,
-        120
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-1",
-          "pos_m": [
-            60,
-            60
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-2",
-          "pos_m": [
-            140,
-            60
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-01",
-          "pos_m": [
-            50,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-02",
-          "pos_m": [
-            70,
-            55
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-03",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-2"
-        },
-        {
-          "id": "UE-04",
-          "pos_m": [
-            150,
-            55
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-2"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de sobreposição parcial gNB-1 / gNB-2",
-          "centro_m": [
-            100,
-            60
-          ],
-          "raio_m": 30.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S0 — No-Conflict Control",
+    "archetype": "tvs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "xSlice",
-        "dominio": "QoS e Slicing",
-        "parametros_alvo": [
-          "PRB_QUOTA"
-        ],
-        "kpis_afetados": [
-          "DRB.UETHpD1"
-        ]
-      },
-      {
-        "id": "Traffic Steering",
-        "dominio": "Mobilidade",
-        "parametros_alvo": [
-          "HANDOVER"
-        ],
-        "kpis_afetados": [
-          "DRB.RlcSduDelayD1"
-        ]
-      }
+      "QoS/Slicing xApp",
+      "Traffic Steering xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "nenhum",
-        "xapps_envolvidas": [
-          "xSlice",
-          "Traffic Steering"
-        ],
-        "parametros_ou_kpis": [],
-        "severidade": "nula",
-        "descricao_visual": "Ações compatíveis de steering e slice sem disputa de PRBs"
-      }
+    "conflict_desc": "Sem conflito: propostas compatíveis de steering e slice sem disputa por PRBs.",
+    "gnbs": [
+      [
+        "gNB-Macro-1",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "gNB-Macro-2",
+        7.0,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Solicitações de Ação",
-      "eixo_y": "Taxa de Aceitação H-RDL",
-      "tipo_curva": "pass_through"
-    }
+    "ues": [
+      [
+        "UE-01",
+        2.0,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-02",
+        3.0,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-03",
+        6.5,
+        1.8,
+        "mMTC"
+      ],
+      [
+        "UE-04",
+        7.5,
+        1.8,
+        "eMBB"
+      ]
+    ],
+    "metrics": [
+      "False positive rate",
+      "Specificity",
+      "Added decision latency",
+      "Throughput delta",
+      "SLA violations count"
+    ]
   },
   "S1": {
-    "id": "S1",
-    "nome": "Direct PRB Conflict",
-    "objetivo_cientifico": "Disputa direta por alocação de blocos de recursos (PRBs) na mesma célula",
-    "tipo_conflito": "direto",
-    "topologia": {
-      "area_m": [
-        120,
-        100
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-1",
-          "pos_m": [
-            60,
-            50
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 46.0,
-          "raio_cobertura_m": 55.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-01",
-          "pos_m": [
-            50,
-            55
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-02",
-          "pos_m": [
-            70,
-            45
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-03",
-          "pos_m": [
-            55,
-            40
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-04",
-          "pos_m": [
-            65,
-            60
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Célula sob contenção de PRBs",
-          "centro_m": [
-            60,
-            50
-          ],
-          "raio_m": 45.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S1 — Direct PRB Conflict",
+    "archetype": "eevs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "xSlice",
-        "dominio": "QoS e Slicing",
-        "parametros_alvo": [
-          "PRB_QUOTA"
-        ],
-        "kpis_afetados": [
-          "RRU.PrbUsedD1"
-        ]
-      },
-      {
-        "id": "Energy Saving",
-        "dominio": "Green RAN",
-        "parametros_alvo": [
-          "PRB_SHUTDOWN"
-        ],
-        "kpis_afetados": [
-          "L1M.DL-sinr"
-        ]
-      }
+      "QoS/Slicing xApp",
+      "Energy Saving xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "direto",
-        "xapps_envolvidas": [
-          "xSlice",
-          "Energy Saving"
-        ],
-        "parametros_ou_kpis": [
-          "PRB_QUOTA",
-          "PRB_SHUTDOWN"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Conflito direto de alocação de PRBs (Wc = 200 ms)"
-      }
+    "conflict_desc": "Conflito direto sobre a mesma cota de PRBs na célula sob alta carga (Wc = 200 ms).",
+    "gnbs": [
+      [
+        "gNB-Macro Single",
+        4.8,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Quota PRB Slicing",
-      "eixo_y": "Desligamento PRB Energy",
-      "tipo_curva": "conflito_direto"
-    }
+    "ues": [
+      [
+        "UE-01",
+        3.8,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-02",
+        4.8,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-03",
+        5.8,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Precision / Recall / F1-score",
+      "Detection latency",
+      "PRB utilization",
+      "SLA violation duration",
+      "Recovery time"
+    ]
   },
   "S2": {
-    "id": "S2",
-    "nome": "Energy Saving vs QoS",
-    "objetivo_cientifico": "Arbitragem entre redução de potência da rede e garantia de SLA URLLC",
-    "tipo_conflito": "indireto",
-    "topologia": {
-      "area_m": [
-        160,
-        110
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 50,
-      "gnodebs": [
-        {
-          "id": "gNB-1",
-          "pos_m": [
-            50,
-            55
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 65.0
-        },
-        {
-          "id": "gNB-2",
-          "pos_m": [
-            110,
-            55
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 30.0,
-          "raio_cobertura_m": 40.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-01",
-          "pos_m": [
-            55,
-            60
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-02",
-          "pos_m": [
-            100,
-            50
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-2"
-        },
-        {
-          "id": "UE-03",
-          "pos_m": [
-            80,
-            55
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Área de cobertura cruzada Macro/Micro",
-          "centro_m": [
-            80,
-            55
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S2 — Energy Saving vs QoS",
+    "archetype": "eevs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "Energy Saving",
-        "dominio": "Green RAN",
-        "parametros_alvo": [
-          "TX_POWER"
-        ],
-        "kpis_afetados": [
-          "L1M.DL-sinr"
-        ]
-      },
-      {
-        "id": "xSlice",
-        "dominio": "QoS",
-        "parametros_alvo": [
-          "PRB_QUOTA"
-        ],
-        "kpis_afetados": [
-          "DRB.RlcSduDelayD1"
-        ]
-      }
+      "Energy Saving xApp",
+      "QoS/Slicing xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "indireto",
-        "xapps_envolvidas": [
-          "Energy Saving",
-          "xSlice"
-        ],
-        "parametros_ou_kpis": [
-          "TX_POWER",
-          "DRB.RlcSduDelayD1"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Solicitação Cell Sleep vs Demanda de Banda URLLC"
-      }
+    "conflict_desc": "Energy Saving solicita Cell Sleep vs QoS exige capacidade para tráfego URLLC.",
+    "gnbs": [
+      [
+        "Macro gNB (43 dBm)",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "Micro Small Cell (30 dBm)",
+        7.0,
+        3.8,
+        "micro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Potência de Transmissão (dBm)",
-      "eixo_y": "Latência E2E URLLC (ms)",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE-01 (URLLC)",
+        2.5,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-02 (eMBB)",
+        7.0,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-03 (URLLC/V2X)",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Energy consumption",
+      "URLLC P99 latency",
+      "Packet loss",
+      "Throughput",
+      "PRB utilization",
+      "SLA violation duration"
+    ]
   },
   "S3": {
-    "id": "S3",
-    "nome": "Traffic Steering vs Slicing",
-    "objetivo_cientifico": "Manutenção de SLAs de fatia durante reorientação dinâmica de tráfego inter-células",
-    "tipo_conflito": "indireto",
-    "topologia": {
-      "area_m": [
-        180,
-        120
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-1",
-          "pos_m": [
-            55,
-            60
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 65.0
-        },
-        {
-          "id": "gNB-2",
-          "pos_m": [
-            125,
-            60
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 65.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-01",
-          "pos_m": [
-            85,
-            65
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-1"
-        },
-        {
-          "id": "UE-02",
-          "pos_m": [
-            95,
-            55
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-2"
-        },
-        {
-          "id": "UE-03",
-          "pos_m": [
-            90,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Fronteira Inter-Células com Múltiplas Fatias",
-          "centro_m": [
-            90,
-            60
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S3 — Traffic Steering vs Slicing",
+    "archetype": "tvs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "Traffic Steering",
-        "dominio": "Mobilidade",
-        "parametros_alvo": [
-          "HANDOVER_TRIGGER"
-        ],
-        "kpis_afetados": [
-          "HO.AttCount"
-        ]
-      },
-      {
-        "id": "xSlice",
-        "dominio": "QoS",
-        "parametros_alvo": [
-          "SLICE_RESERVATION"
-        ],
-        "kpis_afetados": [
-          "DRB.UETHpD1"
-        ]
-      }
+      "Traffic Steering xApp",
+      "QoS/Slicing xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "indireto",
-        "xapps_envolvidas": [
-          "Traffic Steering",
-          "xSlice"
-        ],
-        "parametros_ou_kpis": [
-          "HANDOVER_TRIGGER",
-          "SLICE_RESERVATION"
-        ],
-        "severidade": "média",
-        "descricao_visual": "Steering altera distribuição de carga enquanto Slicing preserva fatias"
-      }
+    "conflict_desc": "Steering altera distribuição de carga enquanto Slicing preserva quotas de fatia.",
+    "gnbs": [
+      [
+        "gNB-A (100 MHz)",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "gNB-B (100 MHz)",
+        7.0,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Volume de Handover",
-      "eixo_y": "Violação de SLA por Fatia",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE-01 (URLLC)",
+        4.0,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-02 (eMBB)",
+        4.75,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-03 (mMTC)",
+        5.5,
+        1.8,
+        "mMTC"
+      ]
+    ],
+    "metrics": [
+      "P99 URLLC latency",
+      "eMBB throughput",
+      "mMTC packet delivery",
+      "PRB share",
+      "Jain fairness",
+      "SLA violations count"
+    ]
   },
   "S4": {
-    "id": "S4",
-    "nome": "Traffic Steering vs Energy Saving",
-    "objetivo_cientifico": "Evitar transferência de tráfego para células em modo de desligamento energético",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        120
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-A",
-          "pos_m": [
-            60,
-            60
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 46.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-B",
-          "pos_m": [
-            140,
-            60
-          ],
-          "tipo": "small_cell",
-          "potencia_dBm": 30.0,
-          "raio_cobertura_m": 45.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-01",
-          "pos_m": [
-            90,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-A"
-        },
-        {
-          "id": "UE-02",
-          "pos_m": [
-            100,
-            55
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-A"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Área de Transição A -> B",
-          "centro_m": [
-            100,
-            60
-          ],
-          "raio_m": 30.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S4 — Traffic Steering vs Energy Saving",
+    "archetype": "eevs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "Traffic Steering",
-        "dominio": "Mobilidade",
-        "parametros_alvo": [
-          "HANDOVER"
-        ],
-        "kpis_afetados": [
-          "HO.AttCount"
-        ]
-      },
-      {
-        "id": "Energy Saving",
-        "dominio": "Green RAN",
-        "parametros_alvo": [
-          "CELL_SLEEP"
-        ],
-        "kpis_afetados": [
-          "PE.EnergyCons"
-        ]
-      }
+      "Traffic Steering xApp",
+      "Energy Saving xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "Traffic Steering",
-          "Energy Saving"
-        ],
-        "parametros_ou_kpis": [
-          "HANDOVER",
-          "CELL_SLEEP"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "TS move UEs A->B simultaneamente a pedido de Sleep em B"
-      }
+    "conflict_desc": "TS pretende mover UEs A->B enquanto ES pretende colocar célula B em sleep.",
+    "gnbs": [
+      [
+        "gNB-A (Overloaded)",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "gNB-B (Target Sleep)",
+        7.0,
+        3.8,
+        "micro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Carga de Célula B",
-      "eixo_y": "Economia de Energia (%)",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE-01",
+        4.2,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-02",
+        5.2,
+        1.8,
+        "eMBB"
+      ]
+    ],
+    "metrics": [
+      "Cell load",
+      "HO success/failure rate",
+      "Ping-pong rate",
+      "Energy consumption",
+      "Throughput",
+      "Outage duration"
+    ]
   },
   "S5": {
-    "id": "S5",
-    "nome": "Temporal Ping-Pong",
-    "objetivo_cientifico": "Eliminação de oscilações repetitivas de handover via histerese e cooldown H-RDL",
-    "tipo_conflito": "indireto",
-    "topologia": {
-      "area_m": [
-        180,
-        110
-      ],
-      "banda": "n78",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "Cell-A",
-          "pos_m": [
-            60,
-            55
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 60.0
-        },
-        {
-          "id": "Cell-B",
-          "pos_m": [
-            120,
-            55
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 60.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-Mobile",
-          "pos_m": [
-            90,
-            55
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "Cell-A"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Histerese de Borda",
-          "centro_m": [
-            90,
-            55
-          ],
-          "raio_m": 25.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S5 — Temporal Ping-Pong",
+    "archetype": "tvs",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "MRO / Steering",
-        "dominio": "Mobilidade",
-        "parametros_alvo": [
-          "CIO_OFFSET"
-        ],
-        "kpis_afetados": [
-          "HO.PingPongRate"
-        ]
-      },
-      {
-        "id": "Energy / QoS",
-        "dominio": "Gerenciamento",
-        "parametros_alvo": [
-          "TX_POWER"
-        ],
-        "kpis_afetados": [
-          "DRB.RlcSduDelayD1"
-        ]
-      }
+      "MRO / Steering xApp",
+      "Energy / QoS xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "indireto",
-        "xapps_envolvidas": [
-          "MRO / Steering",
-          "Energy / QoS"
-        ],
-        "parametros_ou_kpis": [
-          "CIO_OFFSET",
-          "TX_POWER"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Decisões alternadas A->B->A em janela temporal curta"
-      }
+    "conflict_desc": "Decisões alternadas A->B->A em curto intervalo (supressão via histerese H-RDL).",
+    "gnbs": [
+      [
+        "Cell A (Origem)",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "Cell B (Destino)",
+        7.0,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Tempo de Cooldown (ms)",
-      "eixo_y": "Taxa de Ping-Pong (%)",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE Mobile (Borda)",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Handover count",
+      "Ping-pong rate",
+      "Action reversal rate",
+      "Control churn",
+      "Dwell time",
+      "Stable recovery time"
+    ]
   },
   "S6": {
-    "id": "S6",
-    "nome": "Cenário Avançado S6",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S6",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-S6-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S6-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S6-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S6-1"
-        },
-        {
-          "id": "UE-S6-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S6-2"
-        },
-        {
-          "id": "UE-S6-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S6-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S6",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S6 — Multi-xApp Conflict Storm",
+    "archetype": "mimo",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "xApp-A-S6",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S6",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "QoS/Slicing",
+      "Traffic Steering",
+      "Energy Saving",
+      "Load Balancer",
+      "Beamformer"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S6",
-          "xApp-B-S6"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S6"
-      }
+    "conflict_desc": "Tempestade de propostas simultâneas e dependências indiretas em cluster multi-célula.",
+    "gnbs": [
+      [
+        "gNB Cluster 01",
+        2.2,
+        3.8,
+        "macro"
+      ],
+      [
+        "gNB Cluster 02",
+        4.75,
+        3.8,
+        "macro"
+      ],
+      [
+        "gNB Cluster 03",
+        7.3,
+        3.8,
+        "micro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE-01",
+        2.0,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-02",
+        4.5,
+        1.8,
+        "eMBB"
+      ],
+      [
+        "UE-03",
+        7.0,
+        1.8,
+        "mMTC"
+      ]
+    ],
+    "metrics": [
+      "Conflicts per second",
+      "Decision throughput",
+      "Queue depth",
+      "CPU / Memory usage",
+      "P95/P99 decision latency",
+      "Rejected actions count"
+    ]
   },
   "S7": {
-    "id": "S7",
-    "nome": "Cenário Avançado S7",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S7",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-S7-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S7-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S7-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S7-1"
-        },
-        {
-          "id": "UE-S7-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S7-2"
-        },
-        {
-          "id": "UE-S7-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S7-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S7",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S7 — Fault / Rogue xApp / Adversarial Control",
+    "phase": "Fase 1 (Experimental)",
     "xapps": [
-      {
-        "id": "xApp-A-S7",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S7",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "xApps Legítimas",
+      "Rogue / Fault xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S7",
-          "xApp-B-S7"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S7"
-      }
+    "conflict_desc": "Injeção de propostas maliciosas/inválidas bloqueadas deterministicamente pelo Safety Guard L0-L3.",
+    "gnbs": [
+      [
+        "gNB Multi-Cell Stack",
+        4.75,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE-01",
+        3.5,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "UE-02",
+        6.0,
+        1.8,
+        "eMBB"
+      ]
+    ],
+    "metrics": [
+      "Attack / fault rejection rate",
+      "False acceptance rate",
+      "Unsafe execution rate",
+      "Isolation time",
+      "SLA impact"
+    ]
   },
   "S8": {
-    "id": "S8",
-    "nome": "Cenário Avançado S8",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S8",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 3.5,
-      "largura_banda_MHz": 100,
-      "gnodebs": [
-        {
-          "id": "gNB-S8-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S8-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S8-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S8-1"
-        },
-        {
-          "id": "UE-S8-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S8-2"
-        },
-        {
-          "id": "UE-S8-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S8-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S8",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Experimental Scenario S8 — Real NORI Closed Loop",
+    "phase": "Fase 1 (Experimental - Gates 1-4)",
     "xapps": [
-      {
-        "id": "xApp-A-S8",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S8",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "KPM Monitor xApp",
+      "Traffic Steering xApp",
+      "H-RDL Core"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S8",
-          "xApp-B-S8"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S8"
-      }
+    "conflict_desc": "Validação de loop fechado E2AP/E2SM-KPM/E2SM-RC via ns-3 / 5G-LENA / NORI.",
+    "gnbs": [
+      [
+        "ns-3 / NORI gNB Node",
+        4.75,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE Pool NORI",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "KPM report rate",
+      "Control RTT",
+      "Action application latency",
+      "KPI before/after delta",
+      "ACK/Failure rate"
+    ]
   },
   "S9": {
-    "id": "S9",
-    "nome": "Cenário Avançado S9",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S9",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S9-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S9-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S9-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S9-1"
-        },
-        {
-          "id": "UE-S9-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S9-2"
-        },
-        {
-          "id": "UE-S9-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S9-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S9",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Future Scenario S9 — NTN Terrestrial–Satellite Conflict",
+    "archetype": "isac",
+    "phase": "Fase 2 / 6G (Futuro)",
     "xapps": [
-      {
-        "id": "xApp-A-S9",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S9",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "NTN Steering xApp",
+      "QoS Slicing",
+      "Load Balancer"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S9",
-          "xApp-B-S9"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S9"
-      }
+    "conflict_desc": "Seleção Terrestre vs Satélite LEO considerando RTT, efeito Doppler e feixe NTN.",
+    "gnbs": [
+      [
+        "Satélite LEO (Orbital)",
+        2.5,
+        4.2,
+        "macro"
+      ],
+      [
+        "gNB Terrestre",
+        7.0,
+        3.5,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Terminal Solo NTN",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "RTT latency",
+      "Doppler shift compensation",
+      "Elevation angle",
+      "Handover count",
+      "Outage probability",
+      "Slice SLA"
+    ]
   },
   "S10": {
-    "id": "S10",
-    "nome": "Cenário Avançado S10",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S10",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S10-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S10-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S10-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S10-1"
-        },
-        {
-          "id": "UE-S10-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S10-2"
-        },
-        {
-          "id": "UE-S10-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S10-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S10",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Future Scenario S10 — UAV / Flying gNB / Swarm",
+    "archetype": "isac",
+    "phase": "Fase 2 / 6G (Futuro)",
     "xapps": [
-      {
-        "id": "xApp-A-S10",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S10",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "UAV Mobility xApp",
+      "Energy Saving xApp",
+      "Load Balancer"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S10",
-          "xApp-B-S10"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S10"
-      }
+    "conflict_desc": "Demanda de cobertura aérea em emergência vs Estado de Bateria (SoC) do enxame.",
+    "gnbs": [
+      [
+        "UAV Relay Aéreo 01",
+        2.5,
+        4.0,
+        "micro"
+      ],
+      [
+        "UAV Relay Aéreo 02",
+        7.0,
+        4.0,
+        "micro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Usuários Solo Emergência",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "State of Charge (SoC)",
+      "Coverage probability",
+      "Outage duration",
+      "UAV Handovers",
+      "Mesh recovery time",
+      "Energy consumption"
+    ]
   },
   "S11": {
-    "id": "S11",
-    "nome": "Cenário Avançado S11",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S11",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S11-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S11-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S11-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S11-1"
-        },
-        {
-          "id": "UE-S11-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S11-2"
-        },
-        {
-          "id": "UE-S11-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S11-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S11",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Future Scenario S11 — V2X High-Mobility Platoon",
+    "archetype": "mimo",
+    "phase": "Fase 2 / 6G (Futuro)",
     "xapps": [
-      {
-        "id": "xApp-A-S11",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S11",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "Traffic Steering xApp",
+      "Mobility / MRO xApp",
+      "Platoon QoS xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S11",
-          "xApp-B-S11"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S11"
-      }
+    "conflict_desc": "Handover veicular em alta velocidade (110 km/h) com garantia de latência ultra-baixa.",
+    "gnbs": [
+      [
+        "RSU Rodoviária 01",
+        2.5,
+        3.8,
+        "macro"
+      ],
+      [
+        "RSU Rodoviária 02",
+        7.0,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Pelotão V2X Vehicle",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Handover failure rate",
+      "Interruption time",
+      "Ping-pong rate",
+      "RSRP / RSRQ / SINR",
+      "URLLC latency tail",
+      "Platoon SLA"
+    ]
   },
   "S12": {
-    "id": "S12",
-    "nome": "Cenário Avançado S12",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S12",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S12-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S12-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "micro",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S12-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S12-1"
-        },
-        {
-          "id": "UE-S12-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S12-2"
-        },
-        {
-          "id": "UE-S12-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S12-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S12",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL Future Scenario S12 — IIoT / TSN Mission-Critical",
+    "archetype": "mimo",
+    "phase": "Fase 2 / 6G (Futuro)",
     "xapps": [
-      {
-        "id": "xApp-A-S12",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S12",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "Industrial QoS xApp",
+      "Energy Saving xApp",
+      "Load Balancer"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S12",
-          "xApp-B-S12"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S12"
-      }
+    "conflict_desc": "Reserva estrita TSN industrial sem jitter vs Otimização de energia/capacidade.",
+    "gnbs": [
+      [
+        "gNB-DU Industrial TSN",
+        4.75,
+        3.8,
+        "micro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Robôs / Atuadores TSN",
+        4.75,
+        1.8,
+        "mMTC"
+      ]
+    ],
+    "metrics": [
+      "Control-cycle latency",
+      "Jitter bounds",
+      "Missed control cycles",
+      "Packet loss rate",
+      "Availability percentage",
+      "Energy efficiency"
+    ]
   },
   "S13": {
-    "id": "S13",
-    "nome": "Cenário Avançado S13",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S13",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S13-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S13-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "small_cell",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S13-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S13-1"
-        },
-        {
-          "id": "UE-S13-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S13-2"
-        },
-        {
-          "id": "UE-S13-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S13-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S13",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL 6G Scenario S13 — SAGIN Multi-Domain",
+    "archetype": "isac",
+    "phase": "Fase 3 / 6G (Avançado)",
     "xapps": [
-      {
-        "id": "xApp-A-S13",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S13",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "NTN Steering",
+      "UAV Coordination",
+      "QoS Slicing",
+      "Energy Saving"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S13",
-          "xApp-B-S13"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S13"
-      }
+    "conflict_desc": "Orquestração multidomínio 3D (Espaço-Ar-Terra) e contenção de backhaul de resgate.",
+    "gnbs": [
+      [
+        "Satélite LEO Espacial",
+        2.0,
+        4.4,
+        "macro"
+      ],
+      [
+        "UAV Enxame Aéreo",
+        4.75,
+        3.6,
+        "micro"
+      ],
+      [
+        "gNB O-RAN Terrestre",
+        7.5,
+        2.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Equipe Resgate Terrestre",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Cross-tier latency",
+      "Multi-domain availability",
+      "Critical SLA compliance",
+      "Resource allocation efficiency",
+      "Recovery time",
+      "Fairness index"
+    ]
   },
   "S14": {
-    "id": "S14",
-    "nome": "Cenário Avançado S14",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S14",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S14-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S14-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "small_cell",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S14-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S14-1"
-        },
-        {
-          "id": "UE-S14-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S14-2"
-        },
-        {
-          "id": "UE-S14-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S14-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S14",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL 6G Scenario S14 — ISAC Sensing vs Communication",
+    "archetype": "isac",
+    "phase": "Fase 3 / 6G (Avançado)",
     "xapps": [
-      {
-        "id": "xApp-A-S14",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S14",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "ISAC / Sensing xApp",
+      "eMBB / QoS xApp",
+      "Beamformer xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S14",
-          "xApp-B-S14"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S14"
-      }
+    "conflict_desc": "Disputa por símbolos OFDM entre feixes de sensoriamento (Cyan) e comunicação (Verde-Lima).",
+    "gnbs": [
+      [
+        "6G Dual-ISAC gNB",
+        4.75,
+        3.8,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "Target Radar / Vehicle",
+        3.0,
+        1.8,
+        "URLLC"
+      ],
+      [
+        "Comms UE 6G",
+        6.5,
+        1.8,
+        "eMBB"
+      ]
+    ],
+    "metrics": [
+      "Sensing accuracy / range error",
+      "Radar SINR",
+      "Communication SINR",
+      "Throughput",
+      "Latency",
+      "Pareto optimal trade-off frontier"
+    ]
   },
   "S15": {
-    "id": "S15",
-    "nome": "Cenário Avançado S15",
-    "objetivo_cientifico": "Otimização e arbitragem multidomínio 5G-A/6G para S15",
-    "tipo_conflito": "misto",
-    "topologia": {
-      "area_m": [
-        200,
-        140
-      ],
-      "banda": "n78 / n258",
-      "frequencia_GHz": 28.0,
-      "largura_banda_MHz": 400,
-      "gnodebs": [
-        {
-          "id": "gNB-S15-1",
-          "pos_m": [
-            60,
-            70
-          ],
-          "tipo": "macro",
-          "potencia_dBm": 43.0,
-          "raio_cobertura_m": 70.0
-        },
-        {
-          "id": "gNB-S15-2",
-          "pos_m": [
-            140,
-            70
-          ],
-          "tipo": "small_cell",
-          "potencia_dBm": 33.0,
-          "raio_cobertura_m": 50.0
-        }
-      ],
-      "ues": [
-        {
-          "id": "UE-S15-01",
-          "pos_m": [
-            50,
-            75
-          ],
-          "classe": "URLLC",
-          "gnodeb_serving": "gNB-S15-1"
-        },
-        {
-          "id": "UE-S15-02",
-          "pos_m": [
-            130,
-            65
-          ],
-          "classe": "eMBB",
-          "gnodeb_serving": "gNB-S15-2"
-        },
-        {
-          "id": "UE-S15-03",
-          "pos_m": [
-            100,
-            70
-          ],
-          "classe": "mMTC",
-          "gnodeb_serving": "gNB-S15-1"
-        }
-      ],
-      "regioes_sobreposicao": [
-        {
-          "descricao": "Zona de Interseção Multidomínio S15",
-          "centro_m": [
-            100,
-            70
-          ],
-          "raio_m": 35.0
-        }
-      ]
-    },
+    "title": "XApp-RDL 6G Scenario S15 — Cross-Tier Governance & Anti-Rogue",
+    "archetype": "crosstier",
+    "phase": "Fase 3 / 6G (Avançado)",
     "xapps": [
-      {
-        "id": "xApp-A-S15",
-        "dominio": "Domínio A",
-        "parametros_alvo": [
-          "PARAM_A"
-        ],
-        "kpis_afetados": [
-          "KPI_A"
-        ]
-      },
-      {
-        "id": "xApp-B-S15",
-        "dominio": "Domínio B",
-        "parametros_alvo": [
-          "PARAM_B"
-        ],
-        "kpis_afetados": [
-          "KPI_B"
-        ]
-      }
+      "QoS",
+      "Steering",
+      "Energy",
+      "Load Balancer",
+      "Beamformer",
+      "ISAC",
+      "Rogue xApp"
     ],
-    "conflitos": [
-      {
-        "tipo": "misto",
-        "xapps_envolvidas": [
-          "xApp-A-S15",
-          "xApp-B-S15"
-        ],
-        "parametros_ou_kpis": [
-          "PARAM_A",
-          "PARAM_B"
-        ],
-        "severidade": "alta",
-        "descricao_visual": "Disputa de recursos multidomínio em S15"
-      }
+    "conflict_desc": "Governança multi-loop (Non-RT RIC/SMO -> Near-RT RIC/H-RDL -> E2 -> RAN) com escudo Anti-Rogue.",
+    "gnbs": [
+      [
+        "gNB Cluster Grid 01",
+        3.0,
+        3.5,
+        "macro"
+      ],
+      [
+        "gNB Cluster Grid 02",
+        6.5,
+        3.5,
+        "macro"
+      ]
     ],
-    "tradeoff_info": {
-      "eixo_x": "Parâmetro A",
-      "eixo_y": "Parâmetro B",
-      "tipo_curva": "pareto_tradeoff"
-    }
+    "ues": [
+      [
+        "UE Slices 6G",
+        4.75,
+        1.8,
+        "URLLC"
+      ]
+    ],
+    "metrics": [
+      "Unsafe execution rate",
+      "Rogue / fault block rate",
+      "False positive rate",
+      "Detection latency",
+      "Lockout duration",
+      "PDR stability"
+    ]
   }
 }
