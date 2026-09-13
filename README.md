@@ -39,6 +39,26 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 
 ![Fluxo funcional da arquitetura proposta para a xApp-RDL](docs/figures/01_arquitetura_e_modelagem/fig_fluxo_funcional_arquitetura_rdl.png)
 
+### 1.1. Taxonomia de Origem das xApps (`origin_type`)
+
+O ecossistema experimental classifica rigorosamente a procedência de cada xApp:
+
+| Nome da xApp | Origem / Fonte | Tipo de Origem (`origin_type`) | Papel no Repositório |
+| :--- | :--- | :---: | :--- |
+| **Traffic Steering** | [O-RAN SC `ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | `ORAN_SC_OFFICIAL` | Terceiros / Oficial O-RAN SC Release J |
+| **KPIMON** | [O-RAN SC `ric-app-kpimon`](https://github.com/o-ran-sc/ric-app-kpimon) | `ORAN_SC_OFFICIAL` | Terceiros / Oficial O-RAN SC (Telemetria) |
+| **xSlice (QoS Slicing)** | [peihaoY/xslice-oran](https://github.com/peihaoY/xslice-oran) (Yan et al., 2025) | `ACADEMIC_REIMPLEMENTATION` | Terceiros / Reimplementação Acadêmica |
+| **Energy Saving** | [Orange-OpenSource/ns-O-RAN-flexric](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) | `LITERATURE_INSPIRED` | Terceiros / Inspirada na Literatura |
+| **Load Balancer** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL |
+| **Beamformer** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL |
+| **ISAC Radar** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL (6G ISAC) |
+| **Rogue xApp** | Workload de Teste | `TEST_HARNESS` | Teste / Injeção de Falhas |
+| **Bouncer** | Workload de Teste | `TEST_HARNESS` | Teste / Benchmark de Latência RMR |
+
+*Consulte a documentação detalhada e figuras em [`docs/modelagem_cenarios_xapps_terceiros.md`](docs/modelagem_cenarios_xapps_terceiros.md), [`docs/topologia_espacial_e_cenarios_s1_s5.md`](docs/topologia_espacial_e_cenarios_s1_s5.md) e [`reference-xapps/README.md`](reference-xapps/README.md).*
+
+
+
 ---
 
 ## 2. Estrutura do Repositório
@@ -196,65 +216,43 @@ make reproduce-f1
   ```bash
   make kiali-install      # Instala Istio e Kiali no c---
 
-## 6. Resultados Experimentais e Matriz Claims $\to$ Evidências
+## 6. Política Rígida de Providência e Resultados Experimentais
 
-Todos os resultados apresentados foram obtidos a partir de **co-simulações no simulador ns-3 (5G-LENA v5.1 / ns-O-RAN NORI)** com topologia parametrizada 3GPP Banda n78 (3.5 GHz, 100 MHz BWP, $\mu=1$, 2 gNodeBs, 30 UEs com tráfego misto URLLC/eMBB/mMTC) sob concorrência de 3 xApps de referência.
+$$
+\boxed{
+\text{Resultado científico válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}
+}
+$$
 
-### 6.1. Matriz Formal de Rastreabilidade Claims $\to$ Evidências
+A infraestrutura experimental **ns-3 / 5G-LENA v5.1 / NORI** está em validação atrelada à política estrita de **Zero Dados Sintéticos**. Resultados científicos somente serão publicados após aprovação automática dos gates de proveniência e interoperabilidade (**Gate 1 a Gate 4**).
 
-| Claim Científica | Evidência Experimental / Métrica | Fonte de Verificação / Artefato |
-| :--- | :--- | :--- |
-| **Mitigação Causal de Conflitos** | $CRE = 100.0\%$ (Todos os conflitos resolvidos melhoraram os KPIs alvo) | [`scientific_summary.json`](results/reproduced_audit_2026/statistics/scientific_summary.json) |
-| **Proteção Estrita de SLA URLLC** | Redução de violações de SLA de $100.0\% \to 0.0\%$ ($p < 0.0001$) | [`paper_table.csv`](results/reproduced_audit_2026/paper_table.csv) |
-| **Redução de Latência de Cauda** | Latência P99 reduzida de $144.06\text{ ms} \to 3.04\text{ ms}$ (-97.9%) | [`metrics_b3_hrdl.csv`](results/reproduced_audit_2026/B3_HRDL/metrics_b3_hrdl.csv) |
-| **Garantia de Equidade entre Fatias** | Jain's Fairness Index elevado de $0.1444 \to 0.9175$ (+535%) | [`paper_table.csv`](results/reproduced_audit_2026/paper_table.csv) |
-| **Segurança Invariante Zero-Violation** | Unsafe Action Rate = $0.0\%$ (Nenhuma ação insegura atingiu a RAN) | [`test_negative_cases.py`](tests/unit/test_negative_cases.py) |
-| **Fidelidade Normativa E2AP / RC** | ProtocolIE-Containers canônicos com roundtrips APER validados | [`test_golden_vectors.py`](tests/codec/test_golden_vectors.py) |
+### 6.1. Critérios dos Gates de Validação Experimental
 
-### 6.2. Definição Formal da Métrica Conflict Resolution Effectiveness (CRE)
-
-Para evitar conclusões baseadas unicamente em vazão agregada, o projeto formaliza a métrica de eficácia causal:
-
-$$CRE = \frac{\sum_{i=1}^{N_{\text{resolvidos}}} \mathbb{I}(\text{KPI}_{\text{pós}}(i) > \text{KPI}_{\text{pré}}(i) \land \text{Status}_{\text{E2}}(i) = \text{ACK})}{N_{\text{detectados}}}$$
-
-Onde $\mathbb{I}(\cdot)$ é a função indicadora que exige confirmação formal via `RIC_CONTROL_ACK` (12041) e melhoria mensurável no estado da telemetria da RAN.
-
-### 6.3. Tabela Consolidada de Benchmarks Multi-Semente ($N = 30$ Seeds)
-
-| Método / Modelo Avaliado | Latência Média URLLC (ms) | Latência P99 (ms) | Vazão Agregada (Mbps) | Jain's Fairness | Violações de SLA (%) | CRE (%) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **B0: Sem RDL (Conflito Direto)** | $12.67 \pm 1.91$ | $144.06$ | $155.25 \pm 24.63$ | $0.1444$ | $100.0\%$ | **0.0%** |
-| **B1: Heurística FIFO** | $7.32 \pm 0.94$ | $45.44$ | $420.44 \pm 37.08$ | $0.4793$ | $35.0\%$ | **55.0%** |
-| **B2: Static Quotas (Slicing Only)** | $5.14 \pm 0.48$ | $18.04$ | $673.11 \pm 47.17$ | $0.7194$ | $12.0\%$ | **78.0%** |
-| **B3: H-RDL Fase 1 (Governança Total)** | **$2.85 \pm 0.16$** | **$3.04$** | **$1117.08 \pm 43.43$** | **$0.9175$** | **$0.0\%$** | **100.0%** |
+| Gate | Descrição e Requisito de Aprovação | Condição de Bloqueio |
+| :---: | :--- | :---: |
+| **Gate 1** | **Interoperabilidade E2 KPM Real**<br/>Conexão SCTP/NORI $\to$ Near-RT RIC, subscrição aceita, `RICindication` `.raw` decodificado via APER e validação semântica com o FlowMonitor ($\epsilon < 5\%$). | **Obrigatório (`GATE_1_REQUIRED=true`)** |
+| **Gate 2** | **Rastreabilidade e Providência Extrema**<br/>Verificação de hashes SHA256 do binário ns-3, sementes, FlowMonitor XML, logs e manifestos `execution_manifest.json`. | **Obrigatório** |
+| **Gate 3** | **Controle E2SM-RC em Malha Fechada**<br/>Envio de `RICcontrolRequest` via APER e confirmação externa por `RICcontrolAcknowledge` sobre SCTP real. | **Obrigatório** |
+| **Gate 4** | **Fechamento do Causal Loop RAN**<br/>Encadeamento de causa-efeito: $\text{KPM}(t_0) \to \text{H-RDL} \to \text{Control} \to \text{NORI} \to \text{ns-3} \to \text{State Change} \to \text{KPM}(t_1)$. | **Obrigatório** |
 
 ---
 
-## 7. Reprodutibilidade em Um Comando (`make reproduce-paper`)
+## 7. Reprodutibilidade e Validação de Providência em Um Comando
 
-Para reproduzir integralmente todos os experimentos, gerar os dados brutos em `.raw`, `.json` e `.csv`, e sintetizar a tabela do artigo:
+Para executar a verificação estrita de proveniência e integridade sem dados sintéticos:
 
 ```bash
-# Executa a suíte de reprodução multi-semente (N=30)
-make reproduce-paper
+# Auditoria estática de código contra geradores mock
+python scripts/check_no_synthetic_results.py
 
-# Executa testes modulares e vetores dourados
+# Validação do pipeline de proveniência de dados reais
+python scripts/validate_provenance.py experiments/runs/gate1/seed-1001
+
+# Suíte de testes funcionais e codecs de software (isolados de experiments/)
 make test-unit
 make test-codec
 make test-integration
 make test-interop
-```
-
-Os artefatos gerados são estruturados em:
-```text
-results/reproduced_audit_2026/
-├── B0/                  # Métricas brutas baseline sem controle
-├── B1/                  # Métricas brutas heurística FIFO
-├── B2/                  # Métricas brutas cotas estáticas
-├── B3_HRDL/             # Métricas brutas H-RDL Fase 1
-├── raw_runs/            # Hierarquia Gate 1 (subscription.raw, indication_XXXX.raw, metadata.json)
-├── statistics/          # scientific_summary.json com métricas consolidadas
-└── paper_table.csv      # Tabela final para publicação científica
 ```
 
 ---
