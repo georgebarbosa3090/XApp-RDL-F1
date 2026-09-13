@@ -213,6 +213,8 @@ graph TD
 ### Cenário S9: NTN Orbital Handover & Doppler Mitigation Conflict
 * **Identificador:** `S9_NTN_ORBITAL_HANDOVER`
 * **Topologia:** 1 Estação Terrestre Macro (3.5 GHz n78, 43 dBm) + 2 Satélites LEO (altitude $600\text{ km}$, velocidade de solo $7.5\text{ km/s}$, feixes direcionais em banda Ka).
+* **Figura de Topologia Espacial:**
+  ![S9: NTN Orbital Handover](figures/02_cenarios_e_topologias/s9_ntn_orbital_handover.png)
 * **Usuários:** 40 terminais veiculares em trânsito interestadual (20 eMBB, 20 URLLC).
 * **xApps em Conflito:** `xApp-NTN-Steering` vs. `xApp-QoS-Slicing` vs. `xApp-Doppler-Compensator`.
 * **Parâmetros E2SM-RC / KPM:** `SATELLITE_LINK_FLAG`, `DOPPLER_OFFSET_KHZ`, `BEAM_HANDOVER_TRIGGER`, `PRB_QUOTA`.
@@ -228,6 +230,8 @@ graph TD
 ### Cenário S10: UAV Flying gNodeB Swarm & Battery Depletion Emergency Handover
 * **Identificador:** `S10_UAV_SWARM_BATTERY_HANDOVER`
 * **Topologia:** Malha aérea com 4 UAVs operando como Flying gNodeBs a $100\text{ m}$ de altitude + 1 Gateway Terrestre de Fibra.
+* **Figura de Topologia Espacial:**
+  ![S10: UAV Swarm Stadium Coverage](figures/02_cenarios_e_topologias/s10_uav_swarm_stadium_coverage.png)
 * **Usuários:** 80 UEs em área de festival/estádio aberto sem cobertura cabeada.
 * **xApps em Conflito:** `xApp-UAV-Mobility` vs. `xApp-Energy-Conserver` vs. `xApp-Video-Uplink`.
 * **Parâmetros E2SM-RC / KPM:** `UAV_ALTITUDE_Z`, `TX_POWER`, `RELAY_NEXT_HOP`, `VIDEO_PRB_QUOTA`.
@@ -242,6 +246,8 @@ graph TD
 ### Cenário S11: High-Speed V2X Highway Platooning & Multi-Cell Ping-Pong Storm
 * **Identificador:** `S11_V2X_HIGHWAY_PINGPONG_STORM`
 * **Topologia:** Grade rodoviária linear de $2\text{ km}$ com 8 micro-células gNodeB (espaçamento de $200\text{ m}$, potência $30\text{ dBm}$) + 1 célula Macro guarda-chuva ($43\text{ dBm}$).
+* **Figura de Topologia Espacial:**
+  ![S11: V2X Highway Ping-Pong Storm](figures/02_cenarios_e_topologias/s11_v2x_highway_pingpong_storm.png)
 * **Usuários:** Pelotão (*Platoon*) de 10 caminhões autônomos trafegando a $110\text{ km/h}$ ($30.5\text{ m/s}$) com espaçamento inter-veicular de $15\text{ m}$.
 * **xApps em Conflito:** `xApp-TrafficSteering` vs. `xApp-LoadBalancer` vs. `xApp-Platoon-QoS`.
 * **Parâmetros E2SM-RC / KPM:** `CIO_OFFSET_DB`, `HANDOVER_EXECUTION_FLAG`, `CARRIER_AGGREGATION_MODE`.
@@ -256,6 +262,8 @@ graph TD
 ### Cenário S12: Ultra-Deterministic IIoT Closed-Loop Robotic Slicing & Zero-Jitter Arbitration
 * **Identificador:** `S12_IIOT_ZERO_JITTER_ROBOTIC_SLICING`
 * **Topologia:** Célula industrial fechada (*Private 5G Factory*, $80\text{m} \times 80\text{m}$) com 2 gNodeBs Indoor em sub-THz / 3.5 GHz.
+* **Figura de Topologia Espacial:**
+  ![S12: IIoT Zero-Jitter Robotic Slicing](figures/02_cenarios_e_topologias/s12_iiot_zero_jitter_robotic_slicing.png)
 * **Usuários:** 12 braços robóticos sincronizados (URLLC Estrito, ciclo de $1\text{ ms}$), 8 AGVs em movimento contínuo e 6 câmeras de visão computacional de alta definição (eMBB Upload).
 * **xApps em Conflito:** `xApp-Industrial-QoS` vs. `xApp-EnergySaving` vs. `xApp-Video-Analytics`.
 * **Parâmetros E2SM-RC / KPM:** `PRB_RESERVATION_URLLC`, `SCHEDULER_WEIGHT_TSN`, `TX_POWER_INDOOR`.
@@ -270,6 +278,8 @@ graph TD
 ### Cenário S13: Emergency 6G SAGIN Multi-Domain Disaster Rescue Heterogeneous Mesh
 * **Identificador:** `S13_SAGIN_DISASTER_RESCUE_MESH`
 * **Topologia:** Terremoto severo com destruição de $90\%$ das fibras terrestres. Cobertura composta por: 1 Satélite LEO (Backhaul de emergência), 3 UAVs em malha e 1 caminhão de bombeiros equipado com gNodeB móvel.
+* **Figura de Topologia Espacial:**
+  ![S13: Disaster Rescue Heterogeneous Mesh](figures/02_cenarios_e_topologias/s13_disaster_rescue_heterogeneous_mesh.png)
 * **Usuários:** 15 socorristas (vídeo tático e biotelemetria), 2 robôs de busca e escombros (URLLC) e 300 civis feridos tentando chamadas de socorro.
 * **xApps em Conflito:** `xApp-Rescue-QoS` vs. `xApp-Satellite-HO` vs. `xApp-Swarm-Mesh` vs. `xApp-Civic-Access`.
 * **Parâmetros E2SM-RC / KPM:** `PRIORITY_CLASS_OVERRIDE`, `BACKHAUL_SAT_ALLOCATION`, `VIDEO_BITRATE_CAP`, `CALL_ADMISSION_LIMIT`.
@@ -281,9 +291,12 @@ graph TD
 
 ---
 
-### Cenário S14: ISAC-Coordinated Aerial Radar-Communication Beamforming Trade-off
+### Cenário S14: ISAC-Coordinated Aerial Radar-Communication Beamforming Trade-off & Agriculture Sensing
 * **Identificador:** `S14_ISAC_AERIAL_RADAR_COMM_TRADEOFF`
-* **Topologia:** 1 gNodeB Terrestre 6G ISAC equipada com matriz de antenas maciças (Massive MIMO com 128 elementos) operando simultaneamente em telecomunicações e radar de rastreamento de drones invasores.
+* **Topologia:** 1 gNodeB Terrestre 6G ISAC equipada com matriz de antenas maciças (Massive MIMO com 128 elementos) operando simultaneamente em telecomunicações, sensoriamento ambiental urbano e agrícola.
+* **Figuras de Topologia Espacial:**
+  ![S14: Rural Agriculture 4.0 & Sensing](figures/02_cenarios_e_topologias/s14_rural_agriculture_sensing.png)
+  ![S14: Urban ISAC Green Sensing](figures/02_cenarios_e_topologias/s8_6g_isac_urban_green_sensing.png)
 * **Usuários:** 30 UEs terrestres comerciais + 3 drones cooperativos + 1 drone não-autorizado (*Rogue Target*).
 * **xApps em Conflito:** `xApp-Beamformer` vs. `xApp-ISAC-Radar` vs. `xApp-QoS-Slicing`.
 * **Parâmetros E2SM-RC / KPM:** `SENSING_RATIO`, `BEAM_WEIGHTS_TX`, `RADAR_BURST_PERIOD_MS`, `VERTICAL_DOWNTILT`.
@@ -295,10 +308,12 @@ graph TD
 
 ---
 
-### Cenário S15: Rogue xApp Parameter Hijacking in NTN Feeder Link (Cross-Tier Security)
+### Cenário S15: Rogue xApp Parameter Hijacking in NTN Feeder Link & 6G Smart City Conflict Storm
 * **Identificador:** `S15_ROGUE_SECURITY_NTN_HIJACKING`
-* **Topologia:** Enlace de alimentação de satélite NTN conectado a 2 gNodeBs terrestres e 1 Near-RT RIC.
-* **Usuários:** 50 UEs mistos em ambiente de teste de segurança adversarial.
+* **Topologia:** Enlace de alimentação de satélite NTN conectado a gNodeBs terrestres, pequenas células e Near-RT RIC em uma Cidade Inteligente densa.
+* **Figura de Topologia Espacial:**
+  ![S15: 6G Dense Smart City Conflict Storm](figures/02_cenarios_e_topologias/s15_6g_dense_city_conflict_storm.png)
+* **Usuários:** 50 UEs mistos em ambiente de teste de segurança adversarial e tempestade de conflitos.
 * **xApps em Conflito:** `xApp-Rogue-Attacker` (microserviço comprometido por atacante) vs. `xApp-TrafficSteering` vs. `xApp-EnergySaving`.
 * **Parâmetros E2SM-RC / KPM:** `TX_POWER`, `PRB_QUOTA`, `DOPPLER_OFFSET_KHZ`, `BEAM_WEIGHTS`.
 * **Dinâmica e Causa-Raiz:** A `xApp-Rogue` injeta comandos maliciosos em alta frequência ($100\text{ cmds/s}$), solicitando valores fisicamente destrutivos (`TX_POWER = 55 dBm`, `PRB_QUOTA = 250%`, `DOPPLER_OFFSET = -500 kHz`) com o objetivo de desestabilizar o amplificador de potência (PA) do satélite e causar cegueira espectral.

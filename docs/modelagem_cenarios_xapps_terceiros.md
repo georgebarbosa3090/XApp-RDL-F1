@@ -8,7 +8,8 @@ Este documento apresenta a especificação técnica, componentes internos, Servi
 
 No ecossistema **O-RAN Near-RT RIC**, diferentes xApps de terceiros (comunidade O-RAN SC e trabalhos da literatura) operam de forma autônoma. Suas decisões concorrentes sobre os mesmos nós de rádio (`gNodeB`) geram colisões de alocação de blocos de recursos físicos (`PRB_QUOTA`), ajuste de potência (`TX_POWER`) e mobilidade (`HANDOVER`).
 
-![Topologia de Simulação ns-3 dos Cenários RDL](figures/02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png)
+![S1: Energy Saving vs QoS](figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
+![S2: Traffic Steering vs QoS Slicing](figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
 
 ---
 

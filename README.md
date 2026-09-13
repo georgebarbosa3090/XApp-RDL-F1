@@ -55,7 +55,23 @@ O ecossistema experimental classifica rigorosamente a procedência de cada xApp:
 | **Rogue xApp** | Workload de Teste | `TEST_HARNESS` | Teste / Injeção de Falhas |
 | **Bouncer** | Workload de Teste | `TEST_HARNESS` | Teste / Benchmark de Latência RMR |
 
-*Consulte a documentação detalhada e figuras em [`docs/modelagem_cenarios_xapps_terceiros.md`](docs/modelagem_cenarios_xapps_terceiros.md), [`docs/topologia_espacial_e_cenarios_s1_s5.md`](docs/topologia_espacial_e_cenarios_s1_s5.md) e [`reference-xapps/README.md`](reference-xapps/README.md).*
+*Consulte a documentação detalhada e o catálogo de figuras dos cenários S1–S15 em [`docs/figures/README.md`](docs/figures/README.md), [`docs/modelagem_cenarios_xapps_terceiros.md`](docs/modelagem_cenarios_xapps_terceiros.md), [`docs/topologia_espacial_e_cenarios_s1_s5.md`](docs/topologia_espacial_e_cenarios_s1_s5.md), [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) e [`reference-xapps/README.md`](reference-xapps/README.md).*
+
+### 1.2. Catálogo Oficial de Figuras dos Cenários Experimentais (S1–S15)
+
+O repositório conta com um catálogo completo de figuras conceituais e de topologia espacial em alta resolução para a suíte de cenários S1 a S15:
+- **S1 (EEVS):** Energy Saving vs. QoS — [`s1_eevs_energy_vs_qos_dark.png`](docs/figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
+- **S2 (TVS):** Traffic Steering vs. Slicing — [`s2_tvs_traffic_steering_dark.png`](docs/figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
+- **S3:** Multi-Slice Traffic Steering vs Slicing — [`s3_multi_slice_traffic_steering.png`](docs/figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
+- **S7:** 5G-Advanced Channel Overlap & Multicarrier MIMO — [`s7_5ga_channel_overlap_mimo.png`](docs/figures/02_cenarios_e_topologias/s7_5ga_channel_overlap_mimo.png)
+- **S8:** 6G ISAC Urban & Environmental Sensing — [`s8_6g_isac_urban_green_sensing.png`](docs/figures/02_cenarios_e_topologias/s8_6g_isac_urban_green_sensing.png)
+- **S9:** NTN Orbital Handover — [`s9_ntn_orbital_handover.png`](docs/figures/02_cenarios_e_topologias/s9_ntn_orbital_handover.png)
+- **S10:** UAV Swarm Stadium Coverage — [`s10_uav_swarm_stadium_coverage.png`](docs/figures/02_cenarios_e_topologias/s10_uav_swarm_stadium_coverage.png)
+- **S11:** V2X Highway Ping-Pong Storm — [`s11_v2x_highway_pingpong_storm.png`](docs/figures/02_cenarios_e_topologias/s11_v2x_highway_pingpong_storm.png)
+- **S12:** IIoT Zero-Jitter Robotic Slicing — [`s12_iiot_zero_jitter_robotic_slicing.png`](docs/figures/02_cenarios_e_topologias/s12_iiot_zero_jitter_robotic_slicing.png)
+- **S13:** Disaster Rescue Heterogeneous Mesh — [`s13_disaster_rescue_heterogeneous_mesh.png`](docs/figures/02_cenarios_e_topologias/s13_disaster_rescue_heterogeneous_mesh.png)
+- **S14:** Rural Agriculture 4.0 Sensing — [`s14_rural_agriculture_sensing.png`](docs/figures/02_cenarios_e_topologias/s14_rural_agriculture_sensing.png)
+- **S15:** 6G Dense City Conflict Storm — [`s15_6g_dense_city_conflict_storm.png`](docs/figures/02_cenarios_e_topologias/s15_6g_dense_city_conflict_storm.png)
 
 
 

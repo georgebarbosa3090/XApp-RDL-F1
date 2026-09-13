@@ -19,11 +19,13 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 
 ---
 
-## 2. Caracterização dos Cenários Físicos S1 a S5
+## 2. Caracterização dos Cenários Físicos S1 a S5 e Figuras de Topologia
 
 ### 2.1. Cenário S1: Conflito Direto de PRB em Célula Única (`scenario_rdl_direct_prb_conflict.cc`)
 * **Descrição:** Duas xApps concorrentes (`xSlice` solicitando 75% dos PRBs e `Energy Saver` solicitando 30% dos PRBs) submetem propostas sobre a mesma célula (`gNB_01`). A soma das solicitações ($105\%$) excede a capacidade física total ($100\%$).
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_direct_prb_conflict.cc`.
+* **Figura de Topologia:**
+  ![S1: EEVS Energy Saving vs QoS](figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
 * **Métrica de Validação:** Precision, Recall e F1-Score da detecção de colisão estritamente $= 1.0$.
 
 ---
@@ -31,13 +33,17 @@ A topologia espacial modela uma implantação multi-célula heterogênea compost
 ### 2.2. Cenário S2: Conflito Indireto TVS (`scenario_rdl_tvs_conflict.cc`)
 * **Descrição:** A xApp `xSlice` expande a cota de eMBB para 80%, causando indiretamente contenção na alocação da fatia URLLC e acionando alertas de queda de vazão detectados pela xApp `KPIMON`.
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_tvs_conflict.cc`.
+* **Figura de Topologia:**
+  ![S2: Traffic Steering vs Slicing](figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
 * **Mecanismo H-RDL:** Aplicação do modelo TVS (Throughput-Value Scaling) reduzindo eMBB para $60\%$ e preservando o SLA URLLC.
 
 ---
 
-### 2.3. Cenário S3: Otimização Cross-Layer Power x QoS (`scenario_rdl_energy_vs_qos.cc`)
+### 2.3. Cenário S3: Otimização Cross-Layer Power x QoS / Multi-Slice (`scenario_rdl_energy_vs_qos.cc`)
 * **Descrição:** Avaliação da função multiobjetivo EEVS entre a economia de energia por redução de potência da gNB e a manutenção da vazão eMBB dos UEs conectados.
 * **Mapeamento de Execução:** `simulations/ns3/scenario_rdl_energy_vs_qos.cc`.
+* **Figura de Topologia:**
+  ![S3: Multi-Slice Traffic Steering vs Slicing](figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
 * **Mecanismo H-RDL:** Identificação do ponto de operação Pareto sem violação de cobertura.
 
 ---
