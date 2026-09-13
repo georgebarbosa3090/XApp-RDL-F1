@@ -90,6 +90,11 @@ graph TD
 
 ---
 
+### 8. Relatórios de Auditoria Técnica e Científica
+* **[Auditoria Técnica e Científica do XApp-RDL-F1](auditoria/auditoria_tecnica_e_cientifica_xapp_rdl_f1.md)**: Avaliação técnica detalhada da maturidade L3/L4/L5 do projeto, regras formais de proveniência de dados, conformidade dos 4 Gates de interoperabilidade E2/O-RAN e direcionamentos científicos.
+
+---
+
 ## Trilhas de Leitura Recomendadas
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |

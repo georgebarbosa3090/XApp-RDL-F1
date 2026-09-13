@@ -120,12 +120,12 @@ int main (int argc, char *argv[])
         if (syncMode == "HardLimit")
         {
             // HardLimit: aborta se o atraso do simulador exceder a tolerância (padrão ns-3: 0.1s)
-            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
         }
         else
         {
             // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
-            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
         }
     }
 
