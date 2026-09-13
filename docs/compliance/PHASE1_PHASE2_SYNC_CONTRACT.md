@@ -2,7 +2,8 @@
 
 **Projeto:** xApp RDL (Resource and Decision Layer)  
 **Documento:** `PHASE1_PHASE2_SYNC_CONTRACT.md`  
-**Status:** **ATIVO & CONFORME**  
+**Status:** **SPECIFIED / PARTIALLY IMPLEMENTED (CI VERIFIED)**  
+
 **Escopo:** Definição formal do contrato de sincronização de dados, modelos de objetos, abstrações de código e regras de repositório entre H-RDL (Fase 1) e CA-RDL (Fase 2).
 
 ---

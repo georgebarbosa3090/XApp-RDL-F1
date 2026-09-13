@@ -64,5 +64,6 @@ $$\boxed{\text{Hierarquia Metodológica: } \text{Simulação ns-3/NORI} \longrig
 | **REQ-SRSRAN-E2AP** | E2AP v03.00 | `SrsRanBackendAdapter` | **TB2:** E2 Setup srsRAN $\leftrightarrow$ E2Term | **IMPLEMENTED** |
 | **REQ-SRSRAN-KPM** | E2SM-KPM v03.00 (1000ms) | `SrsRanBackendAdapter` | **TB3 / TB4:** Decodificação KPM Real | **INTEROP-PENDING** |
 | **REQ-SRSRAN-RC-STYLE2** | E2SM-RC v03.00 (Style 2 / Action 6) | `SrsRanRCEncoder` | **TB5 / TB6:** Controle PRB Slice | **IMPLEMENTED** |
-| **REQ-OPEN5GS-CORE** | N2 AMF / N3 UPF (5GC) | `CoreObserver` | **TB1:** UE Registration & PDU Session | **INTEGRATION-VALIDATED** |
+| **REQ-OPEN5GS-CORE** | N2 AMF / N3 UPF (5GC) | `CoreObserver` | **TB1:** UE Registration & PDU Session | **INTEGRATION-PENDING / PROFILE READY** |
+
 | **REQ-OPENRANBR-PILOT** | OpenRAN@Brasil Blueprint v3 | `deploy/openran-br-v3/` | **TB10:** Execução Físico COTS UE / O-RU | **INTEROP-PENDING** |

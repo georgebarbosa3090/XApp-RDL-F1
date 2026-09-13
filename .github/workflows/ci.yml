@@ -23,7 +23,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt -r requirements-dev.txt
         
+    - name: Syntax & Smoke Import Check
+      run: |
+        python -m compileall -q src scripts
+        python -c "from src.rdl_xapp import RDLxApp; print('[OK] Smoke Import Clean')"
+
     - name: Run Codec & Golden Vector tests
+
       run: |
         pytest tests/codec/ -v
         

@@ -156,12 +156,16 @@ class RDLxApp:
     def _entrypoint(self, xapp_instance):
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
         self.health.set_state(AppState.READY)
-        # Registra capacidades dinâmicas do nó E2 no backend ativo
-        self.backend.register_static_profile_capabilities("gnb_01")
-        # Inicia subscrição E2SM-KPM com o tempo de reporte padrão do backend
+        if self.oran_strict or self.mode == "O_RAN_INTEROP":
+            logger.info("Modo O_RAN_INTEROP/oran-strict: Descoberta estatica desabilitada. As capacidades de controle serao descobertas exclusivamente via RANFunctionDefinition (E2 Setup).")
+        else:
+            # Registra capacidades estaticas pre-configuradas em modo DEV/UNIT/OFFLINE
+            self.backend.register_static_profile_capabilities("gnb_01")
+        # Inicia subscricao E2SM-KPM com o tempo de reporte padrao do backend
         kpm_period = self.backend.metadata.default_kpm_period_ms
         self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
         threading.Thread(target=self._decision_loop, daemon=True).start()
+
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
         """
