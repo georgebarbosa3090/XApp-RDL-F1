@@ -52,3 +52,17 @@ flowchart LR
   $$\text{PASS} \iff 30 \text{ sementes pareadas (B0, B1, B2, B3)} \land \text{Intervalos de Confiança 95\%} \land \text{Tamanho de Efeito Wilcoxon}$$
 - **Gate 6 (Artifact Readiness):**
   $$\text{PASS} \iff \text{Execução limpa e automatizada em ambiente isolado (ACM SIGSIM / IEEE Artifact Evaluation)}$$
+
+---
+
+## 3. Rastreabilidade de Testbed e Hierarquia de 3 Níveis (srsRAN + Open5GS)
+
+$$\boxed{\text{Hierarquia Metodológica: } \text{Simulação ns-3/NORI} \longrightarrow \text{Software RAN srsRAN/Open5GS} \longrightarrow \text{Testbed Físico OpenRAN@Brasil}}$$
+
+| Requisito / Perfil Testbed | Protocolo / Versão | Adaptador H-RDL | Gates de Testbed (`TB0` a `TB10`) | Status de Conformidade |
+| :--- | :--- | :--- | :--- | :---: |
+| **REQ-SRSRAN-E2AP** | E2AP v03.00 | `SrsRanBackendAdapter` | **TB2:** E2 Setup srsRAN $\leftrightarrow$ E2Term | **IMPLEMENTED** |
+| **REQ-SRSRAN-KPM** | E2SM-KPM v03.00 (1000ms) | `SrsRanBackendAdapter` | **TB3 / TB4:** Decodificação KPM Real | **INTEROP-PENDING** |
+| **REQ-SRSRAN-RC-STYLE2** | E2SM-RC v03.00 (Style 2 / Action 6) | `SrsRanRCEncoder` | **TB5 / TB6:** Controle PRB Slice | **IMPLEMENTED** |
+| **REQ-OPEN5GS-CORE** | N2 AMF / N3 UPF (5GC) | `CoreObserver` | **TB1:** UE Registration & PDU Session | **INTEGRATION-VALIDATED** |
+| **REQ-OPENRANBR-PILOT** | OpenRAN@Brasil Blueprint v3 | `deploy/openran-br-v3/` | **TB10:** Execução Físico COTS UE / O-RU | **INTEROP-PENDING** |

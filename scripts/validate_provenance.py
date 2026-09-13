@@ -76,30 +76,37 @@ def validate_run_directory(run_dir: str) -> bool:
             print(f"  [DEV/LOCAL] Execução local detectada (fonte: '{source}'). Não elegível para publicação científica.")
             return True
 
-    # 2. Se for elegível para publicação, exige nori_commit e raw_files (Fail-Closed)
-    commit_nori = manifest.get("nori_commit", "")
-    seed = manifest.get("seed", None)
-    
+    # 2. Obtém backend e valida campos obrigatórios (Fail-Closed por Backend)
+    backend_id = manifest.get("backend", manifest.get("backend_id", "NORI_NS3")).upper()
+    backend_rules = policy.get("backend_evidence_rules", {}).get(backend_id, {
+        "required_manifest_fields": ["nori_commit"],
+        "required_raw_extensions": [".xml", ".raw"]
+    })
+
+    print(f"  - Backend Experimental: {backend_id}")
     print(f"  - Fonte de Evidência: {source}")
-    print(f"  - NORI Commit: {commit_nori if commit_nori else 'AUSENTE (FAIL)'}")
-    print(f"  - Seed: {seed if seed is not None else 'Parametrizada'}")
 
-    if is_pub_eligible and not commit_nori:
-        print(f"  [PROVENANCE_INVALID] Campo 'nori_commit' ausente em execução declarada elegível para publicação.")
-        return False
+    if is_pub_eligible:
+        missing_fields = [field for field in backend_rules.get("required_manifest_fields", []) if not manifest.get(field)]
+        if missing_fields:
+            print(f"  [PROVENANCE_INVALID] Campos de manifesto ausentes para backend '{backend_id}': {missing_fields}")
+            return False
+
+    # 3. Verifica Presença de Artefatos Brutos por Extensões Válidas do Backend
+    raw_extensions = tuple(backend_rules.get("required_raw_extensions", [".raw", ".pcap", ".xml", ".log"]))
+    found_raw_files = []
     
-    # 3. Verifica Presença de Payloads Brutos
-    raw_e2_dir = os.path.join(run_dir, "e2", "kpm")
-    raw_files = []
-    if os.path.exists(raw_e2_dir):
-        raw_files = [f for f in os.listdir(raw_e2_dir) if f.endswith(".raw")]
+    for root, _, files in os.walk(run_dir):
+        for f in files:
+            if f.endswith(raw_extensions):
+                found_raw_files.append(f)
         
-    print(f"  - Artefatos Brutos E2 (.raw): {len(raw_files)} arquivos encontrados")
-    if is_pub_eligible and len(raw_files) == 0:
-        print(f"  [PROVENANCE_INVALID] NENHUM arquivo .raw E2 encontrado em {raw_e2_dir}. Exigido para elegibilidade de publicação.")
+    print(f"  - Artefatos Brutos Encontrados ({', '.join(raw_extensions)}): {len(found_raw_files)} arquivos")
+    if is_pub_eligible and len(found_raw_files) == 0:
+        print(f"  [PROVENANCE_INVALID] NENHUM artefato bruto {raw_extensions} encontrado em {run_dir}. Exigido para publicação elegível.")
         return False
 
-    print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)}")
+    print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)} [Backend={backend_id}]")
     return True
 
 def main():
