@@ -1,6 +1,0 @@
-Tier,Name,UEs,xApps,Actions_Per_Window,Decision_Latency_Mean_ms,Decision_Latency_P95_ms,Decision_Latency_P99_ms,Throughput_Actions_Sec,Near_RT_Compliant
-L0,Baixo,30,3,1,0.001,0.001,0.003,10000.0,True
-L1,Moderado,60,4,5,0.134,0.17,0.199,37191.87,True
-L2,Alto,120,6,15,0.577,0.767,2.328,25988.88,True
-L3,Severo,240,8,50,5.237,6.206,18.359,9547.44,True
-L4,Extremo,500,8,100,18.266,20.654,29.891,5474.7,True

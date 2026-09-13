@@ -39,11 +39,17 @@ test-interop:
 generate-golden-vectors:
 	python scripts/generate_golden_vectors.py
 
-reproduce-paper:
-	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir results/reproduced_audit_2026
+verify-no-synthetic:
+	python scripts/check_no_synthetic_results.py
 
-verify-provenance:
-	python scripts/verify_provenance_and_integrity.py
+verify-provenance: verify-no-synthetic
+	python scripts/validate_provenance.py
+
+gate1-check:
+	python scripts/validate_experiment_tree.py --check-gate1
+
+reproduce-paper: verify-no-synthetic gate1-check
+	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir experiments/runs/reproduced_audit_2026
 
 test-campaign:
 	pytest tests/unit/test_campaign_scenarios.py -v
