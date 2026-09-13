@@ -60,6 +60,24 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
 
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (saltando de evento a evento na velocidade
+     *    máxima da CPU). Alterar apenas 'simTime' (ex.: 60s) NÃO transforma a simulação em
+     *    uma demonstração ao vivo acompanhável pela plateia/banca.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real (wall-clock): 1s simulado ≈ 1s real.
+     *    É a implementação oficial do ns-3 recomendada para apresentações ao vivo e integração E2.
+     *
+     * 3. Modos de Sincronização:
+     *    - BestEffort (Recomendado para Defesas): Recupera atrasos temporários de CPU suavemente.
+     *    - HardLimit: Aborta a simulação se o atraso exceder a tolerância (padrão ns-3: 0.1s).
+     * =========================================================================================
+     */
     if (demoMode == "realtime")
     {
         realtime = true;
@@ -77,13 +95,16 @@ int main (int argc, char *argv[])
 
     if (realtime)
     {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
         GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
         if (syncMode == "HardLimit")
         {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
         }
         else
         {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
         }
     }

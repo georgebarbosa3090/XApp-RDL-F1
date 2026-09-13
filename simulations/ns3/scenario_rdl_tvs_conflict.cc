@@ -95,9 +95,58 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv); // Executa o parsing dos argumentos fornecidos pelo usuario
 
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (executando os eventos o mais rápido possível).
+     *    Alterar apenas 'simTime' (ex.: 60s) NÃO transforma o ns-3 em uma demonstração ao vivo,
+     *    pois 60s simulados podem rodar em 8s ou 90s reais dependendo da CPU.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real da máquina (wall-clock): 1s simulado ≈ 1s real.
+     *    É o modo oficial do ns-3 para integração com testbeds, containers Near-RT RIC e defesas.
+     *
+     * 3. Modos de Sincronização (BestEffort vs HardLimit):
+     *    - BestEffort: Recomendado para bancas e defesas. Recupera suavemente atrasos de CPU.
+     *    - HardLimit: Aborta a simulação se o atraso exceder a tolerância (padrão ns-3: 0.1s).
+     * =========================================================================================
+     */
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 30.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
+
     // Mensagens de inicializacao exibindo a configuracao carregada
     NS_LOG_INFO ("Iniciando Cenario RDL Fase 1 - TVS Conflict Mitigation...");
-    NS_LOG_INFO ("gNBs: " << gNbNum << " | Total UEs: " << (gNbNum * ueNumPerGnb) << " | Banda: " << (bandwidthBand1 / 1e6) << " MHz");
+    NS_LOG_INFO ("gNBs: " << gNbNum << " | Total UEs: " << (gNbNum * ueNumPerGnb) << " | Banda: " << (bandwidthBand1 / 1e6) << " MHz | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
 
 #if HAS_NR_MODULE
     // =========================================================================

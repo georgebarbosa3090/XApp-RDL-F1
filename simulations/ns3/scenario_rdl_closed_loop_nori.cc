@@ -75,6 +75,29 @@ int main (int argc, char *argv[])
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
     cmd.Parse (argc, argv);
 
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE CO-SIMULAÇÃO CLOSED-LOOP E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Relevância Crítica do RealtimeSimulatorImpl em S8 (Co-Simulação Fechada):
+     *    O cenário S8 estabelece uma malha fechada real entre o simulador ns-3/5G-LENA e
+     *    processos/containers externos (NORI E2SIM, Near-RT RIC e H-RDL).
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (avançando eventos o mais rápido possível).
+     *    Em co-simulações com entidades externas via sockets SCTP/RMR, o tempo virtual faz
+     *    com que o simulador "atropele" o tempo real dos containers RIC.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real do sistema operacional (wall-clock):
+     *    1 segundo simulado ≈ 1 segundo real. Isso permite que as mensagens E2AP/E2SM (KPM e RC)
+     *    sejam processadas pelo Near-RT RIC e retornadas ao ns-3 no tempo exato de malha.
+     *
+     * 3. Arranjo Didático para Apresentações (4 Terminais Lado a Lado):
+     *    - Terminal 1 : ns-3 / 5G-LENA (Emite KPM e recebe E2SM-RC)
+     *    - Terminal 2 : NORI / E2SIM (Encapsulamento APER ASN.1)
+     *    - Terminal 3 : Near-RT RIC (RMR Router & Subscription Manager)
+     *    - Terminal 4 : H-RDL Dashboard (Percepção, Raciocínio TVS e Refinamento de Segurança)
+     * =========================================================================================
+     */
     if (demoMode == "fast")
     {
         simTime = 30.0;
@@ -92,13 +115,16 @@ int main (int argc, char *argv[])
 
     if (realtime)
     {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
         GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
         if (syncMode == "HardLimit")
         {
+            // HardLimit: aborta se o atraso do simulador exceder a tolerância (padrão ns-3: 0.1s)
             GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
         }
         else
         {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
             GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
         }
     }

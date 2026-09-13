@@ -70,6 +70,10 @@ class DiscreteEventRANSimulator:
         self.decision_interval_s = decision_interval_s
         self.mode = mode
         self.num_ues = num_ues
+        
+        # Modo de Demonstração em Tempo Real (Equivalente ao ns3::RealtimeSimulatorImpl)
+        # Nota: Por padrão, o simulador executa em tempo virtual (o mais rápido possível).
+        # Ativar `realtime=True` ou `demo_mode='realtime'` realiza o pacing wall-clock relógio-a-relógio (1s simulado ≈ 1s real).
         self.realtime = realtime
         self.demo_mode = demo_mode
         if self.demo_mode == "fast":

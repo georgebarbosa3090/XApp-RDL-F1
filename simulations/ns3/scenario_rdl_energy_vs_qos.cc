@@ -82,6 +82,29 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
 
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL. Alterar apenas 'simTime' (ex.: 60s) NÃO
+     *    transforma o ns-3 em uma demonstração ao vivo, pois 60s simulados podem rodar em
+     *    8s ou 90s reais dependendo da CPU.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real da máquina (wall-clock): 1s simulado ≈ 1s real.
+     *    É o modo oficial do ns-3 para demonstrações didáticas em bancas e eventos ao vivo.
+     *
+     * 3. Cronograma Específico da Demonstração S2 (Energy Saving x QoS Slicing):
+     *    - 0–15 s  : Small cell ativa operando normalmente.
+     *    - 15 s    : Energy Saving xApp solicita TX_POWER -> LOW (20 dBm).
+     *    - 20 s    : Surto de carga QoS URLLC aumenta demanda por PRBs.
+     *    - 20–22 s : Conflito indireto de degradação detectado pelo H-RDL.
+     *    - 22 s    : H-RDL bloqueia o modo sleep completo e ajusta potência (CLAMP_TX_POWER).
+     *    - 22–35 s : Rede recupera requisitos de latência e PDR da fatia URLLC.
+     *    - 35–60 s : Estado estável e eficiente mantido.
+     * =========================================================================================
+     */
     if (demoMode == "realtime")
     {
         realtime = true;
@@ -99,13 +122,16 @@ int main (int argc, char *argv[])
 
     if (realtime)
     {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
         GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
         if (syncMode == "HardLimit")
         {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
         }
         else
         {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
         }
     }

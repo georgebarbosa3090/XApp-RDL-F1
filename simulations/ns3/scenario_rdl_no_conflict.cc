@@ -74,6 +74,43 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
 
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL. Ele executa os eventos o mais rápido
+     *    possível, saltando de evento para evento. Alterar apenas 'simTime' (ex.: 60s) NÃO
+     *    transforma o ns-3 em uma demonstração ao vivo acompanhável, pois 60s simulados
+     *    podem rodar em 8s ou 90s reais dependendo do processador.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real da máquina (wall-clock time):
+     *    1 segundo simulado ≈ 1 segundo real. É o modo oficial do ns-3 para integração com
+     *    testbeds, containers Near-RT RIC, VMs e para demonstrações didáticas em defesas.
+     *
+     * 3. Modos de Sincronização (BestEffort vs HardLimit):
+     *    - BestEffort: Recomendado para bancas e defesas. Se a CPU sofrer um pequeno atraso,
+     *      o simulador recupera o tempo nos eventos seguintes de forma suave sem abortar.
+     *    - HardLimit: Aborta a simulação se o atraso exceder a tolerância (padrão ns-3: 0.1s).
+     *      Ideal para testes estritos de cumprimento de orçamento de tempo real.
+     *
+     * 4. Três Presets de Velocidade (--demoMode):
+     *    - fast: 30s simulados em tempo virtual acelerado (depuração rápida e CI).
+     *    - realtime: 60-90s simulados em tempo real wall-clock (demonstração ao vivo).
+     *    - experiment: 30-120s em tempo virtual padrão (campanha científica com 30 seeds).
+     *
+     * 5. Cronograma Recomendado para Apresentação/Defesa (60s):
+     *    0-10s  : BASELINE (estabilização dos canais de rádio)
+     *    10-20s : NORMAL OPERATION (exibição de telemetria E2SM-KPM)
+     *    20s    : CONFLICT INJECTION (xApps enviam propostas concorrentes)
+     *    23-25s : CONFLICT DETECTED (PerceptionAgent identifica o conflito)
+     *    25s    : H-RDL DECISION (ReasoningAgent arbitra a ação)
+     *    25-27s : E2SM-RC CONTROL (RICcontrolRequest -> RICcontrolAck)
+     *    27-40s : RECOVERY (recuperação das métricas de rádio e SLA)
+     *    40-60s : STABLE STATE (manutenção do estado governado)
+     * =========================================================================================
+     */
     if (demoMode == "realtime")
     {
         realtime = true;
@@ -91,13 +128,16 @@ int main (int argc, char *argv[])
 
     if (realtime)
     {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
         GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
         if (syncMode == "HardLimit")
         {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
         }
         else
         {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
             Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
         }
     }
