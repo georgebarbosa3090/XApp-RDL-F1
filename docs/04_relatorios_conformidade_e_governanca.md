@@ -23,20 +23,19 @@
 | **REQ-RDL-08** | Empacotamento Helm Chart oficial | APROVADO | `deploy/helm/` | Helm Lint & Package 100% OK |
 | **REQ-RDL-09** | Deploy declarativo em Kubernetes Puro | APROVADO | `deploy/kubernetes/` | Kustomize e Kubectl rollout OK |
 | **REQ-RDL-10** | Suporte a Observabilidade Rancher & Kiali | APROVADO | `scripts/` | Integrado e documentado |
-| **RNF-01** | Rigor estatístico multi-semente ($N = 30$ runs, $\text{IC}_{95\%}$, $p < 0.001$) | APROVADO | `scripts/` | `reproduce_paper_artifacts.py` |
-| **RNF-02** | Latência de decisão Near-RT $< 50\text{ ms}$ | APROVADO | `RDLxApp` | $T_{\text{dec}} = 14.20 \pm 0.47\text{ ms}$ |
-| **RNF-03** | Integridade criptográfica e reprodutibilidade | APROVADO | `experiments/results/` | `manifest_experiment.json` (SHA-256) |
+| **RNF-01** | Rigor estatístico multi-semente e providência estrita | APROVADO | `scripts/` | `validate_provenance.py` e `check_no_synthetic_results.py` |
+| **RNF-02** | Latência de decisão Near-RT $< 50\text{ ms}$ no estresse | APROVADO | `RDLxApp` | Validado no teste `test_scenario_s6_conflict_storm_near_rt_bounds` ($< 50\text{ ms}$) |
+| **RNF-03** | Integridade criptográfica e reprodutibilidade | APROVADO | `experiments/` | `execution_manifest.json` (SHA-256) |
 
 ---
 
 ## 2. Sumário Executivo de Governança
 
-* **Aderência aos Padrões O-RAN Alliance:** O projeto implementa os padrões O-RAN WG3 (Near-RT RIC Architecture), O-RAN WG2 (Non-RT RIC A1 Interface) e especificações E2SM-KPM v2.0 e E2SM-RC v1.0.
-* **Modelos de Rádio e Causalidade Física:** Os escores empíricos (*mock scores*) foram substituídos por formulações fundamentadas em rádio 5G (capacidade de Shannon com SINR real e overhead 3GPP, tempo de fila sigmoide $M/G/1$ e Earth Power Model 3GPP).
+* **Aderência aos Padrões O-RAN Alliance:** O projeto implementa os padrões O-RAN WG3 (Near-RT RIC Architecture), O-RAN WG2 (Non-RT RIC A1 Interface) e especificações E2SM-KPM v03.00 e E2SM-RC v01.03.
+* **Política Rígida de Providência Científica:** Todos os geradores sintéticos, mocks e dados de codecs foram desacoplados da publicação experimental ($\text{Resultado Científico Válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}$).
 * **Segurança e Privilégios no Kubernetes:** O Pod opera estritamente como usuário não-root (`runAsUser: 1000`), sem escalada de privilégios (`allowPrivilegeEscalation: false`) e com capacidades de kernel descartadas (`drop: ALL`).
-* **Validação Estatística:** Todas as 30 sementes independentes confirmaram rejeição de $H_0$ ($p < 0.001$), com margem de $\text{IC}_{95\%} < \pm 3\%$.
-* **Conclusão:** A Fase 1 (H-RDL) atinge **100% de conformidade técnica**, servindo como o baseline científico comprovado para a transição cognitiva da Fase 2 (CA-RDL / MARL).
-* **Documento Detalhado:** Consulte o **[Relatório Extenso de Validação e Resolução de Limitações](relatorio_extenso_validacao_fase1_resolucao_limitacoes.md)**.
+* **Validação por Gates:** Os relatórios e tabelas de publicação exigem aprovação prévia dos **Gates 1 a 4**.
+* **Conclusão:** A Fase 1 (H-RDL) atinge **100% de conformidade técnica e arquitetural**.
 
 ---
 

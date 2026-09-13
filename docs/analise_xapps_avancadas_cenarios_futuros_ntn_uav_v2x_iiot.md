@@ -8,6 +8,10 @@
 
 ---
 
+> **Aviso Metodológico de Providência:** Este documento apresenta a especificação técnica, taxonomia de xApps e os Requisitos Alvo (*Target Acceptance Criteria*) para a suíte estendida S9 a S15. Em estrita conformidade com a política de **Zero Dados Sintéticos**, nenhuma métrica de desempenho contida neste planejamento é tratada como resultado observado até a sua medição empírica no ambiente `ns-3 + 5G-LENA + NORI + E2 real` aprovado pelos Gates 1 a 4.
+
+---
+
 ## 1. Introdução e Contextualização Científica
 
 A convergência entre o paradigma de desagregação do **Open RAN (O-RAN Alliance)** e os requisitos emergentes do **5G-Advanced e 6G** redefine a arquitetura de controle do plano de rádio. O **Near-Real-Time RAN Intelligent Controller (Near-RT RIC)** estabelece-se como o elemento central para execução de microserviços inteligentes (*xApps*), operando em ciclos de malha fechada entre $10\text{ ms}$ e $1\text{ s}$ através das interfaces abertas **E2AP (v02.03)**, **E2SM-KPM (v03.00)** e **E2SM-RC (v01.03)**.

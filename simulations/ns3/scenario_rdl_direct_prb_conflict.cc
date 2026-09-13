@@ -142,9 +142,8 @@ int main (int argc, char *argv[])
     double totalThpMbps = (totalRxBytes * 8.0) / (simTime * 1e6);
 
     NS_LOG_INFO ("=== Relatorio Final Cenario S1 (Direct PRB Conflict) ===");
-    NS_LOG_INFO ("Vazao Agregada: " << totalThpMbps << " Mbps");
-    NS_LOG_INFO ("Latencia Media: " << avgDelay << " ms");
-    NS_LOG_INFO ("Ground Truth Detection Precision = 1.0, Recall = 1.0, F1 = 1.0");
+    NS_LOG_INFO ("Vazao Agregada Raw: " << totalThpMbps << " Mbps");
+    NS_LOG_INFO ("Latencia Media Raw: " << avgDelay << " ms");
 
     Simulator::Destroy ();
     return 0;
