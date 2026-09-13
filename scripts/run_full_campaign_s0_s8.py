@@ -273,6 +273,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run full S0 to S8 real experimental campaign")
     parser.add_argument("--seeds", type=int, default=30, help="Number of seeds (default: 30)")
     parser.add_argument("--output-dir", type=str, default="results/campaign_s0_s8", help="Output directory")
+    parser.add_argument("--realtime", action="store_true", help="Enable real-time wall-clock pacing (ns3::RealtimeSimulatorImpl / time.sleep)")
+    parser.add_argument("--sync-mode", type=str, default="BestEffort", choices=["BestEffort", "HardLimit"], help="Realtime sync mode")
+    parser.add_argument("--demo-mode", type=str, default="experiment", choices=["fast", "realtime", "experiment"], help="Preset demo mode: fast, realtime, experiment")
+    parser.add_argument("--sim-time", type=float, default=60.0, help="Simulation duration in seconds")
     args = parser.parse_args()
+
+    if args.demo_mode == "realtime":
+        args.realtime = True
 
     run_campaign_s0_s8(seeds_count=args.seeds, output_dir=args.output_dir)

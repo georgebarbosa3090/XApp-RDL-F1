@@ -67,6 +67,13 @@ int main (int argc, char *argv[])
     std::string ricIpAddress = "172.18.0.4"; // Endereco IP do Near-RT RIC (E2Term) no cluster Kubernetes
     uint16_t ricPort = 36422;                // Porta SCTP padrao para conexao da interface O-RAN E2
     bool enableE2Agent = true;               // Flag de controle para ativacao da comunicacao com o Near-RT RIC
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     // Instanciacao do manipulador de linha de comando para sobrescrita de parametros em tempo de execucao
     CommandLine cmd (__FILE__);
@@ -79,6 +86,13 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ricIp", "Endereco IP do E2Term no Near-RT RIC", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao O-RAN E2 com o RIC", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv); // Executa o parsing dos argumentos fornecidos pelo usuario
 
     // Mensagens de inicializacao exibindo a configuracao carregada

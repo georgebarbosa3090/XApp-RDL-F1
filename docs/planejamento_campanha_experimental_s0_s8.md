@@ -174,4 +174,14 @@ A campanha experimental está totalmente automatizada via scripts Python e Makef
    make test-codec
    ```
 
+---
+
+### 5.1. Modo Opcional de Demonstração ao Vivo (`ns3::RealtimeSimulatorImpl`)
+
+Para apresentações e defesas acadêmicas, alterar apenas o tempo simulado (`simTime`) não garante acompanhamento em tempo real, pois o ns-3 por padrão opera em tempo virtual (máxima velocidade). O projeto disponibiliza a opção `--demoMode=realtime` / `--realtime=true`, que ativa o `ns3::RealtimeSimulatorImpl` (sincronizando 1s simulado $\approx$ 1s real):
+
+* **Preset `--demoMode=realtime` (60–90 s):** executa os eventos emparelhados com o relógio real da máquina no modo `BestEffort` (recupera pequenos atrasos de CPU suavemente sem abortar) ou `HardLimit` (aborta se o atraso exceder 0.1s).
+* **Preset `--demoMode=fast` (30 s):** modo acelerado para depuração rápida em tempo virtual.
+* **Preset `--demoMode=experiment` (Default):** campanha científica rigorosa com 30 sementes independentes em tempo virtual.
+
 Este planejamento consolida a robustez científica da Fase 1 do projeto, oferecendo cobertura empírica e formal completa para publicações de alto impacto (IEEE Transactions on Network and Service Management / IEEE ICC).

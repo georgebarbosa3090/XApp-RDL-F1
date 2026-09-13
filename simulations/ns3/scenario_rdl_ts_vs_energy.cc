@@ -38,18 +38,60 @@ int main (int argc, char *argv[])
     double centralFreq = 3.5e9;
     double bandwidth = 100e6;
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 15.0;
+    double conflictEnd = 30.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 40.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlTsVsEnergy", LOG_LEVEL_INFO);
 
-    NS_LOG_INFO ("Iniciando Cenario S4: Traffic Steering x Energy Saving (Carga vs Sono)");
+    NS_LOG_INFO ("Iniciando Cenario S4: Traffic Steering x Energy Saving (Carga vs Sono) | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
     NS_LOG_INFO ("Topologia: gNB1 (Congestionada 90%) vs gNB2 (Ociosa 20%)");
 
     NodeContainer gNbNodes;

@@ -38,6 +38,13 @@ int main (int argc, char *argv[])
     double bandwidth = 100e6;
     uint32_t loadLevel = 2; // 0=L0, 1=L1, 2=L2, 3=L3, 4=L4
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
@@ -45,7 +52,42 @@ int main (int argc, char *argv[])
     cmd.AddValue ("loadLevel", "Nivel de Carga (0=L0..4=L4)", loadLevel);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 20.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 20.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     // Ajusta número de UEs conforme nível se padrão for sobrescrito
     if (loadLevel == 0) ueNum = 30;
@@ -57,7 +99,7 @@ int main (int argc, char *argv[])
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlConflictStorm", LOG_LEVEL_INFO);
 
-    NS_LOG_INFO ("Iniciando Cenario S6: Overload / Conflict Storm (Nivel L" << loadLevel << ")");
+    NS_LOG_INFO ("Iniciando Cenario S6: Overload / Conflict Storm (Nivel L" << loadLevel << ") | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
     NS_LOG_INFO ("gNBs: " << gNbNum << " | UEs: " << ueNum << " | Concorrencia Massiva");
 
     NodeContainer gNbNodes;

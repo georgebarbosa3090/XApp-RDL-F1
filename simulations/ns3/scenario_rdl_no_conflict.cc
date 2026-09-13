@@ -50,6 +50,13 @@ int main (int argc, char *argv[])
     std::string ricIp = "127.0.0.1";
     uint16_t ricPort = 36422;
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
@@ -58,13 +65,48 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
     cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 30.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlNoConflict", LOG_LEVEL_INFO);
 
     NS_LOG_INFO ("Iniciando Cenario S0: No-Conflict Control (Baseline de Nao-Interferencia)");
-    NS_LOG_INFO ("gNBs: " << gNbNum << " | UEs: " << ueNum << " | BW: 100 MHz | Freq: 3.5 GHz");
+    NS_LOG_INFO ("gNBs: " << gNbNum << " | UEs: " << ueNum << " | BW: 100 MHz | Freq: 3.5 GHz | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
 
     NodeContainer gNbNodes;
     gNbNodes.Create (gNbNum);

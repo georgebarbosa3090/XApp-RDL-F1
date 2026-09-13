@@ -586,7 +586,202 @@ python3 scripts/run_experiment_suite.py
 
 ---
 
-## 14. Análise com Scikit-Learn e Google Colab
+### 13.8. Modo de Demonstração ao Vivo em Tempo Real (`ns3::RealtimeSimulatorImpl` & `demoMode`)
+
+> **Importante para Defesa e Apresentação Executiva:** por padrão, o ns-3 utiliza **tempo virtual** e executa os eventos o mais rápido possível, saltando diretamente de um evento para o outro. Alterar apenas o parâmetro `simTime` (ex.: `--simTime=60`) **não** transforma a simulação em uma demonstração ao vivo acompanhável, pois 60s simulados podem rodar em 8s ou 90s reais dependendo do hardware.
+
+Para uma demonstração didática em tempo real (1 segundo simulado $\approx$ 1 segundo de relógio real), o projeto XApp-RDL integra suporte opcional ao `ns3::RealtimeSimulatorImpl`.
+
+#### 13.8.1. Arquitetura de Sincronização em Tempo Real
+
+A inicialização do modo em tempo real vincula o motor de simulação antes de invocar `Simulator::Run()`:
+
+```cpp
+#include "ns3/core-module.h"
+using namespace ns3;
+
+int main (int argc, char *argv[])
+{
+    bool realtime = false;
+    std::string syncMode = "BestEffort"; // "BestEffort" ou "HardLimit"
+    double simTime = 60.0;
+
+    CommandLine cmd (__FILE__);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao: BestEffort ou HardLimit", syncMode);
+    cmd.AddValue ("simTime", "Duracao da simulacao em segundos", simTime);
+    cmd.Parse (argc, argv);
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
+
+    Simulator::Stop (Seconds (simTime));
+    Simulator::Run ();
+    Simulator::Destroy ();
+    return 0;
+}
+```
+
+#### 13.8.2. Modos de Sincronização: `BestEffort` vs `HardLimit`
+
+* **`BestEffort` (Recomendado para Defesas e Demonstrações):** caso a CPU sofra um pequeno atraso temporário no processamento de um evento, o simulador tenta recuperar a sincronia nos eventos seguintes de forma suave sem abortar a simulação. É ideal contra picos esporádicos de carga no ambiente de teste.
+* **`HardLimit` (Recomendado para Validação Rígida de Desempenho):** aborta imediatamente a execução se o atraso do simulador ultrapassar a tolerância configurada (limite padrão do ns-3: 0,1s). Prova formalmente que o sistema cumpre os requisitos rígidos de tempo real.
+
+#### 13.8.3. As Três Velocidades de Execução (`--demoMode`)
+
+Para evitar misturar a campanha científica com testes rápidos e apresentações ao vivo, todos os cenários (C++ no ns-3 e Python) suportam três presets de velocidade:
+
+| Modo (`--demoMode`) | Tempo Simulado | Sincronismo | Objetivo e Uso Recomendado |
+| :--- | :---: | :---: | :--- |
+| `fast` | 30 s | Tempo Virtual (Máxima Velocidade) | Depuração rápida de código e testes de regressão CI. |
+| `realtime` | 60–90 s | 1x Wall-Clock (`RealtimeSimulatorImpl`) | Demonstração ao vivo didática para bancas e eventos. |
+| `experiment` | 30–120 s | Tempo Virtual (Default) | Campanha experimental científica de alta precisão (30 seeds). |
+
+#### Exemplo de Invocação via CLI:
+```bash
+# Execução de demonstração ao vivo de 60s sincronizada com relógio real:
+./ns3 run "scenario_rdl_tvs_conflict --demoMode=realtime --simTime=60 --conflictStart=20 --conflictEnd=35 --kpmPeriod=0.2"
+
+# Execução rápida para depuração:
+./ns3 run "scenario_rdl_tvs_conflict --demoMode=fast"
+
+# Execução em Python com pacing em tempo real:
+python scripts/run_full_campaign_s0_s8.py --demo-mode=realtime --sim-time=60
+```
+
+---
+
+#### 13.8.4. Cronogramas de Terminal e Demonstrações Didáticas por Cenário
+
+Para uma apresentação ao vivo (60 a 90 segundos), a audiência deve acompanhar a transição visual clara de estados no terminal:
+$$\text{Normal} \longrightarrow \text{Conflict} \longrightarrow \text{Detection} \longrightarrow \text{H-RDL Decision} \longrightarrow \text{RIC Control} \longrightarrow \text{Network Reaction} \longrightarrow \text{Recovery}$$
+
+##### Cronograma Genérico de 60 Segundos:
+* **0–10 s — BASELINE:** a rede estabiliza e os canais de rádio 5G NR são estabelecidos.
+* **10–20 s — NORMAL OPERATION:** métricas E2SM-KPM começam a ser exibidas periodicamente.
+* **20 s — INJEÇÃO DE CONFLITO:** xApp A envia proposta de alteração de parâmetro.
+* **23 s — PROPOSTA INCOMPATÍVEL:** xApp B envia proposta concorrente em janela $\Delta t$.
+* **23–25 s — CONFLICT DETECTED:** o `PerceptionAgent` identifica o conflito direto/indireto.
+* **25 s — H-RDL DECISION:** o `ReasoningAgent` arbitra aplicando a função de utilidade.
+* **25–27 s — E2SM-RC / CONTROL:** mensagem `RICcontrolRequest` é transmitida e confirmada por `RICcontrolAck`.
+* **27–40 s — RECOVERY:** os indicadores de rádio (SINR, PDR, latência) se recuperam.
+* **40–60 s — STABLE STATE:** a rede mantém o estado governado com conformidade aos SLAs.
+
+---
+
+##### Demonstração S2 — Energy Saving vs QoS Slicing:
+* **Cronograma:**
+  * **0–15 s:** Small cell ativa operando normalmente.
+  * **15 s:** xApp Energy Saving solicita `TX_POWER -> LOW` (20 dBm).
+  * **20 s:** Surto de carga QoS URLLC aumenta demanda por PRBs.
+  * **20–22 s:** Conflito indireto de degradação detectado pelo H-RDL.
+  * **22 s:** H-RDL bloqueia o modo sleep completo e ajusta a potência via *clamping* (`CLAMP_TX_POWER`).
+  * **22–35 s:** Rede recupera os requisitos de latência e PDR da fatia URLLC.
+  * **35–60 s:** Estado estável e eficiente mantido.
+* **Saída Esperada no Console:**
+```text
+[15.000s] EnergySaving xApp proposal TX_POWER -> LOW (20 dBm)
+[20.000s] QoS xApp proposal Capacity request -> HIGH (PRB_QUOTA 80%)
+[20.003s] CONFLICT DETECTED type=INDIRECT resource=TX_POWER/QoS
+[20.007s] H-RDL DECISION action=CLAMP_TX_POWER (38 dBm)
+[20.012s] E2SM_RC_CONTROL_REQ tx_power=38dBm gnb_id=gnb_01
+[20.027s] E2SM_RC_CONTROL_ACK status=SUCCESS
+[20.200s] KPM: SINR improved to 18.4 dB | URLLC latency recovering to 2.3 ms
+[21.000s] RECOVERY CONFIRMED: SLA SLA_URLLC satisfied (PDR=100.0%)
+```
+
+---
+
+##### Demonstração S5 — Handover Ping-Pong Temporal:
+* **Cronograma e Tela Visual:**
+```text
+  10 s: UE ------------> gNB-01
+  15 s: UE ------------> ZONA DE OVERLAP
+  18 s: xApp TS -------> Solicita Handover para gNB-02
+  19 s: Outra Política -> Solicita Handover de volta para gNB-01
+  20 s: H-RDL ---------> Detecta Conflito Temporal (Ping-Pong) e Ativa Lock
+  20-25 s: Cooldown Period (Handover Lock Ativo)
+  25 s: Associação Estável Mantida na gNB-02
+```
+* **Telemetria no Console:**
+```text
+[18.000s] TS xApp HO_REQ: UE-07 -> gNB-02
+[19.000s] LB xApp HO_REQ: UE-07 -> gNB-01 (INCOMPATIBLE)
+[19.002s] CONFLICT DETECTED type=TEMPORAL_PINGPONG target=UE-07
+[19.005s] H-RDL DECISION action=LOCK_HANDOVER cooldown=10.0s
+[19.010s] RIC_CONTROL_REQ action=REJECT_HO
+[25.000s] Handover Lock Expired | Handover Count: 1 | Ping-Pong Count: 0 | Serving Cell: gNB-02
+```
+
+---
+
+##### Demonstração S6 — Tempestade de Conflitos (Conflict Storm):
+* **Crescimento Gradual de xApps Concorrentes:**
+  * **0–10 s:** 2 xApps ativas ($\sim 2$ conflitos/s)
+  * **10–20 s:** 4 xApps ativas ($\sim 12$ conflitos/s)
+  * **20–30 s:** 6 xApps ativas ($\sim 31$ conflitos/s)
+  * **30–45 s:** 8 xApps ativas ($\sim 58$ conflitos/s)
+  * **45–60 s:** Governança RDL estabiliza e recupera a fila de decisão.
+* **Métricas Medidas em Tempo Real no Console (Sem dados inventados):**
+```text
+[10.000s] Active xApps: 2 | Conflict rate:  2.1/s | Decision Queue: 0 | Decision P99: 12.1 ms
+[20.000s] Active xApps: 4 | Conflict rate: 12.4/s | Decision Queue: 1 | Decision P99: 13.8 ms
+[30.000s] Active xApps: 6 | Conflict rate: 31.2/s | Decision Queue: 2 | Decision P99: 14.5 ms
+[45.000s] Active xApps: 8 | Conflict rate: 58.7/s | Decision Queue: 3 | Decision P99: 15.2 ms
+[60.000s] STORM MITIGATED | Unresolved Conflicts: 0 | P99 Latency Target (<50ms): PASSED
+```
+
+---
+
+##### Demonstração S7 — Safety Guard Rejeitando Ação Insegura (Rogue xApp):
+* **Injeção de Falha em 20 s:** Rogue xApp transmite `TX_POWER = 55 dBm` e `PRB_QUOTA = 250%`.
+* **Tela Visual:**
+```text
+  ROGUE ACTION PROPOSAL (TX_POWER=55dBm, PRB_QUOTA=250%)
+           │
+           ▼
+   Refinement Agent
+           │
+           ▼
+    SAFETY GUARD
+           │
+           ▼
+      ✕ BLOCKED (Limits: Power <= 23dBm, PRB <= 100%)
+           │
+           ▼
+  RIC_CONTROL_FAILURE (Cause: Out-of-Range Parameter)
+```
+
+---
+
+##### Demonstração S8 — Closed Loop NORI (4 Terminais Simultâneos):
+Em uma apresentação com 4 terminais abertos lado a lado:
+
+```text
+ Terminal 1 (ns-3 / 5G-LENA)      Terminal 2 (NORI / E2SIM)        Terminal 3 (Near-RT RIC)        Terminal 4 (H-RDL Dashboard)
+ ┌─────────────────────────┐      ┌────────────────────────┐       ┌────────────────────────┐      ┌────────────────────────┐
+ │ [KPM] Report sent       │ ---->│ [E2] Encapsulating APER│ ----->│ [RIC] Dispatching RMR  │ ---->│ [RDL] Conflict Solved  │
+ │ SINR=18.2dB Lat=2.1ms   │      │ IndicationReport       │       │ Subscription ID #101   │      │ Decision Latency: 14ms │
+ └─────────────────────────┘      └────────────────────────┘       └────────────────────────┘      └────────────────────────┘
+              ▲                                                                                                 │
+              │                                                                                                 │
+              └───────────────────────────────── [E2SM-RC Control] ─────────────────────────────────────────────┘
+```
+
+#### Diagrama de Encadeamento Fechado:
+$$\text{ns-3 / 5G-LENA} \xrightarrow{\text{KPM}} \text{NORI E2} \xrightarrow{\text{E2AP}} \text{Near-RT RIC} \xrightarrow{\text{RMR}} \text{H-RDL} \xrightarrow{\text{Decisão}} \text{Near-RT RIC} \xrightarrow{\text{RC}} \text{NORI} \xrightarrow{\text{MAC/PHY}} \text{ns-3}$$
+
+Neste cenário de co-simulação com processos externos, o uso do `RealtimeSimulatorImpl` é vital para manter o relógio da simulação emparelhado com o relógio real do sistema operacional e dos containers Docker/K8s do Near-RT RIC.
 
 Os datasets estruturados gerados pela simulação (`experiments/results/dataset_flow_metrics.csv` e `experiments/results/dataset_rdl_decisions_ml.csv`) alimentam diretamente o notebook de Machine Learning:
 

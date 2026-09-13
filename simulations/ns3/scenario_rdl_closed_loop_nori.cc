@@ -44,7 +44,14 @@ int main (int argc, char *argv[])
 {
     uint16_t gNbNum = 2;
     uint16_t ueNumPerGnb = 15;
-    double simTime = 30.0;
+    double simTime = 60.0;
+    double conflictStart = 20.0;
+    double conflictEnd = 35.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
     double centralFrequencyBand1 = 3.5e9;
     double bandwidthBand1 = 100e6;
     uint16_t numerologyBwp1 = 1;
@@ -55,13 +62,48 @@ int main (int argc, char *argv[])
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Numero de gNodeBs", gNbNum);
     cmd.AddValue ("ueNumPerGnb", "Numero de UEs por gNB", ueNumPerGnb);
-    cmd.AddValue ("simTime", "Tempo total de simulacao", simTime);
+    cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("conflictStart", "Instante inicial do conflito em segundos", conflictStart);
+    cmd.AddValue ("conflictEnd", "Instante final do conflito em segundos", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao da recuperacao em segundos", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo dos relatorios E2SM-KPM em segundos", kpmPeriod);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real (ns3::RealtimeSimulatorImpl)", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao em tempo real: BestEffort ou HardLimit", syncMode);
+    cmd.AddValue ("demoMode", "Modo predefinido: fast, realtime, experiment", demoMode);
     cmd.AddValue ("ricIp", "IP do Near-RT RIC E2Term", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP E2", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
     cmd.Parse (argc, argv);
 
-    NS_LOG_INFO ("Iniciando Cenario Closed-Loop RDL + NORI (Fase 1)");
+    if (demoMode == "fast")
+    {
+        simTime = 30.0;
+        conflictStart = 8.0;
+        conflictEnd = 18.0;
+        realtime = false;
+    }
+    else if (demoMode == "realtime")
+    {
+        simTime = 60.0;
+        conflictStart = 20.0;
+        conflictEnd = 35.0;
+        realtime = true;
+    }
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            GlobalValue::Bind ("RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
+
+    NS_LOG_INFO ("Iniciando Cenario Closed-Loop RDL + NORI (Fase 1) - Mode: " << demoMode << " Realtime: " << (realtime ? "YES" : "NO"));
 
 #if HAS_NR_MODULE
     GridScenarioHelper gridScenario;

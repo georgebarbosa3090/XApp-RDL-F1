@@ -57,16 +57,61 @@ int main (int argc, char *argv[])
     std::string ricIp = "172.18.0.4";        // Endereco IP do Near-RT RIC (E2Term) na rede Docker/K8s
     uint16_t ricPort = 36422;                // Porta SCTP padrao da interface O-RAN E2 (E2AP)
     bool enableE2Agent = true;               // Flag para ativacao da interface E2 / NORI
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 15.0;
+    double conflictEnd = 30.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     // Configuracao do parser de linha de comando para sobrescrita dinamica dos parametros
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
-    cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC E2Term", ricIp);
+    cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
     cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
-    cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI com Near-RT RIC", enableE2Agent);
-    cmd.Parse (argc, argv); // Processamento dos argumentos passados via terminal
+    cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
+    cmd.Parse (argc, argv);
+
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 40.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
+
+    Time::SetResolution (Time::NS);
+    LogComponentEnable ("ScenarioRdlEnergyVsQos", LOG_LEVEL_INFO);
 
     // Log de inicializacao do cenario com informacoes de topologia
     NS_LOG_INFO ("Iniciando Cenario RDL Fase 1 - EEVS (Energy Saving vs SLA URLLC)...");
