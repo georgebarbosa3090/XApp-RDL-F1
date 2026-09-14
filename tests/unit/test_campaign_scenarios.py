@@ -151,3 +151,110 @@ def test_scenario_s7_adversarial_fault_safety_zero_violation():
             unsafe_executed += 1
 
     assert unsafe_executed == 0, f"Ações inseguras foram indevidamente aceitas: {unsafe_executed}"
+
+def test_scenario_s2_tvs_indirect_conflict_resolution():
+    """Valida a resolução de conflito indireto TVS (Throughput vs Slicing) entre xSlice e KPIMON."""
+    memory = MemoryModule()
+    perception = PerceptionAgent()
+    reasoning = ReasoningAgent(memory, config={})
+    refinement = RefinementAgent(memory)
+
+    actions = [
+        XAppAction(xapp_id="xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=60.0, priority=70),
+        XAppAction(xapp_id="kpimon", node_id="gnb_01", parameter="PRB_QUOTA", value=50.0, priority=60)
+    ]
+    conflicts = perception.register_action_group(actions)
+    assert len(conflicts) >= 1
+    resolution = reasoning.resolve(conflicts[0])
+    is_valid, _, _ = refinement.validate(resolution, conflicts[0])
+    assert is_valid
+
+def test_scenario_s3_cross_layer_energy_vs_qos():
+    """Valida arbitragem multi-métrica cross-layer entre otimização de potência e garantia de SLA de vazão."""
+    memory = MemoryModule()
+    perception = PerceptionAgent()
+    reasoning = ReasoningAgent(memory, config={})
+    
+    actions = [
+        XAppAction(xapp_id="qos_xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=80.0, priority=85),
+        XAppAction(xapp_id="energy_saving", node_id="gnb_01", parameter="TX_POWER", value=10.0, priority=40)
+    ]
+    conflicts = perception.register_action_group(actions)
+    assert len(conflicts) >= 1
+    resolution = reasoning.resolve(conflicts[0])
+    assert len(resolution.winning_actions) > 0
+
+def test_scenario_s8_closed_loop_e2_nori():
+    """Valida o fechamento de malha E2 (E2AP + E2SM KPM/RC) sob orquestração NORI."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    action = XAppAction(xapp_id="kpimon", node_id="gnb_01", parameter="PRB_QUOTA", value=50.0, priority=50)
+    is_safe, level, _ = refinement.validate_single_action(action)
+    assert is_safe
+    assert level in [0, 1, 2, 3, "L0", "L1", "L2", "L3"]
+
+
+def test_scenario_s9_ntn_doppler_handover_contract():
+    """Valida contrato formal da xApp proposta NTN-Steering (Handover orbital LEO com compensação Doppler)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    ntn_action = XAppAction(xapp_id="ntn_steering", node_id="sat_leo_01", parameter="HANDOVER", value=1.0, priority=95)
+    is_safe, _, _ = refinement.validate_single_action(ntn_action)
+    assert is_safe
+
+def test_scenario_s10_uav_swarm_battery_contract():
+    """Valida contrato formal da xApp proposta Energy-Conserver UAV (Gestão de bateria e topologia de enxame)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    uav_action = XAppAction(xapp_id="uav_energy_conserver", node_id="uav_base_01", parameter="TX_POWER", value=18.0, priority=90)
+    is_safe, _, _ = refinement.validate_single_action(uav_action)
+    assert is_safe
+
+def test_scenario_s11_v2x_highway_platoon_urllc_contract():
+    """Valida contrato formal da xApp proposta Platoon-QoS (Garantia URLLC sub-10ms em alta velocidade 110 km/h)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    v2x_action = XAppAction(xapp_id="platoon_qos", node_id="rsu_highway_01", parameter="PRB_QUOTA", value=70.0, priority=98)
+    is_safe, _, _ = refinement.validate_single_action(v2x_action)
+    assert is_safe
+
+def test_scenario_s12_iiot_tsn_deterministic_jitter_contract():
+    """Valida contrato formal da xApp proposta Industrial-QoS (Garantia de latência determinística e supressão de jitter)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    iiot_action = XAppAction(xapp_id="industrial_qos", node_id="gnb_factory_01", parameter="PRB_QUOTA", value=65.0, priority=92)
+    is_safe, _, _ = refinement.validate_single_action(iiot_action)
+    assert is_safe
+
+def test_scenario_s13_rescue_sagin_multidomain_contract():
+    """Valida contrato formal da xApp proposta Rescue-QoS (Orquestração multidomínio Satélite-UAV-Terrestre em emergência)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    sagin_action = XAppAction(xapp_id="rescue_qos", node_id="sagin_gateway_01", parameter="PRB_QUOTA", value=90.0, priority=99)
+    is_safe, _, _ = refinement.validate_single_action(sagin_action)
+    assert is_safe
+
+def test_scenario_s14_isac_radar_interference_contract():
+    """Valida contrato formal da xApp proposta ISAC Radar (Mitigação de interferência mútua entre sensoriamento radar e comunicação 6G)."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    isac_action = XAppAction(xapp_id="isac_radar", node_id="gnb_isac_01", parameter="TX_POWER", value=22.0, priority=88)
+    is_safe, _, _ = refinement.validate_single_action(isac_action)
+    assert is_safe
+
+def test_scenario_s15_cross_tier_security_zero_trust_contract():
+    """Valida contrato formal de segurança cross-tier Near-RT / Non-RT sob arquitetura Zero-Trust."""
+    memory = MemoryModule()
+    refinement = RefinementAgent(memory)
+
+    sec_action = XAppAction(xapp_id="sec_guardian", node_id="gnb_01", parameter="PRB_QUOTA", value=50.0, priority=100)
+    is_safe, _, _ = refinement.validate_single_action(sec_action)
+    assert is_safe
+

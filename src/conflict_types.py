@@ -36,6 +36,8 @@ class XAppAction:
     t_dispatch_end: float = 0.0
     t_ack: float = 0.0
     arrival_monotonic: float = 0.0
+    context_features: Optional[dict] = None
+    confidence_score: Optional[float] = None
 
     def __post_init__(self):
         if self.t_arrival == 0.0:
@@ -74,6 +76,15 @@ class ConflictEvent:
 
 
 @dataclass
+class ConflictSet:
+    conflict_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    conflicting_actions: List[XAppAction] = field(default_factory=list)
+    affected_kpis: List[str] = field(default_factory=list)
+    graph_embedding: Optional[dict] = None
+    topology_state: Optional[dict] = None
+
+
+@dataclass
 class ResolutionAction:
     conflict_id: str
     strategy_used: ResolutionStrategy
@@ -96,8 +107,8 @@ class KPMReport:
 @dataclass
 class RDLDecision:
     """
-    Contrato formal de saída da Camada de Decisão (H-RDL).
-    Separa estritamente a inteligência determinística/analítica da camada de transporte E2.
+    Contrato formal de saída da Camada de Decisão (H-RDL / CA-RDL).
+    Separa estritamente a inteligência determinística/analítica/MARL da camada de transporte E2.
     """
     decision_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     state: dict = field(default_factory=dict)
@@ -108,4 +119,7 @@ class RDLDecision:
     reason: str = "PASS_THROUGH_CLEAN"
     strategy_used: str = "DETERMINISTIC_H_RDL"
     timestamp: float = field(default_factory=time.time)
+    marl_agent_id: Optional[str] = None
+    reward_estimate: Optional[float] = None
+
 

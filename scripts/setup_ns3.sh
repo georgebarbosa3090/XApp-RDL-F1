@@ -158,23 +158,40 @@ echo -e "\n${YELLOW}[ETAPA 2/4] Preparando repositório ns-3 e 5G-LENA no worksp
 mkdir -p "${WORKSPACE_DIR}"
 
 if [ ! -d "${NS3_DIR}" ]; then
-    echo -e "Clonando ns-3-dev em ${NS3_DIR}..."
-    git clone https://gitlab.com/nsnam/ns-3-dev.git "${NS3_DIR}" --depth 1
+    echo -e "Clonando ns-3-dev em ${NS3_DIR} (versão congelada ns-3.48)..."
+    git clone https://gitlab.com/nsnam/ns-3-dev.git "${NS3_DIR}" --branch ns-3.48 || git clone https://gitlab.com/nsnam/ns-3-dev.git "${NS3_DIR}"
+    cd "${NS3_DIR}" && git checkout ns-3.48 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do ns-3.48${NC}"; exit 1; }
 else
     echo -e "${GREEN}[OK] Diretório ${NS3_DIR} já existe.${NC}"
+    cd "${NS3_DIR}" && git checkout ns-3.48 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do ns-3.48${NC}"; exit 1; }
 fi
 
 cd "${NS3_DIR}"
 
-# 3.1 Clonar módulo 5G-LENA (nr) em contrib/nr se ausente
+# 3.1 Clonar módulo 5G-LENA (nr v5.1) em contrib/nr se ausente
 if [ ! -d "${NS3_DIR}/contrib/nr" ] && [ ! -d "${NS3_DIR}/src/nr" ]; then
-    echo -e "Clonando módulo 5G-LENA (nr) em ${NS3_DIR}/contrib/nr..."
+    echo -e "Clonando módulo 5G-LENA (nr v5.1) em ${NS3_DIR}/contrib/nr..."
     mkdir -p "${NS3_DIR}/contrib"
-    git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr" --depth 1 || {
-        echo -e "${YELLOW}[AVISO] Falha ao clonar 5G-LENA diretamente. Prosseguindo com fallback...${NC}"
-    }
+    git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr" --branch v5.1 || git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr"
+    cd "${NS3_DIR}/contrib/nr" && git checkout v5.1 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do 5G-LENA v5.1${NC}"; exit 1; }
+    cd "${NS3_DIR}"
 else
     echo -e "${GREEN}[OK] Módulo 5G-LENA (nr) detectado em ${NS3_DIR}.${NC}"
+    if [ -d "${NS3_DIR}/contrib/nr/.git" ]; then
+        cd "${NS3_DIR}/contrib/nr" && git checkout v5.1 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do 5G-LENA v5.1${NC}"; exit 1; }
+        cd "${NS3_DIR}"
+    fi
+fi
+
+# 3.2 Clonar módulo NORI (e2-agent / oran) em contrib/oran se ausente
+if [ ! -d "${NS3_DIR}/contrib/oran" ] && [ ! -d "${NS3_DIR}/src/oran" ]; then
+    echo -e "Clonando módulo NORI E2SIM em ${NS3_DIR}/contrib/oran..."
+    mkdir -p "${NS3_DIR}/contrib"
+    git clone https://github.com/lasseufpa/nori.git "${NS3_DIR}/contrib/oran" || git clone https://gitlab.com/oran-nori/nori.git "${NS3_DIR}/contrib/oran" 2>/dev/null || true
+    if [ -d "${NS3_DIR}/contrib/oran/.git" ]; then
+        cd "${NS3_DIR}/contrib/oran" && git checkout 9b64c12 2>/dev/null || echo -e "${YELLOW}[INFO] Branch padrão NORI utilizada.${NC}"
+        cd "${NS3_DIR}"
+    fi
 fi
 
 # 3.2 Copiar cenários de simulação do projeto para o diretório scratch do ns-3

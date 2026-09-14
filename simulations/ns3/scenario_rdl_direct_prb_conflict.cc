@@ -38,19 +38,82 @@ int main (int argc, char *argv[])
     double centralFreq = 3.5e9;
     double bandwidth = 100e6;
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (saltando de evento a evento na velocidade
+     *    máxima da CPU). Alterar apenas 'simTime' (ex.: 60s) NÃO transforma a simulação em
+     *    uma demonstração ao vivo acompanhável pela plateia/banca.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real (wall-clock): 1s simulado ≈ 1s real.
+     *    É a implementação oficial do ns-3 recomendada para apresentações ao vivo e integração E2.
+     *
+     * 3. Modos de Sincronização:
+     *    - BestEffort (Recomendado para Defesas): Recupera atrasos temporários de CPU suavemente.
+     *    - HardLimit: Aborta a simulação se o atraso exceder a tolerância (padrão ns-3: 0.1s).
+     * =========================================================================================
+     */
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 30.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlDirectPrbConflict", LOG_LEVEL_INFO);
 
     NS_LOG_INFO ("Iniciando Cenario S1: Direct Conflict (PRB x PRB Ground Truth)");
-    NS_LOG_INFO ("Conflito Programado: xApp-QoS (PRB=75%) vs xApp-Energy (PRB=30%)");
+    NS_LOG_INFO ("Conflito Programado: xApp-QoS (PRB=75%) vs xApp-Energy (PRB=30%) | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
 
     NodeContainer gNbNodes;
     gNbNodes.Create (gNbNum);
@@ -142,9 +205,8 @@ int main (int argc, char *argv[])
     double totalThpMbps = (totalRxBytes * 8.0) / (simTime * 1e6);
 
     NS_LOG_INFO ("=== Relatorio Final Cenario S1 (Direct PRB Conflict) ===");
-    NS_LOG_INFO ("Vazao Agregada: " << totalThpMbps << " Mbps");
-    NS_LOG_INFO ("Latencia Media: " << avgDelay << " ms");
-    NS_LOG_INFO ("Ground Truth Detection Precision = 1.0, Recall = 1.0, F1 = 1.0");
+    NS_LOG_INFO ("Vazao Agregada Raw: " << totalThpMbps << " Mbps");
+    NS_LOG_INFO ("Latencia Media Raw: " << avgDelay << " ms");
 
     Simulator::Destroy ();
     return 0;

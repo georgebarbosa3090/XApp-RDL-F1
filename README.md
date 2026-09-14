@@ -53,16 +53,17 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 ├── docs/                        # Portal de Documentação Técnica e Referências Normativas
 │   ├── e2/                      # Matriz de Versões e Fontes Normativas O-RAN (E2AP/KPM/RC)
 │   ├── README.md                # Índice e trilhas de leitura da documentação
-│   └── 01 a 05                  # Volumes temáticos de arquitetura, cluster, deploy e operação
+│   └── 01 a 11                  # Volumes temáticos de arquitetura, cluster, deploy, normas e cenários
 ├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
 ├── reproducibility/             # Bloqueio de versões (versions.lock) e Runbook de reprodução
-├── scripts/                     # Automação de Deploy, Testes e Reprodução
+├── scripts/                     # Automação de Deploy, Testes, Validação S0-S15 e Reprodução
+│   ├── validate_all_scenarios_s0_s15.py # Motor E2E de validação de todos os 16 cenários S0-S15
 │   ├── reproduce_f1.sh          # Pipeline completo de reprodução determinística (Fase 1)
 │   ├── deploy_helm.sh           # Pipeline Helm (Near-RT RIC -> 3 xApps -> RDL)
 │   ├── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
 │   └── verify_3_xapps.sh        # Smoke test unificado de todas as xApps
-├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA
-│   └── ns3/                     # scenario_rdl_closed_loop_nori.cc (Closed-Loop E2 Report & Control)
+├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA (S0 a S15)
+│   └── ns3/                     # scenario_rdl_s0 a s15 e run_all_s0_s15_simulations.sh
 ├── src/                         # Código-Fonte Python da xApp RDL (Clean Architecture)
 │   ├── conflict_types.py        # Contratos formais desacoplados (RDLDecision, XAppAction)
 │   ├── rdl_xapp.py              # Ciclo de vida xApp e despacho via E2/RCMapper
@@ -134,31 +135,43 @@ k3d cluster create rdl-cluster \
 
 ## 4. Guia Rápido de Execução e Deploy
 
+Entrar no diretório do projeto:
+
+```bash
+cd XApp-RDL-F1
+```
+
+Instalar o utilitário Make (caso não esteja instalado no host):
+
+```bash
+apt update && apt install -y make
+```
+
 ### Opção A: Implantação Rápida via Perfil OpenRAN@Brasil Blueprint v3 (`deploy/openran-br-v3/`)
 Manifestos K8s puros e otimizados para o namespace `ricxapp` seguindo a especificação normativa da Release J / OpenRAN@Brasil:
 
-1. Criar os namespaces oficiais se ainda não existirem
+1. Criar os namespaces oficiais se ainda não existirem:
 ```bash
 kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-2. Aplicar ConfigMap e tabela de rotas RMR
+2. Aplicar ConfigMap e tabela de rotas RMR:
 ```bash
 kubectl apply -f deploy/openran-br-v3/config-map.yaml
 ```
 
-3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081)
+3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081):
 ```bash
 kubectl apply -f deploy/openran-br-v3/service.yaml
 ```
 
-4. Aplicar o Deployment da xApp RDL
+4. Aplicar o Deployment da xApp RDL:
 ```bash
 kubectl apply -f deploy/openran-br-v3/deployment.yaml
 ```
 
-5. Validar o status da implantação
+5. Validar o status da implantação:
 ```bash
 kubectl get pods,svc -n ricxapp -l app=iqos-xapp-rdl
 ```
@@ -183,7 +196,17 @@ make test-3xapps
 make test
 ```
 
-### Opção F: Reprodução Determinística do Ambiente
+### Opção F: Validação Automatizada de Todos os 16 Cenários (S0 a S15)
+```bash
+python scripts/validate_all_scenarios_s0_s15.py
+```
+
+### Opção G: Execução em Lote das Co-Simulações C++ no ns-3 (S0 a S15)
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh
+```
+
+### Opção H: Reprodução Determinística do Ambiente
 ```bash
 make reproduce-f1
 ```
@@ -194,89 +217,72 @@ make reproduce-f1
 
 * **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
 ```bash
-  make rancher-stop
-  make rancher-start
-  make rancher-logs
-  make rancher-password
-  ```
+make rancher-stop
+make rancher-start
+make rancher-logs
+make rancher-password
+```
 
-4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
+Vincular o cluster ao Rancher através do comando de importação:
 ```bash
-  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
-  ```
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
+```
+
 * **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC:
 ```bash
-  make kiali-install
-```bash
-
-* # 6. Resultados Experimentais e Matriz Claims $\to$ Evidências:
-```bash
-Todos os resultados apresentados foram obtidos a partir de **co-simulações no simulador ns-3 (5G-LENA v5.1 / ns-O-RAN NORI)** com topologia parametrizada 3GPP Banda n78 (3.5 GHz, 100 MHz BWP, $\mu=1$, 2 gNodeBs, 30 UEs com tráfego misto URLLC/eMBB/mMTC) sob concorrência de 3 xApps de referência.
-```bash
-
-* ## 6.1. Matriz Formal de Rastreabilidade Claims $\to$ Evidências:
-```bash
-| Claim Científica | Evidência Experimental / Métrica | Fonte de Verificação / Artefato |
-| :--- | :--- | :--- |
-| **Mitigação Causal de Conflitos** | $CRE = 100.0\%$ (Todos os conflitos resolvidos melhoraram os KPIs alvo) | [`scientific_summary.json`](results/reproduced_audit_2026/statistics/scientific_summary.json) |
-| **Proteção Estrita de SLA URLLC** | Redução de violações de SLA de $100.0\% \to 0.0\%$ ($p < 0.0001$) | [`paper_table.csv`](results/reproduced_audit_2026/paper_table.csv) |
-| **Redução de Latência de Cauda** | Latência P99 reduzida de $144.06\text{ ms} \to 3.04\text{ ms}$ (-97.9%) | [`metrics_b3_hrdl.csv`](results/reproduced_audit_2026/B3_HRDL/metrics_b3_hrdl.csv) |
-| **Garantia de Equidade entre Fatias** | Jain's Fairness Index elevado de $0.1444 \to 0.9175$ (+535%) | [`paper_table.csv`](results/reproduced_audit_2026/paper_table.csv) |
-| **Segurança Invariante Zero-Violation** | Unsafe Action Rate = $0.0\%$ (Nenhuma ação insegura atingiu a RAN) | [`test_negative_cases.py`](tests/unit/test_negative_cases.py) |
-| **Fidelidade Normativa E2AP / RC** | ProtocolIE-Containers canônicos com roundtrips APER validados | [`test_golden_vectors.py`](tests/codec/test_golden_vectors.py) |
-```bash
-
-* ## 6.2. Definição Formal da Métrica Conflict Resolution Effectiveness (CRE):
-```bash
-Para evitar conclusões baseadas unicamente em vazão agregada, o projeto formaliza a métrica de eficácia causal:
-
-$$CRE = \frac{\sum_{i=1}^{N_{\text{resolvidos}}} \mathbb{I}(\text{KPI}_{\text{pós}}(i) > \text{KPI}_{\text{pré}}(i) \land \text{Status}_{\text{E2}}(i) = \text{ACK})}{N_{\text{detectados}}}$$
-
-Onde $\mathbb{I}(\cdot)$ é a função indicadora que exige confirmação formal via `RIC_CONTROL_ACK` (12041) e melhoria mensurável no estado da telemetria da RAN.
-```bash
-
-* ## 6.3. Tabela Consolidada de Benchmarks Multi-Semente ($N = 30$ Seeds):
-```bash
-| Método / Modelo Avaliado | Latência Média URLLC (ms) | Latência P99 (ms) | Vazão Agregada (Mbps) | Jain's Fairness | Violações de SLA (%) | CRE (%) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **B0: Sem RDL (Conflito Direto)** | $12.67 \pm 1.91$ | $144.06$ | $155.25 \pm 24.63$ | $0.1444$ | $100.0\%$ | **0.0%** |
-| **B1: Heurística FIFO** | $7.32 \pm 0.94$ | $45.44$ | $420.44 \pm 37.08$ | $0.4793$ | $35.0\%$ | **55.0%** |
-| **B2: Static Quotas (Slicing Only)** | $5.14 \pm 0.48$ | $18.04$ | $673.11 \pm 47.17$ | $0.7194$ | $12.0\%$ | **78.0%** |
-| **B3: H-RDL Fase 1 (Governança Total)** | **$2.85 \pm 0.16$** | **$3.04$** | **$1117.08 \pm 43.43$** | **$0.9175$** | **$0.0\%$** | **100.0%** |
+make kiali-install
+```
 
 ---
-```bash
 
-* # 7. Reprodutibilidade em Um Comando (`make reproduce-paper`):
-```bash
-Para reproduzir integralmente todos os experimentos, gerar os dados brutos em `.raw`, `.json` e `.csv`, e sintetizar a tabela do artigo:
-```bash
-# Executa a suíte de reprodução multi-semente (N=30)
-make reproduce-paper
+## 6. Política Rígida de Proveniência e Resultados Experimentais
 
-# Executa testes modulares e vetores dourados
+$$
+\boxed{
+\text{Resultado científico válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}
+}
+$$
+
+A infraestrutura experimental **ns-3 / 5G-LENA v5.1 / NORI** está em validação atrelada à política estrita de **Zero Dados Sintéticos**. Resultados científicos somente serão publicados após aprovação automática dos gates de proveniência e interoperabilidade (**Gate 1 a Gate 4**).
+
+### 6.1. Critérios dos Gates de Validação Experimental
+
+| Gate | Descrição e Requisito de Aprovação | Condição de Bloqueio |
+| :---: | :--- | :---: |
+| **Gate 1** | **Interoperabilidade E2 KPM Real**<br/>Conexão SCTP/NORI $\to$ Near-RT RIC, subscrição aceita, `RICindication` `.raw` decodificado via APER e validação semântica com o FlowMonitor ($\epsilon < 5\%$). | **Obrigatório (`GATE_1_REQUIRED=true`)** |
+| **Gate 2** | **Rastreabilidade e Providência Extrema**<br/>Verificação de hashes SHA256 do binário ns-3, sementes, FlowMonitor XML, logs e manifestos `execution_manifest.json`. | **Obrigatório** |
+| **Gate 3** | **Controle E2SM-RC em Malha Fechada**<br/>Envio de `RICcontrolRequest` via APER e confirmação externa por `RICcontrolAcknowledge` sobre SCTP real. | **Obrigatório** |
+| **Gate 4** | **Fechamento do Causal Loop RAN**<br/>Encadeamento de causa-efeito: $\text{KPM}(t_0) \to \text{H-RDL} \to \text{Control} \to \text{NORI} \to \text{ns-3} \to \text{State Change} \to \text{KPM}(t_1)$. | **Obrigatório** |
+
+---
+
+## 7. Reprodutibilidade e Validação de Proveniência em Um Comando
+
+Para executar a verificação estrita de proveniência e integridade sem dados sintéticos:
+
+```bash
+python scripts/check_no_synthetic_results.py
+```
+
+Validação do pipeline de proveniência de dados reais:
+```bash
+python scripts/validate_provenance.py experiments/runs/gate1/seed-1001
+```
+
+Suíte de testes funcionais e codecs de software:
+```bash
 make test-unit
 make test-codec
 make test-integration
 make test-interop
 ```
 
-Os artefatos gerados são estruturados em:
-```text
-results/reproduced_audit_2026/
-├── B0/                  # Métricas brutas baseline sem controle
-├── B1/                  # Métricas brutas heurística FIFO
-├── B2/                  # Métricas brutas cotas estáticas
-├── B3_HRDL/             # Métricas brutas H-RDL Fase 1
-├── raw_runs/            # Hierarquia Gate 1 (subscription.raw, indication_XXXX.raw, metadata.json)
-├── statistics/          # scientific_summary.json com métricas consolidadas
-└── paper_table.csv      # Tabela final para publicação científica
-```
 ---
-```
 
-* # 8. Perfis Normativos e Auditorias Técnicas:
-```
+## 8. Perfis Normativos e Auditorias Técnicas
+
+* **[Relatório Oficial de Validação dos Cenários S0 a S15](docs/11_relatorio_execucao_validacao_s0_s15.md)**
+* **[Estudo Científico e Normativo das xApps e Relações de Conflito](docs/10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md)**
 * **[Parecer Técnico de Resolução Integral da Nova Auditoria (2026)](auditoria/Nova_Auditoria_Tecnica_Interop_E2_Closed_Loop_2026.md)**
 * **[Especificação do Perfil Normativo Congelado (F1 Frozen Profile)](docs/oran_compatibility_profile_frozen.md)**
 * **[Manifesto Machine-Readable de Versões e Hashes](specs/oran/compatibility_profile.json)**
@@ -290,4 +296,3 @@ results/reproduced_audit_2026/
 *Desenvolvido em conformidade estrita com ETSI TS 104 039, O-RAN.WG3.E2AP e O-RAN Software Community Release I/J.*
 
 </div>
-```

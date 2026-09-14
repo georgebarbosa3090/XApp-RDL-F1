@@ -59,7 +59,9 @@ class DiscreteEventRANSimulator:
         duration_s: float = 30.0,
         decision_interval_s: float = 0.2,
         mode: str = "B3",
-        num_ues: int = 30
+        num_ues: int = 30,
+        realtime: bool = False,
+        demo_mode: str = "experiment"
     ):
         self.seed = seed
         self.carrier_freq_ghz = carrier_freq_ghz
@@ -68,6 +70,19 @@ class DiscreteEventRANSimulator:
         self.decision_interval_s = decision_interval_s
         self.mode = mode
         self.num_ues = num_ues
+        
+        # Modo de Demonstração em Tempo Real (Equivalente ao ns3::RealtimeSimulatorImpl)
+        # Nota: Por padrão, o simulador executa em tempo virtual (o mais rápido possível).
+        # Ativar `realtime=True` ou `demo_mode='realtime'` realiza o pacing wall-clock relógio-a-relógio (1s simulado ≈ 1s real).
+        self.realtime = realtime
+        self.demo_mode = demo_mode
+        if self.demo_mode == "fast":
+            self.duration_s = min(self.duration_s, 30.0)
+            self.realtime = False
+        elif self.demo_mode == "realtime":
+            self.duration_s = max(self.duration_s, 60.0)
+            self.realtime = True
+
         self.noise_floor_dbm = -94.0 # -174 dBm/Hz + 10*log10(100MHz)
         
         self.gnbs: Dict[str, GNodeB] = {}
@@ -302,9 +317,16 @@ class DiscreteEventRANSimulator:
         unresolved_conflicts = 0
 
         for step in range(1, total_steps + 1):
+            step_start_wall = time.time()
             # Executa slots discretos
             for _ in range(slots_per_interval):
                 self.step_slot(slot_duration_s=0.010)
+
+            if self.realtime:
+                elapsed_wall = time.time() - step_start_wall
+                sleep_needed = self.decision_interval_s - elapsed_wall
+                if sleep_needed > 0:
+                    time.sleep(sleep_needed)
 
             # Telemetria no ciclo de decisão
             kpm = self.get_kpm_metrics()

@@ -1,7 +1,5 @@
 import time
 import threading
-import uvicorn
-from fastapi import FastAPI, Response, status
 from enum import Enum
 from pydantic import BaseModel
 
@@ -17,45 +15,59 @@ class AppState(str, Enum):
     STOPPED = "STOPPED"
     ERROR = "ERROR"
 
+try:
+    import uvicorn
+    from fastapi import FastAPI, Response, status
+    HAS_FASTAPI = True
+except ImportError:
+    HAS_FASTAPI = False
+
 class HealthServer:
     def __init__(self, host: str = "0.0.0.0", port: int = 8080):
-        self.app = FastAPI(title="RDL xApp Health Server")
         self.host = host
         self.port = port
         self.state = AppState.STARTING
         self.start_time = time.time()
         self.version = "1.1.0"
+        self.server_thread = None
         
-        # Rotas
-        @self.app.get("/health")
-        def health():
-            return {
-                "status": "UP",
-                "uptime_seconds": int(time.time() - self.start_time)
-            }
+        if HAS_FASTAPI:
+            self.app = FastAPI(title="RDL xApp Health Server")
             
-        @self.app.get("/ready")
-        def ready(response: Response):
-            if self.state in [AppState.READY, AppState.DEGRADED]:
-                return {"status": "READY"}
-            else:
-                response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-                return {"status": "NOT_READY", "current_state": self.state}
+            @self.app.get("/health")
+            def health():
+                return {
+                    "status": "UP",
+                    "uptime_seconds": int(time.time() - self.start_time)
+                }
                 
-        @self.app.get("/status")
-        def get_status():
-            return {
-                "state": self.state,
-                "version": self.version,
-                "uptime_seconds": int(time.time() - self.start_time)
-            }
+            @self.app.get("/ready")
+            def ready(response: Response):
+                if self.state in [AppState.READY, AppState.DEGRADED]:
+                    return {"status": "READY"}
+                else:
+                    response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+                    return {"status": "NOT_READY", "current_state": self.state}
+                    
+            @self.app.get("/status")
+            def get_status():
+                return {
+                    "state": self.state,
+                    "version": self.version,
+                    "uptime_seconds": int(time.time() - self.start_time)
+                }
+        else:
+            self.app = None
 
     def set_state(self, new_state: AppState):
         self.state = new_state
 
     def run(self):
-        # Roda o servidor Uvicorn numa thread separada
-        config = uvicorn.Config(self.app, host=self.host, port=self.port, log_level="error")
-        server = uvicorn.Server(config)
-        self.server_thread = threading.Thread(target=server.run, daemon=True)
-        self.server_thread.start()
+        if HAS_FASTAPI and self.app is not None:
+            try:
+                config = uvicorn.Config(self.app, host=self.host, port=self.port, log_level="error")
+                server = uvicorn.Server(config)
+                self.server_thread = threading.Thread(target=server.run, daemon=True)
+                self.server_thread.start()
+            except Exception:
+                pass

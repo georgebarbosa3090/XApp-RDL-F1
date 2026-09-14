@@ -57,35 +57,58 @@ def audit_codebase_for_synthetic_generators() -> List[Tuple[str, int, str, str]]
                                     violations.append((fpath, lno, name, line.strip()))
     return violations
 
-def audit_datasets_provenance() -> bool:
-    """Verifica se os datasets contêm as tags de proveniência mandatárias."""
+import yaml
+
+def load_provenance_policy() -> dict:
+    policy_path = os.path.join(BASE_DIR, "reproducibility", "provenance_policy.yaml")
+    if not os.path.exists(policy_path):
+        raise FileNotFoundError(f"Arquivo de política não encontrado: {policy_path}")
+    with open(policy_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+def audit_datasets_provenance() -> Tuple[bool, bool]:
+    """Verifica se os datasets contêm as tags de proveniência mandatárias conforme provenance_policy.yaml. Retorna (success, table_audited)"""
+    policy = load_provenance_policy()
+    eligible_sources = set(policy.get("publication_eligible_sources", []))
+    non_eligible_sources = set(policy.get("non_publication_sources", []))
+    
     paper_csv = os.path.join(RESULTS_DIR, "reproduced_audit_2026", "statistics", "paper_table.csv")
     if not os.path.exists(paper_csv):
-        print(f"[!] Aviso: paper_table.csv não encontrado em {paper_csv}. Execute python scripts/reproduce_paper_artifacts.py primeiro.")
-        return True
+        print(f"[!] Aviso: paper_table.csv não encontrado em {paper_csv}. Nenhuma tabela de publicação ativa para auditar.")
+        print("  Status: NO_PUBLICATION_DATA_TO_VALIDATE")
+        return True, False
 
     with open(paper_csv, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         if "Fonte_Dados" not in reader.fieldnames:
             print("[!] Erro: Coluna 'Fonte_Dados' ausente em paper_table.csv!")
-            return False
+            return False, True
 
-        valid_sources = ["DISCRETE_EVENT_SIMULATOR", "DISCRETE_EVENT_SIMULATOR + HRDL_RUNTIME", "NS3_FLOWMONITOR", "NORI_E2"]
         count = 0
+        non_pub_count = 0
         for row in reader:
             src = row.get("Fonte_Dados", "")
-            if src not in valid_sources:
-                print(f"[!] Erro: Fonte de dados desconhecida ou inválida: '{src}'")
-                return False
+            base_src = src.split("+")[0].strip()
+            if base_src in non_eligible_sources:
+                non_pub_count += 1
+            elif base_src not in eligible_sources:
+                print(f"[!] Erro: Fonte de dados desconhecida ou não registrada no YAML: '{src}'")
+                return False, True
             count += 1
 
-    print(f"[OK] paper_table.csv validado com 100% de proveniência rastreável ({count} modelos auditados).")
-    return True
+    if non_pub_count > 0:
+        print(f"[ERRO PROVENIÊNCIA CRÍTICO] paper_table.csv contém {non_pub_count} registros marcados como NON_PUBLICATION ({non_eligible_sources}).")
+        print("  Conforme provenance_policy.yaml, dados NON_PUBLICATION NÃO PODEM estar presentes em tabelas destinadas a artigos/papers.")
+        return False, True
+    else:
+        print(f"[OK] paper_table.csv validado com 100% de fontes elegíveis para publicação ({count} registros auditados).")
+    return True, True
+
 
 def main():
     print("=" * 80)
     print(" AUDITORIA DE PROVENIÊNCIA E INTEGRIDADE CIENTÍFICA (ZERO DADOS SINTÉTICOS)")
-    print(" Diretriz Estrita: Proibido fabricar dados sintéticos. Apenas FlowMonitor/ns-3/DiscreteEvent.")
+    print(" Diretriz Estrita: Proibido fabricar dados sintéticos. Apenas evidências elegíveis registradas.")
     print("=" * 80)
 
     # 1. Auditoria Estática de Código
@@ -101,12 +124,16 @@ def main():
 
     # 2. Auditoria de Datasets e Rastreabilidade
     print("[2/2] Auditando proveniência e integridade dos datasets de saída...")
-    if not audit_datasets_provenance():
+    success, table_audited = audit_datasets_provenance()
+    if not success:
         print("[FALHA] Validação de proveniência de dados falhou.")
         sys.exit(1)
 
     print("\n" + "=" * 80)
-    print(" [SUCESSO] REPOSITÓRIO 100% CONFORME COM A DIRETRIZ DE ZERO DADOS SINTÉTICOS! [APROVADO]")
+    if table_audited:
+        print(" [SUCESSO] REPOSITÓRIO 100% CONFORME COM A DIRETRIZ DE PROVENIÊNCIA CIENTÍFICA! [APROVADO]")
+    else:
+        print(" [OK] REPOSITÓRIO LIMPO: Nenhum gerador sintético encontrado. [NO_PUBLICATION_DATA_TO_VALIDATE]")
     print("=" * 80)
     sys.exit(0)
 

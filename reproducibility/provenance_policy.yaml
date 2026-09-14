@@ -1,0 +1,60 @@
+# =============================================================================
+# Política Canônica de Proveniência e Integridade Experimental — XApp-RDL-F1
+# =============================================================================
+version: "1.0.0"
+policy_name: "H-RDL Scientific Provenance & Evidence Integrity Policy"
+frozen_profile: "HRDL_F1_COMPATIBILITY_PROFILE"
+
+# Fontes exclusivamente autorizadas a alimentar a dissertação, artigos e figuras
+publication_eligible_sources:
+  - NS3_FLOWMONITOR
+  - NORI_E2
+  - SRSRAN_E2
+  - OPEN5GS_CORE
+  - OPENRANBR_TESTBED
+  - UE_TRAFFIC_TRACE
+  - E2_PCAP
+  - HRDL_RUNTIME
+  - ORAN_SC_RIC
+  - SYSTEM_RESOURCE_TRACE
+
+# Fontes restritas a desenvolvimento local, testes unitários e depuração de regressão
+non_publication_sources:
+  - SYNTHETIC
+  - MOCK
+  - CODEC_TEST
+  - LOCAL_GENERATOR
+  - DISCRETE_EVENT_SIMULATOR
+  - EMULATED
+  - MANUAL
+  - ESTIMATED
+  - DEMO_RUN
+
+# Requisitos de Evidência Bruta por Backend Experimental
+backend_evidence_rules:
+  NORI_NS3:
+    required_manifest_fields: ["nori_commit"]
+    required_raw_extensions: [".xml", ".raw"]
+  SRSRAN_OPEN5GS:
+    required_manifest_fields: ["srsran_version", "open5gs_version"]
+    required_raw_extensions: [".pcap", ".log"]
+  OPENRANBR_PHYSICAL:
+    required_manifest_fields: ["srsran_version", "open5gs_version", "testbed_site"]
+    required_raw_extensions: [".pcap", ".log"]
+
+# Os 7 Gates Formais de Evidência Experimental (G0 a G6)
+gates:
+  G0: "Ambiente normativo reproduzível (versões, hashes, build)"
+  G1: "E2SM-KPM real (telemetria externa NORI/srsRAN)"
+  G2: "H-RDL funcional (conflito -> decisão determinística)"
+  G3: "E2SM-RC real (RIC Control + ACK/Failure externo)"
+  G4: "Closed loop causal (KPM_t0 -> H-RDL -> RC -> RAN -> KPM_t1)"
+  G5: "Campanha científica (30 seeds pareadas B0-B3 ou 3 amostras testbed)"
+  G6: "Artifact readiness (reprodução independente ACM SIGSIM / IEEE)"
+
+# Regras de Firewall e Validação
+firewall_rules:
+  no_test_artifacts_in_publication: true
+  derived_metrics_only: true
+  paired_seeds_required: true
+  golden_rule: "resultado_valido <=> backend real identificado + raw evidence + provenance"

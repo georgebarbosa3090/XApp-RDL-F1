@@ -38,18 +38,83 @@ int main (int argc, char *argv[])
     double centralFreq = 3.5e9;
     double bandwidth = 100e6;
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL. Alterar apenas 'simTime' (ex.: 60s) NÃO
+     *    transforma o ns-3 em uma demonstração ao vivo, pois 60s simulados podem rodar em
+     *    8s ou 90s reais dependendo da CPU.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real da máquina (wall-clock): 1s simulado ≈ 1s real.
+     *    É o modo oficial do ns-3 para demonstrações didáticas em bancas e eventos ao vivo.
+     *
+     * 3. Cronograma Específico da Demonstração S7 (Safety Guard / Rogue xApp Rejection):
+     *    - 0–20 s  : Operação normal da rede.
+     *    - 20 s    : Rogue xApp envia ação maliciosa: TX_POWER = 55 dBm e PRB_QUOTA = 250%.
+     *    - 20.005 s: Safety Guard (RefinementAgent) intercepta e bloqueia a ação por violação física.
+     *    - 20.010 s: RICcontrolFailure é retornado com código Out-of-Range Parameter.
+     * =========================================================================================
+     */
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 25.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 25.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlFaultInjection", LOG_LEVEL_INFO);
 
-    NS_LOG_INFO ("Iniciando Cenario S7: Fault / Adversarial Stress");
+    NS_LOG_INFO ("Iniciando Cenario S7: Fault / Adversarial Stress | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
     NS_LOG_INFO ("Injecao de Anomalias: KPM Fora de Ordem, Parametros Ilicitos e Timeout E2");
 
     NodeContainer gNbNodes;

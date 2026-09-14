@@ -1,7 +1,7 @@
 import json
 import os
 from pydantic import BaseModel
-from typing import List
+from typing import List, Any
 
 class XAppConfig(BaseModel):
     name: str
@@ -47,7 +47,17 @@ class AppConfig(BaseModel):
     kpm: KpmConfig
     control: ControlConfig
 
+    def get(self, key: str, default: Any = None) -> Any:
+        if hasattr(self, key):
+            val = getattr(self, key)
+            return val.model_dump() if hasattr(val, 'model_dump') else val
+        return default
+
+
 class ConfigManager:
+    def __init__(self, filepath: str = "configs/config-file.json"):
+        self.filepath = filepath
+
     @staticmethod
     def load_config(filepath: str = "configs/config-file.json") -> AppConfig:
         if not os.path.exists(filepath):
@@ -57,3 +67,7 @@ class ConfigManager:
             data = json.load(f)
             
         return AppConfig(**data)
+
+    def get_config(self) -> AppConfig:
+        return self.load_config(self.filepath)
+

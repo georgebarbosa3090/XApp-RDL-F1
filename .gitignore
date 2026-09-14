@@ -15,6 +15,7 @@ skills/
 *relatorio_extenso*
 *.audit.md
 docs/relatorio_extenso*
+!docs/auditoria/
 
 # 3. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
 experiments/results/rdl_phase2/
@@ -64,6 +65,8 @@ scripts/test_batching.py
 *backup*
 *rollback*
 *sync*
+!docs/compliance/*.md
+
 
 # 7. Byte-compiled / Python Cache / DLLs
 __pycache__/

@@ -38,18 +38,86 @@ int main (int argc, char *argv[])
     double centralFreq = 3.5e9;
     double bandwidth = 100e6;
     bool enableE2Agent = true;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
+    double conflictStart = 10.0;
+    double conflictEnd = 20.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
+    cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);
+    cmd.AddValue ("conflictStart", "Tempo de inicio do conflito (s)", conflictStart);
+    cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.Parse (argc, argv);
+
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE DEMONSTRAÇÕES AO VIVO E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Tempo Virtual vs. Tempo Real:
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL. Alterar apenas 'simTime' (ex.: 60s) NÃO
+     *    transforma o ns-3 em uma demonstração ao vivo, pois 60s simulados podem rodar em
+     *    8s ou 90s reais dependendo da CPU.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real da máquina (wall-clock): 1s simulado ≈ 1s real.
+     *    É o modo oficial do ns-3 para demonstrações didáticas em bancas e eventos ao vivo.
+     *
+     * 3. Cronograma Específico da Demonstração S5 (Handover Ping-Pong Temporal):
+     *    - 10 s : UE -> gNB1
+     *    - 15 s : UE -> zona de overlap
+     *    - 18 s : xApp TS solicita Handover para gNB2
+     *    - 19 s : Outra política solicita Handover de volta para gNB1 (Conflito Temporal)
+     *    - 20 s : H-RDL detecta oscilação ping-pong e ativa o Handover Lock (cooldown)
+     *    - 20-25 s: Período de Cooldown (Handover bloqueado)
+     *    - 25 s : Associação estável mantida na gNB2 (Handover Count=1, Ping-Pong Count=0)
+     * =========================================================================================
+     */
+    if (demoMode == "realtime")
+    {
+        realtime = true;
+        if (simTime == 30.0) simTime = 60.0;
+    }
+    else if (demoMode == "fast")
+    {
+        realtime = false;
+        simTime = 30.0;
+    }
+    else if (demoMode == "experiment")
+    {
+        realtime = false;
+    }
+
+    if (realtime)
+    {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            // HardLimit: aborta a simulação se o atraso exceder a tolerância (padrão: 0.1s)
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
 
     Time::SetResolution (Time::NS);
     LogComponentEnable ("ScenarioRdlTemporalPingPong", LOG_LEVEL_INFO);
 
-    NS_LOG_INFO ("Iniciando Cenario S5: Temporal Ping-Pong / Conflito Temporal");
+    NS_LOG_INFO ("Iniciando Cenario S5: Temporal Ping-Pong / Conflito Temporal | Modo Demo: " << demoMode << " | Realtime: " << (realtime ? "Sim (" + syncMode + ")" : "Nao"));
     NS_LOG_INFO ("Objetivo: Avaliar amortecimento de oscilacoes e estabilizacao temporal");
 
     NodeContainer gNbNodes;

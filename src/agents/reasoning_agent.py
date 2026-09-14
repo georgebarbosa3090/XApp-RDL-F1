@@ -1,4 +1,4 @@
-﻿from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Tuple, Dict, Any, Optional
 from src.conflict_types import ConflictEvent, ResolutionAction, ResolutionStrategy, XAppAction, KPMReport
 from src.infrastructure.sdl_repository import SdlRepository
 import math

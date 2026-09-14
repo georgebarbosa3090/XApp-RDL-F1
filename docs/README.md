@@ -102,7 +102,28 @@ graph TD
 
 ---
 
+### 8. Relatórios de Auditoria Técnica e Científica
+* **[Auditoria Técnica e Científica do XApp-RDL-F1](auditoria/auditoria_tecnica_e_cientifica_xapp_rdl_f1.md)**: Avaliação técnica detalhada da maturidade L3/L4/L5 do projeto, regras formais de proveniência de dados, conformidade dos 4 Gates de interoperabilidade E2/O-RAN e direcionamentos científicos.
+
+---
+
+### 9. Programa de Conformidade O-RAN e Integridade Experimental
+* **[Diretório de Conformidade (docs/compliance/README.md)](compliance/README.md)**: 
+  - **[Perfil de Compatibilidade Congelado (H-RDL F1 Profile)](compliance/HRDL_F1_COMPATIBILITY_PROFILE.md)**
+  - **[Matriz de Rastreabilidade O-RAN (WG2/WG3 / Gates 0-6)](compliance/ORAN_TRACEABILITY_MATRIX.md)**
+  - **[Perfil de Implantação O-RAN SC Release J](compliance/ORAN_SC_IMPLEMENTATION_PROFILE.md)**
+  - **[Política de Evidência Experimental e Proveniência](compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)**
+  - **[Roadmap de Migração para O-RAN Release 5](compliance/MIGRATION_RELEASE5.md)**
+
+---
+
+### 10. Programa e Roadmap Estratégico de Pesquisa (2026–2028)
+* **[Programa e Roadmap Estratégico de Pesquisa (docs/roadmap_pesquisa_2026_2028_hrdl_cardl.md)](roadmap_pesquisa_2026_2028_hrdl_cardl.md)**: Planejamento formal em 24 meses (Set/2026 a Set/2028) para evolução H-RDL $\rightarrow$ CA-RDL, matriz formal de 95% de conformidade, campanha de 2.130+ runs pareados, validação cross-backend e portfólio de 9 publicações científicas (SBRC, SBrT, CNSM, IEEE TNSM, IEEE TCCN).
+
+---
+
 ## Trilhas de Leitura Recomendadas
+
 
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |

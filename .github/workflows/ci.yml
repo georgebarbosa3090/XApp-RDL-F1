@@ -1,4 +1,4 @@
-name: CI - RDL xApp
+name: CI-Software - RDL xApp
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  software-test:
     runs-on: ubuntu-latest
     
     steps:
@@ -23,7 +23,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt -r requirements-dev.txt
         
+    - name: Syntax & Smoke Import Check
+      run: |
+        python -m compileall -q src scripts
+        python -c "from src.rdl_xapp import RDLxApp; print('[OK] Smoke Import Clean')"
+
     - name: Run Codec & Golden Vector tests
+
       run: |
         pytest tests/codec/ -v
         
@@ -39,8 +45,16 @@ jobs:
       run: |
         pytest tests/interoperability/ -v
 
+    - name: Run Zero-Synthetic Audit
+      run: |
+        python scripts/check_no_synthetic_results.py
+
+    - name: Output Software Status
+      run: |
+        echo "=== SOFTWARE PASS ==="
+
   docker-build:
-    needs: test
+    needs: software-test
     runs-on: ubuntu-latest
     
     steps:
@@ -49,4 +63,5 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t iqos-xapp-rdl:1.1.0 -f docker/Dockerfile .
+
 

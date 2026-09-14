@@ -29,6 +29,7 @@ securityContext:
       - ALL
 
 env:
+  rdlMode: "oran-strict"
   useFakeSdl: "false"
   rmrSeedRt: "/app/configs/routes.rt"
   configFile: "/app/configs/config-file.json"

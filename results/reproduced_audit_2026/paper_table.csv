@@ -1,5 +1,0 @@
-Method,Latency_Mean_ms,Latency_P99_ms,Throughput_Mbps,Jain_Fairness,SLA_Violations_Pct,CRE_Pct
-B0 (Sem RDL / Conflito Direto),12.67 ± 1.91,144.06,155.25 ± 24.63,0.1444,100.0%,0.0%
-B1 (Heurística FIFO),7.32 ± 0.94,45.44,420.44 ± 37.08,0.4793,35.0%,55.0%
-B2 (Static Quotas),5.14 ± 0.48,18.04,673.11 ± 47.17,0.7194,12.0%,78.0%
-B3: H-RDL Fase 1 (Governança + Closed-Loop),2.85 ± 0.16,3.04,1117.08 ± 43.43,0.9175,0.0%,100.0%

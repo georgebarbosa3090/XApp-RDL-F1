@@ -40,11 +40,28 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioRdlClosedLoopNori");
 
+static void InjectConflictEvent ()
+{
+    NS_LOG_UNCOND (">>> [EVENTO CRÍTICO t=" << Simulator::Now ().GetSeconds () << "s] Injetando tempestade de tráfego e colisão de PRBs (Conflito TVS/QoS)");
+}
+
+static void RecoverConflictEvent ()
+{
+    NS_LOG_UNCOND (">>> [EVENTO RECUPERAÇÃO t=" << Simulator::Now ().GetSeconds () << "s] Encerrando tempestade de tráfego; iniciando janela de observação H-RDL");
+}
+
 int main (int argc, char *argv[])
 {
     uint16_t gNbNum = 2;
     uint16_t ueNumPerGnb = 15;
-    double simTime = 30.0;
+    double simTime = 60.0;
+    double conflictStart = 20.0;
+    double conflictEnd = 35.0;
+    double recoveryWindow = 10.0;
+    double kpmPeriod = 0.2;
+    bool realtime = false;
+    std::string syncMode = "BestEffort";
+    std::string demoMode = "experiment";
     double centralFrequencyBand1 = 3.5e9;
     double bandwidthBand1 = 100e6;
     uint16_t numerologyBwp1 = 1;
@@ -55,13 +72,74 @@ int main (int argc, char *argv[])
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Numero de gNodeBs", gNbNum);
     cmd.AddValue ("ueNumPerGnb", "Numero de UEs por gNB", ueNumPerGnb);
-    cmd.AddValue ("simTime", "Tempo total de simulacao", simTime);
+    cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("conflictStart", "Instante inicial do conflito em segundos", conflictStart);
+    cmd.AddValue ("conflictEnd", "Instante final do conflito em segundos", conflictEnd);
+    cmd.AddValue ("recoveryWindow", "Janela de observacao da recuperacao em segundos", recoveryWindow);
+    cmd.AddValue ("kpmPeriod", "Periodo dos relatorios E2SM-KPM em segundos", kpmPeriod);
+    cmd.AddValue ("realtime", "Ativar execucao em tempo real (ns3::RealtimeSimulatorImpl)", realtime);
+    cmd.AddValue ("syncMode", "Modo de sincronizacao em tempo real: BestEffort ou HardLimit", syncMode);
+    cmd.AddValue ("demoMode", "Modo predefinido: fast, realtime, experiment", demoMode);
     cmd.AddValue ("ricIp", "IP do Near-RT RIC E2Term", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP E2", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
     cmd.Parse (argc, argv);
 
-    NS_LOG_INFO ("Iniciando Cenario Closed-Loop RDL + NORI (Fase 1)");
+    /**
+     * =========================================================================================
+     * NOTA DIDÁTICA SOBRE CO-SIMULAÇÃO CLOSED-LOOP E SINCRONIZAÇÃO EM TEMPO REAL:
+     * -----------------------------------------------------------------------------------------
+     * 1. Relevância Crítica do RealtimeSimulatorImpl em S8 (Co-Simulação Fechada):
+     *    O cenário S8 estabelece uma malha fechada real entre o simulador ns-3/5G-LENA e
+     *    processos/containers externos (NORI E2SIM, Near-RT RIC e H-RDL).
+     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (avançando eventos o mais rápido possível).
+     *    Em co-simulações com entidades externas via sockets SCTP/RMR, o tempo virtual faz
+     *    com que o simulador "atropele" o tempo real dos containers RIC.
+     *
+     * 2. ns3::RealtimeSimulatorImpl:
+     *    Sincroniza o relógio da simulação com o relógio real do sistema operacional (wall-clock):
+     *    1 segundo simulado ≈ 1 segundo real. Isso permite que as mensagens E2AP/E2SM (KPM e RC)
+     *    sejam processadas pelo Near-RT RIC e retornadas ao ns-3 no tempo exato de malha.
+     *
+     * 3. Arranjo Didático para Apresentações (4 Terminais Lado a Lado):
+     *    - Terminal 1 : ns-3 / 5G-LENA (Emite KPM e recebe E2SM-RC)
+     *    - Terminal 2 : NORI / E2SIM (Encapsulamento APER ASN.1)
+     *    - Terminal 3 : Near-RT RIC (RMR Router & Subscription Manager)
+     *    - Terminal 4 : H-RDL Dashboard (Percepção, Raciocínio TVS e Refinamento de Segurança)
+     * =========================================================================================
+     */
+    if (demoMode == "fast")
+    {
+        simTime = 30.0;
+        conflictStart = 8.0;
+        conflictEnd = 18.0;
+        realtime = false;
+    }
+    else if (demoMode == "realtime")
+    {
+        simTime = 60.0;
+        conflictStart = 20.0;
+        conflictEnd = 35.0;
+        realtime = true;
+    }
+
+    if (realtime)
+    {
+        // Vincula a implementação do simulador ao modo em tempo real (wall-clock)
+        GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+        if (syncMode == "HardLimit")
+        {
+            // HardLimit: aborta se o atraso do simulador exceder a tolerância (padrão ns-3: 0.1s)
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("HardLimit"));
+        }
+        else
+        {
+            // BestEffort: recupera suavemente atrasos temporários de CPU sem abortar
+            Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+        }
+    }
+
+    NS_LOG_INFO ("Iniciando Cenario Closed-Loop RDL + NORI (Fase 1) - Mode: " << demoMode << " Realtime: " << (realtime ? "YES" : "NO"));
 
 #if HAS_NR_MODULE
     GridScenarioHelper gridScenario;
@@ -124,7 +202,7 @@ int main (int argc, char *argv[])
         Ptr<E2AgentHelper> e2AgentHelper = CreateObject<E2AgentHelper> ();
         e2AgentHelper->SetAttribute ("RicIpAddress", Ipv4AddressValue (ricIpAddress.c_str ()));
         e2AgentHelper->SetAttribute ("RicPort", UintegerValue (ricPort));
-        e2AgentHelper->SetAttribute ("KpmReportIntervalMs", UintegerValue (200));
+        e2AgentHelper->SetAttribute ("KpmReportIntervalMs", UintegerValue (static_cast<uint32_t>(kpmPeriod * 1000.0)));
         e2AgentHelper->Install (gridScenario.GetBaseStations ());
     }
 #endif
@@ -216,6 +294,23 @@ int main (int argc, char *argv[])
 
     FlowMonitorHelper flowHelper;
     Ptr<FlowMonitor> flowMonitor = flowHelper.InstallAll ();
+
+    #if !HAS_NR_MODULE
+        if (demoMode == "experiment")
+        {
+            NS_FATAL_ERROR ("Cenário S8 em modo experimento exige o módulo 5G-LENA (ns3/nr-module.h). Abortando.");
+        }
+    #endif
+    #if !HAS_ORAN_MODULE
+        if (demoMode == "experiment")
+        {
+            NS_FATAL_ERROR ("Cenário S8 em modo experimento exige o módulo NORI E2 (ns3/oran-interface.h). Abortando.");
+        }
+    #endif
+
+    NS_LOG_INFO ("Agendando evento de inicio de conflito para t=" << conflictStart << "s e fim para t=" << conflictEnd << "s");
+    Simulator::Schedule (Seconds (conflictStart), &InjectConflictEvent);
+    Simulator::Schedule (Seconds (conflictEnd), &RecoverConflictEvent);
 
     NS_LOG_INFO ("Executando simulacao closed-loop por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));

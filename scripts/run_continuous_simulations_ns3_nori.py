@@ -53,65 +53,26 @@ def log_section(title: str):
     print(f" {title}")
     print("=" * 80)
 
-def generate_flowmonitor_xml(file_path: str, flows_data: List[Dict[str, Any]], duration_sec: float = 30.0):
-    """Gera arquivo XML estritamente em conformidade com o formato nativo do FlowMonitor do ns-3."""
-    flow_monitor = ET.Element("FlowMonitor")
-    flow_stats = ET.SubElement(flow_monitor, "FlowStats")
-    ipv4_classifier = ET.SubElement(flow_monitor, "Ipv4FlowClassifier")
-    
-    for f in flows_data:
-        flow_id = str(f["flow_id"])
-        tx_pkts = int(f["tx_pkts"])
-        rx_pkts = int(f["rx_pkts"])
-        lost_pkts = int(f["lost_pkts"])
-        tx_bytes = tx_pkts * f.get("packet_size_bytes", 1024)
-        rx_bytes = rx_pkts * f.get("packet_size_bytes", 1024)
-        mean_delay_ms = f["mean_delay_ms"]
-        delay_sum_ns = int(mean_delay_ms * 1e6 * max(1, rx_pkts))
-        jitter_sum_ns = int(f.get("jitter_ms", 0.15) * 1e6 * max(1, rx_pkts))
-        last_delay_ns = int(mean_delay_ms * 1e6)
-        
-        flow_elem = ET.SubElement(flow_stats, "Flow", {
-            "flowId": flow_id,
-            "timeFirstTxPacket": "+1000000000.0ns",
-            "timeFirstRxPacket": f"+{int(1e9 + mean_delay_ms * 1e6)}.0ns",
-            "timeLastTxPacket": f"+{int((duration_sec - 1.0) * 1e9)}.0ns",
-            "timeLastRxPacket": f"+{int((duration_sec - 1.0) * 1e9 + mean_delay_ms * 1e6)}.0ns",
-            "delaySum": f"+{delay_sum_ns}.0ns",
-            "jitterSum": f"+{jitter_sum_ns}.0ns",
-            "lastDelay": f"+{last_delay_ns}.0ns",
-            "txBytes": str(tx_bytes),
-            "rxBytes": str(rx_bytes),
-            "txPackets": str(tx_pkts),
-            "rxPackets": str(rx_pkts),
-            "lostPackets": str(lost_pkts),
-            "timesForwarded": "0"
-        })
-        
-        # Histograma de atraso em 10 bins
-        hist = ET.SubElement(flow_elem, "delayHistogram", {"nBins": "10"})
-        for b in range(10):
-            ET.SubElement(hist, "bin", {
-                "index": str(b),
-                "start": f"{b * 0.5:.1f}",
-                "width": "0.5",
-                "count": str(int(rx_pkts / 10))
+def parse_real_flowmonitor_xml(file_path: str) -> List[Dict[str, Any]]:
+    """Lê e decodifica o arquivo XML bruto gerado nativamente pelo FlowMonitor do ns-3."""
+    if not os.path.exists(file_path):
+        return []
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    flows = []
+    flow_stats = root.find("FlowStats")
+    if flow_stats is not None:
+        for flow in flow_stats.findall("Flow"):
+            flows.append({
+                "flow_id": int(flow.attrib.get("flowId", 0)),
+                "tx_bytes": int(flow.attrib.get("txBytes", 0)),
+                "rx_bytes": int(flow.attrib.get("rxBytes", 0)),
+                "tx_pkts": int(flow.attrib.get("txPackets", 0)),
+                "rx_pkts": int(flow.attrib.get("rxPackets", 0)),
+                "lost_pkts": int(flow.attrib.get("lostPackets", 0)),
+                "delay_sum_ns": float(flow.attrib.get("delaySum", "+0.0ns").rstrip("ns").lstrip("+"))
             })
-            
-        src_ip = f"10.1.{int(f['flow_id']) // 15 + 1}.1"
-        dst_ip = f"10.1.{int(f['flow_id']) // 15 + 1}.{int(f['flow_id']) % 15 + 2}"
-        ET.SubElement(ipv4_classifier, "Flow", {
-            "flowId": flow_id,
-            "sourceAddress": src_ip,
-            "destinationAddress": dst_ip,
-            "protocol": "17", # UDP
-            "sourcePort": "49153",
-            "destinationPort": "1234"
-        })
-        
-    xml_str = minidom.parseString(ET.tostring(flow_monitor)).toprettyxml(indent="  ")
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(xml_str)
+    return flows
 
 # ========================================================================================
 # SIMULAÇÃO 1: Cenário TVS Conflict (Traffic Steering vs QoS Slicing)
@@ -179,9 +140,8 @@ def run_simulation_1_tvs() -> Dict[str, Any]:
     xml_tvs_rdl = os.path.join(RESULTS_DIR, "rdl_phase1", "flowmonitor_results.xml")
     xml_tvs_specific = os.path.join(RESULTS_DIR, "sim1_tvs_conflict_flowmonitor.xml")
     
-    generate_flowmonitor_xml(xml_tvs_base, flows_baseline, duration)
-    generate_flowmonitor_xml(xml_tvs_rdl, flows_rdl, duration)
-    generate_flowmonitor_xml(xml_tvs_specific, flows_rdl, duration)
+    # Valida presença de arquivos XML reais do FlowMonitor se existirem
+    flows_parsed = parse_real_flowmonitor_xml(xml_tvs_rdl)
     
     print(f" [RESULTADOS SIMULAÇÃO 1 - TVS CONFLICT]")
     print(f"  - Latência Média URLLC: Baseline = {m_base['urllc_latency_mean_ms']} ms | H-RDL = {m_rdl['urllc_latency_mean_ms']} ms")
@@ -223,7 +183,7 @@ def run_simulation_2_energy() -> Dict[str, Any]:
         })
 
     xml_energy = os.path.join(RESULTS_DIR, "sim2_energy_qos_flowmonitor.xml")
-    generate_flowmonitor_xml(xml_energy, flows_energy, duration)
+    flows_parsed = parse_real_flowmonitor_xml(xml_energy)
     
     base_power_dbm = 43.0
     rdl_power_dbm = 33.5
@@ -299,7 +259,7 @@ def run_simulation_3_closed_loop_multi_seed(n_seeds: int = 30) -> Dict[str, Any]
     df.to_csv(csv_multi_path, index=False)
     
     xml_closed_loop = os.path.join(RESULTS_DIR, "sim3_closed_loop_flowmonitor.xml")
-    generate_flowmonitor_xml(xml_closed_loop, [{"flow_id": 1, "slice_type": "URLLC", "tx_pkts": 1000, "rx_pkts": 1000, "lost_pkts": 0, "mean_delay_ms": 10.0}], 30.0)
+    flows_parsed = parse_real_flowmonitor_xml(xml_closed_loop)
 
     base_df = df[df["scenario"] == "Baseline"]
     rdl_df = df[df["scenario"] == "RDL_Phase1"]

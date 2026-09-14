@@ -27,14 +27,16 @@ spec:
         image: iqos-xapp-rdl:1.1.0
         imagePullPolicy: Never
         env:
+        - name: RDL_MODE
+          value: "oran-strict"
         - name: USE_FAKE_SDL
-          value: "true"
+          value: "false"
         - name: RMR_SEED_RT
           value: "/app/configs/routes.rt"
         - name: CONFIG_FILE
           value: "/app/configs/config-file.json"
         - name: RMR_WAIT_FOR_READY
-          value: "false"
+          value: "true"
         - name: LOG_LEVEL
           value: "INFO"
         - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_HTTP_SERVICE_HOST

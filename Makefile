@@ -39,11 +39,17 @@ test-interop:
 generate-golden-vectors:
 	python scripts/generate_golden_vectors.py
 
-reproduce-paper:
-	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir results/reproduced_audit_2026
+verify-no-synthetic:
+	python scripts/check_no_synthetic_results.py
 
-verify-provenance:
-	python scripts/verify_provenance_and_integrity.py
+verify-provenance: verify-no-synthetic
+	python scripts/validate_provenance.py
+
+gate1-check:
+	python scripts/validate_experiment_tree.py --check-gate1
+
+reproduce-paper: verify-no-synthetic gate1-check
+	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir experiments/runs/reproduced_audit_2026
 
 test-campaign:
 	pytest tests/unit/test_campaign_scenarios.py -v
@@ -176,7 +182,17 @@ test-f2:
 	@echo "\nMétricas Prometheus:"
 	@curl -s http://localhost:8081/metrics | grep -E "rdl_|marl_" || true
 
+sync-f1-f2-check:
+	@echo "=== Validação de Sincronização e Compatibilidade H-RDL (F1) <-> CA-RDL (F2) ==="
+	@python scripts/verify_f1_f2_cross_repo_sync.py
+	@python scripts/check_no_synthetic_results.py
+	@python scripts/validate_provenance.py
+	@pytest tests/unit/test_conflict_detection.py tests/unit/test_safety_guards.py -v
+	@echo "[OK] Contrato de Sincronização F1 <-> F2 Validado com Sucesso!"
+
+
 helm-package:
+
 	@echo "Validando e empacotando os 4 Helm Charts..."
 	helm lint deploy/helm/iqos-xapp-rdl
 	helm lint deploy/helm/xapp-qos-xslice
