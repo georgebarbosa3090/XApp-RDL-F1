@@ -11,25 +11,40 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
     
     - name: Set up Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
         
+    - name: Install RMR C Libraries
+      run: |
+        sudo apt-get update && sudo apt-get install -y --no-install-recommends curl dpkg gcc python3-dev
+        curl -sL https://packagecloud.io/o-ran-sc/release/packages/debian/stretch/rmr_4.9.0_amd64.deb/download.deb -o rmr_4.9.0_amd64.deb || true
+        if [ -s rmr_4.9.0_amd64.deb ]; then sudo dpkg -i --force-depends rmr_4.9.0_amd64.deb || sudo apt-get install -f -y; fi
+        curl -sL https://packagecloud.io/o-ran-sc/release/packages/debian/stretch/rmr-dev_4.9.0_amd64.deb/download.deb -o rmr-dev_4.9.0_amd64.deb || true
+        if [ -s rmr-dev_4.9.0_amd64.deb ]; then sudo dpkg -i --force-depends rmr-dev_4.9.0_amd64.deb || sudo apt-get install -f -y; fi
+        sudo ldconfig || true
+        rm -f *.deb
+        
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements.txt -r requirements-dev.txt
+        pip install pytest pytest-cov pytest-env pyyaml pyright
         
     - name: Syntax & Smoke Import Check
       run: |
         python -m compileall -q src scripts
         python -c "from src.rdl_xapp import RDLxApp; print('[OK] Smoke Import Clean')"
 
-    - name: Run Codec & Golden Vector tests
+    - name: Run Pyright Static Audit
+      run: |
+        python scripts/run_pyright_check.py
 
+    - name: Run Codec & Golden Vector tests
       run: |
         pytest tests/codec/ -v
         
@@ -49,6 +64,14 @@ jobs:
       run: |
         python scripts/check_no_synthetic_results.py
 
+    - name: Run Full Test Suite with Coverage
+      env:
+        PYTHONPATH: .
+        USE_FAKE_SDL: "True"
+        LD_LIBRARY_PATH: "/usr/local/lib:/usr/lib"
+      run: |
+        pytest tests/ --cov=src --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=85 -v
+
     - name: Output Software Status
       run: |
         echo "=== SOFTWARE PASS ==="
@@ -58,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Build Docker image
       run: |

@@ -168,8 +168,10 @@ class NoriBackendAdapter(RANBackendAdapter):
                 if isinstance(decoded, dict):
                     st = decoded.get("status", "ACKNOWLEDGED")
                     return {
-                        "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
+                        "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "ACK_RECEIVED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
                         "backend": "NORI_NS3",
+                        "requestor_id": decoded.get("requestor_id", 1),
+                        "instance_id": decoded.get("instance_id", 1),
                         "details": decoded,
                         "raw_decoded": False
                     }
@@ -271,8 +273,10 @@ class SrsRanBackendAdapter(RANBackendAdapter):
                 if isinstance(decoded, dict):
                     st = decoded.get("status", "ACKNOWLEDGED")
                     return {
-                        "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
+                        "status": "ACK_RECEIVED" if st in ("ACKNOWLEDGED", "ACK_RECEIVED", "OK", "SUCCESS") else "FAILURE_RECEIVED",
                         "backend": "SRSRAN_OPEN5GS",
+                        "requestor_id": decoded.get("requestor_id", 1),
+                        "instance_id": decoded.get("instance_id", 1),
                         "details": decoded,
                         "raw_decoded": False
                     }

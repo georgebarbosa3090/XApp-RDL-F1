@@ -1,11 +1,21 @@
 {
+  "include": [
+    "src",
+    "tests"
+  ],
+  "exclude": [
+    "**/.venv",
+    "**/.pytest_cache",
+    "**/__pycache__",
+    "experiments",
+    "reproducibility"
+  ],
   "extraPaths": [
     ".",
     "src"
   ],
-  "venvPath": "C:\\Users\\georg\\XApp-RDL-F1",
-  "venv": ".venv",
   "pythonVersion": "3.10",
   "typeCheckingMode": "basic",
   "reportMissingImports": false
 }
+

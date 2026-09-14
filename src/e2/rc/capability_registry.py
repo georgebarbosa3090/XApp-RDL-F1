@@ -161,7 +161,13 @@ class RanFunctionCapabilityRegistry:
             p = RAN_PARAMETERS[param_name]
             return 1, 1, p.param_id
 
-        raise ValueError(f"Parâmetro '{param_name}' não suportado nas capacidades E2SM-RC do nó '{node_id}'")
+    def is_action_supported(self, node_id: str, param_name: str) -> bool:
+        """Verifica se uma determinada ação/parâmetro é suportada pelo nó."""
+        if node_id in self._node_capabilities:
+            return param_name in self._node_capabilities[node_id]
+        if not self.is_strict_mode():
+            return param_name in self._default_capabilities
+        return False
 
 # Instância Singleton do Registry
 rc_capability_registry = RanFunctionCapabilityRegistry()

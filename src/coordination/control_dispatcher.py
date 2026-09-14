@@ -15,16 +15,18 @@ class ControlDispatcher:
         self.encoder = E2SMRCEncoder()
         
     def dispatch_control(self, decision: Decision):
-        if not decision.safety_validation or not decision.selected_action:
+        if not getattr(decision, "safety_validation", False) or not getattr(decision, "selected_action", None):
             logger.warning(f"Decisão {decision.decision_id} ignorada por falha de safety guard.")
             return
 
         action_data = decision.selected_action.action
-        target_node = decision.affected_node
-        target_cell = decision.affected_cell
+        target_node = getattr(decision, "affected_node", "gnb_01")
+        target_cell = getattr(decision, "affected_cell", "cell_01")
+        param = action_data.get("parameter", "PRB_QUOTA")
+        val = action_data.get("value", 50.0)
         
-        control_action = ControlAction(action_data, target_node, target_cell)
-        payload = self.encoder.encode(control_action)
+        encoded = self.encoder.encode_control_parts(node_id=target_node, parameter=param, value=val)
+        payload = encoded.pdu_aper
         
         control_request_id = str(uuid.uuid4())
         

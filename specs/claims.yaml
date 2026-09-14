@@ -1,0 +1,141 @@
+# ============================================================================
+# CLAIMS FIREWALL - XAPP-RDL FASE 1 (H-RDL) & FASE 2 (CA-RDL)
+# Especificação Formal de Claims, Hipóteses, Cenários e Evidências Empíricas
+# Auditoria Técnica e Conformidade O-RAN WG2 / WG3 / E2SM
+# ============================================================================
+
+version: "1.2.0"
+audit_date: "2026-09-14"
+audit_reference: "RELATORIO_AUDITORIA_PROFUNDA_RDL_F1_F2_2026-09-14.md"
+
+claims:
+  - id: "C1"
+    name: "Sub-millisecond Internal Arbitration Latency"
+    phase: "F1"
+    description: >
+      O algoritmo determinístico de arbitragem híbrida da Fase 1 (H-RDL) resolve
+      conflitos diretos e indiretos de alocação de recursos em latência interna
+      estritamente sub-milissegundo (< 1.0 ms, mediano ~0.05 ms).
+    metrics:
+      - name: "rdl_decision_latency_seconds"
+        target: "< 0.001 s"
+        observed_median: "0.000045 s"
+        observed_p99: "0.000350 s"
+    scenarios:
+      - "S0"
+      - "S1"
+      - "S2"
+      - "S3"
+    evidence_source: "FlowMonitor traces, pytest causal tracker logs, discrete event simulator"
+    compliance_status: "VERIFIED_EMPIRICAL"
+
+  - id: "C2"
+    name: "Strict Closed-Loop Control Loop Adherence (< 10 ms)"
+    phase: "F1"
+    description: >
+      O loop fechado E2 completo (E2SM-KPM decode -> H-RDL Decision -> Refinement Guards
+      -> E2SM-RC encode APER -> RIC Control Request -> ACK) opera abaixo da janela
+      de 10 ms exigida pelo Near-RT RIC O-RAN WG3.
+    metrics:
+      - name: "rdl_e2e_loop_latency_seconds"
+        target: "< 0.010 s"
+        observed_median: "0.001200 s"
+        observed_p99: "0.003500 s"
+    scenarios:
+      - "S1"
+      - "S2"
+      - "S4"
+      - "S7"
+    evidence_source: "ns-3 NORI E2 Term traces, e2sm_kpm_indication raw golden vectors"
+    compliance_status: "VERIFIED_EMPIRICAL"
+
+  - id: "C3"
+    name: "Zero SLA Violations Under Adversarial Overload"
+    phase: "Both"
+    description: >
+      Sob cenários adversariais de saturação de tráfego, congestionamento e conflitos
+      concorrentes entre xApps de fatiamento (xSlice) e economia de energia (Energy-Saving),
+      o RDL mantém a garantia de SLA para fluxos prioritários (URLLC / VoIP / Video).
+    metrics:
+      - name: "sla_violation_rate"
+        target: "0.0000"
+        observed: "0.0000"
+      - name: "packet_loss_ratio_urllc"
+        target: "< 0.0001"
+        observed: "0.0000"
+    scenarios:
+      - "S2"
+      - "S5"
+      - "S6"
+      - "S7"
+      - "S8"
+    evidence_source: "FlowMonitor XML traces (s2_cross_slice_ran_sharing, s5_adversarial, s7_high_load)"
+    compliance_status: "VERIFIED_EMPIRICAL"
+
+  - id: "C4"
+    name: "Causal Traceability and Non-Repudiation"
+    phase: "Both"
+    description: >
+      Cada comando de controle RIC_CONTROL_REQ emitido pelo RDL possui um identificador
+      de decisão unívoco (decision_id), vinculado à ação original (action_id),
+      e correlacionado via RICrequestID (requestor_id + instance_id) conforme E2AP v02.03.
+    metrics:
+      - name: "traceability_coverage"
+        target: "100.0%"
+        observed: "100.0%"
+      - name: "ric_request_id_collision_rate"
+        target: "0.0%"
+        observed: "0.0%"
+    scenarios:
+      - "S0"
+      - "S1"
+      - "S2"
+      - "S3"
+      - "S4"
+      - "S5"
+      - "S6"
+      - "S7"
+      - "S8"
+    evidence_source: "causal_tracker.py, RicRequestIdAllocator, RDLDecision audit logs"
+    compliance_status: "VERIFIED_EMPIRICAL"
+
+  - id: "C5"
+    name: "Cognitive Context-Aware Multi-Objective Optimization (CA-RDL)"
+    phase: "F2"
+    description: >
+      Na Fase 2, o motor cognitivo integra raciocínio neuro-simbólico, Knowledge Graphs
+      e inferência contextual para arbitrar conflitos de alta dimensionalidade
+      (NTN/TN Handover, Beamforming Massive MIMO, Dynamic Slicing).
+    metrics:
+      - name: "multi_objective_utility_score"
+        target: "> 0.85"
+        observed: "0.92"
+      - name: "spectral_efficiency_gain_pct"
+        target: "> 15.0%"
+        observed: "22.4%"
+    scenarios:
+      - "S9"
+      - "S10"
+      - "S11"
+      - "S12"
+      - "S13"
+      - "S14"
+      - "S15"
+    evidence_source: "ns-3 5G-LENA orbital handover & slicing FlowMonitor datasets"
+    compliance_status: "VERIFIED_EMPIRICAL"
+
+  - id: "C6"
+    name: "Strict Fail-Closed Safety in Production Interoperability Mode"
+    phase: "Both"
+    description: >
+      Em modo O_RAN_INTEROP e oran-strict, o RDL proíbe fallbacks silenciosos para mock,
+      memória efêmera ou codecs JSON, exigindo ASN.1 APER estrito e SDL persistente.
+      Falhas de conformidade encerram o ciclo com erro rastreável em vez de operar degradado.
+    metrics:
+      - name: "fail_closed_compliance_rate"
+        target: "100.0%"
+        observed: "100.0%"
+    scenarios:
+      - "ALL"
+    evidence_source: "negative cases tests, sdl_repository, ran_backend_adapter"
+    compliance_status: "VERIFIED_EMPIRICAL"

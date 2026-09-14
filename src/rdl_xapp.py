@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional, Tuple
 try:
     from ricxappframe.xapp_frame import RMRXapp, Xapp
     _HAS_RICXAPPFRAME = True
-except ImportError:
+except (ImportError, OSError, Exception):
     _HAS_RICXAPPFRAME = False
     class RMRXapp:  # type: ignore
         """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
@@ -97,7 +97,13 @@ class RDLxApp:
         if use_fake_sdl:
             self.memory = MemoryModule()
         else:
-            self.memory = SdlRepository()
+            try:
+                self.memory = SdlRepository()
+            except Exception as exc:
+                if self.oran_strict:
+                    raise RuntimeError("SDL/DBaaS obrigatório no modo O_RAN_INTEROP; fallback local proibido.") from exc
+                logger.warning("SDL indisponível no ambiente local. Utilizando MemoryModule.")
+                self.memory = MemoryModule()
             
         self.perception = PerceptionAgent()
         self.reasoning = ReasoningAgent(self.memory, config={})
@@ -355,7 +361,7 @@ class RDLxApp:
 
         # 4. Despacho de Controle para Ações Admitidas
         for act in all_selected:
-            self._send_control(act.node_id, act.parameter, act.value, decision_id=decision.decision_id)
+            self._send_control(act.node_id, act.parameter, act.value, action=act, decision_id=decision.decision_id)
 
     def _decision_loop(self):
         while self.running:
@@ -374,14 +380,19 @@ class RDLxApp:
                         # Processa fora do lock para nao travar RMR
                         threading.Thread(target=self._process_action_group, args=(actions_to_process,), daemon=True).start()
 
-    def _send_control(self, node_id: str, parameter: str, value: float, decision_id: Optional[str] = None):
+    def _send_control(self, node_id: str, parameter: str, value: float, action: Optional[XAppAction] = None, decision_id: Optional[str] = None):
         try:
-            action = XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
+            target_action = action or XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
             ran_fn_id = 3
-            req_id_obj = self.allocator.allocate(node_id=node_id, ran_function_id=ran_fn_id, decision_id=decision_id)
+            req_id_obj = self.allocator.allocate(
+                node_id=node_id,
+                ran_function_id=ran_fn_id,
+                decision_id=decision_id,
+                action_id=getattr(target_action, "action_id", None)
+            )
             requestor_id = req_id_obj.requestor_id
             instance_id = req_id_obj.instance_id
-            aper_payload = self.backend.map_action_to_control_pdu(action, requestor_id=requestor_id, instance_id=instance_id)
+            aper_payload = self.backend.map_action_to_control_pdu(target_action, requestor_id=requestor_id, instance_id=instance_id)
             
             tx_id = str(uuid.uuid4())[:8]
             ric_req_key = (node_id, ran_fn_id, requestor_id, instance_id)
@@ -396,9 +407,13 @@ class RDLxApp:
                 payload_dict = {
                     "transaction_id": tx_id,
                     "decision_id": decision_id,
+                    "action_id": getattr(target_action, "action_id", ""),
                     "node_id": node_id,
                     "parameter": parameter,
                     "value": value,
+                    "requestor_id": requestor_id,
+                    "instance_id": instance_id,
+                    "ran_function_id": ran_fn_id,
                     "aper_bytes": aper_payload.hex() if isinstance(aper_payload, bytes) else str(aper_payload)
                 }
                 payload_bytes = json.dumps(payload_dict).encode('utf-8')
@@ -407,7 +422,7 @@ class RDLxApp:
             logger.error(f"Falha ao gerar APER Control via backend {self.backend.metadata.backend_id}: {e}")
             success = False
         if success:
-            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id)
+            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id, action_id=getattr(action, "action_id", None))
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
 
