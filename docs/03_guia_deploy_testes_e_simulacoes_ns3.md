@@ -929,9 +929,39 @@ bash simulations/ns3/run_all_s0_s15_simulations.sh S1
 
 ---
 
-## 15. Próximo Passo Sequencial
+## 15. Diretriz Inviolável: Zero Dados Sintéticos e Proveniência Estrita do ns-3 FlowMonitor
+
+É expressamente proibido utilizar simuladores discretos simplificados ou parâmetros estáticos para produzir dados científicos. Todos os datasets, métricas de SLA, vazão, perdas de pacotes e latência de rádio devem ser **obrigatoriamente exportados pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1 / NORI)** a partir dos códigos-fonte C++ (`simulations/ns3/*.cc`).
+
+### Compilação do Relatório Markdown a partir dos Traces XML do FlowMonitor:
+```bash
+python3 scripts/generate_ns3_flowmonitor_markdown_report.py
+```
+
+---
+
+## 16. Como Sincronizar e Subir os Resultados para o GitHub
+
+Após rodar os testes ou simulações, você pode subir todos os resultados usando qualquer uma das opções abaixo:
+
+### Opção A: Via Atalho Make (Recomendado)
+```bash
+make push-results
+```
+
+### Opção B: Manual via Git
+```bash
+git add experiments/results/ docs/
+git commit -m "chore(sim): update ns-3 FlowMonitor experimental traces and reports"
+git push origin main
+```
+
+---
+
+## 17. Próximo Passo Sequencial
 
 Avance para a análise de governança e matriz de conformidade com as normas O-RAN Alliance:
 
 -> **[Volume 04: Relatórios de Conformidade Técnica e Governança O-RAN](04_relatorios_conformidade_e_governanca.md)**
+
 

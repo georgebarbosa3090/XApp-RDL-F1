@@ -150,9 +150,32 @@ def generate_report():
     content.append("python3 scripts/generate_ns3_flowmonitor_markdown_report.py")
     content.append("```")
     content.append("")
+    content.append("---")
+    content.append("")
+    content.append("## 5. Como Sincronizar e Subir os Resultados para o GitHub")
+    content.append("")
+    content.append("Após rodar os testes ou simulações, você pode subir todos os resultados usando qualquer uma das opções abaixo:")
+    content.append("")
+    content.append("### Opção A: Via Atalho Make (Recomendado)")
+    content.append("```bash")
+    content.append("make push-results")
+    content.append("```")
+    content.append("")
+    content.append("### Opção B: Manual via Git")
+    content.append("```bash")
+    content.append("git add experiments/results/ docs/")
+    content.append("git commit -m \"chore(sim): update ns-3 FlowMonitor experimental traces and reports\"")
+    content.append("git push origin main")
+    content.append("```")
+    content.append("")
 
     report_text = "\n".join(content)
     with open(report_path_p1, "w", encoding="utf-8") as f:
+        f.write(report_text)
+
+    # Grava no diretorio docs local tambem como 20_ se for Fase 2
+    report_path_local_p2 = os.path.join(DOCS_DIR, "20_relatorio_experimental_ns3_flowmonitor_s0_s15.md")
+    with open(report_path_local_p2, "w", encoding="utf-8") as f:
         f.write(report_text)
 
     p2_docs = os.path.abspath(os.path.join(BASE_DIR, "..", "iqos-xapp-rdl-phase2", "docs"))
@@ -165,3 +188,4 @@ def generate_report():
 
 if __name__ == "__main__":
     generate_report()
+

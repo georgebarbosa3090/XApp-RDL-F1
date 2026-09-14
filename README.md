@@ -288,6 +288,10 @@ A infraestrutura experimental **ns-3 / 5G-LENA v5.1 / NORI** está em validaçã
 
 ## 7. Reprodutibilidade e Validação de Proveniência em Um Comando
 
+### 7.1. Diretriz Inviolável: Zero Dados Sintéticos e Proveniência Estrita do ns-3 FlowMonitor
+
+É expressamente proibido utilizar simuladores discretos simplificados ou parâmetros fixos para produzir dados científicos. Todos os datasets, métricas de SLA, vazão, perdas de pacotes e latência de rádio devem ser **obrigatoriamente exportados pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1 / NORI)** a partir dos códigos-fonte C++ (`simulations/ns3/*.cc`).
+
 Para executar a verificação estrita de proveniência e integridade sem dados sintéticos:
 
 ```bash
@@ -309,8 +313,27 @@ make test-interop
 
 ---
 
-## 8. Perfis Normativos e Auditorias Técnicas
+## 8. Como Sincronizar e Subir os Resultados para o GitHub
 
+Após rodar os testes ou simulações, você pode subir todos os resultados usando qualquer uma das opções abaixo:
+
+### Opção A: Via Atalho Make (Recomendado)
+```bash
+make push-results
+```
+
+### Opção B: Manual via Git
+```bash
+git add experiments/results/ docs/
+git commit -m "chore(sim): update ns-3 FlowMonitor experimental traces and reports"
+git push origin main
+```
+
+---
+
+## 9. Perfis Normativos e Auditorias Técnicas
+
+* **[Relatório Experimental e Rastreabilidade do ns-3 FlowMonitor (S0 a S15)](docs/12_relatorio_experimental_ns3_flowmonitor_s0_s15.md)**
 * **[Relatório Oficial de Validação dos Cenários S0 a S15](docs/11_relatorio_execucao_validacao_s0_s15.md)**
 * **[Estudo Científico e Normativo das xApps e Relações de Conflito](docs/10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md)**
 * **[Parecer Técnico de Resolução Integral da Nova Auditoria (2026)](auditoria/Nova_Auditoria_Tecnica_Interop_E2_Closed_Loop_2026.md)**

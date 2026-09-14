@@ -36,10 +36,62 @@ Os cenários **S9 a S15** representam a extensão da campanha para ambientes de 
 
 ---
 
-## 3. Diretriz de Execução Científica
+## 3. Diretriz Inviolável: Zero Dados Sintéticos e Proveniência Estrita do ns-3 FlowMonitor
 
-Nenhum resultado experimental dos cenários S0 a S15 deve ser derivado de geradores sintéticos. A execução deve seguir obrigatoriamente a cadeia de evidências reais:
+**É expressamente proibido utilizar simuladores discretos simplificados ou geradores sintéticos estáticos para produzir dados científicos.**
+
+Todos os datasets, métricas de SLA, vazão, perdas de pacotes e latência de rádio devem ser **obrigatoriamente exportados pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1 / NORI)** a partir dos códigos-fonte C++ (`simulations/ns3/*.cc`).
 
 $$
-\text{Cenário C++} \longrightarrow \text{ns-3 + 5G-LENA} \longrightarrow \text{E2AP/E2SM via NORI} \longrightarrow \text{Logs Brutos} \longrightarrow \text{Post-Hoc Calculador}
+\text{Cenário C++} \longrightarrow \text{ns-3.48 + 5G-LENA v5.1} \longrightarrow \text{FlowMonitor XML/CSV} \longrightarrow \text{Relatório Markdown Oficial}
 $$
+
+---
+
+## 4. Passo a Passo de Instalação, Compilação e Execução
+
+### 4.1. Atualizar o Repositório no Host
+```bash
+git pull origin main
+```
+
+### 4.2. Configurar e Compilar o ns-3 com 5G-LENA e NORI
+```bash
+bash scripts/setup_ns3.sh
+```
+
+### 4.3. Executar a Suíte de Simulação ns-3 FlowMonitor
+```bash
+# Executar todos os 16 cenários (S0 a S15)
+bash simulations/ns3/run_all_s0_s15_simulations.sh all
+
+# Ou executar por grupo tecnológico:
+bash simulations/ns3/run_all_s0_s15_simulations.sh 5g
+bash simulations/ns3/run_all_s0_s15_simulations.sh 6g
+
+# Ou executar cenário individual (ex: S1 Direct PRB Conflict):
+bash simulations/ns3/run_all_s0_s15_simulations.sh S1
+```
+
+### 4.4. Gerar Relatório Markdown a partir dos Traces XML Reais
+```bash
+python3 scripts/generate_ns3_flowmonitor_markdown_report.py
+```
+
+---
+
+## 5. Como Sincronizar e Subir os Resultados para o GitHub
+
+Após rodar os testes ou simulações, você pode subir todos os resultados usando qualquer uma das opções abaixo:
+
+### Opção A: Via Atalho Make (Recomendado)
+```bash
+make push-results
+```
+
+### Opção B: Manual via Git
+```bash
+git add experiments/results/ docs/
+git commit -m "chore(sim): update ns-3 FlowMonitor experimental traces and reports"
+git push origin main
+```
