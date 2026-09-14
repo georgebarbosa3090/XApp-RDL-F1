@@ -348,7 +348,8 @@ git-sync:
 	bash scripts/git_sync.sh "results: synchronize experimental datasets and reports"
 
 push-results:
-	git add experiments/results/ docs/ results/
+	@mkdir -p experiments/results docs
+	git add experiments/results/ docs/
 	git commit -m "results: update experimental datasets and FlowMonitor metrics" || true
 	git push origin $(shell git rev-parse --abbrev-ref HEAD)
 
