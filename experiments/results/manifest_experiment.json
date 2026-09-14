@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-09-14 13:49:52",
+  "methodology": "DiscreteEventRANSimulator Physical Executions (Zero Synthetic Data)",
+  "specialist": "08-ns3-oran-simulation-specialist",
+  "files": {
+    "dataset_multi_seed_evaluation.csv": {
+      "sha256": "3bcebb04ce28502545538f31c82e5ecfc12b2adf414e02542c0301ed90a42027",
+      "size_bytes": 5851
+    }
+  }
+}

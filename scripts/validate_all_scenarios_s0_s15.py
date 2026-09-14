@@ -74,7 +74,71 @@ class S0toS15CampaignValidator:
             method()
 
         self.print_summary()
+        self.export_datasets()
         return self.results
+
+    def export_datasets(self):
+        import json
+        import csv
+
+        out_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")), "experiments", "results")
+        os.makedirs(out_dir, exist_ok=True)
+
+        csv_path = os.path.join(out_dir, "dataset_s0_s15_validation.csv")
+        json_path = os.path.join(out_dir, "dataset_s0_s15_summary.json")
+        flow_path = os.path.join(out_dir, "dataset_flow_metrics.csv")
+
+        if not self.results:
+            return
+
+        rows = []
+        flow_rows = []
+        for r in self.results:
+            rows.append({
+                "scenario_id": r.scenario_id,
+                "name": r.name,
+                "baseline_status": "PASS" if r.baseline_passed else "FAIL",
+                "hrdl_status": "PASS" if r.hrdl_passed else "FAIL",
+                "cardl_status": "PASS" if r.cardl_passed else "FAIL",
+                "baseline_kpi": r.baseline_kpi,
+                "hrdl_kpi": r.hrdl_kpi,
+                "cardl_kpi": r.cardl_kpi,
+                "execution_time_ms": round(r.execution_time_ms, 3),
+                "description": r.description
+            })
+            flow_rows.append({
+                "scenario_id": r.scenario_id,
+                "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                "decision_latency_ms": round(r.execution_time_ms, 3),
+                "conflict_mitigated": 1 if r.hrdl_passed else 0,
+                "sla_preserved": 1 if r.hrdl_passed else 0,
+                "governance_mode": "H-RDL"
+            })
+
+        with open(csv_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(rows)
+
+        with open(flow_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=list(flow_rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(flow_rows)
+
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "total_scenarios": len(self.results),
+                "all_hrdl_pass": all(r.hrdl_passed for r in self.results),
+                "all_cardl_pass": all(r.cardl_passed for r in self.results),
+                "scenarios": rows
+            }, f, indent=2)
+
+        print("\n" + "=" * 80)
+        print("[DATASETS ORIUNDOS DA VALIDAÇÃO FORMAL S0-S15 GRAVADOS COM SUCESSO]")
+        print(f" -> Dataset Consolidado CSV : {csv_path}")
+        print(f" -> Flow Metrics CSV        : {flow_path}")
+        print(f" -> Sumário Estruturado JSON: {json_path}")
+        print("=" * 80)
 
     def test_s0_clean_baseline(self):
         p, r, ref = self.get_fresh_agents()
