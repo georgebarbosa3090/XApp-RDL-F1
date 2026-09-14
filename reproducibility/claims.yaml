@@ -1,0 +1,20 @@
+﻿# =============================================================================
+# Editorial Firewall & Claim Provenance Mapping — XApp-RDL-F1 (H-RDL)
+# =============================================================================
+
+claims:
+  - claim_id: CLAIM_F1_DETERMINISTIC_LATENCY
+    description: "Latencia de decisao deterministica H-RDL abaixo de 5ms em cenarios S0-S8"
+    target_metric: "T_decision_ms"
+    acceptable_bound: "< 5.0"
+    source_backend: "HRDL_RUNTIME"
+    run_id: "RUN_2026_09_F1_S0_S8"
+    raw_evidence_sha256: ""
+
+  - claim_id: CLAIM_F1_ZERO_UNSAFE_ACTION
+    description: "Zero violacao de seguranca em cenarios adversarios/falha (S7)"
+    target_metric: "UnsafeActionExecuted"
+    acceptable_bound: "== 0"
+    source_backend: "HRDL_RUNTIME"
+    run_id: "RUN_2026_09_F1_S7"
+    raw_evidence_sha256: ""

@@ -28,6 +28,7 @@ class XAppAction:
     parameter: str
     value: float
     priority: int
+    action_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     timestamp: float = field(default_factory=time.time)
     t_arrival: float = 0.0
     t_selection: float = 0.0
