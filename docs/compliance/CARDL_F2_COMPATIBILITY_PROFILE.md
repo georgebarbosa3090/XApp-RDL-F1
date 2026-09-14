@@ -63,19 +63,20 @@ target_scenarios: "S9 a S15 (NTN, UAV, V2X, IIoT, ISAC)"
 
 ## 5. Portões de Qualidade e Conformidade Estrita (F2-G0 .. F2-G12)
 
-| Portão | Nome do Portão | Descrição do Critério de Aceitação Normativo | Status |
+| Portão | Nome do Portão | Descrição do Critério de Aceitação Normativo | Status de Maturidade |
 | :--- | :--- | :--- | :---: |
-| **F2-G0** | Zero Sintético Estrito | Zero dados sintéticos em publicação; proveniência validada por hash SHA-256. | **CONFORME** |
-| **F2-G1** | Cobertura de Testes | Cobertura total de testes unitários e de integração superior a 85%. | **CONFORME** |
-| **F2-G2** | Determinismo Estrito | Inicializações determinísticas e sementes fixadas para reprodutibilidade. | **CONFORME** |
-| **F2-G3** | Integridade de Codificação | Ausência total de caracteres UTF-8 BOM (`U+FEFF`) no código-fonte. | **CONFORME** |
-| **F2-G4** | Constantes RMR / E2AP | RMR Message Types alinhados com E2AP v03.01 (12040 REQ, 12041 ACK, 12042 FAIL). | **CONFORME** |
-| **F2-G5** | Dimensões MARL Canônicas | Dimensões unificadas do espaço MARL (6 agentes, 60 observações, 7 ações). | **CONFORME** |
-| **F2-G6** | RMR Resiliente e Dry-Run | Respeito estrito a `control.dry_run` e tratamento seguro de timeouts RMR. | **CONFORME** |
-| **F2-G7** | Proveniência E2AP/E2SM | Rastreabilidade dos provedores de protocolo com validação de manifesto. | **CONFORME** |
-| **F2-G8** | Tipagem Estrita e Pyright | Código limpo sem exceções de importação ou erros de tipagem no Pyright. | **CONFORME** |
-| **F2-G9** | Conformidade de API MARL | Assinaturas de métodos unificadas em `MAPPOAgent` e `MAPPOCoordinator`. | **CONFORME** |
-| **F2-G10** | Sincronização F1-F2 | Validação automatizada e sincronia bidirecional entre H-RDL F1 e CA-RDL F2. | **CONFORME** |
-| **F2-G11** | Convergência MARL | Manifesto de campanha e convergência salvos (`convergence.csv`, `training_manifest.json`). | **CONFORME** |
-| **F2-G12** | Blueprint OpenRAN-BR v3 | Compatibilidade e suporte completo ao perfil OpenRAN@Brasil Blueprint v3. | **CONFORME** |
+| **F2-G0** | Zero Sintético | Zero dados sintéticos em publicação; proveniência validada por hash SHA-256. | **UNIT_VALIDATED (Software Firewall PASS)**<br/>*Scientific Data Provenance: PENDING (ns-3)* |
+| **F2-G1** | Cobertura de Testes | Suíte de testes unitários e de integração (84/84 PASS). | **UNIT_VALIDATED (84/84 PASS)**<br/>*Coverage Target >85%: NOT MEASURED* |
+| **F2-G2** | Determinismo Estrito | Inicializações determinísticas e sementes fixadas para reprodutibilidade. | **UNIT_VALIDATED** |
+| **F2-G3** | Integridade de Codificação | Ausência total de caracteres UTF-8 BOM (`U+FEFF`) no código-fonte. | **IMPLEMENTED** |
+| **F2-G4** | Constantes RMR / E2AP | RMR Message Types alinhados com E2AP v03.01 (12040 REQ, 12041 ACK, 12042 FAIL). | **IMPLEMENTED** |
+| **F2-G5** | Dimensões MARL Canônicas | Dimensões unificadas do espaço MARL (6 agentes, 60 observações, 7 ações). | **IMPLEMENTED** |
+| **F2-G6** | RMR Resiliente e Dry-Run | Respeito estrito a `control.dry_run`, tratamento APER raw e sem leak em dry-run. | **LOCALLY_INTEGRATED** |
+| **F2-G7** | Proveniência E2AP/E2SM | Rastreabilidade dos provedores de protocolo com validação de manifesto. | **LOCALLY_INTEGRATED** |
+| **F2-G8** | Tipagem Estrita e Pyright | Código limpo sem exceções de importação ou erros de tipagem no Pyright. | **NOT VERIFIED (Missing in CI)** |
+| **F2-G9** | Conformidade de API MARL | Assinaturas de métodos unificadas em `MAPPOAgent` e `MAPPOCoordinator`. | **IMPLEMENTED** |
+| **F2-G10** | Sincronização F1-F2 | Validação automatizada e sincronia bidirecional entre H-RDL F1 e CA-RDL F2. | **LOCALLY_INTEGRATED** |
+| **F2-G11** | Convergência MARL | Manifesto de treinamento e salvamento de checkpoints (`actor.pt`, `training_manifest.json`). | **UNIT/ALGORITHMIC PIPELINE PASS**<br/>*RAN Environmental Convergence: PENDING* |
+| **F2-G12** | Blueprint OpenRAN-BR v3 | Compatibilidade com o perfil OpenRAN@Brasil Blueprint v3. | **PROFILE READY**<br/>*External Validation: PENDING* |
+
 
