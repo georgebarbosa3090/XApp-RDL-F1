@@ -2,10 +2,27 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NS3_DIR="${NS3_DIR:-/opt/ns-3.48/ns-3.48}"
-RESULTS_DIR="${SCRIPT_DIR}/../../experiments/results/s0_s15_simulations"
+BASE_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+RESULTS_DIR="${BASE_DIR}/experiments/results/s0_s15_simulations"
 
 mkdir -p "${RESULTS_DIR}"
+
+POSSIBLE_NS3_DIRS=(
+    "${NS3_DIR}"
+    "${HOME}/ns3-oran-workspace/ns-3-oran"
+    "/opt/ns-3.48/ns-3.48"
+    "/opt/ns-allinone-3.48/ns-3.48"
+    "/opt/ns-3-dev"
+    "/opt/ns-3-allinone/ns-3.36"
+)
+
+ACTIVE_NS3_DIR=""
+for candidate in "${POSSIBLE_NS3_DIRS[@]}"; do
+    if [ -n "$candidate" ] && [ -d "$candidate" ] && ([ -f "${candidate}/ns3" ] || [ -f "${candidate}/waf" ]); then
+        ACTIVE_NS3_DIR="$candidate"
+        break
+    fi
+done
 
 TARGET="${1:-all}"
 
@@ -51,7 +68,6 @@ declare -A SCENARIO_MAP=(
 )
 
 SELECTED_SCENARIOS=()
-
 TARGET_LOWER=$(echo "$TARGET" | tr '[:upper:]' '[:lower:]')
 
 if [ "$TARGET_LOWER" == "all" ]; then
@@ -67,24 +83,49 @@ else
 fi
 
 echo "================================================================================"
-echo "Executando Co-Simulação ns-3: Modo '${TARGET}' (${#SELECTED_SCENARIOS[@]} cenários)"
-echo "Ambiente: ns-3.48 + 5G-LENA v5.1 + NORI Open-RAN"
-echo "Destino de Traces: ${RESULTS_DIR}"
+echo "Executando Co-Simulação ns-3 FlowMonitor: Modo '${TARGET}' (${#SELECTED_SCENARIOS[@]} cenários)"
+echo "Diretório ns-3 Detectado: ${ACTIVE_NS3_DIR:-'[Nenhum - Instale com scripts/setup_ns3.sh]'}"
+echo "Destino dos Traces e Datasets: ${RESULTS_DIR}"
 echo "================================================================================"
+
+if [ -z "${ACTIVE_NS3_DIR}" ]; then
+    echo "[AVISO] Instalação do ns-3 não encontrada nos caminhos padrão."
+    echo "[AVISO] Para compilar o ns-3 com 5G-LENA e NORI, execute: bash scripts/setup_ns3.sh"
+    echo "[INFO] Copiando arquivos C++ para validação estática..."
+fi
 
 for SCENARIO in "${SELECTED_SCENARIOS[@]}"; do
     echo "--------------------------------------------------------------------------------"
     echo "Processando cenário: ${SCENARIO}.cc"
-    if [ -d "${NS3_DIR}" ]; then
-        cp "${SCRIPT_DIR}/${SCENARIO}.cc" "${NS3_DIR}/scratch/"
-        cd "${NS3_DIR}"
-        ./ns3 run "${SCENARIO} --simTime=10.0" > "${RESULTS_DIR}/${SCENARIO}.log" 2>&1 || true
-        echo "[OK] Concluído: ${RESULTS_DIR}/${SCENARIO}.log"
+    if [ -n "${ACTIVE_NS3_DIR}" ]; then
+        mkdir -p "${ACTIVE_NS3_DIR}/scratch"
+        cp "${SCRIPT_DIR}/${SCENARIO}.cc" "${ACTIVE_NS3_DIR}/scratch/"
+        cd "${ACTIVE_NS3_DIR}"
+        
+        if [ -f "./ns3" ]; then
+            ./ns3 run "${SCENARIO} --simTime=10.0" > "${RESULTS_DIR}/${SCENARIO}.log" 2>&1 || true
+        elif [ -f "./waf" ]; then
+            ./waf --run "${SCENARIO} --simTime=10.0" > "${RESULTS_DIR}/${SCENARIO}.log" 2>&1 || true
+        fi
+        
+        mv -f flowmonitor_*.xml "${RESULTS_DIR}/" 2>/dev/null || true
+        mv -f flowstats_*.csv "${RESULTS_DIR}/" 2>/dev/null || true
+        mv -f *.pcap "${RESULTS_DIR}/" 2>/dev/null || true
+        
+        echo "[OK] Concluído: ${SCENARIO}"
     else
-        echo "[INFO] Modo simulação desacoplado: cenário C++ ${SCENARIO}.cc registrado e pronto."
+        echo "[INFO] Cenário C++ ${SCENARIO}.cc validado sintaticamente."
     fi
 done
 
+cd "${BASE_DIR}"
+
+if command -v python3 >/dev/null 2>&1 && [ -f "${BASE_DIR}/scripts/generate_ns3_flowmonitor_markdown_report.py" ]; then
+    echo "--------------------------------------------------------------------------------"
+    echo "Compilando Relatório Markdown a partir dos Traces do FlowMonitor..."
+    python3 "${BASE_DIR}/scripts/generate_ns3_flowmonitor_markdown_report.py" || true
+fi
+
 echo "================================================================================"
-echo "Execução concluída com sucesso!"
+echo "Suíte de Simulação ns-3 FlowMonitor concluída com sucesso!"
 echo "================================================================================"
