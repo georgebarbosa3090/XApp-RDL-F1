@@ -10,7 +10,7 @@ from src.e2.e2ap.pdu import unwrap_e2ap_pdu
 from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure
 from src.e2.e2ap.constants import PROC_RIC_CONTROL
 from src.e2.kpm_decoder import KpmDecoder, E2SM_KPM_IndicationMessage
-from src.e2.rc_encoder import RCEncoder
+from src.e2.rc_encoder import RCEncoder, E2SM_RC_ControlPDU
 
 GOLDEN_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "specs", "golden_vectors")
 
@@ -76,6 +76,8 @@ def test_golden_vector_e2sm_rc_control_prb():
     with open(raw_path, "rb") as f:
         raw_bytes = f.read()
 
-    encoder = RCEncoder()
-    val = encoder.decode_control_request(raw_bytes, "PRB_QUOTA")
-    assert val == pytest.approx(65.0, 0.01)
+    pdu = E2SM_RC_ControlPDU()
+    pdu.from_aper(raw_bytes)
+    val = pdu()
+    params = val['ricControlMessage']['ricControlActionParameters']
+    assert params[0]['ranParameterValue'] == 65

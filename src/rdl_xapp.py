@@ -3,7 +3,7 @@ import threading
 import json
 import os
 import uuid
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Tuple
 
 try:
     from ricxappframe.xapp_frame import RMRXapp, Xapp
@@ -61,6 +61,7 @@ from src.e2.e2ap.constants import (
 from src.conflict_types import XAppAction, KPMReport, ConflictSeverity, RDLDecision
 
 from src.infrastructure.ran_backend_factory import get_ran_backend_adapter
+from src.infrastructure.ric_request_id_allocator import get_ric_request_id_allocator
 
 logger = setup_logger("rdl_xapp")
 
@@ -108,6 +109,7 @@ class RDLxApp:
         self.rc_encoder = RCEncoder()
         self.rc_mapper = RCMapper(ran_function_id=3)
         self.backend = get_ran_backend_adapter(os.getenv("RAN_BACKEND"))
+        self.allocator = get_ric_request_id_allocator()
         
         # Decision Window properties (Feature 1)
         self.proposal_buffer: List[XAppAction] = []
@@ -245,22 +247,24 @@ class RDLxApp:
         payload = summary.get("payload")
         if payload:
             try:
-                ack_info = self.backend.correlate_ack(payload)
+                ack_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
                 req_id = ack_info.get("requestor_id")
                 inst_id = ack_info.get("instance_id")
-                ran_fn_id = ack_info.get("ran_function_id")
+                ran_fn_id = ack_info.get("ran_function_id", 3)
+                node_id = ack_info.get("node_id", "gnb_01")
                 
-                # Procura por tupla RICrequestId (requestor_id, instance_id, ran_function_id) ou fallback JSON tx_id
-                tx_key = (req_id, inst_id, ran_fn_id) if req_id is not None else None
+                tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
                 if not tx_key or tx_key not in self.pending_transactions:
                     data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
                     tx_key = data.get("transaction_id")
                 
                 if tx_key and tx_key in self.pending_transactions:
                     rtt_ms = (now_ts() - self.pending_transactions.pop(tx_key)) * 1000.0
-                    logger.info("RIC_CONTROL_ACK recebido", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
-            except Exception:
-                pass
+                    logger.info("RIC_CONTROL_ACK recebido e confirmado", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
+                else:
+                    logger.info("RIC_CONTROL_ACK recebido sem transacao pendente", status=ack_info.get("status"))
+            except Exception as err:
+                logger.warning("Falha ao processar RIC_CONTROL_ACK", error=str(err))
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
         if xapp_instance and sbuf:
             xapp_instance.rmr_free(sbuf)
@@ -373,14 +377,14 @@ class RDLxApp:
     def _send_control(self, node_id: str, parameter: str, value: float, decision_id: Optional[str] = None):
         try:
             action = XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
-            # Encodifica APER ASN.1 Nativo via backend configurado (NORI vs srsRAN)
-            requestor_id = 1
-            instance_id = 1
             ran_fn_id = 3
+            req_id_obj = self.allocator.allocate(node_id=node_id, ran_function_id=ran_fn_id, decision_id=decision_id)
+            requestor_id = req_id_obj.requestor_id
+            instance_id = req_id_obj.instance_id
             aper_payload = self.backend.map_action_to_control_pdu(action, requestor_id=requestor_id, instance_id=instance_id)
             
             tx_id = str(uuid.uuid4())[:8]
-            ric_req_key = (requestor_id, instance_id, ran_fn_id)
+            ric_req_key = (node_id, ran_fn_id, requestor_id, instance_id)
             self.pending_transactions[ric_req_key] = now_ts()
             self.pending_transactions[tx_id] = now_ts()
             
