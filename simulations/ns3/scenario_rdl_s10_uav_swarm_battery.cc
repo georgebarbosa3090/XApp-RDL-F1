@@ -69,8 +69,46 @@ int main (int argc, char *argv[])
     internet.Install (uavNodes);
     internet.Install (ueNodes);
 
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("100Mbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("5ms"));
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.10.0.0", "255.255.0.0");
+
+    ApplicationContainer serverApps;
+    ApplicationContainer clientApps;
+
+    for (uint32_t i = 0; i < ueNum; ++i)
+    {
+        NetDeviceContainer link = p2p.Install (uavNodes.Get (i % uavNum), ueNodes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 10000 + i;
+        UdpServerHelper server (port);
+        serverApps.Add (server.Install (ueNodes.Get (i)));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (15)));
+        client.SetAttribute ("PacketSize", UintegerValue (512));
+        clientApps.Add (client.Install (uavNodes.Get (i % uavNum)));
+    }
+
+    serverApps.Start (Seconds (0.5));
+    serverApps.Stop (Seconds (simTime - 0.5));
+    clientApps.Start (Seconds (1.0));
+    clientApps.Stop (Seconds (simTime - 0.5));
+
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll ();
+
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
+
+    monitor->CheckForLostPackets ();
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml", true, true);
+
     Simulator::Destroy ();
 
     std::cout << "Cenario S10 (UAV Swarm Battery Emergency) executado com sucesso." << std::endl;

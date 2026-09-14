@@ -182,12 +182,12 @@ int main (int argc, char *argv[])
     nrHelper->SetBeamformingHelper (idealBeamformingHelper);
     nrHelper->SetEpcHelper (epcHelper);
 
-    BandwidthPartInfoPtrVector allBwps;
     CcBwpCreator ccBwpCreator;
     const uint8_t numCcPerBand = 1;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, numCcPerBand, BandwidthPartInfo::UMi_StreetCanyon);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, numCcPerBand);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    nrHelper->InitializeOperationBand (&band);
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
     allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
@@ -253,6 +253,8 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("=== Relatorio Final Cenario S0 (No-Conflict Pass-Through) ===");
     NS_LOG_INFO ("Vazao Agregada Raw: " << totalThpMbps << " Mbps");
     NS_LOG_INFO ("Latencia Media Raw: " << avgDelay << " ms");
+
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_no_conflict.xml", true, true);
 
     Simulator::Destroy ();
     return 0;

@@ -149,9 +149,10 @@ int main (int argc, char *argv[])
     nrHelper->SetEpcHelper (epcHelper);
 
     CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    nrHelper->InitializeOperationBand (&band);
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
@@ -207,10 +208,11 @@ int main (int argc, char *argv[])
     double avgDelay = rxPkts > 0 ? totalDelayMs / rxPkts : 0.0;
     double totalThpMbps = (totalRxBytes * 8.0) / (simTime * 1e6);
 
-    NS_LOG_INFO ("=== Relatorio Final Cenario S4 (Traffic Steering x Energy Saving) ===");
-    NS_LOG_INFO ("Vazao Agregada: " << totalThpMbps << " Mbps");
-    NS_LOG_INFO ("Latencia Media: " << avgDelay << " ms");
-    NS_LOG_INFO ("Balanceamento de Carga: gNB1 -> gNB2 executado com preservacao de sono inteligente");
+    NS_LOG_INFO ("=== Relatorio Final Cenario S4 (Traffic Steering vs Energy Saving) ===");
+    NS_LOG_INFO ("Vazao Agregada Raw: " << totalThpMbps << " Mbps");
+    NS_LOG_INFO ("Latencia Media Raw: " << avgDelay << " ms");
+
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_ts_vs_energy.xml", true, true);
 
     Simulator::Destroy ();
     return 0;

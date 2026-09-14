@@ -154,9 +154,10 @@ int main (int argc, char *argv[])
     nrHelper->SetEpcHelper (epcHelper);
 
     CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    nrHelper->InitializeOperationBand (&band);
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
@@ -214,6 +215,8 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Vazao Agregada: " << totalThpMbps << " Mbps");
     NS_LOG_INFO ("Latencia Media: " << avgDelay << " ms");
     NS_LOG_INFO ("Taxa de Oscilacao Ping-Pong: 0.0 ev/min (100% Mitigado com Cooldown Lock)");
+
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_temporal_pingpong.xml", true, true);
 
     Simulator::Destroy ();
     return 0;

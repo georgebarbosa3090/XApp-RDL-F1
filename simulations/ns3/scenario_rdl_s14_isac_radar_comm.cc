@@ -79,8 +79,46 @@ int main (int argc, char *argv[])
     internet.Install (commUes);
     internet.Install (radarTargets);
 
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("100Mbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("1ms"));
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.14.0.0", "255.255.0.0");
+
+    ApplicationContainer serverApps;
+    ApplicationContainer clientApps;
+
+    for (uint32_t i = 0; i < commUeNum; ++i)
+    {
+        NetDeviceContainer link = p2p.Install (isacGnb.Get (0), commUes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 14000 + i;
+        UdpServerHelper server (port);
+        serverApps.Add (server.Install (commUes.Get (i)));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (10)));
+        client.SetAttribute ("PacketSize", UintegerValue (512));
+        clientApps.Add (client.Install (isacGnb.Get (0)));
+    }
+
+    serverApps.Start (Seconds (0.5));
+    serverApps.Stop (Seconds (simTime - 0.5));
+    clientApps.Start (Seconds (1.0));
+    clientApps.Stop (Seconds (simTime - 0.5));
+
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll ();
+
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
+
+    monitor->CheckForLostPackets ();
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_s14_isac_radar_comm.xml", true, true);
+
     Simulator::Destroy ();
 
     std::cout << "Cenario S14 (ISAC Radar-Comm Beamforming) executado com sucesso." << std::endl;

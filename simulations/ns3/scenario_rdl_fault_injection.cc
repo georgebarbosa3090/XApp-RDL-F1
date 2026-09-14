@@ -150,9 +150,10 @@ int main (int argc, char *argv[])
     nrHelper->SetEpcHelper (epcHelper);
 
     CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    nrHelper->InitializeOperationBand (&band);
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
@@ -210,6 +211,8 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Vazao Agregada: " << totalThpMbps << " Mbps");
     NS_LOG_INFO ("Latencia Media: " << avgDelay << " ms");
     NS_LOG_INFO ("UnsafeActionExecuted: 0 (100% dos comandos ilicitos foram bloqueados pelo Safety Guard)");
+
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_fault_injection.xml", true, true);
 
     Simulator::Destroy ();
     return 0;

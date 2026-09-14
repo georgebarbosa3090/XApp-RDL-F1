@@ -147,9 +147,10 @@ int main (int argc, char *argv[])
     nrHelper->SetEpcHelper (epcHelper);
 
     CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1, BandwidthPartInfo::UMi_StreetCanyon);
+    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    nrHelper->InitializeOperationBand (&band);
+    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    channelHelper->AssignChannelsToBands ({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
@@ -207,6 +208,8 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("=== Relatorio Final Cenario S1 (Direct PRB Conflict) ===");
     NS_LOG_INFO ("Vazao Agregada Raw: " << totalThpMbps << " Mbps");
     NS_LOG_INFO ("Latencia Media Raw: " << avgDelay << " ms");
+
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_direct_prb_conflict.xml", true, true);
 
     Simulator::Destroy ();
     return 0;

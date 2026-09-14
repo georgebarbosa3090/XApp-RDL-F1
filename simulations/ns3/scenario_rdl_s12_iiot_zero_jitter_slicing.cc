@@ -68,8 +68,46 @@ int main (int argc, char *argv[])
     internet.Install (robotNodes);
     internet.Install (videoNodes);
 
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("1Gbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("500us"));
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.12.0.0", "255.255.0.0");
+
+    ApplicationContainer serverApps;
+    ApplicationContainer clientApps;
+
+    for (uint32_t i = 0; i < robotUeNum; ++i)
+    {
+        NetDeviceContainer link = p2p.Install (gnbNode.Get (0), robotNodes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 12000 + i;
+        UdpServerHelper server (port);
+        serverApps.Add (server.Install (robotNodes.Get (i)));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (2))); // URLLC 2ms ultra-rapido
+        client.SetAttribute ("PacketSize", UintegerValue (128));
+        clientApps.Add (client.Install (gnbNode.Get (0)));
+    }
+
+    serverApps.Start (Seconds (0.5));
+    serverApps.Stop (Seconds (simTime - 0.5));
+    clientApps.Start (Seconds (1.0));
+    clientApps.Stop (Seconds (simTime - 0.5));
+
+    FlowMonitorHelper flowmon;
+    Ptr<FlowMonitor> monitor = flowmon.InstallAll ();
+
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
+
+    monitor->CheckForLostPackets ();
+    monitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml", true, true);
+
     Simulator::Destroy ();
 
     std::cout << "Cenario S12 (IIoT Zero-Jitter Slicing) executado com sucesso." << std::endl;
