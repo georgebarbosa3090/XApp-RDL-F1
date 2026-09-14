@@ -136,21 +136,30 @@ k3d cluster create rdl-cluster \
 
 ### Opção A: Implantação Rápida via Perfil OpenRAN@Brasil Blueprint v3 (`deploy/openran-br-v3/`)
 Manifestos K8s puros e otimizados para o namespace `ricxapp` seguindo a especificação normativa da Release J / OpenRAN@Brasil:
+
+1. Criar os namespaces oficiais se ainda não existirem
 ```bash
-# 1. Criar os namespaces oficiais se ainda não existirem
 kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
+```
 
-# 2. Aplicar ConfigMap e tabela de rotas RMR
+2. Aplicar ConfigMap e tabela de rotas RMR
+```bash
 kubectl apply -f deploy/openran-br-v3/config-map.yaml
+```
 
-# 3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081)
+3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081)
+```bash
 kubectl apply -f deploy/openran-br-v3/service.yaml
+```
 
-# 4. Aplicar o Deployment da xApp RDL
+4. Aplicar o Deployment da xApp RDL
+```bash
 kubectl apply -f deploy/openran-br-v3/deployment.yaml
+```
 
-# 5. Validar o status da implantação
+5. Validar o status da implantação
+```bash
 kubectl get pods,svc -n ricxapp -l app=iqos-xapp-rdl
 ```
 
@@ -184,24 +193,29 @@ make reproduce-f1
 ## 5. Observabilidade e Monitoramento
 
 * **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
-  ```bash
-  make rancher-stop       # (Opcional) Para e remove container anterior
-  make rancher-start      # 1. Inicia o container do Rancher Server (:8443)
-  make rancher-logs       # 2. Acompanha os logs (ou: docker logs -f rancher-server)
-  make rancher-password   # 3. Obtém a Bootstrap Password inicial
-  # 4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
-  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 5. Vincula o cluster
+```bash
+  make rancher-stop
+  make rancher-start
+  make rancher-logs
+  make rancher-password
+  ```
+
+4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
+```bash
+  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
   ```
 * **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC:
-  ```bash
-  make kiali-install      # Instala Istio e Kiali no c---
+```bash
+  make kiali-install
+```bash
 
-## 6. Resultados Experimentais e Matriz Claims $\to$ Evidências
-
+* # 6. Resultados Experimentais e Matriz Claims $\to$ Evidências:
+```bash
 Todos os resultados apresentados foram obtidos a partir de **co-simulações no simulador ns-3 (5G-LENA v5.1 / ns-O-RAN NORI)** com topologia parametrizada 3GPP Banda n78 (3.5 GHz, 100 MHz BWP, $\mu=1$, 2 gNodeBs, 30 UEs com tráfego misto URLLC/eMBB/mMTC) sob concorrência de 3 xApps de referência.
+```bash
 
-### 6.1. Matriz Formal de Rastreabilidade Claims $\to$ Evidências
-
+* ## 6.1. Matriz Formal de Rastreabilidade Claims $\to$ Evidências:
+```bash
 | Claim Científica | Evidência Experimental / Métrica | Fonte de Verificação / Artefato |
 | :--- | :--- | :--- |
 | **Mitigação Causal de Conflitos** | $CRE = 100.0\%$ (Todos os conflitos resolvidos melhoraram os KPIs alvo) | [`scientific_summary.json`](results/reproduced_audit_2026/statistics/scientific_summary.json) |
@@ -210,17 +224,19 @@ Todos os resultados apresentados foram obtidos a partir de **co-simulações no 
 | **Garantia de Equidade entre Fatias** | Jain's Fairness Index elevado de $0.1444 \to 0.9175$ (+535%) | [`paper_table.csv`](results/reproduced_audit_2026/paper_table.csv) |
 | **Segurança Invariante Zero-Violation** | Unsafe Action Rate = $0.0\%$ (Nenhuma ação insegura atingiu a RAN) | [`test_negative_cases.py`](tests/unit/test_negative_cases.py) |
 | **Fidelidade Normativa E2AP / RC** | ProtocolIE-Containers canônicos com roundtrips APER validados | [`test_golden_vectors.py`](tests/codec/test_golden_vectors.py) |
+```bash
 
-### 6.2. Definição Formal da Métrica Conflict Resolution Effectiveness (CRE)
-
+* ## 6.2. Definição Formal da Métrica Conflict Resolution Effectiveness (CRE):
+```bash
 Para evitar conclusões baseadas unicamente em vazão agregada, o projeto formaliza a métrica de eficácia causal:
 
 $$CRE = \frac{\sum_{i=1}^{N_{\text{resolvidos}}} \mathbb{I}(\text{KPI}_{\text{pós}}(i) > \text{KPI}_{\text{pré}}(i) \land \text{Status}_{\text{E2}}(i) = \text{ACK})}{N_{\text{detectados}}}$$
 
 Onde $\mathbb{I}(\cdot)$ é a função indicadora que exige confirmação formal via `RIC_CONTROL_ACK` (12041) e melhoria mensurável no estado da telemetria da RAN.
+```bash
 
-### 6.3. Tabela Consolidada de Benchmarks Multi-Semente ($N = 30$ Seeds)
-
+* ## 6.3. Tabela Consolidada de Benchmarks Multi-Semente ($N = 30$ Seeds):
+```bash
 | Método / Modelo Avaliado | Latência Média URLLC (ms) | Latência P99 (ms) | Vazão Agregada (Mbps) | Jain's Fairness | Violações de SLA (%) | CRE (%) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **B0: Sem RDL (Conflito Direto)** | $12.67 \pm 1.91$ | $144.06$ | $155.25 \pm 24.63$ | $0.1444$ | $100.0\%$ | **0.0%** |
@@ -229,11 +245,11 @@ Onde $\mathbb{I}(\cdot)$ é a função indicadora que exige confirmação formal
 | **B3: H-RDL Fase 1 (Governança Total)** | **$2.85 \pm 0.16$** | **$3.04$** | **$1117.08 \pm 43.43$** | **$0.9175$** | **$0.0\%$** | **100.0%** |
 
 ---
+```bash
 
-## 7. Reprodutibilidade em Um Comando (`make reproduce-paper`)
-
+* # 7. Reprodutibilidade em Um Comando (`make reproduce-paper`):
+```bash
 Para reproduzir integralmente todos os experimentos, gerar os dados brutos em `.raw`, `.json` e `.csv`, e sintetizar a tabela do artigo:
-
 ```bash
 # Executa a suíte de reprodução multi-semente (N=30)
 make reproduce-paper
@@ -256,11 +272,11 @@ results/reproduced_audit_2026/
 ├── statistics/          # scientific_summary.json com métricas consolidadas
 └── paper_table.csv      # Tabela final para publicação científica
 ```
-
 ---
+```
 
-## 8. Perfis Normativos e Auditorias Técnicas
-
+* # 8. Perfis Normativos e Auditorias Técnicas:
+```
 * **[Parecer Técnico de Resolução Integral da Nova Auditoria (2026)](auditoria/Nova_Auditoria_Tecnica_Interop_E2_Closed_Loop_2026.md)**
 * **[Especificação do Perfil Normativo Congelado (F1 Frozen Profile)](docs/oran_compatibility_profile_frozen.md)**
 * **[Manifesto Machine-Readable de Versões e Hashes](specs/oran/compatibility_profile.json)**
@@ -274,6 +290,4 @@ results/reproduced_audit_2026/
 *Desenvolvido em conformidade estrita com ETSI TS 104 039, O-RAN.WG3.E2AP e O-RAN Software Community Release I/J.*
 
 </div>
-
-
-
+```

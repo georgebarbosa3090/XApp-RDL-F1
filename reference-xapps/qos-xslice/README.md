@@ -17,7 +17,7 @@
 ## Interface de Interceptação RDL
 * **MsgType:** `RDL_ACTION_PROPOSAL` (30000)
 * **Parâmetros Emitidos:**
-  ```json
+```json
   {
     "xapp_id": "xslice_oran",
     "node_id": "gnb_01",

@@ -67,20 +67,29 @@ k3d cluster create rdl-cluster \
 
 ## 3. Instruções de Implantação Passo a Passo
 
+
+1. Garantir existência do namespace ricxapp
 ```bash
-# 1. Garantir existência do namespace ricxapp
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
+```
 
-# 2. Aplicar ConfigMap e Tabelas de Rota RMR
+2. Aplicar ConfigMap e Tabelas de Rota RMR
+```bash
 kubectl apply -f deploy/openran-br-v3/config-map.yaml
+```
 
-# 3. Aplicar Serviços de Rede e Exposição de Portas
+3. Aplicar Serviços de Rede e Exposição de Portas
+```bash
 kubectl apply -f deploy/openran-br-v3/service.yaml
+```
 
-# 4. Aplicar Deployment da xApp RDL (com SecurityContext não-root)
+4. Aplicar Deployment da xApp RDL (com SecurityContext não-root)
+```bash
 kubectl apply -f deploy/openran-br-v3/deployment.yaml
+```
 
-# 5. Verificar Status e Prontidão dos Pods
+5. Verificar Status e Prontidão dos Pods
+```bash
 kubectl get pods -n ricxapp -l app=iqos-xapp-rdl -o wide
 ```
 
@@ -88,10 +97,13 @@ kubectl get pods -n ricxapp -l app=iqos-xapp-rdl -o wide
 
 ## 4. Gestão Visual via Rancher Dashboard e Kiali Service Mesh
 
-```bash
-# Importar cluster no Rancher Server (https://localhost:8443)
-make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
 
-# Visualizar topologia e tráfego de rede no Kiali Dashboard (http://localhost:20001/kiali)
+* Importar cluster no Rancher Server (https://localhost:8443):
+```bash
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
+```
+
+* Visualizar topologia e tráfego de rede no Kiali Dashboard (http://localhost:20001/kiali):
+```bash
 make kiali-dashboard
 ```

@@ -89,7 +89,10 @@ O repositório disponibiliza um verificador em tempo real que abre conexões e v
 
 ```bash
 make test-3xapps
-# Ou diretamente:
+```
+
+**Ou diretamente:**
+```bash
 bash scripts/verify_3_xapps.sh
 ```
 
@@ -135,37 +138,53 @@ ricxapp-iqos-xapp-rdl-84cfbb996b-zw78      1/1     Running   0          40s
 ## 6. Observabilidade e Gestão de Cluster (Rancher & Kiali)
 
 ### 6.1. Rancher Dashboard (Gestão Global do Cluster e Nós)
+
+**(Opcional) Parar e remover container anterior se houver conflito:**
 ```bash
-# (Opcional) Parar e remover container anterior se houver conflito:
 make rancher-stop
+```
 
-# 1. Iniciar o contêiner do Rancher Server:
+1. Iniciar o contêiner do Rancher Server:
+```bash
 make rancher-start
+```
 
-# 2. Acompanhar os logs de prontidão:
+2. Acompanhar os logs de prontidão:
+```bash
 make rancher-logs
-# ou: docker logs -f rancher-server
+```
 
-# 3. Obter a senha de primeiro acesso (Bootstrap Password):
+* ou: docker logs -f rancher-server:
+
+3. Obter a senha de primeiro acesso (Bootstrap Password):
+```bash
 make rancher-password
+```
 
-# 4. Acesse no navegador:
-# URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
+4. Acesse no navegador:
 
-# 5. Conectar o cluster ao Rancher automaticamente:
+* URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443):
+
+5. Conectar o cluster ao Rancher automaticamente:
+```bash
 make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
 ```
 > *Para o passo a passo detalhado de configuração de rede e certificados TLS, consulte o **[Volume 02: Infraestrutura de Cluster e Rancher](02_infraestrutura_cluster_k3d_e_rancher.md)**.*
 
 ### 6.2. Kiali Service Mesh (Visualização do Grafo de Tráfego entre xApps)
+
+**Instalar Service Mesh Istio e Dashboard Kiali:**
 ```bash
-# Instalar Service Mesh Istio e Dashboard Kiali:
 make kiali-install
+```
 
-# Abrir painel Kiali (http://localhost:20001/kiali):
+**Abrir painel Kiali (http://localhost:20001/kiali):**
+```bash
 make kiali-dashboard
+```
 
-# Iniciar gerador de tráfego para visualizar grafo animado:
+**Iniciar gerador de tráfego para visualizar grafo animado:**
+```bash
 make start-traffic
 ```
 
@@ -188,19 +207,25 @@ A suíte de testes unitários cobre 100% dos componentes críticos da xApp RDL, 
 ### 7.1. Execução dos Testes Unitários:
 
 #### Opção A: Execução no Host (Virtualenv)
+
+1. Criar e ativar o ambiente virtual
 ```bash
-# 1. Criar e ativar o ambiente virtual
 python3 -m venv .venv
 source .venv/bin/activate
+```
 
-# 2. Instalar dependências
+2. Instalar dependências
+```bash
 pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
-
-# 3. Executar a suíte de testes
-make test
-# Saída esperada: 10 passed in 1.20s (100% green)
 ```
+
+3. Executar a suíte de testes
+```bash
+make test
+```
+
+* Saída esperada: 10 passed in 1.20s (100% green):
 
 #### Opção B: Execução via Contêiner Docker (Sem dependências no host)
 ```bash
@@ -305,8 +330,9 @@ O simulador pode ser configurado de forma totalmente automatizada através do sc
 A partir da raiz do repositório (`~/XApp-RDL-F1`), execute:
 ```bash
 make setup-ns3
-# ou: bash scripts/setup_ns3.sh
 ```
+
+* ou: bash scripts/setup_ns3.sh:
 *O script detecta privilégios de root, instala todas as dependências apt, valida GCC/G++ >= 11 e CMake >= 3.25, clona o `ns-3-dev`, baixa o módulo oficial `5G-LENA` em `contrib/nr`, copia os cenários para `scratch/` e compila com `-j 2`.*
 
 > [!IMPORTANT]
@@ -323,33 +349,46 @@ make setup-ns3
 
 ### 11.2. Opção B: Instalação Manual Passo a Passo
 
+
+1. Instalar dependências essenciais no WSL2 / Ubuntu (se root, omita o sudo):
 ```bash
-# 1. Instalar dependências essenciais no WSL2 / Ubuntu (se root, omita o sudo):
 apt-get update && apt-get install -y \
   build-essential cmake ninja-build git python3-dev python3-pip \
   libsctp-dev lksctp-tools libzmq3-dev libboost-all-dev \
   libsqlite3-dev libgsl-dev libxml2-dev tcpdump wireshark pkg-config wget curl
+```
 
-# 2. Garantir CMake >= 3.25 (o Ubuntu 20.04 possui CMake 3.16 por padrão; o ns-3 exige >= 3.25)
+2. Garantir CMake >= 3.25 (o Ubuntu 20.04 possui CMake 3.16 por padrão; o ns-3 exige >= 3.25)
+```bash
 pip3 install --upgrade cmake
+```
 
-# 3. Clonar repositório do ns-3 e o módulo 5G-LENA (nr)
+3. Clonar repositório do ns-3 e o módulo 5G-LENA (nr)
+```bash
 mkdir -p ~/ns3-oran-workspace && cd ~/ns3-oran-workspace
 git clone https://gitlab.com/nsnam/ns-3-dev.git ns-3-oran --depth 1
 cd ns-3-oran
 git clone https://gitlab.com/cttc-lena/nr.git contrib/nr --depth 1
+```
 
-# 4. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
+4. Ajuste de compatibilidade para execução como root no WSL2/Docker (se aplicável):
+```bash
 sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
+```
 
-# 5. Copiar cenários do projeto para o diretório scratch:
+5. Copiar cenários do projeto para o diretório scratch:
+```bash
 cp ~/XApp-RDL-F1/simulations/ns3/*.cc ./scratch/
+```
 
-# 6. Limpar cache anterior e configurar compilação com CMake
+6. Limpar cache anterior e configurar compilação com CMake
+```bash
 rm -rf cmake-cache build
 ./ns3 configure -d optimized --enable-examples --enable-tests
+```
 
-# 7. Compilar o simulador (recomenda-se -j 2 para segurança de memória)
+7. Compilar o simulador (recomenda-se -j 2 para segurança de memória)
+```bash
 ./ns3 build -j 2
 ```
 
@@ -421,12 +460,15 @@ sequenceDiagram
 
 Nesta primeira fase, o simulador **ns-3 NORI / 5G-LENA** é executado em modo *Standalone* (`--enableE2=false`), sem a presença do orquestrador RDL. As 3 reference xApps operam de maneira não coordenada, competindo pelos mesmos recursos de rádio (PRBs, potência de transmissão e handovers).
 
+
+**Executar unicamente os cenários de Baseline no ns-3:**
 ```bash
-# Executar unicamente os cenários de Baseline no ns-3:
 make run-baseline
-# ou diretamente via script:
-# bash scripts/run_baseline_experiment.sh
 ```
+
+**ou diretamente via script:**
+
+* bash scripts/run_baseline_experiment.sh:
 
 #### O que é executado nesta fase:
 1. **Compilação e Execução dos Cenários:**
@@ -449,20 +491,30 @@ make run-baseline
 
 Após estabelecer a linha de base de degradação, o cluster Kubernetes local (k3d/Rancher) e o Near-RT RIC são provisionados, implantando a **xApp RDL (H-RDL)** juntamente com as xApps de referência sob o framework de mediação.
 
+
+1. (Opcional) Garantir que o cluster k3d e Rancher estejam ativos:
 ```bash
-# 1. (Opcional) Garantir que o cluster k3d e Rancher estejam ativos:
 make cluster-create
-# ou verificar status atual:
-make status
-
-# 2. Realizar o deploy da infraestrutura Near-RT RIC + 3 Reference xApps + RDL via Helm:
-make helm-deploy
-# ou: make deploy-rdl
-
-# 3. Validar a prontidão dos Pods e executar Smoke Tests nos endpoints:
-make test-3xapps
-# ou: make smoke-test
 ```
+
+**ou verificar status atual:**
+```bash
+make status
+```
+
+2. Realizar o deploy da infraestrutura Near-RT RIC + 3 Reference xApps + RDL via Helm:
+```bash
+make helm-deploy
+```
+
+* ou: make deploy-rdl:
+
+3. Validar a prontidão dos Pods e executar Smoke Tests nos endpoints:
+```bash
+make test-3xapps
+```
+
+* ou: make smoke-test:
 
 ---
 
@@ -470,12 +522,15 @@ make test-3xapps
 
 Com a xApp RDL operacional e escutando no Near-RT RIC, os **mesmos cenários de simulação** são executados no ns-3 com a interface E2 habilitada (`--enableE2=true`).
 
+
+**Executar a simulação ns-3 conectada via E2 com mediação da xApp RDL:**
 ```bash
-# Executar a simulação ns-3 conectada via E2 com mediação da xApp RDL:
 make run-rdl
-# ou diretamente via script:
-# bash scripts/run_rdl_experiment.sh
 ```
+
+**ou diretamente via script:**
+
+* bash scripts/run_rdl_experiment.sh:
 
 #### Dinâmica de Mediação em Tempo Real:
 1. **E2SM-KPM Indications:** O simulador transmite periodicamente (janela de 200 ms) as métricas de RSRP, SINR, carga de tráfego e requisições de PRB/Potência.
@@ -492,8 +547,9 @@ make run-rdl
 
 Para processar todos os traces coletados (Baseline vs RDL), calcular os ganhos percentuais e gerar os datasets formatados para Machine Learning:
 
+
+**Processar métricas, gerar relatórios comparativos e gráficos:**
 ```bash
-# Processar métricas, gerar relatórios comparativos e gráficos:
 make analyze-benchmarks
 ```
 
@@ -510,8 +566,9 @@ make analyze-benchmarks
 
 Caso deseje executar todo o ciclo experimental (Fases 1, 2, 3 e 4) de forma 100% automatizada e sequencial em lote único:
 
+
+**Executa Baseline -> Deploy RDL -> Simulação RDL -> Análise Comparativa -> Auto-Commit:**
 ```bash
-# Executa Baseline -> Deploy RDL -> Simulação RDL -> Análise Comparativa -> Auto-Commit:
 make run-experiments
 ```
 
@@ -521,26 +578,34 @@ make run-experiments
 
 Após a conclusão dos experimentos, os resultados podem ser inspecionados ou enviados para o GitHub com os seguintes comandos:
 
+
+1. Visualizar o relatório executivo formatado no terminal:
 ```bash
-# 1. Visualizar o relatório executivo formatado no terminal:
 make view-results
-# ou: cat experiments/results/relatorio_comparativo.md
+```
 
-# 2. Inspecionar métricas JSON estruturadas:
+* ou: cat experiments/results/relatorio_comparativo.md:
+
+2. Inspecionar métricas JSON estruturadas:
+```bash
 python3 -m json.tool experiments/results/relatorio_comparativo.json
+```
 
-# 3. Inspecionar primeiras linhas dos datasets:
+3. Inspecionar primeiras linhas dos datasets:
+```bash
 head -n 10 experiments/results/dataset_rdl_decisions_ml.csv
 head -n 10 experiments/results/dataset_flow_metrics.csv
+```
 
-# 4. Sincronizar e enviar todos os resultados e datasets para o GitHub:
+4. Sincronizar e enviar todos os resultados e datasets para o GitHub:
+```bash
 make push-results
 ```
 
 #### Acesso aos Arquivos via Host (Windows / WSL2 / Remoto)
 * **No Windows Explorer (WSL2):** Pressione `Win + R` e acesse `\\wsl$\Ubuntu\root\XApp-RDL-F1\experiments\results` para abrir os arquivos `.csv` e `.md` diretamente no Excel ou VS Code.
 * **Via SSH Remoto (SCP):**
-  ```bash
+```bash
   scp -r root@<IP_DO_SERVIDOR>:~/XApp-RDL-F1/experiments/results ./meus_resultados
   ```
 
@@ -549,37 +614,50 @@ make push-results
 Para executar e visualizar em tempo real no console (PowerShell, CMD ou WSL2/Bash) as decisões e métricas de ambos os cenários:
 
 #### 1. Monitorar o Deploy e Pods no Kubernetes:
+
+**Acompanhar mudanças de estado dos Pods:**
 ```bash
-# Acompanhar mudanças de estado dos Pods:
 kubectl get pods -n ricxapp -w
-
-# Streaming de logs em tempo real (Fase 1):
-make logs
-
-# Streaming de logs em tempo real (Fase 2 - CA-RDL / MARL):
-make logs-f2
-# ou no PowerShell: kubectl logs -l app=ricxapp-iqos-xapp-rdl-f2 -n ricxapp -f
 ```
+
+**Streaming de logs em tempo real (Fase 1):**
+```bash
+make logs
+```
+
+**Streaming de logs em tempo real (Fase 2 - CA-RDL / MARL):**
+```bash
+make logs-f2
+```
+
+* ou no PowerShell: kubectl logs -l app=ricxapp-iqos-xapp-rdl-f2 -n ricxapp -f:
 
 #### 2. Execução dos 2 Cenários de Simulação com Saída ao Vivo no Console:
-```bash
-# Cenário 1 (Energy vs QoS / EEVS):
-make run-scenario1
-# ou no ns-3: export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --simTime=30"
 
-# Cenário 2 (Traffic Steering vs QoS / TVS):
-make run-scenario2
-# ou no ns-3: export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --simTime=30"
+**Cenário 1 (Energy vs QoS / EEVS):**
+```bash
+make run-scenario1
 ```
 
+* ou no ns-3: export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --simTime=30":
+
+**Cenário 2 (Traffic Steering vs QoS / TVS):**
+```bash
+make run-scenario2
+```
+
+* ou no ns-3: export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --simTime=30":
+
 #### 3. Execução da Suíte Comparativa e IA no Prompt:
+
+**No Windows (PowerShell/CMD):**
 ```powershell
-# No Windows (PowerShell/CMD):
 python scripts/evaluate_and_improve_algorithms.py
 python scripts/run_experiment_suite.py
 ```
+
+**No Linux / WSL2:**
 ```bash
-# No Linux / WSL2:
 python3 scripts/evaluate_and_improve_algorithms.py
 python3 scripts/run_experiment_suite.py
 ```

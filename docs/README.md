@@ -85,7 +85,19 @@ graph TD
 
 ---
 
-### 7. Catálogo Temático de Figuras e Ilustrações Científicas
+### 7. Tratados Científicos e Estudos Normativos Avançados
+* **[Volume 10: Estudo Científico das xApps, Interfaces E2/RMR, Relação H-RDL/CA-RDL, Normas e Viabilidade Paramétrica](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md)**
+  - **Público:** Pesquisadores Sênior, Autores Científicos e Engenheiros de Protocolo O-RAN.
+  - **Conteúdo:** Gênese científica e trabalhos seminais de cada xApp; Matriz I/O (ASN.1, RMR, 3GPP 28.552); Relação com H-RDL e CA-RDL; Conformidade O-RAN/3GPP/OSC/OpenRAN@Brasil; Viabilidade paramétrica.
+* **[Volume 11: Relatório de Execução e Validação Experimental dos Cenários S0 a S15](11_relatorio_execucao_validacao_s0_s15.md)**
+  - **Público:** Engenheiros de Validação, Autores Científicos e Comitês de Avaliação.
+  - **Conteúdo:** Execução empírica automatizada e benchmark comparativo dos 16 cenários formais (S0 a S15) para Baseline, H-RDL (Fase 1) e CA-RDL (Fase 2) com 100% de taxa de aprovação.
+* **[Planejamento da Campanha Experimental Expandida (S0 a S8)](planejamento_campanha_experimental_s0_s8.md)**
+* **[Análise de xApps Avançadas e Cenários Futuros (NTN / UAV / V2X / IIoT)](analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md)**
+
+---
+
+### 8. Catálogo Temático de Figuras e Ilustrações Científicas
 * **[Catálogo Temático de Figuras (docs/figures/README.md)](figures/README.md)**: Galeria visual completa e estruturada em 3 temas (Arquitetura & Modelagem, Topologias 5G NR e Resultados/Benchmarks Multi-Semente em 300 DPI).
 
 ---
@@ -95,10 +107,10 @@ graph TD
 | Perfil / Objetivo | Sequência Recomendada de Leitura |
 | :--- | :--- |
 | **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Matriz E2](e2/version-matrix.md) |
-| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
+| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Matriz E2](e2/version-matrix.md) |
+| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
 | **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Matriz E2](e2/version-matrix.md) |
+| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Matriz E2](e2/version-matrix.md) |
 
 ---
 

@@ -14,15 +14,21 @@
 ### 1.1. Sincronização e Reconstrução Limpa do Ambiente no Servidor
 ```bash
 cd ~/XApp-RDL-F1
+```
 
-# 1. Atualização com o repositório central
+1. Atualização com o repositório central
+```bash
 git fetch origin
 git reset --hard origin/main
+```
 
-# 2. Reconstrução da imagem Docker
+2. Reconstrução da imagem Docker
+```bash
 docker build --file docker/Dockerfile --tag iqos-xapp-rdl:1.1.0 .
+```
 
-# 3. Importação nos nós do containerd (k3d)
+3. Importação nos nós do containerd (k3d)
+```bash
 for node in $(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)"); do
     echo "Carregando no nó: $node..."
     docker save iqos-xapp-rdl:1.1.0 | docker exec -i $node ctr images import -
@@ -32,35 +38,51 @@ done
 ### 1.2. Sincronização Contínua e Atualização Automática para o GitHub
 Para agilizar o desenvolvimento, o projeto disponibiliza scripts de sincronização instantânea e monitoramento contínuo de alterações:
 
-```bash
-# Sincronização pontual com mensagem automática ou personalizada:
-make sync
-# ou especificando mensagem: make sync MSG="feat(rdl): add new safety clamp logic"
 
-# Atualização automática contínua (monitora alterações em arquivos e envia ao salvar):
-make auto-sync
-# ou com intervalo customizado em segundos: make auto-sync INTERVAL=10
+**Sincronização pontual com mensagem automática ou personalizada:**
+```bash
+make sync
 ```
+
+* ou especificando mensagem: make sync MSG="feat(rdl): add new safety clamp logic":
+
+**Atualização automática contínua (monitora alterações em arquivos e envia ao salvar):**
+```bash
+make auto-sync
+```
+
+* ou com intervalo customizado em segundos: make auto-sync INTERVAL=10:
 
 ### 1.3. Procedimento de Rollback Seguro (Desfazer Alterações com Backup Tag)
 Caso precise reverter commits ou descartar alterações de trabalho com segurança:
 
+
+1. Listar histórico de commits e tags de backup disponíveis:
 ```bash
-# 1. Listar histórico de commits e tags de backup disponíveis:
 make rollback-list
+```
 
-# 2. Rollback do último commit local (cria tag backup/rollback_* antes de reverter):
+2. Rollback do último commit local (cria tag backup/rollback_* antes de reverter):
+```bash
 make rollback
+```
 
-# 3. Rollback de múltiplos commits ou para um commit específico:
+3. Rollback de múltiplos commits ou para um commit específico:
+```bash
 make rollback STEPS=2
-# ou: make rollback COMMIT=399173a
+```
 
-# 4. Rollback sincronizado diretamente com o GitHub (force-with-lease):
+* ou: make rollback COMMIT=399173a:
+
+4. Rollback sincronizado diretamente com o GitHub (force-with-lease):
+```bash
 make rollback-push
-# ou: make rollback-push COMMIT=399173a
+```
 
-# 5. Descartar apenas alterações de trabalho não commitadas locais (clean):
+* ou: make rollback-push COMMIT=399173a:
+
+5. Descartar apenas alterações de trabalho não commitadas locais (clean):
+```bash
 make rollback-clean
 ```
 
@@ -77,11 +99,14 @@ make rollback-clean
   1. O host WSL2 tenta resolver o nome `rancher-server` no servidor DNS do Windows (`10.255.255.254:53`), que não conhece esse hostname Docker.
   2. O Rancher expõe a porta `8443` no host Windows/WSL2, enquanto internamente no container e na rede Docker a porta padrão é `443`.
 * **Solução Automatizada (Recomendada):**
-  ```bash
-  # Execute o comando make informando a URL/Token real de importação:
-  make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
 
-  # Ou execute diretamente o script com auto-descoberta de token:
+**Execute o comando make informando a URL/Token real de importação:**
+```bash
+  make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
+  ```
+
+**Ou execute diretamente o script com auto-descoberta de token:**
+```bash
   bash scripts/register_rancher.sh
   ```
 
@@ -98,14 +123,19 @@ make rollback-clean
 * **Solução:**
   1. Obtenha o comando de registro real na UI do Rancher (**Cluster Management** > **Clusters** > Seu cluster).
   2. Substitua `TOKEN_REAL.yaml` pelo nome exato do arquivo (ex: `c-m-abcdef123_c-m-abcdef123.yaml`):
-     ```bash
-     # Conectar container à rede do cluster
+
+* Conectar container à rede do cluster:
+```bash
      docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
+     ```
 
-     # Baixar manifesto usando o token real
+* Baixar manifesto usando o token real:
+```bash
      docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
+     ```
 
-     # Configurar o agente e reiniciar
+* Configurar o agente e reiniciar:
+```bash
      kubectl wait --for=condition=available --timeout=60s deployment/cattle-cluster-agent -n cattle-system 2>/dev/null || true
      kubectl set env deployment/cattle-cluster-agent -n cattle-system \
        CATTLE_SERVER="https://rancher-server:443" \
@@ -119,7 +149,7 @@ make rollback-clean
 ### 2.3. Erro: `cattle-cluster-agent` em `CrashLoopBackOff` ou `Connection Refused`
 * **Causa:** O agente tenta acessar `127.0.0.1:8443` (loopback interno do Pod) ou sofre rejeição de certificado TLS autoassinado.
 * **Solução:**
-  ```bash
+```bash
   docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
   kubectl set env deployment/cattle-cluster-agent -n cattle-system \
     CATTLE_SERVER="https://rancher-server:443" \
@@ -133,7 +163,7 @@ make rollback-clean
 * **Causa:** O Kubernetes tentou buscar a imagem `iqos-xapp-rdl:1.1.0` no Docker Hub público em vez de usar o containerd local do nó onde o Pod foi agendado.
 * **Solução:**
   1. Carregue a imagem em todos os nós containerd com:
-     ```bash
+```bash
      for node in $(docker ps --format '{{.Names}}' | grep -E "k3d-.*-(server|agent)"); do
          docker save iqos-xapp-rdl:1.1.0 | docker exec -i $node ctr images import -
      done
@@ -151,7 +181,7 @@ make rollback-clean
 ### 2.6. Erro: `/bin/sh: 1: pytest: not found (Error 127)`
 * **Causa:** O binário do `pytest` não está instalado no ambiente global do host ou o ambiente virtual (`.venv`) não foi ativado antes de executar `make test`.
 * **Solução:**
-  ```bash
+```bash
   python3 -m venv .venv
   source .venv/bin/activate
   pip install --upgrade pip
@@ -164,7 +194,7 @@ make rollback-clean
 ### 2.7. Erro: `Could not find a version that satisfies the requirement networkx==3.2.1`
 * **Causa:** Versões estritas de pacotes que exigem Python $\ge 3.9$ sendo instaladas em distros com Python 3.8 (ex: Ubuntu 20.04 LTS).
 * **Solução:** Utilize operadores flexíveis (`>=`) ou execute os testes diretamente via contêiner:
-  ```bash
+```bash
   docker run --rm -v $(pwd):/app -w /app -u 0 iqos-xapp-rdl:1.1.0 sh -c "pip install -r requirements-dev.txt && pytest tests/ -v"
   ```
 
@@ -177,11 +207,11 @@ make rollback-clean
 * **Causa:** O terminal está executando diretamente como usuário `root` (comum em instâncias WSL2 ou contêineres Docker mínimos). Como o usuário já possui os privilégios mais altos do sistema, o utilitário `sudo` não vem instalado e não é necessário para gerenciar pacotes.
 * **Solução:**
   1. Execute comandos administrativos (como `apt-get`) diretamente, sem prefixar `sudo`:
-     ```bash
+```bash
      apt-get update && apt-get install -y build-essential cmake git
      ```
   2. Caso deseje disponibilizar o comando `sudo` para compatibilidade com scripts de terceiros:
-     ```bash
+```bash
      apt-get update && apt-get install -y sudo
      ```
 
@@ -193,7 +223,7 @@ make rollback-clean
 * **Causa:** O front-end em Python do simulador ns-3 (`./ns3`) contém uma validação intencional (`refuse_run_as_root()`) que impede a compilação como superusuário (`UID 0`) para evitar modificações acidentais em arquivos do sistema.
 * **Solução:**
   1. **Opção Recomendada (Bypass de verificação no WSL2/Docker):** Restaure o arquivo e insira o retorno imediato na função:
-     ```bash
+```bash
      cd ~/ns3-oran-workspace/ns-3-oran
      git checkout ./ns3
      sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
@@ -201,11 +231,11 @@ make rollback-clean
      ./ns3 build -j$(nproc)
      ```
   2. **Opção Alternativa:** Utilize o script automatizado do projeto a partir de `~/XApp-RDL-F1`:
-     ```bash
+```bash
      make setup-ns3
      ```
   3. **Opção por Usuário sem privilégios:** Crie um usuário padrão Linux e execute a compilação:
-     ```bash
+```bash
      useradd -m -s /bin/bash oran
      chown -R oran:oran ~/ns3-oran-workspace ~/XApp-RDL-F1
      su - oran
@@ -220,10 +250,13 @@ make rollback-clean
   - `make: *** No rule to make target 'analyze-benchmarks'. Stop.`
 * **Causa:** O comando `make` foi invocado dentro do diretório do simulador (`~/ns3-oran-workspace/ns-3-oran`) em vez de no diretório raiz do repositório da xApp RDL. O `Makefile` que declara os alvos de orquestração experimental reside em `~/XApp-RDL-F1`.
 * **Solução:** Navegue de volta ao diretório raiz do projeto antes de invocar os alvos do `make`:
-  ```bash
+```bash
   cd ~/XApp-RDL-F1
   make run-experiments
-  # ou
+  ```
+
+* ou:
+```bash
   make analyze-benchmarks
   ```
 
@@ -236,15 +269,15 @@ make rollback-clean
 * **Causa:** Medida de segurança introduzida a partir do Git 2.35.2 (CVE-2022-24765) que impede a execução de operações Git quando o dono do diretório no sistema de arquivos é diferente do usuário que está executando o comando (muito comum ao alternar entre usuário comum e `root` no WSL2 ou contêineres).
 * **Solução:**
   1. **Para este repositório específico:**
-     ```bash
+```bash
      git config --global --add safe.directory /root/XApp-RDL-F1
      ```
   2. **Para todos os repositórios (Recomendado para ambientes de laboratório/WSL2):**
-     ```bash
+```bash
      git config --global --add safe.directory '*'
      ```
   3. Após configurar, execute normalmente:
-     ```bash
+```bash
      git fetch origin
      git reset --hard origin/main
      ```
@@ -258,19 +291,19 @@ make rollback-clean
 * **Causa:** O repositório de pacotes padrão do Ubuntu 20.04 (Focal) fornece a versão 3.16.3 do CMake. As versões recentes do ns-3 (ns-3-dev / 5G-LENA) utilizam recursos modernos de compilação que exigem CMake $\ge 3.25$.
 * **Solução Rápida:**
   1. Instale/atualize o CMake via `pip3`:
-     ```bash
+```bash
      apt-get update && apt-get install -y python3-pip
      pip3 install --upgrade cmake
      hash -r
      ```
   2. Ou limpe os diretórios de cache e reexecute o script automatizado:
-     ```bash
+```bash
      cd ~/XApp-RDL-F1
      git fetch origin && git reset --hard origin/main
      make setup-ns3
      ```
   3. Se compilar manualmente no diretório do ns-3 (recomenda-se `-j 2` para evitar OOM no WSL2):
-     ```bash
+```bash
      cd ~/ns3-oran-workspace/ns-3-oran
      rm -rf cmake-cache build
      ./ns3 configure -d optimized --enable-examples --enable-tests
@@ -285,7 +318,7 @@ make rollback-clean
 * **Causa:** O repositório `ns-3-dev` padrão não inclui o módulo **5G-LENA (`nr`)**. O módulo deve ser clonado dentro de `contrib/nr` para que o CMake gere os headers 5G NR.
 * **Solução:**
   1. Execute a clonagem e compilação do 5G-LENA:
-     ```bash
+```bash
      cd ~/ns3-oran-workspace/ns-3-oran
      git clone https://gitlab.com/cttc-lena/nr.git contrib/nr --depth 1
      rm -rf cmake-cache build
@@ -293,7 +326,7 @@ make rollback-clean
      ./ns3 build -j 2
      ```
   2. Ou execute o script automatizado atualizado:
-     ```bash
+```bash
      cd ~/XApp-RDL-F1 && make setup-ns3
      ```
 
@@ -318,14 +351,19 @@ make rollback-clean
 
 #### Passo 1: Desbloquear o WSL2 e liberar a memória no PowerShell do Windows
 Abra o **PowerShell como Administrador** no Windows:
+
+1. Finalizar processos travados do cliente WSL
 ```powershell
-# 1. Finalizar processos travados do cliente WSL
 Stop-Process -Name wsl, wslhost, wslrelay -Force -ErrorAction SilentlyContinue
+```
 
-# 2. Reiniciar o serviço do WSL
+2. Reiniciar o serviço do WSL
+```powershell
 Restart-Service -Name WSLService -Force
+```
 
-# 3. Desligar o subsistema WSL2 para liberar a RAM
+3. Desligar o subsistema WSL2 para liberar a RAM
+```powershell
 wsl --shutdown
 ```
 
@@ -340,38 +378,52 @@ Set-Content -Path "$env:USERPROFILE\.wslconfig" -Value "[wsl2]`nmemory=10GB`nswa
 
 #### Passo 3: Limpar Travas Órfãs (index.lock / reset-flag) e Restabelecer Roteamento de Rede
 Após paradas não planejadas, o Rancher pode entrar em crash loop devido a locks de git ou flags de reset corrompidas. Execute no Ubuntu / WSL2:
+
+1. Limpar travas órfãs do Git e flags de reset nos volumes do Docker
 ```bash
-# 1. Limpar travas órfãs do Git e flags de reset nos volumes do Docker
 find /var/lib/docker/volumes -name 'index.lock' -delete 2>/dev/null || true
 find /var/lib/docker/volumes -name 'reset-flag' -delete 2>/dev/null || true
+```
 
-# 2. Habilitar encaminhamento IPv4 e regras de iptables
+2. Habilitar encaminhamento IPv4 e regras de iptables
+```bash
 sysctl -w net.ipv4.ip_forward=1
 iptables -I FORWARD 1 -j ACCEPT
 iptables -P FORWARD ACCEPT
+```
 
-# 3. Reiniciar o container do Rancher
+3. Reiniciar o container do Rancher
+```bash
 docker restart rancher-server
 ```
 
 #### Passo 4: Reiniciar o Cluster k3d e Ressincronizar o Agente do Rancher
-```bash
-# 1. Reiniciar os containers do cluster k3d
-k3d cluster stop rancher-lab && k3d cluster start rancher-lab
 
-# 2. Obter o IP interno do container rancher-server na rede k3d-rancher-lab
+1. Reiniciar os containers do cluster k3d
+```bash
+k3d cluster stop rancher-lab && k3d cluster start rancher-lab
+```
+
+2. Obter o IP interno do container rancher-server na rede k3d-rancher-lab
+```bash
 RANCHER_IP=$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{if eq $k "k3d-rancher-lab"}}{{$v.IPAddress}}{{end}}{{end}}' rancher-server)
 echo "IP do Rancher Server: $RANCHER_IP"
+```
 
-# 3. Atualizar as variáveis de ambiente do cattle-cluster-agent com o IP direto e bypass TLS
+3. Atualizar as variáveis de ambiente do cattle-cluster-agent com o IP direto e bypass TLS
+```bash
 docker exec k3d-rancher-lab-server-0 kubectl set env deployment/cattle-cluster-agent -n cattle-system \
   CATTLE_SERVER="https://${RANCHER_IP}:443" \
   CATTLE_SSL_NO_VERIFY="true"
+```
 
-# 4. Reiniciar o rollout do agente
+4. Reiniciar o rollout do agente
+```bash
 docker exec k3d-rancher-lab-server-0 kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
+```
 
-# 5. Validar que todos os pods voltaram ao status 1/1 Running
+5. Validar que todos os pods voltaram ao status 1/1 Running
+```bash
 docker exec k3d-rancher-lab-server-0 kubectl get pods -A
 ```
 
@@ -380,7 +432,10 @@ Sempre que for recompilar o ns-3 ou seus cenários C++, utilize explicitamente a
 ```bash
 cd ~/ns3-oran-workspace/ns-3-oran
 ./ns3 build -j 2
-# ou
+```
+
+* ou:
+```bash
 ninja -j 2
 ```
 
@@ -397,7 +452,7 @@ ninja -j 2
   - O diretório de trabalho atual do shell (`$PWD`) tornou-se órfão/inexistente no sistema de arquivos do Linux, impedindo a criação de novos subdiretórios pelo `git clone`.
 * **Solução:**
   Retorne explicitamente ao diretório `home` (`cd ~`) antes de invocar o `git clone`:
-  ```bash
+```bash
   cd ~
   rm -rf ~/XApp-RDL-F1
   git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
@@ -418,11 +473,11 @@ ninja -j 2
 * **Procedimento de Recuperação Completo:**
   1. Obtenha o nome do token gerado na UI do Rancher (ex: `65kx9pqxrtlpct7h92qrh4gjb9kfjj6tt5xc6qf2tg5n57kv797pp2_c-m-ltckzzqj.yaml`).
   2. Baixe e aplique o manifesto apontando para `https://localhost:8443`:
-     ```bash
+```bash
      curl --insecure -sfL https://localhost:8443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
      ```
   3. Configure o agente com o IP do nó do cluster e bypass de verificação SSL:
-     ```bash
+```bash
      NODE_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
      kubectl set env deployment/cattle-cluster-agent -n cattle-system \
        CATTLE_SERVER="https://${NODE_IP}:8443" \
@@ -431,7 +486,7 @@ ninja -j 2
      kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
      ```
   4. Verifique se o pod do agente atingiu o status `1/1 Running`:
-     ```bash
+```bash
      kubectl get pods -n cattle-system
      ```
 
@@ -447,15 +502,15 @@ ninja -j 2
   - O limite padrão de observadores de arquivos (`inotify max_user_watches` e `max_user_instances`) no kernel do WSL2 é excedido quando múltiplos namespaces e diretórios do containerd/k3s são criados.
 * **Solução Definitiva:**
   1. Aumente os limites do kernel imediatamente no terminal do WSL:
-     ```bash
+```bash
      sysctl -w fs.inotify.max_user_watches=1048576 fs.inotify.max_user_instances=8192 fs.file-max=2097152
      ```
   2. Torne a configuração permanente gravando em `/etc/sysctl.d/99-k3s.conf`:
-     ```bash
+```bash
      echo -e "fs.inotify.max_user_watches=1048576\nfs.inotify.max_user_instances=8192\nfs.file-max=2097152" > /etc/sysctl.d/99-k3s.conf
      ```
   3. Reinicie o serviço Kubernetes:
-     ```bash
+```bash
      systemctl restart k3s
      systemctl status k3s --no-pager
      ```
@@ -467,29 +522,41 @@ Para garantir recuperação instantânea contra desastres ou corrupção do disc
 ### 3.1. Backup Snapshot Completo (via PowerShell do Windows)
 Abra o **PowerShell como Administrador**:
 
+
+1. Listar distribuições ativas
 ```powershell
-# 1. Listar distribuições ativas
 wsl --list --verbose
+```
 
-# 2. Criar diretório de destino no Windows
+2. Criar diretório de destino no Windows
+```powershell
 New-Item -ItemType Directory -Force -Path "C:\BackupsWSL"
+```
 
-# 3. Desligar o WSL para garantir integridade do disco
+3. Desligar o WSL para garantir integridade do disco
+```powershell
 wsl --shutdown
+```
 
-# 4. Exportar a imagem completa do sistema para arquivo .tar
+4. Exportar a imagem completa do sistema para arquivo .tar
+```powershell
 wsl --export Ubuntu-20.04 "C:\BackupsWSL\ubuntu-20.04-backup-$(Get-Date -Format 'yyyyMMdd').tar"
 ```
 
 ### 3.2. Restauração do Backup do WSL
+
+* Criar diretório da nova instância:
 ```powershell
-# Criar diretório da nova instância
 New-Item -ItemType Directory -Force -Path "C:\WSL\Ubuntu20"
+```
 
-# Importar o snapshot .tar
+* Importar o snapshot .tar:
+```powershell
 wsl --import Ubuntu-20.04-Restaurado "C:\WSL\Ubuntu20" "C:\BackupsWSL\ubuntu-20.04-backup-YYYYMMDD.tar"
+```
 
-# Iniciar o sistema restaurado
+* Iniciar o sistema restaurado:
+```powershell
 wsl -d Ubuntu-20.04-Restaurado
 ```
 

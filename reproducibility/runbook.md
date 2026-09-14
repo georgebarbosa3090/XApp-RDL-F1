@@ -22,31 +22,40 @@
 ## 2. Roteiro Passo a Passo de Execução
 
 ### Passo 1: Inicialização do Cluster k3d (Escolha sua topologia)
+
+* Opção 1: Single-Node (~450 MB RAM):
 ```bash
-# Opção 1: Single-Node (~450 MB RAM)
 k3d cluster create rdl-cluster --servers 1 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
+```
 
-# Opção 2: Dual-Node (~900 MB RAM)
+* Opção 2: Dual-Node (~900 MB RAM):
+```bash
 k3d cluster create rdl-cluster --servers 1 --agents 1 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
+```
 
-# Opção 3: Multi-Node (~1.5 GB RAM)
+* Opção 3: Multi-Node (~1.5 GB RAM):
+```bash
 k3d cluster create rdl-cluster --servers 1 --agents 2 -p "36422:36422/sctp@server:0" -p "8080-8087:8080-8087@server:0" -p "4560-4561:4560-4561@server:0"
 ```
 
 ### Passo 2: Implantação da Infraestrutura Near-RT RIC e xApps
+
+* Deploy via manifestos Kubernetes puros (Perfil OpenRAN@Brasil Blueprint v3):
 ```bash
-# Deploy via manifestos Kubernetes puros (Perfil OpenRAN@Brasil Blueprint v3)
 kubectl apply -f deploy/openran-br-v3/config-map.yaml
 kubectl apply -f deploy/openran-br-v3/service.yaml
 kubectl apply -f deploy/openran-br-v3/deployment.yaml
+```
 
-# Verificar prontidão dos pods
+* Verificar prontidão dos pods:
+```bash
 kubectl get pods -n ricxapp -l app=iqos-xapp-rdl
 ```
 
 ### Passo 3: Execução da Suíte de 3 Simulações Consecutivas
+
+* Executa em sequência rigorosa os cenários TVS, EEVS e Closed-Loop NORI (N = 30 Runs):
 ```bash
-# Executa em sequência rigorosa os cenários TVS, EEVS e Closed-Loop NORI (N = 30 Runs)
 python scripts/run_3_consecutive_simulations.py
 ```
 

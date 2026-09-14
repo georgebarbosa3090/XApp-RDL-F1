@@ -133,25 +133,28 @@ graph TD
 A campanha experimental está totalmente automatizada via scripts Python e Makefile:
 
 1. **Execução de Toda a Bateria S0 a S8 ($N=30$ sementes estatísticas):**
-   ```bash
+```bash
    make run-campaign-s0-s8
-   # Executa scripts/run_full_campaign_s0_s8.py gerando results/campaign_s0_s8/campaign_s0_s8_results.csv
    ```
+
+* Executa scripts/run_full_campaign_s0_s8.py gerando results/campaign_s0_s8/campaign_s0_s8_results.csv:
 
 2. **Benchmark Específico de Sobrecarga e Concorrência (S6 Conflict Storm):**
-   ```bash
+```bash
    make run-s6-storm
-   # Executa scripts/run_conflict_storm_benchmark.py gerando results/conflict_storm/
    ```
+
+* Executa scripts/run_conflict_storm_benchmark.py gerando results/conflict_storm/:
 
 3. **Suíte de Testes Unitários e Propriedades Formais:**
-   ```bash
+```bash
    make test-campaign
-   # Executa pytest tests/unit/test_campaign_scenarios.py -v
    ```
 
+* Executa pytest tests/unit/test_campaign_scenarios.py -v:
+
 4. **Regeneração de Vetores Canônicos O-RAN:**
-   ```bash
+```bash
    make generate-golden-vectors
    make test-codec
    ```

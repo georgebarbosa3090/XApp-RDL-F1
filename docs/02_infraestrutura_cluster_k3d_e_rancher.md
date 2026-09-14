@@ -66,11 +66,14 @@ graph TD
 
 #### Opção A: Topologia 1 — Single-Node (Recomendada / Padrão do Repositório)
 Cria um cluster ultraleve de 1 nó com todas as portas O-RAN mapeadas:
-```bash
-# Deletar cluster antigo (se existir)
-k3d cluster delete rancher-lab 2>/dev/null || true
 
-# Criar cluster Single-Node
+* Deletar cluster antigo (se existir):
+```bash
+k3d cluster delete rancher-lab 2>/dev/null || true
+```
+
+* Criar cluster Single-Node:
+```bash
 k3d cluster create rancher-lab \
   --servers 1 \
   --agents 0 \
@@ -79,8 +82,10 @@ k3d cluster create rancher-lab \
   --port "8081:8081@server:0" \
   --port "4560:4560@server:0" \
   --port "4561:4561@server:0"
+```
 
-# Configurar kubeconfig local
+* Configurar kubeconfig local:
+```bash
 mkdir -p ~/.kube && k3d kubeconfig get rancher-lab > ~/.kube/config && chmod 600 ~/.kube/config
 ```
 
@@ -200,8 +205,9 @@ EOF
 ### 4.3. Validação do Status do Redis DBAAS
 ```bash
 kubectl get pods -n ricplt -o wide
-# Saída esperada: deployment-ricplt-dbaas-redis-xxx   1/1   Running
 ```
+
+* Saída esperada: deployment-ricplt-dbaas-redis-xxx   1/1   Running:
 
 ---
 
@@ -222,14 +228,19 @@ flowchart TD
 
 O Rancher Server precisa ser iniciado como contêiner Docker antes de tentar acessar a interface web:
 
+
+**Se houver contêiner anterior em conflito ou para recriar:**
 ```bash
-# Se houver contêiner anterior em conflito ou para recriar:
 make rancher-stop
+```
 
-# Opção A: Via Makefile (Recomendado)
+* Opção A: Via Makefile (Recomendado):
+```bash
 make rancher-start
+```
 
-# Opção B: Comando Docker Direto
+* Opção B: Comando Docker Direto:
+```bash
 docker run -d --restart=unless-stopped \
   -p 8088:80 -p 8443:443 \
   --privileged \
@@ -246,15 +257,20 @@ docker run -d --restart=unless-stopped \
 
 Na primeira execução, o Rancher leva cerca de **60 a 90 segundos** para inicializar seu plano de controle interno e certificados:
 
-```bash
-# 1. Acompanhar logs até a inicialização completa (Pressione Ctrl+C quando pronto):
-make rancher-logs
-# ou: docker logs -f rancher-server
 
-# 2. Obter a senha de primeiro acesso (Bootstrap Password):
-make rancher-password
-# ou: docker logs rancher-server 2>&1 | grep "Bootstrap Password:"
+1. Acompanhar logs até a inicialização completa (Pressione Ctrl+C quando pronto):
+```bash
+make rancher-logs
 ```
+
+* ou: docker logs -f rancher-server:
+
+2. Obter a senha de primeiro acesso (Bootstrap Password):
+```bash
+make rancher-password
+```
+
+* ou: docker logs rancher-server 2>&1 | grep "Bootstrap Password:":
 
 ---
 
@@ -272,13 +288,18 @@ make rancher-password
 
 Para importar o cluster `rancher-lab` no Rancher sem sofrer com problemas de resolução DNS do WSL2 ou conflitos de porta (`8443` no host vs `443` no Docker):
 
-```bash
-# 1. No painel do Rancher, acesse: Cluster Management -> Clusters -> Import Existing -> Selecione 'Generic' -> Nomeie como 'rancher-lab'
-# 2. Copie o comando de registro gerado na UI do Rancher (ele conterá a URL com o token gerado, ex: https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml)
-# 3. Execute o helper automatizado do repositório passando a URL ou o nome do arquivo com token:
-make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
 
-# Ou simplesmente execute o script (ele tentará autodescobrir o token se não informado):
+1. No painel do Rancher, acesse: Cluster Management -> Clusters -> Import Existing -> Selecione 'Generic' -> Nomeie como 'rancher-lab'
+
+2. Copie o comando de registro gerado na UI do Rancher (ele conterá a URL com o token gerado, ex: https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml)
+
+3. Execute o helper automatizado do repositório passando a URL ou o nome do arquivo com token:
+```bash
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-abcdef_c-m-abcdef.yaml"
+```
+
+**Ou simplesmente execute o script (ele tentará autodescobrir o token se não informado):**
+```bash
 bash scripts/register_rancher.sh
 ```
 
@@ -287,21 +308,29 @@ bash scripts/register_rancher.sh
 > Não digite literalmente `<token>` no terminal Bash, pois os caracteres `<` e `>` são interpretados como redirecionamento de arquivo (`-bash: token: No such file or directory`), impedindo o download do manifesto e a criação do namespace `cattle-system`. Sempre substitua pelo token real (ex: `c-m-abcdef123_c-m-abcdef123.yaml`).
 
 #### Procedimento Manual Equivalente (Passo a Passo Interno):
+
+* A. Conectar o container do Rancher à rede Docker do cluster k3d:
 ```bash
-# A. Conectar o container do Rancher à rede Docker do cluster k3d
 docker network connect k3d-rancher-lab rancher-server 2>/dev/null || true
+```
 
-# B. Baixar e aplicar o manifesto usando o TOKEN REAL gerado pela UI do Rancher
-# (Substitua TOKEN_REAL.yaml pelo nome do arquivo gerado pelo Rancher, ex: c-m-xxxx_c-m-xxxx.yaml)
+* B. Baixar e aplicar o manifesto usando o TOKEN REAL gerado pela UI do Rancher:
+
+* (Substitua TOKEN_REAL.yaml pelo nome do arquivo gerado pelo Rancher, ex: c-m-xxxx_c-m-xxxx.yaml):
+```bash
 docker exec rancher-server curl --insecure -sfL https://localhost:443/v3/import/TOKEN_REAL.yaml | kubectl apply -f -
+```
 
-# C. Configurar o agente para comunicação direta com bypass de SSL interno
+* C. Configurar o agente para comunicação direta com bypass de SSL interno:
+```bash
 kubectl wait --for=condition=available --timeout=60s deployment/cattle-cluster-agent -n cattle-system 2>/dev/null || true
 kubectl set env deployment/cattle-cluster-agent -n cattle-system \
   CATTLE_SERVER="https://rancher-server:443" \
   CATTLE_SSL_NO_VERIFY="true"
+```
 
-# D. Reiniciar e validar o Pod do Agente
+* D. Reiniciar e validar o Pod do Agente:
+```bash
 kubectl rollout restart deployment/cattle-cluster-agent -n cattle-system
 kubectl get pods -n cattle-system -w
 ```
