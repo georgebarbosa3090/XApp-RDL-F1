@@ -66,7 +66,7 @@ target_scenarios: "S9 a S15 (NTN, UAV, V2X, IIoT, ISAC)"
 | Portão | Nome do Portão | Descrição do Critério de Aceitação Normativo | Status de Maturidade |
 | :--- | :--- | :--- | :---: |
 | **F2-G0** | Zero Sintético | Zero dados sintéticos em publicação; proveniência validada por hash SHA-256. | **UNIT_VALIDATED (Software Firewall PASS)**<br/>*Scientific Data Provenance: PENDING (ns-3)* |
-| **F2-G1** | Cobertura de Testes | Suíte de testes unitários e de integração (84/84 PASS). | **UNIT_VALIDATED (84/84 PASS)**<br/>*Coverage Target >85%: NOT MEASURED* |
+| **F2-G1** | Cobertura de Testes | Suíte de testes unitários e de integração (84/84 PASS, 73% stmts covered). | **UNIT_VALIDATED (84/84 PASS)**<br/>*Measured Statement Coverage: 73% (Target >85% PENDING)* |
 | **F2-G2** | Determinismo Estrito | Inicializações determinísticas e sementes fixadas para reprodutibilidade. | **UNIT_VALIDATED** |
 | **F2-G3** | Integridade de Codificação | Ausência total de caracteres UTF-8 BOM (`U+FEFF`) no código-fonte. | **IMPLEMENTED** |
 | **F2-G4** | Constantes RMR / E2AP | RMR Message Types alinhados com E2AP v03.01 (12040 REQ, 12041 ACK, 12042 FAIL). | **IMPLEMENTED** |
