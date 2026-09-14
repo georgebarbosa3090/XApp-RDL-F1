@@ -78,6 +78,10 @@ def validate_run_directory(run_dir: str) -> bool:
     source = manifest.get("source", manifest.get("evidence_level", ""))
     is_pub_eligible = manifest.get("publication_eligible", source in allowed_sources)
 
+    if source not in allowed_sources and not any(banned in str(source) for banned in banned_sources):
+        print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: '{source}'")
+        return False
+
     if any(banned in str(source) for banned in banned_sources):
         if is_pub_eligible:
             print(f"  [PROVENANCE_INVALID] Conflito de política: Fonte '{source}' é proibida para publicação, mas foi marcada como elegível.")
@@ -87,7 +91,13 @@ def validate_run_directory(run_dir: str) -> bool:
             return True
 
     # 2. Obtém backend e valida campos obrigatórios (Fail-Closed por Backend)
-    backend_id = manifest.get("backend", manifest.get("backend_id", "NORI_NS3")).upper()
+    known_backends = set(policy.get("backend_evidence_rules", {}).keys())
+    raw_backend = manifest.get("backend", manifest.get("backend_id"))
+    if is_pub_eligible and (not raw_backend or raw_backend.upper() not in known_backends):
+        print(f"  [PROVENANCE_INVALID] Backend experimental desconhecido ou não configurado na política: '{raw_backend}'")
+        return False
+        
+    backend_id = (raw_backend or "NORI_NS3").upper()
     backend_rules = policy.get("backend_evidence_rules", {}).get(backend_id, {
         "required_manifest_fields": ["nori_commit"],
         "required_raw_extensions": [".xml", ".raw"]
@@ -135,11 +145,13 @@ def validate_run_directory(run_dir: str) -> bool:
                     target_file = os.path.join(run_dir, rel_path)
                     if not os.path.exists(target_file):
                         target_file = os.path.join(os.path.dirname(hashes_file), rel_path)
-                    if os.path.exists(target_file):
-                        actual_hash = hash_file(target_file)
-                        if actual_hash.lower() != expected_hash.lower():
-                            print(f"  [PROVENANCE_INVALID] Divergência SHA256 em '{rel_path}': esperado {expected_hash[:8]}..., obtido {actual_hash[:8]}...")
-                            return False
+                    if not os.path.exists(target_file):
+                        print(f"  [PROVENANCE_INVALID] Arquivo referenciado em hashes.sha256 não encontrado no disco: '{rel_path}'")
+                        return False
+                    actual_hash = hash_file(target_file)
+                    if actual_hash.lower() != expected_hash.lower():
+                        print(f"  [PROVENANCE_INVALID] Divergência SHA256 em '{rel_path}': esperado {expected_hash[:8]}..., obtido {actual_hash[:8]}...")
+                        return False
 
     print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)} [Backend={backend_id}]")
     return True

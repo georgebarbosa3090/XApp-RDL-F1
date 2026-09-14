@@ -1,6 +1,7 @@
+import time
 import threading
 from dataclasses import dataclass
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, Any
 
 @dataclass
 class RicRequestId:
@@ -18,7 +19,7 @@ class RicRequestIdAllocator:
         self._base_requestor_id = base_requestor_id
         self._lock = threading.Lock()
         self._instance_counters: Dict[Tuple[str, int], int] = {}
-        self._correlation_map: Dict[Tuple[str, int, int, int], Dict[str, str]] = {}
+        self._correlation_map: Dict[Tuple[str, int, int, int], Dict[str, Any]] = {}
 
     def allocate(
         self,
@@ -39,7 +40,8 @@ class RicRequestIdAllocator:
                 corr_key = (node_id, ran_function_id, requestor_id, instance_id)
                 self._correlation_map[corr_key] = {
                     "decision_id": decision_id or "",
-                    "action_id": action_id or ""
+                    "action_id": action_id or "",
+                    "allocated_at": time.time()
                 }
                 
             return RicRequestId(requestor_id=requestor_id, instance_id=instance_id)
@@ -50,12 +52,37 @@ class RicRequestIdAllocator:
         ran_function_id: int,
         requestor_id: int,
         instance_id: int
-    ) -> Optional[Dict[str, str]]:
+    ) -> Optional[Dict[str, Any]]:
         with self._lock:
             corr_key = (node_id, ran_function_id, requestor_id, instance_id)
             return self._correlation_map.get(corr_key)
+
+    def pop_correlation(
+        self,
+        node_id: str,
+        ran_function_id: int,
+        requestor_id: int,
+        instance_id: int
+    ) -> Optional[Dict[str, Any]]:
+        with self._lock:
+            corr_key = (node_id, ran_function_id, requestor_id, instance_id)
+            return self._correlation_map.pop(corr_key, None)
+
+    def cleanup_expired(self, ttl_seconds: float = 300.0) -> int:
+        now = time.time()
+        removed = 0
+        with self._lock:
+            keys_to_remove = [
+                key for key, val in self._correlation_map.items()
+                if now - val.get("allocated_at", now) > ttl_seconds
+            ]
+            for key in keys_to_remove:
+                del self._correlation_map[key]
+                removed += 1
+        return removed
 
 _global_allocator = RicRequestIdAllocator()
 
 def get_ric_request_id_allocator() -> RicRequestIdAllocator:
     return _global_allocator
+

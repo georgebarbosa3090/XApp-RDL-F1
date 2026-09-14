@@ -77,6 +77,7 @@ class RDLxApp:
         # Modos de Operação (O_RAN_INTEROP / ORAN-STRICT | SIMULATION / OFFLINE_SIMULATION | STANDALONE)
         raw_mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
         self.mode = "O_RAN_INTEROP" if raw_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") else raw_mode
+        self.oran_strict = (self.mode == "O_RAN_INTEROP")
         
         if self.mode == "O_RAN_INTEROP":
             if not _HAS_RICXAPPFRAME:

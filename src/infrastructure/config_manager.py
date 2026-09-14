@@ -1,7 +1,7 @@
 import json
 import os
 from pydantic import BaseModel
-from typing import List
+from typing import List, Any
 
 class XAppConfig(BaseModel):
     name: str
