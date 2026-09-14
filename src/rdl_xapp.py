@@ -8,7 +8,7 @@ from typing import Dict, Any, List, Optional, Tuple
 try:
     from ricxappframe.xapp_frame import RMRXapp, Xapp
     _HAS_RICXAPPFRAME = True
-except ImportError:
+except (ImportError, OSError):
     _HAS_RICXAPPFRAME = False
     class RMRXapp:  # type: ignore
         """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
