@@ -12,7 +12,10 @@ setup(
         "pydantic>=2.0.0",
         "structlog>=23.1.0",
         "prometheus-client>=0.17.0",
-        "pycrate>=0.5.0",
+        "pycrate>=0.7.0",
+        "networkx>=3.0",
+        "torch>=2.0.0",
+        "pytest>=7.0.0",
         "requests>=2.31.0",
         "numpy>=1.24.0",
         "scipy>=1.10.0"
