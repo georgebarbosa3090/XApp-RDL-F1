@@ -344,3 +344,12 @@ run-scenario2-baseline:
 	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
 
+git-sync:
+	bash scripts/git_sync.sh "results: synchronize experimental datasets and reports"
+
+push-results:
+	git add experiments/results/ docs/ results/
+	git commit -m "results: update experimental datasets and FlowMonitor metrics" || true
+	git push origin $(shell git rev-parse --abbrev-ref HEAD)
+
+
