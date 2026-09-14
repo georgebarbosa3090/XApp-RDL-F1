@@ -870,8 +870,68 @@ Os datasets estruturados gerados pela simulação (`experiments/results/dataset_
 
 ---
 
+## 14. Suíte Completa de Co-Simulação ns-3 e Validação (S0 a S15)
+
+O framework disponibiliza 16 cenários formais em C++ (`simulations/ns3/`) divididos em dois grandes grupos temáticos de pesquisa, permitindo execução integral em lote ou modular cenário a cenário:
+
+### 14.1. Grupo 1: Redes Terrestres Tradicionais e Slicing 5G (S0 a S8)
+* **S0:** Pass-through limpo de ações ortogonais sem interferência (`scenario_rdl_no_conflict.cc`).
+* **S1:** Colisão de PRBs de múltiplas fatias eMBB + URLLC (`scenario_rdl_direct_prb_conflict.cc`).
+* **S2:** Trade-off analítico entre economia de energia e throughput EEVS (`scenario_rdl_energy_vs_qos.cc`).
+* **S3:** Conflito de sensibilidade Throughput-Value TVS com proteção URLLC (`scenario_rdl_tvs_conflict.cc`).
+* **S4:** Prevenção de desvio de tráfego para células em Sleep Mode (`scenario_rdl_ts_vs_energy.cc`).
+* **S5:** Supressão de instabilidade temporal e handovers Ping-Pong (`scenario_rdl_temporal_pingpong.cc`).
+* **S6:** Tempestade de conflitos Conflict Storm com 50 propostas simultâneas (`scenario_rdl_conflict_storm.cc`).
+* **S7:** Injeção de falhas e bloqueio de comandos adversariais/destrutivos (`scenario_rdl_fault_injection.cc`).
+* **S8:** Validação causal de malha fechada Closed-Loop com telemetria KPM e controle RC (`scenario_rdl_closed_loop_nori.cc`).
+
+### 14.2. Grupo 2: Redes Avançadas 5G-Advanced e 6G (S9 a S15)
+* **S9:** Mobilidade orbital de satélites LEO NTN e compensação Doppler (`scenario_rdl_s9_ntn_orbital_handover.cc`).
+* **S10:** Desvio de tráfego emergencial por esgotamento de bateria em drones UAV (`scenario_rdl_s10_uav_swarm_battery.cc`).
+* **S11:** Comboios veiculares em rodovias V2X Platooning a 120 km/h com latência $< 5\text{ ms}$ (`scenario_rdl_s11_v2x_highway_platooning.cc`).
+* **S12:** Automação industrial IIoT com preempção determinística e Zero-Jitter $< 0.8\text{ ms}$ (`scenario_rdl_s12_iiot_zero_jitter_slicing.cc`).
+* **S13:** Operação integrada SAGIN em zonas de desastre e calamidade pública (`scenario_rdl_s13_sagin_disaster_rescue.cc`).
+* **S14:** Co-design ISAC entre sensoriamento radar e comunicações 6G (`scenario_rdl_s14_isac_radar_comm.cc`).
+* **S15:** Detecção, bloqueio e isolamento topológico de xApp invasora Rogue Feeder (`scenario_rdl_s15_rogue_ntn_feeder_hijacking.cc`).
+
+### 14.3. Modos de Execução Disponíveis
+
+#### Modo 1: Automatizado em Lote (All-in-One)
+Validação de todos os cenários S0 a S15 em um único comando:
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group all
+```
+
+Execução em lote de todas as simulações ns-3:
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh all
+```
+
+#### Modo 2: Execução por Grupo Tecnológico (5G vs 6G)
+Execução apenas do Grupo 1 (Redes Terrestres 5G):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 5g
+bash simulations/ns3/run_all_s0_s15_simulations.sh 5g
+```
+
+Execução apenas do Grupo 2 (Redes Avançadas 6G):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 6g
+bash simulations/ns3/run_all_s0_s15_simulations.sh 6g
+```
+
+#### Modo 3: Execução Modular Cenário a Cenário (Individual)
+Recomendado para não sobrecarregar recursos de hardware (CPU/RAM) e depurar traces isolados:
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --scenario S1
+bash simulations/ns3/run_all_s0_s15_simulations.sh S1
+```
+
+---
+
 ## 15. Próximo Passo Sequencial
 
 Avance para a análise de governança e matriz de conformidade com as normas O-RAN Alliance:
 
 -> **[Volume 04: Relatórios de Conformidade Técnica e Governança O-RAN](04_relatorios_conformidade_e_governanca.md)**
+

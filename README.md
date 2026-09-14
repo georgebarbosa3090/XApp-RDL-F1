@@ -196,14 +196,44 @@ make test-3xapps
 make test
 ```
 
-### Opção F: Validação Automatizada de Todos os 16 Cenários (S0 a S15)
+### Opção F: Validação Automatizada dos Cenários S0 a S15
+
+Executar todos os cenários (S0 a S15):
 ```bash
-python scripts/validate_all_scenarios_s0_s15.py
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group all
 ```
 
-### Opção G: Execução em Lote das Co-Simulações C++ no ns-3 (S0 a S15)
+Executar apenas Grupo 1 (Redes Terrestres 5G — S0 a S8):
 ```bash
-bash simulations/ns3/run_all_s0_s15_simulations.sh
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 5g
+```
+
+Executar apenas Grupo 2 (Redes Avançadas 6G — S9 a S15):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 6g
+```
+
+Executar cenário individual específico (exemplo S1 ou S14):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --scenario S1
+```
+
+### Opção G: Execução das Co-Simulações C++ no ns-3 (S0 a S15)
+
+Executar todas as co-simulações C++ em lote:
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh all
+```
+
+Executar apenas Grupo 1 (5G) ou Grupo 2 (6G):
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh 5g
+bash simulations/ns3/run_all_s0_s15_simulations.sh 6g
+```
+
+Executar simulação de um cenário individual específico (para economizar recursos de CPU/RAM):
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh S1
 ```
 
 ### Opção H: Reprodução Determinística do Ambiente

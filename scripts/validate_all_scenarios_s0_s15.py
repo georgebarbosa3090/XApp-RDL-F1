@@ -25,9 +25,29 @@ class ScenarioResult:
     execution_time_ms: float
     description: str
 
+import argparse
+
 class S0toS15CampaignValidator:
     def __init__(self):
         self.results: List[ScenarioResult] = []
+        self.scenario_methods = {
+            "S0": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s0_clean_baseline),
+            "S1": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s1_direct_prb_collision),
+            "S2": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s2_energy_vs_qos),
+            "S3": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s3_multi_slice_tvs),
+            "S4": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s4_traffic_steering_vs_energy),
+            "S5": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s5_ping_pong_suppression),
+            "S6": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s6_conflict_storm),
+            "S7": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s7_fault_injection),
+            "S8": ("Redes Terrestres Tradicionais e Slicing 5G", self.test_s8_nori_closed_loop),
+            "S9": ("Redes Avançadas 5G-Advanced e 6G", self.test_s9_ntn_orbital_handover),
+            "S10": ("Redes Avançadas 5G-Advanced e 6G", self.test_s10_uav_swarm_battery_emergency),
+            "S11": ("Redes Avançadas 5G-Advanced e 6G", self.test_s11_v2x_highway_platooning),
+            "S12": ("Redes Avançadas 5G-Advanced e 6G", self.test_s12_iiot_zero_jitter_slicing),
+            "S13": ("Redes Avançadas 5G-Advanced e 6G", self.test_s13_sagin_disaster_rescue),
+            "S14": ("Redes Avançadas 5G-Advanced e 6G", self.test_s14_isac_radar_comm_tradeoff),
+            "S15": ("Redes Avançadas 5G-Advanced e 6G", self.test_s15_rogue_ntn_feeder_hijacking),
+        }
 
     def get_fresh_agents(self):
         mem = MemoryModule()
@@ -36,28 +56,22 @@ class S0toS15CampaignValidator:
         ref = RefinementAgent(mem)
         return p, r, ref
 
-    def run_all(self) -> List[ScenarioResult]:
+    def run_suite(self, target_group: str = "all", target_scenario: str = None) -> List[ScenarioResult]:
         print("=" * 80)
-        print("INICIANDO VALIDAÇÃO DA SUÍTE COMPLETA DE CENÁRIOS S0 A S15")
+        print("VALIDAÇÃO FORMAL DE CENÁRIOS RDL (S0 A S15)")
+        print(f"Filtro de Execução: Grupo='{target_group}' | Cenário Específico='{target_scenario or 'Nenhum'}'")
         print("Paradigmas: Baseline (Sem RDL) | H-RDL (Fase 1) | CA-RDL (Fase 2)")
         print("=" * 80)
 
-        self.test_s0_clean_baseline()
-        self.test_s1_direct_prb_collision()
-        self.test_s2_energy_vs_qos()
-        self.test_s3_multi_slice_tvs()
-        self.test_s4_traffic_steering_vs_energy()
-        self.test_s5_ping_pong_suppression()
-        self.test_s6_conflict_storm()
-        self.test_s7_fault_injection()
-        self.test_s8_nori_closed_loop()
-        self.test_s9_ntn_orbital_handover()
-        self.test_s10_uav_swarm_battery_emergency()
-        self.test_s11_v2x_highway_platooning()
-        self.test_s12_iiot_zero_jitter_slicing()
-        self.test_s13_sagin_disaster_rescue()
-        self.test_s14_isac_radar_comm_tradeoff()
-        self.test_s15_rogue_ntn_feeder_hijacking()
+        for s_id, (grp_name, method) in self.scenario_methods.items():
+            if target_scenario and s_id.upper() != target_scenario.upper():
+                continue
+            if target_group == "5g" and not (0 <= int(s_id[1:]) <= 8):
+                continue
+            if target_group == "6g" and not (9 <= int(s_id[1:]) <= 15):
+                continue
+
+            method()
 
         self.print_summary()
         return self.results
@@ -344,5 +358,11 @@ class S0toS15CampaignValidator:
         print(f"RESILIÊNCIA CONTRA BASELINE         : 15/16 Conflitos Mitigados com 0 Violações de SLA")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Validador Formal da Suíte de Cenários S0 a S15 (H-RDL / CA-RDL)")
+    parser.add_argument("--group", choices=["all", "5g", "6g"], default="all", help="Grupo de cenários a executar: '5g' (S0-S8), '6g' (S9-S15) ou 'all' (S0-S15)")
+    parser.add_argument("--scenario", type=str, default=None, help="Executa apenas um cenário específico (ex: S0, S1, S14)")
+    args = parser.parse_args()
+
     validator = S0toS15CampaignValidator()
-    validator.run_all()
+    validator.run_suite(target_group=args.group, target_scenario=args.scenario)
+
