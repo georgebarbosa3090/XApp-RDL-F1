@@ -161,6 +161,33 @@ class RanFunctionCapabilityRegistry:
             p = RAN_PARAMETERS[param_name]
             return 1, 1, p.param_id
 
+    def register_ran_function_id(self, node_id: str, short_name: str, func_id: int) -> None:
+        """Registra dinamicamente o ID numérico de uma RAN Function descoberto no E2 Setup."""
+        if not hasattr(self, "_node_func_ids"):
+            self._node_func_ids: Dict[str, Dict[str, int]] = {}
+        if node_id not in self._node_func_ids:
+            self._node_func_ids[node_id] = {}
+        self._node_func_ids[node_id][short_name.upper()] = int(func_id)
+        logger.info(f"RAN Function ID registrada: Nó '{node_id}' -> {short_name.upper()} = {func_id}")
+
+    def get_rc_function_id(self, node_id: Optional[str] = None) -> int:
+        """Retorna o RAN Function ID do E2SM-RC para o nó fornecido."""
+        if node_id and hasattr(self, "_node_func_ids") and node_id in self._node_func_ids:
+            if "RC" in self._node_func_ids[node_id]:
+                return self._node_func_ids[node_id]["RC"]
+        if self.is_strict_mode():
+            raise CapabilityNotDiscoveredError(f"[ORAN-STRICT] Nó '{node_id}' não possui RC Function ID descoberta via E2 Setup.")
+        return 3
+
+    def get_kpm_function_id(self, node_id: Optional[str] = None) -> int:
+        """Retorna o RAN Function ID do E2SM-KPM para o nó fornecido."""
+        if node_id and hasattr(self, "_node_func_ids") and node_id in self._node_func_ids:
+            if "KPM" in self._node_func_ids[node_id]:
+                return self._node_func_ids[node_id]["KPM"]
+        if self.is_strict_mode():
+            raise CapabilityNotDiscoveredError(f"[ORAN-STRICT] Nó '{node_id}' não possui KPM Function ID descoberta via E2 Setup.")
+        return 2
+
     def is_action_supported(self, node_id: str, param_name: str) -> bool:
         """Verifica se uma determinada ação/parâmetro é suportada pelo nó."""
         if node_id in self._node_capabilities:
@@ -171,4 +198,5 @@ class RanFunctionCapabilityRegistry:
 
 # Instância Singleton do Registry
 rc_capability_registry = RanFunctionCapabilityRegistry()
+
 

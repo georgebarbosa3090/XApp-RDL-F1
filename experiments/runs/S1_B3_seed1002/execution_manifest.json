@@ -1,0 +1,29 @@
+{
+  "run_id": "S1_B3_seed1002",
+  "git_sha": "9251554",
+  "scenario": "S1",
+  "baseline": "B3",
+  "seed": 1002,
+  "backend": "NORI_NS3",
+  "ns3_version": "3.48",
+  "fiveg_lena_version": "5.1",
+  "nori_commit": "9b64c12",
+  "e2ap": "02.03",
+  "e2sm_kpm": "02.03",
+  "e2sm_rc": "01.03",
+  "decision_window_ms": 200,
+  "topology": {
+    "node_id": "gnb_01",
+    "cell_type": "macro",
+    "tx_power_dbm": 43.0,
+    "carrier_freq_ghz": 3.5,
+    "bandwidth_mhz": 100.0,
+    "num_ues": 30,
+    "slices": [
+      "URLLC",
+      "eMBB"
+    ]
+  },
+  "causal_chain_length": 10,
+  "timestamp_iso": "2026-09-14T19:15:00Z"
+}

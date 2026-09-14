@@ -1,0 +1,22 @@
+{
+  "timestamp": 100.25,
+  "node_id": "gnb_01",
+  "throughput_dl_mbps": 85.6,
+  "prb_usage_dl": 93.0,
+  "latency_ms": 17.4,
+  "sinr_db": 14.9,
+  "active_ues": 30,
+  "sla_violations_pct": 36.7,
+  "slice_metrics": {
+    "URLLC": {
+      "throughput_mbps": 22.1,
+      "latency_ms": 17.4,
+      "prb_allocated": 40
+    },
+    "eMBB": {
+      "throughput_mbps": 63.1,
+      "latency_ms": 28.6,
+      "prb_allocated": 45
+    }
+  }
+}

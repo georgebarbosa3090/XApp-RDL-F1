@@ -45,10 +45,13 @@ class RCMapper:
             action_id=action_id
         )
 
+        # Resolve dinamicamente o RAN Function ID registrado para o nó
+        rc_func_id = rc_capability_registry.get_rc_function_id(action.node_id) if hasattr(rc_capability_registry, "get_rc_function_id") else self.ran_function_id
+
         # Encapsula na PDU E2AP RICcontrolRequest
         control_ctx = build_ric_control_request(
             node_id=action.node_id,
-            ran_function_id=self.ran_function_id,
+            ran_function_id=rc_func_id,
             header_bytes=encoded_rc.header_aper,
             message_bytes=encoded_rc.message_aper,
             requestor_id=requestor_id,

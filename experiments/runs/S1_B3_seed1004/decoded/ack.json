@@ -1,0 +1,10 @@
+{
+  "status": "ACK_RECEIVED",
+  "decision_id": "dec-1004-00045",
+  "action_id": "act-qos-1004-002",
+  "requestor_id": 123,
+  "instance_id": 7,
+  "ran_function_id": 3,
+  "rtt_ms": 1.82,
+  "timestamp": 100.46882
+}

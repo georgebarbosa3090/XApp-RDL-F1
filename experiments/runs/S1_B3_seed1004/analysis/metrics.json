@@ -1,0 +1,22 @@
+{
+  "run_id": "S1_B3_seed1004",
+  "seed": 1004,
+  "scenario": "S1",
+  "baseline": "B3",
+  "throughput_before_mbps": 86.4,
+  "throughput_after_mbps": 102.9,
+  "throughput_gain_pct": 19.1,
+  "latency_before_ms": 18.0,
+  "latency_after_ms": 11.7,
+  "latency_reduction_pct": 35.0,
+  "sla_violations_before_pct": 36.7,
+  "sla_violations_after_pct": 0.0,
+  "decision_latency_ms": 3.0,
+  "control_to_ack_rtt_ms": 1.82,
+  "control_to_effect_latency_ms": 183.0,
+  "jain_fairness_before": 0.52,
+  "jain_fairness_after": 0.94,
+  "cre_effectiveness_pct": 100.0,
+  "unsafe_actions": 0,
+  "gate4_closed_loop_verified": true
+}
