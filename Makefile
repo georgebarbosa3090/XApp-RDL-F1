@@ -351,6 +351,7 @@ push-results:
 	@mkdir -p experiments/results docs
 	git add experiments/results/ docs/
 	git commit -m "results: update experimental datasets and FlowMonitor metrics" || true
+	git pull --rebase origin main || true
 	git push origin HEAD:main
 
 
