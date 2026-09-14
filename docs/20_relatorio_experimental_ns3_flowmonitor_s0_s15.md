@@ -2,7 +2,7 @@
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva  
 > **Projeto:** xApp RDL (Resource and Decision Layer) — Fases 1 (H-RDL) e 2 (CA-RDL)  
-> **Data de Consolidação:** 2026-09-14 17:58:31 UTC  
+> **Data de Consolidação:** 2026-09-14 18:05:38 UTC  
 > **Ambiente:** ns-3.48 / 5G-LENA v5.1 / NORI E2Sim / GCC 11 / CMake 3.28 / Linux x86_64  
 > **Diretriz de Conformidade:** *Zero Dados Sintéticos — 100% dos Dados Derivados do Módulo Físico FlowMonitor*
 
