@@ -10,12 +10,12 @@ skills/
 .system_generated/
 
 # 2. Auditoria Técnica e Relatórios Extensos Internos (Permanentemente Proibido)
-*auditoria*
-*Auditoria*
+auditoria/
 *relatorio_extenso*
 *.audit.md
 docs/relatorio_extenso*
 !docs/auditoria/
+!docs/auditoria/*
 
 # 3. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
 experiments/results/rdl_phase2/

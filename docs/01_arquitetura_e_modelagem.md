@@ -152,7 +152,43 @@ $$P_{\text{total}} = N_{\text{TRX}} \cdot \left( P_0 + \alpha \cdot P_{\text{tx}
 
 Onde $P_0 = 130\text{ W}$ é a potência estática do circuito em repouso e $\alpha = 4,7$ é o coeficiente do amplificador de potência (PA).
 
-### 5.4. Formulação CMDP e Safe-MAPPO (Fase 2)
+### 5.4. Formalização do Grafo de Conflitos e Otimização Combinatória
+
+Seja $\mathcal{X} = \{x_1, x_2, \dots, x_K\}$ o conjunto de $K$ xApps concorrentes operando sobre o Near-RT RIC. Em cada janela de decisão temporal $\mathcal{W}_t = [t, t + \Delta t_{win})$, com $\Delta t_{win} = 200\text{ ms}$, as xApps submetem um conjunto de $m$ propostas de controle $\mathcal{A}_t = \{a_1, a_2, \dots, a_m\}$. Cada proposta $a_i \in \mathcal{A}_t$ é caracterizada pela tupla:
+
+$$a_i = \langle \text{app\_id}_i, \text{target\_id}_i, \text{param\_id}_i, \Delta v_i, \rho_i, \tau_i \rangle$$
+
+onde $\text{app\_id}_i$ identifica a aplicação emissora, $\text{target\_id}_i \in \{\text{UE}_k, \text{Slice}_s, \text{Cell}_c\}$ é o alvo de atuação, $\text{param\_id}_i \in \{\text{PRB\_QUOTA}, \text{TX\_POWER}, \text{HO\_OFFSET}\}$ é o parâmetro de rádio solicitado, $\Delta v_i$ é a magnitude da modificação pretendida, $\rho_i \in [1, \rho_{max}]$ é o peso de prioridade nominal e $\tau_i$ é o tempo limite de validade da proposta.
+
+#### Grafo de Conflitos Dinâmico
+A camada de percepção da H-RDL mapeia as propostas concorrentes em um Grafo de Conflitos não-direcionado $G_t = (\mathcal{A}_t, \mathcal{E}_t)$, onde as arestas $(a_i, a_j) \in \mathcal{E}_t$ modelam colisões de controle satisfazendo o predicado:
+
+$$(a_i, a_j) \in \mathcal{E}_t \iff 
+\begin{cases}
+\text{target\_id}_i = \text{target\_id}_j \land \text{param\_id}_i = \text{param\_id}_j \land \operatorname{sgn}(\Delta v_i) \neq \operatorname{sgn}(\Delta v_j) & \text{(Conflito Direto)}, \\
+\exists k \in \mathcal{K}, \ \frac{\partial \text{KPI}_k}{\partial \text{param}_i} \cdot \frac{\partial \text{KPI}_k}{\partial \text{param}_j} < 0 & \text{(Conflito Indireto)}, \\
+\text{target\_id}_i = \text{target\_id}_j \land t - t_{\text{last\_actuation}} < \Delta t_{\text{cooldown}} & \text{(Conflito Temporal / Ping-Pong)}.
+\end{cases}$$
+
+#### Formulação como Otimização Combinatória (Maximum Weight Independent Set)
+A arbitragem ótima consiste em selecionar um subconjunto de ações admissíveis $\mathcal{A}_t^* \subseteq \mathcal{A}_t$ que maximize a função de utilidade global da rede sujeita a restrições de não-conflito e barreiras físicas de segurança (*Safety Guards*):
+
+$$\max_{\mathbf{x} \in \{0,1\}^m} \sum_{i=1}^m x_i \cdot U(a_i \mid s_t)$$
+
+$$\text{sujeito a:} \quad 
+\begin{cases}
+x_i + x_j \le 1, & \forall (a_i, a_j) \in \mathcal{E}_t, \\
+\sum_{i=1}^m x_i \cdot \text{PRB}(a_i) \le \text{PRB}_{\max}^{\text{cell}}, & \forall \text{Cell } c, \\
+P_{tx}^{\min} \le P_{tx}^{(0)} + \sum_{i=1}^m x_i \cdot \Delta P_{tx}(a_i) \le P_{tx}^{\max}, & \forall \text{Cell } c, \\
+x_i \in \{0, 1\}, & \forall i \in \{1, \dots, m\}.
+\end{cases}$$
+
+#### Teorema de Terminação Determinística e Ausência de Deadlock
+**Teorema 1 (Deadlock-Free Determinism):** *O motor de arbitragem da H-RDL garante convergência determinística e ausência de deadlocks em tempo estritamente limitado $\mathcal{O}(|\mathcal{A}_t| + |\mathcal{E}_t|)$ sob heurística gulosa com desempate lexicográfico e $\mathcal{O}(2^m)$ sob busca exata com poda branch-and-bound.*
+
+**Demonstração:** Seja a relação de ordem estrita $\succ$ definida sobre $\mathcal{A}_t$ pelo vetor de tuplas $\langle \rho_i, U(a_i \mid s_t), -\text{timestamp}_i, \text{app\_id}_i \rangle$. Como a prioridade $\rho_i$ é finita, a utilidade $U \in \mathbb{R}$ é contínua e bounded, o timestamp é estritamente monotônico e o identificador $\text{app\_id}_i$ é único e disjunto, a relação $\succ$ induz uma ordem total estrita e imutável sobre $\mathcal{A}_t$. O algoritmo guloso de seleção independente remove recursivamente o vértice de maior peso $v^* = \arg\max_{v \in G_t} \operatorname{score}(v)$ e elimina sua vizinhança aberta $N(v^*)$. Como o número de vértices $m$ decresce estritamente a cada iteração ($|V_{k+1}| \le |V_k| - 1$), o grafo torna-se vazio em no máximo $m$ passos, impedindo dependências circulares e garantindo execução determinística livre de bloqueios mútuos. $\blacksquare$
+
+### 5.5. Formulação CMDP e Safe-MAPPO (Fase 2)
 O problema de controle multi-xApp é formulado como um **Processo de Decisão de Markov Parcialmente Observável e Restrito (CMP-POMDP)**:
 
 $$\max_{\pi} \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^{T} \gamma^t R(s_t, \mathbf{a}_t) \right] \quad \text{sujeito a} \quad \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^{T} \gamma^t C_k(s_t, \mathbf{a}_t) \right] \le d_k, \quad \forall k$$
