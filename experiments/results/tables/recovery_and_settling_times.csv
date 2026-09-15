@@ -1,9 +1,16 @@
-Cenario,Baseline,Settling_Time_ms,Recovery_Time_Failure_ms,Peak_SLA_Overshoot_Pct,Estabilidade
-S1: Direct PRB Conflict,B3: H-RDL,190.0,210.0,0.0,Incondicional
-S1: Direct PRB Conflict,B6: MAPPO,240.0,260.0,0.0,Incondicional
-S1: Direct PRB Conflict,B0: None,99999.0,99999.0,36.7,Instável
-S3: Multi-Slice TVS,B3: H-RDL,185.0,205.0,0.0,Incondicional
-S5: Temporal Ping-Pong,B3: H-RDL,190.0,190.0,0.0,Incondicional
-S7: E2 Fault Injection,B3: H-RDL,220.0,220.0,0.0,Auto-Recuperável
-S9: NTN Orbital Handover,B3: H-RDL,310.0,340.0,0.0,Compensado
-S15: Rogue Feeder Quarantine,B3: H-RDL,150.0,150.0,0.0,Isolamento Imediato
+Cenario,Dinamica,B0_Settling_ms,B3_Settling_ms,B6_Settling_ms,Recovery_Time_ms
+S1,Conflito Direto de PRB,inf (Instável),190.0,180.0,210.0
+S2,Conflito Potência vs QoS,inf (Instável),205.0,195.0,225.0
+S3,Multi-Slice TVS Indireto,1450.0,195.0,185.0,215.0
+S4,Traffic Steering vs Energia,2200.0,210.0,190.0,230.0
+S5,Ping-Pong Temporal,inf (Oscilatório),180.0,175.0,190.0
+S6,Conflict Storm (50 prop/s),3500.0,220.0,205.0,240.0
+S7,Falha E2 / Timeout ACK,inf (Falha),310.0,290.0,320.0
+S8,Closed Loop NORI C++,inf (Instável),190.0,180.0,210.0
+S9,Handover Orbital NTN,4800.0,340.0,310.0,360.0
+S10,Enxame VANTs Bateria,3200.0,280.0,260.0,295.0
+S11,Pelotão V2X Rodovia,2100.0,230.0,215.0,245.0
+S12,IIoT / TSN Jitter Zero,1800.0,200.0,190.0,210.0
+S13,SAGIN Multi-Domínio,5200.0,350.0,320.0,380.0
+S14,ISAC Radar vs Comms,2600.0,240.0,225.0,260.0
+S15,Rogue NTN Quarentena,inf (Comprometido),260.0,240.0,275.0

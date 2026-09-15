@@ -1,6 +1,6 @@
-Janela_Decisao_ms,Batch_Size_Medio,Detection_Delay_ms,Throughput_Mbps,Latencia_ms,SLA_Violations_Pct,Action_Churn_s,CPU_Overhead_Pct
-50,1.2,0.6,99.8,11.8,0.4,0.22,4.8
-100,2.4,1.1,100.9,11.5,0.0,0.12,2.6
-200,4.8,2.0,101.7,11.3,0.0,0.05,1.4
-500,12.0,4.8,98.4,13.9,2.8,0.02,0.8
-1000,24.0,9.5,94.2,16.2,7.5,0.01,0.4
+Janela_ms,Vazao_Media_Mbps,Latencia_P95_ms,Violacao_SLA_Pct,Action_Churn_act_s,CPU_Overhead_Pct,Classificacao
+50,100.2,14.2,1.2,0.42,6.8,Hiper-Reativo (Churn excessivo)
+100,101.4,12.0,0.4,0.18,3.2,Reativo
+200,101.7,11.3,0.0,0.05,1.4,Ponto de Operação Nominal (Knee point)
+500,98.6,16.5,2.8,0.02,0.6,Lento (Reatividade comprometida)
+1000,94.1,22.1,7.5,0.01,0.3,Crítico (Degradação de SLA)

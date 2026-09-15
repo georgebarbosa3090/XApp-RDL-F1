@@ -1,11 +1,12 @@
-Estagio_ID,Estagio_Descricao,H_RDL_ms,MAPPO_ms,Fracao_Loop_H_RDL_Pct,Camada_Arquitetural
-E1_KPM_INGEST,Recepção e Decodificação APER E2SM-KPM,0.15,0.15,0.08,E2 Ingestion
-E2_PERCEPTION,Detecção e Agrupamento no Grafo de Conflitos,2.0,2.0,1.0,PerceptionAgent
-E3_KNOWLEDGE_GRAPH,Travessia Semântica e Context Engine,0.0,0.4,0.0,Context Engine
-E4_REASONING,Inferência Decisória / Arbitragem TVS / Safe-RL,0.12,1.84,0.06,ReasoningAgent
-E5_REFINEMENT,Safety Guard Invariante & Boundary Clamping,0.08,0.08,0.04,RefinementAgent
-E6_RC_ENCODE,Serialização ASN.1 APER E2SM-RC Format 1/2,0.15,0.15,0.08,RCMapper
-E7_RMR_DISPATCH,Trânsito RMR e SCTP até a E2 Termination,0.2,0.2,0.1,Dispatcher
-E8_ACK_RTT,Confirmação E2AP RICcontrolAcknowledge RTT,1.82,1.82,0.91,E2 Interface
-E9_MAC_APPLY,Aplicação Física no Scheduler 5G-LENA,0.5,0.5,0.25,gNodeB MAC
-E10_OBSERVE_WAIT,Espera da Próxima Janela de Telemetria KPM,194.98,192.86,97.48,Closed Loop Timer
+Estagio_ID,Operacao,Latencia_HRDL_ms,Latencia_MAPPO_ms,Entidade
+1,Ingestão Telemetria ASN.1 APER,0.45,0.45,Perception Agent (RIC)
+2,Percepção & Extração de KPIs,0.38,0.38,Perception Agent (RIC)
+3,Atualização do Grafo de Conhecimento,0.62,0.62,Context Engine (RIC)
+4,Raciocínio & Decisão (Heurística vs Actor-Critic),0.12,1.84,Reasoning Engine (RIC)
+5,Refinamento & Safety Guard (Action Masking),0.28,0.28,Refinement Agent (RIC)
+6,Codificação ASN.1 APER E2SM-RC,0.52,0.52,RCMapper (RIC)
+7,Despacho RMR & Enfileiramento SCTP,0.31,0.31,E2 Termination (RIC)
+8,E2 Node ACK (Transporte E2AP + gNB),1.82,1.82,NORI E2 Agent (gNB)
+9,Aplicação Física MAC Scheduler,0.5,0.5,Pilha 5G-LENA (gNB)
+10,Janela de Observação KPM Subsequente,194.98,193.26,Simulador ns-3
+11,TOTAL DO CIRCUITO FECHADO (T_loop),200.0,200.0,Closed-Loop O-RAN

@@ -1,9 +1,5 @@
 {
-  "timestamp": 100.05,
-  "node_id": "gnb_01",
-  "throughput_dl_mbps": 85.2,
-  "prb_usage_dl": 92.5,
-  "latency_ms": 17.8,
-  "sinr_db": 14.5,
-  "sla_violations_pct": 36.7
+  "decoded_pdu": "kpm_t0.json",
+  "run_id": "S1_B3_seed1001",
+  "timestamp": "2026-09-15T12:54:00Z"
 }

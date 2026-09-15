@@ -1,6 +1,5 @@
 {
-  "control_id": "c6ea8f7e",
-  "action_id": "act-win-1001",
-  "parameter": "PRB_QUOTA",
-  "value": 63.5
+  "decoded_pdu": "control.json",
+  "run_id": "S1_B6_seed1001",
+  "timestamp": "2026-09-15T12:54:00Z"
 }

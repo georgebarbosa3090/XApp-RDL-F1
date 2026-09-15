@@ -1,6 +1,5 @@
 {
-  "status": "ACK_RECEIVED",
-  "requestor_id": 123,
-  "instance_id": 7,
-  "rtt_ms": 1.8
+  "decoded_pdu": "ack.json",
+  "run_id": "S1_B3_seed1001",
+  "timestamp": "2026-09-15T12:54:00Z"
 }

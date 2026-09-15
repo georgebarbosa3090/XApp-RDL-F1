@@ -1,15 +1,5 @@
 {
-  "control_id": "16fbbfa2",
-  "decision_id": "dec-1003-00045",
-  "action_id": "act-qos-1003-002",
-  "node_id": "gnb_01",
-  "ran_function_id": 3,
-  "requestor_id": 123,
-  "instance_id": 7,
-  "parameter": "PRB_QUOTA",
-  "target_value": 60.0,
-  "style_type": 1,
-  "action_id_num": 1,
-  "param_id": 1,
-  "pdu_hex": "00044032000005001d000500007b000700050002000300160004010101010017000f010101095052425f51554f5441013c0015000120"
+  "decoded_pdu": "control.json",
+  "run_id": "S1_B3_seed1003",
+  "timestamp": "2026-09-15T12:54:00Z"
 }

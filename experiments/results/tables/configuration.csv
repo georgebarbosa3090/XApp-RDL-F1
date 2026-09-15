@@ -1,10 +1,11 @@
 Categoria,Parâmetro,Valor,Unidade,Observação
-Reprodução,git_sha,f3af820,-,Hash do repositório
+Reprodução,git_sha,f99483a,-,Hash verificado da branch main
+Reprodução,data_emissao,2026-09-15,-,Emissão formal do relatório
 Reprodução,ns3_version,3.48,-,Motor de eventos discretos
 Reprodução,fiveg_lena_version,5.1,-,CTTC-LENA NR Module
 Reprodução,nori_commit,9b64c12,-,Extensão SBrT 2025 E2 Agent
 Topologia,num_gnb,1,nó,Macro gNodeB 25m
-Topologia,num_ues,30,UEs,Distribuição uniforme
+Topologia,num_ues,30,UEs,"10 URLLC, 20 eMBB"
 Espectro,carrier_frequency,3.5,GHz,Banda n78 (FR1)
 Espectro,bandwidth,100.0,MHz,1 Component Carrier / 1 BWP
 NR,numerology,1,mu,SCS = 30 kHz

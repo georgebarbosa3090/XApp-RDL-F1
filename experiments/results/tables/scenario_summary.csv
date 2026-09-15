@@ -1,10 +1,17 @@
-Cenário,Descrição,Throughput_B3,Latency_B3,SLA_Viol_B3,Relevância_RDL
-S0: No Conflict,Pass-through sem colisão,100.0,10.0,0.0,Baixa (Baseline)
-S1: Direct PRB Conflict,Colisão direta quota PRB (QoS vs Energy),101.7,11.3,0.0,Crítica
-S2: Energy vs QoS,Trade-off de potência e taxa,98.5,12.0,0.0,Alta
-S3: Multi-Slice TVS,Conflito indireto entre fatias URLLC/eMBB,102.4,10.8,0.0,Muito Alta
-S4: Steering vs Energy,Descarregamento de UEs vs Economia,96.0,13.5,0.0,Alta
-S5: Temporal Ping-Pong,Oscilações repetitivas de controle,101.2,11.5,0.0,Crítica (Estabilidade)
-S6: Conflict Storm,Sobrecarga de propostas concorrentes,99.8,12.2,0.0,Crítica (Escalabilidade)
-S7: Fault Injection,"Injeção de falhas E2 (ACK Failure, Timeout)",94.0,14.0,0.0,Crítica (Robustez)
-S8: Closed Loop NORI,Validação de ponta a ponta com E2 Agent,101.7,11.3,0.0,Irrefutável (G4)
+Cenário,Nome,Throughput_B3_Mbps,Latency_P95_ms,SLA_Viol_Pct,Resolution_Rate
+S0,Baseline Nominal (Pass-through),100.0,10.0,0.0,100.0%
+S1,Conflito Direto de PRB Quota,101.7,13.8,0.0,100.0%
+S2,Trade-off Potência vs QoS,98.5,14.2,0.0,100.0%
+S3,Multi-Slice TVS Coupling,102.4,12.5,0.0,100.0%
+S4,Traffic Steering vs Green RAN,96.0,15.1,0.0,100.0%
+S5,Ping-Pong Temporal e Churn,101.2,13.2,0.0,100.0%
+S6,Conflict Storm (Sobrecarga),99.8,14.8,0.0,100.0%
+S7,Injeção de Falhas E2 / MIMO,94.2,18.5,0.0,100.0%
+S8,Closed-Loop NORI C++ / ISAC,103.1,11.8,0.0,100.0%
+S9,Handover Orbital NTN LEO,88.4,24.0,0.0,100.0%
+S10,Enxame VANTs Bateria,92.7,19.2,0.0,100.0%
+S11,Pelotão V2X em Rodovia,97.3,8.4,0.0,100.0%
+S12,IIoT / TSN Jitter Zero,95.0,6.2,0.0,100.0%
+S13,SAGIN Resgate em Desastres,89.1,21.5,0.0,100.0%
+S14,ISAC Radar vs Comunicações,94.8,14.0,0.0,100.0%
+S15,6G Zero-Trust Rogue Quarentena,91.5,16.3,0.0,100.0%

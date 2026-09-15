@@ -1,7 +1,7 @@
-Claim_ID,Claim_Statement,Scenario,Baseline,Seeds,Metric,Raw_Evidence,Figure,Table
-C1,H-RDL elimina violações de SLA em conflitos diretos de PRB,S1,B3,1001-1005,SLA Violations (%) = 0.0%,"raw/ric_control_request.raw, decoded/ack.json","fig_01, fig_05",descriptive_statistics.csv
-C2,H-RDL suprime oscilações temporais de controle (Ping-Pong),S5,B3,1001-1005,Action Churn = 0.05/s (vs 1.0/s),"causal_chain.jsonl, logs/hrdl.log","fig_14, fig_15",effect_sizes.csv
-C3,Overhead de decisão Near-RT RIC é sub-milissegundo,S1-S8,B3,1001-1005,T_decision = 0.12 ms,analysis/metrics.json,fig_12,hypothesis_tests.csv
-C4,Injeção de falhas E2 não produz ações inseguras na RAN,S7,B3,1001-1005,UnsafeApplied = 0,"logs/backend.log, decoded/ack.json",fig_17,findings_summary.csv
-C5,Safe MAPPO melhora QoS mantendo isolamento determinístico,S1,B6,1001-1005,"Throughput = 105.8 Mbps, Unsafe = 0",experiments/runs/S1_B6_seed1001/,"fig_04, fig_16",baseline_summary.csv
-C6,Fechamento causal auditável verificado via hashes SHA-256,S1-S8,B3/B6,1001-1005,Gate 4 Verified = True,"hashes.sha256, execution_manifest.json",fig_01,configuration.csv
+Claim_ID,Reivindicacao,Cenario,Baseline,Seeds,Metrica,Evidencia,Figuras,Tabela
+C1,H-RDL elimina violações de SLA em colisão de PRB,S1,B3,1001-1005,SLA Violations = 0.0%,raw/ric_control_request.raw,"Fig. 01, 05",descriptive_statistics.csv
+C2,H-RDL suprime oscilações temporais (Ping-Pong),S5,B3,1001-1005,Churn = 0.05/s (vs 1.00/s),causal_chain.jsonl,"Fig. 14, 15",effect_sizes.csv
+C3,Overhead de decisão Near-RT RIC é sub-milissegundo,S1-S8,B3,1001-1005,T_decision = 0.12 ms,analysis/metrics.json,"Fig. 12, 22",hypothesis_tests.csv
+C4,Injeção de falhas E2 não gera ações inseguras,S7,B3,1001-1005,UnsafeApplied == 0,logs/backend.log,Fig. 17,findings_summary.csv
+C5,Safe-MAPPO otimiza QoS mantendo segurança,S1,B6,1001-1005,Throughput = 105.8 Mbps,experiments/runs/S1_B6_seed1001/,"Fig. 04, 16, 20",baseline_summary.csv
+C6,Cadeia de evidências auditável via SHA-256,S1-S8,B3/B6,1001-1005,Checksums Verified,hashes.sha256,Fig. 01,configuration.csv

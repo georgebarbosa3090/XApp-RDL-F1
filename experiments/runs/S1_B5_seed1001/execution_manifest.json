@@ -1,12 +1,24 @@
 {
   "run_id": "S1_B5_seed1001",
-  "git_sha": "2fe3097",
+  "git_sha": "f99483a",
+  "timestamp_utc": "2026-09-15T12:54:00Z",
   "scenario": "S1",
   "baseline": "B5",
+  "strategy": "CONTEXT_KNOWLEDGE_GRAPH",
   "seed": 1001,
-  "backend": "NORI_NS3",
+  "backend": "NORI_NS3_5GLENA",
+  "ns3_version": "3.48",
+  "fiveg_lena_version": "5.1",
+  "nori_commit": "9b64c12",
   "e2ap": "02.03",
-  "e2sm_kpm": "02.03",
+  "e2sm_kpm": "03.00",
   "e2sm_rc": "01.03",
-  "decision_window_ms": 200
+  "ran_function_id_kpm": 2,
+  "ran_function_id_rc": 3,
+  "decision_window_ms": 200,
+  "environment": {
+    "os": "Ubuntu 22.04 LTS (WSL2 / Linux 5.15.167.4)",
+    "compiler": "GCC 11.4.0 / CMake 3.22.1 / Ninja 1.10.1",
+    "python": "3.10.12 / uv 0.4.15"
+  }
 }

@@ -1,6 +1,6 @@
-Passo,Etapa_Sinalizacao,Camada,Latencia_ms,Latencia_Acumulada_ms,Norma
-1,PRACH Preamble Tx & Random Access Response (RAR),PHY / MAC,4.2,4.2,3GPP TS 38.211
-2,RRC Setup Request -> RRC Setup -> RRC Setup Complete,3GPP RRC,6.8,11.0,3GPP TS 38.331
-3,"NAS Registration Request, Autenticação 5G-AKA & Security Mode",5GC NAS (AMF/AUSF),14.5,25.5,3GPP TS 24.501
-4,PDU Session Establishment & DRB Allocation (SST=1/2),5GC SMF/UPF + SDAP,12.3,37.8,3GPP TS 23.501
-5,Registro E2 KPM Bearer Telemetry & Início de Governança RDL,O-RAN Near-RT RIC,8.0,45.8,O-RAN.WG3.E2SM-KPM
+Etapa,Procedimento,Camada,Duracao_ms,Timestamp_Acumulado_ms
+1,PRACH Preamble Transmit & Random Access Response (RAR),PHY / MAC (gNB),4.2,4.2
+2,"RRC Setup Request, Setup & RRC Setup Complete",3GPP RRC (gNB-DU/CU),8.5,12.7
+3,"NAS Registration, Security Mode & 5G-AKA Authentication",3GPP NAS (5GC AMF/AUSF),16.4,29.1
+4,"PDU Session Establishment, QoS Flow Binding & NG-U Path",3GPP SMF / UPF (5GC),11.2,40.3
+5,E2 Node Subscription & KPM Telemetry Session Init,O-RAN Near-RT RIC (E2term),5.5,45.8

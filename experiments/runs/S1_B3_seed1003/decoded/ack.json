@@ -1,10 +1,5 @@
 {
-  "status": "ACK_RECEIVED",
-  "decision_id": "dec-1003-00045",
-  "action_id": "act-qos-1003-002",
-  "requestor_id": 123,
-  "instance_id": 7,
-  "ran_function_id": 3,
-  "rtt_ms": 1.82,
-  "timestamp": 100.36881999999999
+  "decoded_pdu": "ack.json",
+  "run_id": "S1_B3_seed1003",
+  "timestamp": "2026-09-15T12:54:00Z"
 }

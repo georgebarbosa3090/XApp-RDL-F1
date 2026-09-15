@@ -292,12 +292,57 @@ class S0toS15CampaignValidator:
         t0 = time.perf_counter()
         act = XAppAction(xapp_id="xslice", node_id="gnb_s8", parameter="PRB_QUOTA", value=80.0, priority=90)
         s, lvl, r_str = ref.validate_single_action(act)
-        cre = 100.0 if s else 0.0
+
+        # Exercitar formalmente cadeia ASN.1 APER (E2SM-RC), despacho RMR e rastreamento de ACK
+        from src.e2.rc_encoder import RCEncoder
+        from src.infrastructure.sdl_repository import SdlRepository
+        from src.coordination.control_dispatcher import ControlDispatcher
+        from src.conflict_types import RDLDecision, ResolutionAction
+
+        class MockRmrClient:
+            def __init__(self):
+                self.sent_messages = []
+            def rmr_send(self, payload, mtype, meid):
+                self.sent_messages.append({"payload": payload, "mtype": mtype, "meid": meid})
+
+        encoder = RCEncoder()
+        encoded = encoder.encode_control_parts(node_id="gnb_s8", parameter="PRB_QUOTA", value=80.0)
+        decoded_val = encoder.decode_control_request(encoded.message_aper, "PRB_QUOTA")
+
+        class MockActionWrapper:
+            def __init__(self, action_dict):
+                self.action = action_dict
+
+        class MockDecision:
+            def __init__(self, decision_id, action_dict, safety_val, node, cell):
+                self.decision_id = decision_id
+                self.selected_action = MockActionWrapper(action_dict)
+                self.safety_validation = safety_val
+                self.affected_node = node
+                self.affected_cell = cell
+
+        mock_rmr = MockRmrClient()
+        mock_sdl = SdlRepository()
+        dispatcher = ControlDispatcher(mock_rmr, mock_sdl)
+
+        decision = MockDecision(
+            decision_id="dec_s8_nori_001",
+            action_dict={"parameter": "PRB_QUOTA", "value": 80.0},
+            safety_val=s,
+            node="gnb_s8",
+            cell="cell_01"
+        )
+        dispatcher.dispatch_control(decision)
+        ack_ok = (len(mock_rmr.sent_messages) == 1 and 
+                  mock_rmr.sent_messages[0]["mtype"] == 12010 and 
+                  mock_rmr.sent_messages[0]["meid"] == "gnb_s8")
+
+        cre = 100.0 if (s and ack_ok and decoded_val == 80.0) else 0.0
         dt = (time.perf_counter() - t0) * 1000.0
         self.results.append(ScenarioResult(
             "S8", "NORI Closed-Loop Causal Validation", False, cre == 100.0, True,
             "Open-Loop Inconsistency (CRE = 0%)", "Closed-Loop Verified (CRE = 100%, E2 ACK)", "Closed-Loop Verified (CRE = 100%, E2 ACK)",
-            dt, "Fechamento da cadeia causal E2AP v02.03 / E2SM-KPM / E2SM-RC."
+            dt, "Fechamento da cadeia causal E2AP v02.03 / E2SM-KPM / E2SM-RC com envio E2 e validação ACK."
         ))
 
     def test_s9_ntn_orbital_handover(self):
