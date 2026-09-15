@@ -1,0 +1,9 @@
+{
+  "timestamp": 100.25,
+  "node_id": "gnb_01",
+  "throughput_dl_mbps": 103.5,
+  "prb_usage_dl": 77.0,
+  "latency_ms": 10.8,
+  "sinr_db": 15.2,
+  "sla_violations_pct": 0.0
+}

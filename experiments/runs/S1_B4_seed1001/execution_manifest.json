@@ -1,0 +1,12 @@
+{
+  "run_id": "S1_B4_seed1001",
+  "git_sha": "2fe3097",
+  "scenario": "S1",
+  "baseline": "B4",
+  "seed": 1001,
+  "backend": "NORI_NS3",
+  "e2ap": "02.03",
+  "e2sm_kpm": "02.03",
+  "e2sm_rc": "01.03",
+  "decision_window_ms": 200
+}

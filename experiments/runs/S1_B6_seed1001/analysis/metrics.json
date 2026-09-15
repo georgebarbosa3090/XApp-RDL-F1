@@ -1,0 +1,18 @@
+{
+  "run_id": "S1_B6_seed1001",
+  "scenario": "S1",
+  "baseline": "B6",
+  "strategy": "SAFE_MAPPO",
+  "seed": 1001,
+  "throughput_before_mbps": 85.2,
+  "throughput_after_mbps": 105.8,
+  "throughput_gain_pct": 24.18,
+  "latency_before_ms": 17.8,
+  "latency_after_ms": 9.7,
+  "latency_reduction_pct": 45.51,
+  "sla_violations_pct": 0.0,
+  "jain_fairness": 0.97,
+  "decision_latency_ms": 1.84,
+  "unsafe_actions": 0,
+  "gate4_verified": true
+}

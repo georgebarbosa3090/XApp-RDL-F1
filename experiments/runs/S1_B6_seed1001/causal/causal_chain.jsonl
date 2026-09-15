@@ -1,0 +1,8 @@
+{"step": 1, "event": "E2_SETUP_COMPLETED", "node_id": "gnb_01", "discovered_functions": {"E2SM-KPM": 2, "E2SM-RC": 3}, "timestamp": 100.002}
+{"step": 2, "event": "KPM_TELEMETRY_T0", "node_id": "gnb_01", "metrics": {"timestamp": 100.05, "node_id": "gnb_01", "throughput_dl_mbps": 85.2, "prb_usage_dl": 92.5, "latency_ms": 17.8, "sinr_db": 14.5, "sla_violations_pct": 36.7}, "timestamp": 100.05}
+{"step": 3, "event": "CONFLICT_DETECTED", "conflict_id": "conf-1001", "parameter": "PRB_QUOTA", "timestamp": 100.06}
+{"step": 4, "event": "DECISION_FORMALIZED", "decision_id": "dec-B6-1001", "strategy": "SAFE_MAPPO", "value": 63.5, "timestamp": 100.063}
+{"step": 5, "event": "SAFETY_GUARD_APPROVED", "action_id": "act-win-1001", "validation_level": 2, "bounds": [0.0, 100.0], "timestamp": 100.06400000000001}
+{"step": 6, "event": "RIC_CONTROL_ACK_RECEIVED", "status": "ACKNOWLEDGED", "rtt_ms": 1.8, "timestamp": 100.0668}
+{"step": 7, "event": "RAN_STATE_CHANGED", "parameter": "PRB_QUOTA", "old_value": 40.0, "new_value": 63.5, "timestamp": 100.0688}
+{"step": 8, "event": "KPM_TELEMETRY_T1", "metrics": {"timestamp": 100.25, "node_id": "gnb_01", "throughput_dl_mbps": 105.8, "prb_usage_dl": 75.0, "latency_ms": 9.7, "sinr_db": 15.2, "sla_violations_pct": 0.0}, "timestamp": 100.25, "causal_effect": {"throughput_gain_pct": 24.18, "latency_reduction_pct": 45.51, "sla_violations_after_pct": 0.0}}

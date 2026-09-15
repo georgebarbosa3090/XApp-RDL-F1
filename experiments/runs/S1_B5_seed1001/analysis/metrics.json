@@ -1,0 +1,18 @@
+{
+  "run_id": "S1_B5_seed1001",
+  "scenario": "S1",
+  "baseline": "B5",
+  "strategy": "CONTEXT_KG",
+  "seed": 1001,
+  "throughput_before_mbps": 85.2,
+  "throughput_after_mbps": 103.5,
+  "throughput_gain_pct": 21.48,
+  "latency_before_ms": 17.8,
+  "latency_after_ms": 10.8,
+  "latency_reduction_pct": 39.33,
+  "sla_violations_pct": 0.0,
+  "jain_fairness": 0.95,
+  "decision_latency_ms": 0.85,
+  "unsafe_actions": 0,
+  "gate4_verified": true
+}

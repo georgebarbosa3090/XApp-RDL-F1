@@ -1,0 +1,25 @@
+{
+  "git_sha": "8b9379b704cb7587f30a7f30792390e1349b34ed",
+  "environment": "MAPPO_SMOKE_ENV",
+  "publication_eligible": false,
+  "seed": 42,
+  "episodes": 20,
+  "steps_per_episode": 50,
+  "training_time_s": 0.26,
+  "final_reward": 28.8184,
+  "final_cost": 1.5507,
+  "n_agents": 6,
+  "obs_dim": 60,
+  "action_dim": 7,
+  "hyperparameters": {
+    "lr": 0.0003,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "cost_limit": 0.05
+  },
+  "pytorch_available": false,
+  "checkpoints": {
+    "actor": "actor_weights.npy",
+    "critic": "critic_weights.npy"
+  }
+}
