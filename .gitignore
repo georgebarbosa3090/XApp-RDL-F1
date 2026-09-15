@@ -63,6 +63,8 @@ scripts/git_*.ps1
 scripts/fix_mermaid.py
 scripts/test_batching.py
 *backup*
+!scripts/backup_to_google_drive.*
+backups/
 *rollback*
 *sync*
 !docs/compliance/*.md
