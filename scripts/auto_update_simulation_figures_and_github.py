@@ -39,33 +39,35 @@ def main():
     if report_script.exists():
         run_step("1. Processar Traces FlowMonitor XML", f"{sys.executable} {report_script}")
 
-    # 2. Exportar Tabelas CSV
+    # 2. Exportar 15 Tabelas CSV
     tables_script = root_dir / "analysis" / "export_tables.py"
     if tables_script.exists():
-        run_step("2. Exportar Tabelas CSV de Síntese", f"{sys.executable} {tables_script}")
+        run_step("2. Exportar 15 Tabelas CSV de Síntese", f"{sys.executable} {tables_script}")
 
-    # 3. Gerar 20 Figuras Científicas (300 DPI / Seaborn / 3D)
+    # 3. Gerar 25 Figuras Científicas (300 DPI / Seaborn / 3D)
     plots_script = root_dir / "analysis" / "generate_plots.py"
     if plots_script.exists():
-        run_step("3. Regenerar 20 Figuras Científicas (300 DPI)", f"{sys.executable} {plots_script}")
+        run_step("3. Regenerar 25 Figuras Científicas (300 DPI)", f"{sys.executable} {plots_script}")
 
-    # 4. Git Commit & Push Automático
-    if (root_dir / ".git").exists():
-        print("\n--- 4. Sincronização Automática com o GitHub ---")
-        subprocess.run("git add experiments/ results/ reports/figures/ docs/figures/ docs/", cwd=root_dir, shell=True)
-        commit_msg = f"results(sim): auto-update 20 figures, CSV tables and reports [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}]"
-        subprocess.run(f'git commit -m "{commit_msg}"', cwd=root_dir, shell=True)
-        subprocess.run("git pull --rebase origin main", cwd=root_dir, shell=True)
-        push_res = subprocess.run("git push origin HEAD:main", cwd=root_dir, shell=True)
-        if push_res.returncode == 0:
-            print("[OK] GitHub atualizado automaticamente com as novas figuras e tabelas!")
-        else:
-            print("[INFO] Finalizado com status do Git.")
+    # 4. Sincronização Cruzada Bidirecional F1 <-> F2 + Push no GitHub
+    cross_sync_script = root_dir / "scripts" / "sync_cross_repos.py"
+    if cross_sync_script.exists():
+        run_step("4. Sincronização Cruzada F1 <-> F2, GitHub e Google Drive", f"{sys.executable} {cross_sync_script}")
+    else:
+        # Fallback se sync_cross_repos não existir
+        if (root_dir / ".git").exists():
+            print("\n--- 4. Sincronização com o GitHub ---")
+            subprocess.run("git add -A", cwd=root_dir, shell=True)
+            commit_msg = f"results(sim): auto-update 25 figures, 15 CSV tables and reports [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}]"
+            subprocess.run(f'git commit -m "{commit_msg}"', cwd=root_dir, shell=True)
+            subprocess.run("git pull --rebase origin main", cwd=root_dir, shell=True)
+            subprocess.run("git push origin HEAD:main", cwd=root_dir, shell=True)
 
     print("\n" + "=" * 80)
-    print(" [OK] Pipeline de simulação e sincronização finalizado com sucesso!")
+    print(" [OK] Pipeline de simulação H-RDL e sincronização finalizado com sucesso!")
     print("=" * 80)
 
 
 if __name__ == "__main__":
     main()
+

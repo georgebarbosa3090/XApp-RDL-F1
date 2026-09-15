@@ -348,21 +348,30 @@ git-sync:
 	bash scripts/git_sync.sh "results: synchronize experimental datasets and reports"
 
 auto-update-figures:
-	@if [ -f "scripts/auto_update_simulation_figures_and_github.sh" ]; then \
-		bash scripts/auto_update_simulation_figures_and_github.sh; \
-	else \
+	@if command -v python3 >/dev/null 2>&1; then \
 		python3 scripts/auto_update_simulation_figures_and_github.py; \
+	elif [ -f "C:/Users/george.barbosa/.local/bin/uv.exe" ]; then \
+		"C:/Users/george.barbosa/.local/bin/uv.exe" run python scripts/auto_update_simulation_figures_and_github.py; \
+	else \
+		python scripts/auto_update_simulation_figures_and_github.py; \
+	fi
+
+sync-cross:
+	@echo "Executando sincronização cruzada bidirecional F1 <-> F2, GitHub e Drive..."
+	@if command -v python3 >/dev/null 2>&1; then \
+		python3 scripts/sync_cross_repos.py; \
+	elif [ -f "C:/Users/george.barbosa/.local/bin/uv.exe" ]; then \
+		"C:/Users/george.barbosa/.local/bin/uv.exe" run python scripts/sync_cross_repos.py; \
+	else \
+		python scripts/sync_cross_repos.py; \
 	fi
 
 run-and-sync:
 	bash simulations/ns3/run_all_s0_s15_simulations.sh all
+	@$(MAKE) sync-cross
 
-push-results:
-	@mkdir -p experiments/results reports/figures docs/figures docs
-	git add experiments/ results/ reports/figures/ docs/figures/ docs/
-	git commit -m "results: update experimental datasets, FlowMonitor metrics, tables and 20 figures" || true
-	git pull --rebase origin main || true
-	git push origin HEAD:main
+push-results: sync-cross
+	@echo "Todos os dados, relatórios e figuras de F1 e F2 foram sincronizados e enviados!"
 
 backup-drive:
 	@echo "Executando backup de governança para o Google Drive..."
@@ -373,6 +382,7 @@ backup-drive:
 	else \
 		python3 scripts/backup_to_google_drive.py || python scripts/backup_to_google_drive.py; \
 	fi
+
 
 
 
