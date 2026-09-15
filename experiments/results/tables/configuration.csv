@@ -1,0 +1,20 @@
+Categoria,Parâmetro,Valor,Unidade,Observação
+Reprodução,git_sha,f3af820,-,Hash do repositório
+Reprodução,ns3_version,3.48,-,Motor de eventos discretos
+Reprodução,fiveg_lena_version,5.1,-,CTTC-LENA NR Module
+Reprodução,nori_commit,9b64c12,-,Extensão SBrT 2025 E2 Agent
+Topologia,num_gnb,1,nó,Macro gNodeB 25m
+Topologia,num_ues,30,UEs,Distribuição uniforme
+Espectro,carrier_frequency,3.5,GHz,Banda n78 (FR1)
+Espectro,bandwidth,100.0,MHz,1 Component Carrier / 1 BWP
+NR,numerology,1,mu,SCS = 30 kHz
+PHY,tx_power,43.0,dBm,20 Watts EIRP
+Canal,channel_model,3GPP 38.901 UMi,-,Urban Microcell
+MAC,scheduler,NrMacSchedulerOfdmaPF,-,Proportional Fair
+AMC,mcs_table,Table 2 (256-QAM),-,3GPP Adaptativo
+HARQ,harq_mode,Incremental Redundancy,-,Max 4 retransmissões
+RLC,rlc_mode,AM (eMBB) / UM (URLLC),-,Buffer 10 MB
+Aplicação,app_stop_time,58.0,s,Drain Time oficial
+Aplicação,sim_stop_time,60.0,s,Término da simulação
+O-RAN,kpm_report_period,100.0,ms,Interface E2 Periodic
+RDL,decision_window,200.0,ms,Janela Near-RT RIC

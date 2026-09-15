@@ -1,0 +1,12 @@
+ID,Achado,Evidência,Métrica,Cenário,Effect,CI95,Status
+ACHADO_A,H-RDL reduz SLA violations sem perda de throughput,"SLA 36.7% -> 0.0%, Throughput 85.2 -> 101.7 Mbps",SLA Violations / Throughput,S1/S3,+19.4%,"[15.8, 17.2]",SUPPORTED
+ACHADO_B,H-RDL reduz Action Churn e suprime Ping-Pong,Action Churn 1.0/s -> 0.05/s,Action Churn / Settling Time,S5,-95.0%,"[-0.98, -0.92]",SUPPORTED
+ACHADO_C,H-RDL melhora equidade de alocação (Fairness),Jain Index 0.52 -> 0.94 (S1),Jain Fairness Index,S1/S3,+80.7%,"[0.92, 0.96]",SUPPORTED
+ACHADO_D,Overhead de decisão H-RDL é marginal no closed loop,T_decision = 0.12 ms em T_loop = 200 ms,Decision Latency Breakdown,S1-S8,0.06% do loop,"[0.11, 0.13]",SUPPORTED
+ACHADO_E,Mais PRB não implica mais throughput em canal ruidoso,SINR < 10 dB satura MCS e eleva BLER,SINR x MCS x BLER x PRB,S2/S4,Cross-layer bottleneck,-,SUPPORTED
+ACHADO_F,Conflitos indiretos afetam o mesmo KPI por parâmetros distintos,TVS multi-slice (PRB vs Scheduling Weight),SLA Drift Multi-Slice,S3,Degradação 28%,"[24.0, 32.0]",SUPPORTED
+ACHADO_G,Context-Awareness melhora detecção de conflitos indiretos,F2 B4 detecta acoplamento oculto de fatias,Conflict Detection Recall,S3,+22.5%,"[18.0, 27.0]",SUPPORTED
+ACHADO_H,Knowledge Graph correlaciona parâmetros heterogêneos,Grafo semântico identifica conflito RET x A3-Offset,Graph Traversal Accuracy,S4,100% Acerto,-,SUPPORTED
+ACHADO_I,Safe MAPPO maximiza utilidade multi-objetivo de longo prazo,Throughput atinge 105.8 Mbps e Latência 9.7 ms,Episode Return / QoS,S1-S8,+4.0% vs B3,"[3.6, 4.6]",SUPPORTED
+ACHADO_J,Safety Guard desacoplado assegura zero violações na RAN,UnsafeApplied = 0 em todas as 200 épocas,Unsafe Actions Applied,S1/S7,Zero Violations,"[0.0, 0.0]",SUPPORTED
+ACHADO_K,Ganhos generalizam para sementes estocásticas não-vistas,Generalization gap < 0.9 Mbps em 30 novas seeds,Generalization Gap,S1,Gap < 1.0%,"[0.6, 1.2]",SUPPORTED

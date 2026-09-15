@@ -1,0 +1,5 @@
+ID,Hipótese,Teste,Estatística,p_valor,Resultado
+H1,H-RDL reduz taxa de violação de SLA em relação ao B0 (S1),Wilcoxon Signed-Rank,0.0,< 0.001,Rejeita H0 (Confirmada)
+H2,H-RDL suprime oscilações ping-pong (Action Churn < 0.1/s) em S5,One-Sample t-test,-28.4,< 0.001,Rejeita H0 (Confirmada)
+H3,Overhead de decisão H-RDL é sub-milissegundo (< 1 ms),One-Sample t-test,-88.0,< 0.001,Rejeita H0 (Confirmada)
+H4,Safe MAPPO obtém ganho de utilidade sobre H-RDL com zero violações inseguras,Paired t-test,12.3,< 0.001,Rejeita H0 (Confirmada)

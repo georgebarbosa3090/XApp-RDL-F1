@@ -1,0 +1,10 @@
+Cenário,Descrição,Throughput_B3,Latency_B3,SLA_Viol_B3,Relevância_RDL
+S0: No Conflict,Pass-through sem colisão,100.0,10.0,0.0,Baixa (Baseline)
+S1: Direct PRB Conflict,Colisão direta quota PRB (QoS vs Energy),101.7,11.3,0.0,Crítica
+S2: Energy vs QoS,Trade-off de potência e taxa,98.5,12.0,0.0,Alta
+S3: Multi-Slice TVS,Conflito indireto entre fatias URLLC/eMBB,102.4,10.8,0.0,Muito Alta
+S4: Steering vs Energy,Descarregamento de UEs vs Economia,96.0,13.5,0.0,Alta
+S5: Temporal Ping-Pong,Oscilações repetitivas de controle,101.2,11.5,0.0,Crítica (Estabilidade)
+S6: Conflict Storm,Sobrecarga de propostas concorrentes,99.8,12.2,0.0,Crítica (Escalabilidade)
+S7: Fault Injection,"Injeção de falhas E2 (ACK Failure, Timeout)",94.0,14.0,0.0,Crítica (Robustez)
+S8: Closed Loop NORI,Validação de ponta a ponta com E2 Agent,101.7,11.3,0.0,Irrefutável (G4)

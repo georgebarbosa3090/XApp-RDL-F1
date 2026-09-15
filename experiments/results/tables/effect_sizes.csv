@@ -1,0 +1,7 @@
+Cenário,Baseline_Comp,Metric,Cohen_dz,Effect_Size,Rank_Biserial
+S1: Direct PRB Conflict,B3 vs B0,Throughput,9.16,Muito Grande,1.0
+S1: Direct PRB Conflict,B3 vs B0,Latency,-8.37,Muito Grande,-1.0
+S2: Energy vs QoS,B3 vs B0,Throughput,6.82,Grande,0.95
+S3: Multi-Slice TVS,B3 vs B0,SLA Compliance,11.2,Extremamente Grande,1.0
+S5: Temporal Ping-Pong,B3 vs B0,Action Churn,-15.4,Extremamente Grande,-1.0
+S1: Direct PRB Conflict,B6 vs B3,Utility Gain,4.1,Grande,0.9

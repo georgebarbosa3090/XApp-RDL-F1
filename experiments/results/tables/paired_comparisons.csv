@@ -1,0 +1,7 @@
+Comparação,Métrica,Mean_Diff,Gain_Pct,CI95_Low,CI95_High,p_value,Sig
+B0 -> B3 (H-RDL),Throughput (Mbps),16.5,19.37,15.8,17.2,0.0001,True
+B0 -> B3 (H-RDL),Latency (ms),-6.7,-37.22,-7.1,-6.3,0.0001,True
+B0 -> B3 (H-RDL),SLA Violations (%),-36.7,-100.0,-37.5,-35.9,0.0001,True
+B3 -> B6 (MAPPO),Throughput (Mbps),4.1,4.03,3.6,4.6,0.0008,True
+B3 -> B6 (MAPPO),Latency (ms),-1.6,-14.16,-1.9,-1.3,0.0005,True
+B3 -> B6 (MAPPO),Decision Overhead (ms),1.72,1433.3,1.65,1.79,0.0001,True
