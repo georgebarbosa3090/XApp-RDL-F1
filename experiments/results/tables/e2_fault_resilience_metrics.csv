@@ -1,0 +1,7 @@
+Métrica_Resiliencia,B0_Sem_Governanca,B3_HRDL,B6_SafeMAPPO
+Tempo de Detecção de Timeout (ms),5000,1000,1000
+Tempo de Acionamento Fallback (ms),Nenhum (Bloqueio),310,290
+Taxa de Retransmissão E2AP (%),45.2%,0.0% (Hold Seguro),0.0% (Action Masking)
+Throughput Durante Falha (Mbps),52.4,96.0,97.5
+Recuperação Pós-Restauração (ms),8200,180,175
+Ações Inseguras Disparadas,12,0,0

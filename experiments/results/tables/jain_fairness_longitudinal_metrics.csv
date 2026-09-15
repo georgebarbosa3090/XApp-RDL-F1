@@ -1,0 +1,4 @@
+Slice_Servico,Jain_B0,Jain_B1,Jain_B2,Jain_B3_HRDL,Jain_B6_SafeMAPPO,P_Valor_Wilcoxon
+URLLC (Slice 1),0.48,0.62,0.74,0.95,0.98,< 0.001
+eMBB (Slice 2),0.56,0.74,0.82,0.93,0.96,< 0.001
+Agregado Geral,0.52,0.68,0.78,0.94,0.97,< 0.001

@@ -201,10 +201,77 @@ B3 $\to$ B6 (Safe-MAPPO) & Overhead de Decisão & +1,72 ms & +1433\% & [+1,65; +
 
 ---
 
+### 3.5. Tabela de Eficiência Energética vs QoS (EEVS) em LaTeX (Para o Capítulo 6)
+
+```latex
+\begin{table}[htbp]
+\centering
+\caption{Avaliação da Eficiência Energética (Modelo Earth / 3GPP) e Compromisso de QoS (EEVS).}
+\label{tab:energy_efficiency_eevs}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Baseline de Governança} & \textbf{Potência Média (W)} & \textbf{Throughput (Mbps)} & \textbf{Eficiência (Mbit/J)} & \textbf{Economia Relativa (\%)} & \textbf{Violações SLA (\%)} \\ \midrule
+B0 (Não Coordenado) & 223,5 W & 85,2 Mbps & 0,381 Mbit/J & 0,0\% (Referência) & 36,7\% \\
+B1 (FIFO) & 215,2 W & 89,4 Mbps & 0,415 Mbit/J & +3,7\% & 28,0\% \\
+B2 (Prioridade Estática) & 198,0 W & 94,1 Mbps & 0,475 Mbit/J & +11,4\% & 15,0\% \\
+\textbf{B3 (H-RDL Determinístico)} & \textbf{154,2 W} & \textbf{101,7 Mbps} & \textbf{0,659 Mbit/J} & \textbf{+31,0\%} & \textbf{0,0\%} \\
+\textbf{B6 (Safe-MAPPO)} & \textbf{148,6 W} & \textbf{105,8 Mbps} & \textbf{0,712 Mbit/J} & \textbf{+33,5\%} & \textbf{0,0\%} \\ \bottomrule
+\end{tabular}
+\end{table}
+```
+
+---
+
+### 3.6. Tabela de Resiliência a Falhas E2 / Timeout SCTP em LaTeX (Para o Capítulo 6)
+
+```latex
+\begin{table}[htbp]
+\centering
+\caption{Métricas de Resiliência Operacional sob Injeção de Falha de Transporte E2 / Timeout SCTP (Cenário S7).}
+\label{tab:e2_fault_resilience}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Métrica de Resiliência} & \textbf{B0 (Sem Governança)} & \textbf{B3 (H-RDL)} & \textbf{B6 (Safe-MAPPO)} \\ \midrule
+Tempo de Detecção de Timeout (ms) & 5000 ms (Timeout TCP) & \textbf{1000 ms} & \textbf{1000 ms} \\
+Tempo de Acionamento Fallback (ms) & Nenhum (Bloqueio) & \textbf{310 ms} & \textbf{290 ms} \\
+Taxa de Retransmissão E2AP (\%) & 45,2\% & \textbf{0,0\% (Hold Seguro)} & \textbf{0,0\% (Action Masking)} \\
+Throughput Durante Falha (Mbps) & 52,4 Mbps (-45\%) & \textbf{96,0 Mbps (-5,6\%)} & \textbf{97,5 Mbps (-4,2\%)} \\
+Tempo de Recuperação ($t_{\text{recover}}$) & 8200 ms & \textbf{180 ms} & \textbf{175 ms} \\
+Ações Inseguras Disparadas & 12 & \textbf{0} & \textbf{0} \\ \bottomrule
+\end{tabular}
+\end{table}
+```
+
+---
+
+### 3.7. Tabela do Radar Multidimensional 8D em LaTeX (Para o Capítulo 6)
+
+```latex
+\begin{table}[htbp]
+\centering
+\caption{Matriz Multidimensional Normalizada de Desempenho Comparativo em 8 Dimensões SBRC / IEEE.}
+\label{tab:multidimensional_radar}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Dimensão Avaliada} & \textbf{B0 (Não Coord.)} & \textbf{B1 (FIFO)} & \textbf{B2 (Estático)} & \textbf{B3 (H-RDL)} & \textbf{B6 (Safe-MAPPO)} \\ \midrule
+1. Throughput Normalizado & 0,65 & 0,72 & 0,82 & \textbf{0,96} & \textbf{1,00} \\
+2. Redução de Latência & 0,40 & 0,52 & 0,68 & \textbf{0,86} & \textbf{0,95} \\
+3. Conformidade de SLA & 0,63 & 0,70 & 0,85 & \textbf{1,00} & \textbf{1,00} \\
+4. Equidade de Jain ($J$) & 0,52 & 0,68 & 0,78 & \textbf{0,94} & \textbf{0,97} \\
+5. Supressão de Churn & 0,05 & 0,20 & 0,60 & \textbf{0,95} & \textbf{0,90} \\
+6. Garantia de Safety ($\text{Unsafe} \equiv 0$) & 0,10 & 0,40 & 0,75 & \textbf{1,00} & \textbf{1,00} \\
+7. Eficiência Energética & 0,55 & 0,62 & 0,70 & \textbf{0,92} & \textbf{0,96} \\
+8. Baixo Overhead Algorítmico & 1,00 & 0,99 & 0,98 & \textbf{0,99 (0,12 ms)} & 0,82 (1,84 ms) \\ \bottomrule
+\end{tabular}
+\end{table}
+```
+
+---
+
 ## 4. CRONOGRAMA DE ATUALIZAÇÃO E PRÓXIMOS PASSOS
 
-1. **Atualização da Documentação Mestre do Repositório:** Sincronizar os volumes `docs/01`, `docs/03`, `docs/04` e `docs/05` com os dados canônicos consolidados.
-2. **Incorporação ao Manuscrito LaTeX:** Inserir os blocos matemáticos, a Tabela de Lacunas Críticas e as Tabelas de Inferência Pareada nas fontes da dissertação.
+1. **Atualização da Documentação Mestre do Repositório:** Sincronizar os volumes `docs/01`, `docs/03`, `docs/04` e `docs/05` com os dados canônicos consolidados (agora contemplando 30 figuras e 20 tabelas científicas).
+2. **Incorporação ao Manuscrito LaTeX:** Inserir os blocos matemáticos, a Tabela de Lacunas Críticas, as Tabelas de Inferência Pareada e as novas Tabelas de Resiliência e Eficiência Energética nas fontes da dissertação.
 3. **Recompilação do PDF:** Gerar a versão revisada e atualizada com as novas tabelas e equações.
 4. **Submissão Científica:** Prosseguir com o envio dos manuscritos derivados para os simpósios SBRC e periódicos IEEE (TNSM/TCCN).
 
