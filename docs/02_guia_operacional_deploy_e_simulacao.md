@@ -50,6 +50,8 @@ kubectl create namespace ricplt    # Plataforma Near-RT RIC (E2term, AppMgr, Sub
 kubectl create namespace ricxapp   # Micro-aplicações (RDL, xSlice, Energy Saving, Traffic Steering)
 ```
 
+![Infraestrutura Kubernetes k3d e Rancher Dashboard](figures/01_arquitetura_e_governanca/diagram_03_infraestrutura_k3d_rancher.png)
+
 ---
 
 ## 3. Pipeline de Deploy das xApps e Near-RT RIC
@@ -114,6 +116,8 @@ docker run -d --restart=unless-stopped -p 8443:443 --privileged rancher/rancher:
 # Instalação do Kiali (após provisionamento Istio)
 kubectl apply -f https://raw.githubusercontent.com/kiali/kiali/master/deploy/kubernetes/kiali.yaml
 ```
+
+![Observabilidade com Prometheus, Grafana e Kiali](figures/01_arquitetura_e_governanca/diagram_04_observabilidade_prometheus_kiali.png)
 
 ---
 

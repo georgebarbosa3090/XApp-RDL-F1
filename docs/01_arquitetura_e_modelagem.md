@@ -52,6 +52,8 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+![Arquitetura Global de Co-Simulação ns-3 e Near-RT RIC](figures/01_arquitetura_e_governanca/diagram_01_global_pipeline_architecture.png)
+
 ---
 
 ## 2. Paradigmas Evolutivos: H-RDL (Fase 1) × CA-RDL (Fase 2)
@@ -120,6 +122,8 @@ Aplica restrições físicas invioláveis antes de qualquer emissão para a inte
 2. **Orçamento de Recursos ($PRB$):** $\sum_{s \in \mathcal{S}} \text{Quota}(s) \le 100\%$.
 3. **Janela Anti-Ping-Pong:** $\Delta t_{min} \ge 1000\text{ ms}$ entre comandos opostos no mesmo nó.
 
+![Componentes e Fluxo de Decisão xApp-RDL](figures/01_arquitetura_e_governanca/fig_componentes_fluxo_decisao.png)
+
 ---
 
 ## 5. Modelagem Matemática Formal
@@ -159,6 +163,8 @@ $$R(s_t, \mathbf{a}_t) = w_1 \sum_{s} T_s(t) - w_2 \sum_{s} \max(0, D_s(t) - D_{
 
 As restrições de custo $C_k$ penalizam violações de invariantes físicas, resolvidas pelo método de Multiplicadores de Lagrange e *Action Masking* estrito no ator.
 
+![Arquitetura Cognitiva Safe-MAPPO](figures/01_arquitetura_e_governanca/diagram_02_arquitetura_cognitiva_mappo.png)
+
 ---
 
 ## 6. Mapeamento Normativo O-RAN (E2AP, E2SM-KPM e E2SM-RC)
@@ -176,3 +182,5 @@ A camada RDL implementa o desacoplamento formal de codecs ASN.1 APER conforme os
 - `SCHEDULER_WEIGHT` (Parameter ID: 2, Faixa: 1–100);
 - `TX_POWER` (Parameter ID: 3, Faixa: 10–43 dBm);
 - `HANDOVER_TARGET` (Parameter ID: 4, Cell ID de destino).
+
+![Conformidade com os Padrões O-RAN Alliance](figures/01_arquitetura_e_governanca/diagram_05_conformidade_oran_standards.png)

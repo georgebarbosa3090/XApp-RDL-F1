@@ -20,6 +20,8 @@ A pesquisa no projeto **xApp RDL (Resource and Decision Layer)** é estruturada 
 └───────────────────────────┘     └───────────────────────────┘     └───────────────────────────┘
 ```
 
+![Cronograma Gantt de Evolução do Projeto RDL Fase 3](figures/01_arquitetura_e_governanca/diagram_07_roadmap_gantt_fase3.png)
+
 ---
 
 ## 2. Fase 3: Especificação da RDL Autônoma e Federada 6G (Zero-Touch)
@@ -52,6 +54,8 @@ A Fase 3 estende os conceitos de governança cognitiva para redes altamente dist
 │  - Satélites LEO (600 km) | UAVs em Enxame | Macrocell 3.5 GHz | RIS Reconf. │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+![Proposta Arquitetural Federada e Multi-Domínio 6G](figures/01_arquitetura_e_governanca/diagram_06_proposta_arquitetural_fase3_6g.png)
 
 ### 2.1. Pilares Tecnológicos da Fase 3
 
