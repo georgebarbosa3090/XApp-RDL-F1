@@ -60,9 +60,9 @@ C_GRAY   = "#7F8C8D"
 def plot_fig01_causal_timeline():
     """
     F1: Timeline de Intervenção Causal com Legendas Externas e Anotações Escalonadas.
-    Evita totalmente sobreposição de texto em eventos de escala milimétrica.
+    Separa rigorosamente cada badge e seta de evento (Conflito, Decisão H-RDL, E2SM-RC, ACK, ΔRAN).
     """
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9.5, 6.5), sharex=True)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10.0, 7.2), sharex=True)
     t = np.linspace(100.0, 100.6, 600)
     
     t_conf, t_dec, t_rc, t_ack, t_ran = 100.060, 100.063, 100.065, 100.067, 100.070
@@ -84,8 +84,8 @@ def plot_fig01_causal_timeline():
     ax1.plot(t, tp, color=C_BLUE, lw=2.2, label="Throughput DL Observado")
     ax1.fill_between(t, 80.0, tp, color=C_BLUE, alpha=0.15)
     ax1.set_ylabel("Vazão (Mbps)")
-    ax1.set_ylim(80, 108)
-    ax1.set_title("F1: Timeline de Intervenção Causal — Circuito Fechado O-RAN (S1, Seed 1001)", pad=12)
+    ax1.set_ylim(80, 114)
+    ax1.set_title("F1: Timeline de Intervenção Causal — Circuito Fechado O-RAN (S1, Seed 1001)", pad=14)
     ax1.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=True)
 
     # 2. Latência com faixa de SLA
@@ -109,19 +109,21 @@ def plot_fig01_causal_timeline():
         ax.axvspan(t_conf, t_ran, color=C_ORANGE, alpha=0.25, zorder=0)
         ax.grid(True, linestyle="--", alpha=0.5)
 
-    # Anotações escalonadas na parte superior do ax1
+    # Anotações distribuídas horizontalmente com setas curvas dedicadas (sem sobreposição)
     events = [
-        (t_conf, "① Conflito", C_ORANGE, 103.5),
-        (t_dec,  "② Decisão H-RDL", C_PURPLE, 106.0),
-        (t_rc,   "③ E2SM-RC", C_BLUE, 103.5),
-        (t_ack,  "④ ACK", C_GREEN, 106.0),
-        (t_ran,  "⑤ ΔRAN", C_RED, 103.5)
+        (t_conf, "① Conflito", C_ORANGE, 100.02, 109.5, -0.15),
+        (t_dec,  "② Decisão H-RDL", C_PURPLE, 100.14, 105.0, -0.10),
+        (t_rc,   "③ E2SM-RC", C_BLUE, 100.27, 109.5, -0.15),
+        (t_ack,  "④ ACK", C_GREEN, 100.39, 105.0, -0.10),
+        (t_ran,  "⑤ ΔRAN", C_RED, 100.50, 109.5, -0.15)
     ]
-    for ts, lbl, col, y_pos in events:
-        ax1.annotate(lbl, xy=(ts, 85.5), xytext=(ts + 0.03, y_pos),
-                     arrowprops=dict(arrowstyle="->", color=col, lw=1.2),
-                     fontsize=8, fontweight="bold", color=col,
-                     bbox=dict(boxstyle="round,pad=0.2", fc="white", ec=col, lw=1.0, alpha=0.9))
+    for ts, lbl, col, x_pos, y_pos, rad in events:
+        ax1.annotate(lbl, 
+                     xy=(ts, 85.5), 
+                     xytext=(x_pos, y_pos),
+                     arrowprops=dict(arrowstyle="->", color=col, lw=1.3, connectionstyle=f"arc3,rad={rad}"),
+                     fontsize=8.5, fontweight="bold", color=col,
+                     bbox=dict(boxstyle="round,pad=0.25", fc="#FAFAFA", ec=col, lw=1.2, alpha=0.95))
 
     fig.tight_layout()
     fig.savefig(figures_dir / "fig_01_causal_timeline.png")

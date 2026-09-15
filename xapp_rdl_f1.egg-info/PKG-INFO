@@ -57,43 +57,6 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 
 ![Fluxo funcional da arquitetura proposta para a xApp-RDL](docs/figures/01_arquitetura_e_modelagem/fig_fluxo_funcional_arquitetura_rdl.png)
 
-### 1.1. Taxonomia de Origem das xApps (`origin_type`)
-
-O ecossistema experimental classifica rigorosamente a procedência de cada xApp:
-
-| Nome da xApp | Origem / Fonte | Tipo de Origem (`origin_type`) | Papel no Repositório |
-| :--- | :--- | :---: | :--- |
-| **Traffic Steering** | [O-RAN SC `ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | `ORAN_SC_OFFICIAL` | Terceiros / Oficial O-RAN SC Release J |
-| **KPIMON** | [O-RAN SC `ric-app-kpimon`](https://github.com/o-ran-sc/ric-app-kpimon) | `ORAN_SC_OFFICIAL` | Terceiros / Oficial O-RAN SC (Telemetria) |
-| **xSlice (QoS Slicing)** | [peihaoY/xslice-oran](https://github.com/peihaoY/xslice-oran) (Yan et al., 2025) | `ACADEMIC_REIMPLEMENTATION` | Terceiros / Reimplementação Acadêmica |
-| **Energy Saving** | [Orange-OpenSource/ns-O-RAN-flexric](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) | `LITERATURE_INSPIRED` | Terceiros / Inspirada na Literatura |
-| **Load Balancer** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL |
-| **Beamformer** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL |
-| **ISAC Radar** | Proposta Experimental | `PROPOSED_EXPERIMENTAL` | Proposta / Referência H-RDL (6G ISAC) |
-| **Rogue xApp** | Workload de Teste | `TEST_HARNESS` | Teste / Injeção de Falhas |
-| **Bouncer** | Workload de Teste | `TEST_HARNESS` | Teste / Benchmark de Latência RMR |
-
-*Consulte a documentação detalhada e o catálogo de figuras dos cenários S1–S15 em [`docs/figures/README.md`](docs/figures/README.md), [`docs/modelagem_cenarios_xapps_terceiros.md`](docs/modelagem_cenarios_xapps_terceiros.md), [`docs/topologia_espacial_e_cenarios_s1_s5.md`](docs/topologia_espacial_e_cenarios_s1_s5.md), [`docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md`](docs/analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md) e [`reference-xapps/README.md`](reference-xapps/README.md).*
-
-### 1.2. Catálogo Oficial de Figuras dos Cenários Experimentais (S0–S15)
-
-O repositório conta com um catálogo completo de figuras conceituais 3D e de planos espaciais 2D geométricos (em metros — estilo Figura 5 do artigo H-RDL):
-- **Planos Espaciais 2D Geométricos (S0 a S8):** [`s0_topologia_espacial_plano_2d.png`](docs/figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png) a [`s8_topologia_espacial_plano_2d.png`](docs/figures/02_cenarios_e_topologias/s8_topologia_espacial_plano_2d.png)
-- **S1 (EEVS):** Energy Saving vs. QoS — [`s1_eevs_energy_vs_qos_dark.png`](docs/figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
-- **S2 (TVS):** Traffic Steering vs. Slicing — [`s2_tvs_traffic_steering_dark.png`](docs/figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
-- **S3:** Multi-Slice Traffic Steering vs Slicing — [`s3_multi_slice_traffic_steering.png`](docs/figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
-- **S7:** 5G-Advanced Channel Overlap & Multicarrier MIMO — [`s7_5ga_channel_overlap_mimo.png`](docs/figures/02_cenarios_e_topologias/s7_5ga_channel_overlap_mimo.png)
-- **S8:** 6G ISAC Urban & Environmental Sensing — [`s8_6g_isac_urban_green_sensing.png`](docs/figures/02_cenarios_e_topologias/s8_6g_isac_urban_green_sensing.png)
-- **S9:** NTN Orbital Handover — [`s9_ntn_orbital_handover.png`](docs/figures/02_cenarios_e_topologias/s9_ntn_orbital_handover.png)
-- **S10:** UAV Swarm Stadium Coverage — [`s10_uav_swarm_stadium_coverage.png`](docs/figures/02_cenarios_e_topologias/s10_uav_swarm_stadium_coverage.png)
-- **S11:** V2X Highway Ping-Pong Storm — [`s11_v2x_highway_pingpong_storm.png`](docs/figures/02_cenarios_e_topologias/s11_v2x_highway_pingpong_storm.png)
-- **S12:** IIoT Zero-Jitter Robotic Slicing — [`s12_iiot_zero_jitter_robotic_slicing.png`](docs/figures/02_cenarios_e_topologias/s12_iiot_zero_jitter_robotic_slicing.png)
-- **S13:** Disaster Rescue Heterogeneous Mesh — [`s13_disaster_rescue_heterogeneous_mesh.png`](docs/figures/02_cenarios_e_topologias/s13_disaster_rescue_heterogeneous_mesh.png)
-- **S14:** Rural Agriculture 4.0 Sensing — [`s14_rural_agriculture_sensing.png`](docs/figures/02_cenarios_e_topologias/s14_rural_agriculture_sensing.png)
-- **S15:** 6G Dense City Conflict Storm — [`s15_6g_dense_city_conflict_storm.png`](docs/figures/02_cenarios_e_topologias/s15_6g_dense_city_conflict_storm.png)
-
-
-
 ---
 
 ## 2. Estrutura do Repositório
@@ -105,19 +68,24 @@ O repositório conta com um catálogo completo de figuras conceituais 3D e de pl
 │   ├── helm/                    # Helm Charts oficiais (RDL, xSlice, Energy Saving, Traffic Steering)
 │   ├── kubernetes/              # Manifestos K8s puros (Near-RT RIC ricplt + 3 xApps + RDL ricxapp)
 │   └── openran-br-v3/           # Perfil de Implantação OpenRAN@Brasil Blueprint v3 (Release J)
-├── docs/                        # Portal de Documentação Técnica e Referências Normativas
-│   ├── e2/                      # Matriz de Versões e Fontes Normativas O-RAN (E2AP/KPM/RC)
-│   ├── README.md                # Índice e trilhas de leitura da documentação
-│   └── 01 a 05                  # Volumes temáticos de arquitetura, cluster, deploy e operação
+├── docs/                        # Portal de Documentação Oficial Consolidada
+│   ├── README.md                # Índice mestre e trilhas de leitura por perfil
+│   ├── 01_arquitetura_e_modelagem.md            # [Vol 01] Arquitetura Core e Modelos
+│   ├── 02_guia_operacional_deploy_e_simulacao.md# [Vol 02] Deploy K8s/k3d e ns-3
+│   ├── 03_taxonomia_de_conflitos_e_cenarios.md  # [Vol 03] Conflitos e Cenários S0-S15
+│   ├── 04_relatorio_cientifico_mestre_rdl.md    # [Vol 04] Monografia Mestre Causal
+│   ├── 05_auditoria_e_conformidade_oran.md      # [Vol 05] Auditoria e Normas O-RAN
+│   └── 06_roadmap_e_pesquisa_futura_6g.md       # [Vol 06] Roadmap e Futuro 6G
 ├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
 ├── reproducibility/             # Bloqueio de versões (versions.lock) e Runbook de reprodução
-├── scripts/                     # Automação de Deploy, Testes e Reprodução
+├── scripts/                     # Automação de Deploy, Testes, Validação S0-S15 e Reprodução
+│   ├── validate_all_scenarios_s0_s15.py # Motor E2E de validação de todos os 16 cenários S0-S15
 │   ├── reproduce_f1.sh          # Pipeline completo de reprodução determinística (Fase 1)
 │   ├── deploy_helm.sh           # Pipeline Helm (Near-RT RIC -> 3 xApps -> RDL)
 │   ├── deploy_k8s.sh            # Pipeline K8s/Kustomize equivalente
 │   └── verify_3_xapps.sh        # Smoke test unificado de todas as xApps
-├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA
-│   └── ns3/                     # scenario_rdl_closed_loop_nori.cc (Closed-Loop E2 Report & Control)
+├── simulations/                 # Cenários C++ de Co-Simulação no ns-3 NORI / 5G-LENA (S0 a S15)
+│   └── ns3/                     # scenario_rdl_s0 a s15 e run_all_s0_s15_simulations.sh
 ├── src/                         # Código-Fonte Python da xApp RDL (Clean Architecture)
 │   ├── conflict_types.py        # Contratos formais desacoplados (RDLDecision, XAppAction)
 │   ├── rdl_xapp.py              # Ciclo de vida xApp e despacho via E2/RCMapper
@@ -189,23 +157,44 @@ k3d cluster create rdl-cluster \
 
 ## 4. Guia Rápido de Execução e Deploy
 
+Entrar no diretório do projeto:
+
+```bash
+cd XApp-RDL-F1
+```
+
+Instalar o utilitário Make (caso não esteja instalado no host):
+
+```bash
+apt update && apt install -y make
+```
+
 ### Opção A: Implantação Rápida via Perfil OpenRAN@Brasil Blueprint v3 (`deploy/openran-br-v3/`)
 Manifestos K8s puros e otimizados para o namespace `ricxapp` seguindo a especificação normativa da Release J / OpenRAN@Brasil:
+
+1. Criar os namespaces oficiais se ainda não existirem:
 ```bash
-# 1. Criar os namespaces oficiais se ainda não existirem
 kubectl create namespace ricplt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
+```
 
-# 2. Aplicar ConfigMap e tabela de rotas RMR
+2. Aplicar ConfigMap e tabela de rotas RMR:
+```bash
 kubectl apply -f deploy/openran-br-v3/config-map.yaml
+```
 
-# 3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081)
+3. Aplicar Serviços de Rede (RMR 4560/4561 + HTTP 8080/8081):
+```bash
 kubectl apply -f deploy/openran-br-v3/service.yaml
+```
 
-# 4. Aplicar o Deployment da xApp RDL
+4. Aplicar o Deployment da xApp RDL:
+```bash
 kubectl apply -f deploy/openran-br-v3/deployment.yaml
+```
 
-# 5. Validar o status da implantação
+5. Validar o status da implantação:
+```bash
 kubectl get pods,svc -n ricxapp -l app=iqos-xapp-rdl
 ```
 
@@ -229,7 +218,47 @@ make test-3xapps
 make test
 ```
 
-### Opção F: Reprodução Determinística do Ambiente
+### Opção F: Validação Automatizada dos Cenários S0 a S15
+
+Executar todos os cenários (S0 a S15):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group all
+```
+
+Executar apenas Grupo 1 (Redes Terrestres 5G — S0 a S8):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 5g
+```
+
+Executar apenas Grupo 2 (Redes Avançadas 6G — S9 a S15):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --group 6g
+```
+
+Executar cenário individual específico (exemplo S1 ou S14):
+```bash
+/home/george/.venv-rdl/bin/python scripts/validate_all_scenarios_s0_s15.py --scenario S1
+```
+
+### Opção G: Execução das Co-Simulações C++ no ns-3 (S0 a S15)
+
+Executar todas as co-simulações C++ em lote:
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh all
+```
+
+Executar apenas Grupo 1 (5G) ou Grupo 2 (6G):
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh 5g
+bash simulations/ns3/run_all_s0_s15_simulations.sh 6g
+```
+
+Executar simulação de um cenário individual específico (para economizar recursos de CPU/RAM):
+```bash
+bash simulations/ns3/run_all_s0_s15_simulations.sh S1
+```
+
+### Opção H: Reprodução Determinística do Ambiente
 ```bash
 make reproduce-f1
 ```
@@ -239,19 +268,26 @@ make reproduce-f1
 ## 5. Observabilidade e Monitoramento
 
 * **Rancher Dashboard:** Interface visual de gestão do cluster, nós e namespaces (`ricplt`, `ricxapp`):
-  ```bash
-  make rancher-stop       # (Opcional) Para e remove container anterior
-  make rancher-start      # 1. Inicia o container do Rancher Server (:8443)
-  make rancher-logs       # 2. Acompanha os logs (ou: docker logs -f rancher-server)
-  make rancher-password   # 3. Obtém a Bootstrap Password inicial
-  # 4. Acesse no navegador: URL: https://localhost:8443 (ou https://<IP_DO_HOST>:8443)
-  make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml" # 5. Vincula o cluster
-  ```
-* **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC:
-  ```bash
-  make kiali-install      # Instala Istio e Kiali no c---
+```bash
+make rancher-stop
+make rancher-start
+make rancher-logs
+make rancher-password
+```
 
-## 6. Política Rígida de Providência e Resultados Experimentais
+Vincular o cluster ao Rancher através do comando de importação:
+```bash
+make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
+```
+
+* **Kiali Service Mesh:** Para visualização em grafo animado do fluxo de dados entre xApps e o Near-RT RIC:
+```bash
+make kiali-install
+```
+
+---
+
+## 6. Política Rígida de Proveniência e Resultados Experimentais
 
 $$
 \boxed{
@@ -272,18 +308,25 @@ A infraestrutura experimental **ns-3 / 5G-LENA v5.1 / NORI** está em validaçã
 
 ---
 
-## 7. Reprodutibilidade e Validação de Providência em Um Comando
+## 7. Reprodutibilidade e Validação de Proveniência em Um Comando
+
+### 7.1. Diretriz Inviolável: Zero Dados Sintéticos e Proveniência Estrita do ns-3 FlowMonitor
+
+É expressamente proibido utilizar simuladores discretos simplificados ou parâmetros fixos para produzir dados científicos. Todos os datasets, métricas de SLA, vazão, perdas de pacotes e latência de rádio devem ser **obrigatoriamente exportados pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1 / NORI)** a partir dos códigos-fonte C++ (`simulations/ns3/*.cc`).
 
 Para executar a verificação estrita de proveniência e integridade sem dados sintéticos:
 
 ```bash
-# Auditoria estática de código contra geradores mock
 python scripts/check_no_synthetic_results.py
+```
 
-# Validação do pipeline de proveniência de dados reais
+Validação do pipeline de proveniência de dados reais:
+```bash
 python scripts/validate_provenance.py experiments/runs/gate1/seed-1001
+```
 
-# Suíte de testes funcionais e codecs de software (isolados de experiments/)
+Suíte de testes funcionais e codecs de software:
+```bash
 make test-unit
 make test-codec
 make test-integration
@@ -292,12 +335,33 @@ make test-interop
 
 ---
 
-## 8. Perfis Normativos e Auditorias Técnicas
+## 8. Como Sincronizar e Subir os Resultados para o GitHub
 
-* **[Parecer Técnico de Resolução Integral da Nova Auditoria (2026)](auditoria/Nova_Auditoria_Tecnica_Interop_E2_Closed_Loop_2026.md)**
-* **[Especificação do Perfil Normativo Congelado (F1 Frozen Profile)](docs/oran_compatibility_profile_frozen.md)**
-* **[Manifesto Machine-Readable de Versões e Hashes](specs/oran/compatibility_profile.json)**
-* **[Catálogo de Vetores Dourados APER](specs/golden_vectors/)**
+Após rodar os testes ou simulações, você pode subir todos os resultados usando qualquer uma das opções abaixo:
+
+### Opção A: Via Atalho Make (Recomendado)
+```bash
+make push-results
+```
+
+### Opção B: Manual via Git
+```bash
+git add experiments/results/ docs/
+git commit -m "chore(sim): update ns-3 FlowMonitor experimental traces and reports"
+git push origin main
+```
+
+---
+
+## 9. Volumes Canônicos da Documentação e Referências
+
+* **[Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](docs/01_arquitetura_e_modelagem.md)**
+* **[Volume 02: Guia Operacional de Deploy, Simulação e Observabilidade](docs/02_guia_operacional_deploy_e_simulacao.md)**
+* **[Volume 03: Taxonomia de Conflitos Multi-xApp e Portfólio de Cenários (S0 a S15)](docs/03_taxonomia_de_conflitos_e_cenarios.md)**
+* **[Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 × F2)](docs/04_relatorio_cientifico_mestre_rdl.md)**
+* **[Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade O-RAN](docs/05_auditoria_e_conformidade_oran.md)**
+* **[Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](docs/06_roadmap_e_pesquisa_futura_6g.md)**
+* **[Portal de Documentação e Trilhas de Leitura](docs/README.md)**
 
 ---
 
@@ -307,6 +371,3 @@ make test-interop
 *Desenvolvido em conformidade estrita com ETSI TS 104 039, O-RAN.WG3.E2AP e O-RAN Software Community Release I/J.*
 
 </div>
-
-
-
