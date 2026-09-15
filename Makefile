@@ -347,11 +347,22 @@ run-scenario2-baseline:
 git-sync:
 	bash scripts/git_sync.sh "results: synchronize experimental datasets and reports"
 
+auto-update-figures:
+	@if [ -f "scripts/auto_update_simulation_figures_and_github.sh" ]; then \
+		bash scripts/auto_update_simulation_figures_and_github.sh; \
+	else \
+		python3 scripts/auto_update_simulation_figures_and_github.py; \
+	fi
+
+run-and-sync:
+	bash simulations/ns3/run_all_s0_s15_simulations.sh all
+
 push-results:
-	@mkdir -p experiments/results docs
-	git add experiments/results/ docs/
-	git commit -m "results: update experimental datasets and FlowMonitor metrics" || true
+	@mkdir -p experiments/results reports/figures docs/figures docs
+	git add experiments/ results/ reports/figures/ docs/figures/ docs/
+	git commit -m "results: update experimental datasets, FlowMonitor metrics, tables and 20 figures" || true
 	git pull --rebase origin main || true
 	git push origin HEAD:main
+
 
 

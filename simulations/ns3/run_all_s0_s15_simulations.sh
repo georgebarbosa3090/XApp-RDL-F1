@@ -120,12 +120,12 @@ done
 
 cd "${BASE_DIR}"
 
-if command -v python3 >/dev/null 2>&1 && [ -f "${BASE_DIR}/scripts/generate_ns3_flowmonitor_markdown_report.py" ]; then
-    echo "--------------------------------------------------------------------------------"
-    echo "Compilando Relatório Markdown a partir dos Traces do FlowMonitor..."
-    python3 "${BASE_DIR}/scripts/generate_ns3_flowmonitor_markdown_report.py" || true
+if [ -f "${BASE_DIR}/scripts/auto_update_simulation_figures_and_github.sh" ]; then
+    bash "${BASE_DIR}/scripts/auto_update_simulation_figures_and_github.sh"
+elif command -v python3 >/dev/null 2>&1 && [ -f "${BASE_DIR}/scripts/auto_update_simulation_figures_and_github.py" ]; then
+    python3 "${BASE_DIR}/scripts/auto_update_simulation_figures_and_github.py"
 fi
 
 echo "================================================================================"
-echo "Suíte de Simulação ns-3 FlowMonitor concluída com sucesso!"
+echo "Suíte de Simulação ns-3 e Sincronização de Figuras/GitHub concluída com sucesso!"
 echo "================================================================================"

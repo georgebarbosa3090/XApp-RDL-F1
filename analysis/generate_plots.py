@@ -597,7 +597,15 @@ def generate_all_plots():
     plot_fig18_generalization_gap()
     plot_fig19_crosslayer_pairplot()
     plot_fig20_3d_pareto_surface()
+    
+    docs_figures_dir = root_dir / "docs" / "figures"
+    docs_figures_dir.mkdir(parents=True, exist_ok=True)
+    import shutil
+    for png_file in figures_dir.glob("*.png"):
+        shutil.copy(png_file, docs_figures_dir / png_file.name)
+        
     print(f"[OK] 20 Figuras de alta precisão salvas em: {figures_dir}")
+    print(f"[OK] 20 Figuras sincronizadas automaticamente com: {docs_figures_dir}")
 
 
 if __name__ == "__main__":
