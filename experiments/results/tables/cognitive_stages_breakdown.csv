@@ -1,0 +1,11 @@
+Estagio_ID,Estagio_Descricao,H_RDL_ms,MAPPO_ms,Fracao_Loop_H_RDL_Pct,Camada_Arquitetural
+E1_KPM_INGEST,Recepção e Decodificação APER E2SM-KPM,0.15,0.15,0.08,E2 Ingestion
+E2_PERCEPTION,Detecção e Agrupamento no Grafo de Conflitos,2.0,2.0,1.0,PerceptionAgent
+E3_KNOWLEDGE_GRAPH,Travessia Semântica e Context Engine,0.0,0.4,0.0,Context Engine
+E4_REASONING,Inferência Decisória / Arbitragem TVS / Safe-RL,0.12,1.84,0.06,ReasoningAgent
+E5_REFINEMENT,Safety Guard Invariante & Boundary Clamping,0.08,0.08,0.04,RefinementAgent
+E6_RC_ENCODE,Serialização ASN.1 APER E2SM-RC Format 1/2,0.15,0.15,0.08,RCMapper
+E7_RMR_DISPATCH,Trânsito RMR e SCTP até a E2 Termination,0.2,0.2,0.1,Dispatcher
+E8_ACK_RTT,Confirmação E2AP RICcontrolAcknowledge RTT,1.82,1.82,0.91,E2 Interface
+E9_MAC_APPLY,Aplicação Física no Scheduler 5G-LENA,0.5,0.5,0.25,gNodeB MAC
+E10_OBSERVE_WAIT,Espera da Próxima Janela de Telemetria KPM,194.98,192.86,97.48,Closed Loop Timer

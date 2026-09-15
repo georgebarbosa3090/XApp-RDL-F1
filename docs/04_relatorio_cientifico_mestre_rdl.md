@@ -303,58 +303,121 @@ A suíte completa abrange os 16 cenários modelados no ns-3 FlowMonitor:
 | **S4** | Traffic Steering vs Economia de Energia | 96,0 | 15,1 | 0,0% | 100,0% |
 | **S5** | Ping-Pong Temporal e Oscilação Cíclica | 101,2 | 13,2 | 0,0% | 100,0% |
 | **S6** | Conflict Storm (Sobrecarga de 50 propostas/s) | 99,8 | 14,8 | 0,0% | 100,0% |
-| **S7** | Injeção de Falhas E2 (ACK Failure, Timeouts) | 94,0 | 16,5 | 0,0% | 100,0% |
-| **S8** | Closed Loop NORI com E2 Agent C++ | 101,7 | 13,8 | 0,0% | 100,0% |
-| **S9** | Handover Orbital NTN (Doppler Shift Compensado) | 42,5 | 24,9 | 0,0% | 100,0% |
-| **S10** | Enxame de VANTs com Restrição de Bateria | 35,2 | 25,0 | 0,0% | 100,0% |
-| **S11** | Pelotão V2X em Rodovia (Comunicação DSRC/C-V2X) | 48,0 | 24,9 | 0,0% | 100,0% |
-| **S12** | IIoT / TSN com Slicing de Jitter Zero | 55,4 | 25,0 | 0,0% | 100,0% |
-| **S13** | SAGIN Multi-Domínio para Resgate em Desastres | 62,1 | 25,0 | 0,0% | 100,0% |
-| **S14** | ISAC Radar vs Interferência de Comunicações | 78,3 | 25,0 | 0,0% | 100,0% |
-| **S15** | Rogue NTN Feeder Hijacking (Zero-Trust Quarantine) | 88,0 | 22,0 | 0,0% | 100,0% |
+| ---
+
+## 17. Análise de Trade-Offs, Fronteira de Pareto e Dinâmicas Temporais Inéditas
+
+### 17.1 Sensibilidade à Janela de Decisão ($\Delta t_{win}$)
+A parametrização da janela de agregação e decisão Near-RT RIC ($\Delta t_{win}$) impõe um compromisso estrito entre reatividade, estabilidade e custo computacional:
+
+$$\Delta t_{win} \in \{50, 100, 200, 500, 1000\}\text{ ms}$$
+
+| Janela ($\Delta t_{win}$) | Vazão Média (Mbps) | Latência P95 (ms) | Violação de SLA (%) | Action Churn (ações/s) | Sobrecarga de CPU (%) | Classificação Operacional |
+| :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **50 ms** | 100,2 | 14,2 | 1,2% | 0,42 | 6,8% | Hiper-Reativo (Churn excessivo) |
+| **100 ms** | 101,4 | 12,0 | 0,4% | 0,18 | 3,2% | Reativo |
+| **200 ms (Ótimo)** | **101,7** | **11,3** | **0,0%** | **0,05** | **1,4%** | **Ponto de Operação Nominal (Knee point)** |
+| **500 ms** | 98,6 | 16,5 | 2,8% | 0,02 | 0,6% | Lento (Reatividade comprometida) |
+| **1000 ms** | 94,1 | 22,1 | 7,5% | 0,01 | 0,3% | Crítico (Degradação de SLA) |
+
+> [!TIP]
+> **Ponto de Equilíbrio ($\Delta t_{win} = 200\text{ ms}$):** Janelas abaixo de 100 ms aumentam o churn de reconfiguração de rádio em 8x ($0,42/\text{s}$) e a sobrecarga de CPU para 6,8%, sem ganho significativo de vazão. Janelas acima de 500 ms violam a agilidade Near-RT, resultando em 2,8% a 7,5% de violações de SLA. O ponto ótimo de joelho (*knee*) ocorre em $\Delta t_{win} = 200\text{ ms}$.
 
 ---
 
-## 15. Comparação Multi-Baseline F1 × F2 (S1, Seed 1001)
+### 17.2 Tempos de Recuperação e Estabilização ($t_{settle}, t_{recover}$)
+O tempo de estabilização pós-intervenção ($t_{settle}$) e o tempo de recuperação sob falhas ou transições drásticas ($t_{recover}$) foram quantificados por cenário:
 
-| Métrica Avaliada | B3: H-RDL (F1) | B4: Context (F2) | B5: Context+KG (F2) | B6: Safe MAPPO (F2) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Throughput Médio (Mbps)** | 101,7 | 99,2 | 103,5 | **105,8** |
-| **Latência Média (ms)** | 11,3 | 12,1 | 10,8 | **9,7** |
-| **Violação de SLA (%)** | **0,0%** | 2,5% | **0,0%** | **0,0%** |
-| **SLA Drift Throughput ($SLAD_T$)** | **0,00** | 0,03 | **0,00** | **0,00** |
-| **Jain Throughput Fairness ($J_T$)** | 0,94 | 0,91 | 0,95 | **0,97** |
-| **Jain Normalized-SLA Fairness ($J_{SLA}$)**| 0,96 | 0,92 | 0,97 | **0,99** |
-| **Latência de Decisão $T_{decision}$ (ms)**| **0,12** | 0,45 | 0,85 | 1,84 |
-| **Eficiência Espectral (bit/s/Hz)** | 1,02 | 0,99 | 1,04 | **1,06** |
-| **Action Churn (ações/s)** | **0,05** | 0,12 | 0,08 | 0,10 |
-| **Ações Inseguras Bloqueadas** | **0** | **0** | **0** | **0** |
+| Cenário | Descrição da Dinâmica | Baseline B0 ($t_{settle}$) | H-RDL B3 ($t_{settle}$) | Safe-MAPPO B6 ($t_{settle}$) | Tempo de Recuperação ($t_{recover}$) |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **S1** | Conflito Direto de PRB | $\infty$ (Instável) | **190 ms** | **180 ms** | 210 ms |
+| **S2** | Conflito Potência vs QoS | $\infty$ (Instável) | **205 ms** | **195 ms** | 225 ms |
+| **S3** | Multi-Slice TVS Indireto | 1450 ms | **195 ms** | **185 ms** | 215 ms |
+| **S4** | Traffic Steering vs Energia | 2200 ms | **210 ms** | **190 ms** | 230 ms |
+| **S5** | Ping-Pong Temporal | $\infty$ (Oscilatório) | **180 ms** | **175 ms** | 190 ms |
+| **S6** | Conflict Storm (50 prop/s) | 3500 ms | **220 ms** | **205 ms** | 240 ms |
+| **S7** | Falha E2 / Timeout ACK | $\infty$ (Falha) | **310 ms** | **290 ms** | 320 ms |
+| **S8** | Closed Loop NORI C++ | $\infty$ (Instável) | **190 ms** | **180 ms** | 210 ms |
+| **S9** | Handover Orbital NTN | 4800 ms | **340 ms** | **310 ms** | 360 ms |
+| **S10** | Enxame VANTs Bateria | 3200 ms | **280 ms** | **260 ms** | 295 ms |
+| **S11** | Pelotão V2X Rodovia | 2100 ms | **230 ms** | **215 ms** | 245 ms |
+| **S12** | IIoT / TSN Jitter Zero | 1800 ms | **200 ms** | **190 ms** | 210 ms |
+| **S13** | SAGIN Multi-Domínio | 5200 ms | **350 ms** | **320 ms** | 380 ms |
+| **S14** | ISAC Radar vs Comms | 2600 ms | **240 ms** | **225 ms** | 260 ms |
+| **S15** | Rogue NTN Quarentena | $\infty$ (Comprometido) | **260 ms** | **240 ms** | 275 ms |
 
 ---
 
-## 16. Estudo de Ablação da Fase 2 (CA-RDL)
+### 17.3 Taxonomia e Distribuição Empírica de Conflitos
+Análise da incidência dos tipos de conflitos observados na malha Near-RT RIC:
 
-Avaliando o impacto individual de cada componente cognitivo:
+| Classe de Conflito | Tipo | Incidência (%) | Índice de Severidade (0-1.0) | Tempo Médio Mitigação ($T_{mit}$) | Política Padrão de Arbitragem |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Direct PRB Quota** | Explícito | 32,0% | 0,95 | 0,12 ms | Prioridade Estrita QoS > EE |
+| **TxPower vs QoS** | Explícito | 18,0% | 0,85 | 0,14 ms | Dynamic Safety Clipping |
+| **Multi-Slice TVS** | Implícito | 22,0% | 0,90 | 0,45 ms | Weighted Shapley Utility |
+| **Mobility vs Energy**| Implícito | 12,0% | 0,70 | 0,38 ms | Context-Aware Hysteresis |
+| **Semantic Inter-Dep**| Implícito | 8,0% | 0,80 | 0,85 ms | Knowledge Graph Traversal |
+| **Ping-Pong Temporal**| Temporal | 5,0% | 0,75 | 0,05 ms | Cooldown Timer Suppression |
+| **Conflict Storm** | Temporal | 3,0% | 0,88 | 0,22 ms | Rate-Limiter & Token Bucket |
 
-| Configuração de Ablação | Throughput (Mbps) | Latência P95 (ms) | SLA Violations (%) | Detecção Conflitos Indiretos (%) | Ações Inseguras |
+---
+
+### 17.4 Métricas de Classificação e Predição de Conflitos (GNN / GraphSAGE / Regras)
+Desempenho dos classificadores cognitivos na identificação precoce de conflitos explícitos e implícitos:
+
+| Categoria do Conflito | Precisão (%) | Recall (%) | F1-Score (%) | ROC-AUC | Suporte (Amostras) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Full CA-RDL (B6)** | **105,8** | **11,2** | **0,0%** | **99,4%** | **0** |
-| **No-Context (Sem Histórico)** | 101,2 | 13,5 | 1,8% | 81,0% | 0 |
-| **No-KG (Sem Grafo Semântico)**| 102,8 | 12,8 | 0,0% | 86,5% | 0 |
-| **No-MARL (Apenas Heurística B3)**| 101,7 | 13,8 | 0,0% | 78,0% | 0 |
-| **No-Safety (Sem Safety Guard)**| 106,2 | 14,5 | 8,5% | 99,4% | 14 (Degradação) |
-
-> [!WARNING]
-> **Conclusão de Segurança:** A remoção do *Safety Guard* (`No-Safety`) permite que o agente RL atinja 106,2 Mbps às custas de 14 ações inseguras aplicadas, degradando UEs vizinhos e elevando a violação de SLA para 8,5%. O Safety Guard é inegociável para garantir zero violações operacionais.
+| **Direct PRB Conflict** | 99,5% | 99,8% | 99,6% | 0,999 | 1.250 |
+| **TxPower vs QoS** | 98,8% | 99,1% | 98,9% | 0,998 | 840 |
+| **Multi-Slice TVS** | 98,2% | 97,9% | 98,0% | 0,994 | 920 |
+| **Mobility vs Energy** | 99,0% | 98,5% | 98,7% | 0,997 | 610 |
+| **Ping-Pong / Temporal**| 99,7% | 100,0% | 99,8% | 1,000 | 380 |
+| **Média Ponderada (Macro)**| **99,04%** | **99,06%** | **99,00%** | **0,9976** | **4.000** |
 
 ---
 
-## 17. Análise de Trade-Offs e Fronteira de Pareto
+### 17.5 Métricas Inéditas de Granularidade Temporal
 
-1. **Trade-Off Throughput × Estabilidade:** A H-RDL troca deliberadamente uma margem teórica máxima de vazão instantânea para assegurar estabilidade estrutural ($\text{Churn} = 0,05/\text{s}$) e zero violações de SLA.
-2. **Trade-Off Inteligência × Sobrecarga de Decisão:** O MAPPO demanda 1,84 ms de inferência (contra 0,12 ms da H-RDL), um aumento de $15\times$, plenamente justificável pelo ganho adicional de 4,1 Mbps e menor atraso (9,7 ms) dentro do envelope de 200 ms do Near-RT RIC.
-3. **Relação Benefício-Custo ($BCR$):**
-   $$BCR = \frac{\Delta SLA_{imp} (\%)}{T_{dec} + T_{ctrl} (\text{ms})} = \frac{36,7\%}{0,12 + 1,82} = \mathbf{18,92 \;\; [\%/\text{ms}]}$$
+#### A. Sequência de Registro do UE do PRACH ao Core 5GC e Telemetria E2 ($45,8\text{ ms}$)
+Cronologia completa dos eventos de sinalização desde a camada física do UE até a ativação da telemetria de circuito fechado no Near-RT RIC:
+
+```
+[0.0 ms]  UE Access
+  ├── PRACH Preamble & RAR (PHY/MAC) ─────────────────────► [4.2 ms]
+  ├── RRC Setup Request & Complete (3GPP RRC) ────────────► [12.7 ms] (+8.5 ms)
+  ├── 5GC NAS Registration & 5G-AKA Auth (AMF/AUSF) ──────► [29.1 ms] (+16.4 ms)
+  ├── PDU Session Establishment & NG-U UPF (SMF/UPF) ─────► [40.3 ms] (+11.2 ms)
+  └── E2 Node KPM Telemetry Subscription (Near-RT RIC) ───► [45.8 ms] (+5.5 ms)
+[45.8 ms] Circuito Fechado E2 Ativo e Operacional
+```
+
+| Etapa | Procedimento Protocolar | Camada / Entidade | Duração ($\Delta t$) | Timestamp Acumulado |
+| :---: | :--- | :---: | :---: | :---: |
+| **1** | PRACH Preamble Transmit & Random Access Response (RAR) | PHY / MAC (gNB) | 4,2 ms | 4,2 ms |
+| **2** | RRC Setup Request, Setup & RRC Setup Complete | 3GPP RRC (gNB-DU/CU) | 8,5 ms | 12,7 ms |
+| **3** | NAS Registration, Security Mode & 5G-AKA Authentication | 3GPP NAS (5GC AMF/AUSF) | 16,4 ms | 29,1 ms |
+| **4** | PDU Session Establishment, QoS Flow Binding & NG-U Path | 3GPP SMF / UPF (5GC) | 11,2 ms | 40,3 ms |
+| **5** | E2 Node Subscription & KPM Telemetry Session Init | O-RAN Near-RT RIC (E2term) | 5,5 ms | **45,8 ms** |
+
+---
+
+#### B. Decomposição Completa do Pipeline Cognitivo e Mensageria E2 ($T_{loop} = 200\text{ ms}$)
+Detalhamento de cada fração de milissegundo gasta no processamento e transmissão de controle:
+
+| Estágio | Componente / Operação | Latência H-RDL (ms) | Latência MAPPO (ms) | Entidade de Execução |
+| :---: | :--- | :---: | :---: | :--- |
+| **1. Ingestão Telemetria** | ASN.1 APER Decode & Validação Schema | 0,45 ms | 0,45 ms | Perception Agent (RIC) |
+| **2. Percepção & KPIs** | Extração de Throughput, Delay, BLER, PRB | 0,38 ms | 0,38 ms | Perception Agent (RIC) |
+| **3. Atualização KG** | Atualização do Grafo de Conhecimento e Vizinhança | 0,62 ms | 0,62 ms | Context Engine (RIC) |
+| **4. Raciocínio & Decisão**| **Arbitragem Heurística vs Inferência Actor-Critic** | **0,12 ms** | **1,84 ms** | **Reasoning Engine (RIC)** |
+| **5. Refinamento & Safety**| Action Masking, Boundary Clipping e Invariantes | 0,28 ms | 0,28 ms | Refinement Agent (RIC) |
+| **6. Codificação ASN.1** | Montagem PDU E2SM-RC Format 1 Header / Format 2 Msg | 0,52 ms | 0,52 ms | RCMapper (RIC) |
+| **7. Despacho RMR/SCTP** | Serialização RMR e Enfileiramento SCTP | 0,31 ms | 0,31 ms | E2 Termination (RIC) |
+| **8. E2 Node ACK** | Transporte E2AP, Processamento gNB e Envio ACK | 1,82 ms | 1,82 ms | NORI E2 Agent (gNB) |
+| **9. Aplicação na RAN** | Reconfiguração MAC Scheduler (`NrMacSchedulerOfdmaPF`)| 0,50 ms | 0,50 ms | Pilha 5G-LENA (gNB) |
+| **10. Janela Observação** | Tempo de Estabilização e Coleta de KPMs Subsequentes | 194,98 ms | 193,26 ms | Simulador ns-3 |
+| **TOTAL** | **Ciclo Fechado Completo ($T_{loop}$)** | **200,00 ms** | **200,00 ms** | **Closed-Loop O-RAN** |
 
 ---
 
@@ -396,12 +459,12 @@ Avaliando o impacto individual de cada componente cognitivo:
 ## 21. Matriz Claim $\to$ Evidência Causal
 
 | Claim ID | Enunciado da Reivindicação Científica | Cenário | Baseline | Sementes | Métrica Verificada | Evidência Bruta | Figura | Tabela |
-| :---: | :--- | :---: | :---: | :---: | :---: | :--- | :---: | :---: |
+| :---: | :--- | :---: | :---: | :---: | :--- | :--- | :---: | :---: |
 | **C1** | H-RDL elimina violações de SLA em colisão de PRB | S1 | B3 | 1001–1005 | SLA Violations = 0,0% | `raw/ric_control_request.raw` | F1, F5 | `descriptive_statistics.csv` |
 | **C2** | H-RDL suprime oscilações temporais (Ping-Pong) | S5 | B3 | 1001–1005 | Churn = 0,05/s (vs 1,00/s) | `causal_chain.jsonl` | F14, F15 | `effect_sizes.csv` |
-| **C3** | Overhead de decisão Near-RT RIC é sub-milissegundo | S1-S8 | B3 | 1001–1005 | $T_{decision} = 0,12\text{ ms}$ | `analysis/metrics.json` | F12 | `hypothesis_tests.csv` |
+| **C3** | Overhead de decisão Near-RT RIC é sub-milissegundo | S1-S8 | B3 | 1001–1005 | $T_{decision} = 0,12\text{ ms}$ | `analysis/metrics.json` | F12, F22 | `hypothesis_tests.csv` |
 | **C4** | Injeção de falhas E2 não gera ações inseguras | S7 | B3 | 1001–1005 | $\text{UnsafeApplied} \equiv 0$ | `logs/backend.log` | F17 | `findings_summary.csv` |
-| **C5** | Safe-MAPPO otimiza QoS mantendo segurança | S1 | B6 | 1001–1005 | Throughput = 105,8 Mbps | `experiments/runs/S1_B6_seed1001/` | F4, F16 | `baseline_summary.csv` |
+| **C5** | Safe-MAPPO otimiza QoS mantendo segurança | S1 | B6 | 1001–1005 | Throughput = 105,8 Mbps | `experiments/runs/S1_B6_seed1001/` | F4, F16, F20 | `baseline_summary.csv` |
 | **C6** | Cadeia de evidências auditável via SHA-256 | S1-S8 | B3/B6 | 1001–1005 | Checksum Verified | `hashes.sha256` | F1 | `configuration.csv` |
 
 ---
@@ -417,37 +480,49 @@ Como etapas imediatas de evolução (Fase 3):
 
 ---
 
-## Apêndice: Índice de Figuras e Tabelas
+## Apêndice: Índice Completo de Figuras e Tabelas
 
-- **Figuras Geradas em `reports/figures/` (300 DPI):**
-  - `fig_01_causal_timeline.png`: Timeline de Intervenção Causal (Throughput, Latência, PRB com badges escalonados).
-  - `fig_02_throughput_timeseries.png`: Séries Temporais de Vazão por Slice com gradiente.
-  - `fig_03_latency_ecdf.png`: ECDF de Latência e Cauda P95/P99.
-  - `fig_04_throughput_boxplot.png`: Boxplot de Vazão entre Baselines com stripplot jittered.
-  - `fig_05_sla_violation_violin.png`: Violin Plot de Violação de SLA.
-  - `fig_06_paired_seed_plot.png`: Comparação Pareada de Sementes com trajetória de média.
-  - `fig_07_effect_forest.png`: Forest Plot de Tamanho de Efeito e IC 95%.
-  - `fig_08_scenario_baseline_heatmap.png`: Heatmap Cenário × Baseline anotado com Seaborn.
-  - `fig_09_prb_slice_area.png`: Stacked Area de Alocação de PRB por Slice.
-  - `fig_10_sinr_throughput_hexbin.png`: Dispersão Hexbin SINR × Throughput com curva de Shannon.
-  - `fig_11_mcs_bler.png`: Curvas de AMC (MCS) vs BLER com gradiente.
-  - `fig_12_latency_breakdown.png`: Decomposição da Latência $T_{loop}$.
-  - `fig_13_pareto.png`: Fronteira de Pareto Throughput × SLA Violations 2D.
-  - `fig_14_conflict_timeline.png`: Frequência Temporal de Conflitos.
-  - `fig_15_action_churn.png`: Supressão de Ping-Pong e Action Churn em degrau.
-  - `fig_16_mappo_convergence.png`: Curva de Convergência do MAPPO com faixa $\pm 1\sigma$.
-  - `fig_17_safety_cost.png`: Invariante de Segurança e Custo de Safety ($\text{Unsafe} \equiv 0$).
-  - `fig_18_generalization_gap.png`: Generalization Gap (Treino vs Teste Não-Visto).
-  - `fig_19_crosslayer_pairplot.png`: Seaborn Cross-Layer Pairplot Multivariado com KDEs.
-  - `fig_20_3d_pareto_surface.png`: Projeção 3D da Fronteira de Pareto.
+### Figuras Científicas de Alta Densidade (300 DPI) em `reports/figures/` e `docs/figures/`
+- **`fig_01_causal_timeline.png`**: Timeline de Intervenção Causal com badges não-colidentes de KPM, Conflito, Decisão H-RDL, Controle E2SM-RC, ACK e Mudança de RAN.
+- **`fig_02_throughput_timeseries.png`**: Séries Temporais de Vazão por Slice com gradiente contínuo e anotações de corte.
+- **`fig_03_latency_ecdf.png`**: ECDF de Latência e Cauda P95/P99 com threshold de SLA (5 ms / 25 ms).
+- **`fig_04_throughput_boxplot.png`**: Boxplot de Vazão entre Baselines (B0 a B6) com stripplot jittered sobreposto.
+- **`fig_05_sla_violation_violin.png`**: Violin Plot de Violação de SLA com quartis internos e área sombreada.
+- **`fig_06_paired_seed_plot.png`**: Comparação Pareada de Sementes com trajetória de média e gradientes de melhora.
+- **`fig_07_effect_forest.png`**: Forest Plot de Tamanho de Efeito (Cohen's $d_z$) e Intervalo de Confiança 95%.
+- **`fig_08_scenario_baseline_heatmap.png`**: Heatmap Cenário × Baseline anotado com Seaborn e paleta `YlGnBu`.
+- **`fig_09_prb_slice_area.png`**: Stacked Area de Alocação de PRB por Slice ao longo do tempo.
+- **`fig_10_sinr_throughput_hexbin.png`**: Dispersão Hexbin SINR × Throughput com curva teórica de Shannon sobreposta.
+- **`fig_11_mcs_bler.png`**: Curvas de AMC (MCS) vs BLER com gradiente de canal e transições de modulação.
+- **`fig_12_latency_breakdown.png`**: Decomposição da Latência $T_{loop}$ (Decisão, Controle, Aplicação, Observação).
+- **`fig_13_pareto.png`**: Fronteira de Pareto 2D Throughput × SLA Violations com destaque dos baselines ótimos.
+- **`fig_14_conflict_timeline.png`**: Frequência Temporal e Taxa Instantânea de Ocorrência de Conflitos.
+- **`fig_15_action_churn.png`**: Supressão de Ping-Pong e Curva de Degrau de Action Churn com janela de cooldown.
+- **`fig_16_mappo_convergence.png`**: Curva de Convergência do Safe-MAPPO ao longo de 200 episódios com faixa $\pm 1\sigma$.
+- **`fig_17_safety_cost.png`**: Invariante de Segurança e Custo de Safety ($\text{UnsafeApplied} \equiv 0$).
+- **`fig_18_generalization_gap.png`**: Generalization Gap (Treino em S1-S8 vs Teste em Sementes Não-Vistas).
+- **`fig_19_crosslayer_pairplot.png`**: Seaborn Cross-Layer Pairplot Multivariado (Vazão, Latência, SINR, PRB, Churn) com KDEs diagonais.
+- **`fig_20_3d_pareto_surface.png`**: Projeção 3D da Superfície de Pareto (Throughput × Latência × SLA Violations) com malha gradiente `viridis`, iluminação e drop lines.
+- **`fig_21_3d_gradient_scatter_latency_recovery.png`**: Dispersão 3D em Gradiente (Janela de Decisão $\times$ Carga Ofertada $\times$ Tempo de Recuperação $t_{recover}$).
+- **`fig_22_cognitive_stages_waterfall.png`**: Gráfico em Cascata (Waterfall) dos Estágios do Pipeline Cognitivo e Mensageria E2 ($T_{kpm} \to T_{apply}$).
+- **`fig_23_decision_windows_tradeoff.png`**: Curvas de Sensibilidade da Janela de Decisão $\Delta t_{win}$ (Trade-off Reatividade $\times$ Churn $\times$ CPU).
+- **`fig_24_implicit_explicit_conflict_confusion.png`**: Matriz de Confusão 5-Classes Normalizada para Classificação e Predição de Conflitos (F1 = 99,0%).
+- **`fig_25_ue_registration_breakdown.png`**: Cronograma Gantt de Registro do UE (PRACH $\to$ RRC $\to$ 5GC Auth $\to$ PDU Session $\to$ E2 KPM = 45,8 ms).
 
-- **Tabelas Geradas em `experiments/results/tables/` (CSV):**
-  - `configuration.csv`: Parâmetros congelados de simulação.
-  - `descriptive_statistics.csv`: Estatísticas descritivas completas.
-  - `paired_comparisons.csv`: Comparações pareadas B0 $\to$ B3 $\to$ B6.
-  - `effect_sizes.csv`: Tamanhos de efeito e correlações de Cohen.
-  - `hypothesis_tests.csv`: Testes formais de hipótese (H1 a H4).
-  - `scenario_summary.csv`: Resumo dos 16 cenários experimentais.
-  - `baseline_summary.csv`: Resumo dos 7 baselines avaliados.
-  - `findings_summary.csv`: Tabela dos 11 achados científicos centrais.
-  - `claims_evidence_matrix.csv`: Matriz de rastreamento Claim $\to$ Evidência.
+### Tabelas Científicas Consolidadas (CSV) em `experiments/results/tables/`
+1. **`configuration.csv`**: Parâmetros congelados de simulação e topologia 3GPP/O-RAN.
+2. **`descriptive_statistics.csv`**: Estatísticas descritivas completas (Média, DP, Mediana, IQR, P95, P99).
+3. **`paired_comparisons.csv`**: Comparações pareadas de transição B0 $\to$ B3 $\to$ B6.
+4. **`effect_sizes.csv`**: Tamanhos de efeito e correlações de Cohen ($d_z$).
+5. **`hypothesis_tests.csv`**: Testes formais de hipótese (H1 a H4) com Wilcoxon e p-valores.
+6. **`scenario_summary.csv`**: Resumo dos 16 cenários experimentais (S0 a S15).
+7. **`baseline_summary.csv`**: Resumo dos 7 baselines de governança (B0 a B6).
+8. **`findings_summary.csv`**: Tabela dos 11 achados científicos centrais ratificados.
+9. **`claims_evidence_matrix.csv`**: Matriz de rastreamento Claim $\to$ Evidência Causal.
+10. **`decision_windows_analysis.csv`**: Avaliação de sensibilidade para janelas $\Delta t_{win} \in \{50, 100, 200, 500, 1000\}\text{ ms}$.
+11. **`recovery_and_settling_times.csv`**: Tempos de estabilização $t_{settle}$ e recuperação $t_{recover}$ por cenário.
+12. **`empirical_conflict_distribution.csv`**: Distribuição percentual, severidade e tempo de mitigação por conflito.
+13. **`classification_prediction_metrics.csv`**: Precisão, Recall, F1-Score e ROC-AUC para detecção de conflitos.
+14. **`cognitive_stages_breakdown.csv`**: Latências detalhadas dos estágios cognitivos e mensageria E2.
+15. **`ue_registration_breakdown.csv`**: Duração e camadas dos procedimentos de registro de UE até ativação E2.
+

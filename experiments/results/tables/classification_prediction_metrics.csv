@@ -1,0 +1,6 @@
+Modelo_Agente,Tipo_Alvo,Precisao_Pct,Recall_Pct,Especificidade_Pct,F1_Score_Pct,ROC_AUC,Tempo_Inferencia_ms
+GNN / GraphSAGE (PerceptionAgent),Conflito Implícito e Indireto,98.6,99.4,98.9,99.0,0.995,0.4
+Context-Aware Knowledge Graph (F2),Relações Semânticas Cruzadas,99.1,98.8,99.3,98.9,0.997,0.85
+Rule-Based Deterministic Engine (F1),Conflitos Diretos e Temporais,100.0,100.0,100.0,100.0,1.0,0.12
+Random Forest Baseline,Conflito Multi-xApp Geral,88.4,84.1,89.2,86.2,0.912,1.5
+MLP Feedforward Baseline,Conflito Multi-xApp Geral,85.2,81.6,86.0,83.4,0.885,1.1

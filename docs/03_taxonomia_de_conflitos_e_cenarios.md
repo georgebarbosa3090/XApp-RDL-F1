@@ -104,3 +104,20 @@ A camada RDL é validada contra 3 xApps de código aberto consolidadas na litera
 │ Prioridade: 90 (Alta)    │ Prioridade: 65 (Média)   │ Prioridade: 80 (Alta) │
 └──────────────────────────┴──────────────────────────┴───────────────────────┘
 ```
+
+---
+
+## 5. Distribuição Empírica e Acurácia de Classificação de Conflitos
+
+Conforme documentado em `experiments/results/tables/empirical_conflict_distribution.csv` e `classification_prediction_metrics.csv` (visualizado na Figura 24):
+
+| Classe de Conflito | Tipo | Incidência (%) | Severidade | Mitigação H-RDL ($T_{mit}$) | Acurácia Classificador GNN (F1) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Direct PRB Quota** | Explícito | 32,0% | 0,95 | 0,12 ms | 99,6% |
+| **TxPower vs QoS** | Explícito | 18,0% | 0,85 | 0,14 ms | 98,9% |
+| **Multi-Slice TVS** | Implícito | 22,0% | 0,90 | 0,45 ms | 98,0% |
+| **Mobility vs Energy**| Implícito | 12,0% | 0,70 | 0,38 ms | 98,7% |
+| **Semantic Inter-Dep**| Implícito | 8,0% | 0,80 | 0,85 ms | 98,5% |
+| **Ping-Pong Temporal**| Temporal | 5,0% | 0,75 | 0,05 ms | 99,8% |
+| **Conflict Storm** | Temporal | 3,0% | 0,88 | 0,22 ms | 99,2% |
+

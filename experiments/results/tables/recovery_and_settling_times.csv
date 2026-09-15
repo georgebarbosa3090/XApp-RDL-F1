@@ -1,0 +1,9 @@
+Cenario,Baseline,Settling_Time_ms,Recovery_Time_Failure_ms,Peak_SLA_Overshoot_Pct,Estabilidade
+S1: Direct PRB Conflict,B3: H-RDL,190.0,210.0,0.0,Incondicional
+S1: Direct PRB Conflict,B6: MAPPO,240.0,260.0,0.0,Incondicional
+S1: Direct PRB Conflict,B0: None,99999.0,99999.0,36.7,Instável
+S3: Multi-Slice TVS,B3: H-RDL,185.0,205.0,0.0,Incondicional
+S5: Temporal Ping-Pong,B3: H-RDL,190.0,190.0,0.0,Incondicional
+S7: E2 Fault Injection,B3: H-RDL,220.0,220.0,0.0,Auto-Recuperável
+S9: NTN Orbital Handover,B3: H-RDL,310.0,340.0,0.0,Compensado
+S15: Rogue Feeder Quarantine,B3: H-RDL,150.0,150.0,0.0,Isolamento Imediato

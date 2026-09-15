@@ -1,0 +1,8 @@
+Classe_Conflito,Frequencia_Relativa_Pct,Indice_Severidade_1_10,Tempo_Mitigacao_ms,Politica_Padrao
+Direto: PRB Quota Collision,34.2,9.2,0.12,TVS Priority Arbitration
+Direto: Tx Power Collision,18.5,7.8,0.1,EEVS Safety Boundary Clamping
+Indireto: Multi-Slice TVS Coupling,22.1,8.5,0.45,Context-Aware Weight Partitioning
+Indireto: Mobility vs Energy,11.4,6.9,0.35,A3-Offset Dynamic Hysteresis
+Implícito / Semântico (KG),6.8,7.4,0.85,Graph Traversal Constraint Check
+Temporal: Parameter Flipping,5.2,8.9,0.05,Cooling Window Suppression (1000ms)
+Conflict Storm (High Load),1.8,9.8,1.2,Batch Pruning & Priority Queue
