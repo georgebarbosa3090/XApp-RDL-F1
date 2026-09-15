@@ -364,5 +364,16 @@ push-results:
 	git pull --rebase origin main || true
 	git push origin HEAD:main
 
+backup-drive:
+	@echo "Executando backup de governança para o Google Drive..."
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python3 scripts/backup_to_google_drive.py; \
+	elif [ -f "C:/Users/george.barbosa/.local/bin/uv.exe" ]; then \
+		"C:/Users/george.barbosa/.local/bin/uv.exe" run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python scripts/backup_to_google_drive.py; \
+	else \
+		python3 scripts/backup_to_google_drive.py || python scripts/backup_to_google_drive.py; \
+	fi
+
+
 
 
