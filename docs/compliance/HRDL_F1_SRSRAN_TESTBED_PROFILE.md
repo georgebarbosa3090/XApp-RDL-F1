@@ -53,7 +53,7 @@ testbed_stabilization_samples: 3
 
 Diferente da simulação NORI (Style 1 / Action 1), a implementação nativa do srsRAN mapeia o controle de cotas de PRB por fatia (*Slice-Level PRB Quota*) no **Control Service Style 2 / Action 6**:
 
-$$\boxed{\text{Ação H-RDL } (\texttt{PRB\_QUOTA}) \longrightarrow \text{E2SM-RC Style 2} \longrightarrow \text{Control Action 6} \longrightarrow \text{RAN Parameter ID 1}}$$
+$$\boxed{\text{Ação H-RDL } (\text{PRB-QUOTA}) \longrightarrow \text{E2SM-RC Style 2} \longrightarrow \text{Control Action 6} \longrightarrow \text{RAN Parameter ID 1}}$$
 
 | Parâmetro H-RDL | Control Style (`srsRAN`) | Control Action (`srsRAN`) | Parameter ID | Unidade / Faixa |
 | :--- | :---: | :---: | :---: | :---: |

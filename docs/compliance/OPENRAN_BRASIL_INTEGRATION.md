@@ -67,7 +67,7 @@ Para garantir que a integração no testbed ocorra de forma incremental e segura
 
 Para a primeira demonstração física no testbed, recomenda-se iniciar com o **Cenário S1 (Direct PRB Conflict)**, evitando dependências de controle de potência TX (que pode variar entre versões de firmware):
 
-$$\text{Conflito Direto de Cotas PRB: } \text{Slice}_{\text{URLLC}} (\text{PRB\_QUOTA} = 80\%) \quad \times \quad \text{Slice}_{\text{eMBB}} (\text{PRB\_QUOTA} = 40\%) \implies \Sigma = 120\% > 100\%$$
+$$\text{Conflito Direto de Cotas PRB: } \text{Slice}_{\text{URLLC}} (\text{PRB-QUOTA} = 80\%) \quad \times \quad \text{Slice}_{\text{eMBB}} (\text{PRB-QUOTA} = 40\%) \implies \Sigma = 120\% > 100\%$$
 
 1. **xApp A (xSlice URLLC):** Requisita aumento de cota de PRBs para $80\%$ para manter latência $< 5\text{ms}$.
 2. **xApp B (Energy Saving / eMBB):** Requisita cota de $40\%$ de PRBs.
