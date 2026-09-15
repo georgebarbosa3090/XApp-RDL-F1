@@ -141,6 +141,17 @@ bash simulations/ns3/run_all_s0_s15_simulations.sh all
 python3 scripts/generate_ns3_flowmonitor_markdown_report.py
 ```
 
+### 5.4. Regeneração Automática de Figuras e Tabelas Científicas
+Para atualizar instantaneamente as **25 figuras científicas (300 DPI)** e as **15 tabelas consolidadas CSV**:
+```bash
+# Executa a geração via Make
+make auto-update-figures
+
+# Ou execute diretamente com uv:
+uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/generate_plots.py
+uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/export_tables.py
+```
+
 ---
 
 ## 6. Integração com Testbed Físico GreenRAN (UFPA)
@@ -174,6 +185,7 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 
 ## 7. Troubleshooting, Backups e Limpeza
 
+### 7.1. Diagnóstico e Resolução de Problemas
 | Sintoma | Causa Mais Provável | Procedimento de Resolução |
 | :--- | :--- | :--- |
 | **Porta 36422 recusada (SCTP)** | Pod `e2term` não inicializado ou firewall | `kubectl describe pod -l app=e2term -n ricplt` e verificar regras `iptables` |
@@ -181,7 +193,24 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 | **Conflitos de portas locais (8080)** | Outro serviço ocupando a porta | Modificar mapeamento no `k3d cluster create` para `8090:8080` |
 | **Falha de memória no ns-3** | Múltiplas instâncias simultâneas | Executar com limitador de jobs: `make run-simulations JOBS=2` |
 
-### Limpeza e Reinicialização Completa do Ambiente
+### 7.2. Backup Automatizado para o Google Drive
+O projeto inclui um pipeline autônomo de empacotamento com manifesto criptográfico SHA-256 e streaming para o Google Drive:
+
+- **Pasta Destino:** [Google Drive - XApp-RDL Backups](https://drive.google.com/drive/folders/14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM?usp=sharing)
+- **Folder ID:** `14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM`
+
+```bash
+# Execução via Make
+make backup-drive
+
+# Execução via PowerShell (Windows)
+powershell -ExecutionPolicy Bypass -File scripts/backup_to_google_drive.ps1
+
+# Execução direta via Python / uv
+uv run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python scripts/backup_to_google_drive.py
+```
+
+### 7.3. Limpeza e Reinicialização Completa do Ambiente
 ```bash
 # Remove o cluster k3d e containers residuais
 k3d cluster delete rdl-cluster

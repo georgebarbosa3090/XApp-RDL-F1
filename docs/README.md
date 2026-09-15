@@ -52,7 +52,7 @@ Guia prático passo a passo para provisionamento de clusters Kubernetes leves co
 Classifica formalmente os 5 tipos de conflito em Open RAN (Direto, Indireto, Implícito/Semântico, Temporal Ping-Pong e Tempestade de Conflitos) e detalha a especificação técnica dos 16 cenários experimentais (de macrocélulas 5G a satélites NTN, pelotões V2X e segurança Zero-Trust).
 
 ### [Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 × F2)](04_relatorio_cientifico_mestre_rdl.md)
-Monografia científica exaustiva com 52 seções detalhando o protocolo experimental em 6 camadas, resultados de 167 fluxos reais FlowMonitor, comparações pareadas multi-seed (Wilcoxon $p < 0,001$, Cohen's $d_z > 4,0$), ablações e a galeria de 20 figuras 300 DPI e 9 tabelas CSV.
+Monografia científica exaustiva detalhando o protocolo experimental em 6 camadas, resultados de 167 fluxos reais FlowMonitor, comparações pareadas multi-seed (Wilcoxon $p < 0,001$, Cohen's $d_z > 4,0$), ablações cognitivas, sensibilidade da janela de decisão ($\Delta t_{win}$), tempos de recuperação ($t_{recover}$), registro de UE (45,8 ms) e a galeria completa de 25 figuras científicas (300 DPI) e 15 tabelas consolidadas CSV.
 
 ### [Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)
 Documenta a superação da lacuna metodológica de prova causal, o fechamento do círculo de evidências de não-repúdio ($KPM(t_0) \to \dots \to KPM(t_1)$), verificação de integridade por checksums SHA-256 e conformidade com especificações O-RAN WG2 e WG3.
