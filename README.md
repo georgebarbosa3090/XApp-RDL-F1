@@ -50,10 +50,14 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 │   ├── helm/                    # Helm Charts oficiais (RDL, xSlice, Energy Saving, Traffic Steering)
 │   ├── kubernetes/              # Manifestos K8s puros (Near-RT RIC ricplt + 3 xApps + RDL ricxapp)
 │   └── openran-br-v3/           # Perfil de Implantação OpenRAN@Brasil Blueprint v3 (Release J)
-├── docs/                        # Portal de Documentação Técnica e Referências Normativas
-│   ├── e2/                      # Matriz de Versões e Fontes Normativas O-RAN (E2AP/KPM/RC)
-│   ├── README.md                # Índice e trilhas de leitura da documentação
-│   └── 01 a 11                  # Volumes temáticos de arquitetura, cluster, deploy, normas e cenários
+├── docs/                        # Portal de Documentação Oficial Consolidada
+│   ├── README.md                # Índice mestre e trilhas de leitura por perfil
+│   ├── 01_arquitetura_e_modelagem.md            # [Vol 01] Arquitetura Core e Modelos
+│   ├── 02_guia_operacional_deploy_e_simulacao.md# [Vol 02] Deploy K8s/k3d e ns-3
+│   ├── 03_taxonomia_de_conflitos_e_cenarios.md  # [Vol 03] Conflitos e Cenários S0-S15
+│   ├── 04_relatorio_cientifico_mestre_rdl.md    # [Vol 04] Monografia Mestre Causal
+│   ├── 05_auditoria_e_conformidade_oran.md      # [Vol 05] Auditoria e Normas O-RAN
+│   └── 06_roadmap_e_pesquisa_futura_6g.md       # [Vol 06] Roadmap e Futuro 6G
 ├── reference-xapps/             # Adaptadores leves das 3 xApps de referência abertas
 ├── reproducibility/             # Bloqueio de versões (versions.lock) e Runbook de reprodução
 ├── scripts/                     # Automação de Deploy, Testes, Validação S0-S15 e Reprodução
@@ -331,15 +335,15 @@ git push origin main
 
 ---
 
-## 9. Perfis Normativos e Auditorias Técnicas
+## 9. Volumes Canônicos da Documentação e Referências
 
-* **[Relatório Experimental e Rastreabilidade do ns-3 FlowMonitor (S0 a S15)](docs/12_relatorio_experimental_ns3_flowmonitor_s0_s15.md)**
-* **[Relatório Oficial de Validação dos Cenários S0 a S15](docs/11_relatorio_execucao_validacao_s0_s15.md)**
-* **[Estudo Científico e Normativo das xApps e Relações de Conflito](docs/10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md)**
-* **[Parecer Técnico de Resolução Integral da Nova Auditoria (2026)](auditoria/Nova_Auditoria_Tecnica_Interop_E2_Closed_Loop_2026.md)**
-* **[Especificação do Perfil Normativo Congelado (F1 Frozen Profile)](docs/oran_compatibility_profile_frozen.md)**
-* **[Manifesto Machine-Readable de Versões e Hashes](specs/oran/compatibility_profile.json)**
-* **[Catálogo de Vetores Dourados APER](specs/golden_vectors/)**
+* **[Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](docs/01_arquitetura_e_modelagem.md)**
+* **[Volume 02: Guia Operacional de Deploy, Simulação e Observabilidade](docs/02_guia_operacional_deploy_e_simulacao.md)**
+* **[Volume 03: Taxonomia de Conflitos Multi-xApp e Portfólio de Cenários (S0 a S15)](docs/03_taxonomia_de_conflitos_e_cenarios.md)**
+* **[Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 × F2)](docs/04_relatorio_cientifico_mestre_rdl.md)**
+* **[Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade O-RAN](docs/05_auditoria_e_conformidade_oran.md)**
+* **[Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](docs/06_roadmap_e_pesquisa_futura_6g.md)**
+* **[Portal de Documentação e Trilhas de Leitura](docs/README.md)**
 
 ---
 

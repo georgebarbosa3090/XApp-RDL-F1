@@ -1,139 +1,61 @@
-# Portal de Documentação Técnica: xApp RDL (Fase 1)
+# Portal de Documentação Oficial — Projeto xApp RDL (Resource and Decision Layer)
 
-> ### Navegação Multi-Fases do Projeto RDL (Resource and Decision Layer)
-> | Fase | Descrição e Paradigma | Status | Repositório |
-> | :---: | :--- | :---: | :---: |
-> | **Fase 1 (Atual)** | **RDL Determinística e Segura (H-RDL)** | **Implementada / Operacional** | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
-> | **Fase 2** | **RDL Baseada em Contexto e MARL (CA-RDL)** | **Ativa / Em Evolução** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
-> | **Fase 3** | **RDL Autônoma e Federada 6G (Zero-Touch)** | **Roadmap / Planejada** | *Em especificação futura* |
+<div align="center">
+
+**Arquitetura Unificada de Governança, Arbitragem de Conflitos Multi-xApp e Validação Causal em Open RAN**  
+*Homologado para O-RAN ALLIANCE WG2/WG3, O-RAN SC Release J, ns-3.48 / 5G-LENA v5.1 e NORI E2 Agent*
+
+</div>
 
 ---
 
-## Jornada de Engenharia e Estrutura Sequencial
+## 📚 Estrutura Consolidada da Documentação
 
-A documentação da **xApp RDL (Fase 1 — H-RDL)** está organizada em uma **jornada técnica estritamente sequencial** em **5 Volumes Temáticos**, guiando o engenheiro desde os conceitos de modelagem e provisionamento de infraestrutura até o deploy, observabilidade imediata, simulação em rádio 5G, governança e procedimentos finais de troubleshooting/backup:
+A documentação do projeto foi reorganizada e consolidada em **6 volumes canônicos**, eliminando redundâncias e estabelecendo uma fonte única e autoritativa de verdade técnica e científica:
 
-```mermaid
-graph TD
-    subgraph S1["1. Fundamentação & Arquitetura"]
-        V01["[Vol 01] Arquitetura, DDD e Modelagem Matemática"]
-    end
-
-    subgraph S2["2. Infraestrutura & Plataforma"]
-        V02["[Vol 02] Cluster k3d (3 Topologias), Redis DBAAS e Rancher"]
-    end
-
-    subgraph S3["3. Deploy, Testes & Simulações"]
-        V03["[Vol 03] Deploy Helm/K8s, Observabilidade Kiali, Testes & ns-3 5G-LENA"]
-    end
-
-    subgraph S4["4. Governança & Padrões"]
-        V04["[Vol 04] Relatórios de Conformidade e Governança O-RAN"]
-    end
-
-    subgraph S5["5. Suporte, Resiliência & Troubleshooting"]
-        V05["[Vol 05] Operação, SOP, Troubleshooting e Backup WSL2"]
-    end
-
-    V01 --> V02 --> V03 --> V04 --> V05
+```
+docs/
+├── 01_arquitetura_e_modelagem.md            # [Vol 01] Arquitetura Core, Agentes e Modelagem Matemática
+├── 02_guia_operacional_deploy_e_simulacao.md# [Vol 02] Deploy K8s/k3d, Helm, Observabilidade e Simulação ns-3
+├── 03_taxonomia_de_conflitos_e_cenarios.md  # [Vol 03] Taxonomia de Conflitos e Portfólio de Cenários (S0–S15)
+├── 04_relatorio_cientifico_mestre_rdl.md    # [Vol 04] Monografia Científica Mestre, Resultados e Estatística
+├── 05_auditoria_e_conformidade_oran.md      # [Vol 05] Auditoria Causal, Rastreabilidade SHA-256 e Normas O-RAN
+├── 06_roadmap_e_pesquisa_futura_6g.md       # [Vol 06] Roadmap 2026-2028, Fase 3 Federada 6G e Testbed UFPA
+├── assets/                                  # Diagramas de arquitetura e modelos visuais
+├── compliance/                              # Perfis de compatibilidade O-RAN congelados
+├── e2/                                      # Definições ASN.1 e matrizes normativas E2AP/E2SM
+└── figures/                                 # Figuras científicas em alta resolução (300 DPI)
 ```
 
 ---
 
-## Volumes Temáticos Sequenciais
+## 🧭 Guia de Leitura por Perfil de Atuação
 
-### 1. Arquitetura Core e Teoria
-* **[Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](01_arquitetura_e_modelagem_matematica.md)**
-  - **Público:** Engenheiros de Software, Arquitetos O-RAN e Pesquisadores.
-  - **Conteúdo:** Fundamentos de Clean Architecture e DDD; Agentes de Percepção (janela 200ms), Raciocínio (modelos analíticos 5G Shannon/MG1/Earth) e Refinamento (*Safety Guards*); Codecs ASN.1 APER para E2AP, E2SM-KPM v2.0 e E2SM-RC v1.0; Formulação matemática combinatória restrita.
-
----
-
-### 2. Infraestrutura de Cluster e Plataforma
-* **[Volume 02: Infraestrutura de Cluster (k3d / K8s Puro), 3 Topologias, Redis DBAAS e Rancher Dashboard](02_infraestrutura_cluster_k3d_e_rancher.md)**
-  - **Público:** Engenheiros DevOps, SysAdmins e Operadores de Infraestrutura.
-  - **Conteúdo:** Requisitos completos de sistema; Configuração detalhada das **3 Topologias de Cluster k3d** (Single-Node ~450MB, Dual-Node ~900MB e Multi-Node ~1.500MB); Mapeamento de portas O-RAN (SCTP 36422, HTTP 8080/8081, RMR 4560/4561, Redis 6379); Levantamento dos namespaces `ricplt` e `ricxapp` com **Redis DBAAS** (Shared Data Layer); Vinculação e importação resiliente no **Rancher Dashboard UI** (`https://127.0.0.1:8443`).
+| Perfil de Interesse | Volumes Recomendados | Objetivo Principal |
+| :--- | :--- | :--- |
+| **Arquiteto de Software / Engenheiro O-RAN** | [Vol 01](01_arquitetura_e_modelagem.md) & [Vol 05](05_auditoria_e_conformidade_oran.md) | Compreender os agentes cognitivos, codecs ASN.1 APER e conformidade normativa E2AP/E2SM. |
+| **Operador de Infraestrutura / DevOps** | [Vol 02](02_guia_operacional_deploy_e_simulacao.md) | Subir clusters k3d, instalar via Helm, monitorar métricas Prometheus e depurar pods. |
+| **Pesquisador Científico / Avaliador** | [Vol 04](04_relatorio_cientifico_mestre_rdl.md) & [Vol 03](03_taxonomia_de_conflitos_e_cenarios.md) | Analisar as evidências causais em 6 camadas, testes Wilcoxon, tamanhos de efeito e cenários. |
+| **Pesquisador 6G / Estrategista de IA** | [Vol 06](06_roadmap_e_pesquisa_futura_6g.md) | Explorar a evolução para Intent-Driven RIC (A1), federação multi-RIC e redes SAGIN 6G. |
 
 ---
 
-### 3. Deploy, Observabilidade, Testes e Simulações no ns-3
-* **[Volume 03: Guia de Deploy, Observabilidade, Testes e Simulações no ns-3 NORI / 5G-LENA](03_guia_deploy_testes_e_simulacoes_ns3.md)**
-  - **Público:** Engenheiros de Deploy, SRE, Pesquisadores de Simulação 5G/6G e Engenheiros de Teste.
-  - **Conteúdo:** 
-    - **Parte I (Deploy & Observabilidade):** Deploy oficial via Helm Chart (`v1.1.0`) e Kubernetes puro (Kustomize) em modos Baseline e Governança; Smoke test das 3 Reference xApps (`make test-3xapps`); Painéis Rancher e **Kiali Dashboard** (`http://localhost:20001/kiali`) com injeção contínua de tráfego.
-    - **Parte II (Pipeline Experimental no ns-3 5G-LENA):** Execução de cenários C++ 5G (`scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc`), geração de traces e análise comparativa.
+## 🚀 Resumo Executivo dos Volumes
 
----
+### [Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](01_arquitetura_e_modelagem.md)
+Apresenta o design da xApp RDL sob Clean Architecture / DDD, os agentes especialistas (`PerceptionAgent`, `ReasoningAgent`, `RefinementAgent`), modelos analíticos físicos de rádio (Shannon com calibração 3GPP, filas $M/G/1$, consumo Earth Project) e formulação CMDP / Safe-MAPPO com *Safety Guards* invariantes.
 
-### 4. Governança, Conformidade e Rastreabilidade
-* **[Volume 04: Relatórios de Conformidade Técnica e Governança O-RAN](04_relatorios_conformidade_e_governanca.md)**
-  - **Público:** Gestores Técnicos, Auditores de Segurança e Comitês de Governança.
-  - **Conteúdo:** Matriz formal de rastreabilidade de requisitos técnicos (REQ-RDL-01 a 10, RF-01 a 04, RNF-01 a 03); Auditoria de conformidade com os padrões O-RAN Alliance (WG2/WG3), 3GPP e Linux Foundation O-RAN SC; Relatório de segurança Kubernetes (SecurityContext não-root).
+### [Volume 02: Guia Operacional de Deploy, Simulação e Observabilidade](02_guia_operacional_deploy_e_simulacao.md)
+Guia prático passo a passo para provisionamento de clusters Kubernetes leves com `k3d`, deploys via Helm e manifestos K8s, configuração do Rancher e Kiali, execução da suíte de co-simulação ns-3.48 / 5G-LENA / NORI e integração com o testbed físico GreenRAN da UFPA.
 
----
+### [Volume 03: Taxonomia de Conflitos Multi-xApp e Portfólio de Cenários (S0 a S15)](03_taxonomia_de_conflitos_e_cenarios.md)
+Classifica formalmente os 5 tipos de conflito em Open RAN (Direto, Indireto, Implícito/Semântico, Temporal Ping-Pong e Tempestade de Conflitos) e detalha a especificação técnica dos 16 cenários experimentais (de macrocélulas 5G a satélites NTN, pelotões V2X e segurança Zero-Trust).
 
-### 5. Operação Contínua, Troubleshooting e Backup
-* **[Volume 05: Operação, Troubleshooting e Procedimentos de Backup Bare-Metal](05_operacao_troubleshooting_e_backup.md)**
-  - **Público:** Equipes de Suporte N2/N3, SRE e Administradores de Redes.
-  - **Conteúdo:** Procedimento Operacional Padrão (SOP) de ciclo de vida e sincronização; **Guia Exaustivo de Troubleshooting** (resolução de erros de DNS/Rancher, `cattle-cluster-agent` CrashLoop, `ErrImageNeverPull`, compilação ns-3 `nr-module.h`, CMake >= 3.25); Procedimento de Backup e Restauração bare-metal de snapshots WSL2 Ubuntu 20.04 via PowerShell.
+### [Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 × F2)](04_relatorio_cientifico_mestre_rdl.md)
+Monografia científica exaustiva com 52 seções detalhando o protocolo experimental em 6 camadas, resultados de 167 fluxos reais FlowMonitor, comparações pareadas multi-seed (Wilcoxon $p < 0,001$, Cohen's $d_z > 4,0$), ablações e a galeria de 20 figuras 300 DPI e 9 tabelas CSV.
 
----
+### [Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)
+Documenta a superação da lacuna metodológica de prova causal, o fechamento do círculo de evidências de não-repúdio ($KPM(t_0) \to \dots \to KPM(t_1)$), verificação de integridade por checksums SHA-256 e conformidade com especificações O-RAN WG2 e WG3.
 
-### 6. Matriz Normativa e Especificações E2
-* **[Matriz de Versões e Compatibilidade O-RAN](e2/version-matrix.md)**: Matriz formal de versões entre E2AP v02.03, E2SM-KPM v03.00, E2SM-RC v01.03, O-RAN SC Release J, 5G-LENA v5.1 e OpenRAN@Brasil Blueprint v3.
-* **[Fontes Normativas e Especificações](e2/specification-sources.md)**: Mapeamento de repositórios oficiais e especificações normativas de referência.
-
----
-
-### 7. Tratados Científicos e Estudos Normativos Avançados
-* **[Volume 10: Estudo Científico das xApps, Interfaces E2/RMR, Relação H-RDL/CA-RDL, Normas e Viabilidade Paramétrica](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md)**
-  - **Público:** Pesquisadores Sênior, Autores Científicos e Engenheiros de Protocolo O-RAN.
-  - **Conteúdo:** Gênese científica e trabalhos seminais de cada xApp; Matriz I/O (ASN.1, RMR, 3GPP 28.552); Relação com H-RDL e CA-RDL; Conformidade O-RAN/3GPP/OSC/OpenRAN@Brasil; Viabilidade paramétrica.
-* **[Volume 11: Relatório de Execução e Validação Experimental dos Cenários S0 a S15](11_relatorio_execucao_validacao_s0_s15.md)**
-  - **Público:** Engenheiros de Validação, Autores Científicos e Comitês de Avaliação.
-  - **Conteúdo:** Execução empírica automatizada e benchmark comparativo dos 16 cenários formais (S0 a S15) para Baseline, H-RDL (Fase 1) e CA-RDL (Fase 2) com 100% de taxa de aprovação.
-* **[Planejamento da Campanha Experimental Expandida (S0 a S8)](planejamento_campanha_experimental_s0_s8.md)**
-* **[Análise de xApps Avançadas e Cenários Futuros (NTN / UAV / V2X / IIoT)](analise_xapps_avancadas_cenarios_futuros_ntn_uav_v2x_iiot.md)**
-
----
-
-### 8. Catálogo Temático de Figuras e Ilustrações Científicas
-* **[Catálogo Temático de Figuras (docs/figures/README.md)](figures/README.md)**: Galeria visual completa e estruturada em 3 temas (Arquitetura & Modelagem, Topologias 5G NR e Resultados/Benchmarks Multi-Semente em 300 DPI).
-
----
-
-### 8. Relatórios de Auditoria Técnica e Científica
-* **[Auditoria Técnica e Científica do XApp-RDL-F1](auditoria/auditoria_tecnica_e_cientifica_xapp_rdl_f1.md)**: Avaliação técnica detalhada da maturidade L3/L4/L5 do projeto, regras formais de proveniência de dados, conformidade dos 4 Gates de interoperabilidade E2/O-RAN e direcionamentos científicos.
-
----
-
-### 9. Programa de Conformidade O-RAN e Integridade Experimental
-* **[Diretório de Conformidade (docs/compliance/README.md)](compliance/README.md)**: 
-  - **[Perfil de Compatibilidade Congelado (H-RDL F1 Profile)](compliance/HRDL_F1_COMPATIBILITY_PROFILE.md)**
-  - **[Matriz de Rastreabilidade O-RAN (WG2/WG3 / Gates 0-6)](compliance/ORAN_TRACEABILITY_MATRIX.md)**
-  - **[Perfil de Implantação O-RAN SC Release J](compliance/ORAN_SC_IMPLEMENTATION_PROFILE.md)**
-  - **[Política de Evidência Experimental e Proveniência](compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)**
-  - **[Roadmap de Migração para O-RAN Release 5](compliance/MIGRATION_RELEASE5.md)**
-
----
-
-### 10. Programa e Roadmap Estratégico de Pesquisa (2026–2028)
-* **[Programa e Roadmap Estratégico de Pesquisa (docs/roadmap_pesquisa_2026_2028_hrdl_cardl.md)](roadmap_pesquisa_2026_2028_hrdl_cardl.md)**: Planejamento formal em 24 meses (Set/2026 a Set/2028) para evolução H-RDL $\rightarrow$ CA-RDL, matriz formal de 95% de conformidade, campanha de 2.130+ runs pareados, validação cross-backend e portfólio de 9 publicações científicas (SBRC, SBrT, CNSM, IEEE TNSM, IEEE TCCN).
-
----
-
-## Trilhas de Leitura Recomendadas
-
-
-| Perfil / Objetivo | Sequência Recomendada de Leitura |
-| :--- | :--- |
-| **Engenheiro DevOps / SRE** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Pesquisador Científico / Simulação 5G** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Matriz E2](e2/version-matrix.md) |
-| **Arquiteto de Software O-RAN** | [Volume 01](01_arquitetura_e_modelagem_matematica.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 04](04_relatorios_conformidade_e_governanca.md) |
-| **Operador de NOC / Observabilidade** | [Volume 02](02_infraestrutura_cluster_k3d_e_rancher.md) -> [Volume 03](03_guia_deploy_testes_e_simulacoes_ns3.md) -> [Volume 05](05_operacao_troubleshooting_e_backup.md) |
-| **Auditor de Qualidade e Governança** | [Volume 04](04_relatorios_conformidade_e_governanca.md) -> [Volume 10](10_estudo_cientifico_xapps_relacoes_conflitos_e_normas.md) -> [Matriz E2](e2/version-matrix.md) |
-
----
-
-[Voltar para a Página Inicial (README.md)](../README.md)
-
+### [Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](06_roadmap_e_pesquisa_futura_6g.md)
+Delineia a evolução do projeto em direção ao 6G Zero-Touch, detalhando a governança por intenção via interface A1, aprendizado federado multi-RIC, coordenação SAGIN (Space-Air-Ground) e cronograma da campanha experimental física no laboratório GreenRAN/UFPA.
