@@ -593,8 +593,8 @@ As dinâmicas temporais e distribuições acumuladas evidenciam a superioridade 
 A equidade de alocação de recursos entre fatias heterogêneas ao longo do tempo:
 
 #figure(
-  image("reports/figures/fig_26_jain_fairness_dynamics.png", width: 92%),
-  caption: [Evolução Temporal do Índice de Equidade de Jain ($J_("fairness")$) por Baseline.]
+  image("docs/figures/01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png", width: 92%),
+  caption: [Evolução Temporal do Índice de Equidade de Jain ($J_("fairness")$) por Baseline [Modelo Analítico].]
 ) <fig_jain_dynamics>
 
 No baseline predatório B0, o índice de Jain oscila erraticamente entre 0,35 e 0,75 devido à inanição recorrente da fatia URLLC. A H-RDL (B3) estabiliza o sistema em $t_(s e t t l e) = 190" ms"$, sustentando $J >= 0,94$ estritamente acima do limiar contratual ($J >= 0,90$).
@@ -604,8 +604,8 @@ No baseline predatório B0, o índice de Jain oscila erraticamente entre 0,35 e 
 O compromisso entre consumo elétrico e qualidade de serviço é mapeado tridimensionalmente:
 
 #figure(
-  image("reports/figures/fig_27_energy_vs_qos_tradeoff_eevs.png", width: 92%),
-  caption: [Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB.]
+  image("docs/figures/01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png", width: 92%),
+  caption: [Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB [Modelo Analítico].]
 ) <fig_eevs_surface>
 
 A H-RDL reduz o consumo elétrico da gNodeB de 223,5 W (B0) para 154,2 W (**+31,0% de economia de energia**), elevando a eficiência para 0,659 Mbit/Joule sem incorrer em nenhuma violação de SLA.
@@ -632,8 +632,8 @@ A H-RDL reduz o consumo elétrico da gNodeB de 223,5 W (B0) para 154,2 W (**+31,
 A hierarquia de controle O-RAN opera em três escalas temporais acopladas: Non-RT RIC ($>= 1" s"$, rApps), Near-RT RIC ($10" ms" - 1" s"$, xApps) e Real-Time RIC / gNodeB-DU ($< 10" ms"$, dApps). A H-RDL garante a transição harmoniosa de políticas sem colisões verticais:
 
 #figure(
-  image("reports/figures/fig_28_cross_tier_governance_latency_envelope.png", width: 92%),
-  caption: [Envelope de Latência e Acoplamento Hierárquico Multi-Tier O-RAN (rApp vs xApp vs dApp).]
+  image("docs/figures/01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png", width: 92%),
+  caption: [Envelope de Latência e Acoplamento Hierárquico Multi-Tier O-RAN (rApp vs xApp vs dApp) [Modelo Conceitual].]
 ) <fig_cross_tier_envelope>
 
 #figure(
@@ -683,8 +683,8 @@ A latência total do ciclo fechado de controle Near-RT RIC ($T_(l o o p) = 200" 
 == Resiliência sob Injeção de Falhas E2 / Timeout SCTP (Cenário S7)
 
 #figure(
-  image("reports/figures/fig_29_resilience_e2_timeout_recovery.png", width: 90%),
-  caption: [Resiliência Operacional sob Injeção de Falhas de Transporte E2 / Timeout SCTP.]
+  image("docs/figures/01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png", width: 90%),
+  caption: [Resiliência Operacional sob Injeção de Falhas de Transporte E2 / Timeout SCTP [Modelo Conceitual].]
 ) <fig_e2_resilience>
 
 Sob interrupção forçada do transporte E2 entre $t=10" s"$ e $t=15" s"$, o baseline B0 sofre colapso de vazão (-45%) e bloqueio por timeout. A H-RDL aciona o *fallback determinístico seguro* em 310 ms, retendo o estado de rádio seguro e recuperando a operação plena em 180 ms após a restauração, com zero ações inseguras disparadas.
@@ -707,8 +707,8 @@ Sob interrupção forçada do transporte E2 entre $t=10" s"$ e $t=15" s"$, o bas
 == Radar Multidimensional de Desempenho e Fronteira de Pareto
 
 #figure(
-  image("reports/figures/fig_30_sbrc_multidimensional_radar.png", width: 75%),
-  caption: [Radar Multidimensional de Desempenho Comparativo em 8 Dimensões SBRC / IEEE.]
+  image("docs/figures/01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png", width: 75%),
+  caption: [Radar Multidimensional de Desempenho Comparativo em 8 Dimensões SBRC / IEEE [Modelo Analítico Consolidado].]
 ) <fig_radar_multidimensional>
 
 #figure(
