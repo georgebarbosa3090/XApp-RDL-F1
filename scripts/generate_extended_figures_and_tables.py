@@ -13,11 +13,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Ensure directories exist
-REPORTS_FIG_DIR = os.path.join("reports", "figures")
-DOCS_FIG_DIR = os.path.join("docs", "figures", "03_resultados_e_benchmarks")
+ANALYTICAL_FIG_DIR = os.path.join("docs", "figures", "01_modelos_analiticos_e_conceituais")
 TABLES_DIR = os.path.join("experiments", "results", "tables")
 
-for d in [REPORTS_FIG_DIR, DOCS_FIG_DIR, TABLES_DIR]:
+for d in [ANALYTICAL_FIG_DIR, TABLES_DIR]:
     os.makedirs(d, exist_ok=True)
 
 # Styling configuration (Light Theme, 300 DPI, IEEE/SBC standard)
@@ -50,7 +49,7 @@ plt.rcParams.update({
 # 1. FIGURA 26: Jain Fairness Dynamics & Longitudinal Stability
 # =============================================================================
 def generate_fig_26_jain_fairness():
-    print("Gerando Fig 26: Jain Fairness Dynamics...")
+    print("Gerando Fig 26: Jain Fairness Dynamics [MODELO ANALÍTICO]...")
     time = np.linspace(0, 60, 300)
     
     # Determinist trajectory across baselines based on settling time and mean empirical values
@@ -78,7 +77,7 @@ def generate_fig_26_jain_fairness():
     ax.text(0.5, 0.55, 'Settling Time H-RDL: 190 ms', color='#2980B9', fontsize=9, fontweight='bold',
             bbox=dict(boxstyle='round,pad=0.3', facecolor='#EBF5FB', edgecolor='#2980B9', alpha=0.9))
 
-    ax.set_title('Evolução Temporal do Índice de Equidade de Jain (J_fairness) por Baseline')
+    ax.set_title('Evolução Temporal do Índice de Equidade de Jain (J_fairness) por Baseline\n[MODELO ANALÍTICO CONCEITUAL]', fontsize=12)
     ax.set_xlabel('Tempo de Simulação (s)')
     ax.set_ylabel('Índice de Equidade de Jain ($J \\in [0, 1]$)')
     ax.set_xlim(0, 60)
@@ -87,18 +86,16 @@ def generate_fig_26_jain_fairness():
     ax.legend(loc='lower right', frameon=True, facecolor='#FFFFFF', edgecolor='#CBD5E1', framealpha=0.95)
     
     plt.tight_layout()
-    out1 = os.path.join(REPORTS_FIG_DIR, "fig_26_jain_fairness_dynamics.png")
-    out2 = os.path.join(DOCS_FIG_DIR, "fig_26_jain_fairness_dynamics.png")
-    fig.savefig(out1)
-    fig.savefig(out2)
+    out = os.path.join(ANALYTICAL_FIG_DIR, "fig_26_jain_fairness_dynamics.png")
+    fig.savefig(out)
     plt.close(fig)
-    print(f"Fig 26 salva em {out1}")
+    print(f"Fig 26 salva exclusivamente em {out}")
 
 # =============================================================================
 # 2. FIGURA 27: Energy Efficiency vs QoS Trade-Off (EEVS Surface)
 # =============================================================================
 def generate_fig_27_energy_vs_qos():
-    print("Gerando Fig 27: Energy vs QoS Trade-off (EEVS)...")
+    print("Gerando Fig 27: Energy vs QoS Trade-off [MODELO ANALÍTICO]...")
     
     # Grid of TxPower and Allocated PRBs
     tx_power = np.linspace(10, 43, 30) # dBm
@@ -123,14 +120,11 @@ def generate_fig_27_energy_vs_qos():
     surf = ax.plot_surface(P, Q, ee_metric, cmap='viridis', edgecolor='none', alpha=0.9, antialiased=True)
     
     # Mark operational points
-    # B0: Suboptimal high power, high PRB collision (P=43, Q=80)
     ax.scatter([43], [80], [ee_metric[23, 29]], color='#E74C3C', s=100, label='B0: Não Coordenado (P_tx=43 dBm, Quota=80%)', zorder=10)
-    # B3: Optimal Knee Point (P=33, Q=60)
     ax.scatter([33], [60], [ee_metric[17, 19]], color='#2980B9', s=120, label='B3: H-RDL Ponto Ótimo (P_tx=33 dBm, Quota=60%)', zorder=10)
-    # B6: Safe-MAPPO (P=31, Q=65)
     ax.scatter([31], [65], [ee_metric[19, 17]], color='#27AE60', s=120, label='B6: Safe-MAPPO Pareto (P_tx=31 dBm, Quota=65%)', zorder=10)
 
-    ax.set_title('Superfície de Eficiência Energética (EE) vs Potência de TX e Cotas de PRB', pad=15)
+    ax.set_title('Superfície de Eficiência Energética (EE) vs Potência de TX e Cotas de PRB\n[MODELO ANALÍTICO CONCEITUAL]', pad=15, fontsize=12)
     ax.set_xlabel('Potência de Transmissão ($P_{tx}$ dBm)', labelpad=8)
     ax.set_ylabel('Cota de PRB Alocada (%)', labelpad=8)
     ax.set_zlabel('Eficiência Energética (Mbit / Joule)', labelpad=8)
@@ -140,18 +134,16 @@ def generate_fig_27_energy_vs_qos():
     ax.legend(loc='upper left', fontsize=9, frameon=True, facecolor='#FFFFFF')
     
     plt.tight_layout()
-    out1 = os.path.join(REPORTS_FIG_DIR, "fig_27_energy_vs_qos_tradeoff_eevs.png")
-    out2 = os.path.join(DOCS_FIG_DIR, "fig_27_energy_vs_qos_tradeoff_eevs.png")
-    fig.savefig(out1)
-    fig.savefig(out2)
+    out = os.path.join(ANALYTICAL_FIG_DIR, "fig_27_energy_vs_qos_tradeoff_eevs.png")
+    fig.savefig(out)
     plt.close(fig)
-    print(f"Fig 27 salva em {out1}")
+    print(f"Fig 27 salva exclusivamente em {out}")
 
 # =============================================================================
 # 3. FIGURA 28: Cross-Tier Governance & Multi-Layer Latency Envelope
 # =============================================================================
 def generate_fig_28_cross_tier_latency():
-    print("Gerando Fig 28: Cross-Tier Governance Latency Envelope...")
+    print("Gerando Fig 28: Cross-Tier Governance Latency Envelope [MODELO ANALÍTICO]...")
     
     tiers = ['rApp (Non-RT RIC)\nA1 Policy', 'xApp (Near-RT RIC)\nE2 Closed-Loop', 'dApp / MAC (Real-Time)\nLocal O-DU']
     min_lat = [1000, 10, 0.5]
@@ -169,7 +161,7 @@ def generate_fig_28_cross_tier_latency():
     
     ax.set_yscale('log')
     ax.set_ylabel('Escala Temporal de Atuação (ms) - Escala Log')
-    ax.set_title('Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN (rApp x xApp x dApp)')
+    ax.set_title('Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN (rApp x xApp x dApp)\n[MODELO ANALÍTICO CONCEITUAL]', fontsize=12)
     ax.set_xticks(x)
     ax.set_xticklabels(tiers, fontweight='bold')
     ax.grid(True, which='both', axis='y')
@@ -180,23 +172,20 @@ def generate_fig_28_cross_tier_latency():
         ax.text(bar.get_x() + bar.get_width()/2, val * 1.3, f"{val} ms", ha='center', va='bottom', fontsize=9, fontweight='bold', color='#1E293B')
 
     plt.tight_layout()
-    out1 = os.path.join(REPORTS_FIG_DIR, "fig_28_cross_tier_governance_latency_envelope.png")
-    out2 = os.path.join(DOCS_FIG_DIR, "fig_28_cross_tier_governance_latency_envelope.png")
-    fig.savefig(out1)
-    fig.savefig(out2)
+    out = os.path.join(ANALYTICAL_FIG_DIR, "fig_28_cross_tier_governance_latency_envelope.png")
+    fig.savefig(out)
     plt.close(fig)
-    print(f"Fig 28 salva em {out1}")
+    print(f"Fig 28 salva exclusivamente em {out}")
 
 # =============================================================================
 # 4. FIGURA 29: Resilience under E2 Timeout & Fault Recovery (Scenario S7)
 # =============================================================================
 def generate_fig_29_e2_fault_resilience():
-    print("Gerando Fig 29: E2 Timeout Fault Resilience (Scenario S7)...")
+    print("Gerando Fig 29: E2 Timeout Fault Resilience [MODELO ANALÍTICO]...")
     
     time = np.linspace(0, 30, 300)
     
     # Throughput with fault injection at t=10s to t=15s
-    # Uncoordinated B0: Drops throughput during uncoordinated state
     b0_thp = 95.0 - 45.0 / (1.0 + np.exp(-(time - 10.0) * 2.0)) + 15.0 / (1.0 + np.exp(-(time - 18.0) * 1.5))
     
     # H-RDL B3: Local deterministic fallback triggers in 310ms, preserves baseline throughput safely
@@ -225,7 +214,7 @@ def generate_fig_29_e2_fault_resilience():
                 bbox=dict(boxstyle='round,pad=0.3', facecolor='#DCFCE7', edgecolor='#15803D', alpha=0.9),
                 fontsize=9, fontweight='bold')
 
-    ax.set_title('Resiliência Sob Falhas de Transporte E2 / Timeout SCTP (Cenário S7)')
+    ax.set_title('Resiliência Sob Falhas de Transporte E2 / Timeout SCTP (Cenário S7)\n[MODELO ANALÍTICO CONCEITUAL]', fontsize=12)
     ax.set_xlabel('Tempo de Simulação (s)')
     ax.set_ylabel('Throughput Agregado da Rede (Mbps)')
     ax.set_xlim(0, 30)
@@ -234,18 +223,16 @@ def generate_fig_29_e2_fault_resilience():
     ax.legend(loc='lower left', frameon=True, facecolor='#FFFFFF', edgecolor='#CBD5E1')
     
     plt.tight_layout()
-    out1 = os.path.join(REPORTS_FIG_DIR, "fig_29_resilience_e2_timeout_recovery.png")
-    out2 = os.path.join(DOCS_FIG_DIR, "fig_29_resilience_e2_timeout_recovery.png")
-    fig.savefig(out1)
-    fig.savefig(out2)
+    out = os.path.join(ANALYTICAL_FIG_DIR, "fig_29_resilience_e2_timeout_recovery.png")
+    fig.savefig(out)
     plt.close(fig)
-    print(f"Fig 29 salva em {out1}")
+    print(f"Fig 29 salva exclusivamente em {out}")
 
 # =============================================================================
 # 5. FIGURA 30: Multidimensional Radar Benchmark (8 Dimensions)
 # =============================================================================
 def generate_fig_30_multidimensional_radar():
-    print("Gerando Fig 30: Multidimensional Radar Benchmark...")
+    print("Gerando Fig 30: Multidimensional Radar Benchmark [MODELO ANALÍTICO]...")
     
     categories = [
         'Throughput\nNormalizado',
@@ -294,16 +281,14 @@ def generate_fig_30_multidimensional_radar():
     ax.plot(angles, b6_values, linewidth=2.5, linestyle='solid', color='#27AE60', label='B6 (Safe-MAPPO)')
     ax.fill(angles, b6_values, color='#27AE60', alpha=0.15)
     
-    plt.title('Comparativo Multidimensional de Desempenho (8 Dimensões)', size=13, fontweight='bold', y=1.08)
+    plt.title('Comparativo Multidimensional de Desempenho (8 Dimensões)\n[MODELO ANALÍTICO CONCEITUAL]', size=12, fontweight='bold', y=1.08)
     plt.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1), frameon=True, facecolor='#FFFFFF', edgecolor='#CBD5E1')
     
     plt.tight_layout()
-    out1 = os.path.join(REPORTS_FIG_DIR, "fig_30_sbrc_multidimensional_radar.png")
-    out2 = os.path.join(DOCS_FIG_DIR, "fig_30_sbrc_multidimensional_radar.png")
-    fig.savefig(out1)
-    fig.savefig(out2)
+    out = os.path.join(ANALYTICAL_FIG_DIR, "fig_30_sbrc_multidimensional_radar.png")
+    fig.savefig(out)
     plt.close(fig)
-    print(f"Fig 30 salva em {out1}")
+    print(f"Fig 30 salva exclusivamente em {out}")
 
 # =============================================================================
 # 6. EXPORTAR TABELAS CONSOLIDADAS ADICIONAIS (CSV)
