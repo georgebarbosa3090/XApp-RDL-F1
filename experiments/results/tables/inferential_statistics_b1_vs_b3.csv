@@ -1,0 +1,5 @@
+Metrica,B1 (FIFO),B3 (H-RDL),Diferenca Media (Delta),95% CI (Student-t),Wilcoxon p-valor,Cohen's dz,Interpretacao
+Throughput Médio (Mbps),89.06,102.41,+13.35,"[13.31, 13.38]",< 1e-4,142.12,"Significativo (p < 0.001, Efeito Extremo)"
+Latência P95 (ms),20.85,13.70,-7.15,"[-7.19, -7.12]",< 1e-4,76.19,"Significativo (p < 0.001, Efeito Extremo)"
+Violação de SLA (%),24.31,0.00,-24.31,"[-24.38, -24.24]",< 1e-4,129.44,"Significativo (p < 0.001, Efeito Extremo)"
+Índice de Equidade de Jain,0.66,0.94,+0.29,"[0.29, 0.29]",< 1e-4,121.88,"Significativo (p < 0.001, Efeito Extremo)"
