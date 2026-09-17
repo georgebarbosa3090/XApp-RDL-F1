@@ -77,14 +77,14 @@ A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de g
 > 2. **Artefatos Brutos (Raw Evidence):** 167 fluxos medidos na RAN via ns-3 FlowMonitor nos 16 cenários (S0 a S15). Diretório `reports/figures/` contém estritamente as 25 figuras empíricas reais (Fig. 01 a 25).
 > 3. **35 Manifestos JSON & Hashes SHA-256:** Integridade criptográfica imutável vinculada ao commit canônico congelado `f99483a`.
 > 4. **Os 5 Pares Canônicos Publicados (B1 FIFO vs B3 H-RDL):** Eliminação de violações de SLA ($36,7\% \to 0,0\%$), ganho de throughput ($+19,4\%$, $d_z=3,42$), redução de latência ($-37,2\%$, $d_z=2,89$), supressão de churn ($-95,0\%$) e garantia de safety ($\text{UnsafeApplied} \equiv 0$).
-> 5. **Campanha Confirmatória de 30 Sementes por Condição:** Teste pareado bicaudal de Wilcoxon confirmando $p = 1,86 \times 10^{-9} < 0,001$ com IC 95% Student-t (`inferential_statistics_b1_vs_b3.csv`).
+> 5. **Camada de Execuções Empíricas Reais (35 Runs em `experiments/runs/`):** 35 diretórios de execução com dados brutos medidos de simulação ($N=5$ sementes estocásticas por baseline, 1001 a 1005). Teste de Wilcoxon pareado atinge $p = 0,0625$ (limite exato bicaudal para $N=5$, com 100% de superioridade do H-RDL). **Grade matemática sintética de 30 pontos formalmente excluída da evidência confirmatória**.
 > 6. **Contribuição Central Cristalizada:** **Governança determinística, segura e auditável de conflitos multi-xApp em Near-RT RIC O-RAN** com sobrecarga sub-milissegundo ($0,12\text{ ms}$) e garantia matemática de integridade física da RAN.
 
 ---
 
 ## 2. Resumo das Métricas e Resultados Científicos Ratificados
 
-Com base em **167 fluxos reais FlowMonitor**, **16 cenários (S0 a S15)** e **campanha confirmatória de 30 sementes estocásticas (1001 a 1030)**:
+Com base em **167 fluxos reais FlowMonitor**, **16 cenários (S0 a S15)** e **35 execuções reais com sementes estocásticas independentes**:
 
 - **Eliminação de Violações de SLA:** Redução de **36,7% para 0,0%** em conflitos diretos de PRB (Cenário S1) e fatiamento multi-slice TVS (Cenário S3).
 - **Ganho de Capacidade Agregada:** Vazão média elevada de **85,2 Mbps para 101,7 Mbps (+19,4%)** no H-RDL e **105,8 Mbps (+24,2%)** no Safe-MAPPO.

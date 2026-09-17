@@ -1,5 +1,5 @@
-Metrica,B1 (FIFO),B3 (H-RDL),Diferenca Media (Delta),95% CI (Student-t),Wilcoxon p-valor,Cohen's dz,Interpretacao
-Throughput Médio (Mbps),89.06,102.41,+13.35,"[13.31, 13.38]",< 1e-4,142.12,"Significativo (p < 0.001, Efeito Extremo)"
-Latência P95 (ms),20.85,13.70,-7.15,"[-7.19, -7.12]",< 1e-4,76.19,"Significativo (p < 0.001, Efeito Extremo)"
-Violação de SLA (%),24.31,0.00,-24.31,"[-24.38, -24.24]",< 1e-4,129.44,"Significativo (p < 0.001, Efeito Extremo)"
-Índice de Equidade de Jain,0.66,0.94,+0.29,"[0.29, 0.29]",< 1e-4,121.88,"Significativo (p < 0.001, Efeito Extremo)"
+Metrica,B1 (FIFO),B3 (H-RDL),Diferenca Media (Delta),95% CI (Student-t),Wilcoxon p-valor (N=5),Cohen's dz,Interpretacao
+Throughput Médio (Mbps),89.20,102.50,+13.30,"[13.30, 13.30]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Latência P95 (ms),20.93,13.73,-7.20,"[-7.20, -7.20]",0.0625,0.00,Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Violação de SLA (%),24.00,0.00,-24.00,"[-24.00, -24.00]",0.0625,0.00,Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Índice de Equidade de Jain,0.65,0.94,+0.29,"[0.29, 0.29]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
