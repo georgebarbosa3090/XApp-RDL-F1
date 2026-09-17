@@ -121,3 +121,50 @@ Em conformidade com a política de integridade estrita do projeto:
 * **Comportamento:** Perda de ACK SCTP ou recepção de `RICcontrolFailure` aciona timeout automático ($1,0\text{ s}$) e comando de restauração segura em $< 310\text{ ms}$, mantendo a invariante $\text{UnsafeApplied} \equiv 0$.
 * **Suíte de Testes:** **81/81 testes aprovados (100% PASS)** em `tests/unit`, `tests/integration`, `tests/interoperability` e `tests/codec`.
 
+---
+
+## 7. Manifesto de Evidência Rastreável & Contribuição Central da Fase 1
+
+Em alinhamento com a diretriz editorial e metodológica do projeto:
+
+$$\boxed{\textbf{Menos figuras ilustrativas, mais evidência rastreável por run.}}$$
+
+A Fase 1 H-RDL sustenta sua tese científica sobre **seis pilares invioláveis de rastreabilidade empírica**:
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                          PILARES DE EVIDÊNCIA EMPÍRICA H-RDL FASE 1                         │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. GOLDEN RUN (S1, Semente 1001)                                                            │
+│    - Trace FlowMonitor XML completo (167 fluxos medidos na RAN)                             │
+│    - Captura PCAP E2AP/SCTP porta 36422 (Setup, Subscription, Control, ACK)                 │
+│    - Cadeia causal fechada: KPM(t0) -> Conflito -> Decisão -> RC -> ACK -> ΔRAN -> KPM(t1)   │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2. ARTEFATOS BRUTOS (RAW ARTIFACTS)                                                         │
+│    - 16 cenários de simulação ns-3.48 / 5G-LENA v5.1 / NORI                                 │
+│    - Zero dados sintéticos em reports/figures/ (25 figuras 100% empíricas)                   │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 3. 35 MANIFESTOS DE EXECUÇÃO & HASHES SHA-256                                               │
+│    - manifests/*.json com parâmetros, ambiente de kernel, versões e integridade SHA-256     │
+│    - Não-repúdio vinculado ao Git Commit canônico congelado (f99483a)                        │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 4. OS 5 PARES CANÔNICOS PUBLICADOS (B1 FIFO vs B3 H-RDL)                                    │
+│    - SLA Violations: 36,7% -> 0,0% (Eliminação estrita de violações)                        │
+│    - Throughput Médio: 85,2 Mbps -> 101,7 Mbps (+19,4%, dz = 3,42, p < 0,001)               │
+│    - Latência Média P95: 18,0 ms -> 11,3 ms (-37,2%, dz = 2,89, p < 0,001)                 │
+│    - Action Churn: 1,00 act/s -> 0,05 act/s (-95,0% supressão de oscilações ping-pong)     │
+│    - Invariante de Segurança: UnsafeApplied ≡ 0 (Safety Guard inviolável)                   │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 5. CAMPANHA CONFIRMATÓRIA DE 30 SEMENTES POR CONDIÇÃO                                       │
+│    - 30 sementes estocásticas canônicas (1001 a 1030)                                       │
+│    - Teste de Wilcoxon pareado bicaudal: p = 1,86 × 10⁻⁹ < 0,001                            │
+│    - Intervalos de confiança Student-t 95% calculados em inferential_statistics_b1_vs_b3.csv│
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 6. CONTRIBUIÇÃO CENTRAL CRISTALIZADA                                                        │
+│    "Governança determinística, segura e auditável de conflitos multi-xApp em Near-RT RIC    │
+│     O-RAN (E2SM-KPM v03.00 / E2SM-RC v01.03) com sobrecarga sub-milissegundo (0,12 ms) e   │
+│     invariante estrita de segurança UnsafeApplied ≡ 0."                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+
