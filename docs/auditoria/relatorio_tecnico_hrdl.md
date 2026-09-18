@@ -6,7 +6,7 @@
 
 **Programa de Pós-Graduação em Ciência da Computação (PPGCOMP) — Universidade Federal do Pará (UFPA)**  
 **Autor:** George Alexandro Ferreira Barbosa  
-**Orientador:** Prof. Dr. Carlos Renato Lisboa Francês  
+**Orientador:** Prof. Dr. André Ricker  
 **Data da Homologação:** 18 de setembro de 2026  
 **Release Oficial:** `v1.2.0-certified` (Commit `6569c7b` / `f1caed7`)  
 **Status de Auditoria:** **CERTIFIED NON-REPUDIABLE / ZERO SYNTHETIC DATA**  
