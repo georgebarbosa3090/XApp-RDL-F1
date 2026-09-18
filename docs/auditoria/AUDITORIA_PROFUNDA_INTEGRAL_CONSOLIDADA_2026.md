@@ -7,9 +7,8 @@
 - **Documento:** Parecer Técnico e Laudo de Auditoria Científica Unificada e Integral
 - **Projeto:** xApp RDL (*Resource and Decision Layer*) — Fase 1 (H-RDL Determinística) & Fase 2 (CA-RDL Cognitiva/Multi-Agente)
 - **Autor do Projeto:** George Alexandro Ferreira Barbosa
-- **Programa:** Programa de Pós-Graduação em Ciência da Computação (PPGC / UFPA)
+- **Programa:** Programa de Pós-Graduação em Ciência da Computação (PPGCOMP / UFPA)
 - **Data da Auditoria Consolidada:** 18 de setembro de 2026
-- **Corpo de Auditores:** Auditoria Especialista em Ciência da Computação, Arquitetura O-RAN Alliance (WG2, WG3, WG10, WG11), Teoria da Informação e Co-Simulação ns-3 / 5G-LENA / NORI
 - **Status do Laudo:** **APROVADO COM DISTINÇÃO (Nota Global: 9.9 / 10.0)**
 - **Repositórios Auditados:**
   - `georgebarbosa3090/XApp-RDL-F1` (Branch `main`, commit sincronizado)
