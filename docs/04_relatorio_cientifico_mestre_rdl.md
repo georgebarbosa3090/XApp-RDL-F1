@@ -7,8 +7,7 @@
 ---
 
 ### Metadados de Governança e Autoria Científica
-- **Autor Principal / Pesquisador Sênior:** George Alexandro Ferreira Barbosa (PPGC/UFPA)
-- **Especialidade:** Redes de Computadores, Open RAN, AI-Native 6G, Sistemas Distribuídos e Otimização Combinatória
+- **Autor Principal:** George Alexandro Ferreira Barbosa (PPGC/UFPA)
 - **Padrão de Publicação:** Padrão SBC / SBRC e IEEE Transactions (TNSM / TCCN / Nature Comms)
 - **Data de Emissão:** 15 de Setembro de 2026
 - **Status Metodológico:** Ratificado, Irrefutável e Reproduzível (Golden Closed Loop)
