@@ -72,12 +72,17 @@ backups/
 !docs/compliance/*.md
 
 
-# 7. Byte-compiled / Python Cache / DLLs
+# 7. Byte-compiled / Python Cache / DLLs / Egg-Info
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 *.pyd
+*.egg-info/
+*.egg-info
+*.egg
+build/
+dist/
 
 # 8. Ambientes Virtuais
 .venv/

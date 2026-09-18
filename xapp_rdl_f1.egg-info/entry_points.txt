@@ -1,2 +1,0 @@
-[console_scripts]
-xapp-rdl = src.main:main
