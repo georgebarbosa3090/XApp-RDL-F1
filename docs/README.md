@@ -21,6 +21,7 @@ docs/
 ├── 04_relatorio_cientifico_mestre_rdl.md    # [Vol 04] Monografia Científica Mestre, Resultados e Estatística
 ├── 05_auditoria_e_conformidade_oran.md      # [Vol 05] Auditoria Causal, Rastreabilidade SHA-256 e Normas O-RAN
 ├── 06_roadmap_e_pesquisa_futura_6g.md       # [Vol 06] Roadmap 2026-2028, Fase 3 Federada 6G e Testbed UFPA
+├── 07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md # [Vol 07] Resultados da Simulação, Baselines e Cenários (S0–S15)
 ├── assets/                                  # Diagramas de arquitetura e modelos visuais
 ├── compliance/                              # Perfis de compatibilidade O-RAN congelados
 ├── e2/                                      # Definições ASN.1 e matrizes normativas E2AP/E2SM
@@ -35,8 +36,8 @@ docs/
 | :--- | :--- | :--- |
 | **Arquiteto de Software / Engenheiro O-RAN** | [Vol 01](01_arquitetura_e_modelagem.md) & [Vol 05](05_auditoria_e_conformidade_oran.md) | Compreender os agentes cognitivos, codecs ASN.1 APER e conformidade normativa E2AP/E2SM. |
 | **Operador de Infraestrutura / DevOps** | [Vol 02](02_guia_operacional_deploy_e_simulacao.md) | Subir clusters k3d, instalar via Helm, monitorar métricas Prometheus e depurar pods. |
-| **Pesquisador Científico / Avaliador** | [Vol 04](04_relatorio_cientifico_mestre_rdl.md) & [Vol 03](03_taxonomia_de_conflitos_e_cenarios.md) | Analisar as evidências causais em 6 camadas, testes Wilcoxon, tamanhos de efeito e cenários. |
-| **Pesquisador 6G / Estrategista de IA** | [Vol 06](06_roadmap_e_pesquisa_futura_6g.md) | Explorar a evolução para Intent-Driven RIC (A1), federação multi-RIC e redes SAGIN 6G. |
+| **Pesquisador Científico / Avaliador** | [Vol 04](04_relatorio_cientifico_mestre_rdl.md), [Vol 03](03_taxonomia_de_conflitos_e_cenarios.md) & [Vol 07](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md) | Analisar as evidências causais, tabelas completas de simulação, testes pareados e cenários S0–S15. |
+| **Pesquisador 6G / Estrategista de IA** | [Vol 06](06_roadmap_e_pesquisa_futura_6g.md) & [Vol 07](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md) | Explorar a evolução para Intent-Driven RIC (A1), federação multi-RIC e comparativos Safe-MAPPO. |
 
 ---
 
@@ -59,6 +60,10 @@ Documenta a superação da lacuna metodológica de prova causal, o fechamento do
 
 ### [Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](06_roadmap_e_pesquisa_futura_6g.md)
 Delineia a evolução do projeto em direção ao 6G Zero-Touch, detalhando a governança por intenção via interface A1, aprendizado federado multi-RIC, coordenação SAGIN (Space-Air-Ground) e cronograma da campanha experimental física no laboratório GreenRAN/UFPA.
+
+### [Volume 07: Relatório Exaustivo de Resultados de Simulação (S0 a S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)
+Apresenta o comparativo multidimensional completo cruzando os 7 baselines (B0 a B6) e os 16 cenários experimentais (S0 a S15), detalhando throughput, latência P95, violação de SLA, tempos de estabilização ($t_{\text{settle}}$), eficiência energética (EEVS), decomposição em 11 estágios do loop fechado e matriz de recomendações técnicas de uso H-RDL vs CA-RDL.
+
 
 ---
 
