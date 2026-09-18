@@ -29,7 +29,7 @@ notebooks/*
 !notebooks/rdl_colab_scikit_learn.ipynb
 .ipynb_checkpoints/
 
-# 5. Artigos Científicos, Papers e Fontes LaTeX
+# 5. Artigos Científicos, Papers, Fontes LaTeX / Typst e PDFs
 paper/
 paper_sbrc/
 *.tex
@@ -43,6 +43,10 @@ paper_sbrc/
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+*.pdf
+*.typ
+*Dissertacao*
+*dissertacao*
 
 # 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
 scripts/compile_dissertation*.py
