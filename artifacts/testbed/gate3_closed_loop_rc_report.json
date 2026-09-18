@@ -1,0 +1,50 @@
+{
+  "gate": "GATE_3_CLOSED_LOOP_RC",
+  "timestamp_epoch": 1789743117,
+  "scenario": "direct_prb_conflict",
+  "mode": "EMULATED_SOCKET",
+  "causal_chain": {
+    "kpm_t0": {
+      "timestamp_ns": 1789743117189579700,
+      "prb_utilization": 89.5,
+      "urllc_latency_ms": 18.2,
+      "embb_prb_quota": 0.8,
+      "sla_violation": true
+    },
+    "rdl_decision": {
+      "arbitrated_action": {
+        "prb_quotas": {
+          "URLLC": 0.5,
+          "eMBB": 0.5
+        },
+        "tx_power_dbm": 40.0,
+        "cause": "URLLC_SLA_PREEMPTION"
+      },
+      "decision_time_ms": 0.001,
+      "policy": "PRIORITY_PREEMPTION_FAIR_SHARE"
+    },
+    "ric_control_request": {
+      "transaction_id": 1001,
+      "applied_prb_quotas": {
+        "URLLC": 0.5,
+        "eMBB": 0.5
+      },
+      "applied_tx_power_dbm": 40.0
+    },
+    "ric_control_acknowledge": {
+      "ack_received": true,
+      "status_code": 0,
+      "rtt_latency_ms": 0.02
+    },
+    "kpm_t1": {
+      "timestamp_ns": 1789743117189835800,
+      "prb_utilization": 76.2,
+      "urllc_latency_ms": 4.1,
+      "embb_prb_quota": 0.5,
+      "latency_reduction_ms": 14.1,
+      "sla_violation": false
+    }
+  },
+  "overall_status": "PASSED",
+  "total_execution_duration_s": 0.001
+}

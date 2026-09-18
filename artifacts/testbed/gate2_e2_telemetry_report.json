@@ -1,0 +1,92 @@
+{
+  "gate": "GATE_2_E2_TELEMETRY",
+  "timestamp_epoch": 1789743114,
+  "target_endpoint": "127.0.0.1:36422",
+  "mode": "EMULATED_SOCKET",
+  "substeps": {
+    "e2_connect": {
+      "connected": true,
+      "latency_ms": 0.08
+    },
+    "kpm_subscription": {
+      "subscribed": true,
+      "report_period_ms": 200
+    }
+  },
+  "telemetry_summary": {
+    "samples_requested": 10,
+    "samples_received": 10,
+    "indication_drop_rate": 0.0,
+    "mean_interval_ms": 200.51,
+    "mean_jitter_ms": 0.16,
+    "avg_throughput_mbps": 88.4,
+    "avg_prb_utilization_percent": 78.5,
+    "sample_snapshot": [
+      {
+        "seq": 1,
+        "timestamp_ns": 1789743114777506000,
+        "prb_utilization": 78.5,
+        "active_ues": 12,
+        "throughput_mbps": 88.4,
+        "packet_loss": 0.0012,
+        "sinr_db": 18.5,
+        "slice_metrics": {
+          "eMBB": {
+            "prb_quota": 0.6,
+            "thp_mbps": 72.0,
+            "latency_ms": 14.5
+          },
+          "URLLC": {
+            "prb_quota": 0.4,
+            "thp_mbps": 16.4,
+            "latency_ms": 4.8
+          }
+        }
+      },
+      {
+        "seq": 2,
+        "timestamp_ns": 1789743114978051700,
+        "prb_utilization": 78.5,
+        "active_ues": 12,
+        "throughput_mbps": 88.4,
+        "packet_loss": 0.0012,
+        "sinr_db": 18.5,
+        "slice_metrics": {
+          "eMBB": {
+            "prb_quota": 0.6,
+            "thp_mbps": 72.0,
+            "latency_ms": 14.5
+          },
+          "URLLC": {
+            "prb_quota": 0.4,
+            "thp_mbps": 16.4,
+            "latency_ms": 4.8
+          }
+        }
+      },
+      {
+        "seq": 3,
+        "timestamp_ns": 1789743115178288700,
+        "prb_utilization": 78.5,
+        "active_ues": 12,
+        "throughput_mbps": 88.4,
+        "packet_loss": 0.0012,
+        "sinr_db": 18.5,
+        "slice_metrics": {
+          "eMBB": {
+            "prb_quota": 0.6,
+            "thp_mbps": 72.0,
+            "latency_ms": 14.5
+          },
+          "URLLC": {
+            "prb_quota": 0.4,
+            "thp_mbps": 16.4,
+            "latency_ms": 4.8
+          }
+        }
+      }
+    ]
+  },
+  "overall_status": "PASSED",
+  "total_execution_duration_s": 2.006
+}

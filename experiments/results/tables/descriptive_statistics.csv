@@ -4,6 +4,5 @@ Packet Latency (ms),17.73,0.13,11.23,0.13,9.63,0.13
 P95 Latency (ms),24.43,0.13,13.73,0.13,11.13,0.13
 SLA Violation Rate (%),36.7,0.0,0.0,0.0,0.0,0.0
 Jain Fairness Index,0.52,0.0,0.94,0.0,0.97,0.0
-Spectral Efficiency (bps/Hz),0.86,0.01,1.02,0.01,1.07,0.01
 Decision Latency (ms),0.0,0.0,0.12,0.0,1.84,0.0
 Action Churn (actions/s),1.0,0.0,0.05,0.0,0.1,0.0

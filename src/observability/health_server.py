@@ -21,6 +21,12 @@ try:
     HAS_FASTAPI = True
 except ImportError:
     HAS_FASTAPI = False
+    class Response:
+        def __init__(self, *args, **kwargs):
+            self.status_code = kwargs.get("status_code", 200)
+    class status:
+        HTTP_200_OK = 200
+        HTTP_503_SERVICE_UNAVAILABLE = 503
 
 class HealthServer:
     def __init__(self, host: str = "0.0.0.0", port: int = 8080):

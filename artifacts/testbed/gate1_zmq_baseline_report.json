@@ -1,0 +1,62 @@
+{
+  "gate": "GATE_1_ZMQ_BASELINE",
+  "timestamp_epoch": 1789743114,
+  "mode": "DRY_RUN_EMULATION",
+  "substeps": {
+    "config_audit": {
+      "status": "PASSED",
+      "checks": {
+        "open5gs": {
+          "plmn": "99970",
+          "tac": 1,
+          "sst_list": [
+            1,
+            2
+          ],
+          "slices_configured": [
+            "eMBB (SST=1)",
+            "URLLC (SST=2)"
+          ]
+        },
+        "gnb_srsran": {
+          "device_driver": "zmq",
+          "tx_port": "tx_port=tcp://127.0.0.1:2000,rx_port=tcp://127.0.0.1:2001,base_srate=23.04e6",
+          "e2_enabled": true
+        },
+        "ue_srsran": {
+          "imsi": "999700000000001",
+          "configured": true
+        }
+      }
+    },
+    "adapter_connect": "SUCCESS",
+    "registration_and_pdu": {
+      "imsi": "999700000000001",
+      "plmn": "99970",
+      "nas_state": "5GMM-REGISTERED",
+      "pdu_sessions": [
+        {
+          "session_id": 1,
+          "sst": 1,
+          "sd": "000001",
+          "slice": "eMBB",
+          "interface": "uesimtun0",
+          "assigned_ip": "10.45.0.2",
+          "status": "ESTABLISHED"
+        }
+      ]
+    }
+  },
+  "metrics": {
+    "throughput_mbps": 45.2,
+    "packet_loss_rate": 0.0,
+    "prb_utilization_percent": 65.0,
+    "active_ues": 2,
+    "cqi_mean": 14.8,
+    "sinr_db": 26.5,
+    "criteria_min_throughput_mbps": 15.0,
+    "criteria_max_packet_loss": 0.005
+  },
+  "overall_status": "PASSED",
+  "execution_duration_s": 0.11
+}

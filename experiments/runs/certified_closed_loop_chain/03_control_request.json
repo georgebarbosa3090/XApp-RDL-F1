@@ -1,0 +1,16 @@
+{
+  "step": 3,
+  "event": "RIC_CONTROL_REQUEST_DISPATCH",
+  "timestamp_iso": "2026-09-18T11:40:00.10165Z",
+  "timestamp_ns": 1789741200101650000,
+  "ran_function_id": 3,
+  "transaction_id": 5001,
+  "control_style": 2,
+  "control_action_id": 6,
+  "fixed_point_encoding": {
+    "urllc_prb_quota_q8_8": 128,
+    "embb_prb_quota_q8_8": 128,
+    "tx_power_q16_16": 2621440
+  },
+  "raw_payload_sha256": "e58455c2f117109c33adb213acf3a7a64d95e650545c129f785d71dd32d0dcaa"
+}

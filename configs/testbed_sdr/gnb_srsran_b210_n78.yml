@@ -1,0 +1,55 @@
+# =============================================================================
+# srsRAN Project gNodeB Configuration - Ettus USRP B210 (SDR Hardware Mode)
+# Arquivo: configs/testbed_sdr/gnb_srsran_b210_n78.yml
+# Frequência: Banda n78 (3.5 GHz) | Largura de Banda: 20 MHz | E2 Agent O-RAN
+# =============================================================================
+
+cu_cp:
+  amf:
+    addr: 127.0.0.5
+    bind_addr: 127.0.0.1
+    supported_tracking_areas:
+      - tac: 1
+        plmn_list:
+          - plmn: "99970"
+            tai_slice_support_list:
+              - sst: 1
+                sd: 0x000001
+              - sst: 2
+                sd: 0x000002
+
+# Conexão O-RAN Near-RT RIC
+e2:
+  enable_e2: true
+  e2t_ip: 127.0.0.1
+  e2t_port: 36422
+  e2node_id: 0x192
+  plmn: "99970"
+  kpm_report_period_ms: 200
+
+ru_sdr:
+  device_driver: uhd
+  device_args: "type=b200,num_recv_frames=64,num_send_frames=64"
+  srate: 23.04
+  # Ganhos calibrados para RF conduzido com atenuador físico de 30 dB
+  tx_gain: 55
+  rx_gain: 45
+
+cell_cfg:
+  dl_arfcn: 627340           # Frequência central: 3410.1 MHz (Banda n78)
+  band: 78
+  channel_bandwidth_MHz: 20
+  common_scs: 30             # 30 kHz SCS (Numerologia mu=1)
+  plmn: "99970"
+  tac: 1
+  pci: 1
+  nof_antennas_dl: 1
+  nof_antennas_ul: 1
+
+qos:
+  five_qi_config:
+    - 5qi: 9                 # Default eMBB
+      priority: 90
+    - 5qi: 82                # URLLC Prioritário (3GPP TS 23.501)
+      priority: 10
+      packet_delay_budget_ms: 10

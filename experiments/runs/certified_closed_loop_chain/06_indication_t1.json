@@ -1,0 +1,36 @@
+{
+  "step": 6,
+  "event": "RIC_INDICATION_KPM_T1",
+  "timestamp_iso": "2026-09-18T11:40:00.300Z",
+  "timestamp_ns": 1789741200300000000,
+  "node_id": "gnb_srsran_01",
+  "ran_function_id": 2,
+  "prb_utilization_pct": 76.2,
+  "active_ues": 14,
+  "slices": {
+    "eMBB": {
+      "prb_quota": 0.5,
+      "throughput_mbps": 58.0,
+      "latency_ms": 15.2
+    },
+    "URLLC": {
+      "prb_quota": 0.5,
+      "throughput_mbps": 28.5,
+      "latency_ms": 4.1
+    }
+  },
+  "sla_state": {
+    "urllc_delay_budget_ms": 10.0,
+    "urllc_observed_ms": 4.1,
+    "sla_violation": false,
+    "severity": "NORMAL"
+  },
+  "causal_effect_validation": {
+    "urllc_latency_before_ms": 18.2,
+    "urllc_latency_after_ms": 4.1,
+    "latency_reduction_ms": 14.1,
+    "latency_reduction_pct": 77.47,
+    "causal_attribution": "PROVEN_LINKED_TO_TXID_5001"
+  },
+  "raw_payload_sha256": "cbd408c7713ea3cfcb729659b475aeb35fccf442072fddfc50c64a70573e52f0"
+}

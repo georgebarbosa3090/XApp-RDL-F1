@@ -1,0 +1,84 @@
+# =============================================================================
+# Open5GS 5G Standalone (SA) Configuration for Virtual ZeroMQ Testbed
+# Arquivo: configs/testbed_zmq/open5gs_5g_sa.yaml
+# PLMN: 99970 | S-NSSAI: eMBB (SST=1, SD=000001) e URLLC (SST=2, SD=000002)
+# =============================================================================
+
+amf:
+  sbi:
+    server:
+      - address: 127.0.0.5
+        port: 7777
+    client:
+      nrf:
+        - uri: http://127.0.0.10:7777
+  ngap:
+    server:
+      - address: 127.0.0.5
+        port: 38412
+  guami:
+    - plmn_id:
+        mcc: 999
+        mnc: 70
+      amf_id:
+        region: 2
+        set: 1
+  tai:
+    - plmn_id:
+        mcc: 999
+        mnc: 70
+      tac: 1
+  plmn_support:
+    - mcc: 999
+      mnc: 70
+      s_nssai:
+        - sst: 1
+          sd: 000001
+        - sst: 2
+          sd: 000002
+  security:
+    integrity_order: [ NIA2, NIA1, NIA0 ]
+    ciphering_order: [ NEA0, NEA1, NEA2 ]
+
+smf:
+  sbi:
+    server:
+      - address: 127.0.0.4
+        port: 7777
+  gtpc:
+    server:
+      - address: 127.0.0.4
+  pfcp:
+    server:
+      - address: 127.0.0.4
+    client:
+      upf:
+        - address: 127.0.0.7
+  subnet:
+    # Sub-rede Fatia eMBB
+    - s_nssai:
+        sst: 1
+        sd: 000001
+      dnn: internet
+      addr: 10.45.0.0/16
+    # Sub-rede Fatia URLLC
+    - s_nssai:
+        sst: 2
+        sd: 000002
+      dnn: urllc
+      addr: 10.46.0.0/16
+
+upf:
+  pfcp:
+    server:
+      - address: 127.0.0.7
+  gtpu:
+    server:
+      - address: 127.0.0.7
+  subnet:
+    - dnn: internet
+      dev: ogstun
+      gateway: 10.45.0.1
+    - dnn: urllc
+      dev: ogstun-urllc
+      gateway: 10.46.0.1

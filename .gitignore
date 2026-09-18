@@ -5,7 +5,8 @@
 
 # 1. Diretórios de Agentes e Skills Locais (Permanentemente Proibido)
 .agents/
-agents/
+/agents/
+!src/agents/
 skills/
 .system_generated/
 
@@ -21,6 +22,8 @@ docs/relatorio_extenso*
 experiments/results/rdl_phase2/
 *rdl_phase2*
 *phase2*
+!scripts/testbed/
+!scripts/testbed/*
 
 # 4. Notebooks do Google Colab e Análises Locais
 notebooks/*
@@ -103,6 +106,7 @@ htmlcov/
 
 # 10. Logs, Bancos de Dados e Binários Locais
 *.log
+!experiments/runs/certified_closed_loop_chain/*.log
 *.sqlite3
 wheels/
 

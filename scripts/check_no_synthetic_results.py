@@ -18,6 +18,8 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SCRIPTS_DIR = os.path.join(BASE_DIR, "scripts")
 EXPERIMENTS_DIR = os.path.join(BASE_DIR, "experiments")
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
+ANALYSIS_DIR = os.path.join(BASE_DIR, "analysis")
+REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 
 FORBIDDEN_PATTERNS = [
     ("np.random.normal", re.compile(r"np\.random\.normal\(")),
@@ -47,7 +49,7 @@ def main():
 
     violations: List[Tuple[str, int, str, str]] = []
 
-    for scan_dir in [SCRIPTS_DIR, EXPERIMENTS_DIR]:
+    for scan_dir in [SCRIPTS_DIR, EXPERIMENTS_DIR, ANALYSIS_DIR]:
         if not os.path.exists(scan_dir):
             continue
         for root, _, files in os.walk(scan_dir):
@@ -97,6 +99,22 @@ def main():
         print(f"\n[FALHA CRÍTICA] Erro ao carregar provenance_policy.yaml: {e}")
         sys.exit(1)
 
+    # Validação do figures_manifest.json (Solução 2)
+    manifest_path = os.path.join(REPORTS_DIR, "figures", "figures_manifest.json")
+    if not os.path.exists(manifest_path):
+        print(f"\n[FALHA CRÍTICA] figures_manifest.json não encontrado em: {manifest_path}")
+        sys.exit(1)
+
+    import json
+    with open(manifest_path, "r", encoding="utf-8") as mf:
+        mdata = json.load(mf)
+    figs = mdata.get("figures", [])
+    ssot_hash = mdata.get("ssot_source", {}).get("sha256", "")
+    if not ssot_hash or len(figs) < 25:
+        print(f"\n[FALHA CRÍTICA] figures_manifest.json incompleto! Figuras catalogadas: {len(figs)} (esperado >= 25)")
+        sys.exit(1)
+
+    print(f"[OK] figures_manifest.json validado com sucesso! ({len(figs)} figuras empíricas vinculadas à SSOT {ssot_hash[:12]}...)")
     print("[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
     sys.exit(0)
 

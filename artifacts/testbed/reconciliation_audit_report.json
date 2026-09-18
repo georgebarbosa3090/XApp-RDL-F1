@@ -1,0 +1,24 @@
+{
+  "status": "RECONCILED_SUCCESS",
+  "timestamp": "2026-09-18T11:28:00Z",
+  "runs_consolidated": 35,
+  "canonical_matrix": "C:\\Users\\georg\\.antigravity-ide\\iqos-xapp-rdl-phase1\\experiments\\results\\canonical_simulation_master.csv",
+  "tables_rebuilt": [
+    "baseline_summary.csv",
+    "descriptive_statistics.csv",
+    "paired_comparisons.csv",
+    "inferential_statistics_b1_vs_b3.csv",
+    "energy_efficiency_eevs_analysis.csv",
+    "per_seed_detailed_metrics.csv"
+  ],
+  "doc_audit": {
+    "ssot_b0_latency_ms": 17.73,
+    "ssot_b3_latency_ms": 11.23,
+    "ssot_b0_throughput_mbps": 86.0,
+    "ssot_b3_throughput_mbps": 102.5,
+    "doc_checked": "C:\\Users\\georg\\.antigravity-ide\\iqos-xapp-rdl-phase1\\docs\\auditoria\\AUDITORIA_PROFUNDA_INTEGRAL_CONSOLIDADA_2026.md",
+    "doc_exists": true,
+    "is_aligned": true,
+    "has_canonical_latencies_in_doc": true
+  }
+}

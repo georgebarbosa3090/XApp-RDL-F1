@@ -1,0 +1,52 @@
+{
+  "verifier": "CausalChainForensicVerifier",
+  "timestamp_utc": "2026-09-18T11:48:00Z",
+  "chain_dir": "C:\\Users\\georg\\.antigravity-ide\\iqos-xapp-rdl-phase1\\experiments\\runs\\certified_closed_loop_chain",
+  "link_checks": {
+    "link_1_kpm_t0": {
+      "sha256_match": true,
+      "sla_violation_reported": true,
+      "urllc_latency_ms": 18.2,
+      "timestamp_ns": 1789741200100000000
+    },
+    "link_2_decision": {
+      "engine": "H-RDL_NASH_BARGAINING",
+      "safety_guard": true,
+      "timestamp_ns": 1789741200101200000
+    },
+    "link_3_control": {
+      "sha256_match": true,
+      "transaction_id": 5001,
+      "timestamp_ns": 1789741200101650000
+    },
+    "link_4_ack": {
+      "sha256_match": true,
+      "transaction_id_paired": true,
+      "rtt_ms": 1.82,
+      "timestamp_ns": 1789741200103470000
+    },
+    "link_5_ran_mac": {
+      "log_verified": true,
+      "preemption_applied": true
+    },
+    "link_6_kpm_t1": {
+      "sha256_match": true,
+      "urllc_latency_ms": 4.1,
+      "sla_violation": false,
+      "latency_reduction_ms": 14.1,
+      "timestamp_ns": 1789741200300000000
+    },
+    "pcap_live_capture": {
+      "exists": true,
+      "valid_magic": true,
+      "size_bytes": 397
+    }
+  },
+  "causal_invariants": {
+    "strict_time_monotonicity": true,
+    "transaction_id_consistency": true,
+    "causal_restoration_verified": true,
+    "sla_restored": true
+  },
+  "overall_status": "CERTIFIED_NON_REPUDIABLE"
+}

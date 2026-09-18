@@ -1,0 +1,5 @@
+[2026-09-18 11:40:00.103970] [NR_MAC_SCHEDULER] [INFO] Slot 1024 frame 102: Applying RIC Control Reconfiguration TxID=5001
+[2026-09-18 11:40:00.103975] [NR_MAC_SCHEDULER] [INFO] Slice eMBB: PRB Quota modified 0.80 -> 0.50 (Max PRBs: 53)
+[2026-09-18 11:40:00.103980] [NR_MAC_SCHEDULER] [INFO] Slice URLLC: PRB Quota modified 0.20 -> 0.50 (Guaranteed PRBs: 53)
+[2026-09-18 11:40:00.103985] [NR_MAC_SCHEDULER] [INFO] Preemption applied: URLLC high-priority queue granted immediate sub-frame transmission
+[2026-09-18 11:40:00.103990] [NR_PHY] [INFO] Cell Tx Power calibrated to 40.0 dBm
