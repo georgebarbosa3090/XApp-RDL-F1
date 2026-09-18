@@ -51,6 +51,11 @@ paper_sbrc/
 *Dissertacao*
 *dissertacao*
 
+# Explicitly allow docs/auditoria documentation sources (excluding pdfs)
+!docs/auditoria/*.md
+!docs/auditoria/*.typ
+!docs/auditoria/*extracted.txt
+
 # 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
 scripts/compile_dissertation*.py
 *compile_dissertation*
