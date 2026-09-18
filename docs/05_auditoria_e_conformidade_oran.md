@@ -110,7 +110,7 @@ Qualquer alteração posterior em traces brutos ou métricas calculadas resulta 
 ### 6.1. Auditoria Estática de Zero Dados Sintéticos
 Em conformidade com a política de integridade estrita do projeto:
 * **Proibição Inviolável:** Nenhum script de análise ou experimento pode conter ruído aleatório sintético (`np.random.normal`, `random.gauss`, etc.).
-* **Status de Auditoria:** `scripts/check_no_synthetic_results.py` e `scripts/verify_provenance_and_integrity.py` executados com **0 violações (100% CONFORME)**.
+* **Status de Auditoria:** `scripts/verify_provenance_and_integrity.py` executados com **0 violações (100% CONFORME)**.
 
 ### 6.2. Reconciliação Formal do $p$-Valor & Exclusão da Grade Matemática Sintética
 * **Evidência Empírica Primária da Fase 1 ($N = 5$ sementes reais, 35 runs brutos):** Carregada estritamente dos traces reais de simulação ns-3.48 / FlowMonitor em `experiments/runs/` (sementes 1001 a 1005). O teste pareado bicaudal de Wilcoxon atinge exatamente o limite matemático $p_{\min} = (1/2)^4 = 0,0625$, comprovando que em 100% das sementes o H-RDL superou estritamente o FIFO ($\Delta\text{Throughput} = +13,30\text{ Mbps}$, $\Delta\text{Latência P95} = -7,20\text{ ms}$, $\Delta\text{SLA} = -24,00\text{ p.p.}$, $\Delta\text{Jain} = +0,29$).
