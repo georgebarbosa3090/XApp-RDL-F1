@@ -2,14 +2,16 @@
 ## Governança Cognitiva, Arbitragem de Conflitos Multi-xApp e Validação Causal em Circuito Fechado O-RAN (ns-3 + 5G-LENA + NORI + Near-RT RIC)
 
 > **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)**
+> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
 
 ---
 
 ### Metadados de Governança e Autoria Científica
-- **Autor Principal:** George Alexandro Ferreira Barbosa (PPGC/UFPA)
+- **Autor Principal:** George Alexandro Ferreira Barbosa
+- **Orientador:** Prof. Dr. André Riker
+- **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC) — Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
 - **Padrão de Publicação:** Padrão SBC / SBRC e IEEE Transactions (TNSM / TCCN / Nature Comms)
-- **Data de Emissão:** 15 de Setembro de 2026
+- **Data de Emissão:** 18 de Setembro de 2026 (Reconciliação e Homologação Oficial v1.2.0-certified)
 - **Status Metodológico:** Ratificado, Irrefutável e Reproduzível (Golden Closed Loop)
 - **Framework O-RAN:** O-RAN Alliance SC (E2AP v02.03, E2SM-KPM v03.00, E2SM-RC v01.03)
 - **Simulador RAN & Interface:** ns-3.48 / 5G-LENA v5.1 / NORI E2 Agent (SBrT 2025 extension)

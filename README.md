@@ -318,7 +318,20 @@ uv run python scripts/testbed/run_phase3_closed_loop_rc.py
 * **[Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 × F2)](docs/04_relatorio_cientifico_mestre_rdl.md)**
 * **[Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade O-RAN](docs/05_auditoria_e_conformidade_oran.md)**
 * **[Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](docs/06_roadmap_e_pesquisa_futura_6g.md)**
+* **[Volume 07: Relatório de Resultados de Simulação, Baselines e Cenários (S0–S15)](docs/07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
 * **[Portal de Documentação e Trilhas de Leitura](docs/README.md)**
+
+---
+
+## 7. Informações Acadêmicas e Governança
+
+- **Autor do Projeto:** George Alexandro Ferreira Barbosa
+- **Orientador:** Prof. Dr. André Riker
+- **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC)
+- **Programa:** Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
+- **Área de Concentração:** Sistemas de Computação e Redes de Comunicação
+- **Linha de Pesquisa:** Redes Sem Fio Inteligentes, Open RAN e Arquiteturas Cognitivas 6G
+- **Release Homologada:** `v1.2.0-certified` (18 de setembro de 2026)
 
 ---
 

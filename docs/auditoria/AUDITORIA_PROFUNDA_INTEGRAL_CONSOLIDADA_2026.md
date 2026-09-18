@@ -8,6 +8,8 @@
 - **Documento:** Laudo de Auditoria Técnico-Científica Unificada e Rastreabilidade Temporal
 - **Projeto:** xApp RDL (*Resource and Decision Layer*) — Fase 1 (H-RDL Determinística) & Fase 2 (CA-RDL Cognitiva/Safe-RL)
 - **Autor do Projeto:** George Alexandro Ferreira Barbosa
+- **Orientador:** Prof. Dr. André Riker
+- **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC) — PPGCOMP
 - **Janela Temporal Auditada:** 03 de setembro de 2026 a 18 de setembro de 2026 (15 dias de desenvolvimento e experimentação)
 - **Data de Emissão do Laudo:** 18 de setembro de 2026
 - **Status do Laudo:** **TOTALMENTE CONFORME (Aprovado com Rigor Metodológico e Não-Repúdio)**
