@@ -59,3 +59,13 @@ Documenta a superação da lacuna metodológica de prova causal, o fechamento do
 
 ### [Volume 06: Roadmap de Pesquisa (2026–2028), Fase 3 e RDL Autônoma 6G](06_roadmap_e_pesquisa_futura_6g.md)
 Delineia a evolução do projeto em direção ao 6G Zero-Touch, detalhando a governança por intenção via interface A1, aprendizado federado multi-RIC, coordenação SAGIN (Space-Air-Ground) e cronograma da campanha experimental física no laboratório GreenRAN/UFPA.
+
+---
+
+### [Trilha Especial: Auditoria de Estabilização e Aditivos da Tríade Documental](auditoria/PARECER_CONSOLIDADO_ATUALIZACAO_TRIPLA_AUDITORIA_2026.md)
+Documentos canônicos de conciliação formal pós-homologação da release `v1.2.0-certified`, alinhando os artefatos do repositório à Dissertação de Mestrado, ao Relatório Técnico e aos Slides de Defesa:
+- **[Parecer Mestre Consolidado](auditoria/PARECER_CONSOLIDADO_ATUALIZACAO_TRIPLA_AUDITORIA_2026.md)**
+- **[Aditivo do Relatório Técnico H-RDL](auditoria/ATUALIZACAO_RELATORIO_TECNICO_HRDL_2026.md)**
+- **[Aditivo da Dissertação de Mestrado H-RDL](auditoria/ATUALIZACAO_DISSERTACAO_HRDL_2026.md)**
+- **[Aditivo da Apresentação de Estado Atual](auditoria/ATUALIZACAO_APRESENTACAO_ESTADO_ATUAL_HRDL_2026.md)**
+- **[Laudo de Estabilização e Prova Experimental](auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md)**

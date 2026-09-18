@@ -118,3 +118,5 @@ Thumbs.db
 
 # 12. Scripts PowerShell locais de automação IDE
 *.ps1
+
+!docs/auditoria/ATUALIZACAO_DISSERTACAO_HRDL_2026.md

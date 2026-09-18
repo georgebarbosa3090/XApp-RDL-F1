@@ -200,7 +200,14 @@ Desacoplamento do backend de rádio via `RadioBackendAdapter` (`src/e2/backends/
 - **Gate 3 (Closed Loop RC):** Fechamento de malha com confirmação e efeito causal via `scripts/testbed/run_phase3_closed_loop_rc.py`.
 - **Gate 4 e Gate 5 (SDR USRP B210 e COTS UEs):** Parametrizações em banda n78 (3.41 GHz) e guia de gravação de SIMs documentados em `configs/testbed_sdr/`.
 
-O laudo formal completo está disponível em [`docs/auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md`](auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md).
+### 7.5. Reconciliação e Aditivos da Tríade Documental
+Para manter o alinhamento 100% rigoroso entre os artefatos do repositório e a produção acadêmica, foram emitidos aditivos formais em `docs/auditoria/`:
+- **Parecer Mestre Consolidado:** [`PARECER_CONSOLIDADO_ATUALIZACAO_TRIPLA_AUDITORIA_2026.md`](auditoria/PARECER_CONSOLIDADO_ATUALIZACAO_TRIPLA_AUDITORIA_2026.md)
+- **Aditivo do Relatório Técnico:** [`ATUALIZACAO_RELATORIO_TECNICO_HRDL_2026.md`](auditoria/ATUALIZACAO_RELATORIO_TECNICO_HRDL_2026.md)
+- **Aditivo da Dissertação de Mestrado:** [`ATUALIZACAO_DISSERTACAO_HRDL_2026.md`](auditoria/ATUALIZACAO_DISSERTACAO_HRDL_2026.md)
+- **Aditivo da Apresentação de Estado Atual:** [`ATUALIZACAO_APRESENTACAO_ESTADO_ATUAL_HRDL_2026.md`](auditoria/ATUALIZACAO_APRESENTACAO_ESTADO_ATUAL_HRDL_2026.md)
+- **Laudo de Estabilização e Prova Experimental:** [`RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md`](auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md)
+
 
 
 
