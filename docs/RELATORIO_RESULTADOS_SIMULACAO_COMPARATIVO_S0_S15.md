@@ -9,7 +9,7 @@
 ### Metadados e Controle de Governança Experimental
 - **Título do Documento:** Relatório Técnico-Científico Consolidado de Resultados de Simulação, Baselines e Cenários
 - **Autor Principal:** George Alexandro Ferreira Barbosa (PPGCOMP / UFPA)
-- **Orientador:** Prof. Dr. Carlos Renato Lisboa Francês
+- **Orientador:** Prof. Dr. André Riker
 - **Framework O-RAN:** O-RAN Alliance (WG2 A1-P v03.01, WG3 E2AP v02.03, E2SM-KPM v02.03, E2SM-RC v01.03)
 - **Plataforma de Simulação:** ns-3.48 / 5G-LENA v5.1 / NORI E2 Agent / OSC Near-RT RIC
 - **Matriz Canônica de Referência:** `experiments/results/canonical_simulation_master.csv` (SSOT)
