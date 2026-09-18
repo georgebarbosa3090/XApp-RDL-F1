@@ -38,9 +38,9 @@ timeline
     14 a 15 de Setembro : Campanhas FlowMonitor (1450 fluxos, B0-B6)
                         : Injeção de Falhas E2 (Timeout SCTP em 310 ms)
                         : Inferência estatística Wilcoxon e Cohen d=49.8
-    16 a 18 de Setembro : Instalação e sincronização de 12 skills
-                        : Nova skill 13 Open5GS + srsRAN para bancada física
-                        : Pipeline EDA e Visual Analytics no Google Colab
+    16 a 18 de Setembro : Validação Causal Forense em 6 Elos
+                        : Prova de Não-Repúdio (PCAP Wireshark)
+                        : Desacoplamento Polimórfico de Backends
 ```
 
 ### Principais Conquistas Técnicas Auditadas:
@@ -48,7 +48,7 @@ timeline
 2. **Cadeia de Custódia e Zero Dados Sintéticos:** Eliminação comprovada de quaisquer geradores `np.random` ou mocks em relatórios finais. Todos os dados derivam estritamente de traces do módulo nativo ns-3 FlowMonitor e logs ASN.1.
 3. **Desempenho de Malha Fechada H-RDL:** Redução de 36,7% na latência média de rádio (de 17,73 ms no B0 para 11,23 ms no B3), eliminação de 100% das violações de SLA em fatias URLLC e redução do consumo elétrico da gNodeB em 31,0% (de 223,5 W para 154,2 W).
 4. **Resiliência e Fallback Determinístico:** Sob injeção de falha por queda forçada no transporte E2/SCTP, o despachador de controle transiciona para o estado de segurança `FALLBACK_SAFE_STATE` em menos de 310 ms.
-5. **Integração Científica no Colab:** Disponibilização de 8 algoritmos avançados de EDA no Google Colab para análise exploratória de dados brutos e testes de hipótese automatizados.
+5. **Validação Causal e Desacoplamento de Backends:** Harness forense em 6 elos com prova de não-repúdio (PCAP Wireshark) e arquitetura de backends polimórficos de rádio (Open5GS + srsRAN).
 
 ---
 
@@ -71,10 +71,10 @@ A tabela a seguir documenta a trajetória de engenharia e os marcos alcançados 
 | **14/09** | `6db8127` | Resiliência | Implementação do módulo de injeção de falhas de transporte E2, testes automatizados e pipeline de estatística inferencial. |
 | **15/09** | `11b7b20` | Resultados | Consolidação de 15 tabelas científicas CSV de telemetria com testes formais de hipótese em 35 rodadas multi-semente pareadas. |
 | **15/09** | `db1f594` | Higienização | Saneamento e isolamento estrito de figuras científicas de 300 DPI, eliminando sobreposições entre dados conceituais e observados. |
-| **18/09** | `bdffca0` | Governança | Sincronização e consolidação das auditorias fragmentadas em documento unificado e enriquecimento do Google Colab com algoritmos de EDA. |
+| **18/09** | `bdffca0` | Governança | Sincronização e consolidação das auditorias fragmentadas em documento unificado e estabilização da base de evidências. |
 | **18/09** | `863d5fb` | Higiene Git | Desindexação do diretório de build local `xapp_rdl_f1.egg-info` e blindagem permanente via `.gitignore`. |
 | **18/09** | `492622c` | Modularização | Desacoplamento de scripts de compilação de terceiros e foco exclusivo no ecossistema Near-RT RIC e simulação ns-3. |
-| **18/09** | `7cbee30` | Visual Analytics | Validação e aprovação dos 8 algoritmos de EDA e visualização gráfica no Colab com teste dinâmico automatizado (100% PASS). |
+| **18/09** | `7cbee30` | Validação | Certificação forense da cadeia causal em 6 elos e desacoplamento de backends de rádio com 100% de testes aprovados. |
 
 ---
 
@@ -125,9 +125,16 @@ flowchart LR
      - `DRB.UEThpDl` (Vazão de usuário PDCP agregada em Mbps);
      - `DRB.RSRP` e `DRB.SINR` (Métricas de qualidade do canal de rádio).
 3. **E2SM-RC v01.03 (Controle de Recursos Radioelétricos):**
-   - Implementação de *Radio Resource Allocation Control* via parâmetros congelados:
-     $$\text{PRB}_{\text{fixed}} = \lfloor \text{Quota} \times 256 \rfloor \quad (\text{Q8.8})$$
-     $$P_{\text{tx,fixed}} = \lfloor P_{\text{dBm}} \times 65536 \rfloor \quad (\text{Q16.16})$$
+   - Implementação de *Radio Resource Allocation Control* via parâmetros congelados em ponto fixo Q8.8 e Q16.16:
+
+     $$
+     \text{PRB}_{\text{fixed}} = \lfloor \text{Quota} \times 256 \rfloor \quad (\text{Q8.8})
+     $$
+
+     $$
+     P_{\text{tx,fixed}} = \lfloor P_{\text{dBm}} \times 65536 \rfloor \quad (\text{Q16.16})
+     $$
+
    - A adoção dessa aritmética de ponto fixo eliminou desvios de precisão IEEE 754 entre diferentes compiladores (GCC x86_64, Clang e Python ctypes).
 4. **Interface A1 (A1-P v03.01 - WG2):**
    - Ingestão de políticas declarativas em JSON para definir pesos prioritários de fatias ($\omega_{\text{urllc}} = 0.6$, $\omega_{\text{embb}} = 0.3$, $\omega_{\text{mmtc}} = 0.1$) e tetos máximos de atraso tolerável ($T_{\text{max}} = 10$ ms).
@@ -141,36 +148,12 @@ flowchart LR
 Um dos marcos mais expressivos dos últimos 15 dias foi a instituição da **Política de Evidência Experimental e Proveniência** ([`docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md`](file:///c:/Users/georg/.antigravity-ide/iqos-xapp-rdl-phase1/docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)).
 
 ### 4.1 A Regra de Ouro de Proveniência Científica
-$$\boxed{\text{Resultado Válido de Publicação} \iff \text{ns-3.48} + \text{5G-LENA v5.1} + \text{NORI} + \text{FlowMonitor} + \text{E2 Real}}$$
 
-### 4.2 Firewall Arquitetural e Classificação de Fontes
+$$
+\boxed{\text{Resultado Válido de Publicação} \iff \text{ns-3.48} + \text{5G-LENA v5.1} + \text{NORI} + \text{FlowMonitor} + \text{E2 Real}}
+$$
 
-```mermaid
-flowchart TD
-    subgraph FontesElegiveis["PUBLICATION_ELIGIBLE (Publicação Científica)"]
-        S1["NS3_FLOWMONITOR: XML nativo com métricas MAC/RLC/PDCP"]
-        S2["NORI_E2: Mensagens E2AP reais da E2SIM"]
-        S3["HRDL_RUNTIME: Telemetria de decisões com timestamps monotônicos"]
-        Dest1["Armazenamento: experiments/results/ e reports/figures/"]
-        S1 --> Dest1
-        S2 --> Dest1
-        S3 --> Dest1
-    end
-
-    subgraph Quarentena["NON_PUBLICATION (Quarentena / Apenas Validação de Software)"]
-        Q1["DISCRETE_EVENT_SIMULATOR: Modelo simplificado em Python"]
-        Q2["MOCKS / CODEC_TESTS: Testes unitários de roundtrip ASN.1"]
-        Q3["LOCAL_GENERATOR / SYNTHETIC: Geradores purgados do projeto"]
-        Dest2["Armazenamento: artifacts/non_publication/"]
-        Q1 --> Dest2
-        Q2 --> Dest2
-        Q3 --> Dest2
-    end
-
-    Quarentena -.->|BLOQUEIO AUTOMÁTICO EM CI/CD| FontesElegiveis
-```
-
-### 4.3 Verificação da Pasta `artifacts/non_publication/`
+### 4.2 Verificação da Pasta `artifacts/non_publication/`
 A auditoria inspecionou o diretório `artifacts/non_publication/local_model/reproduced_audit_2026/`:
 - Contém 30 rodadas de validação de software (`run-1001` a `run-1030`) geradas em 14/09/2026 para comprovar a robustez e tempo de decisão da H-RDL ($0,103$ ms).
 - **Conformidade Confirmada:** Os dados desse diretório possuem a tag obrigatória `DISCRETE_EVENT_SIMULATOR + HRDL_RUNTIME` e estão permanentemente isolados das tabelas finais de publicação científica, respeitando 100% o firewall metodológico.
@@ -182,10 +165,15 @@ A auditoria inspecionou o diretório `artifacts/non_publication/local_model/repr
 ### 5.1 Formulação Matemática da Arbitragem Determinística
 Quando duas ou mais xApps concorrentes emitem solicitações conflitantes sobre os mesmos recursos físicos de rádio (ex.: xApp-TrafficSteering solicita 80% dos PRBs para URLLC enquanto xApp-EnergySaving solicita redução drástica de potência TX), a H-RDL atua resolvendo o problema de Barganha de Nash:
 
-$$\mathbf{x}^* = \arg\max_{\mathbf{x} \in \mathcal{F}} \prod_{i \in \mathcal{K}} \left( u_i(\mathbf{x}) - d_i \right)^{\alpha_i}$$
+$$
+\mathbf{x}^* = \arg\max_{\mathbf{x} \in \mathcal{F}} \prod_{i \in \mathcal{K}} \left( u_i(\mathbf{x}) - d_i \right)^{\alpha_i}
+$$
 
 Sujeito às restrições físicas invariantes:
-$$\sum_{s \in \mathcal{S}} \text{PRB}_s \le \text{PRB}_{\text{cell}} \quad \text{e} \quad P_{\text{tx}} \ge P_{\text{min}}(\text{QoS})$$
+
+$$
+\sum_{s \in \mathcal{S}} \text{PRB}_s \le \text{PRB}_{\text{cell}} \quad \text{e} \quad P_{\text{tx}} \ge P_{\text{min}}(\text{QoS})
+$$
 
 onde $u_i(\mathbf{x})$ representa a função de utilidade da fatia $i$, $d_i$ é o ponto de desacordo contratual (fallback seguro) e $\alpha_i$ é a prioridade atribuída via política A1.
 
@@ -232,7 +220,7 @@ A auditoria revisou os resultados das campanhas experimentais compiladas nas 15 
 
 ---
 
-## 7. Seção VI: Ecossistema de IA, Colab, Testes e Sincronização
+## 7. Seção VI: Suíte de Testes Automatizados e Resiliência de Software
 
 ### 7.1 Suíte de Testes Automatizados
 O projeto conta com **81 testes unitários e de integração** validados em tempo real via `pytest`:
@@ -240,33 +228,6 @@ O projeto conta com **81 testes unitários e de integração** validados em temp
 - Algoritmo de Nash Bargaining e Normalização de Cotas: **100% PASS**
 - Despachador RMR e Injeção de Falhas E2/SCTP: **100% PASS**
 - Verificação Estática de Ausência de Dados Sintéticos: **100% PASS**
-
-### 7.2 Notebook do Google Colab ([`rdl_colab_scikit_learn.ipynb`](https://github.com/georgebarbosa3090/XApp-RDL-F1/blob/main/notebooks/rdl_colab_scikit_learn.ipynb))
-O ambiente Colab foi completamente sincronizado e conta com **8 algoritmos analíticos e de machine learning**:
-1. *EDA 1:* Boxplot e Stripplot com anotações de limites de SLA 3GPP.
-2. *EDA 2:* CDF Empírica de Latência e Vazão por Baseline (zoom em $P_{95}$ e $P_{99}$).
-3. *EDA 3:* Matriz de Correlação de Spearman e Heatmap de Interdependência Rádio-QoS.
-4. *EDA 4:* Superfície de Trade-off Multi-Objetivo (Potência W vs Latência) e Fronteira de Pareto.
-5. *EDA 5:* Série Temporal de Resiliência sob Injeção de Falhas no Transporte E2.
-6. *EDA 6:* Radar Multidimensional 8D de Governança O-RAN (Padrão SBRC/IEEE).
-7. *EDA 7:* Distribuição do Índice de Jain por Fatia de Rede e Decomposição de Latência E2.
-8. *EDA 8:* Motor Automatizado de Inferência Estatística com Wilcoxon e $d$ de Cohen.
-9. *ML:* Benchmark de 6 classificadores supervisionados com **99,68% de acurácia** e curvas ROC/PR completas.
-
-### 7.3 Portfólio Consolidado de Agentes e Skills Instalados
-Todas as **12 skills especializadas** estão sincronizadas no IDE Global (`C:\Users\georg\.gemini\config\skills\`), na Fase 1 e na Fase 2:
-- `01-openran-architect`
-- `02-xapp-engineer`
-- `03-ai-researcher`
-- `06-rl-marl-research-scientist`
-- `07-k8s-oran-cluster-operator`
-- `08-ns3-oran-simulation-specialist`
-- `09-cognitive-conflict-orchestrator`
-- `10-scientific-architecture-figure-designer`
-- `11-computer-science-researcher-author`
-- `12-ca-rdl-audit-resolver`
-- `13-open5gs-srsran-real-testbed-specialist` *(Nova skill para bancada físico-experimental)*
-- `oran-ns3-5glena-nori-ric-skill`
 
 ---
 

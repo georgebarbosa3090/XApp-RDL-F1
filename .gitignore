@@ -51,10 +51,9 @@ paper_sbrc/
 *Dissertacao*
 *dissertacao*
 
-# Explicitly allow docs/auditoria documentation sources (excluding pdfs and scratch text)
-!docs/auditoria/*.md
-!docs/auditoria/*.typ
-docs/auditoria/*extracted.txt
+# docs/auditoria: PERMITE ESTRITAMENTE APENAS AUDITORIA_PROFUNDA_INTEGRAL_CONSOLIDADA_2026.md
+docs/auditoria/*
+!docs/auditoria/AUDITORIA_PROFUNDA_INTEGRAL_CONSOLIDADA_2026.md
 
 # 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
 scripts/compile_dissertation*.py
@@ -124,4 +123,3 @@ Thumbs.db
 # 12. Scripts PowerShell locais de automação IDE
 *.ps1
 
-!docs/auditoria/ATUALIZACAO_DISSERTACAO_HRDL_2026.md
