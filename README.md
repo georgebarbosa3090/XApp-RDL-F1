@@ -231,6 +231,35 @@ uv run pytest tests/
 powershell -ExecutionPolicy Bypass -File scripts/git_sync.ps1
 ```
 
+### 4.9. Validação Causal Forense em 6 Elos e Matriz SSOT Canônica (`v1.2.0-certified`)
+A partir da versão estável homologada `v1.2.0-certified`, o projeto opera com uma **Fonte Única da Verdade (SSOT)** e **Harness Causal Forense**:
+```bash
+# 1. Regeneração atômica em cascata de todas as 6 tabelas a partir da SSOT
+uv run python scripts/reconcile_all_tables_and_docs.py
+
+# 2. Verificação de Não-Repúdio da Cadeia Causal em 6 Elos
+uv run python scripts/verify_causal_chain.py
+# Saída esperada: CERTIFIED_NON_REPUDIABLE (Root Hash validado)
+```
+- **Matriz Canônica Central:** [`experiments/results/canonical_simulation_master.csv`](experiments/results/canonical_simulation_master.csv)
+- **Manifest Criptográfico de Figuras:** [`reports/figures/figures_manifest.json`](reports/figures/figures_manifest.json) (25 figuras vinculadas ao SHA-256 raiz da SSOT)
+- **Repositório Forense da Cadeia Causal:** [`experiments/runs/certified_closed_loop_chain/`](experiments/runs/certified_closed_loop_chain/) (inclui captura Wireshark [`e2_closed_loop_live.pcap`](experiments/runs/certified_closed_loop_chain/e2_closed_loop_live.pcap))
+
+### 4.10. Integração Incremental com Bancada Real (Open5GS + srsRAN)
+A governança H-RDL mantém-se idêntica, alterando-se exclusivamente o adaptador de backend de rádio (`src/e2/backends/`):
+```bash
+# Gate 1: Validação Virtual ZeroMQ (Open5GS Core + srsRAN gNB + srsUE)
+uv run python scripts/testbed/run_phase1_zmq_baseline.py
+
+# Gate 2: Telemetria E2 e Subscrição KPM Periódica (SCTP porta 36422)
+uv run python scripts/testbed/run_phase2_e2_telemetry_loop.py
+
+# Gate 3: Fechamento de Malha E2SM-RC e Comprovação Causal
+uv run python scripts/testbed/run_phase3_closed_loop_rc.py
+```
+- **Configurações ZMQ Virtual:** [`configs/testbed_zmq/`](configs/testbed_zmq/)
+- **Parametrização SDR USRP B210 (n78) e Provisionamento COTS:** [`configs/testbed_sdr/`](configs/testbed_sdr/)
+
 ---
 
 ## 5. Galeria de Figuras Científicas e Tabelas CSV

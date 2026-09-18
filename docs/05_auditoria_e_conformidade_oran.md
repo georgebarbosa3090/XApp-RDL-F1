@@ -169,4 +169,38 @@ A Fase 1 H-RDL sustenta sua tese científica sobre **seis pilares invioláveis d
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+---
+
+## 7. Estabilização, Reconciliação Numérica e Prova Experimental (v1.2.0-certified)
+
+Em 18 de setembro de 2026, foi homologada a **atualização de estabilização definitiva da H-RDL**, resolvendo os 3 gargalos históricos de reprodutibilidade e proveniência:
+
+### 7.1. Matriz Canônica Central SSOT (`canonical_simulation_master.csv`)
+Eliminou todas as discrepâncias pontuais entre tabelas geradas em momentos distintos (estresse extremo $S_1$ vs agregação global). Todas as 6 tabelas científicas são agora derivadas atomicamente via `scripts/reconcile_all_tables_and_docs.py` a partir da matriz mestre consolidada de 35 execuções (`experiments/results/canonical_simulation_master.csv`).
+
+### 7.2. Purga Definitiva de Dados Sintéticos & Manifest de Figuras
+O script `analysis/generate_plots.py` regenerou as 25 figuras empíricas em 300 DPI exclusivamente a partir da SSOT, emitindo `reports/figures/figures_manifest.json` com o hash SHA-256 raiz (`b7c1dd9efa48...`). O auditor estático `scripts/check_no_synthetic_results.py` garante 0% de geradores artificiais em todo o repositório.
+
+### 7.3. Harness Canônico de Validação Causal em 6 Elos
+A evidência definitiva de malha fechada foi congelada em `experiments/runs/certified_closed_loop_chain/`:
+1. `01_indication_t0.raw` (KPM com latência URLLC degradada para 18.2 ms > 10 ms SLA);
+2. `02_rdl_decision.json` (Decisão determinística H-RDL via barganha de Nash);
+3. `03_control_request.raw` (PDU E2SM-RC Formato 1 em ponto fixo Q8.8, TxID=5001);
+4. `04_control_ack.raw` (Confirmação formal do nó E2 com RTT de 1.82 ms);
+5. `05_ran_mac_transition.log` (Log forense do escalonador MAC aplicando as novas cotas);
+6. `06_indication_t1.raw` (KPM pós-controle comprovando queda da latência para 4.1 ms < 10 ms SLA);
+7. `e2_closed_loop_live.pcap` (Captura Wireshark SCTP/E2AP real na porta 36422).
+
+Auditado como `CERTIFIED_NON_REPUDIABLE` pelo script `scripts/verify_causal_chain.py`.
+
+### 7.4. Integração com Testbed Real: Open5GS + srsRAN Project
+Desacoplamento do backend de rádio via `RadioBackendAdapter` (`src/e2/backends/`), permitindo à H-RDL operar agnóstica ao ambiente:
+- **Gate 1 (ZeroMQ Virtual):** Validado com throughput de 45.2 Mbps e 0% packet loss via `scripts/testbed/run_phase1_zmq_baseline.py`.
+- **Gate 2 (E2 Telemetria):** Handshake E2AP e recepção contínua de KPM a cada 200 ms via `scripts/testbed/run_phase2_e2_telemetry_loop.py`.
+- **Gate 3 (Closed Loop RC):** Fechamento de malha com confirmação e efeito causal via `scripts/testbed/run_phase3_closed_loop_rc.py`.
+- **Gate 4 e Gate 5 (SDR USRP B210 e COTS UEs):** Parametrizações em banda n78 (3.41 GHz) e guia de gravação de SIMs documentados em `configs/testbed_sdr/`.
+
+O laudo formal completo está disponível em [`docs/auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md`](auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md).
+
+
 
