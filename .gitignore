@@ -23,8 +23,10 @@ experiments/results/rdl_phase2/
 *phase2*
 
 # 4. Notebooks do Google Colab e Análises Locais
-notebooks/
+notebooks/*
+!notebooks/rdl_colab_scikit_learn.ipynb
 *.ipynb
+!notebooks/rdl_colab_scikit_learn.ipynb
 .ipynb_checkpoints/
 
 # 5. Artigos Científicos, Papers e Fontes LaTeX
