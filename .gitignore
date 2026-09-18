@@ -45,6 +45,8 @@ paper_sbrc/
 *.fdb_latexmk
 
 # 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
+scripts/compile_dissertation*.py
+*compile_dissertation*
 scripts/run_multi_seed_evaluation.py
 scripts/run_and_analyze_benchmarks.py
 scripts/plot_ns3_benchmarks.py

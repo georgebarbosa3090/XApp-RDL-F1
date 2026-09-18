@@ -113,66 +113,19 @@ A auditoria confirma que os ganhos apresentados não decorrem de flutuações am
 
 ---
 
-## 5. Seção IV: Avaliação da Dissertação de Mestrado (PPGC/UFPA)
+## 5. Seção IV: Auditoria Profunda Realizada Hoje (18/09/2026)
 
-Foi auditada a versão compilada da dissertação (`Dissertacao_h-rdl_15_09_2026.pdf`) e seu código-fonte Typst (`Dissertacao_h-rdl_15_09_2026_completa.typ`):
-1. **Estrutura e Linguagem:** Segue com rigor as normas do PPGC/UFPA e da SBC, com notação matemática consistente (vetores em negrito, matrizes em maiúsculas com serifa, operadores com limites explicitados).
-2. **Segregação de Figuras:** Figuras conceituais/analíticas estão devidamente alocadas em `docs/figures/01_modelos_analiticos_e_conceituais/`, enquanto gráficos empíricos com barras de erro derivam diretamente dos logs de simulação.
-3. **Capítulos Auditados:**
-   - *Capítulo 1 (Introdução):* Motivação bem fundamentada no desacoplamento O-RAN e conflitos xApp.
-   - *Capítulo 2 (Referencial Teórico):* Cobertura exaustiva de E2SM-KPM/RC, 5G-LENA e Teoria de Jogos.
-   - *Capítulo 3 (Arquitetura H-RDL):* Formulação matemática elegante e à prova de ambiguidades.
-   - *Capítulo 4 (Metodologia e Co-Simulação):* Detalhamento da infraestrutura K8s, ns-3 e canais 3GPP 38.901.
-   - *Capítulo 5 (Resultados e Discussão):* Análise comparativa profunda com 30 figuras e 20 tabelas.
-   - *Capítulo 6 (Conclusão e Trabalhos Futuros):* Pontes sólidas para a Fase 2 (CA-RDL) e redes 6G.
+Na auditoria realizada nesta data, foram executadas checagens dinâmicas e de conformidade no repositório:
 
----
-
-## 6. Seção V: Nova Auditoria Profunda Realizada Hoje (18/09/2026)
-
-Na auditoria realizada nesta data, foram executadas checagens dinâmicas no repositório:
-
-### 6.1 Status do Código e Sincronização Git
-- **Sincronização com GitHub:** O repositório local `XApp-RDL-F1` foi atualizado via `git pull --rebase` com o `origin/main`, integrando commits de co-simulação e figuras analíticas segregadas.
-- **Resolução de Conflitos:** Conflitos pontuais de merge em `Dissertacao_h-rdl_15_09_2026_completa.typ` e `scripts/compile_dissertation_v2.py` foram resolvidos em favor da versão segregada de figuras analíticas (`docs/figures/01_modelos_analiticos_e_conceituais/`).
+### 5.1 Status do Código e Sincronização Git
+- **Sincronização com GitHub:** O repositório local `XApp-RDL-F1` foi atualizado via `git pull --rebase` com o `origin/main`, integrando commits de co-simulação e segregação de figuras analíticas.
+- **Segregação e Integridade:** Figuras conceituais e analíticas estão estritamente segregadas em `docs/figures/01_modelos_analiticos_e_conceituais/`, enquanto dados empíricos derivam diretamente das tabelas de telemetria FlowMonitor.
 - **Árvore de Trabalho:** Encontra-se 100% limpa (`working tree clean`).
 
-### 6.2 Auditoria do Módulo de Injeção de Falhas e Resiliência E2
+### 5.2 Auditoria do Módulo de Injeção de Falhas e Resiliência E2
 - Foi auditado o arquivo `tests/unit/test_control_dispatcher_fault_injection.py` e `src/coordination/control_dispatcher.py`:
   - Injeção de Timeout SCTP ($> 2.000$ ms) testada com mock de socket.
   - O despachador detecta o evento de timeout e transiciona para o estado de emergência `FALLBACK_SAFE_STATE` em menos de 350 ms.
   - Nenhuma mensagem E2SM-RC corrompida ou fora de ordem é transmitida durante a janela de falha.
   - Teste automatizado executado com sucesso: aprovação em 100% dos casos de borda.
 
-### 6.3 Instalação e Disponibilidade dos Agentes e Skills
-- Todas as 11 skills especializadas de inteligência artificial, simulação e arquitetura O-RAN foram auditadas e instaladas nos três diretórios de execução:
-  1. `C:\Users\georg\.gemini\config\skills\` (Global)
-  2. `C:\Users\georg\.antigravity-ide\iqos-xapp-rdl-phase1\.agents\skills\` (Fase 1)
-  3. `C:\Users\georg\.antigravity-ide\iqos-xapp-rdl-phase2\.agents\skills\` (Fase 2)
-- As 11 skills ativas e verificadas são:
-  - `01-openran-architect`
-  - `02-xapp-engineer`
-  - `03-ai-researcher`
-  - `06-rl-marl-research-scientist`
-  - `07-k8s-oran-cluster-operator`
-  - `08-ns3-oran-simulation-specialist`
-  - `09-cognitive-conflict-orchestrator`
-  - `10-scientific-architecture-figure-designer`
-  - `11-computer-science-researcher-author`
-  - `12-ca-rdl-audit-resolver`
-  - `oran-ns3-5glena-nori-ric-skill`
-
----
-
-## 7. Parecer Final e Certificação de Qualidade
-
-Com base nas análises teóricas, nas verificações de código, nos testes de resiliência e na integridade de telemetria das campanhas experimentais, a Auditoria Técnico-Científica emite o seguinte parecer:
-
-> ### **CERTIFICADO DE CONFORMIDADE E EXCELÊNCIA**
-> O projeto **XApp-RDL (Fase 1: H-RDL & Fase 2: CA-RDL)** atende integralmente a todos os critérios de rigor científico, reprodutibilidade, conformidade com os padrões da O-RAN Alliance e excelência acadêmica exigidos para obtenção do grau de Mestre em Ciência da Computação pelo PPGC/UFPA e para publicação em periódicos e anais de conferências de primeira linha (IEEE/ACM/SBC).
->
-> **Nota de Avaliação Global: 9.9 / 10.0**  
-> **Recomendação:** Aprovado sem restrições.
-
----
-*Assinado digitalmente em 18 de setembro de 2026 pelo Corpo de Auditores Especialistas em Sistemas O-RAN e Simulação ns-3.*
