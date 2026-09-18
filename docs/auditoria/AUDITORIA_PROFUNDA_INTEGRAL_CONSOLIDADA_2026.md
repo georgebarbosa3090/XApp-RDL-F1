@@ -48,8 +48,8 @@ A auditoria revisou o alinhamento das implementações com as especificações n
 ### 2.2 Tratamento de Ponto Fixo em Codecs ASN.1
 Um dos achados críticos resolvidos na Fase 1 foi o tratamento de arredondamento em representações de ponto flutuante IEEE 754. A auditoria verificou que:
 - O módulo de codificação E2SM-RC utiliza representação em ponto fixo padronizada:
-  $$\text{PRB\_Quota\_Fixed} = \lfloor \text{Quota} \times 256 \rfloor \quad (\text{Q8.8})$$
-  $$\text{Tx\_Power\_Fixed} = \lfloor \text{Power}_{\text{dBm}} \times 65536 \rfloor \quad (\text{Q16.16})$$
+  $$\text{PRB}_{\text{fixed}} = \lfloor \text{Quota} \times 256 \rfloor \quad (\text{Q8.8})$$
+  $$P_{\text{tx,fixed}} = \lfloor P_{\text{dBm}} \times 65536 \rfloor \quad (\text{Q16.16})$$
 - Essa padronização garante que a serialização ASN.1 PER (*Packed Encoding Rules*) seja estritamente determinística e idêntica entre o Near-RT RIC (Python/C++) e os E2 Nodes simulados no ns-3.
 
 ---
