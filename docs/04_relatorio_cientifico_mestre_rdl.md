@@ -334,9 +334,41 @@ Conforme evidenciado no **Scatter Hexbin SINR × Throughput (Figura 10)** e no g
 
 ![Figura 11 - Curvas de Adaptação de Enlace MCS vs BLER](figures/fig_11_mcs_bler.png)
 
-A correlação multivariada completa entre as variáveis cross-layer é consolidada no pairplot a seguir:
+A correlação multivariada completa entre as variáveis cross-layer (Camada Física, MAC, RLC e Aplicação/QoS) é consolidada no **Dashboard Mestre de Governança Cross-Layer** e detalhada em gráficos modulares especializados:
 
-![Figura 19 - Pairplot Multivariado Cross-Layer PHY/MAC/RLC/App](figures/fig_19_crosslayer_pairplot.png)
+![Figura 19 - Dashboard Mestre de Avaliação Multidimensional Cross-Layer (PHY/MAC/RLC/QoS)](figures/fig_19_crosslayer_pairplot.png)
+
+### 10.1 Análise Detalhada dos Sub-Gráficos Cross-Layer
+
+Para máxima clareza e isolamento analítico de cada dimensão de controle, os dados empíricos são estratificados nos seguintes gráficos especializados:
+
+#### A. Trade-off de Desempenho e Fronteira de Pareto (QoS × Latência)
+Demonstra o envelope ótimo de operação onde as abordagens com governança (**H-RDL B3** e **CA-RDL B6**) atingem a zona de conformidade estrita de SLA (Latência $< 11,5\text{ ms}$ e Vazão $> 100\text{ Mbps}$), enquanto a rede sem governança (B0) sofre com latência severa ($17,8\text{ ms}$) e degradação de vazão ($85,2\text{ Mbps}$).
+
+![Figura 19A - Fronteira de Pareto e Envelope de Latência x Vazão](figures/fig_19a_crosslayer_pareto_throughput_latency.png)
+
+#### B. Acoplamento Físico-Transporte (SINR × Vazão)
+Ilustra o ganho de eficiência espectral: para um mesmo patamar de SINR de rádio ($\approx 15,5\text{ dB}$), **CA-RDL** e **H-RDL** extraem até $+25\%$ mais vazão útil do que B0 e B1, devido à alocação balanceada de esquemas de modulação e codificação (MCS) sem saturação de buffer.
+
+![Figura 19B - Acoplamento Físico-Transporte SINR vs Throughput](figures/fig_19b_crosslayer_phy_sinr_throughput.png)
+
+#### C. Estabilidade do Controle e Supressão de Ping-Pong (PRB × Action Churn)
+Evidencia que políticas desgovernadas (B0/B1) operam com ocupação caótica de PRB ($> 90\%$) e churn inaceitável ($> 0,85\text{ ações/s}$), induzindo oscilações e tempestades de sinalização. **H-RDL** e **CA-RDL** estabilizam o churn em patamares seguros ($< 0,10\text{ ações/s}$) mantendo ocupação equilibrada de PRBs ($78\text{--}80\%$).
+
+![Figura 19C - Supressão de Churn e Ocupação MAC de PRB](figures/fig_19c_crosslayer_mac_stability_churn.png)
+
+#### D. Matriz de Correlação Multivariada Cross-Layer
+Consolida os coeficientes de correlação de Pearson ($r$) entre todas as camadas do stack O-RAN:
+- Forte correlação negativa entre **Vazão e Latência** ($r = -0,97$);
+- Alta correlação positiva entre **Vazão e SINR** ($r = 0,87$);
+- Quase perfeita correlação direta entre **Uso Desordenado de PRB e Latência** ($r = 0,99$).
+
+![Figura 19D - Matriz de Correlação Cross-Layer Global](figures/fig_19d_crosslayer_correlation_heatmap.png)
+
+#### E. Distribuições Marginais por Camada de Protocolo (PHY / MAC / RLC / QoS)
+Boxplots com pontos empíricos individuais destacando a variabilidade mínima e a consistência estatística de **H-RDL (B3)** e **CA-RDL (B6)** frente aos baselines não-coordenados.
+
+![Figura 19E - Distribuição das Métricas por Política de Controle](figures/fig_19e_crosslayer_metric_distributions_violin.png)
 
 ---
 
@@ -638,7 +670,7 @@ $$J_{\text{Jain}}(t) = \frac{\left( \sum_{s=1}^{S} \eta_s(t) \right)^2}{S \sum_{
 | **eMBB (Slice 2)** | 0,56 | 0,74 | 0,82 | **0,93** | **0,96** | $p < 0,001$ |
 | **Agregado Geral ($J_{\text{Jain}}$)** | **0,52** | **0,68** | **0,78** | **0,94** | **0,97** | **$p < 0,001$** |
 
-![Figura 26 - Dinâmica Temporal da Equidade de Jain e Estabilidade Longitudinal](figures/fig_26_jain_fairness_dynamics.png)
+![Figura 26 - Dinâmica Temporal da Equidade de Jain e Estabilidade Longitudinal [MODELO ANALÍTICO]](figures/01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png)
 
 > [!NOTE]
 > **Estabilidade de Equidade:** No baseline predatório B0, o índice de Jain oscila erraticamente entre 0,35 e 0,75 devido à inanição recorrente da fatia URLLC. A introdução da H-RDL (B3) estabiliza o sistema em $t_{settle} = 190\text{ ms}$, sustentando $J \ge 0,94$ estritamente acima do limiar contratual ($J \ge 0,90$).
@@ -659,7 +691,7 @@ $$P_{\text{total}} = N_{\text{TRX}} \cdot (P_0 + \alpha P_{\text{tx}}), \quad \t
 | **B3 (H-RDL Ponto Ótimo)** | **154,2 W** | **101,7** | **0,659 Mbit/J** | **+31,0%** | **0,0%** |
 | **B6 (Safe-MAPPO Pareto)** | **148,6 W** | **105,8** | **0,712 Mbit/J** | **+33,5%** | **0,0%** |
 
-![Figura 27 - Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB](figures/fig_27_energy_vs_qos_tradeoff_eevs.png)
+![Figura 27 - Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB [MODELO ANALÍTICO]](figures/01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png)
 
 ---
 
@@ -673,7 +705,7 @@ A orquestração do ecossistema O-RAN opera em três escalas temporais hierárqu
 | **Near-RT RIC (xApp-RDL)** | E2 (E2AP v02.03) | $1.000\text{ ms}$ | **$200,0\text{ ms}$** | **$0,06\%$ ($0,12\text{ ms}$)** | **Arbitragem tática e resolução de conflitos** |
 | **Real-Time RAN (dApp)** | FAPI / Memória C++ | $5,0\text{ ms}$ | $1,0\text{ ms}$ | $10,0\%$ ($0,10\text{ ms}$) | Escalonamento MAC slot a slot |
 
-![Figura 28 - Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN](figures/fig_28_cross_tier_governance_latency_envelope.png)
+![Figura 28 - Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN [MODELO CONCEITUAL]](figures/01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png)
 
 ---
 
@@ -690,7 +722,7 @@ A robustez da governança determinística foi submetida a teste de estresse com 
 | **Tempo de Recuperação ($t_{\text{recover}}$)** | 8200 ms | **180 ms** | **175 ms** |
 | **Ações Inseguras Disparadas** | 12 | **0** | **0** |
 
-![Figura 29 - Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP](figures/fig_29_resilience_e2_timeout_recovery.png)
+![Figura 29 - Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP [MODELO CONCEITUAL]](figures/01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png)
 
 ---
 
@@ -709,7 +741,7 @@ A síntese global de desempenho comparativo nas 8 dimensões fundamentais de gov
 | **7. Eficiência Energética** | 0,55 | 0,62 | 0,70 | **0,92** | **0,96** |
 | **8. Baixo Overhead Algorítmico** | 1,00 | 0,99 | 0,98 | **0,99 (0,12 ms)** | 0,82 (1,84 ms) |
 
-![Figura 30 - Radar Multidimensional de Desempenho Comparativo em 8 Dimensões](figures/fig_30_sbrc_multidimensional_radar.png)
+![Figura 30 - Radar Multidimensional de Desempenho Comparativo em 8 Dimensões [MODELO ANALÍTICO CONSOLIDADO]](figures/01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png)
 
 ---
 
@@ -800,11 +832,11 @@ Como etapas imediatas de evolução (Fase 3):
 - **`fig_23_decision_windows_tradeoff.png`**: Curvas de Sensibilidade da Janela de Decisão $\Delta t_{win}$ (Trade-off Reatividade $\times$ Churn $\times$ CPU).
 - **`fig_24_implicit_explicit_conflict_confusion.png`**: Matriz de Confusão 5-Classes Normalizada para Classificação e Predição de Conflitos (F1 = 99,0%).
 - **`fig_25_ue_registration_breakdown.png`**: Cronograma Gantt de Registro do UE (PRACH $\to$ RRC $\to$ 5GC Auth $\to$ PDU Session $\to$ E2 KPM = 45,8 ms).
-- **`fig_26_jain_fairness_dynamics.png`**: Dinâmica Temporal do Índice de Equidade de Jain e Estabilidade Longitudinal ($J \ge 0,94$).
-- **`fig_27_energy_vs_qos_tradeoff_eevs.png`**: Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB ($+31,0\%$ economia).
-- **`fig_28_cross_tier_governance_latency_envelope.png`**: Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN (rApp $\times$ xApp $\times$ dApp).
-- **`fig_29_resilience_e2_timeout_recovery.png`**: Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP (Cenário S7).
-- **`fig_30_sbrc_multidimensional_radar.png`**: Radar Multidimensional de Desempenho Comparativo em 8 Dimensões.
+- **`01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png`**: [MODELO ANALÍTICO] Dinâmica Temporal do Índice de Equidade de Jain e Estabilidade Longitudinal ($J \ge 0,94$).
+- **`01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png`**: [MODELO ANALÍTICO] Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB ($+31,0\%$ economia).
+- **`01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png`**: [MODELO CONCEITUAL] Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN (rApp $\times$ xApp $\times$ dApp).
+- **`01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png`**: [MODELO CONCEITUAL] Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP (Cenário S7).
+- **`01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png`**: [MODELO ANALÍTICO CONSOLIDADO] Radar Multidimensional de Desempenho Comparativo em 8 Dimensões.
 
 ### Tabelas Científicas Consolidadas (CSV) em `experiments/results/tables/`
 1. **`configuration.csv`**: Parâmetros congelados de simulação e topologia 3GPP/O-RAN.
