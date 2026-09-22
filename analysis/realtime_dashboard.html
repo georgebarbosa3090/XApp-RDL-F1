@@ -3,43 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5G / O-RAN Real-Time Protocol Analyzer & Telemetry Dashboard</title>
+    <title>Suite de Demonstração em Tempo Real: Governança Cognitiva xApp-RDL (5G/O-RAN)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-base: #0a0e17;
-            --bg-card: rgba(18, 24, 38, 0.75);
+            --bg-card: rgba(18, 24, 38, 0.85);
             --bg-card-border: rgba(255, 255, 255, 0.08);
-            --bg-card-hover: rgba(26, 35, 54, 0.85);
+            --bg-card-hover: rgba(26, 35, 54, 0.95);
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             --text-accent: #38bdf8;
             
-            /* Stage Colors */
-            --c-stage-1: #38bdf8; /* Sky Blue - PHY/MAC */
-            --c-stage-2: #818cf8; /* Indigo - RRC */
-            --c-stage-3: #c084fc; /* Purple - NAS 5G-AKA */
-            --c-stage-4: #fbbf24; /* Amber - PDU SMF/UPF */
-            --c-stage-5: #34d399; /* Emerald - E2term O-RAN */
+            /* Phase Colors */
+            --c-p1: #38bdf8; /* Sky Blue - UE Reg */
+            --c-p2: #818cf8; /* Indigo - KPM Ingest */
+            --c-p3: #fbbf24; /* Amber - Proposals */
+            --c-p4: #c084fc; /* Purple - Knowledge Graph */
+            --c-p5: #34d399; /* Emerald - Reasoning */
+            --c-p6: #06b6d4; /* Cyan - E2SM-RC Dispatch */
+            --c-p7: #10b981; /* Green - RAN Application */
             
-            --c-success: #10b981;
-            --c-warning: #f59e0b;
             --c-danger: #ef4444;
-            --c-cyan: #06b6d4;
-            
             --glow-cyan: 0 0 20px rgba(6, 182, 212, 0.25);
             --glow-emerald: 0 0 20px rgba(52, 211, 153, 0.25);
             --glow-purple: 0 0 20px rgba(192, 132, 252, 0.25);
+            --glow-amber: 0 0 20px rgba(251, 191, 36, 0.25);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -47,21 +42,21 @@
             color: var(--text-main);
             min-height: 100vh;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(192, 132, 252, 0.05) 0%, transparent 40%),
-                linear-gradient(to bottom, #0a0e17, #06090e);
+                radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 85%, rgba(192, 132, 252, 0.06) 0%, transparent 40%),
+                linear-gradient(to bottom, #0a0e17, #05070b);
             overflow-x: hidden;
         }
 
         /* Top Header */
         header {
-            padding: 1rem 2rem;
-            background: rgba(10, 14, 23, 0.85);
+            padding: 0.85rem 2rem;
+            background: rgba(10, 14, 23, 0.9);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--bg-card-border);
             position: sticky;
             top: 0;
-            z-index: 50;
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -85,16 +80,16 @@
         }
 
         .header-title h1 {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: -0.02em;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .header-title p {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             font-family: 'Fira Code', monospace;
         }
@@ -102,56 +97,27 @@
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #34d399;
-            box-shadow: 0 0 10px #34d399;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.3); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
+            gap: 0.6rem;
         }
 
         .btn {
             background: rgba(255, 255, 255, 0.06);
             color: var(--text-main);
             border: 1px solid var(--bg-card-border);
-            padding: 0.45rem 0.9rem;
+            padding: 0.45rem 0.85rem;
             border-radius: 8px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .btn:hover {
             background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-1px);
         }
 
@@ -161,1059 +127,772 @@
             box-shadow: var(--glow-cyan);
         }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            border: none;
+            box-shadow: var(--glow-emerald);
         }
 
-        /* Container Layout */
-        .dashboard-container {
-            max-width: 1720px;
-            margin: 1.5rem auto;
-            padding: 0 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        .btn-accent {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border: none;
+            box-shadow: var(--glow-purple);
         }
 
-        /* Hero Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 12px;
-            padding: 1.1rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(to right, var(--accent-color, #38bdf8), transparent);
-        }
-
-        .stat-title {
+        .scenario-select {
+            background: #0f172a;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
             font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
             font-weight: 600;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.4rem;
-        }
-
-        .stat-value-container {
-            display: flex;
-            align-items: baseline;
-            gap: 0.4rem;
-        }
-
-        .stat-value {
-            font-size: 1.7rem;
-            font-weight: 800;
-            font-family: 'Fira Code', monospace;
-            color: var(--text-main);
-        }
-
-        .stat-unit {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .stat-badge {
-            margin-top: 0.5rem;
-            font-size: 0.7rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            color: #34d399;
-            font-family: 'Fira Code', monospace;
-        }
-
-        /* 5-Stage Cumulative Breakdown Bar */
-        .breakdown-section {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 14px;
-            padding: 1.25rem 1.5rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .section-header h2 {
-            font-size: 1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .section-header .total-pill {
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--text-accent);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-family: 'Fira Code', monospace;
-            font-weight: 600;
-        }
-
-        .stacked-progress-bar {
-            height: 38px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-            display: flex;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        .progress-segment {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            font-family: 'Fira Code', monospace;
-            color: #0f172a;
-            position: relative;
-            transition: width 0.3s ease;
+            outline: none;
             cursor: pointer;
         }
 
-        .progress-segment:hover {
-            filter: brightness(1.15);
+        /* 7-Phase Stepper Pipeline Bar */
+        .stepper-bar-container {
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid var(--bg-card-border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            overflow-x: auto;
         }
 
-        .stage-legend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .legend-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        .step-pill {
+            flex: 1;
+            min-width: 140px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 0.5rem 0.65rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            transition: all 0.2s ease;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
         }
 
-        .legend-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--card-color);
+        .step-pill:hover {
+            background: rgba(255, 255, 255, 0.07);
         }
 
-        .legend-badge {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background-color: var(--card-color);
-            color: #0f172a;
+        .step-pill.active {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: var(--step-color);
+            box-shadow: 0 0 15px var(--step-glow);
+            transform: scale(1.02);
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
+            font-family: 'Fira Code', monospace;
             flex-shrink: 0;
         }
 
-        .legend-info {
-            flex-grow: 1;
+        .step-pill.active .step-num {
+            background: var(--step-color);
+            color: #0f172a;
         }
 
-        .legend-name {
-            font-size: 0.75rem;
-            font-weight: 600;
+        .step-text {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .step-title {
+            font-size: 0.7rem;
+            font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .legend-meta {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            font-family: 'Fira Code', monospace;
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.15rem;
+        .step-pill.active .step-title {
+            color: var(--step-color);
         }
 
-        /* 2-Column Main Workspace */
-        .workspace-grid {
+        .step-sub {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1720px;
+            margin: 1.25rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* 3-Column Primary Grid */
+        .cockpit-grid {
             display: grid;
-            grid-template-columns: 1.25fr 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 1.25rem;
         }
 
         @media (max-width: 1200px) {
-            .workspace-grid {
-                grid-template-columns: 1fr;
-            }
+            .cockpit-grid { grid-template-columns: 1fr; }
         }
 
-        /* Protocol Waterfall Sequence Ladder */
-        .ladder-card {
+        /* Knowledge Graph Card */
+        .kg-card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
             border: 1px solid var(--bg-card-border);
             border-radius: 14px;
-            padding: 1.25rem 1.5rem;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
+            position: relative;
             min-height: 520px;
         }
 
-        .entity-columns-header {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 0.75rem;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .entity-col {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.4rem 0.2rem;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            font-family: 'Fira Code', monospace;
-        }
-
-        .ladder-canvas-container {
-            flex-grow: 1;
-            position: relative;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            overflow-y: auto;
-            max-height: 480px;
-            padding: 1rem 0.5rem;
-        }
-
-        .ladder-arrow-row {
-            position: relative;
-            margin-bottom: 1rem;
-            padding: 0.5rem 0;
-            display: flex;
-            align-items: center;
-            animation: fadeInDown 0.3s ease;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .arrow-line {
-            height: 2px;
-            background: var(--arrow-color, #38bdf8);
-            position: absolute;
-            box-shadow: 0 0 8px var(--arrow-color);
-        }
-
-        .arrow-head {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-top: 5px solid transparent;
-            border-bottom: 5px solid transparent;
-        }
-
-        .arrow-head.right {
-            border-left: 8px solid var(--arrow-color);
-        }
-
-        .arrow-head.left {
-            border-right: 8px solid var(--arrow-color);
-        }
-
-        .arrow-label {
-            position: absolute;
-            top: -14px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            font-family: 'Fira Code', monospace;
-            background: #0f172a;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            border: 1px solid var(--arrow-color);
-            color: var(--text-main);
-            white-space: nowrap;
-            transform: translateX(-50%);
-            z-index: 2;
-        }
-
-        /* Charts & Inspector Column */
-        .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .chart-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 14px;
-            padding: 1.25rem;
-            height: 260px;
-            position: relative;
-        }
-
-        .chart-card h3 {
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        .card-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
         }
 
-        .chart-container {
+        .card-header h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-conflict {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #f87171;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+            animation: pulseConflict 1.5s infinite;
+        }
+
+        @keyframes pulseConflict {
+            0% { transform: scale(0.97); opacity: 0.85; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.97); opacity: 0.85; }
+        }
+
+        .kg-canvas-container {
+            flex-grow: 1;
+            background: #06090e;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
             position: relative;
-            height: 190px;
-            width: 100%;
-        }
-
-        /* Stream Log Table */
-        .events-table-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 14px;
-            padding: 1.25rem;
             overflow: hidden;
         }
 
-        .table-responsive {
-            max-height: 280px;
-            overflow-y: auto;
+        canvas#kgCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Reasoning & Inspector Card */
+        .reasoning-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .math-box {
+            background: #050811;
+            border: 1px solid rgba(56, 189, 248, 0.25);
             border-radius: 8px;
+            padding: 0.85rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            color: #38bdf8;
+            line-height: 1.5;
+        }
+
+        .decision-comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.72rem;
+            text-align: left;
+            border-radius: 8px;
+            overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem;
-            text-align: left;
-        }
-
-        thead th {
-            background: rgba(15, 23, 42, 0.9);
+        .decision-comparison-table th {
+            background: rgba(15, 23, 42, 0.95);
             color: var(--text-muted);
-            padding: 0.6rem 0.75rem;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 5;
-            border-bottom: 1px solid var(--bg-card-border);
+            padding: 0.5rem 0.65rem;
             font-family: 'Fira Code', monospace;
         }
 
-        tbody tr {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            transition: background 0.15s ease;
-        }
-
-        tbody tr:hover {
-            background: rgba(255, 255, 255, 0.04);
-            cursor: pointer;
-        }
-
-        tbody td {
-            padding: 0.55rem 0.75rem;
+        .decision-comparison-table td {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.5rem 0.65rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
             font-family: 'Fira Code', monospace;
         }
 
-        .badge {
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            display: inline-block;
+        /* Lower Row: Sequence Ladder & Sparklines */
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 1100px) {
+            .lower-grid { grid-template-columns: 1fr; }
+        }
+
+        .sub-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 14px;
+            padding: 1.25rem;
+        }
+
+        .chart-box {
+            height: 180px;
+            width: 100%;
+            position: relative;
         }
 
         /* Footer */
         footer {
-            margin-top: 2rem;
-            padding: 1.5rem;
+            margin-top: 1.5rem;
+            padding: 1rem 2rem;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
             border-top: 1px solid var(--bg-card-border);
-            background: rgba(10, 14, 23, 0.6);
-        }
-
-        /* Modal Inspector */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(6px);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-card {
-            background: #0f172a;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 16px;
-            width: 90%;
-            max-width: 650px;
-            padding: 1.5rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            position: relative;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-        }
-
-        .code-block {
-            background: #020617;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
-            color: #38bdf8;
-            overflow-x: auto;
-            max-height: 250px;
+            background: rgba(10, 14, 23, 0.7);
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Top Navigation Header -->
     <header>
         <div class="header-brand">
-            <span class="brand-badge">O-RAN / 5GC</span>
+            <span class="brand-badge">xApp-RDL DEMO</span>
             <div class="header-title">
-                <h1>Real-Time Protocol Analyzer & Telemetry Engine</h1>
-                <p>O-RAN Near-RT RIC × 5G Core End-to-End Signaling Lifecycle (3GPP Rel. 18 / O-RAN WG3)</p>
+                <h1>Suite de Demonstração em Tempo Real: Governança Cognitiva O-RAN</h1>
+                <p>Pipeline Ponta a Ponta: Acesso UE &rarr; Telemetria KPM &rarr; Propostas &rarr; Grafo de Conhecimento &rarr; Raciocínio &rarr; Despacho RC &rarr; RAN</p>
             </div>
         </div>
         <div class="header-controls">
-            <div class="live-indicator">
-                <span class="live-dot"></span>
-                <span>STREAMING (TTI 20ms)</span>
-            </div>
-            <button class="btn btn-primary" id="btnTogglePlay">
+            <select class="scenario-select" id="selectScenario">
+                <option value="S1_DIRECT_PRB">⚡ Cenário S1: Conflito Direto PRB (QoS vs Economia)</option>
+                <option value="S2_ENERGY_VS_QOS">🔋 Cenário S2: Potência TX vs QoS (EEVS Trade-off)</option>
+                <option value="S5_PING_PONG">🔄 Cenário S5: Ping-Pong Temporal (Handover Lock)</option>
+                <option value="S7_E2_TIMEOUT">⚠️ Cenário S7: Timeout SCTP E2 (Safety Hold)</option>
+            </select>
+
+            <button class="btn btn-primary" id="btnPlayPause">
                 <span id="playIcon">⏸</span> <span id="playText">Pausar</span>
             </button>
-            <button class="btn" id="btnSpawnUE">
-                <span>➕</span> Injetar UE
+            <button class="btn btn-accent" id="btnNextStep">
+                <span>⏭</span> Avançar 1 Passo
             </button>
-            <button class="btn" id="btnExportJSON">
-                <span>💾</span> Exportar JSON
+            <button class="btn" id="btnReset">
+                <span>🔁</span> Reiniciar
             </button>
         </div>
     </header>
 
-    <!-- Main Dashboard Container -->
-    <div class="dashboard-container">
-
-        <!-- Hero Stats KPI Row -->
-        <div class="stats-grid">
-            <div class="stat-card" style="--accent-color: #38bdf8;">
-                <div class="stat-title">Sessões de UEs Ativas</div>
-                <div class="stat-value-container">
-                    <span class="stat-value" id="statActiveUes">5</span>
-                    <span class="stat-unit">UEs</span>
-                </div>
-                <div class="stat-badge">✓ FSM Concorrente Estável</div>
-            </div>
-
-            <div class="stat-card" style="--accent-color: #34d399;">
-                <div class="stat-title">Latência Média de Registro (5 Etapas)</div>
-                <div class="stat-value-container">
-                    <span class="stat-value" id="statMeanLatency">45.8</span>
-                    <span class="stat-unit">ms</span>
-                </div>
-                <div class="stat-badge">✓ Nominal: 45.8 ms (&lt; 50 ms)</div>
-            </div>
-
-            <div class="stat-card" style="--accent-color: #818cf8;">
-                <div class="stat-title">Taxa de Conformidade com SLA</div>
-                <div class="stat-value-container">
-                    <span class="stat-value" id="statSlaRate">100.0</span>
-                    <span class="stat-unit">%</span>
-                </div>
-                <div class="stat-badge">✓ 0 Timeouts / Quedas</div>
-            </div>
-
-            <div class="stat-card" style="--accent-color: #c084fc;">
-                <div class="stat-title">Tempo de Decisão da RDL (Near-RT)</div>
-                <div class="stat-value-container">
-                    <span class="stat-value" id="statRdlLatency">0.12</span>
-                    <span class="stat-unit">ms</span>
-                </div>
-                <div class="stat-badge">✓ Sub-milissegundo (F1/F2)</div>
-            </div>
-
-            <div class="stat-card" style="--accent-color: #fbbf24;">
-                <div class="stat-title">Taxa de Ingestão E2SM-KPM</div>
-                <div class="stat-value-container">
-                    <span class="stat-value" id="statKpmRate">200</span>
-                    <span class="stat-unit">ms / report</span>
-                </div>
-                <div class="stat-badge">✓ Periodicity Sincronizada</div>
+    <!-- 7-Phase Stepper Pipeline Bar -->
+    <div class="stepper-bar-container">
+        <div class="step-pill active" id="step1" style="--step-color: var(--c-p1); --step-glow: rgba(56,189,248,0.3);">
+            <div class="step-num">1</div>
+            <div class="step-text">
+                <span class="step-title">Registro & Acesso UEs</span>
+                <span class="step-sub">PRACH &rarr; 5GC (45.8ms)</span>
             </div>
         </div>
 
-        <!-- 5-Stage Cumulative Breakdown Bar -->
-        <div class="breakdown-section">
-            <div class="section-header">
-                <h2>
-                    <span>⏱️</span>
-                    <span>Decomposição Cronométrica do Registro e Telemetria (Etapas 1 a 5)</span>
-                </h2>
-                <div class="total-pill">
-                    <span>Tempo Acumulado Total: </span>
-                    <strong id="accumulatedTotalText">45.8 ms</strong>
-                </div>
-            </div>
-
-            <!-- Proportional Stacked Progress Bar -->
-            <div class="stacked-progress-bar">
-                <div class="progress-segment" style="width: 9.17%; background-color: var(--c-stage-1);" title="Etapa 1: PRACH (4.2 ms)">
-                    <span>1 (4.2ms)</span>
-                </div>
-                <div class="progress-segment" style="width: 18.56%; background-color: var(--c-stage-2);" title="Etapa 2: RRC Setup (8.5 ms)">
-                    <span>2 (8.5ms)</span>
-                </div>
-                <div class="progress-segment" style="width: 35.81%; background-color: var(--c-stage-3);" title="Etapa 3: NAS 5G-AKA (16.4 ms)">
-                    <span>3 (16.4ms)</span>
-                </div>
-                <div class="progress-segment" style="width: 24.45%; background-color: var(--c-stage-4);" title="Etapa 4: PDU Session (11.2 ms)">
-                    <span>4 (11.2ms)</span>
-                </div>
-                <div class="progress-segment" style="width: 12.01%; background-color: var(--c-stage-5);" title="Etapa 5: E2 KPM Init (5.5 ms)">
-                    <span>5 (5.5ms)</span>
-                </div>
-            </div>
-
-            <!-- Stage Legend Cards -->
-            <div class="stage-legend-grid">
-                <div class="legend-card" style="--card-color: var(--c-stage-1);">
-                    <div class="legend-badge">1</div>
-                    <div class="legend-info">
-                        <div class="legend-name">PRACH Preamble & RAR</div>
-                        <div class="legend-meta">
-                            <span>PHY / MAC (gNB)</span>
-                            <strong>Δt: 4.2 ms (Acum: 4.2 ms)</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="legend-card" style="--card-color: var(--c-stage-2);">
-                    <div class="legend-badge">2</div>
-                    <div class="legend-info">
-                        <div class="legend-name">RRC Setup Request & Complete</div>
-                        <div class="legend-meta">
-                            <span>3GPP RRC (gNB-DU/CU)</span>
-                            <strong>Δt: 8.5 ms (Acum: 12.7 ms)</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="legend-card" style="--card-color: var(--c-stage-3);">
-                    <div class="legend-badge">3</div>
-                    <div class="legend-info">
-                        <div class="legend-name">NAS Registration & 5G-AKA Auth</div>
-                        <div class="legend-meta">
-                            <span>3GPP NAS (5GC AMF/AUSF)</span>
-                            <strong>Δt: 16.4 ms (Acum: 29.1 ms)</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="legend-card" style="--card-color: var(--c-stage-4);">
-                    <div class="legend-badge">4</div>
-                    <div class="legend-info">
-                        <div class="legend-name">PDU Session & QoS Binding</div>
-                        <div class="legend-meta">
-                            <span>3GPP SMF / UPF (5GC)</span>
-                            <strong>Δt: 11.2 ms (Acum: 40.3 ms)</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="legend-card" style="--card-color: var(--c-stage-5);">
-                    <div class="legend-badge">5</div>
-                    <div class="legend-info">
-                        <div class="legend-name">E2 Subscription & KPM Telemetry Init</div>
-                        <div class="legend-meta">
-                            <span>O-RAN Near-RT RIC (E2term)</span>
-                            <strong>Δt: 5.5 ms (Acum: 45.8 ms)</strong>
-                        </div>
-                    </div>
-                </div>
+        <div class="step-pill" id="step2" style="--step-color: var(--c-p2); --step-glow: rgba(129,140,248,0.3);">
+            <div class="step-num">2</div>
+            <div class="step-text">
+                <span class="step-title">Telemetria E2SM-KPM</span>
+                <span class="step-sub">3GPP TS 28.552 KPIs</span>
             </div>
         </div>
 
-        <!-- 2-Column Workspace: Sequence Ladder & Live Charts -->
-        <div class="workspace-grid">
-            
-            <!-- Column 1: Live Protocol Sequence Waterfall Ladder -->
-            <div class="ladder-card">
-                <div class="section-header">
+        <div class="step-pill" id="step3" style="--step-color: var(--c-p3); --step-glow: rgba(251,191,36,0.3);">
+            <div class="step-num">3</div>
+            <div class="step-text">
+                <span class="step-title">Propostas xApps</span>
+                <span class="step-sub">Recepção Concorrente</span>
+            </div>
+        </div>
+
+        <div class="step-pill" id="step4" style="--step-color: var(--c-p4); --step-glow: rgba(192,132,252,0.3);">
+            <div class="step-num">4</div>
+            <div class="step-text">
+                <span class="step-title">Grafo de Conhecimento</span>
+                <span class="step-sub">Detecção de Conflitos</span>
+            </div>
+        </div>
+
+        <div class="step-pill" id="step5" style="--step-color: var(--c-p5); --step-glow: rgba(52,211,153,0.3);">
+            <div class="step-num">5</div>
+            <div class="step-text">
+                <span class="step-title">Raciocínio & Safety</span>
+                <span class="step-sub">TVS/EEVS & Clip (0.12ms)</span>
+            </div>
+        </div>
+
+        <div class="step-pill" id="step6" style="--step-color: var(--c-p6); --step-glow: rgba(6,182,212,0.3);">
+            <div class="step-num">6</div>
+            <div class="step-text">
+                <span class="step-title">Despacho E2SM-RC</span>
+                <span class="step-sub">ASN.1 APER RMR 12040</span>
+            </div>
+        </div>
+
+        <div class="step-pill" id="step7" style="--step-color: var(--c-p7); --step-glow: rgba(16,185,129,0.3);">
+            <div class="step-num">7</div>
+            <div class="step-text">
+                <span class="step-title">Aplicação na RAN</span>
+                <span class="step-sub">MAC Scheduler & T1</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid Workspace -->
+    <div class="main-container">
+
+        <!-- Top Row: Interactive Knowledge Graph & Cognitive Reasoning -->
+        <div class="cockpit-grid">
+
+            <!-- Card 1: Interactive Living Knowledge Graph -->
+            <div class="kg-card">
+                <div class="card-header">
                     <h2>
-                        <span>📡</span>
-                        <span>Fluxo de Mensagens em Tempo Real (Sequence Ladder)</span>
+                        <span>🧠</span>
+                        <span>Grafo de Conhecimento Dinâmico (Knowledge Graph Topology)</span>
                     </h2>
-                    <span style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Fira Code', monospace;" id="ladderCount">Mostrando últimos 8 eventos</span>
+                    <span class="badge-conflict" id="conflictBadge">● Conflito Ativo Detectado</span>
                 </div>
 
-                <div class="entity-columns-header">
-                    <div class="entity-col" style="color: #38bdf8;">UE (Terminal)</div>
-                    <div class="entity-col" style="color: #818cf8;">gNB-DU (PHY/MAC)</div>
-                    <div class="entity-col" style="color: #c084fc;">gNB-CU (RRC)</div>
-                    <div class="entity-col" style="color: #fbbf24;">5GC (AMF/UPF)</div>
-                    <div class="entity-col" style="color: #34d399;">Near-RT RIC (E2)</div>
+                <div class="kg-canvas-container">
+                    <canvas id="kgCanvas"></canvas>
                 </div>
 
-                <div class="ladder-canvas-container" id="ladderContainer">
-                    <!-- Dynamic Sequence Arrows Injected Here -->
-                </div>
-            </div>
-
-            <!-- Column 2: Real-Time Charts & Inspector -->
-            <div class="right-column">
-                
-                <!-- Live Sparkline Charts -->
-                <div class="chart-card">
-                    <h3>
-                        <span>📈 Vazão (Throughput) & Latência E2E</span>
-                        <span style="font-size: 0.7rem; color: var(--c-emerald);" id="chartQosBadge">● 106.8 Mbps | 2.8 ms</span>
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="qosChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <h3>
-                        <span>⚡ Ocupação de PRB (%) & SINR (dB)</span>
-                        <span style="font-size: 0.7rem; color: var(--text-accent);" id="chartRadioBadge">● 78.5% PRB | 16.2 dB</span>
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="radioChart"></canvas>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- Live Protocol Event Stream Table -->
-        <div class="events-table-card">
-            <div class="section-header">
-                <h2>
-                    <span>📋</span>
-                    <span>Inspetor de Pacotes e Eventos de Protocolo em Streaming</span>
-                </h2>
-                <div style="font-size: 0.75rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">
-                    Total de Eventos Processados: <strong id="totalEventsCount">0</strong>
+                <div style="margin-top: 0.65rem; display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">
+                    <span>🔵 Nós de Topologia (gNB, Slices, UEs)</span>
+                    <span>🟡 xApps & Parâmetros</span>
+                    <span>🟢 KPIs de Rede</span>
+                    <span style="color: #ef4444;">🔴 Arestas de Conflito</span>
                 </div>
             </div>
 
-            <div class="table-responsive">
-                <table>
+            <!-- Card 2: RDL Cognitive Reasoning Terminal & Safety Guard -->
+            <div class="reasoning-card">
+                <div class="card-header">
+                    <h2>
+                        <span>⚡</span>
+                        <span>Motor de Decisão Cognitiva & Safety Guard da RDL</span>
+                    </h2>
+                    <span style="font-size: 0.72rem; color: #34d399; font-family: 'Fira Code', monospace;">
+                        T_decision: <strong>0.12 ms</strong> | UnsafeApplied: <strong>0</strong>
+                    </span>
+                </div>
+
+                <!-- Active Mathematical Formulation Box -->
+                <div class="math-box" id="mathBox">
+                    <strong>[Equação Ativa de Arbitragem TVS / Shannon Utility]</strong><br>
+                    $$\mathcal{U}_{\text{TVS}} = \alpha \cdot \log_2(1 + \text{SINR}) \cdot \frac{PRB_{\text{req}}}{PRB_{\text{total}}} - \beta \cdot \text{Penalty}_{\text{SLA}}$$
+                    <br>&bull; Prioridade URLLC: $\alpha = 0.85$ | Cota de Segurança: $PRB \in [10\%, 80\%]$
+                </div>
+
+                <!-- Decision Comparison Table -->
+                <table class="decision-comparison-table">
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
-                            <th>UE ID</th>
-                            <th>Etapa</th>
-                            <th>Procedimento Protocolar</th>
-                            <th>Camada</th>
-                            <th>Origem &rarr; Destino</th>
-                            <th>Δt (ms)</th>
-                            <th>Acumulado</th>
-                            <th>SLA</th>
+                            <th>Entidade / xApp</th>
+                            <th>Ação Solicitada</th>
+                            <th>Decisão Arbitrada</th>
+                            <th>Safety Guard</th>
                         </tr>
                     </thead>
-                    <tbody id="eventsTableBody">
-                        <!-- Dynamic Rows Injected Here -->
+                    <tbody id="decisionTableBody">
+                        <tr>
+                            <td style="color: #fbbf24;">xApp-xSlice</td>
+                            <td>PRB Quota = 75.0% (URLLC)</td>
+                            <td rowspan="2" style="color: #34d399; font-weight: 700;">PRB Quota = 60.0%<br>(URLLC Protegido)</td>
+                            <td rowspan="2" style="color: #38bdf8;">✓ BOUNDARY_CLIP_OK<br>(Unsafe = 0)</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #fbbf24;">xApp-EnergySaving</td>
+                            <td>PRB Quota = 40.0% (Global)</td>
+                        </tr>
                     </tbody>
                 </table>
+
+                <!-- ASN.1 APER Control PDU Live Preview -->
+                <div style="background: #020617; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.68rem; color: var(--text-muted); font-family: 'Fira Code', monospace; margin-bottom: 0.35rem;">
+                        PDU ASN.1 APER (E2SM-RC Format 1 Header / Format 2 Message &bull; RMR 12040):
+                    </div>
+                    <pre style="font-size: 0.65rem; color: #06b6d4; font-family: 'Fira Code', monospace; overflow-x: auto;" id="pduPreview">
+{
+  "ricRequestID": {"ricRequestorID": 1, "ricInstanceID": 1001},
+  "ranFunctionID": 3,
+  "ricControlHeader": "E2SM-RC-ControlHeader-Format-1",
+  "ricControlMessage": {"targetParam": "PRB_QUOTA_URLLC", "value": "60.0%", "action": "OVERRIDE"}
+}</pre>
+                </div>
+
             </div>
+
+        </div>
+
+        <!-- Lower Row: Protocol Ladder & Sparkline Telemetry Charts -->
+        <div class="lower-grid">
+
+            <!-- Real-Time Telemetry Sparkline 1 -->
+            <div class="sub-card">
+                <div class="card-header">
+                    <h2 style="font-size: 0.85rem;">📈 Telemetria Contínua: Vazão (Throughput) & Latência E2E</h2>
+                    <span style="font-size: 0.7rem; color: #34d399; font-family: 'Fira Code', monospace;" id="telemetryQos">106.8 Mbps | 2.8 ms</span>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartQos"></canvas>
+                </div>
+            </div>
+
+            <!-- Real-Time Telemetry Sparkline 2 -->
+            <div class="sub-card">
+                <div class="card-header">
+                    <h2 style="font-size: 0.85rem;">⚡ Camada MAC & Rádio: Ocupação PRB (%) & Action Churn</h2>
+                    <span style="font-size: 0.7rem; color: #38bdf8; font-family: 'Fira Code', monospace;" id="telemetryRadio">78.5% PRB | 0.05 ações/s</span>
+                </div>
+                <div class="chart-box">
+                    <canvas id="chartRadio"></canvas>
+                </div>
+            </div>
+
         </div>
 
     </div>
 
-    <!-- Inspector Modal -->
-    <div class="modal-backdrop" id="inspectorModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="modalTitle" style="font-size: 1rem; font-weight: 700;">Detalhes do Pacote 3GPP / O-RAN</h3>
-                <button class="modal-close" id="modalCloseBtn">&times;</button>
-            </div>
-            <div style="margin-bottom: 0.75rem; font-size: 0.8rem; color: var(--text-muted);" id="modalSubtitle"></div>
-            <div class="code-block" id="modalPayload"></div>
-        </div>
-    </div>
-
+    <!-- Footer -->
     <footer>
-        <p><strong>Projeto xApp-RDL</strong> • Arquitetura de Governança Cross-Layer para O-RAN 5G-Advanced & 6G • Padrão O-RAN WG3 & 3GPP Rel. 18</p>
+        <p><strong>Projeto xApp-RDL</strong> &bull; Suite de Demonstração Interativa da Governança Cognitiva para O-RAN 5G-Adv/6G &bull; Padrão O-RAN WG3 & 3GPP Rel. 18</p>
     </footer>
 
-    <!-- Interactive Real-Time Simulator Logic -->
+    <!-- Interactive Simulator & Knowledge Graph Engine -->
     <script>
-        const STAGE_META = {
-            1: { name: "PRACH Preamble Transmit & RAR", layer: "PHY / MAC", from: 0, to: 1, delta: 4.2, accum: 4.2, color: "#38bdf8", spec: "3GPP TS 38.321 / TS 38.211" },
-            2: { name: "RRC Setup Request & Complete", layer: "3GPP RRC", from: 0, to: 2, delta: 8.5, accum: 12.7, color: "#818cf8", spec: "3GPP TS 38.331" },
-            3: { name: "NAS Registration & 5G-AKA Auth", layer: "3GPP NAS", from: 0, to: 3, delta: 16.4, accum: 29.1, color: "#c084fc", spec: "3GPP TS 24.501 / TS 33.501" },
-            4: { name: "PDU Session & QoS Flow Binding", layer: "3GPP SMF/UPF", from: 3, to: 3, delta: 11.2, accum: 40.3, color: "#fbbf24", spec: "3GPP TS 29.502 / TS 38.413" },
-            5: { name: "E2 Node Subscription & KPM Telemetry", layer: "O-RAN E2term", from: 4, to: 2, delta: 5.5, accum: 45.8, color: "#34d399", spec: "O-RAN WG3 E2AP v3.0 / E2SM-KPM" }
+        let currentPhase = 1;
+        let isPlaying = true;
+        let activeScenario = "S1_DIRECT_PRB";
+
+        const PHASE_COLORS = {
+            1: "#38bdf8", 2: "#818cf8", 3: "#fbbf24", 4: "#c084fc",
+            5: "#34d399", 6: "#06b6d4", 7: "#10b981"
         };
 
-        const ENTITIES = ["UE", "gNB-DU", "gNB-CU", "5GC (AMF/UPF)", "Near-RT RIC"];
-
-        let isStreaming = true;
-        let activeUes = [
-            { id: 1001, stage: 1, accumulated: 0 },
-            { id: 1002, stage: 2, accumulated: 4.2 },
-            { id: 1003, stage: 3, accumulated: 12.7 },
-            { id: 1004, stage: 4, accumulated: 29.1 },
-            { id: 1005, stage: 5, accumulated: 40.3 }
+        // Initialize Knowledge Graph Nodes
+        const nodes = [
+            { id: "gnb_01", label: "gNB Macro 01", group: "gnb", x: 0.5, y: 0.45, color: "#38bdf8", radius: 18 },
+            { id: "slice_urllc", label: "Slice URLLC", group: "slice", x: 0.32, y: 0.30, color: "#818cf8", radius: 14 },
+            { id: "slice_embb", label: "Slice eMBB", group: "slice", x: 0.68, y: 0.30, color: "#818cf8", radius: 14 },
+            { id: "ue_1001", label: "UE #1001", group: "ue", x: 0.18, y: 0.18, color: "#38bdf8", radius: 10 },
+            { id: "ue_1002", label: "UE #1002", group: "ue", x: 0.82, y: 0.18, color: "#38bdf8", radius: 10 },
+            { id: "xapp_xslice", label: "xApp-xSlice", group: "xapp", x: 0.25, y: 0.75, color: "#fbbf24", radius: 15 },
+            { id: "xapp_es", label: "xApp-EnergySaving", group: "xapp", x: 0.50, y: 0.82, color: "#fbbf24", radius: 15 },
+            { id: "xapp_ts", label: "xApp-TrafficSteering", group: "xapp", x: 0.75, y: 0.75, color: "#fbbf24", radius: 15 },
+            { id: "param_prb", label: "PRB_Quota", group: "param", x: 0.38, y: 0.58, color: "#c084fc", radius: 12 },
+            { id: "param_ptx", label: "Tx_Power", group: "param", x: 0.62, y: 0.58, color: "#c084fc", radius: 12 },
+            { id: "kpi_thr", label: "Throughput", group: "kpi", x: 0.20, y: 0.48, color: "#34d399", radius: 11 },
+            { id: "kpi_lat", label: "Latency", group: "kpi", x: 0.80, y: 0.48, color: "#34d399", radius: 11 }
         ];
 
-        let nextUeId = 1006;
-        let eventLog = [];
-        let totalEvents = 0;
+        const edges = [
+            { from: "ue_1001", to: "slice_urllc", color: "#38bdf8" },
+            { from: "ue_1002", to: "slice_embb", color: "#38bdf8" },
+            { from: "slice_urllc", to: "gnb_01", color: "#818cf8" },
+            { from: "slice_embb", to: "gnb_01", color: "#818cf8" },
+            { from: "xapp_xslice", to: "param_prb", color: "#fbbf24" },
+            { from: "xapp_es", to: "param_ptx", color: "#fbbf24" },
+            { from: "param_prb", to: "kpi_thr", color: "#34d399" },
+            { from: "param_ptx", to: "kpi_lat", color: "#34d399" }
+        ];
 
-        // Setup Charts
-        const maxChartPoints = 20;
-        const timeLabels = Array.from({length: maxChartPoints}, (_, i) => `-${maxChartPoints - i}s`);
-        
-        const qosCtx = document.getElementById('qosChart').getContext('2d');
+        // Canvas Setup
+        const canvas = document.getElementById("kgCanvas");
+        const ctx = canvas.getContext("2d");
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        let animAngle = 0;
+
+        function drawKnowledgeGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            animAngle += 0.03;
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Draw Edges
+            edges.forEach(e => {
+                const n1 = nodes.find(n => n.id === e.from);
+                const n2 = nodes.find(n => n.id === e.to);
+                if (!n1 || !n2) return;
+
+                const x1 = n1.x * w;
+                const y1 = n1.y * h;
+                const x2 = n2.x * w;
+                const y2 = n2.y * h;
+
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.strokeStyle = e.color || "rgba(255,255,255,0.15)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw moving energy packet along edge
+                const progress = (Math.sin(animAngle + n1.x * 5) + 1) / 2;
+                const px = x1 + (x2 - x1) * progress;
+                const py = y1 + (y2 - y1) * progress;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fillStyle = e.color || "#38bdf8";
+                ctx.shadowColor = e.color || "#38bdf8";
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Draw Conflict Edge in Phase 3 & 4
+            if (currentPhase === 3 || currentPhase === 4) {
+                const n1 = nodes.find(n => n.id === "xapp_xslice");
+                const n2 = nodes.find(n => n.id === "xapp_es");
+                if (n1 && n2) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.setLineDash([6, 6]);
+                    ctx.moveTo(n1.x * w, n1.y * h);
+                    ctx.lineTo(n2.x * w, n2.y * h);
+                    ctx.strokeStyle = "#ef4444";
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // Collision Indicator
+                    const mx = (n1.x + n2.x) * w / 2;
+                    const my = (n1.y + n2.y) * h / 2;
+                    ctx.fillStyle = "#ef4444";
+                    ctx.font = "bold 10px 'Fira Code'";
+                    ctx.fillText("COLLIDES_WITH (Direct PRB)", mx - 70, my - 8);
+                    ctx.restore();
+                }
+            }
+
+            // Draw Nodes
+            nodes.forEach(n => {
+                const nx = n.x * w;
+                const ny = n.y * h;
+
+                // Outer Glow
+                ctx.beginPath();
+                ctx.arc(nx, ny, n.radius + 4, 0, Math.PI * 2);
+                ctx.fillStyle = n.color + "22";
+                ctx.fill();
+
+                // Core Node
+                ctx.beginPath();
+                ctx.arc(nx, ny, n.radius, 0, Math.PI * 2);
+                ctx.fillStyle = n.color;
+                ctx.shadowColor = n.color;
+                ctx.shadowBlur = (currentPhase === 4 && (n.group === "xapp" || n.group === "param")) ? 16 : 4;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Label
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 9px 'Plus Jakarta Sans'";
+                ctx.textAlign = "center";
+                ctx.fillText(n.label, nx, ny + n.radius + 12);
+            });
+
+            requestAnimationFrame(drawKnowledgeGraph);
+        }
+        drawKnowledgeGraph();
+
+        // Setup Real-Time Charts
+        const maxPoints = 20;
+        const labels = Array.from({length: maxPoints}, (_, i) => `-${maxPoints - i}s`);
+
+        const qosCtx = document.getElementById('chartQos').getContext('2d');
         const qosChart = new Chart(qosCtx, {
             type: 'line',
             data: {
-                labels: [...timeLabels],
+                labels: [...labels],
                 datasets: [
-                    {
-                        label: 'Vazão (Throughput Mbps)',
-                        borderColor: '#34d399',
-                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                        data: Array(maxChartPoints).fill(106.5),
-                        tension: 0.3,
-                        yAxisID: 'y',
-                        fill: true
-                    },
-                    {
-                        label: 'Latência URLLC (ms)',
-                        borderColor: '#38bdf8',
-                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                        data: Array(maxChartPoints).fill(2.8),
-                        tension: 0.3,
-                        yAxisID: 'y1'
-                    }
+                    { label: 'Vazão (Mbps)', borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.1)', data: Array(maxPoints).fill(106.8), tension: 0.3, yAxisID: 'y', fill: true },
+                    { label: 'Latência URLLC (ms)', borderColor: '#38bdf8', data: Array(maxPoints).fill(2.8), tension: 0.3, yAxisID: 'y1' }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Fira Code', size: 10 } } } },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Fira Code', size: 9 } } } },
                 scales: {
-                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'Fira Code', size: 9 } } },
-                    y: { position: 'left', min: 80, max: 120, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#34d399', font: { family: 'Fira Code', size: 9 } } },
-                    y1: { position: 'right', min: 0, max: 10, grid: { display: false }, ticks: { color: '#38bdf8', font: { family: 'Fira Code', size: 9 } } }
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'Fira Code', size: 8 } } },
+                    y: { position: 'left', min: 70, max: 120, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#34d399', font: { family: 'Fira Code', size: 8 } } },
+                    y1: { position: 'right', min: 0, max: 15, grid: { display: false }, ticks: { color: '#38bdf8', font: { family: 'Fira Code', size: 8 } } }
                 }
             }
         });
 
-        const radioCtx = document.getElementById('radioChart').getContext('2d');
+        const radioCtx = document.getElementById('chartRadio').getContext('2d');
         const radioChart = new Chart(radioCtx, {
             type: 'line',
             data: {
-                labels: [...timeLabels],
+                labels: [...labels],
                 datasets: [
-                    {
-                        label: 'Ocupação PRB (%)',
-                        borderColor: '#fbbf24',
-                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                        data: Array(maxChartPoints).fill(78.5),
-                        tension: 0.3,
-                        yAxisID: 'y',
-                        fill: true
-                    },
-                    {
-                        label: 'SINR Físico (dB)',
-                        borderColor: '#c084fc',
-                        data: Array(maxChartPoints).fill(16.2),
-                        tension: 0.3,
-                        yAxisID: 'y1'
-                    }
+                    { label: 'Uso de PRB (%)', borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)', data: Array(maxPoints).fill(78.5), tension: 0.3, yAxisID: 'y', fill: true },
+                    { label: 'Action Churn (ações/s)', borderColor: '#c084fc', data: Array(maxPoints).fill(0.05), tension: 0.3, yAxisID: 'y1' }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Fira Code', size: 10 } } } },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Fira Code', size: 9 } } } },
                 scales: {
-                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'Fira Code', size: 9 } } },
-                    y: { position: 'left', min: 60, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fbbf24', font: { family: 'Fira Code', size: 9 } } },
-                    y1: { position: 'right', min: 10, max: 20, grid: { display: false }, ticks: { color: '#c084fc', font: { family: 'Fira Code', size: 9 } } }
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b', font: { family: 'Fira Code', size: 8 } } },
+                    y: { position: 'left', min: 50, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#fbbf24', font: { family: 'Fira Code', size: 8 } } },
+                    y1: { position: 'right', min: 0, max: 1.2, grid: { display: false }, ticks: { color: '#c084fc', font: { family: 'Fira Code', size: 8 } } }
                 }
             }
         });
 
-        // Event Generator Step
-        function simulationStep() {
-            if (!isStreaming) return;
-
-            // Advance each active UE
-            for (let i = 0; i < activeUes.length; i++) {
-                let ue = activeUes[i];
-                let meta = STAGE_META[ue.stage];
-                
-                // Add realistic micro-jitter (±5%)
-                let jitter = (Math.random() - 0.5) * 0.4;
-                let delta = Math.max(0.5, meta.delta + jitter);
-                ue.accumulated += delta;
-
-                const event = {
-                    id: `evt-${ue.id}-${ue.stage}-${Date.now().toString().slice(-4)}`,
-                    time: new Date().toLocaleTimeString('pt-BR', { hour12: false }) + "." + String(Date.now() % 1000).padStart(3, '0'),
-                    ueId: ue.id,
-                    stage: ue.stage,
-                    name: meta.name,
-                    layer: meta.layer,
-                    from: meta.from,
-                    to: meta.to,
-                    fromName: ENTITIES[meta.from],
-                    toName: ENTITIES[meta.to],
-                    delta: delta.toFixed(2),
-                    accumulated: ue.accumulated.toFixed(2),
-                    color: meta.color,
-                    spec: meta.spec,
-                    radio: {
-                        sinr: (16.0 + (Math.random() - 0.5) * 0.8).toFixed(1),
-                        prb: (78.0 + (Math.random() - 0.5) * 3.0).toFixed(1),
-                        throughput: (106.5 + (Math.random() - 0.5) * 2.0).toFixed(1),
-                        latency: (2.8 + (Math.random() - 0.5) * 0.3).toFixed(2),
-                        rdlDecision: "0.12 ms"
-                    }
-                };
-
-                eventLog.unshift(event);
-                if (eventLog.length > 200) eventLog.pop();
-                totalEvents++;
-
-                renderLadderRow(event);
-                renderTableRow(event);
-
-                // Progress to next stage or finish
-                if (ue.stage < 5) {
-                    ue.stage++;
+        // Step Progression Function
+        function advanceStep() {
+            // Update Stepper UI
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById(`step${i}`);
+                if (i === currentPhase) {
+                    el.classList.add('active');
                 } else {
-                    // Recycle UE session
-                    activeUes[i] = { id: nextUeId++, stage: 1, accumulated: 0 };
+                    el.classList.remove('active');
                 }
             }
 
-            updateMetrics();
-            updateCharts();
-        }
-
-        function renderLadderRow(ev) {
-            const container = document.getElementById('ladderContainer');
-            const row = document.createElement('div');
-            row.className = 'ladder-arrow-row';
-            row.style.setProperty('--arrow-color', ev.color);
-
-            // Compute column positions (5 columns = 20% each)
-            const colWidth = 20; // percentage
-            const startCol = Math.min(ev.from, ev.to);
-            const endCol = Math.max(ev.from, ev.to);
-            
-            const leftPercent = (startCol * colWidth) + 10;
-            const widthPercent = (endCol === startCol) ? 8 : (endCol - startCol) * colWidth;
-            const isRight = ev.to >= ev.from;
-
-            row.innerHTML = `
-                <div class="arrow-line" style="left: ${leftPercent}%; width: ${widthPercent}%;"></div>
-                <div class="arrow-head ${isRight ? 'right' : 'left'}" style="left: ${isRight ? (leftPercent + widthPercent - 1) : leftPercent}%;"></div>
-                <div class="arrow-label" style="left: ${leftPercent + (widthPercent / 2)}%;">
-                    UE ${ev.ueId} • E${ev.stage}: ${ev.name.split('&')[0]} (${ev.delta}ms)
-                </div>
-            `;
-
-            container.insertBefore(row, container.firstChild);
-            while (container.children.length > 8) {
-                container.removeChild(container.lastChild);
+            const conflictBadge = document.getElementById('conflictBadge');
+            if (currentPhase === 3 || currentPhase === 4) {
+                conflictBadge.style.display = 'inline-block';
+                conflictBadge.textContent = "● Conflito Ativo Detectado";
+                conflictBadge.style.background = "rgba(239, 68, 68, 0.15)";
+                conflictBadge.style.color = "#f87171";
+            } else if (currentPhase >= 5) {
+                conflictBadge.style.display = 'inline-block';
+                conflictBadge.textContent = "✓ Arbitrado com Sucesso pela RDL";
+                conflictBadge.style.background = "rgba(52, 211, 153, 0.15)";
+                conflictBadge.style.color = "#34d399";
+            } else {
+                conflictBadge.style.display = 'none';
             }
-        }
 
-        function renderTableRow(ev) {
-            const tbody = document.getElementById('eventsTableBody');
-            const tr = document.createElement('tr');
-            tr.onclick = () => showInspector(ev);
-            tr.innerHTML = `
-                <td>${ev.time}</td>
-                <td style="color: #38bdf8; font-weight: 700;">#${ev.ueId}</td>
-                <td><span class="badge" style="background: ${ev.color}; color: #0f172a;">Etapa ${ev.stage}</span></td>
-                <td>${ev.name}</td>
-                <td style="color: var(--text-muted);">${ev.layer}</td>
-                <td>${ev.fromName} &rarr; ${ev.toName}</td>
-                <td style="color: ${ev.color}; font-weight: 700;">+${ev.delta} ms</td>
-                <td><strong>${ev.accumulated} ms</strong></td>
-                <td><span class="badge" style="background: rgba(52, 211, 153, 0.2); color: #34d399;">✓ OK</span></td>
-            `;
+            // Update Telemetry Chart Values
+            const isGoverned = currentPhase >= 5 || currentPhase === 1;
+            const thr = isGoverned ? (106.8 + (Math.random() - 0.5) * 1.5) : (88.5 + (Math.random() - 0.5) * 4.0);
+            const lat = isGoverned ? (2.8 + (Math.random() - 0.5) * 0.2) : (14.2 + (Math.random() - 0.5) * 2.0);
+            const prb = isGoverned ? (78.5 + (Math.random() - 0.5) * 1.5) : (92.0 + (Math.random() - 0.5) * 4.0);
+            const churn = isGoverned ? 0.05 : 0.85;
 
-            tbody.insertBefore(tr, tbody.firstChild);
-            while (tbody.children.length > 25) {
-                tbody.removeChild(tbody.lastChild);
-            }
-            document.getElementById('totalEventsCount').textContent = totalEvents;
-        }
-
-        function updateMetrics() {
-            document.getElementById('statActiveUes').textContent = activeUes.length;
-            const lastEv = eventLog[0];
-            if (lastEv) {
-                document.getElementById('statRdlLatency').textContent = lastEv.radio.rdlDecision.replace(' ms', '');
-                document.getElementById('chartQosBadge').textContent = `● ${lastEv.radio.throughput} Mbps | ${lastEv.radio.latency} ms`;
-                document.getElementById('chartRadioBadge').textContent = `● ${lastEv.radio.prb}% PRB | ${lastEv.radio.sinr} dB`;
-            }
-        }
-
-        function updateCharts() {
-            const last = eventLog[0];
-            if (!last) return;
+            document.getElementById('telemetryQos').textContent = `${thr.toFixed(1)} Mbps | ${lat.toFixed(1)} ms`;
+            document.getElementById('telemetryRadio').textContent = `${prb.toFixed(1)}% PRB | ${churn.toFixed(2)} ações/s`;
 
             qosChart.data.datasets[0].data.shift();
-            qosChart.data.datasets[0].data.push(parseFloat(last.radio.throughput));
+            qosChart.data.datasets[0].data.push(thr);
             qosChart.data.datasets[1].data.shift();
-            qosChart.data.datasets[1].data.push(parseFloat(last.radio.latency));
+            qosChart.data.datasets[1].data.push(lat);
             qosChart.update('none');
 
             radioChart.data.datasets[0].data.shift();
-            radioChart.data.datasets[0].data.push(parseFloat(last.radio.prb));
+            radioChart.data.datasets[0].data.push(prb);
             radioChart.data.datasets[1].data.shift();
-            radioChart.data.datasets[1].data.push(parseFloat(last.radio.sinr));
+            radioChart.data.datasets[1].data.push(churn);
             radioChart.update('none');
+
+            currentPhase = (currentPhase % 7) + 1;
         }
 
-        // Inspector Modal
-        function showInspector(ev) {
-            document.getElementById('modalTitle').textContent = `Inspeção: Etapa ${ev.stage} — ${ev.name}`;
-            document.getElementById('modalSubtitle').textContent = `UE ID: ${ev.ueId} • Camada: ${ev.layer} • Especificação: ${ev.spec}`;
-            
-            const payload = {
-                "3gpp_spec": ev.spec,
-                "event_id": ev.id,
-                "timestamp": ev.time,
-                "ue_id": ev.ueId,
-                "stage": ev.stage,
-                "timing": {
-                    "step_delta_ms": parseFloat(ev.delta),
-                    "accumulated_ms": parseFloat(ev.accumulated),
-                    "nominal_budget_ms": STAGE_META[ev.stage].accum,
-                    "sla_status": "COMPLIANT"
-                },
-                "entities": {
-                    "source": ev.fromName,
-                    "target": ev.toName
-                },
-                "e2sm_kpm_radio_snapshot": {
-                    "sinr_db": parseFloat(ev.radio.sinr),
-                    "prb_occupancy_pct": parseFloat(ev.radio.prb),
-                    "throughput_mbps": parseFloat(ev.radio.throughput),
-                    "e2e_latency_ms": parseFloat(ev.radio.latency),
-                    "rdl_decision_latency": ev.radio.rdlDecision
-                }
+        // Stepper Clickable Triggers
+        for (let i = 1; i <= 7; i++) {
+            document.getElementById(`step${i}`).onclick = () => {
+                currentPhase = i;
+                advanceStep();
             };
-
-            document.getElementById('modalPayload').textContent = JSON.stringify(payload, null, 2);
-            document.getElementById('inspectorModal').style.display = 'flex';
         }
 
-        document.getElementById('modalCloseBtn').onclick = () => {
-            document.getElementById('inspectorModal').style.display = 'none';
+        // Controls
+        document.getElementById('btnPlayPause').onclick = function() {
+            isPlaying = !isPlaying;
+            document.getElementById('playIcon').textContent = isPlaying ? '⏸' : '▶';
+            document.getElementById('playText').textContent = isPlaying ? 'Pausar' : 'Retomar';
         };
 
-        // Header Controls
-        document.getElementById('btnTogglePlay').onclick = function() {
-            isStreaming = !isStreaming;
-            document.getElementById('playIcon').textContent = isStreaming ? '⏸' : '▶';
-            document.getElementById('playText').textContent = isStreaming ? 'Pausar' : 'Retomar';
+        document.getElementById('btnNextStep').onclick = () => {
+            advanceStep();
         };
 
-        document.getElementById('btnSpawnUE').onclick = function() {
-            activeUes.push({ id: nextUeId++, stage: 1, accumulated: 0 });
-            document.getElementById('statActiveUes').textContent = activeUes.length;
+        document.getElementById('btnReset').onclick = () => {
+            currentPhase = 1;
+            advanceStep();
         };
 
-        document.getElementById('btnExportJSON').onclick = function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(eventLog, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `oran_realtime_protocol_trace_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+        document.getElementById('selectScenario').onchange = (e) => {
+            activeScenario = e.target.value;
+            currentPhase = 1;
+            advanceStep();
         };
 
-        // Run Simulation Loop every 400ms
-        setInterval(simulationStep, 400);
-        simulationStep();
+        // Auto-Play Timer (every 1.5s)
+        setInterval(() => {
+            if (isPlaying) {
+                advanceStep();
+            }
+        }, 1500);
+
+        advanceStep();
     </script>
 </body>
 </html>
