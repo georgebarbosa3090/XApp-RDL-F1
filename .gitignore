@@ -140,3 +140,56 @@ Thumbs.db
 # 12. Scripts PowerShell locais de automação IDE
 *.ps1
 
+
+# =============================================================================
+# Regras Estritas de Exclusão: Scripts Não-Essenciais (PROIBIDO NO GITHUB)
+# =============================================================================
+
+# Scripts PowerShell Locais e de Automação de IDE
+*.ps1
+scripts/*.ps1
+
+# Scripts de Backup, Snapshot, Sincronização e Automação Git
+scripts/backup_to_google_drive.*
+scripts/create_daily_snapshot.*
+scripts/git_*.*
+scripts/sync_*.*
+scripts/verify_f1_f2_cross_repo_sync.*
+scripts/package_and_sync_raw_results.*
+scripts/auto_update_simulation_figures_and_github.*
+*backup*
+*snapshot*
+*sync*
+
+# Scripts de Manutenção, Refatoração, Formatação e Helpers Ad-hoc
+scripts/refactor_code_blocks.*
+scripts/reconcile_all_tables_and_docs.*
+scripts/reconcile_runs_and_manifests.*
+scripts/format_readmes.*
+scripts/fix_mermaid.*
+scripts/fix_crlf.*
+scripts/export_pdf.*
+scripts/check_math_syntax.*
+scripts/check_agent.*
+scripts/test_batching.*
+scripts/run_pyright_check.*
+scripts/update_colab_notebook.*
+scripts/update_p1_gitignore.*
+scripts/resolve_phase1_rebase.*
+
+# Scripts Utilitários Pontuais de Geração de Figuras / Relatórios Transitórios
+scripts/generate_advanced_spatial_topology_figures.*
+scripts/generate_architecture_flow_diagram.*
+scripts/generate_before_after_comparison_figure.*
+scripts/generate_ns3_flowmonitor_markdown_report.*
+scripts/generate_publication_report_figures.*
+scripts/generate_s0_s15_architecture_figures.*
+scripts/generate_scenario_figures.*
+scripts/generate_scientific_architecture_figures.*
+scripts/generate_extended_figures_and_tables.*
+scripts/reproduce_paper_artifacts.*
+scripts/run_golden_causal_comparison.*
+scripts/run_full_campaign_s0_s8.*
+scripts/run_3_consecutive_simulations.*
+scripts/evaluate_and_improve_algorithms.*
+scripts/validate_ml_provenance.*
