@@ -12,8 +12,8 @@
 Para garantir o máximo rigor científico e a reprodutibilidade dos resultados do H-RDL, a Fase 1 adota uma **estratégia dual-backend complementar**:
 
 $$\boxed{\begin{array}{ccc}
-\text{\textbf{Backend 1: Simulação ns-3/NORI}} & \Longleftrightarrow & \text{\textbf{Backend 2: Software RAN srsRAN/Open5GS}} \\
-\text{(Controle Experimental, 30 Seeds, Estudo de Ablação)} & & \text{(Interoperabilidade E2 Real, Software de Produção)}
+\text{\textbf{Backend 1: Simulacao ns-3/NORI}} & \Longleftrightarrow & \text{\textbf{Backend 2: Software RAN srsRAN/Open5GS}} \\
+\text{(Controle Experimental, 30 Seeds, Estudo de Ablacao)} & & \text{(Interoperabilidade E2 Real, Software de Producao)}
 \end{array}}$$
 
 1. **`HRDL_F1_NORI_PROFILE` (Congelado):** Ancorado em `E2AP v02.03`, `E2SM-KPM v03.00` e `E2SM-RC v01.03` no simulador ns-3.48 / 5G-LENA v5.1.
@@ -53,7 +53,7 @@ testbed_stabilization_samples: 3
 
 Diferente da simulação NORI (Style 1 / Action 1), a implementação nativa do srsRAN mapeia o controle de cotas de PRB por fatia (*Slice-Level PRB Quota*) no **Control Service Style 2 / Action 6**:
 
-$$\boxed{\text{Ação H-RDL } (\text{PRB-QUOTA}) \longrightarrow \text{E2SM-RC Style 2} \longrightarrow \text{Control Action 6} \longrightarrow \text{RAN Parameter ID 1}}$$
+$$\boxed{\text{Acao H-RDL } (\text{PRB-QUOTA}) \longrightarrow \text{E2SM-RC Style 2} \longrightarrow \text{Control Action 6} \longrightarrow \text{RAN Parameter ID 1}}$$
 
 | Parâmetro H-RDL | Control Style (`srsRAN`) | Control Action (`srsRAN`) | Parameter ID | Unidade / Faixa |
 | :--- | :---: | :---: | :---: | :---: |
@@ -69,4 +69,4 @@ No testbed srsRAN, o período de emissão de telemetria KPM é configurado em $T
 1. **Janela de Agrupamento RDL ($W_{\text{decision}} = 200\text{ms}$):** As propostas emitidas pelas xApps concorrentes continuam sendo agregadas e arbitradas em lotes determinísticos de 200 ms.
 2. **Janela de Observação Testbed ($T_{\text{KPM}} = 1000\text{ms}$):** A recuperação da rede e a melhoria dos KPIs após uma ação de controle exigem **3 amostras KPM consecutivas estáveis** ($T_{\text{stable}} \approx 3.0\text{s}$) para encerramento de evento no `CausalTracker`.
 
-$$\boxed{T_{\text{observação}}^{\text{srsRAN}} = 3 \times T_{\text{KPM}} = 3.0\text{ s}}$$
+$$\boxed{T_{\text{observacao}}^{\text{srsRAN}} = 3 \times T_{\text{KPM}} = 3.0\text{ s}}$$

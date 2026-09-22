@@ -9,15 +9,13 @@
 
 A pesquisa no projeto **xApp RDL (Resource and Decision Layer)** é estruturada em um ciclo evolutivo de 3 fases contínuas:
 
-```
-2026 (Q1-Q3)                      2026 (Q3-Q4)                      2027-2028
-┌───────────────────────────┐     ┌───────────────────────────┐     ┌───────────────────────────┐
-│     FASE 1: H-RDL         │     │     FASE 2: CA-RDL        │     │     FASE 3: FEDERADA 6G   │
-│ - Heurísticas TVS/EEVS    │────►│ - Context Engine & KG     │────►│ - Intent-Driven A1 Policy │
-│ - Safety Guards Físicos   │     │ - Safe-MAPPO (CMDP)       │     │ - Federação Multi-RIC     │
-│ - Zero Violação de SLA    │     │ - Otimização de Pareto    │     │ - SAGIN / NTN / Zero-Trust│
-│ [STATUS: CONCLUÍDA]       │     │ [STATUS: CONCLUÍDA]       │     │ [STATUS: ROADMAP ATIVO]   │
-└───────────────────────────┘     └───────────────────────────┘     └───────────────────────────┘
+```mermaid
+flowchart LR
+    F1["FASE 1: H-RDL (2026 Q1-Q3)<br/>• Heurísticas TVS/EEVS<br/>• Safety Guards Físicos<br/>• Zero Violação de SLA<br/><b>[STATUS: CONCLUÍDA]</b>"]
+    F2["FASE 2: CA-RDL (2026 Q3-Q4)<br/>• Context Engine & KG<br/>• Safe-MAPPO (CMDP)<br/>• Otimização de Pareto<br/><b>[STATUS: CONCLUÍDA]</b>"]
+    F3["FASE 3: FEDERADA 6G (2027-2028)<br/>• Intent-Driven A1 Policy<br/>• Federação Multi-RIC<br/>• SAGIN / NTN / Zero-Trust<br/><b>[STATUS: ROADMAP ATIVO]</b>"]
+    
+    F1 --> F2 --> F3
 ```
 
 ![Cronograma Gantt de Evolução do Projeto RDL Fase 3](figures/01_arquitetura_e_governanca/diagram_07_roadmap_gantt_fase3.png)
@@ -28,31 +26,25 @@ A pesquisa no projeto **xApp RDL (Resource and Decision Layer)** é estruturada 
 
 A Fase 3 estende os conceitos de governança cognitiva para redes altamente distribuídas, densas e multi-domínio em direção ao 6G:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          SMO & NON-RT RIC (O-RAN WG2)                       │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                    INTENT-DRIVEN A1 POLICY ENGINE                     │  │
-│  │  - Processamento de Intenções em Linguagem Natural (LLM Telecom / NLP)│  │
-│  │  - Decomposição de Políticas Globais em Contratos A1-P Formais        │  │
-│  └───────────────────────────────────┬───────────────────────────────────┘  │
-└──────────────────────────────────────┼──────────────────────────────────────┘
-                                       │ Interface A1 (JSON Schema / REST)
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                    NEAR-RT RIC FEDERADO (O-RAN WG3)                         │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                        xApp-RDL 6G FEDERATED CORE                     │  │
-│  │  - Federated Learning Orchestrator (Agregação Segura de Gradientes)   │  │
-│  │  - SAGIN Multi-Domain Coordinator (Terrestre, Aéreo UAV, Orbital NTN) │  │
-│  │  - Zero-Trust Security Sandbox (Isolamento e Quarentena de Rogue Apps)│  │
-│  │  - Quantum-Resistant Causal Signature (Pós-Quântica / Dilithium)      │  │
-│  └───────────────────────────────────┬───────────────────────────────────┘  │
-└──────────────────────────────────────┼──────────────────────────────────────┘
-                                       │ Interface E2 / O1 / Open Fronthaul
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                  INFRAESTRUTURA SAGIN 6G (O-CU / O-DU / O-RU)               │
-│  - Satélites LEO (600 km) | UAVs em Enxame | Macrocell 3.5 GHz | RIS Reconf. │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph SMO_NONRT["SMO & NON-RT RIC (O-RAN WG2)"]
+        direction TB
+        A1_ENGINE["INTENT-DRIVEN A1 POLICY ENGINE<br/>• Processamento de Intenções em Linguagem Natural (LLM Telecom / NLP)<br/>• Decomposição de Políticas Globais em Contratos A1-P Formais"]
+    end
+
+    subgraph RIC_FED["NEAR-RT RIC FEDERADO (O-RAN WG3)"]
+        direction TB
+        RDL_6G["xApp-RDL 6G FEDERATED CORE<br/>• Federated Learning Orchestrator (Agregação Segura de Gradientes)<br/>• SAGIN Multi-Domain Coordinator (Terrestre, Aéreo UAV, Orbital NTN)<br/>• Zero-Trust Security Sandbox (Isolamento e Quarentena de Rogue Apps)<br/>• Quantum-Resistant Causal Signature (Pós-Quântica / Dilithium)"]
+    end
+
+    subgraph SAGIN_INFRA["INFRAESTRUTURA SAGIN 6G (O-CU / O-DU / O-RU)"]
+        direction TB
+        NODES["Satélites LEO (600 km) | UAVs em Enxame | Macrocell 3.5 GHz | RIS Reconfiguráveis"]
+    end
+
+    A1_ENGINE -->|"Interface A1 (JSON Schema / REST)"| RDL_6G
+    RDL_6G -->|"Interface E2 / O1 / Open Fronthaul"| NODES
 ```
 
 ![Proposta Arquitetural Federada e Multi-Domínio 6G](figures/01_arquitetura_e_governanca/diagram_06_proposta_arquitetural_fase3_6g.png)

@@ -162,23 +162,19 @@ uv run --with matplotlib --with seaborn --with pandas --with scipy python analys
 
 Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    TESTBED GREENRAN / UFPA                  │
-│                                                             │
-│  ┌──────────────────┐    SCTP:36422   ┌──────────────────┐  │
-│  │   Near-RT RIC    │◄───────────────►│    srsRAN gNB    │  │
-│  │   (xApp RDL)     │   E2AP / E2SM   │   (Open5GS Core) │  │
-│  └──────────────────┘                 └────────┬─────────┘  │
-│                                                │ RF / 3.5GHz│
-│                                       ┌────────▼─────────┐  │
-│                                       │  USRP N310 / B210│  │
-│                                       └────────┬─────────┘  │
-│                                                │ Over-The-Air
-│                                       ┌────────▼─────────┐  │
-│                                       │ UEs Comerciais 5G│  │
-│                                       └──────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph GREENRAN["TESTBED GREENRAN / UFPA"]
+        direction TB
+        RIC["Near-RT RIC<br/>(xApp RDL)"]
+        GNB["srsRAN gNB<br/>(Open5GS Core)"]
+        USRP["USRP N310 / B210"]
+        UE["UEs Comerciais 5G"]
+
+        RIC <==>|"SCTP:36422<br/>E2AP / E2SM"| GNB
+        GNB -->|"RF / 3.5 GHz"| USRP
+        USRP -->|"Over-The-Air"| UE
+    end
 ```
 
 1. **Configuração da gNodeB srsRAN 24.10:** Configurar `e2_ip` apontando para o IP do pod `e2term` no cluster K8s.

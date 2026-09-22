@@ -10,23 +10,21 @@
 
 O H-RDL integra-se com a plataforma O-RAN SC Release J através de duas interfaces principais de comunicação:
 
-```text
-               ┌────────────────────────────────────────────────────────┐
-               │         Plataforma Near-RT RIC (O-RAN SC)              │
-               │                                                        │
-               │   ┌───────────────────┐        ┌───────────────────┐   │
-               │   │ Subscription Mgr  │        │      E2Term       │   │
-               │   │   (REST API)      │        │   (SCTP / RMR)    │   │
-               │   └─────────┬─────────┘        └─────────┬─────────┘   │
-               └─────────────┼────────────────────────────┼─────────────┘
-                             │ REST                       │ RMR / SCTP
-                             ▼                            ▼
-               ┌────────────────────────────────────────────────────────┐
-               │                   xApp RDL (H-RDL)                     │
-               │  - SubMgr REST Client (:8088)                          │
-               │  - RMR Dispatcher (:4560 / :38000)                     │
-               │  - E2AP APER Codec Engine                              │
-               └────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph RIC_PLT["Plataforma Near-RT RIC (O-RAN SC)"]
+        direction LR
+        SUBMGR["Subscription Mgr<br/>(REST API :8088)"]
+        E2TERM["E2Term<br/>(SCTP / RMR)"]
+    end
+
+    subgraph RDL_APP["xApp RDL (H-RDL / CA-RDL)"]
+        direction TB
+        RDL_CORE["• SubMgr REST Client (:8088)<br/>• RMR Dispatcher (:4560 / :38000)<br/>• E2AP APER Codec Engine"]
+    end
+
+    SUBMGR -->|"REST (HTTP/JSON)"| RDL_APP
+    E2TERM <==>|"RMR / SCTP (E2AP)"| RDL_APP
 ```
 
 ---

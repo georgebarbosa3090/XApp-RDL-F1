@@ -9,17 +9,19 @@
 
 A desagregação do plano de controle no Near-RT RIC permite que múltiplas xApps operem de forma autônoma sobre a mesma infraestrutura de rádio. Esta coexistência engendra 5 classes fundamentais de conflitos:
 
-```
-                              ┌─────────────────────────────────────────┐
-                              │     TAXONOMIA DE CONFLITOS O-RAN        │
-                              └────────────────────┬────────────────────┘
-                                                   │
-         ┌───────────────────┬─────────────────────┼─────────────────────┬───────────────────┐
-         │                   │                     │                     │                   │
-┌────────▼────────┐ ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐ ┌────────▼────────┐
-│ Conflito Direto │ │Conflito Indireto│   │Conflito Implíct.│   │Conflito Temporal│ │ Conflict Storm  │
-│(Mesmo Parâmetro)│ │(Coupled Slices) │   │(Grafo Semântico)│   │ (Ping-Pong/Osc) │ │(Carga > 50 act/s│
-└─────────────────┘ └─────────────────┘   └─────────────────┘   └─────────────────┘ └─────────────────┘
+```mermaid
+flowchart TD
+    ROOT["TAXONOMIA DE CONFLITOS O-RAN"]
+    C1["Conflito Direto<br/>(Mesmo Parâmetro)"]
+    C2["Conflito Indireto<br/>(Coupled Slices)"]
+    C3["Conflito Implícito<br/>(Grafo Semântico)"]
+    C4["Conflito Temporal<br/>(Ping-Pong / Oscilação)"]
+    C5["Conflict Storm<br/>(Carga > 50 act/s)"]
+    ROOT --> C1
+    ROOT --> C2
+    ROOT --> C3
+    ROOT --> C4
+    ROOT --> C5
 ```
 
 ### 1.1. Conflito Direto (Direct Collision)
@@ -220,18 +222,11 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 
 A camada RDL é validada contra 3 xApps de código aberto consolidadas na literatura O-RAN:
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          xApps DE REFERÊNCIA ABERTAS                        │
-├──────────────────────────┬──────────────────────────┬───────────────────────┤
-│ xSlice (QoS & Slicing)   │ Energy Saving (GreenRAN) │ Traffic Steering (TS) │
-│ Repositório:             │ Repositório:             │ Repositório:          │
-│ peihaoY/xslice-oran      │ Orange / ns-O-RAN-flexric│ o-ran-sc/ric-app-ts   │
-├──────────────────────────┼──────────────────────────┼───────────────────────┤
-│ Solicita: PRB_QUOTA      │ Solicita: TX_POWER / SLEEP│ Solicita: HANDOVER   │
-│ Prioridade: 90 (Alta)    │ Prioridade: 65 (Média)   │ Prioridade: 80 (Alta) │
-└──────────────────────────┴──────────────────────────┴───────────────────────┘
-```
+| xApp de Referência | Repositório Oficial | Parâmetro Solicitado | Prioridade Padrão |
+| :--- | :--- | :--- | :---: |
+| **xSlice (QoS & Slicing)** | [`peihaoY/xslice-oran`](https://github.com/peihaoY/xslice-oran) | `PRB_QUOTA` (Cotas de PRBs para fatias) | 90 (Alta) |
+| **Energy Saving (GreenRAN)** | [`Orange-OpenSource/ns-O-RAN-flexric`](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) | `TX_POWER` / `CELL_SLEEP` | 65 (Média) |
+| **Traffic Steering (TS)** | [`o-ran-sc/ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | `HANDOVER` (Migração de UEs) | 80 (Alta) |
 
 ---
 

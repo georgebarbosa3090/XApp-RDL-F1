@@ -3,6 +3,23 @@
 # Regras Permanentes de Exclusão e Higienização de Repositório
 # =============================================================================
 
+# 1. Snapshots, Arquivos Compactados e Dumps (PERMANENTEMENTE PROIBIDO NO GITHUB)
+.snapshots/
+snapshots/
+*snapshot*
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+
+# =============================================================================
+# .gitignore — XApp-RDL-F1 (H-RDL)
+# Regras Permanentes de Exclusão e Higienização de Repositório
+# =============================================================================
+
 # 1. Diretórios de Agentes e Skills Locais (Permanentemente Proibido)
 .agents/
 /agents/

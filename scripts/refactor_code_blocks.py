@@ -171,16 +171,11 @@ def process_repo(repo_path):
     print(f"Total files updated in {repo_path}: {count}")
 
 if __name__ == '__main__':
-    if sys.platform.startswith("linux"):
-        repos = [
-            "/mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1",
-            "/mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase2"
-        ]
-    else:
-        repos = [
-            r"C:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase1",
-            r"C:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase2"
-        ]
+    current_repo = Path(__file__).resolve().parent.parent
+    sibling_repo = current_repo.parent / "iqos-xapp-rdl-phase1"
+    repos = [str(current_repo)]
+    if sibling_repo.exists():
+        repos.append(str(sibling_repo))
     for r in repos:
         if os.path.exists(r):
             process_repo(r)
