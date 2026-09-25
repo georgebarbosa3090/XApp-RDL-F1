@@ -1,0 +1,5 @@
+Baseline,N,Throughput_Mean_Mbps,Throughput_Std,Throughput_CI95_Low,Throughput_CI95_High,URLLC_Lat_P95_Mean_ms,URLLC_Lat_P95_Std,URLLC_Lat_CI95_Low,URLLC_Lat_CI95_High,SLA_Viol_Mean_pct,SLA_Viol_Std,SLA_Viol_CI95_Low,SLA_Viol_CI95_High,Jain_Fairness_Mean,Jain_Fairness_Std,PDR_Mean_pct,Action_Churn_Mean_per_s,Unsafe_Actions_Total,Wilcoxon_p_Latency_vs_B3,Cohen_dz_Latency_vs_B3,Cohen_dz_Throughput_vs_B3
+B0,30,99.96,2.91,98.87,101.05,221.72,5.76,219.57,223.87,92.06,1.45,91.51,92.6,0.9793,0.0071,92.4,4.8,360,1.73e-06,-38.1,-5.79
+B1,30,102.19,1.96,101.46,102.92,7.8,10.5,3.88,11.72,3.41,3.8,1.99,4.83,0.9961,0.0019,97.11,5.0,0,5.87e-05,-0.52,-5.81
+B2,30,68.31,3.59,66.97,69.65,2.34,0.01,2.34,2.35,0.0,0.0,0.0,0.0,0.9684,0.0113,67.19,0.0,0,0.4669,-0.13,18.42
+B3,30,89.26,3.49,87.96,90.57,2.34,0.0,2.34,2.35,0.0,0.0,0.0,0.0,0.9905,0.006,85.21,10.0,0,1.0000,0.0,0.0

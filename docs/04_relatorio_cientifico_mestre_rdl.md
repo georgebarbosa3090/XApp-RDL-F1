@@ -764,6 +764,13 @@ Como etapas imediatas de evolução (Fase 3):
 - **`01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png`**: [MODELO CONCEITUAL] Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN (rApp $\times$ xApp $\times$ dApp).
 - **`01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png`**: [MODELO CONCEITUAL] Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP (Cenário S7).
 - **`01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png`**: [MODELO ANALÍTICO CONSOLIDADO] Radar Multidimensional de Desempenho Comparativo em 8 Dimensões.
+- **`fig_31_rich_demo_8stages_execution_timeline.png`**: [DEMONSTRAÇÃO RICA] Linha do tempo dos 8 estágios do ciclo fechado e certificação dos 4-Gates O-RAN.
+- **`fig_32_conflict_storm_scalability_l0_l4.png`**: [DEMONSTRAÇÃO RICA] Benchmark de escalabilidade massiva sob tempestade de conflitos L0 a L4 (até 500 UEs, 10 xApps e 4.034 conflitos).
+- **`fig_33_influx_grafana_realtime_closed_loop_recovery.png`**: [DEMONSTRAÇÃO RICA] Séries temporais de telemetria reproduzindo a observabilidade Grafana 10 e InfluxDB v2.7.
+- **`fig_34_two_tier_dapp_bounding_box_envelope.png`**: [DEMONSTRAÇÃO RICA] Envelope operacional seguro $\Omega_{\text{dApp}}$ para execução em sub-1ms TTI no O-DU (nGRG-RR-2024-10).
+- **`fig_35_multi_scenario_demonstration_cockpit_comparison.png`**: [DEMONSTRAÇÃO RICA] Comparativo multidimensional dos Cenários Demo A (Tempestade), B (dApp URLLC) e C (Flapping).
+- **`fig_36_flowmonitor_ns3_s0_s15_traffic_profiles.png`**: [SIMULAÇÕES NS-3] Desempenho temporal e perfis físicos extraídos do FlowMonitor em todos os 16 cenários (S0 a S15).
+- **`fig_37_demonstration_master_dashboard.png`**: [DASHBOARD MESTRE] Painel integrado 2x2 consolidando estágios, escalabilidade, telemetria e conformidade.
 
 ### Tabelas Científicas Consolidadas (CSV) em `experiments/results/tables/`
 1. **`configuration.csv`**: Parâmetros congelados de simulação e topologia 3GPP/O-RAN.

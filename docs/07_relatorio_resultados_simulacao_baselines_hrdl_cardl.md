@@ -201,21 +201,112 @@ Os testes pareados com 5 sementes comprovam significância estatística na evolu
 
 ---
 
-## 9. Matriz de Recomendações Técnicas: Quando Usar H-RDL vs CA-RDL
+---
 
-| Critério de Projeto | H-RDL (Fase 1 Determinística) | CA-RDL (Fase 2 Cognitiva / Safe-MAPPO) | Recomendação de Engenharia |
-| :--- | :--- | :--- | :--- |
-| **Orçamento Temporal** | **$0,12$ ms** (Ultrabaixo) | **$1,84$ ms** (Médio) | Utilizar **H-RDL** para ciclos Near-RT estritos $< 5	ext{ ms}$; utilizar **CA-RDL** para janelas nominais de $10	ext{ a }200	ext{ ms}$. |
-| **Previsibilidade e Auditoria** | **100% Axiomática** (Barganha de Nash) | **Estocástica Guiada** (Redes Neurais) | Ambientes de missão crítica com certificação formal exigem a **H-RDL** ou a **CA-RDL com Action Masking estrito**. |
-| **Complexidade Dimensional** | Ideal para colisões 2D/3D (PRB, Potência) | Superior em cenários complexos (NTN, SAGIN, V2X) | Utilizar **CA-RDL** quando houver acoplamento entre fatias espaciais, móveis e orbitais heterogêneas. |
-| **Consumo de Hardware** | Mínimo (Opera em microcontroladores e CPU básica) | Demanda inferência de tensores (CPU multi-core / GPU) | **H-RDL** indicada para O-DU embarcada; **CA-RDL** indicada para servidores Near-RT RIC em nuvem/datacenter. |
-| **Maturidade Tecnológica** | **TRL 5/6** (Validada em Testbed srsRAN/Open5GS) | **TRL 4/5** (Validada em Co-simulação e Bancada Virtual) | **H-RDL** pronta para homologação operacional imediata. |
+## 10. Resultados da Demonstração Rica & Cockpit de Orquestração
+
+A suíte de demonstração em tempo real ([`run_rich_terminal_inspector.py`](file:///experiments/demonstration/run_rich_terminal_inspector.py)) valida o ciclo fechado canônico em 8 estágios, consolidando as seguintes métricas em [`experiments/results/tables/demonstration_scenarios_summary.csv`](file:///experiments/results/tables/demonstration_scenarios_summary.csv):
+
+| Cenário | Título e Foco | UEs | xApps | Propostas | Conflitos | Tier Decisão | $t_{\text{dec}}$ | Status de Segurança | Closed-Loop |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **A** | **Tempestade de Conflitos (Conflict Storm)**<br>6 xApps simultâneas (Slice, Energy, TS, Beam, ISAC, Rogue) | 5 | 6 | 6 | 4 (C1-C5) | **Tier 3 (Safe-MAPPO)** | **1.84 ms** | **PASSED (Unsafe ≡ 0)** | **CERTIFIED [OK]** |
+| **B** | **Preempção Rápida URLLC & dApp**<br>Two-Tier AI (Near-RT $\leftrightarrow$ O-DU $< 1\text{ ms}$ TTI) | 5 | 2 | 2 | 1 (C5 Multi-Tier) | **Tier 2 (NDT / Envelopes)** | **0.45 ms** | **PASSED (Unsafe ≡ 0)** | **CERTIFIED [OK]** |
+| **C** | **Eliminação de Flapping Temporal**<br>Lockout de 5s no Grafo / Histerese A3 vs Tilt | 4 | 2 | 2 | 1 (C3 Flapping) | **Tier 1 (Heurístico / Lockout)** | **0.10 ms** | **PASSED (Unsafe ≡ 0)** | **CERTIFIED [OK]** |
 
 ---
 
-## 10. Conclusão
+## 11. Observabilidade em Tempo Real: Grafana 10 e InfluxDB v2.7
 
-Os resultados de simulação reunidos neste relatório comprovam de forma irrefutável a eficácia da arquitetura RDL:
-1. **A Fase 1 (H-RDL)** estabelece a barreira determinística indispensável para estabilizar a rede Open RAN, erradicando $100\%$ das violações de SLA sob colisão direta e suprimindo o ping-pong com tempo de decisão inferior a $0,15	ext{ ms}$;
+A camada de visualização gráfica e telemetria contínua foi implementada por meio da integração nativa entre o Near-RT RIC, o banco de séries temporais **InfluxDB v2.7** e o painel dinâmico **Grafana 10**:
+
+```mermaid
+flowchart LR
+    subgraph RAN["Plano de Dados & Simulação"]
+        NS3["ns-3.48 / 5G-LENA"]
+        E2Node["NORI E2 Agent"]
+        NS3 <--> E2Node
+    end
+
+    subgraph RIC["Near-RT RIC & Governança"]
+        RDL["xApp-RDL (H-RDL / CA-RDL)"]
+        Streamer["Telemetry Bridge (Python / Async)"]
+        E2Node -->|"E2SM-KPM Indication"| RDL
+        RDL -->|"E2SM-RC Control"| E2Node
+        RDL -->|"Métricas & Decisões"| Streamer
+    end
+
+    subgraph Obs["Stack de Observabilidade Gráfica"]
+        Influx["InfluxDB v2.7<br/>Porta: 8086<br/>Bucket: oran_telemetry"]
+        Grafana["Grafana 10<br/>Porta: 3000<br/>Dashboard: /d/oran-rdl-closed-loop"]
+        Streamer -->|"Line Protocol (HTTP POST)"| Influx
+        Influx -->|"Flux Query Engine (1s poll)"| Grafana
+    end
+```
+
+### 11.1. Especificação dos Endpoints e Acessos
+- **Grafana 10 Dashboard:** [`http://localhost:3000/d/oran-rdl-closed-loop`](http://localhost:3000/d/oran-rdl-closed-loop)  
+  *(Painéis: Vazão por Fatia, Alocação de PRBs, Latência RLC, Taxonomia de Conflitos Detectados, Recompensas MAPPO, Envelopes $\Omega_{\text{dApp}}$ e Status de Fechamento de Malha E2SM-RC)*;
+- **InfluxDB v2.7 UI:** [`http://localhost:8086`](http://localhost:8086)  
+  *(Organização: `oran-alliance`, Bucket: `oran_telemetry`, Token: `oran_rdl_token_secret_key_2026_super_secure`, Medições: `hrdl_fase1`, `hrdl_fase2`, `conflict_storm`)*;
+- **Ponte de Telemetria:** [`deployments/telemetry/telemetry_influx_bridge.py`](file:///deployments/telemetry/telemetry_influx_bridge.py) e [`deployments/telemetry/ns3_5glena_telemetry_bridge.py`](file:///deployments/telemetry/ns3_5glena_telemetry_bridge.py).
+
+---
+
+## 12. Catálogo Completo de 37 Figuras Científicas e 16 Tabelas Atualizadas
+
+Todas as 37 figuras científicas em 300 DPI e 16 tabelas CSV estão disponíveis nos diretórios oficiais:
+
+### Figuras Científicas em [`reports/figures/`](file:///reports/figures/) e [`docs/figures/`](file:///docs/figures/):
+1. **[Fig 01: Causal Timeline](file:///reports/figures/fig_01_causal_timeline.png)** — Cronologia do ciclo fechado KPM $\to$ Conflito $\to$ Decisão $\to$ RC;
+2. **[Fig 02: Throughput Timeseries](file:///reports/figures/fig_02_throughput_timeseries.png)** — Séries temporais de vazão por fatia antes e depois da mediação;
+3. **[Fig 03: Latency ECDF](file:///reports/figures/fig_03_latency_ecdf.png)** — Distribuição acumulada de latência de pacotes URLLC e eMBB;
+4. **[Fig 04: Throughput Boxplot](file:///reports/figures/fig_04_throughput_boxplot.png)** — Dispersão estatística de vazão através dos 7 baselines (B0 a B6);
+5. **[Fig 05: SLA Violation Violin](file:///reports/figures/fig_05_sla_violation_violin.png)** — Densidade de probabilidade de quebra de SLA contratual;
+6. **[Fig 06: Paired Seed Plot](file:///reports/figures/fig_06_paired_seed_plot.png)** — Pareamento semente a semente demonstrando consistência estocástica;
+7. **[Fig 07: Effect Forest](file:///reports/figures/fig_07_effect_forest.png)** — Forest plot com Cohen $d$ e intervalos de confiança a 95%;
+8. **[Fig 08: Scenario Heatmap](file:///reports/figures/fig_08_scenario_baseline_heatmap.png)** — Matriz térmica de desempenho cruzado (S0 a S15 vs B0 a B6);
+9. **[Fig 09: PRB Slice Area](file:///reports/figures/fig_09_prb_slice_area.png)** — Particionamento dinâmico de blocos de recursos físicos;
+10. **[Fig 10: SINR Throughput Hexbin](file:///reports/figures/fig_10_sinr_throughput_hexbin.png)** — Relação entre SINR de canal e eficiência espectral;
+11. **[Fig 11: MCS BLER](file:///reports/figures/fig_11_mcs_bler.png)** — Curvas de adaptação de enlace e taxa de erro de bloco;
+12. **[Fig 12: Latency Breakdown](file:///reports/figures/fig_12_latency_breakdown.png)** — Decomposição nos 11 estágios temporais do Near-RT RIC;
+13. **[Fig 13: Pareto Front](file:///reports/figures/fig_13_pareto.png)** — Fronteira de Pareto entre Vazão, Latência e Consumo Energético;
+14. **[Fig 14: Conflict Timeline](file:///reports/figures/fig_14_conflict_timeline.png)** — Detecção e classificação de conflitos no tempo;
+15. **[Fig 15: Action Churn](file:///reports/figures/fig_15_action_churn.png)** — Supressão da taxa de oscilação de controle (*ping-pong*);
+16. **[Fig 16: MAPPO Convergence](file:///reports/figures/fig_16_mappo_convergence.png)** — Curva de aprendizado e convergência do Safe-MAPPO;
+17. **[Fig 17: Safety Cost](file:///reports/figures/fig_17_safety_cost.png)** — Função de custo de restrição e multiplicador Lagrangeano;
+18. **[Fig 18: Generalization Gap](file:///reports/figures/fig_18_generalization_gap.png)** — Robustez contra cenários não vistos no treinamento;
+19. **[Fig 19: Cross-Layer Dashboard](file:///reports/figures/fig_19_crosslayer_analysis_dashboard.png)** / **[Pairplot](file:///reports/figures/fig_19_crosslayer_pairplot.png)** — Dashboard mestre 2x2 com Pareto, SINR, Estabilidade MAC e Matriz de Correlação;
+20. **[Fig 19a: Pareto Throughput-Latency](file:///reports/figures/fig_19a_crosslayer_pareto_throughput_latency.png)**;
+21. **[Fig 19b: PHY SINR Throughput](file:///reports/figures/fig_19b_crosslayer_phy_sinr_throughput.png)**;
+22. **[Fig 19c: MAC Stability Churn](file:///reports/figures/fig_19c_crosslayer_mac_stability_churn.png)**;
+23. **[Fig 19d: Correlation Heatmap](file:///reports/figures/fig_19d_crosslayer_correlation_heatmap.png)**;
+24. **[Fig 19e: Metric Distributions Violin](file:///reports/figures/fig_19e_crosslayer_metric_distributions_violin.png)**;
+25. **[Fig 20: 3D Pareto Surface](file:///reports/figures/fig_20_3d_pareto_surface.png)** — Superfície tridimensional (Vazão vs Latência vs Potência);
+26. **[Fig 21: 3D Gradient Scatter](file:///reports/figures/fig_21_3d_gradient_scatter_latency_recovery.png)** — Dispersão 3D de tempo de recuperação;
+27. **[Fig 22: Cognitive Stages Waterfall](file:///reports/figures/fig_22_cognitive_stages_waterfall.png)** — Cascata temporal do middleware;
+28. **[Fig 23: Decision Windows Trade-off](file:///reports/figures/fig_23_decision_windows_tradeoff.png)** — Impacto do tamanho da janela de agregação;
+29. **[Fig 24: Conflict Confusion Matrix](file:///reports/figures/fig_24_implicit_explicit_conflict_confusion.png)** — Matriz de confusão de classificação de conflitos;
+30. **[Fig 25: UE Registration Breakdown](file:///reports/figures/fig_25_ue_registration_breakdown.png)** — Latência dos 5 passos 3GPP (PRACH $\to$ RRC $\to$ NAS $\to$ PDU $\to$ E2);
+31. **[Fig 26: Jain Fairness Dynamics](file:///docs/figures/01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png)** — Evolução temporal da equidade inter-fatias;
+32. **[Fig 27: Energy vs QoS EEVS](file:///docs/figures/01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png)** — Trade-off de potência e taxa de Shannon;
+33. **[Fig 28: Cross-Tier Governance Latency](file:///docs/figures/01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png)** — Envelopes de tempo real Near-RT vs dApp;
+34. **[Fig 29: E2 Timeout Recovery](file:///docs/figures/01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png)** — Resiliência sob perda e retransmissão de mensagens E2;
+35. **[Fig 30: SBRC Multidimensional Radar](file:///docs/figures/01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png)** — Radar de benchmarking multidimensional de 6 eixos;
+36. **[Fig 31: Rich Demo 8-Stages Execution Timeline](file:///reports/figures/fig_31_rich_demo_8stages_execution_timeline.png)** — Linha do tempo de execução dos 8 estágios do ciclo fechado e certificação dos 4-Gates;
+37. **[Fig 32: Conflict Storm Scalability (L0 a L4)](file:///reports/figures/fig_32_conflict_storm_scalability_l0_l4.png)** — Benchmark de escalabilidade com até 500 UEs, 10 xApps e 4.034 conflitos;
+38. **[Fig 33: InfluxDB / Grafana Realtime Closed-Loop Recovery](file:///reports/figures/fig_33_influx_grafana_realtime_closed_loop_recovery.png)** — Séries temporais de telemetria reproduzindo o painel Grafana;
+39. **[Fig 34: Two-Tier AI & dApp Bounding Box Envelope](file:///reports/figures/fig_34_two_tier_dapp_bounding_box_envelope.png)** — Envelope operacional seguro $\Omega_{\text{dApp}}$ para O-DU em sub-1ms TTI (nGRG-RR-2024-10);
+40. **[Fig 35: Multi-Scenario Demonstration Cockpit Comparison](file:///reports/figures/fig_35_multi_scenario_demonstration_cockpit_comparison.png)** — Comparativo dos Cenários Demo A, B e C;
+41. **[Fig 36: FlowMonitor ns-3 Physical Results (S0 a S15)](file:///reports/figures/fig_36_flowmonitor_ns3_s0_s15_traffic_profiles.png)** — Desempenho temporal do FlowMonitor nos 16 cenários;
+42. **[Fig 37: Demonstration Master Dashboard](file:///reports/figures/fig_37_demonstration_master_dashboard.png)** — Dashboard mestre 2x2 integrando todos os aspectos da demonstração rica.
+
+---
+
+## 13. Conclusão
+
+Os resultados de simulação e a suíte de demonstração em tempo real reunidos neste relatório comprovam de forma irrefutável a eficácia da arquitetura RDL:
+1. **A Fase 1 (H-RDL)** estabelece a barreira determinística indispensável para estabilizar a rede Open RAN, erradicando $100\%$ das violações de SLA sob colisão direta e suprimindo o ping-pong com tempo de decisão inferior a $0,15\text{ ms}$;
 2. **A Fase 2 (CA-RDL)** expande a fronteira de eficiência da rede, explorando a adaptabilidade do aprendizado por reforço cooperativo para extrair ganhos adicionais de vazão ($+4\%$) e redução de atraso ($-14\%$) sem nunca violar os invariantes de segurança herdados da Fase 1;
-3. **A validação nos 16 cenários (S0 a S15)** demonstra que o framework é plenamente generalizável, desde fatias terrestres 5G clássicas até enlaces orbitais NTN, constelações de VANTs e redes industriais zero-jitter da era 6G.
+3. **A integração de Observabilidade com InfluxDB e Grafana** oferece visibilidade em tempo real sobre cada etapa do ciclo fechado, permitindo inspeção em nível de protocolo e monitoramento contínuo de KPIs de rádio;
+4. **A validação nos 16 cenários (S0 a S15)** e na demonstração rica demonstra que o framework é plenamente generalizável, desde fatias terrestres 5G clássicas até enlaces orbitais NTN, constelações de VANTs e redes industriais zero-jitter da era 6G.
+
