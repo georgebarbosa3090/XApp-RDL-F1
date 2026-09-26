@@ -63,8 +63,30 @@ class S0toS15CampaignValidator:
         print("Paradigmas: Baseline (Sem RDL) | H-RDL (Fase 1) | CA-RDL (Fase 2)")
         print("=" * 80)
 
+        # Parse target_scenario if provided (handles single 'S1', 's1', '1', list 'S1,S2,S3', ranges 'S0-S5')
+        selected_ids = set()
+        if target_scenario:
+            for part in target_scenario.split(","):
+                part = part.strip()
+                if not part:
+                    continue
+                if "-" in part and not part.startswith("-"):
+                    start_s, end_s = part.split("-", 1)
+                    try:
+                        start_idx = int(start_s.upper().replace("S", ""))
+                        end_idx = int(end_s.upper().replace("S", ""))
+                        for i in range(start_idx, end_idx + 1):
+                            selected_ids.add(f"S{i}")
+                    except ValueError:
+                        selected_ids.add(part.upper())
+                else:
+                    norm = part.upper()
+                    if not norm.startswith("S") and norm.isdigit():
+                        norm = f"S{norm}"
+                    selected_ids.add(norm)
+
         for s_id, (grp_name, method) in self.scenario_methods.items():
-            if target_scenario and s_id.upper() != target_scenario.upper():
+            if selected_ids and s_id.upper() not in selected_ids:
                 continue
             if target_group == "5g" and not (0 <= int(s_id[1:]) <= 8):
                 continue
@@ -91,10 +113,10 @@ class S0toS15CampaignValidator:
         if not self.results:
             return
 
-        rows = []
-        flow_rows = []
+        new_rows = {}
+        new_flow_rows = {}
         for r in self.results:
-            rows.append({
+            new_rows[r.scenario_id] = {
                 "scenario_id": r.scenario_id,
                 "name": r.name,
                 "baseline_status": "PASS" if r.baseline_passed else "FAIL",
@@ -105,36 +127,80 @@ class S0toS15CampaignValidator:
                 "cardl_kpi": r.cardl_kpi,
                 "execution_time_ms": round(r.execution_time_ms, 3),
                 "description": r.description
-            })
-            flow_rows.append({
+            }
+            new_flow_rows[r.scenario_id] = {
                 "scenario_id": r.scenario_id,
                 "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "decision_latency_ms": round(r.execution_time_ms, 3),
                 "conflict_mitigated": 1 if r.hrdl_passed else 0,
                 "sla_preserved": 1 if r.hrdl_passed else 0,
                 "governance_mode": "H-RDL"
-            })
+            }
 
+        # Merge with existing data if running partial execution
+        merged_rows_dict = {}
+        merged_flow_dict = {}
+
+        if os.path.exists(csv_path) and len(self.results) < 16:
+            try:
+                with open(csv_path, "r", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        s_id = row.get("scenario_id")
+                        if s_id:
+                            merged_rows_dict[s_id] = row
+            except Exception:
+                pass
+
+        if os.path.exists(flow_path) and len(self.results) < 16:
+            try:
+                with open(flow_path, "r", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        s_id = row.get("scenario_id")
+                        if s_id:
+                            merged_flow_dict[s_id] = row
+            except Exception:
+                pass
+
+        # Update with new results
+        merged_rows_dict.update(new_rows)
+        merged_flow_dict.update(new_flow_rows)
+
+        # Sort canonically S0..S15
+        def sort_key(s_id):
+            try:
+                return int(s_id[1:])
+            except Exception:
+                return 999
+
+        sorted_scenarios = sorted(merged_rows_dict.keys(), key=sort_key)
+        final_rows = [merged_rows_dict[s_id] for s_id in sorted_scenarios]
+        final_flow_rows = [merged_flow_dict.get(s_id, new_flow_rows.get(s_id)) for s_id in sorted_scenarios if s_id in merged_flow_dict or s_id in new_flow_rows]
+
+        fieldnames = list(final_rows[0].keys()) if final_rows else list(new_rows[list(new_rows.keys())[0]].keys())
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(rows)
+            writer.writerows(final_rows)
 
-        with open(flow_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=list(flow_rows[0].keys()))
-            writer.writeheader()
-            writer.writerows(flow_rows)
+        if final_flow_rows:
+            flow_fields = list(final_flow_rows[0].keys())
+            with open(flow_path, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=flow_fields)
+                writer.writeheader()
+                writer.writerows(final_flow_rows)
 
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump({
-                "total_scenarios": len(self.results),
-                "all_hrdl_pass": all(r.hrdl_passed for r in self.results),
-                "all_cardl_pass": all(r.cardl_passed for r in self.results),
-                "scenarios": rows
+                "total_scenarios": len(final_rows),
+                "all_hrdl_pass": all(r.get("hrdl_status") == "PASS" for r in final_rows),
+                "all_cardl_pass": all(r.get("cardl_status") == "PASS" for r in final_rows),
+                "scenarios": final_rows
             }, f, indent=2)
 
         print("\n" + "=" * 80)
-        print("[DATASETS ORIUNDOS DA VALIDAÇÃO FORMAL S0-S15 GRAVADOS COM SUCESSO]")
+        print(f"[DATASETS S0-S15 PERSISTIDOS COM SUCESSO ({len(final_rows)} Cenários Consolidados)]")
         print(f" -> Dataset Consolidado CSV : {csv_path}")
         print(f" -> Flow Metrics CSV        : {flow_path}")
         print(f" -> Sumário Estruturado JSON: {json_path}")
