@@ -1,6 +1,6 @@
 Baseline,Potencia_Media_Watts,Throughput_Mbps,Eficiencia_Mbit_Por_Joule,Economia_Energia_Relativa,Violações_SLA_QoS
-B0 (Não Coordenado),223.5,86.0,0.385,0.0%,36.7%
-B1 (FIFO),215.2,89.2,0.414,+3.7%,24.0%
-B2 (Estático),198.0,92.9,0.469,+11.4%,12.5%
-B3 (H-RDL),154.2,102.5,0.665,+31.0%,0.0%
-B6 (Safe-MAPPO),148.6,106.6,0.717,+33.5%,0.0%
+B0 (Não Coordenado),223.5,85.2,0.381,0.0%,36.7%
+B1 (FIFO),215.2,89.4,0.415,+3.7%,28.0%
+B2 (Estático),198.0,94.1,0.475,+11.4%,15.0%
+B3 (H-RDL),154.2,101.7,0.659,+31.0%,0.0%
+B6 (Safe-MAPPO),148.6,105.8,0.712,+33.5%,0.0%
