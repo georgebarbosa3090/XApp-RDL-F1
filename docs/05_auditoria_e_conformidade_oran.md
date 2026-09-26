@@ -12,11 +12,11 @@ Esta auditoria consolida a análise técnico-científica sobre as arquiteturas *
 ### Diagnóstico Central da Auditoria
 Historicamente, projetos de pesquisa em Open RAN enfrentam a lacuna entre a conformidade funcional de código e a comprovação causal em ambiente de rádio:
 
-$$\boxed{\text{Implementacao de Software Forte} \not\Rightarrow \text{Evidencia Experimental Causal Forte}}$$
+$$\boxed{\text{Implementação de Software Forte} \not\Rightarrow \text{Evidência Experimental Causal Forte}}$$
 
 Para superar esta limitação, a arquitetura RDL foi auditada e reestruturada sob o protocolo **Golden Closed Loop**, onde cada decisão de controle é vinculada a uma cadeia verificável de evidências de ponta a ponta:
 
-$$\text{KPM}(t_0) \longrightarrow \text{Conflito} \longrightarrow \text{Decisao} \longrightarrow \text{E2SM-RC} \longrightarrow \text{ACK} \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
+$$\text{KPM}(t_0) \longrightarrow \text{Conflito} \longrightarrow \text{Decisão} \longrightarrow \text{E2SM-RC} \longrightarrow \text{ACK} \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
 
 ---
 
@@ -47,20 +47,20 @@ Cada rodada experimental gera uma árvore imutável de dados em `experiments/run
 
 ```text
 experiments/runs/<Scenario>_<Baseline>_seed<Seed>/
-+-- execution_manifest.json          # Metadados: git_sha, ns3_version, kernel, timestamp
-+-- hashes.sha256                    # Checksum SHA-256 de todos os arquivos gerados
-+-- raw/                             # PDUs binárias ASN.1 APER não processadas
-|   +-- e2_setup_request.raw
-|   +-- kpm_t0.raw
-|   +-- ric_control_request.raw
-|   +-- ric_control_ack.raw
-|   \-- kpm_t1.raw
-+-- decoded/                         # Representação JSON legível dos binários ASN.1
-|   +-- kpm_t0.json, control.json, ack.json, kpm_t1.json
-+-- causal/
-|   \-- causal_chain.jsonl           # Log cronológico de transições de estado
-\-- pcap/
-    \-- e2.pcap                      # Captura pcap de todos os pacotes SCTP/E2AP
+├── execution_manifest.json          # Metadados: git_sha, ns3_version, kernel, timestamp
+├── hashes.sha256                    # Checksum SHA-256 de todos os arquivos gerados
+├── raw/                             # PDUs binárias ASN.1 APER não processadas
+│   ├── e2_setup_request.raw
+│   ├── kpm_t0.raw
+│   ├── ric_control_request.raw
+│   ├── ric_control_ack.raw
+│   └── kpm_t1.raw
+├── decoded/                         # Representação JSON legível dos binários ASN.1
+│   ├── kpm_t0.json, control.json, ack.json, kpm_t1.json
+├── causal/
+│   └── causal_chain.jsonl           # Log cronológico de transições de estado
+└── pcap/
+    └── e2.pcap                      # Captura pcap de todos os pacotes SCTP/E2AP
 ```
 
 ### Validação de Integridade Criptográfica
@@ -99,7 +99,7 @@ Qualquer alteração posterior em traces brutos ou métricas calculadas resulta 
 | **Conformidade E2AP/E2SM** | Codecs ASN.1 APER em conformidade O-RAN WG3 | **APROVADO** | 0,0% de falhas de parsing em todas as sementes |
 | **Cadeia Causal Fechada** | Rastreamento $KPM(t_0) \to \dots \to KPM(t_1)$ | **APROVADO** | Relação causal verificada e auditável via logs |
 | **Garantia de Segurança** | $\text{UnsafeApplied} \equiv 0$ sob qualquer falha | **APROVADO** | Safety Guards físicos invariantes inviolados |
-| **Supressão de Oscilações** | Action Churn $< 0,10\text{ acoes/s}$ no cenário S5 | **APROVADO** | Ping-pong suprimido no primeiro ciclo (190 ms) |
+| **Supressão de Oscilações** | Action Churn $< 0,10\text{ ações/s}$ no cenário S5 | **APROVADO** | Ping-pong suprimido no primeiro ciclo (190 ms) |
 | **Eficiência Temporal** | Sobrecarga algorítmica $T_{decision} < 1,0\text{ ms}$ | **APROVADO** | $T_{decision} = 0,12\text{ ms}$ (H-RDL) / $1,84\text{ ms}$ (MAPPO) |
 | **Reprodutibilidade** | Presença de manifestos de execução e SHA-256 | **APROVADO** | Árvores de execução 100% reprodutíveis |
 

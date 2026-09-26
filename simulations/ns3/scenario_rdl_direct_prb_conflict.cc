@@ -135,11 +135,11 @@ int main (int argc, char *argv[])
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
     mobility.Install (ueNodes);
 
-    InternetStackHelper internet;
-    internet.Install (gNbNodes);
-    internet.Install (ueNodes);
+    ApplicationContainer serverApps;
+    ApplicationContainer clientApps;
 
 #if HAS_NR_MODULE
+    // Modo Nativo 5G-LENA: Conexão via Core EPC e Remote Host
     Ptr<NrPointToPointEpcHelper> epcHelper = CreateObject<NrPointToPointEpcHelper> ();
     Ptr<IdealBeamformingHelper> idealBeamformingHelper = CreateObject<IdealBeamformingHelper> ();
     Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
@@ -155,24 +155,73 @@ int main (int argc, char *argv[])
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
     NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
-#endif
 
-    // Trafego com disputa de capacidade de enlace
-    uint16_t port = 6001;
-    ApplicationContainer serverApps;
-    ApplicationContainer clientApps;
+    InternetStackHelper internet;
+    internet.Install (ueNodes);
+    Ipv4InterfaceContainer ueIpIface = epcHelper->AssignUeIpv4Address (NetDeviceContainer (ueDevs));
+    nrHelper->AttachToClosestGnb (ueDevs, gNbDevs);
+
+    Ptr<Node> pgw = epcHelper->GetPgwNode ();
+    NodeContainer remoteHostContainer;
+    remoteHostContainer.Create (1);
+    Ptr<Node> remoteHost = remoteHostContainer.Get (0);
+    internet.Install (remoteHostContainer);
+
+    PointToPointHelper p2ph;
+    p2ph.SetDeviceAttribute ("DataRate", DataRateValue (DataRate ("100Gb/s")));
+    p2ph.SetDeviceAttribute ("Mtu", UintegerValue (2500));
+    p2ph.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (1)));
+    NetDeviceContainer internetDevices = p2ph.Install (pgw, remoteHost);
+
+    Ipv4AddressHelper ipv4h;
+    ipv4h.SetBase ("1.0.0.0", "255.0.0.0");
+    Ipv4InterfaceContainer internetIpIfaces = ipv4h.Assign (internetDevices);
+
+    Ipv4StaticRoutingHelper ipv4RoutingHelper;
+    Ptr<Ipv4StaticRouting> remoteHostStaticRouting = ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
+    remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 
     for (uint32_t i = 0; i < ueNum; ++i)
     {
-        UdpServerHelper server (port + i);
+        uint16_t port = 6001 + i;
+        UdpServerHelper server (port);
         serverApps.Add (server.Install (ueNodes.Get (i)));
 
-        UdpClientHelper client (Ipv4Address ("10.0.0.1"), port + i);
+        UdpClientHelper client (ueIpIface.GetAddress (i), port);
         client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-        client.SetAttribute ("Interval", TimeValue (MilliSeconds (5))); // Tráfego intenso (alta carga)
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (5))); // Carga Saturante de 1024B / 5ms
+        client.SetAttribute ("PacketSize", UintegerValue (1024));
+        clientApps.Add (client.Install (remoteHost));
+    }
+#else
+    // Modo Fallback: Enlaces Ponto-a-Ponto e Sub-redes IPv4 Dedicadas
+    InternetStackHelper internet;
+    internet.Install (gNbNodes);
+    internet.Install (ueNodes);
+
+    PointToPointHelper p2p;
+    p2p.SetDeviceAttribute ("DataRate", StringValue ("100Mbps"));
+    p2p.SetChannelAttribute ("Delay", StringValue ("2ms"));
+
+    Ipv4AddressHelper ipv4;
+    ipv4.SetBase ("10.1.0.0", "255.255.0.0");
+
+    for (uint32_t i = 0; i < ueNum; ++i)
+    {
+        NetDeviceContainer link = p2p.Install (gNbNodes.Get (0), ueNodes.Get (i));
+        Ipv4InterfaceContainer iface = ipv4.Assign (link);
+
+        uint16_t port = 6001 + i;
+        UdpServerHelper server (port);
+        serverApps.Add (server.Install (ueNodes.Get (i)));
+
+        UdpClientHelper client (iface.GetAddress (1), port);
+        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
+        client.SetAttribute ("Interval", TimeValue (MilliSeconds (5)));
         client.SetAttribute ("PacketSize", UintegerValue (1024));
         clientApps.Add (client.Install (gNbNodes.Get (0)));
     }
+#endif
 
     serverApps.Start (Seconds (0.5));
     serverApps.Stop (Seconds (simTime));

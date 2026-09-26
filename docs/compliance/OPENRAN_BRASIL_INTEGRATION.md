@@ -10,32 +10,35 @@
 
 A integração do H-RDL no ambiente do **OpenRAN@Brasil** posiciona a xApp RDL sobre a plataforma de referência Near-RT RIC (O-RAN SC), gerenciando nós srsRAN gNB acoplados ao núcleo Open5GS:
 
-```mermaid
-flowchart TD
-    subgraph TESTBED["OpenRAN@Brasil Testbed Cluster"]
-        direction TB
-        subgraph CORE["Open5GS Core"]
-            direction LR
-            AMF["Open5GS AMF<br/>(Plano Controle)"]
-            UPF["Open5GS UPF<br/>(Plano Dados)"]
-        end
-        GNB["srsRAN gNB<br/>(E2 Agent: E2AP v03.00 / KPM v03.00 / RC v03.00)"]
-        AMF -->|"N2"| GNB
-        UPF -->|"N3"| GNB
-    end
-
-    subgraph RIC_PLT["Plataforma Near-RT RIC (O-RAN SC)"]
-        direction TB
-        RIC_COMP["• SubMgr REST Client (:8088)<br/>• E2Term (SCTP :36422 / RMR :38000)"]
-    end
-
-    subgraph RDL_APP["xApp RDL (H-RDL / CA-RDL)"]
-        direction TB
-        RDL_COMP["• SrsRanBackendAdapter<br/>• Perception / Reasoning / Safety Guards"]
-    end
-
-    GNB <==>|"E2 (SCTP / RMR)"| RIC_PLT
-    RIC_PLT <==>|"RMR / REST"| RDL_APP
+```text
+               ┌────────────────────────────────────────────────────────┐
+               │           OpenRAN@Brasil Testbed Cluster               │
+               │                                                        │
+               │   ┌───────────────────┐        ┌───────────────────┐   │
+               │   │    Open5GS AMF    │        │    Open5GS UPF    │   │
+               │   │   (Plano Control) │        │   (Plano Dados)   │   │
+               │   └─────────▲─────────┘        └─────────▲─────────┘   │
+               └─────────────┼────────────────────────────┼─────────────┘
+                             │ N2                         │ N3
+                             ▼                            ▼
+               ┌────────────────────────────────────────────────────────┐
+               │                     srsRAN gNB                         │
+               │   - E2 Agent (E2AP v03.00 / KPM v03.00 / RC v03.00)    │
+               └─────────────────────────▲──────────────────────────────┘
+                                         │ E2 (SCTP / RMR)
+                                         ▼
+               ┌────────────────────────────────────────────────────────┐
+               │            Plataforma Near-RT RIC (O-RAN SC)           │
+               │  - SubMgr REST Client (:8088)                          │
+               │  - E2Term (SCTP :36422 / RMR :38000)                   │
+               └─────────────────────────▲──────────────────────────────┘
+                                         │ RMR / REST
+                                         ▼
+               ┌────────────────────────────────────────────────────────┐
+               │                   xApp RDL (H-RDL)                     │
+               │  - SrsRanBackendAdapter                                │
+               │  - Perception / Reasoning / Safety Guards              │
+               └────────────────────────────────────────────────────────┘
 ```
 
 ---

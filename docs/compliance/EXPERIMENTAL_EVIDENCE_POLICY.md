@@ -8,7 +8,7 @@
 
 ## 1. A Regra de Ouro de Proveniência Científica
 
-$$\boxed{\text{resultado cientifico valido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}}$$
+$$\boxed{\text{resultado científico válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}}$$
 
 Nenhum resultado derivado exclusivamente de modelos emulados locais, mocks em Python, vetores estáticos de teste ou execuções de demonstração pode ser incorporado às tabelas e figuras publicáveis da dissertação ou de artigos científicos.
 
@@ -43,7 +43,7 @@ Nenhum resultado derivado exclusivamente de modelos emulados locais, mocks em Py
 A arquitetura do projeto estabelece um firewall estrito entre o ambiente de testes de software e o ambiente de experimentos científicos:
 
 ```text
-                  tests/ -------------------X-------------------> experiments/
+                  tests/ ───────────────────X───────────────────> experiments/
             (Unit / Integration / Codec)                   (Raw Traces / Scientific Publication)
 ```
 
@@ -54,4 +54,4 @@ A arquitetura do projeto estabelece um firewall estrito entre o ambiente de test
 
 ## 4. Auditoria Automatizada e Sincronização
 
-A integridade desta política é verificada continuamente por auditoria estática via [`scripts/check_no_synthetic_results.py`](scripts/check_no_synthetic_results.py) e pelas configurações do [`reproducibility/provenance_policy.yaml`](reproducibility/provenance_policy.yaml).
+A integridade desta política é verificada continuamente por auditoria estática via [`scripts/check_no_synthetic_results.py`](file:///c:/Users/georg/XApp-RDL-F1/scripts/check_no_synthetic_results.py) e pelas configurações do [`reproducibility/provenance_policy.yaml`](file:///c:/Users/georg/XApp-RDL-F1/reproducibility/provenance_policy.yaml).

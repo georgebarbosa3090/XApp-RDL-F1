@@ -11,7 +11,7 @@
 
 A Fase 2 (**CA-RDL**) expande a camada de mediação determinística congelada na Fase 1 (**H-RDL**) introduzindo cognição contextual, grafos de conhecimento (*Knowledge Graphs - KG*) e Aprendizado por Reforço Multiagente (**MAPPO / GNN**).
 
-$$\boxed{\text{Fase 1 (H-RDL Deterministico)} \quad \xrightarrow[\text{Contrato de Seguranca}]{} \quad \text{Fase 2 (CA-RDL Context-Aware & MARL)}}$$
+$$\boxed{\text{Fase 1 (H-RDL Determinístico)} \quad \xrightarrow[\text{Contrato de Segurança}]{} \quad \text{Fase 2 (CA-RDL Context-Aware & MARL)}}$$
 
 - A Fase 1 provê o **lower bound** de segurança física (Safety Guards determinísticos, mitigação contra estouro de PRBs, anti-ping-pong e limites de potência em dBm).
 - A Fase 2 atua sobre o espaço de soluções viáveis refinado pela Fase 1, otimizando a distribuição de recursos sob incerteza temporal e cenários dinâmicos complexos.
@@ -43,7 +43,7 @@ target_scenarios: "S9 a S15 (NTN, UAV, V2X, IIoT, ISAC)"
 | Componente | Fase 1 (H-RDL Frozen) | Fase 2 (CA-RDL Target) | Escopo de Expansão no CA-RDL |
 | :--- | :---: | :---: | :--- |
 | **E2AP** | `v02.03` | `v03.01` | Suporte a mensagens estendidas de controle e tratamento robusto de erros. |
-| **E2SM-KPM** | `v03.00` | `v08.00` | Mapeamento de KPIs 3GPP 28.552 estendidos, fatias dinâmicas e telemetria NTN/V2X. |
+| **E2SM-KPM** | `v08.00` | Mapeamento de KPIs 3GPP 28.552 estendidos, fatias dinâmicas e telemetria NTN/V2X. |
 | **E2SM-RC** | `v01.03` | `v10.00` | Estilos adicionais de controle, MIMO massivo, beamforming dinâmico e handover guiado por contexto. |
 | **Cognição** | Regras TVS/EEVS | MAPPO + GNN + KG | Arbitragem aprendida e otimização contextual de utilidade multiobjetivo. |
 | **Cenários** | $S_0 \dots S_8$ | $S_9 \dots S_{15}$ | Redes não-terrestres (NTN), drones (UAV), veículos (V2X), IIoT de ultra-baixa latência e ISAC. |

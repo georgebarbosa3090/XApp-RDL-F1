@@ -24,7 +24,7 @@
 
 ## 2. Rastreabilidade dos 7 Gates Formais de Evidência (G0 a G6)
 
-$$\boxed{\text{Progressao Formal de Maturidade: } G_0 \longrightarrow G_1 \longrightarrow G_2 \longrightarrow G_3 \longrightarrow G_4 \longrightarrow G_5 \longrightarrow G_6}$$
+$$\boxed{\text{Progressão Formal de Maturidade: } G_0 \longrightarrow G_1 \longrightarrow G_2 \longrightarrow G_3 \longrightarrow G_4 \longrightarrow G_5 \longrightarrow G_6}$$
 
 ```mermaid
 flowchart LR
@@ -39,25 +39,25 @@ flowchart LR
 ### Critérios de Conclusão por Gate (Definition of Done)
 
 - **Gate 0 (Ambiente Reproduzível):**
-  $$\text{PASS} \iff \text{Commits de ns-3, 5G-LENA e NORI fixados} \land \text{Hashes SHA-256 de binarios e configs gerados}$$
+  $$\text{PASS} \iff \text{Commits de ns-3, 5G-LENA e NORI fixados} \land \text{Hashes SHA-256 de binários e configs gerados}$$
 - **Gate 1 (E2SM-KPM Real):**
   $$\text{PASS} \iff E2Setup \land RANFunction \land Subscription \land Indication \land APERDecode \land SemanticValidation (\epsilon < 5\%)$$
 - **Gate 2 (H-RDL Funcional):**
-  $$\text{PASS} \iff \text{Conflito detectado} \land \text{Decisao deterministica H-RDL} \land \text{Safety Guards 100\% aplicados}$$
+  $$\text{PASS} \iff \text{Conflito detectado} \land \text{Decisão determinística H-RDL} \land \text{Safety Guards 100\% aplicados}$$
 - **Gate 3 (E2SM-RC Real):**
   $$\text{PASS} \iff RICcontrolRequest \land \text{RICcontrolAck externo} \land \text{Teste negativo RICcontrolFailure}$$
 - **Gate 4 (Closed-Loop Causal):**
   $$\text{PASS} \iff KPM(t_0) \longrightarrow H\text{-}RDL \longrightarrow E2SM\text{-}RC \longrightarrow NORI \longrightarrow 5G\text{-}LENA \longrightarrow KPM(t_1)$$
 - **Gate 5 (Campanha Científica):**
-  $$\text{PASS} \iff 30 \text{ sementes pareadas (B0, B1, B2, B3)} \land \text{Intervalos de Confianca 95\%} \land \text{Tamanho de Efeito Wilcoxon}$$
+  $$\text{PASS} \iff 30 \text{ sementes pareadas (B0, B1, B2, B3)} \land \text{Intervalos de Confiança 95\%} \land \text{Tamanho de Efeito Wilcoxon}$$
 - **Gate 6 (Artifact Readiness):**
-  $$\text{PASS} \iff \text{Execucao limpa e automatizada em ambiente isolado (ACM SIGSIM / IEEE Artifact Evaluation)}$$
+  $$\text{PASS} \iff \text{Execução limpa e automatizada em ambiente isolado (ACM SIGSIM / IEEE Artifact Evaluation)}$$
 
 ---
 
 ## 3. Rastreabilidade de Testbed e Hierarquia de 3 Níveis (srsRAN + Open5GS)
 
-$$\boxed{\text{Hierarquia Metodologica: } \text{Simulacao ns-3/NORI} \longrightarrow \text{Software RAN srsRAN/Open5GS} \longrightarrow \text{Testbed Fisico OpenRAN@Brasil}}$$
+$$\boxed{\text{Hierarquia Metodológica: } \text{Simulação ns-3/NORI} \longrightarrow \text{Software RAN srsRAN/Open5GS} \longrightarrow \text{Testbed Físico OpenRAN@Brasil}}$$
 
 | Requisito / Perfil Testbed | Protocolo / Versão | Adaptador H-RDL | Gates de Testbed (`TB0` a `TB10`) | Status de Conformidade |
 | :--- | :--- | :--- | :--- | :---: |
