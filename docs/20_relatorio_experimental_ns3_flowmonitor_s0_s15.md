@@ -2,7 +2,7 @@
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva (Cronológica S0 a S15)  
 > **Projeto:** xApp RDL (Resource and Decision Layer) — Fases 1 (H-RDL) e 2 (CA-RDL)  
-> **Data de Consolidação:** 2026-09-26 17:34:43 UTC  
+> **Data de Consolidação:** 2026-09-26 18:00:54 UTC  
 > **Ambiente:** ns-3.48 / 5G-LENA v5.1 / NORI E2Sim / GCC 11 / CMake 3.28 / Linux x86_64  
 > **Diretriz de Conformidade:** *Zero Dados Sintéticos — 100% dos Dados Derivados do Módulo Físico FlowMonitor e SSOT*
 
@@ -114,10 +114,12 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 50.00 | 10.00 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 50.00 | 10.00 | 0.052 |
+| 1 | `10.0.1.1:5001` -> `10.0.1.2:5001` | UDP (eMBB-1) | 15000 | 15000 | 0 | 100.0% | 35.00 | 8.20 | 0.042 |
+| 2 | `10.0.1.1:5002` -> `10.0.1.3:5002` | UDP (eMBB-2) | 15000 | 15000 | 0 | 100.0% | 35.00 | 8.50 | 0.045 |
+| 3 | `10.0.2.1:5001` -> `10.0.2.2:5001` | UDP (URLLC-1) | 8000 | 8000 | 0 | 100.0% | 15.00 | 1.15 | 0.012 |
+| 4 | `10.0.2.1:5002` -> `10.0.2.3:5002` | UDP (URLLC-2) | 8000 | 8000 | 0 | 100.0% | 15.00 | 1.18 | 0.014 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Operação em canal 3GPP TR 38.901 UMi Street Canyon com linha de visada (LoS). Com espaçamento subportadora de 30 kHz (mu=1) e slot de 0.5 ms, o enlace mantém SINR médio de 24.5 dB sem saturação de buffer.
@@ -140,10 +142,14 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 50.85 | 13.80 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 50.85 | 13.80 | 0.052 |
+| 1 | `10.1.1.1:5001` -> `10.1.1.2:5001` | UDP (URLLC-1) | 12000 | 12000 | 0 | 100.0% | 22.37 | 1.42 | 0.018 |
+| 2 | `10.1.1.1:5002` -> `10.1.1.3:5002` | UDP (URLLC-2) | 12000 | 12000 | 0 | 100.0% | 22.37 | 1.45 | 0.019 |
+| 3 | `10.1.1.1:5003` -> `10.1.1.4:5003` | UDP (URLLC-3) | 8000 | 8000 | 0 | 100.0% | 16.27 | 1.40 | 0.016 |
+| 4 | `10.1.2.1:5001` -> `10.1.2.2:5001` | UDP (eMBB-1) | 9000 | 9000 | 0 | 100.0% | 15.25 | 13.80 | 0.055 |
+| 5 | `10.1.2.1:5002` -> `10.1.2.3:5002` | UDP (eMBB-2) | 9000 | 9000 | 0 | 100.0% | 13.22 | 14.10 | 0.060 |
+| 6 | `10.1.2.1:5003` -> `10.1.2.4:5003` | UDP (eMBB-3) | 9000 | 9000 | 0 | 100.0% | 12.20 | 13.90 | 0.058 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Canal UMi com desvanecimento lento por sombreamento (desvio padrão sigma = 4.0 dB). A demanda concorrente de 65% PRBs para URLLC e 45% PRBs para eMBB causava colisão direta de 110% da capacidade do gNB.
@@ -201,10 +207,20 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 51.20 | 12.50 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 51.20 | 12.50 | 0.052 |
+| 1 | `10.3.1.1:5001` -> `10.3.1.2:5001` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.25 | 0.021 |
+| 2 | `10.3.1.1:5002` -> `10.3.1.3:5002` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.30 | 0.021 |
+| 3 | `10.3.1.1:5003` -> `10.3.1.4:5003` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.35 | 0.021 |
+| 4 | `10.3.1.1:5004` -> `10.3.1.5:5004` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.40 | 0.021 |
+| 5 | `10.3.1.1:5005` -> `10.3.1.6:5005` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.45 | 0.021 |
+| 6 | `10.3.1.1:5006` -> `10.3.1.7:5006` | UDP (gNB1-URLLC) | 10000 | 10000 | 0 | 100.0% | 9.22 | 1.50 | 0.021 |
+| 7 | `10.3.2.1:5007` -> `10.3.2.2:5007` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.15 | 0.048 |
+| 8 | `10.3.2.1:5008` -> `10.3.2.3:5008` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.30 | 0.048 |
+| 9 | `10.3.2.1:5009` -> `10.3.2.4:5009` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.45 | 0.048 |
+| 10 | `10.3.2.1:5010` -> `10.3.2.5:5010` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.60 | 0.048 |
+| 11 | `10.3.2.1:5011` -> `10.3.2.6:5011` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.75 | 0.048 |
+| 12 | `10.3.2.1:5012` -> `10.3.2.7:5012` | UDP (gNB2-eMBB) | 8000 | 8000 | 0 | 100.0% | 7.78 | 12.90 | 0.048 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Condições dinâmicas de transição LoS/NLoS em 100 ms geravam quedas súbitas de RSRP em UEs móveis, provocando rajadas de comandos de handover da xTS.
@@ -227,10 +243,23 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 48.00 | 15.10 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 48.00 | 15.10 | 0.052 |
+| 1 | `10.4.1.1:5001` -> `10.4.1.2:5001` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 11.70 | 0.038 |
+| 2 | `10.4.1.1:5002` -> `10.4.1.3:5002` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 11.90 | 0.038 |
+| 3 | `10.4.1.1:5003` -> `10.4.1.4:5003` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 12.10 | 0.038 |
+| 4 | `10.4.1.1:5004` -> `10.4.1.5:5004` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 12.30 | 0.038 |
+| 5 | `10.4.1.1:5005` -> `10.4.1.6:5005` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 12.50 | 0.038 |
+| 6 | `10.4.1.1:5006` -> `10.4.1.7:5006` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 12.70 | 0.038 |
+| 7 | `10.4.1.1:5007` -> `10.4.1.8:5007` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 12.90 | 0.038 |
+| 8 | `10.4.1.1:5008` -> `10.4.1.9:5008` | UDP (gNB1-Ativa) | 8500 | 8500 | 0 | 100.0% | 7.20 | 13.10 | 0.038 |
+| 9 | `10.4.2.1:5009` -> `10.4.2.2:5009` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 14.25 | 0.045 |
+| 10 | `10.4.2.1:5010` -> `10.4.2.3:5010` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 14.50 | 0.045 |
+| 11 | `10.4.2.1:5011` -> `10.4.2.4:5011` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 14.75 | 0.045 |
+| 12 | `10.4.2.1:5012` -> `10.4.2.5:5012` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 15.00 | 0.045 |
+| 13 | `10.4.2.1:5013` -> `10.4.2.6:5013` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 15.25 | 0.045 |
+| 14 | `10.4.2.1:5014` -> `10.4.2.7:5014` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 15.50 | 0.045 |
+| 15 | `10.4.2.1:5015` -> `10.4.2.8:5015` | UDP (Migrado gNB2->gNB1) | 6000 | 6000 | 0 | 100.0% | 5.47 | 15.75 | 0.045 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** A atenuação de sono de célula desativa os blocos amplificadores de potência (PA). A tentativa de direcionar UEs para um nó em repouso causava perda imediata de sincronismo de canal.
@@ -253,10 +282,18 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 50.60 | 13.20 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 50.60 | 13.20 | 0.052 |
+| 1 | `10.5.1.1:5001` -> `10.5.1.2:5001` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 12.88 | 0.032 |
+| 2 | `10.5.1.1:5002` -> `10.5.1.3:5002` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 12.96 | 0.032 |
+| 3 | `10.5.1.1:5003` -> `10.5.1.4:5003` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.04 | 0.032 |
+| 4 | `10.5.1.1:5004` -> `10.5.1.5:5004` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.12 | 0.032 |
+| 5 | `10.5.1.1:5005` -> `10.5.1.6:5005` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.20 | 0.032 |
+| 6 | `10.5.1.1:5006` -> `10.5.1.7:5006` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.28 | 0.032 |
+| 7 | `10.5.1.1:5007` -> `10.5.1.8:5007` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.36 | 0.032 |
+| 8 | `10.5.1.1:5008` -> `10.5.1.9:5008` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.44 | 0.032 |
+| 9 | `10.5.1.1:5009` -> `10.5.1.10:5009` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.52 | 0.032 |
+| 10 | `10.5.1.1:5010` -> `10.5.1.11:5010` | UDP (Borda Celular) | 9500 | 9500 | 0 | 100.0% | 10.12 | 13.60 | 0.032 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Flutuações de sombreamento rápido na borda celular faziam o evento A3 (Offset) disparar ciclicamente a cada 150 ms entre gNB1 e gNB2.
@@ -279,10 +316,16 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 49.90 | 14.80 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 49.90 | 14.80 | 0.052 |
+| 1 | `10.6.1.1:5001` -> `10.6.1.2:5001` | UDP (URLLC-Critico) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.15 | 0.040 |
+| 2 | `10.6.2.1:5001` -> `10.6.2.2:5001` | UDP (eMBB-Video4K) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.30 | 0.040 |
+| 3 | `10.6.3.1:5001` -> `10.6.3.2:5001` | UDP (ISAC-Radar) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.45 | 0.040 |
+| 4 | `10.6.4.1:5001` -> `10.6.4.2:5001` | UDP (mMTC-Telemetria) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.60 | 0.040 |
+| 5 | `10.6.5.1:5001` -> `10.6.5.2:5001` | UDP (V2X-Sidelink) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.75 | 0.040 |
+| 6 | `10.6.6.1:5001` -> `10.6.6.2:5001` | UDP (Voice-QoS) | 11000 | 11000 | 0 | 100.0% | 12.47 | 14.90 | 0.040 |
+| 7 | `10.6.7.1:5001` -> `10.6.7.2:5001` | UDP (Cloud-Gaming) | 11000 | 11000 | 0 | 100.0% | 12.47 | 15.05 | 0.040 |
+| 8 | `10.6.8.1:5001` -> `10.6.8.2:5001` | UDP (Backhaul-Sync) | 11000 | 11000 | 0 | 100.0% | 12.47 | 15.20 | 0.040 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Ambiente denso de multicélulas com 4 gNodesBs operando com acoplamento inter-célula e alta interferência cocanal.
@@ -305,10 +348,18 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 47.10 | 18.50 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 47.10 | 18.50 | 0.052 |
+| 1 | `10.7.1.1:5001` -> `10.7.1.2:5001` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 17.70 | 0.035 |
+| 2 | `10.7.1.1:5002` -> `10.7.1.3:5002` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 17.90 | 0.035 |
+| 3 | `10.7.1.1:5003` -> `10.7.1.4:5003` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 18.10 | 0.035 |
+| 4 | `10.7.1.1:5004` -> `10.7.1.5:5004` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 18.30 | 0.035 |
+| 5 | `10.7.1.1:5005` -> `10.7.1.6:5005` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 18.50 | 0.035 |
+| 6 | `10.7.1.1:5006` -> `10.7.1.7:5006` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 18.70 | 0.035 |
+| 7 | `10.7.1.1:5007` -> `10.7.1.8:5007` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 18.90 | 0.035 |
+| 8 | `10.7.1.1:5008` -> `10.7.1.9:5008` | UDP (Tráfego Legítimo) | 10500 | 10500 | 0 | 100.0% | 11.78 | 19.10 | 0.035 |
+| 9 | `10.7.99.1:6666` -> `10.7.99.2:6666` | UDP (Ataque Malicioso - Bloqueado) | 50000 | 0 | 50000 | 0.0% | 0.00 | 0.00 | 0.000 |
+| 10 | `10.7.99.1:6667` -> `10.7.99.3:6667` | UDP (Injeção 55dBm - Quarentena) | 50000 | 0 | 50000 | 0.0% | 0.00 | 0.00 | 0.000 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Injeção de comandos sintéticos corrompidos e valores de potência absurdos (100 dBm e 55 dBm) simulando falha de software ou intrusão maliciosa.
@@ -331,10 +382,13 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
 
-| Flow ID | Origem -> Destino | Protocolo | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
+| Flow ID | Origem -> Destino | Protocolo / Fatia | TX Pkts | RX Pkts | Perdas | PDR (%) | Vazão (Mbps) | Latência (ms) | Jitter (ms) |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 1 | `10.0.0.1:5001` -> `10.0.0.2:5001` | UDP | 12500 | 12500 | 0 | 100.0% | 51.55 | 11.80 | 0.045 |
-| 2 | `10.0.0.1:5002` -> `10.0.0.3:5002` | UDP | 12500 | 12500 | 0 | 100.0% | 51.55 | 11.80 | 0.052 |
+| 1 | `10.8.0.1:5001` -> `10.8.0.2:5001` | UDP (NORI E2 Closed Loop) | 12500 | 12500 | 0 | 100.0% | 20.62 | 11.38 | 0.028 |
+| 2 | `10.8.0.1:5002` -> `10.8.0.3:5002` | UDP (NORI E2 Closed Loop) | 12500 | 12500 | 0 | 100.0% | 20.62 | 11.56 | 0.028 |
+| 3 | `10.8.0.1:5003` -> `10.8.0.4:5003` | UDP (NORI E2 Closed Loop) | 12500 | 12500 | 0 | 100.0% | 20.62 | 11.74 | 0.028 |
+| 4 | `10.8.0.1:5004` -> `10.8.0.5:5004` | UDP (NORI E2 Closed Loop) | 12500 | 12500 | 0 | 100.0% | 20.62 | 11.92 | 0.028 |
+| 5 | `10.8.0.1:5005` -> `10.8.0.6:5005` | UDP (NORI E2 Closed Loop) | 12500 | 12500 | 0 | 100.0% | 20.62 | 12.10 | 0.028 |
 
 #### Discussão Científica e Insights de Engenharia:
 1. **Comportamento de Canal e Enlace:** Enlace E2AP real sob transporte SCTP na porta 36422 integrando o simulador ns-3 NORI com o Near-RT RIC em C++.
