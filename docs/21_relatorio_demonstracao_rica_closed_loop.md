@@ -85,11 +85,11 @@ A execução do inspetor visual `experiments/demonstration/run_rich_terminal_ins
 | **Número de Conflitos Detectados** | **6 Conflitos Simultâneos** | 1 Conflito Multi-Tier | 1 Conflito Temporal |
 | **Taxonomia dos Conflitos** | C1 (PRB), C2 (Potência), C3 (Beam), C4 (ISAC), C5 (Zero-Trust) | C5 (Cross-Layer Near-RT $\leftrightarrow$ O-DU) | C3 (Ping-Pong Handover / Tilt) |
 | **Nível Cognitivo Acionado** | **Tier 3 (Safe-MAPPO)** | **Tier 2 (NDT / Bounding Box)** | **Tier 1 (Heurístico / Lockout)** |
-| **Latência de Decisão ($T_{\text{dec}}$)** | **14,39 ms** (Gate 2: < 50 ms) | **14,39 ms** (Gate 2: < 50 ms) | **0,103 ms** (Gate 2: < 1 ms) |
+| **Latência de Decisão ($T_{\text{dec}}$)** | **14,39 ms** (Gate 2: < 50 ms) | **4,80 ms** (Gate 2: < 50 ms) | **0,103 ms** ($103\ \mu\text{s}$ < 1 ms) |
 | **Latência ACK E2 ($T_{\text{ack}}$)** | **12,80 ms** | **12,80 ms** | **12,80 ms** |
+| **Pareto Optimality Joint Score** | **0,9420** | **0,9380** | **0,9150** |
 | **Violações de SLA Residuais** | **0,0%** (Erradicação Total) | **0,0%** (Erradicação Total) | **0,0%** (Erradicação Total) |
-| **Latência URLLC Pós-Atuação** | **0,82 ms** (SLA $\le 1,0\text{ ms}$) | **0,82 ms** (SLA $\le 1,0\text{ ms}$) | **0,82 ms** (SLA $\le 1,0\text{ ms}$) |
-| **Economia Energética da Célula** | **-17,7%** ($395,0\text{ W}$ vs $480,0\text{ W}$) | **-17,7%** ($395,0\text{ W}$) | **-17,7%** ($395,0\text{ W}$) |
+| **Métricas Pós-Atuação (Gate 4)** | URLLC: $0,82\text{ ms}$ / $78\text{ Mbps}$<br/>Energia: $395\text{ W}$ ($-17,7\%$) | URLLC: $0,75\text{ ms}$ / $82\text{ Mbps}$<br/>eMBB: $195\text{ Mbps}$ ($-14,6\%\text{ W}$) | eMBB: $210\text{ Mbps}$ / $10,80\text{ ms}$<br/>Ping-Pong: $0,00\text{/s}$ ($5\text{s Lockout}$) |
 | **Status dos Safety Guards** | **PASSED** ($\text{Unsafe} \equiv 0$) | **SAFETY_VERIFIED_AND_BOUNDED** | **HARD_BOUNDARY_PASSED** |
 | **Status de Certificação Closed-Loop** | **CERTIFIED [OK]** | **CERTIFIED [OK]** | **CERTIFIED [OK]** |
 
@@ -109,20 +109,20 @@ sequenceDiagram
 
     Note over UE,DU: [Estágio 1] Registro 3GPP (PRACH -> RRC -> NAS -> PDU)
     UE->>DU: PRACH Preamble & RRC Setup Request
-    DU->>UE: RRC Setup Complete (Slices: URLLC, eMBB, mMTC)
+    DU->>UE: RRC Setup Complete (Slices: URLLC, eMBB, mMTC, ISAC, V2X)
     E2A->>RDL: E2 Setup Request (SCTP:36421, E2AP v2.3)
     RDL->>E2A: E2 Setup Response [OK]
 
-    Note over E2A,RDL: [Estágio 2] Telemetria E2SM-KPM (Gate 1)
-    E2A->>RDL: RIC Indication (mtype: 12050, APER Payload 32 bytes)
-    RDL->>RDL: Decodificação APER: PRB Slice, Throughput, RLC Latency, Packet Drop
+    Note over E2A,RDL: [Estágio 2] Telemetria E2SM-KPM Dinâmica (Gate 1)
+    E2A->>RDL: RIC Indication (mtype: 12050, APER Payload)
+    RDL->>RDL: Decodificação APER: Apenas fatias ativas (Zero Phantom Slices)
 
     Note over RDL,SM: [Estágios 3 a 6] Agregação, Grafo Causal e Decisão Multi-Tier (Gate 2)
     RDL->>RDL: Janela de Sincronização 200ms & Ingestão de Propostas
     RDL->>RDL: Construção Dinâmica do Grafo de Conhecimento (κ = 0.89)
     RDL->>RDL: Detecção e Classificação de Conflitos C1-C5
-    RDL->>SM: Avaliação Multi-Tier (Tier 1 -> Tier 2 -> Tier 3 Safe-MAPPO)
-    SM->>SM: Otimização PPO-Lagrangian com Action Masking (T_dec = 14.39 ms)
+    RDL->>SM: Avaliação Multi-Tier (Tier 1: 0.1ms | Tier 2: 4.8ms | Tier 3: 14.4ms)
+    SM->>SM: Safe-MAPPO / NDT / Heurística com Action Masking Estrito
 
     Note over RDL,DAPP: [Estágio 7] Safety Guard & Envelope dApp sub-1ms
     RDL->>DAPP: Configuração do Envelope Bounding Box Ω_dApp (PRB [40%-65%], TxPower [35-40 dBm])
@@ -130,10 +130,10 @@ sequenceDiagram
 
     Note over RDL,DU: [Estágio 8] Despacho E2SM-RC e Recuperação Física (Gate 3 & Gate 4)
     RDL->>E2A: RIC Control Request (mtype: 12040, E2SM-RC Format 1)
-    E2A->>DU: Reconfiguração Física de PRB e Potência de Transmissão
+    E2A->>DU: Reconfiguração Física Contextualizada por Cenário
     E2A->>RDL: RIC Control Acknowledge (Gate 3: T_ack = 12.80 ms)
     DU->>UE: Alocação Otimizada de Recursos de Rádio
-    Note over UE,DU: Gate 4: Latência URLLC converge para 0.82 ms (SLA <= 1.0 ms)
+    Note over UE,DU: Gate 4: Recuperação Total de SLAs e Estabilização Física
 ```
 
 ### Estágio 1: Registro 3GPP e Iniciação E2
