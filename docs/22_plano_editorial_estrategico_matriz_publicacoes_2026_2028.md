@@ -100,7 +100,7 @@ $$\mathbf{a}_t^{\text{final}} = G(\mathbf{a}_t^{\text{proposed}}) = \arg\min_{\m
 
 onde o conjunto admissível seguro $\Omega_{\text{safe}}$ é delimitado pelas restrições físicas conjuntas da RAN:
 
-$$\Omega_{\text{safe}} = \left\{ \mathbf{a} = (\mathbf{r}_{\text{PRB}}, P_{\text{tx}}) \;\middle|\; \sum_{s \in \mathcal{S}} r_{\text{PRB}}^{(s)} \le 1.0, \; r_{\text{PRB}}^{(\text{URLLC})} \ge r_{\min}, \; P_{\min} \le P_{\text{tx}} \le P_{\max} \right\}$$
+$$\Omega_{\text{safe}} = \left\{ \mathbf{a} = (\mathbf{r}_{\text{PRB}}, P_{\text{tx}}) \mid \sum_{s \in \mathcal{S}} r_{\text{PRB}}^{(s)} \le 1.0, \; r_{\text{PRB}}^{(\text{URLLC})} \ge r_{\min}, \; P_{\min} \le P_{\text{tx}} \le P_{\max} \right\}$$
 
 Essa formalização assegura que **toda ação despachada via E2SM-RC pertence obrigatoriamente a $\Omega_{\text{safe}}$**, provendo segurança determinística por construção (*Safety-by-Design*).
 
