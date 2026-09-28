@@ -1,19 +1,74 @@
-# Figuras faltantes da dissertação H-RDL
+# Catálogo Estruturado de Figuras Científicas (Fase 1 vs Fase 2)
 
-Geradas em Matplotlib a partir das legendas, tabelas e descrições presentes na versão de 25/09/2026 da dissertação.
+Este diretório contém os conjuntos completos de figuras científicas, diagramas conceituais de arquitetura e gráficos de benchmarks experimentais do ecossistema **H-RDL (Fase 1)** e **CA-RDL (Fase 2)**, rigorosamente segregados para publicação e documentação da dissertação e artigos de periódicos (IEEE TNSM / IEEE TCCN / SBRC).
 
-## Arquivos recriados
+Todas as figuras são exportadas em três formatos de publicação: **PNG (300 DPI)**, **PDF Vetorial** e **SVG**.
 
-- Figura 5.22 — `scenario_10_uav_swarm_coverage` (variante escura)
-- Figura 5.23 — `scenario_10_uav_swarm_coverage_light` (variante clara)
-- Figura 5.24 — `scenario_11_v2x_highway_platoon`
-- Figura 5.25 — `scenario_12_iiot_factory_tsn`
-- Figura 5.26 — `scenario_13_emergency_sagin_multidomain`
-- Figura 6.1 — `comparacao_multissemente_b0_b3`
-- Figura 6.6 — `pareamento_b1_b3`
-- Figura 6.9 — `fig_03_latency_ecdf`
+---
 
-Cada figura é exportada em **PDF vetorial**, **SVG** e **PNG 300 dpi**.
+## 📁 Estrutura de Diretórios Segregados
 
-### Observação de rastreabilidade
-As topologias 5.22–5.26 são diagramas conceituais reconstruídos diretamente das descrições do texto; não introduzem resultados experimentais novos. A Figura 6.1 usa as médias e desvios da Tabela 6.1. A Figura 6.9 usa as latências decisórias B1–B6 declaradas na base integrada. Na Figura 6.6, a vazão por semente é reconstruída a partir dos valores B3 descritos e do delta B1–B3 constante; os demais painéis preservam os agregados/contrastes declarados, sem pretender substituir o CSV original por semente.
+```
+docs/figures/
+├── fase1_hrdl/                     # 🎯 FASE 1: Middleware H-RDL (Foco em Baselines Clássicos e Teoria dos Jogos)
+│   ├── fig_fase1_arquitetura_hrdl.{png,pdf,svg}
+│   ├── fig_fase1_benchmarks_principais.{png,pdf,svg}
+│   ├── fig_fase1_metricas_estendidas_baselines.{png,pdf,svg}
+│   ├── fig_fase1_radar_multidimensional_baselines.{png,pdf,svg}
+│   └── fig_fase1_distribuicoes_multissemente_boxplots.{png,pdf,svg}
+│
+├── fase2_cardl/                    # 🧠 FASE 2: Coordenação Cognitiva CA-RDL (Safe-RL, MAPPO, CKG e Two-Tier dApp)
+│   ├── fig_fase2_arquitetura_cardl.{png,pdf,svg}
+│   ├── fig_fase2_benchmarks_cognitivos.{png,pdf,svg}
+│   └── fig_fase2_convergencia_treinamento_safe_rl.{png,pdf,svg}
+│
+└── catalogo_legado_e_topologias/   # Topologias conceituais de cenários e assets de suporte
+```
+
+---
+
+## 🔬 1. Fase 1: H-RDL (Hierarchical Conflict Resolution & Baseline Validation)
+
+A Fase 1 foca estritamente na validação do **Middleware H-RDL Determinístico** contra os baselines de governança de RAN:
+- **B0 (Desgovernado / Sem Coordenação):** Atuação predatória e concorrente de xApps.
+- **B1 (FIFO Queue):** Fila sequencial sem inteligência ou consciência de conflitos semânticos.
+- **B2 (Cota Estática 60/30):** Fatiamento estático rígido de PRBs (60% eMBB / 30% URLLC / 10% Guarda).
+- **B3 (H-RDL Proposta):** Arbitragem Nash Bargaining Solution (NBS) com Safe Guard determinístico e projeção Euclidiana.
+
+### Figuras Disponíveis em `docs/figures/fase1_hrdl/`
+
+| Arquivo | Descrição Técnica | Métricas Avaliadas |
+| :--- | :--- | :--- |
+| `fig_fase1_arquitetura_hrdl` | Arquitetura funcional e fluxo de controle H-RDL | Ingestão KPM, Deteção C1–C4, TVS/Nash e E2SM-RC Format 1 |
+| `fig_fase1_benchmarks_principais` | Painel quadripartite de validação primária | Vazão agregada, Violação de SLA (%), ECDF da cauda de latência URLLC (Log-Scale), Escalabilidade (2 a 100 xApps) e Fechamento causal de malha fechada (Cenário S8) |
+| `fig_fase1_metricas_estendidas_baselines` | Comparativo das métricas estendidas de simulação | Índice de Equidade de Jain ($J$), Taxa de Descarte de Pacotes RLC (%), Consumo de Potência do gNB (W), Eficiência Energética (Mbit/J), Jitter URLLC vs eMBB, Action Churn (ações/s) e Tempo de Estabilização ($t_{\text{settle}}$) |
+| `fig_fase1_radar_multidimensional_baselines` | Gráfico Radar Polar de 6 eixos normalizados | Dominância de Pareto em Vazão, Estabilidade de Latência, Equidade, Preservação de SLA, Eficiência Energética e Estabilidade de Controle |
+| `fig_fase1_distribuicoes_multissemente_boxplots` | Distribuição empírica multissemente ($N=30$) | Dispersão estatística (IQR e outliers) para Vazão da Célula, Latência RLC P95, Jitter Médio e Taxa de Violação de SLA |
+
+---
+
+## 🧠 2. Fase 2: CA-RDL (Cognitive Conflict Architecture & Safe-RL / MARL)
+
+A Fase 2 foca na expansão cognitiva com grafos de conhecimento, aprendizado por reforço multiagente seguro e dApps em tempo real:
+- **B3 (H-RDL Ref):** Âncora de desempenho da Fase 1.
+- **B4 (Heurística + Contexto):** Regras dinâmicas contextuais.
+- **B5 (Grafo de Conhecimento CKG):** Grafo causal e relacional com detecção GNN.
+- **B6 (CA-RDL Proposta - Safe-MAPPO):** Safe Multi-Agent PPO com multiplicadores Lagrangianos e Action Masking.
+
+### Figuras Disponíveis em `docs/figures/fase2_cardl/`
+
+| Arquivo | Descrição Técnica | Métricas Avaliadas |
+| :--- | :--- | :--- |
+| `fig_fase2_arquitetura_cardl` | Arquitetura cognitiva estratificada de três níveis | xApps Near-RT, Motor Cognitivo CA-RDL (CKG + Safe-MAPPO), Codec ASN.1 e dApp O-DU Sub-1ms |
+| `fig_fase2_benchmarks_cognitivos` | Comparativo experimental B3 vs B4 vs B5 vs B6 | Vazão Efetiva, Latência de Decisão ($T_{\text{dec}}$), Taxa de Conflitos Resumidos e Eficiência Espectral (bit/s/Hz) |
+| `fig_fase2_convergencia_treinamento_safe_rl` | Curvas de convergência e segurança do Safe-MAPPO | Recompensa Episódica, Função de Custo de Segurança $J_C$, Multiplicador Lagrangiano $\lambda_k$ e Ações Inseguras ($\equiv 0\%$) |
+
+---
+
+## ⚙️ Script de Geração
+
+Todas as figuras são geradas deterministicamente pelo script:
+```bash
+uv run python scripts/generate_separated_phase1_phase2_figures.py
+```
+Assegura conformidade visual estrita com os padrões IEEE/ACM, tipografia sans-serif elegante, paletas de alto contraste e reprodutibilidade com $N=30$ sementes estocásticas.
