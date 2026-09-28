@@ -45,7 +45,7 @@ Este documento estabelece o **Plano Editorial Estratégico Oficial** do ecossist
 | **Prazo de Submissão** | **Outubro–Novembro / 2026** | **Dezembro/2026 – Fevereiro/2027** | **Maio–Julho / 2027** | **Agosto–Outubro / 2027** | **Fluxo Contínuo 2027** | **2027–2028** |
 | **Título Definitivo** | *Safe Closed-Loop Multi-xApp Conflict Mitigation in Open RAN through Hierarchical Arbitration and Deterministic Safety Guards* | *Context-Aware Multi-xApp Coordination in Open RAN through Knowledge Graphs and Constrained Multi-Agent Reinforcement Learning* | *Hierarchical Multi-Timescale Conflict Governance for Open RAN: From Non-RT Policies to Real-Time Distributed Units* | *A Fully Reproducible Co-Simulation Framework for Safe Multi-xApp Conflict Arbitration in Open RAN* | *Sub-Millisecond Bounding-Box Envelopes for Safe Real-Time Distributed App Preemption in Open RAN* | *A Survey and Taxonomy on Conflict Management, Dynamic Arbitration, and Safe Coordination in Open RAN* |
 | **Contribuição Inédita Central** | Arquitetura Near-RT determinística que detecta colisões multi-xApp, arbitra via matriz multiobjetivo (TVS/EEVS) e garante $\text{Unsafe} \equiv 0$ com latência sub-milissegundo ($T_{\text{dec}} \ll T_{\text{NearRT}}$). | Coordenação contextual via Grafo de Conhecimento heterogêneo ($\kappa$) e Safe-MAPPO (CMDP com multiplicadores Lagrangianos) sob ambientes estocásticos densos e multi-fatia. | Modelo unificado de governança em 3 escalas temporais ($r\text{App} > 1\text{s} \leftrightarrow x\text{App} \approx 10\text{-}100\text{ms} \leftrightarrow d\text{App} < 1\text{ms}$ TTI) com barramento A1-P/E2. | Pipeline de co-simulação aberto (ns-3.48 + 5G-LENA + NORI + OSC Near-RT RIC) com decodificação ASN.1 APER estrita e datasets brutos para reprodutibilidade. | Formulação matemática da projeção do envelope de segurança $\Omega_{\text{dApp}}$ garantindo limites de PRB/potência no TTI sem violar a estabilidade macro do RIC. | Revisão sistemática da literatura (SLR PRISMA) classificando taxonomias de conflitos (C1–C5), mecanismos de mediação e lacunas normativas O-RAN WG3/WG2. |
-| **Cenários Experimentais Suportados** | **B0 vs H-RDL, S1 (PRB Collision), S2 (Energy vs QoS), S3 (TVS Coupling)** + Escalabilidade (100 xApps) + Ablation A0–A5. | **S6 (Conflict Storm), S9 (NTN LEO), S10 (UAV Swarm), S11 (V2X), S12 (TSN), S14 (ISAC)** + Curvas de Treinamento MAPPO. | **Cenário B (Two-Tier dApp) + Injeção de Políticas A1-P sintéticas** + Validação de Hierarquia de Controle rApp/xApp/dApp. | **Suite Completa S0–S15 + 30 Sementes Físicas** + Scripts de Automação de Testbed e Benchmarks de CPU/Memória. | **Micro-benchmarks de TTI (0.25ms / 0.5ms)** sob rajadas de preempção URLLC sobre eMBB com Bounding Box. | Não aplicável (SLR + Análise Bibliométrica + Mapeamento de Testbeds Globais). |
+| **Cenários Experimentais Suportados** | **B0 vs H-RDL, S1 (PRB Collision), S2 (Energy vs QoS), S3 (TVS Coupling), S8 (Validação Principal de Circuito Fechado E2AP/E2SM-KPM/RC)** + **Suite de Ablação A0–A5** + **Micro-benchmark de Escalabilidade Algorítmica de Decisão (2 a 100 propostas concorrentes)** [Simulação física ns-3 com até 6 xApps ativas de referência]. | **S6 (Conflict Storm), S9 (NTN LEO), S10 (UAV Swarm), S11 (V2X), S12 (TSN), S14 (ISAC)** + Curvas de Treinamento MAPPO. | **Cenário B (Two-Tier dApp) + Injeção de Políticas A1-P sintéticas** + Validação de Hierarquia de Controle rApp/xApp/dApp. | **Suite Completa S0–S15 + 30 Sementes Físicas** + Scripts de Automação de Testbed e Benchmarks de CPU/Memória. | **Micro-benchmarks de TTI (0.25ms / 0.5ms)** sob rajadas de preempção URLLC sobre eMBB com Bounding Box. | Não aplicável (SLR + Análise Bibliométrica + Mapeamento de Testbeds Globais). |
 | **Formato & Limite de Páginas** | Máx. 10 páginas (IEEE Double Column, sem excess page fees). | Máx. 13 páginas (regular submission, IEEE Double Column). | 6–8 páginas (estilo Magazine, linguagem acessível, figuras conceituais de alto impacto). | 15–22 páginas (formato Elsevier Single/Double Column). | 4–5 páginas (IEEE Transactions Letter / OJ-COMS Track). | 25–35 páginas (IEEE COMST), análise exaustiva e taxonomia formal. |
 | **Fronteira de Isolamento (Zero Overlap)** | Foco estrito em **governança determinística, heurísticas de prioridade e safety guards fixos**. Sem menção a MAPPO ou Grafos Cais. | Foco estrito em **aprendizado por reforço multiagente restrito (Safe-RL), representação em grafos e envelopes dinâmicos**. | Foco em **padronização O-RAN, políticas de longo prazo e decomposição de timescales**. | Foco em **engenharia de software de rede, codecs ASN.1, harness de testes e reprodutibilidade aberta**. | Foco em **prova analítica e tempo real estrito (< 1ms)** na O-DU, isolado da pilha do Near-RT RIC. | Foco em **síntese do estado da arte global e categorização metodológica**, sem resultados experimentais primários. |
 
@@ -103,6 +103,29 @@ onde o conjunto admissível seguro $\Omega_{\text{safe}}$ é delimitado pelas re
 $$\Omega_{\text{safe}} = \left\{ \mathbf{a} = (\mathbf{r}_{\text{PRB}}, P_{\text{tx}}) \;\middle|\; \sum_{s \in \mathcal{S}} r_{\text{PRB}}^{(s)} \le 1.0, \; r_{\text{PRB}}^{(\text{URLLC})} \ge r_{\min}, \; P_{\min} \le P_{\text{tx}} \le P_{\max} \right\}$$
 
 Essa formalização assegura que **toda ação despachada via E2SM-RC pertence obrigatoriamente a $\Omega_{\text{safe}}$**, provendo segurança determinística por construção (*Safety-by-Design*).
+
+---
+
+### 3.4. O Cenário S8 como Validação Canônica de Circuito Fechado (Closed-Loop Validation Pillar)
+
+O **Cenário S8 (Real NORI Closed Loop E2AP/E2SM)** constitui a evidência empírica principal de fechamento causal do Paper 1:
+
+1. **Topologia de Malha Fechada Completa:**
+   $$\text{ns-3/5G-LENA (O-DU/O-CU)} \xrightarrow[\text{E2SM-KPM v3.0}]{\text{SCTP:36422}} \text{Near-RT RIC} \xrightarrow{\text{H-RDL Arbitrage}} \text{Safety Guard} \xrightarrow[\text{E2SM-RC Format 1}]{\text{RIC\_CONTROL}} \text{E2 Agent} \xrightarrow{\text{RIC\_CONTROL\_ACK}} \text{MAC Scheduler}$$
+2. **Fechamento Causal Comprovado:**
+   - Taxa de Efeito Causal Confiável: $\text{CRE} = 100{,}0\%$.
+   - Confirmação não-repudiável via captura de socket real (`experiments/results/traces/live_e2_loopback_capture.pcap`).
+   - Latência fim-a-fim de malha fechada medida: $T_{\text{E2E}} = 32{,}38\text{ ms} \ll T_{\text{NearRT}}^{\max} (100\text{ ms})$.
+
+### 3.5. Desambiguação Metodológica da Escalabilidade: Micro-Benchmark vs Simulação Física
+
+Para prevenir qualquer ambiguidade durante a revisão por pares na IEEE TNSM, o manuscrito estabelece a separação categórica entre:
+
+* **Simulação Física de Rede no ns-3/5G-LENA:**
+  - Opera com **até 6 xApps ativas simultâneas** de referência (`xSlice`, `Energy Saving`, `Traffic Steering`, `MIMO Beamformer`, `ISAC Radar`, `Safety Guard / Zero-Trust`) atuando sobre 1 a 4 gNodeBs e fatias heterogêneas (URLLC, eMBB, mMTC). Esse limite reflete a capacidade realista de instanciação semântica concorrente na pilha física de rádio.
+* **Micro-Benchmark de Escalabilidade Computacional do Motor (GATE 3):**
+  - Avalia o pipeline de decisão de software isoladamente sob estresse sintético escalonado de **$N \in \{2, 5, 10, 20, 50, 100\}$ propostas de xApps** injetadas por ciclo de arbitragem (`scripts/benchmark_measured_scalability_100xapps.py`).
+  - Demonstra que o tempo de resolução permanece linear $\mathcal{O}(N)$ e rigorosamente contido em $T_{\text{arbitration}} \le 0{,}262\text{ ms}$ mesmo sob o estresse extremo de 100 propostas concorrentes.
 
 ---
 
