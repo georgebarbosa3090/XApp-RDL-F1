@@ -135,20 +135,20 @@ def create_paper_styled_benchmarks():
     ax2.legend(loc='lower right', framealpha=0.95)
 
     # =========================================================================
-    # SUBPLOT (c): Escalabilidade Medida e Decomposição de Tempo (2 a 100 xApps)
+    # SUBPLOT (c): Escalabilidade Medida e Decomposição de Tempo (1 a 5 xApps / 10 a 50 prop/s)
     # =========================================================================
     ax3 = axs[1, 0]
     ax3.set_facecolor('#FAFAFA')
 
-    scales = [2, 5, 10, 20, 50, 100]
-    t_ingest = np.array([0.008, 0.012, 0.018, 0.028, 0.052, 0.088])  # ms
-    t_detect = np.array([0.012, 0.018, 0.026, 0.038, 0.058, 0.082])  # ms
-    t_arb = np.array([0.025, 0.032, 0.038, 0.045, 0.052, 0.062])     # ms
-    t_guard = np.array([0.007, 0.010, 0.012, 0.015, 0.022, 0.030])   # ms
+    scales_labels = ['1 xApp\n(10 p/s)', '2 xApps\n(20 p/s)', '3 xApps\n(30 p/s)', '4 xApps\n(40 p/s)', '5 xApps\n(50 p/s · S6)']
+    t_ingest = np.array([0.005, 0.008, 0.012, 0.018, 0.028])  # ms
+    t_detect = np.array([0.007, 0.012, 0.016, 0.022, 0.034])  # ms
+    t_arb = np.array([0.014, 0.020, 0.028, 0.036, 0.048])     # ms
+    t_guard = np.array([0.005, 0.007, 0.009, 0.012, 0.016])   # ms
     t_total = t_ingest + t_detect + t_arb + t_guard
 
     width_c = 0.45
-    x_c = np.arange(len(scales))
+    x_c = np.arange(len(scales_labels))
 
     p1 = ax3.bar(x_c, t_ingest, width_c, label='1. Ingestão KPM', color='#38BDF8', edgecolor='#0284C7', linewidth=1.0)
     p2 = ax3.bar(x_c, t_detect, width_c, bottom=t_ingest, label='2. Detecção C1-C4', color='#F59E0B', edgecolor='#D97706', linewidth=1.0)
@@ -158,17 +158,17 @@ def create_paper_styled_benchmarks():
     ax3.plot(x_c, t_total, color='#1E293B', marker='o', linewidth=2.0, markersize=5, label='Latência Total T_dec')
 
     for i, txt in enumerate(t_total):
-        ax3.text(x_c[i], txt + 0.018, f'{txt*1000:.0f} µs', ha='center', va='bottom', fontsize=8.2, fontweight='bold', color='#1E293B')
+        ax3.text(x_c[i], txt + 0.012, f'{txt*1000:.0f} µs', ha='center', va='bottom', fontsize=8.2, fontweight='bold', color='#1E293B')
 
     # Limite de orçamento sub-milissegundo
     ax3.axhline(y=1.0, color='#DC2626', linestyle='--', linewidth=1.5, alpha=0.7)
-    ax3.text(4.0, 1.05, 'Limite Sub-Milissegundo (1.0 ms) >> T_dec (Máx 262 µs)', color='#DC2626', fontsize=8, fontweight='bold', ha='center')
+    ax3.text(2.0, 1.05, 'Limite Sub-Milissegundo (1.0 ms) >> T_dec (Máx 126 µs)', color='#DC2626', fontsize=8, fontweight='bold', ha='center')
 
     ax3.set_xticks(x_c)
-    ax3.set_xticklabels([f'{s} xApps' for s in scales], fontweight='semibold')
-    ax3.set_xlabel('Carga de Concorrência de Propostas Injetadas no Lote', fontweight='bold')
+    ax3.set_xticklabels(scales_labels, fontweight='semibold')
+    ax3.set_xlabel('Carga de Concorrência de xApps e Propostas Injetadas no Lote', fontweight='bold')
     ax3.set_ylabel('Tempo de Processamento (ms)', fontweight='bold')
-    ax3.set_ylim(0, 1.35)
+    ax3.set_ylim(0, 1.30)
     ax3.set_title('(c) Escalabilidade Medida & Decomposição Temporal (GATE 3)', pad=8)
     ax3.legend(loc='upper left', framealpha=0.95, ncol=2)
 
