@@ -1,80 +1,73 @@
-# Catálogo Estruturado de Figuras Científicas (Fase 1 vs Fase 2)
+﻿# Catálogo Oficial de Figuras e Resultados Experimentais H-RDL (Fase 1)
 
-Este diretório contém os conjuntos completos de figuras científicas, diagramas conceituais de arquitetura e gráficos de benchmarks experimentais do ecossistema **H-RDL (Fase 1)** e **CA-RDL (Fase 2)**, rigorosamente segregados para publicação e documentação da dissertação e artigos de periódicos (IEEE TNSM / IEEE TCCN / SBRC).
+Este diretório contém o acervo oficial, auditado e padronizado de figuras de arquitetura, topologias e resultados experimentais de co-simulação ns-3 / 5G-LENA / NORI / O-RAN Near-RT RIC para a **Fase 1 (H-RDL)** gerados **exclusivamente a partir da última rodada de simulação**.
 
-Todas as figuras são exportadas em três formatos de publicação: **PNG (300 DPI)**, **PDF Vetorial** e **SVG**.
+Todas as figuras de resultados são disponibilizadas em alta fidelidade (300 DPI, `constrained_layout`, sem colisões de texto) com rastreabilidade direta à Matriz Canônica SSOT (`experiments/results/canonical_simulation_master.csv`).
 
 ---
 
-## 📁 Estrutura de Diretórios Segregados
+## 📁 Estrutura Canônica de Diretórios
 
 ```
 docs/figures/
-├── fase1_hrdl/                                 # 🎯 FASE 1: Middleware H-RDL (Foco em Baselines Clássicos e Teoria dos Jogos)
-│   ├── fig_fase1_arquitetura_hrdl.{png,pdf,svg}
-│   ├── fig_fase1_benchmarks_principais.{png,pdf,svg}
-│   ├── fig_fase1_metricas_estendidas_baselines.{png,pdf,svg}
-│   ├── fig_fase1_radar_multidimensional_baselines.{png,pdf,svg}
-│   ├── fig_fase1_distribuicoes_multissemente_boxplots.{png,pdf,svg}
-│   └── fig_fase1_convergencia_conflitos_cenarios_tempo.{png,pdf,svg}
-│
-├── fase2_cardl/                                # 🧠 FASE 2: Coordenação Cognitiva CA-RDL (Safe-RL, MAPPO, CKG e Two-Tier dApp)
-│   ├── fig_fase2_arquitetura_cardl.{png,pdf,svg}
-│   ├── fig_fase2_benchmarks_cognitivos.{png,pdf,svg}
-│   ├── fig_fase2_convergencia_treinamento_safe_rl.{png,pdf,svg}
-│   └── fig_fase2_convergencia_conflitos_cenarios_tempo.{png,pdf,svg}
-│
-└── 03_resultados_e_benchmarks/                 # Catálogo consolidado e topologias conceituais
-    └── fig_convergencia_conflitos_resolucao_cenarios_tempo.{png,pdf,svg}
+├── 01_arquitetura_e_governanca/          # Diagramas conceituais e arquiteturais de governança O-RAN
+├── 01_arquitetura_e_modelagem/           # Fluxo funcional e diagramas de blocos do pipeline
+├── 01_modelos_analiticos_e_conceituais/  # Modelos matemáticos, dinâmica de equidade e trade-offs
+├── 02_cenarios_e_topologias/             # Topologias espaciais e cenários canônicos (S0 a S15)
+├── figures_manifest.json                 # Manifesto oficial de metadados das figuras canônicas
+└── fig_01_*.png ... fig_37_*.png         # Figuras científicas 300 DPI da última simulação
 ```
 
 ---
 
-## 🔬 1. Fase 1: H-RDL (Hierarchical Conflict Resolution & Baseline Validation)
+## 📊 Catálogo de Figuras Científicas da Última Rodada de Simulação
 
-A Fase 1 foca estritamente na validação do **Middleware H-RDL Determinístico** contra os baselines de governança de RAN:
-- **B0 (Desgovernado / Sem Coordenação):** Atuação predatória e concorrente de xApps.
-- **B1 (FIFO Queue):** Fila sequencial sem inteligência ou consciência de conflitos semânticos.
-- **B2 (Cota Estática 60/30):** Fatiamento estático rígido de PRBs (60% eMBB / 30% URLLC / 10% Guarda).
-- **B3 (H-RDL Proposta):** Arbitragem Nash Bargaining Solution (NBS) com Safe Guard determinístico e projeção Euclidiana.
-
-### Figuras Disponíveis em `docs/figures/fase1_hrdl/`
-
-| Arquivo | Descrição Técnica | Métricas Avaliadas |
+| Arquivo | Título / Métrica Principal | Descrição Científica |
 | :--- | :--- | :--- |
-| `fig_fase1_arquitetura_hrdl` | Arquitetura funcional e fluxo de controle H-RDL | Ingestão KPM, Deteção C1–C4, TVS/Nash e E2SM-RC Format 1 |
-| `fig_fase1_benchmarks_principais` | Painel quadripartite de validação primária | Vazão agregada, Violação de SLA (%), ECDF da cauda de latência URLLC (Log-Scale), Escalabilidade Realística (1 a 5 xApps / 10 a 50 prop/s) e Fechamento causal de malha fechada (Cenário S8) |
-| `fig_fase1_metricas_estendidas_baselines` | Comparativo das métricas estendidas de simulação | Índice de Equidade de Jain ($J$), Taxa de Descarte de Pacotes RLC (%), Consumo de Potência do gNB (W), Eficiência Energética (Mbit/J), Jitter URLLC vs eMBB, Action Churn (ações/s) e Tempo de Estabilização ($t_{\text{settle}}$) |
-| `fig_fase1_radar_multidimensional_baselines` | Gráfico Radar Polar de 6 eixos normalizados | Dominância de Pareto em Vazão, Estabilidade de Latência, Equidade, Preservação de SLA, Eficiência Energética e Estabilidade de Controle |
-| `fig_fase1_distribuicoes_multissemente_boxplots` | Distribuição empírica multissemente ($N=30$) | Dispersão estatística (IQR e outliers) para Vazão da Célula, Latência RLC P95, Jitter Médio e Taxa de Violação de SLA |
-| `fig_fase1_convergencia_conflitos_cenarios_tempo` | Dinâmica temporal de conflitos e resolução em malha fechada | Evolução temporal ($t \in [0, 10\text{ s}]$) da colisão de PRBs (S1), SINR/Potência (S2), Flapping Churn (S5), Conflict Storm (S6), Malha Fechada E2 (S8) e Jitter TSN (S12) |
+| `fig_01_causal_timeline.png` | Fechamento Causal E2 (Gate 4) | Linha do tempo dos 6 elos causais E2SM-KPM $\to$ H-RDL $\to$ E2SM-RC $\to$ MAC. |
+| `fig_02_throughput_timeseries.png` | Série Temporal de Vazão | Dinâmica de throughput agregado por fatia (eMBB/URLLC) ao longo do tempo. |
+| `fig_03_latency_ecdf.png` | ECDF de Latência URLLC | Função de Distribuição Cumulativa confrontada com o limiar de 10 ms. |
+| `fig_04_throughput_boxplot.png` | Distribuição de Vazão | Dispersão estatística de vazão entre baselines B0 a B3 ($N=35$ execuções). |
+| `fig_05_sla_violation_violin.png` | Taxa de Violação de SLA | Violin plots comparando a supressão de violações contratuais por baseline. |
+| `fig_06_paired_seed_plot.png` | Comparações Pareadas Multi-Semente | Linhas pareadas por semente empírica demonstrando ganho determinístico. |
+| `fig_07_effect_forest.png` | Forest Plot de Tamanhos de Efeito | Tamanhos de efeito de Cohen ($d_z$) com intervalos de confiança de 95%. |
+| `fig_08_scenario_baseline_heatmap.png`| Heatmap Cenários vs Baselines | Matriz de desempenho transversal em todos os cenários (S0 a S15). |
+| `fig_09_prb_slice_area.png` | Alocação de PRB por Fatia | Gráfico de área empilhada da partição espectral sob alta demanda. |
+| `fig_10_sinr_throughput_hexbin.png` | Densidade Hexbin SINR vs Vazão | Distribuição de densidade conjunta de qualidade de canal e taxa útil. |
+| `fig_11_mcs_bler.png` | BLER vs Esquema de Modulação (MCS) | Curvas de taxa de erro de bloco sob adaptação de enlace. |
+| `fig_12_latency_breakdown.png` | Decomposição da Latência de Decisão| Tempo gasto em KPM, detecção, Nash, ASN.1 e despacho E2. |
+| `fig_13_pareto.png` | Fronteira de Pareto Vazão vs Latência | Espaço multi-objetivo destacando a dominância das soluções RDL. |
+| `fig_14_conflict_timeline.png` | Linha do Tempo de Resolução de Conflitos| Identificação e mitigação de colisões PRB/Potência ao longo do tempo. |
+| `fig_15_action_churn.png` | Taxa de Oscilação (Action Churn) | Supressão de ping-pong e estabilização de políticas de controle. |
+| `fig_16_mappo_convergence.png` | Convergência de Treinamento MAPPO | Curvas de recompensa e perda do crítico/ator no modelo cooperativo. |
+| `fig_17_safety_cost.png` | Custo de Segurança (Safe-RL) | Restrições do multiplicador de Lagrange $\lambda$ garantindo $C_t \le d_{limit}$. |
+| `fig_18_generalization_gap.png` | Gap de Generalização | Desempenho do modelo treinado em cenários não vistos (S6, S9, S10, S14). |
+| `fig_19_crosslayer_pairplot.png` | Pairplot Cruzado Multi-Camada | Correlações cruzadas entre PHY (SINR), MAC (PRB) e RDL (Latência). |
+| `fig_20_3d_pareto_surface.png` | Superfície de Pareto 3D | Superfície tridimensional Vazão $\times$ Latência $\times$ Eficiência Energética. |
+| `fig_21_3d_gradient_scatter_latency_recovery.png`| Scatter 3D de Recuperação | Tempo de recuperação pós-falha versus sobrecarga e atraso. |
+| `fig_22_cognitive_stages_waterfall.png` | Cascata dos Estágios Cognitivos | Decomposição sequencial do motor de inferência hierárquico L0 a L4. |
+| `fig_23_decision_windows_tradeoff.png` | Trade-off de Janelas de Decisão | Impacto do intervalo de amostragem TTI nos tempos de resposta. |
+| `fig_24_implicit_explicit_conflict_confusion.png`| Matriz de Confusão de Conflitos | Precisão e Recall na classificação de conflitos explícitos e implícitos. |
+| `fig_25_ue_registration_breakdown.png`| Decomposição de UEs Conectados | Distribuição de terminais veiculares, industriais e de banda larga. |
+| `fig_26_jain_fairness_dynamics.png` | Dinâmica de Equidade de Jain | Índice de Jain ao longo da carga celular demonstrando justiça de alocação. |
+| `fig_27_energy_vs_qos_tradeoff_eevs.png`| Trade-off Energia vs QoS (EEVS) | Consumo de potência gNB (W) versus garantia estrita de SLA. |
+| `fig_28_cross_tier_governance_latency_envelope.png`| Envelope de Latência Multi-Tier | Orçamento de tempo rApp (100ms) $\leftrightarrow$ xApp (10ms) $\leftrightarrow$ dApp (<1ms). |
+| `fig_29_resilience_e2_timeout_recovery.png`| Resiliência a Falhas e Timeouts E2 | Recuperação automática com circuito de fallback (*Circuit Breaker*). |
+| `fig_30_sbrc_multidimensional_radar.png`| Radar Multidimensional SBRC | Avaliação holística de 6 eixos (Vazão, Latência, SLA, Jain, Energia, Churn). |
+| `fig_31_rich_demo_8stages_execution_timeline.png`| Timeline de Execução em 8 Estágios | Rastreio temporal dos 8 estágios do circuito fechado ao vivo. |
+| `fig_32_conflict_storm_scalability_l0_l4.png`| Escalabilidade sob Tempestade de Conflitos| Sobrecarga de decisão sob saturação de 100 xApps concorrentes. |
+| `fig_33_influx_grafana_realtime_closed_loop_recovery.png`| Telemetria InfluxDB/Grafana em Tempo Real| Curvas de monitoramento do painel operacional durante injeção de anomalia. |
+| `fig_34_two_tier_dapp_bounding_box_envelope.png`| Envelope do Bounding Box dApp | Faixas seguras de controle em tempo real sub-TTI executadas na O-DU/O-CU. |
+| `fig_35_multi_scenario_demonstration_cockpit_comparison.png`| Cockpit Comparativo Multi-Cenário | Painel consolidado confrontando cenários S1 (PRB), S2 (Potência) e S9 (NTN). |
+| `fig_36_flowmonitor_ns3_s0_s15_traffic_profiles.png`| Perfis de Tráfego ns-3 FlowMonitor | Vazão e atraso amostrados diretamente na camada IP/MAC do ns-3.48. |
+| `fig_37_demonstration_master_dashboard.png`| Dashboard Mestre de Demonstração | Painel executivo consolidado com todas as métricas-chave de homologação. |
 
 ---
 
-## 🧠 2. Fase 2: CA-RDL (Cognitive Conflict Architecture & Safe-RL / MARL)
+## 🔬 Proveniência e Política Zero Synthetic Data
 
-A Fase 2 foca na expansão cognitiva com grafos de conhecimento, aprendizado por reforço multiagente seguro e dApps em tempo real, com ancoragem completa contra o desgoverno (B0):
-- **B0 (Desgovernado / Sem Mediação):** Referência de instabilidade sem governança.
-- **B3 (H-RDL Ref):** Âncora de desempenho determinístico da Fase 1.
-- **B4 (Heurística + Contexto):** Regras dinâmicas contextuais.
-- **B5 (Grafo de Conhecimento CKG):** Grafo causal e relacional com detecção GNN.
-- **B6 (CA-RDL Proposta - Safe-MAPPO):** Safe Multi-Agent PPO com multiplicadores Lagrangianos e Action Masking.
-
-### Figuras Disponíveis em `docs/figures/fase2_cardl/`
-
-| Arquivo | Descrição Técnica | Métricas Avaliadas |
-| :--- | :--- | :--- |
-| `fig_fase2_arquitetura_cardl` | Arquitetura cognitiva estratificada de três níveis | xApps Near-RT, Motor Cognitivo CA-RDL (CKG + Safe-MAPPO), Codec ASN.1 e dApp O-DU Sub-1ms |
-| `fig_fase2_benchmarks_cognitivos` | Comparativo experimental B0 vs B3 vs B4 vs B5 vs B6 | Vazão Efetiva, Eficiência Energética (Mbit/J), Latência Média, Cauda P95, Tempo de Decisão ($t_{\text{dec}}$), Taxa de Resolução de Conflitos e Robustez em Verticais 5G-Adv/6G (S9 a S14) |
-| `fig_fase2_convergencia_treinamento_safe_rl` | Curvas de convergência e segurança do Safe-MAPPO | Recompensa Episódica, Função de Custo de Segurança $J_C$, Multiplicador Lagrangiano $\lambda_k$ e Ações Inseguras ($\equiv 0\%$) |
-| `fig_fase2_convergencia_conflitos_cenarios_tempo` | Dinâmica temporal multissituação em malha fechada | Comportamento causal e estabilização de métricas de rádio nos cenários S1, S2, S5, S6, S8 e S12 |
-
----
-
-## ⚙️ Script de Geração
-
-Todas as figuras são geradas deterministicamente pelo script:
-```bash
-uv run python scripts/generate_separated_phase1_phase2_figures.py
-```
-Assegura conformidade visual estrita com os padrões IEEE/ACM, tipografia sans-serif elegante, paletas de alto contraste e reprodutibilidade com $N=30$ sementes estocásticas.
+Todos os dados gráficos, tabelas e manifestos contidos neste repositório derivam exclusivamente de execuções factuais registradas em:
+- **SSOT Mestre:** [`experiments/results/canonical_simulation_master.csv`](../../experiments/results/canonical_simulation_master.csv)
+- **Tabelas Canônicas:** [`experiments/results/tables/`](../../experiments/results/tables/)
+- **Telemetria de Cenários:** [`experiments/results/s0_s15_simulations/`](../../experiments/results/s0_s15_simulations/)
+- **Traces E2 & PCAP:** [`experiments/results/traces/`](../../experiments/results/traces/)
