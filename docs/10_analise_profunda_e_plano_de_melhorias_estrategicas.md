@@ -117,14 +117,14 @@ graph TD
 
 ### 6.1. Diagnóstico do Estado Atual
 * A suíte de testes possui 119 testes estáticos determinísticos cobrindo 100% dos cenários nominais.
-* Falta validação por testes estocásticos baseados em propriedades (*Property-Based Testing / Fuzzing*) para avaliar se o `RefinementAgent` mantém estabilidade sob propostas aleatórias infinitas.
+* Falta validação por testes estocásticos baseados em propriedades (*Property-Based Testing / Fuzzing*) para avaliar se o `Refinement` mantém estabilidade sob propostas aleatórias infinitas.
 
 ### 6.2. Ações de Melhoria Recomendadas
 
 #### [ACAO 5.1] Fuzzing Baseado em Propriedades via Biblioteca `Hypothesis`
 * **Implementação:** Criar a suíte `tests/test_safety_guard_fuzzing.py` gerando $100.000$ propostas pseudo-aleatórias (valores de $P_{\text{tx}} \in [-100, 200]\text{ dBm}$, cotas de PRB $\in [-50, 500\%]$, offsets de handover inválidos).
 * **Invariante Formal a Validar:**
-  $$\forall a \in \mathcal{A}_{\text{random}}, \quad \text{RefinementAgent}(a) \in \Omega_{\text{safe}} \quad \text{com } 100\% \text{ de certeza matemática}$$
+  $$\forall a \in \mathcal{A}_{\text{random}}, \quad \text{Refinement}(a) \in \Omega_{\text{safe}} \quad \text{com } 100\% \text{ de certeza matemática}$$
 * **Impacto:** Prova de blindagem e robustez formal do Safety Guard contra ataques de injeção adversária (Zero-Trust) e falhas de software em xApps terceiras.
 
 #### [ACAO 5.2] Gerador Automatizado de Tabelas LaTeX para Submissões IEEE/SBC
@@ -169,5 +169,5 @@ A implementação destas melhorias consolidará o projeto **xApp-RDL** como a pr
 
 A prioridade recomendada para execução imediata consiste em:
 1. Concretizar o **Gerador de Tabelas LaTeX** (`scripts/export_latex_publication_tables.py`);
-2. Implementar a **Suíte de Fuzzing Estocástico `Hypothesis`** para o `RefinementAgent`;
+2. Implementar a **Suíte de Fuzzing Estocástico `Hypothesis`** para o `Refinement`;
 3. Desenvolver o **Receptor de Políticas A1-P REST** para validação ponta a ponta dos 3 Tiers (SMO -> Near-RT RIC -> O-DU).

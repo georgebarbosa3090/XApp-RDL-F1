@@ -56,8 +56,8 @@ target_scenarios: "S9 a S15 (NTN, UAV, V2X, IIoT, ISAC)"
    - O código principal da Fase 1 reside em `XApp-RDL-F1` (`georgebarbosa3090/XApp-RDL-F1`).
    - O código de exploração MARL da Fase 2 reside em `XApp-RDL-F2` (`georgebarbosa3090/XApp-RDL-F2`).
 2. **Safety Guard Barrier:**
-   - Em nenhuma hipótese uma política MARL da Fase 2 pode violar as restrições impostas pelo `RefinementAgent` da Fase 1.
-   - Qualquer ação proposta pelo modelo MARL que falhe na verificação determinística do `RefinementAgent` é rejeitada ou ajustada (*clamped*) para o valor seguro.
+   - Em nenhuma hipótese uma política MARL da Fase 2 pode violar as restrições impostas pelo componente `Refinement` da Fase 1.
+   - Qualquer ação proposta pelo modelo MARL que falhe na verificação determinística do `Refinement` é rejeitada ou ajustada (*clamped*) para o valor seguro.
 
 ---
 

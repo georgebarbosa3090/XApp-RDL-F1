@@ -505,7 +505,7 @@ $$a_i \succ a_j \iff \Big( \rho_i > \rho_j \Big) \lor \Big( \rho_i = \rho_j \lan
 
 ### 3.7. Pilar 7: Guardiões de Segurança Física (*Safety Guards*) e Projeção Ortogonal
 
-Antes de qualquer ação ser serializada e emitida pela interface E2AP, o `RefinementAgent` atua como a última barreira de proteção física da RAN, aplicando **projeção ortogonal estrita (*Boundary Clipping*)**:
+Antes de qualquer ação ser serializada e emitida pela interface E2AP, o componente `Refinement` atua como a última barreira de proteção física da RAN, aplicando **projeção ortogonal estrita (*Boundary Clipping*)**:
 
 $$\Pi_{\mathcal{C}}(v) = \arg\min_{u \in \mathcal{C}} \| u - v \| = \max(v_{\text{min}}, \min(v_{\text{max}}, v))$$
 

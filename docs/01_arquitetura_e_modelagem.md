@@ -101,13 +101,13 @@ src/
 
 ---
 
-## 4. Agentes Especialistas e Pipeline de Decisão
+## 4. Componentes Core e Pipeline de Decisão
 
-### 4.1. PerceptionAgent (Percepção e Detecção)
+### 4.1. Perception (Percepção e Detecção)
 - Agrupa propostas recebidas de múltiplas xApps dentro da janela de agregação ($\Delta t = 200\text{ ms}$).
 - Constrói o grafo de conflitos $G = (V, E)$, onde $V$ são as propostas e $E$ representa interseções diretas no mesmo `(cell_id, parameter_id)` ou colisões indiretas de fatia (*slice coupling*).
 
-### 4.2. ReasoningAgent (Raciocínio e Arbitragem)
+### 4.2. Reasoning (Raciocínio e Arbitragem)
 - **Nível 1 (Heurística Hierárquica - H-RDL):** Executa matriz de prioridades de serviço:
   1. *Safety Invariants* (Proteção de enlace e integridade de rádio);
   2. *URLLC Critical Guarantee* (SLA de latência $D \le 5\text{ ms}$);
@@ -116,7 +116,7 @@ src/
 - **Nível 2 (Digital Twin & Árvore Decisória Não-Determinística - NDT):** Projeção preditiva do impacto antes da aplicação.
 - **Nível 3 (Multi-Agent PPO - CA-RDL):** Otimização da política conjunta sob formulação CMDP.
 
-### 4.3. RefinementAgent & Safety Guards (Segurança Invariante)
+### 4.3. Refinement & Safety Guards (Segurança Invariante)
 Aplica restrições físicas invioláveis antes de qualquer emissão para a interface E2:
 1. **Limites de Potência ($P_{tx}$):** $P_{min} \le P_{tx} \le P_{max}$ (ex.: $10\text{ dBm} \le P_{tx} \le 43\text{ dBm}$).
 2. **Orçamento de Recursos ($PRB$):** $\sum_{s \in \mathcal{S}} \text{Quota}(s) \le 100\%$.
