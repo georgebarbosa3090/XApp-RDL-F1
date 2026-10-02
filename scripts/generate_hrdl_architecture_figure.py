@@ -142,9 +142,9 @@ def create_hrdl_architecture_diagram():
 
     draw_arrow(50, 69.5, 50, 61.2, color=BLUE_MED, label="Lote de Propostas", label_pos=0.5, label_offset=(11, 0))
 
-    # 3.2. Perception Agent (Detecção Formal de Conflitos C1-C4)
+    # 3.2. Componente Perception (Detecção Formal de Conflitos C1-C4)
     draw_box(23, 46.5, 54, 6.8, '#FFFFFF', BLUE_MED, border_width=1.2)
-    ax.text(50, 51.6, "2. Perception Agent (Detecção Formal de Conflitos C1–C4)", 
+    ax.text(50, 51.6, "2. Perception (Detecção Formal de Conflitos C1–C4)", 
             fontsize=8.8, fontweight='bold', color=NAVY, ha='center')
     ax.text(50, 49.4, "Matriz de Adjacência de Conflitos · Detecção Direta (PRB/Potência) e Indireta (QoS/TVS)", 
             fontsize=7.5, color=GRAY_DARK, ha='center')
@@ -153,9 +153,9 @@ def create_hrdl_architecture_diagram():
 
     draw_arrow(50, 55.5, 50, 53.3, color=BLUE_MED)
 
-    # 3.3. Reasoning Agent (Arbitragem Heurística & Utilidade Multiobjetivo)
+    # 3.3. Componente Reasoning (Arbitragem Heurística & Utilidade Multiobjetivo)
     draw_box(23, 37.5, 54, 6.8, '#FFFFFF', BLUE_MED, border_width=1.2)
-    ax.text(50, 42.6, "3. Reasoning Agent (Arbitragem de Prioridade & Funções de Utilidade)", 
+    ax.text(50, 42.6, "3. Reasoning (Arbitragem de Prioridade & Funções de Utilidade)", 
             fontsize=8.8, fontweight='bold', color=NAVY, ha='center')
     ax.text(50, 40.4, "Otimização Pareto de Utilidade TVS (Throughput vs Slicing) e EEVS (Energy vs SLA)", 
             fontsize=7.5, color=GRAY_DARK, ha='center')
@@ -164,9 +164,9 @@ def create_hrdl_architecture_diagram():
 
     draw_arrow(50, 46.5, 50, 44.3, color=BLUE_MED, label="Conflitos Mapeados", label_pos=0.5, label_offset=(11, 0))
 
-    # 3.4. Refinement Agent & Deterministic Safety Guards
+    # 3.4. Componente Refinement & Deterministic Safety Guards
     draw_box(23, 28.5, 54, 7.0, ORANGE_LIGHT, ORANGE_DARK, border_width=1.5)
-    ax.text(50, 33.8, "4. Refinement Agent & Deterministic Safety Guards (Unsafe ≡ 0)", 
+    ax.text(50, 33.8, "4. Refinement & Deterministic Safety Guards (Unsafe ≡ 0)", 
             fontsize=8.8, fontweight='bold', color=ORANGE_DARK, ha='center')
     ax.text(50, 31.6, "Projeção no Envelope Seguro: a_final = argmin ||a - a_prop||² sujeito a a ∈ Ω_safe", 
             fontsize=7.5, fontweight='bold', color=NAVY, ha='center')

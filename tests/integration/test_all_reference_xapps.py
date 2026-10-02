@@ -36,9 +36,9 @@ from rogue_xapp import RogueXApp
 from load_balancer_xapp import LoadBalancerXApp
 from bouncer_xapp import BouncerXApp
 
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 from src.conflict_types import XAppAction, ConflictType
 from src.simulation.discrete_event_ran_simulator import DiscreteEventRANSimulator
@@ -73,11 +73,11 @@ def test_all_8_xapps_proposal_generation():
     assert p8["parameter"] == "PING_INTERVAL"
 
 def test_perception_and_resolution_with_new_parameters():
-    """Valida que PerceptionAgent detecta conflitos entre xApps da Fase 2 e O-RAN SC e Reasoning resolve."""
-    perception = PerceptionAgent()
+    """Valida que Perception detecta conflitos entre xApps da Fase 2 e O-RAN SC e Reasoning resolve."""
+    perception = Perception()
     memory = MemoryModule()
-    reasoning = ReasoningAgent(memory, config={})
-    refinement = RefinementAgent(memory)
+    reasoning = Reasoning(memory, config={})
+    refinement = Refinement(memory)
 
     # Conflito Indireto: Beamformer (DOWNTILT -> afeta L1M.DL-sinr e DRB.UEThpDl) vs Energy Saving (TX_POWER -> afeta L1M.DL-sinr)
     actions = [

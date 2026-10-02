@@ -27,7 +27,7 @@ from src.infrastructure.ric_request_id_allocator import RicRequestIdAllocator, g
 from src.observability.health_server import HealthServer, AppState
 from src.observability.metrics import MetricsServer
 from src.observability.causal_tracker import CausalTracker, CausalRecord, ScientificSummary
-from src.agents.refinement_agent import RefinementAgent
+from src.core.refinement import Refinement
 from src.rdl_xapp import RDLxApp
 
 
@@ -207,9 +207,9 @@ def test_ric_request_id_allocator_full():
     assert removed >= 1
 
 
-def test_perception_agent_full():
-    from src.agents.perception_agent import PerceptionAgent
-    perc = PerceptionAgent()
+def test_perception_component_full():
+    from src.core.perception import Perception
+    perc = Perception()
 
     # KPM Report update
     kpm = KPMReport(
@@ -244,7 +244,7 @@ def test_perception_agent_full():
 
 def test_refinement_all_parameters():
     mem = MemoryModule()
-    refinement = RefinementAgent(mem)
+    refinement = Refinement(mem)
     refinement.config["minimum_control_interval_ms"] = 0
 
     params = [
@@ -327,7 +327,7 @@ def test_rdlxapp_advanced_pipeline_and_decision_loop():
 
 def test_refinement_validate_resolution_all_branches():
     mem = MemoryModule()
-    ref = RefinementAgent(mem)
+    ref = Refinement(mem)
     ref.config["minimum_control_interval_ms"] = 0
 
     conflict = ConflictEvent(

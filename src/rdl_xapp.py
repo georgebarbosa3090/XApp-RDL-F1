@@ -33,9 +33,9 @@ from src.observability.logging import setup_logger, now_ts
 from src.observability.health_server import HealthServer, AppState
 from src.infrastructure.sdl_repository import SdlRepository
 from src.infrastructure.memory_module import MemoryModule
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
@@ -105,9 +105,9 @@ class RDLxApp:
                 logger.warning("SDL indisponível no ambiente local. Utilizando MemoryModule.")
                 self.memory = MemoryModule()
             
-        self.perception = PerceptionAgent()
-        self.reasoning = ReasoningAgent(self.memory, config={})
-        self.refinement = RefinementAgent(self.memory)
+        self.perception = Perception()
+        self.reasoning = Reasoning(self.memory, config={})
+        self.refinement = Refinement(self.memory)
         self.health = HealthServer(port=8080)
         self.health.set_state(AppState.STARTING)
         self.metrics = MetricsServer(port=8081)

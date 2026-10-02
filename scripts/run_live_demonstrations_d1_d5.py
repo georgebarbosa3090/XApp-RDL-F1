@@ -26,9 +26,9 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from src.conflict_types import XAppAction, ConflictType, ConflictSeverity, ConflictEvent, RDLDecision, ResolutionAction, ResolutionStrategy
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 from src.coordination.control_dispatcher import ControlDispatcher
 from src.observability.causal_tracker import CausalTracker
@@ -76,9 +76,9 @@ def run_d2_with_hrdl():
     print(" [DEMO D2] CENÁRIO COM H-RDL FASE 1 (BASELINE B3 - DETERMINÍSTICO)")
     print("=" * 80)
     memory = MemoryModule()
-    perception = PerceptionAgent()
-    reasoning = ReasoningAgent(memory, config={})
-    refinement = RefinementAgent(memory)
+    perception = Perception()
+    reasoning = Reasoning(memory, config={})
+    refinement = Refinement(memory)
     
     act_qos = XAppAction(xapp_id="qos_xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=80.0, priority=80)
     act_es = XAppAction(xapp_id="energy_saver", node_id="gnb_01", parameter="PRB_QUOTA", value=30.0, priority=50)

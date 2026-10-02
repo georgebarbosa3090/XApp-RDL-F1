@@ -142,7 +142,7 @@ Para atender aos mais estritos padrões de evidência empírica e reprodutibilid
 | :--- | :--- | :--- | :---: |
 | **1. N=30 Estocástico Real** | 30 seeds independentes alterando canal, Poisson, sombreamento UMi ($\sigma=4\text{dB}$) e filas HOL | Execução de 120 simulações contínuas completas no `DiscreteEventRANSimulator` com métricas 100% emergentes de filas MAC e SINR. |  **FECHADO** |
 | **2. Ablation Study Pareado** | Desacoplamento isolado das 6 variantes A0–A5 sobre as mesmas 30 seeds | Execução de 180 simulações contínuas com flags arquiteturais reais (`enable_memory`, `enable_indirect_detection`, `enable_utility`, `enable_safety_guard`, `enable_windowing`). |  **FECHADO** |
-| **3. Escalabilidade Medida** | Perfilamento nanosegundo do pipeline real sob estresse de 2 a 100 xApps | Benchmark de 1.200 ciclos executando os módulos de produção `PerceptionAgent` -> `ReasoningAgent` -> `RefinementAgent` -> `MemoryModule`. |  **FECHADO** |
+| **3. Escalabilidade Medida** | Perfilamento nanosegundo do pipeline real sob estresse de 2 a 100 xApps | Benchmark de 1.200 ciclos executando os módulos de produção `Perception` -> `Reasoning` -> `Refinement` -> `MemoryModule`. |  **FECHADO** |
 | **4. Validação E2 e APER** | Captura em socket de rede e validação não-repudiável bit-a-bit | Transmissão em socket loopback `:36422` (`live_e2_loopback_capture.pcap`), decodificação APER completa e manifesto SHA-256. |  **FECHADO** |
 
 ---
@@ -181,7 +181,7 @@ Dados consolidados a partir de 180 execuções pareadas geradas por `scripts/run
 
 ### 8.3. Benchmark de Escalabilidade Medida (Resultados do Gate 3)
 
-Medições de desempenho do pipeline de produção `PerceptionAgent` + `ReasoningAgent` + `RefinementAgent` + `MemoryModule` geradas por `scripts/benchmark_measured_scalability_100xapps.py`:
+Medições de desempenho do pipeline de produção `Perception` + `Reasoning` + `Refinement` + `MemoryModule` geradas por `scripts/benchmark_measured_scalability_100xapps.py`:
 
 | $N_{xApp}$ | Latência P50 (ms) | Latência P95 (ms) | Latência P99 (ms) | Vazão (propostas/s) | CPU (%) | Memória RSS Peak (MB) | Violação Budget 10ms (%) |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |

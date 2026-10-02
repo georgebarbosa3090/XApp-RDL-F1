@@ -31,9 +31,9 @@ sys.path.insert(0, BASE_DIR)
 
 from src.simulation.discrete_event_ran_simulator import DiscreteEventRANSimulator
 from src.infrastructure.memory_module import MemoryModule
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.observability.causal_tracker import CausalTracker
 from src.conflict_types import XAppAction, ConflictType
 

@@ -30,13 +30,13 @@ A sincronização entre o H-RDL (**Fase 1: Hierarchical Resource and Decision La
                              │
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│            PerceptionAgent (Janela 200ms)                 │
+│            Perception (Janela 200ms)                     │
 └────────────────────────────┬─────────────────────────────┘
                              │
             ┌────────────────┴────────────────┐
             ▼                                 ▼
 ┌───────────────────────┐         ┌───────────────────────┐
-│ ReasoningAgent (F1)   │         │ ContextEngine (F2)    │
+│ Reasoning (F1)        │         │ ContextEngine (F2)    │
 │ TVS/EEVS Determinístico│         │ MAPPO / GNN Context   │
 └───────────┬───────────┘         └───────────┬───────────┘
             │                                 │
@@ -44,7 +44,7 @@ A sincronização entre o H-RDL (**Fase 1: Hierarchical Resource and Decision La
                              │ (Candidato a Ação)
                              ▼
 ┌──────────────────────────────────────────────────────────┐
-│             RefinementAgent (Safety Guards F1)           │
+│             Refinement (Safety Guards F1)                │
 │   • Budget Max PRB                                       │
 │   • Limites em dBm (TxPower)                             │
 │   • Cooldown Anti-Ping-Pong                              │

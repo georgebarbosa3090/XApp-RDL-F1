@@ -13,7 +13,7 @@ from src.e2.e2ap.pdu import unwrap_e2ap_pdu, wrap_initiating_message
 from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure, build_ric_control_request
 from src.e2.e2ap.constants import PROC_RIC_CONTROL
 from src.observability.causal_tracker import CausalTracker
-from src.agents.refinement_agent import RefinementAgent
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 from src.conflict_types import XAppAction, KPMReport
 
@@ -72,7 +72,7 @@ def test_negative_strict_mode_unadvertised_parameter():
 def test_negative_safety_guard_rejection():
     """Valida que o Refinement/Safety Guard bloqueia ações perigosas que violam SLAs ou limites físicos."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     # Ação perigosa: redução drástica de potência além da margem de segurança
     unsafe_action = XAppAction(

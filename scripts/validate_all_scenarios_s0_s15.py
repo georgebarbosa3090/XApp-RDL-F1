@@ -7,9 +7,9 @@ from typing import List
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.conflict_types import XAppAction, ConflictType, ConflictSeverity, ConflictEvent, ResolutionStrategy, ResolutionAction
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 
 @dataclass
@@ -51,9 +51,9 @@ class S0toS15CampaignValidator:
 
     def get_fresh_agents(self):
         mem = MemoryModule()
-        p = PerceptionAgent()
-        r = ReasoningAgent(mem, config={})
-        ref = RefinementAgent(mem)
+        p = Perception()
+        r = Reasoning(mem, config={})
+        ref = Refinement(mem)
         return p, r, ref
 
     def run_suite(self, target_group: str = "all", target_scenario: str = None) -> List[ScenarioResult]:

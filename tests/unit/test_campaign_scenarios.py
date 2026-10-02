@@ -12,15 +12,15 @@ Valida as propriedades centrais de cada cenário:
 import pytest
 import time
 from src.infrastructure.memory_module import MemoryModule
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.conflict_types import XAppAction, ConflictType
 
 def test_scenario_s0_non_interference_pass_through():
     """Valida que sob ações compatíveis sem risco de SLA, o H-RDL não altera nem bloqueia nenhuma proposta (InterferenceRate = 0)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     # 3 propostas totalmente compatíveis em nós distintos
     clean_actions = [
@@ -41,7 +41,7 @@ def test_scenario_s0_non_interference_pass_through():
 
 def test_scenario_s1_direct_conflict_detection_accuracy():
     """Valida o ground truth de detecção de colisão direta (PRB x PRB) calculando Precision, Recall e F1."""
-    perception = PerceptionAgent()
+    perception = Perception()
 
     # Dois UEs solicitando cotas concorrentes na mesma célula
     actions = [
@@ -65,9 +65,9 @@ def test_scenario_s1_direct_conflict_detection_accuracy():
 def test_scenario_s4_traffic_steering_vs_energy_arbitration():
     """Valida que quando uma célula congestionada tenta descarregar UEs em uma célula onde ES quer alterar potência, o H-RDL prioriza a manutenção da cobertura."""
     memory = MemoryModule()
-    reasoning = ReasoningAgent(memory, config={})
-    refinement = RefinementAgent(memory)
-    perception = PerceptionAgent()
+    reasoning = Reasoning(memory, config={})
+    refinement = Refinement(memory)
+    perception = Perception()
 
     # gNB1: Traffic steering solicita Handover (impacta DRB.UEThpDl) e Energy Saver tenta reduzir TX_POWER (impacta DRB.UEThpDl)
     actions = [
@@ -90,7 +90,7 @@ def test_scenario_s4_traffic_steering_vs_energy_arbitration():
 def test_scenario_s5_temporal_ping_pong_lock():
     """Valida o mecanismo de histerese e cooldown lock para evitar reversões cíclicas (ping-pong) em janelas temporais curtas."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     # Primeira ação: handover de UE para gNB1
     act1 = XAppAction(xapp_id="ts", node_id="gnb_01", parameter="HANDOVER", value=1.0, priority=80)
@@ -108,9 +108,9 @@ def test_scenario_s5_temporal_ping_pong_lock():
 def test_scenario_s6_conflict_storm_near_rt_bounds():
     """Valida que sob rajada massiva de 50 ações/janela (Nível L3), o tempo de decisão permanece estritamente < 50ms."""
     memory = MemoryModule()
-    perception = PerceptionAgent()
-    reasoning = ReasoningAgent(memory, config={})
-    refinement = RefinementAgent(memory)
+    perception = Perception()
+    reasoning = Reasoning(memory, config={})
+    refinement = Refinement(memory)
 
     storm_actions = []
     for i in range(50):
@@ -135,7 +135,7 @@ def test_scenario_s6_conflict_storm_near_rt_bounds():
 def test_scenario_s7_adversarial_fault_safety_zero_violation():
     """Valida que 100% dos comandos adversários ou corrompidos são bloqueados ou clampeados para faixa segura."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     adversarial_actions = [
         XAppAction(xapp_id="hostile", node_id="gnb_01", parameter="TX_POWER", value=100.0, priority=99), # > 23 dBm
@@ -155,9 +155,9 @@ def test_scenario_s7_adversarial_fault_safety_zero_violation():
 def test_scenario_s2_tvs_indirect_conflict_resolution():
     """Valida a resolução de conflito indireto TVS (Throughput vs Slicing) entre xSlice e KPIMON."""
     memory = MemoryModule()
-    perception = PerceptionAgent()
-    reasoning = ReasoningAgent(memory, config={})
-    refinement = RefinementAgent(memory)
+    perception = Perception()
+    reasoning = Reasoning(memory, config={})
+    refinement = Refinement(memory)
 
     actions = [
         XAppAction(xapp_id="xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=60.0, priority=70),
@@ -172,8 +172,8 @@ def test_scenario_s2_tvs_indirect_conflict_resolution():
 def test_scenario_s3_cross_layer_energy_vs_qos():
     """Valida arbitragem multi-métrica cross-layer entre otimização de potência e garantia de SLA de vazão."""
     memory = MemoryModule()
-    perception = PerceptionAgent()
-    reasoning = ReasoningAgent(memory, config={})
+    perception = Perception()
+    reasoning = Reasoning(memory, config={})
     
     actions = [
         XAppAction(xapp_id="qos_xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=80.0, priority=85),
@@ -187,7 +187,7 @@ def test_scenario_s3_cross_layer_energy_vs_qos():
 def test_scenario_s8_closed_loop_e2_nori():
     """Valida o fechamento de malha E2 (E2AP + E2SM KPM/RC) sob orquestração NORI."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     action = XAppAction(xapp_id="kpimon", node_id="gnb_01", parameter="PRB_QUOTA", value=50.0, priority=50)
     is_safe, level, _ = refinement.validate_single_action(action)
@@ -198,7 +198,7 @@ def test_scenario_s8_closed_loop_e2_nori():
 def test_scenario_s9_ntn_doppler_handover_contract():
     """Valida contrato formal da xApp proposta NTN-Steering (Handover orbital LEO com compensação Doppler)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     ntn_action = XAppAction(xapp_id="ntn_steering", node_id="sat_leo_01", parameter="HANDOVER", value=1.0, priority=95)
     is_safe, _, _ = refinement.validate_single_action(ntn_action)
@@ -207,7 +207,7 @@ def test_scenario_s9_ntn_doppler_handover_contract():
 def test_scenario_s10_uav_swarm_battery_contract():
     """Valida contrato formal da xApp proposta Energy-Conserver UAV (Gestão de bateria e topologia de enxame)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     uav_action = XAppAction(xapp_id="uav_energy_conserver", node_id="uav_base_01", parameter="TX_POWER", value=18.0, priority=90)
     is_safe, _, _ = refinement.validate_single_action(uav_action)
@@ -216,7 +216,7 @@ def test_scenario_s10_uav_swarm_battery_contract():
 def test_scenario_s11_v2x_highway_platoon_urllc_contract():
     """Valida contrato formal da xApp proposta Platoon-QoS (Garantia URLLC sub-10ms em alta velocidade 110 km/h)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     v2x_action = XAppAction(xapp_id="platoon_qos", node_id="rsu_highway_01", parameter="PRB_QUOTA", value=70.0, priority=98)
     is_safe, _, _ = refinement.validate_single_action(v2x_action)
@@ -225,7 +225,7 @@ def test_scenario_s11_v2x_highway_platoon_urllc_contract():
 def test_scenario_s12_iiot_tsn_deterministic_jitter_contract():
     """Valida contrato formal da xApp proposta Industrial-QoS (Garantia de latência determinística e supressão de jitter)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     iiot_action = XAppAction(xapp_id="industrial_qos", node_id="gnb_factory_01", parameter="PRB_QUOTA", value=65.0, priority=92)
     is_safe, _, _ = refinement.validate_single_action(iiot_action)
@@ -234,7 +234,7 @@ def test_scenario_s12_iiot_tsn_deterministic_jitter_contract():
 def test_scenario_s13_rescue_sagin_multidomain_contract():
     """Valida contrato formal da xApp proposta Rescue-QoS (Orquestração multidomínio Satélite-UAV-Terrestre em emergência)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     sagin_action = XAppAction(xapp_id="rescue_qos", node_id="sagin_gateway_01", parameter="PRB_QUOTA", value=90.0, priority=99)
     is_safe, _, _ = refinement.validate_single_action(sagin_action)
@@ -243,7 +243,7 @@ def test_scenario_s13_rescue_sagin_multidomain_contract():
 def test_scenario_s14_isac_radar_interference_contract():
     """Valida contrato formal da xApp proposta ISAC Radar (Mitigação de interferência mútua entre sensoriamento radar e comunicação 6G)."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     isac_action = XAppAction(xapp_id="isac_radar", node_id="gnb_isac_01", parameter="TX_POWER", value=22.0, priority=88)
     is_safe, _, _ = refinement.validate_single_action(isac_action)
@@ -252,7 +252,7 @@ def test_scenario_s14_isac_radar_interference_contract():
 def test_scenario_s15_cross_tier_security_zero_trust_contract():
     """Valida contrato formal de segurança cross-tier Near-RT / Non-RT sob arquitetura Zero-Trust."""
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
 
     sec_action = XAppAction(xapp_id="sec_guardian", node_id="gnb_01", parameter="PRB_QUOTA", value=50.0, priority=100)
     is_safe, _, _ = refinement.validate_single_action(sec_action)

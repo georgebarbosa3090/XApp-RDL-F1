@@ -46,7 +46,7 @@ docs/
 ## 🚀 Resumo Executivo dos Volumes
 
 ### [Volume 01: Arquitetura, Módulos Core e Modelagem Matemática](01_arquitetura_e_modelagem.md)
-Apresenta o design da xApp RDL sob Clean Architecture / DDD, os agentes especialistas (`PerceptionAgent`, `ReasoningAgent`, `RefinementAgent`), modelos analíticos físicos de rádio (Shannon com calibração 3GPP, filas $M/G/1$, consumo Earth Project) e formulação CMDP / Safe-MAPPO com *Safety Guards* invariantes.
+Apresenta o design da xApp RDL sob Clean Architecture / DDD, os componentes core (`Perception`, `Reasoning`, `Refinement`), modelos analíticos físicos de rádio (Shannon com calibração 3GPP, filas $M/G/1$, consumo Earth Project) e formulação CMDP / Safe-MAPPO com *Safety Guards* invariantes.
 
 ### [Volume 02: Guia Operacional de Deploy, Simulação e Observabilidade](02_guia_operacional_deploy_e_simulacao.md)
 Guia prático passo a passo para provisionamento de clusters Kubernetes leves com `k3d`, deploys via Helm e manifestos K8s, configuração do Rancher e Kiali, execução da suíte de co-simulação ns-3.48 / 5G-LENA / NORI e integração com o testbed físico GreenRAN da UFPA.

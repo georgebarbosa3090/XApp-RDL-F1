@@ -5,7 +5,7 @@ Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
 Módulo: GATE 3 - Benchmark de Escalabilidade Medida (2 a 100 xApps Concorrentes)
 Arquivo: scripts/benchmark_measured_scalability_100xapps.py
 Descrição: Executa medição empírica direta do PIPELINE DE PRODUÇÃO REAL H-RDL
-           (PerceptionAgent -> ReasoningAgent -> RefinementAgent -> MemoryModule)
+           (Perception -> Reasoning -> Refinement -> MemoryModule)
            com perfilamento de nanosegundos (time.perf_counter_ns), CPU process time,
            tracemalloc de memória RAM e 1.000 rodadas por ponto para:
            N_xApp in {2, 5, 10, 20, 50, 100}.
@@ -30,9 +30,9 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, BASE_DIR)
 
 from src.conflict_types import XAppAction, ConflictType, ResolutionAction
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 
 RESULTS_DIR = os.path.join(BASE_DIR, "experiments", "results")
@@ -43,19 +43,19 @@ class ScalabilityPipeline:
     """Instancia e orquestra o pipeline de produção real H-RDL."""
     def __init__(self):
         self.memory = MemoryModule()
-        self.perception = PerceptionAgent(self.memory)
+        self.perception = Perception()
         # H-RDL Fase 1 utiliza Heurística Rápida (Nível 1) e Utilidade TVS/EEVS (Nível 2A)
-        self.reasoning = ReasoningAgent(self.memory, tau1=1.6, tau2=10.0)
-        self.refinement = RefinementAgent(self.memory)
+        self.reasoning = Reasoning(self.memory)
+        self.refinement = Refinement(self.memory)
         self.refinement.config["minimum_control_interval_ms"] = 0
 
     def process_proposals_batch(self, proposals: List[XAppAction]) -> Tuple[List[Any], Dict[str, float]]:
         """
         Executa as 4 etapas reais do pipeline H-RDL:
         1. Ingestão e Registro de Ações no MemoryModule / Perception
-        2. Detecção Topológica e Direta de Conflitos (PerceptionAgent)
-        3. Arbitragem e Raciocínio Cognitivo Hierárquico (ReasoningAgent)
-        4. Blindagem Invariante e Safety Guard Pi_A_safe (RefinementAgent)
+        2. Detecção Topológica e Direta de Conflitos (Perception)
+        3. Arbitragem e Raciocínio Cognitivo Hierárquico (Reasoning)
+        4. Blindagem Invariante e Safety Guard Pi_A_safe (Refinement)
         """
         t0 = time.perf_counter_ns()
         
@@ -65,12 +65,12 @@ class ScalabilityPipeline:
             self.memory.add_action(act)
         t_ingest_ns = time.perf_counter_ns() - t_ingest_start
 
-        # 2. Detecção de Conflitos via PerceptionAgent
+        # 2. Detecção de Conflitos via Perception
         t_detect_start = time.perf_counter_ns()
         conflicts = self.perception.register_action_group(proposals)
         t_detect_ns = time.perf_counter_ns() - t_detect_start
 
-        # 3. Arbitragem Hierárquica via ReasoningAgent
+        # 3. Arbitragem Hierárquica via Reasoning
         t_arb_start = time.perf_counter_ns()
         resolutions = []
         kpm_dummy = {"QoS.FlowDelay": 2.5, "DRB.UEThpDl": 50.0}
@@ -260,7 +260,7 @@ def run_scalability_benchmark():
 
     manifest = {
         "gate": "Gate 3 - Full-System Measured Scalability Benchmark (2 to 100 xApps)",
-        "pipeline_under_test": "Production PerceptionAgent -> ReasoningAgent -> RefinementAgent -> MemoryModule",
+        "pipeline_under_test": "Production Perception -> Reasoning -> Refinement -> MemoryModule",
         "scales_evaluated": xapp_scales,
         "rounds_per_scale": n_rounds,
         "total_decisions_profiled": len(xapp_scales) * n_rounds,

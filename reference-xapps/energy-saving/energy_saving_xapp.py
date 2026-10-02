@@ -63,7 +63,7 @@ class EnergySavingXApp:
         self.priority = 65
 
     def generate_action_proposal(self, node_id: str = "gnb_01", tx_power: float = 20.0) -> Dict[str, Any]:
-        """Gera proposta estruturada compatível com o PerceptionAgent da xApp RDL."""
+        """Gera proposta estruturada compatível com o componente Perception da xApp RDL."""
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": node_id,

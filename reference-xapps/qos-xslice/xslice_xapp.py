@@ -64,7 +64,7 @@ class XSliceXApp:
         self.priority = 90
 
     def generate_action_proposal(self, node_id: str = "gnb_01", prb_quota: float = 80.0) -> Dict[str, Any]:
-        """Gera proposta estruturada compatível com o PerceptionAgent da xApp RDL."""
+        """Gera proposta estruturada compatível com o componente Perception da xApp RDL."""
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": node_id,

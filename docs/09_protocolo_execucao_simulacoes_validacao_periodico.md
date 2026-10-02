@@ -133,7 +133,7 @@ python scripts/benchmark_measured_scalability_100xapps.py
 ```
 
 * **O que o script executa internamente:**
-  1. Instancia as classes de produção reais: `PerceptionAgent` $\to$ `ReasoningAgent` $\to$ `RefinementAgent` $\to$ `MemoryModule`.
+  1. Instancia as classes de produção reais: `Perception` $\to$ `Reasoning` $\to$ `Refinement` $\to$ `MemoryModule`.
   2. Executa aquecimento de cache e 200 rodadas de inferência por escala ($N_{xApp} \in \{2, 5, 10, 20, 50, 100\}$).
   3. Perfila o tempo exato com resolução de nanossegundos (`time.perf_counter_ns()`), tempo de processador CPU (`time.process_time()`) e alocação de memória RAM (`tracemalloc`).
   4. Decompõe a latência em 4 estágios: Ingestão ($t_{ingest}$), Detecção de Conflitos ($t_{detect}$), Arbitragem de Utilidade ($t_{arb}$) e Validação de Segurança ($t_{guard}$).

@@ -15,9 +15,9 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.infrastructure.memory_module import MemoryModule
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.conflict_types import XAppAction
 
 LEVEL_CONFIGS = {
@@ -39,9 +39,9 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
 
     for lvl_key, cfg in LEVEL_CONFIGS.items():
         memory = MemoryModule()
-        perception = PerceptionAgent()
-        reasoning = ReasoningAgent(memory, config={})
-        refinement = RefinementAgent(memory)
+        perception = Perception()
+        reasoning = Reasoning(memory, config={})
+        refinement = Refinement(memory)
 
         total_actions_to_inject = cfg["actions_per_sec"] * cfg["duration_s"]
         latencies_ms = []

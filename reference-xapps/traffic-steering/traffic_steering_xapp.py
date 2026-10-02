@@ -65,7 +65,7 @@ class TrafficSteeringXApp:
         self.priority = 80
 
     def generate_action_proposal(self, source_node: str = "gnb_01", target_node: str = "gnb_02", target_ue: str = "UE-07") -> Dict[str, Any]:
-        """Gera proposta estruturada de Handover compatível com o PerceptionAgent da xApp RDL."""
+        """Gera proposta estruturada de Handover compatível com o componente Perception da xApp RDL."""
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": source_node,

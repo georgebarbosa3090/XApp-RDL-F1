@@ -1,11 +1,11 @@
 import pytest
-from src.agents.refinement_agent import RefinementAgent
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 from src.conflict_types import XAppAction
 
 def test_safety_guard_power_bounds():
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
     
     # Ação dentro dos limites (-10 a 23 dBm)
     valid_act = XAppAction("energy_saving", "gnb_01", "TX_POWER", 20.0, 50)
@@ -22,7 +22,7 @@ def test_safety_guard_power_bounds():
 
 def test_safety_guard_prb_bounds():
     memory = MemoryModule()
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
     
     # Ação violando cota de PRB (> 100%)
     invalid_prb = XAppAction("xslice", "gnb_01", "PRB_QUOTA", 120.0, 90)

@@ -1,14 +1,14 @@
 """
 Testes de Integração E2 Local (Local Protocol Layer / Codec & Mapper Integration)
 Valida a integração em malha fechada local dos módulos H-RDL:
-KPMReport -> PerceptionAgent -> ReasoningAgent -> RefinementAgent -> RCMapper -> RICcontrolAcknowledge
+KPMReport -> Perception -> Reasoning -> Refinement -> RCMapper -> RICcontrolAcknowledge
 """
 
 import pytest
 from src.conflict_types import XAppAction, KPMReport, RDLDecision
-from src.agents.perception_agent import PerceptionAgent
-from src.agents.reasoning_agent import ReasoningAgent
-from src.agents.refinement_agent import RefinementAgent
+from src.core.perception import Perception
+from src.core.reasoning import Reasoning
+from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
 from src.e2.rc.mapper import RCMapper
 from src.e2.e2ap.control import parse_ric_control_ack, RICcontrolAcknowledge
@@ -43,17 +43,17 @@ def test_closed_loop_telemetry_to_control_and_ack_pipeline():
         priority=70
     )
 
-    perception = PerceptionAgent()
+    perception = Perception()
     perception.update_kpm_report(t0_telemetry)
     conflicts = perception.register_action_group([act_xslice, act_energy])
     assert len(conflicts) > 0
 
     memory = MemoryModule()
-    reasoning = ReasoningAgent(memory)
+    reasoning = Reasoning(memory)
     resolution = reasoning.resolve(conflicts[0])
     assert len(resolution.winning_actions) > 0
 
-    refinement = RefinementAgent(memory)
+    refinement = Refinement(memory)
     refinement.config["minimum_control_interval_ms"] = 0
     is_valid, level, reason = refinement.validate_single_action(resolution.winning_actions[0])
     assert is_valid is True

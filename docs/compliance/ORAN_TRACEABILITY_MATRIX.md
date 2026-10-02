@@ -14,9 +14,9 @@
 | **REQ-O-RAN-SUBMGR** | E2AP ProcedureCode 8 | `SubscriptionManager` | `tests/integration/test_all_reference_xapps.py` | `e2/kpm/subscription.raw` | **IMPLEMENTED / INTEROP-PENDING** |
 | **REQ-O-RAN-KPM-IND** | E2AP ProcedureCode 5 / KPM v3 | `KPMDecoder` | `tests/codec/test_kpm_codec.py` | `e2/kpm/indication.raw` | **INTEGRATION-VALIDATED** |
 | **REQ-O-RAN-RC-CTRL** | E2AP ProcedureCode 4 / RC v1.03 | `RCEncoder` / `RCMapper` | `tests/integration/test_rc_mapper.py` | `e2/rc/control.raw` | **INTEGRATION-VALIDATED** |
-| **REQ-RDL-PERCEPTION** | Janela em Lote (200ms) | `PerceptionAgent` | `tests/unit/test_conflict_detection.py` | `hrdl/conflicts.jsonl` | **UNIT-VALIDATED** |
-| **REQ-RDL-REASONING** | Modelos Analíticos TVS/EEVS | `ReasoningAgent` | `tests/unit/test_reasoning_models.py` | `hrdl/decisions.jsonl` | **UNIT-VALIDATED** |
-| **REQ-RDL-SAFETY** | Clamping & Handover Lock | `RefinementAgent` | `tests/unit/test_safety_guards.py` | `hrdl/safety.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-PERCEPTION** | Janela em Lote (200ms) | `Perception` | `tests/unit/test_conflict_detection.py` | `hrdl/conflicts.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-REASONING** | Modelos Analíticos TVS/EEVS | `Reasoning` | `tests/unit/test_reasoning_models.py` | `hrdl/decisions.jsonl` | **UNIT-VALIDATED** |
+| **REQ-RDL-SAFETY** | Clamping & Handover Lock | `Refinement` | `tests/unit/test_safety_guards.py` | `hrdl/safety.jsonl` | **UNIT-VALIDATED** |
 | **REQ-RDL-CAPABILITY** | Strict Discovery Mode | `RanFunctionCapabilityRegistry` | `tests/unit/test_negative_cases.py` | `RDL_MODE=oran-strict` | **UNIT-VALIDATED** |
 | **REQ-O-RAN-CLOSED-LOOP** | Closed-Loop Causal | `CausalTracker` | `tests/interoperability/test_closed_loop.py` | `hrdl/causal.jsonl` | **INTEROP-PENDING** |
 

@@ -17,7 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
-from src.agents.marl.mappo_trainer import MAPPOTrainer
+from src.core.marl.mappo_trainer import MAPPOTrainer
 
 def main():
     print("=" * 80)
