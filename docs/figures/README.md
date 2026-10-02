@@ -1,4 +1,4 @@
-﻿# Catálogo Oficial de Figuras e Resultados Experimentais H-RDL (Fase 1)
+# Catálogo Oficial de Figuras e Resultados Experimentais H-RDL (Fase 1)
 
 Este diretório contém o acervo oficial, auditado e padronizado de figuras de arquitetura, topologias e resultados experimentais de co-simulação ns-3 / 5G-LENA / NORI / O-RAN Near-RT RIC para a **Fase 1 (H-RDL)** gerados **exclusivamente a partir da última rodada de simulação**.
 
@@ -61,6 +61,9 @@ docs/figures/
 | `fig_35_multi_scenario_demonstration_cockpit_comparison.png`| Cockpit Comparativo Multi-Cenário | Painel consolidado confrontando cenários S1 (PRB), S2 (Potência) e S9 (NTN). |
 | `fig_36_flowmonitor_ns3_s0_s15_traffic_profiles.png`| Perfis de Tráfego ns-3 FlowMonitor | Vazão e atraso amostrados diretamente na camada IP/MAC do ns-3.48. |
 | `fig_37_demonstration_master_dashboard.png`| Dashboard Mestre de Demonstração | Painel executivo consolidado com todas as métricas-chave de homologação. |
+| `fig_38_rich_demo_5slice_prb_radar_comparison.png`| Particionamento Espectral 5-Slice & Radar Multi-Eixo | Rebalanceamento espectral de PRB nas 5 fatias 3GPP e avaliação comparativa D1 vs D2 vs Safe-MAPPO em 8 dimensões. |
+| `fig_39_rich_demo_e2_fault_resilience_rollback.png`| Injeção de Falhas SCTP e Rollback Determinístico | Resiliência a partição de rede E2, acionamento de fallback em 310 ms e invariante UnsafeApplied == 0. |
+| `fig_40_rich_demo_causal_graph_conflict_taxonomy.png`| Grafo Causal e Taxonomia Formal C1-C5 | Mapeamento relacional de conflitos simultâneos com coeficientes kappa e isolamento Zero-Trust de xApp rogue. |
 
 ---
 

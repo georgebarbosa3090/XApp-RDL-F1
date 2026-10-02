@@ -135,15 +135,15 @@
     },
     {
       "filename": "fig_19_crosslayer_analysis_dashboard.png",
-      "sha256": "edd6ca0b15a356836465a8a351bb692c9f7977138865188956ad4f632ea7941d",
-      "size_bytes": 941178,
+      "sha256": "19470f944f8fff2ed98887b4f2301e20d3969a356b09ca43aa7081cc8e76a5ef",
+      "size_bytes": 942940,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_19_crosslayer_pairplot.png",
-      "sha256": "9d004c28eef2fba2d802e947ab4ced611162d2b5cbb7dc1fc887e1f20bd1ccf4",
-      "size_bytes": 643987,
+      "sha256": "19470f944f8fff2ed98887b4f2301e20d3969a356b09ca43aa7081cc8e76a5ef",
+      "size_bytes": 942940,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -156,8 +156,8 @@
     },
     {
       "filename": "fig_19b_crosslayer_phy_sinr_throughput.png",
-      "sha256": "5fa4cb688461657ecd9b517508c1e3f03e45a7c3a024f344a5cb37302f4adec9",
-      "size_bytes": 270711,
+      "sha256": "a680985d989b703dbbe35f7c5b9dfe772e271bd8e5b48dadba4e51e05c4ac72e",
+      "size_bytes": 272897,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -177,8 +177,8 @@
     },
     {
       "filename": "fig_19e_crosslayer_metric_distributions_violin.png",
-      "sha256": "dfd2392b61f131613d4eb6df58318fbf2918102cbd8bab5fe5e69dc5eedb1cf2",
-      "size_bytes": 321203,
+      "sha256": "25371d6c96fa0df18a66c797f97afc5ad915e969218d198fe88f70c2a9706bf1",
+      "size_bytes": 321640,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -261,8 +261,8 @@
     },
     {
       "filename": "fig_31_rich_demo_8stages_execution_timeline.png",
-      "sha256": "a3f8a2340c8a143394b2e9da23bd3dbd74c5bbc830e79b1ab3c090fd910f7cb5",
-      "size_bytes": 503725,
+      "sha256": "4b563cc3f3c3dd2d4dd2d05c34aea0caa1e6500bdab277c3ac3bc28c3dfff76b",
+      "size_bytes": 724178,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -289,8 +289,8 @@
     },
     {
       "filename": "fig_35_multi_scenario_demonstration_cockpit_comparison.png",
-      "sha256": "47773bbd8d305e1ea10671038887c948345ae00cf97017b0105ea641f9b3a5a7",
-      "size_bytes": 316319,
+      "sha256": "8481971d312cb3f1e5fe0d69e9a24c13bd321a5a22006451f2b02fd21a3abaf1",
+      "size_bytes": 316411,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -305,6 +305,27 @@
       "filename": "fig_37_demonstration_master_dashboard.png",
       "sha256": "695fcd0b418d9d690c0f52595ab735be682bbc31ca352e8194eda083f9a9224b",
       "size_bytes": 660410,
+      "provenance": "EMPIRICAL_DATA_SSOT",
+      "statistical_bounds": "95% Student-t CI / Empirical Traces"
+    },
+    {
+      "filename": "fig_38_rich_demo_5slice_prb_radar_comparison.png",
+      "sha256": "fe116699ee2bdd7b5e2209e26c27159db415a60ef33a73d50e85dea75a7470f0",
+      "size_bytes": 731312,
+      "provenance": "EMPIRICAL_DATA_SSOT",
+      "statistical_bounds": "95% Student-t CI / Empirical Traces"
+    },
+    {
+      "filename": "fig_39_rich_demo_e2_fault_resilience_rollback.png",
+      "sha256": "718183001f5a726cf12b209758ec1ff9054f460bd1a7e84c0391294485e9fa9a",
+      "size_bytes": 380939,
+      "provenance": "EMPIRICAL_DATA_SSOT",
+      "statistical_bounds": "95% Student-t CI / Empirical Traces"
+    },
+    {
+      "filename": "fig_40_rich_demo_causal_graph_conflict_taxonomy.png",
+      "sha256": "7710d33b1c2a8ab67170ce7b8e81156fbc90181823c2e324b9401abbfb78de0f",
+      "size_bytes": 596632,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     }
