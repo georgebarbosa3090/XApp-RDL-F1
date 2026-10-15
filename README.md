@@ -130,6 +130,7 @@ Todas as figuras do ecossistema estão catalogadas na pasta [`docs/figures/`](do
 ## 5. Catálogo Formal de Tabelas Científicas e Normativas
 
 O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md).
+- **Diagrama de Sequência e Fluxo de Controle Closed-Loop (H-RDL Fase 1):** Consulte o [Volume 23](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) para a decomposição dos 5 estágios de arbitragem em malha fechada, mensagens normativas O-RAN WG2/WG3 e orçamento de latência.
 
 ---
 
