@@ -135,6 +135,123 @@ sequenceDiagram
 
 ---
 
+## 2.1 Diagrama de Sequência Canônico da Dissertação (Governança Baseada em Regras)
+
+> **Arquivo Standalone de Referência:** [`deepseek_mermaid_20261015_306022.mermaid`](../deepseek_mermaid_20261015_306022.mermaid) | [`docs/figures/deepseek_mermaid_20261015_306022.mermaid`](figures/deepseek_mermaid_20261015_306022.mermaid)
+
+Com base na dissertação de mestrado, o diagrama abaixo explicita a interação granular entre o barramento interno RMR, o subsistema de observabilidade, as camadas cognitivas internas (`Perception`, `Reasoning`, `Refinement`, `Safety Guards`, `RDLDecision`), a terminação E2 e o agente de simulação NORI/ns-3:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant XApp as xApps (xSlice, Energia, QoS)
+    participant RMR as RMR (Barramento Interno)
+    participant PER as Perception
+    participant REA as Reasoning (TVS/EEVS)
+    participant REF as Refinement
+    participant SG as Safety Guards
+    participant DEC as RDLDecision
+    participant E2T as E2 Termination / RCMapper
+    participant NORI as NORI / e2sim
+    participant RAN as gNB / ns-3 / 5G-LENA
+    participant OBS as Observabilidade
+
+    Note over XApp,RAN: Ciclo principal H-RDL — janela nominal de 200 ms
+
+    XApp->>RMR: Envia proposta (xapp_id, node_id, parameter, value, priority)
+    RMR->>PER: Encaminha proposta normalizada
+    PER->>PER: Acumula em buffer B (t0 = TEMPOATUAL)
+    Note over PER: Aguarda ∆ = 200 ms ou fechamento da janela
+
+    RAN->>NORI: Telemetria E2SM-KPM
+    NORI->>RMR: Encaminha KPM
+    RMR->>PER: Payload KPM
+    PER->>PER: Decodifica KPM e atualiza estado
+
+    Note over PER: TEMPOATUAL − t0 ≥ ∆ → ProcessarLoteH-RDL(A)
+
+    PER->>REA: Lote normalizado + estado + conflitos detectados
+    Note over REA: Detecção: conflitos diretos e indiretos
+    REA->>REA: TVS (conflito direto) ou EEVS (conflito indireto)
+    REA->>REA: Calcula utilidade U_TVS / U_EEVS
+    REA->>REF: Ação candidata + justificativa reproduzível
+
+    REF->>REF: Ajusta valores permitidos
+    REF->>SG: Ação refinada para validação
+
+    alt Ação válida e autorizada
+        SG->>SG: Valida limites (PRB, TX_POWER, etc.)
+        SG->>SG: Verifica frequência (cooldown 1000 ms)
+        SG->>DEC: Ação segura e autorizada
+    else Ação inválida ou bloqueada
+        SG-->>REF: NÃO ENVIO (motivo, regra e evidências registrados)
+        REF-->>OBS: Registra bloqueio
+    end
+
+    Note over DEC: Formaliza RDLDecision (estado, propostas, conflitos, resultado_safety, ações selecionadas)
+
+    DEC->>E2T: EnviarControleE2(a, d.id)
+    E2T->>E2T: Resolve capability (ran_function_id, style, action_id)
+    E2T->>E2T: Codifica E2SM-RC em ASN.1 APER
+    E2T->>E2T: Constrói RIC CONTROL REQUEST (ACK requerido)
+    E2T->>E2T: Registra transação pendente
+    E2T->>RMR: Envia via RMR/E2Term/SCTP
+    RMR->>NORI: Interface E2AP/SCTP
+    NORI->>RAN: Aplica controle no gNB/E2 Node
+
+    alt ACK recebido
+        RAN->>NORI: ACK do nó E2
+        NORI->>RMR: Resposta correlacionada
+        RMR->>E2T: ProcessarRICControlACK(payload)
+        E2T->>E2T: Correlaciona transação (RTT = agora − tempo_envio)
+        E2T->>OBS: Registra ACK e RTT
+    else Failure
+        RAN->>NORI: Failure
+        NORI->>RMR: Failure correlacionado
+        RMR->>E2T: ProcessarFailure
+        E2T->>OBS: Registra Failure
+    else Timeout (evento local)
+        E2T->>E2T: Timeout expira localmente
+        E2T->>OBS: Registra timeout (não é resposta do nó)
+    end
+
+    Note over RAN,OBS: Aplicação observada no nó (estado aplicado)
+
+    RAN->>NORI: KPM posterior (t1)
+    NORI->>RMR: Telemetria E2SM-KPM
+    RMR->>OBS: Métricas de serviço, janela causal identificada
+    OBS->>OBS: Correlaciona KPM(t0), decisão, controle, estado aplicado, KPM(t1)
+    OBS->>PER: Feedback: nova telemetria inicia próxima janela
+
+    Note over XApp,OBS: ACK não substitui estado aplicado; estado aplicado não substitui benefício de serviço observado.
+```
+
+### Explicação Detalhada das 10 Etapas do Ciclo
+
+| Etapa | Descrição | Evidência |
+|:---|:---|:---|
+| **1. Recepção** | xApps enviam propostas via barramento RMR | Contrato de proposta (`id`, `xapp_id`, `node_id`, `parameter`, `value`, `priority`, `deadline`) |
+| **2. Percepção** | Normalização, acúmulo em janela temporal ($\Delta t_{win} = 200\text{ ms}$) e decodificação ASN.1 KPM | Origem, timestamp, validade, identificadores comuns |
+| **3. Detecção** | Conflitos diretos (mesmo nó/parâmetro) e indiretos (KPIs dependentes) | Mapa de dependências causais (ex.: `PRB_QUOTA` $\to$ `DRB.UEThpDl`) |
+| **4. Raciocínio** | TVS para conflitos diretos; EEVS para conflitos indiretos | Escores analíticos (SLA, Throughput, Energia, Estabilidade, Prioridade) |
+| **5. Refinamento** | Ajuste de valores permitidos; separação rigorosa entre preferência e admissibilidade | Ação candidata avaliada, regra acionada |
+| **6. Safety Guards** | Validação de limites físicos, cooldown anti-ping-pong e frequência máxima | Aprovação ou rejeição com log auditável de evidências |
+| **7. Decisão Formal** | Formalização imutável da `RDLDecision` antes do despacho | Estado, propostas, conflitos, ações selecionadas e estratégia utilizada |
+| **8. Despacho E2** | Mapeamento E2SM-RC / E2AP, codificação ASN.1 APER, envio via RMR/E2term/SCTP | PDU binária decodificável, identificadores de transação |
+| **9. Correlação** | Recepção de ACK, Failure ou disparo de timeout assíncrono local | RTT medido, resposta correlacionada, estado aplicado |
+| **10. Feedback** | Telemetria KPM posterior ($t_1$), efeito de serviço avaliado e abertura da nova janela | Gates 1–4, hashes criptográficos, relógios correlacionados |
+
+### Observações Metodológicas Cruciais da Dissertação
+
+1. **Timeout é um evento estritamente local:** Ocorre quando o temporizador da transação expira no Near-RT RIC, não sendo uma mensagem de resposta emitida pelo nó E2 (não confundir com `RICcontrolFailure`).
+2. **ACK não comprova aplicação física:** O `RIC_CONTROL_ACK` atesta apenas que a mensagem E2AP foi recebida e aceita sintaticamente pela terminação E2, exigindo telemetria posterior para comprovar alteração de estado no agendador.
+3. **Estado aplicado não comprova benefício de serviço:** A alteração do registrador na RAN não garante melhora no SLA por si só; é indispensável a telemetria $KPM(t_1)$ posterior fechando a cadeia de evidências de não-repúdio.
+4. **Passagem segura para ações sem conflito (*Pass-Through*):** Propostas sem concorrência não são despachadas cegamente; passam obrigatoriamente pelas barreiras de Refinamento e Safety Guards.
+5. **Comportamento da Shared Data Layer (SDL):** No estágio de testes unitários ou execução isolada sem Redis ativo, os repositórios retornam lista vazia em `get_similar_resolutions()`, garantindo o fallback determinístico imediato para o motor analítico TVS/EEVS sem travamentos.
+6. **Dominância da Janela Temporal:** O retardo de despacho é dominado pelo agrupamento em lote na janela de $\Delta t_{win} = 200\text{ ms}$; o processamento decisório interno consome apenas $\approx 0,12\text{ ms}$ ($0,06\%$ do ciclo).
+
+---
+
 ## 3. Análise Profunda dos 5 Estágios do Pipeline de Circuito Fechado
 
 ### Estágio 1: Handshake Inicial, Associação E2AP e Políticas A1-P
