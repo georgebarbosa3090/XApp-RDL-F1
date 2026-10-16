@@ -441,5 +441,4 @@ Para garantir que nenhuma ação insegura atinja a rede de acesso sob falhas de 
 
 ---
 
-> **Certificação do Documento:**  
-> Este documento integra o acervo formal de engenharia e pesquisa do projeto **xApp-RDL**, homologado para a dissertação de mestrado e submissões aos periódicos IEEE Transactions on Network and Service Management (TNSM) e Simpósio Brasileiro de Redes de Computadores (SBRC 2027).
+
