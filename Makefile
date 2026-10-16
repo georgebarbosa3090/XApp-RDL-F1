@@ -344,20 +344,8 @@ run-scenario2-baseline:
 	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
 
-git-sync:
-	bash scripts/git_sync.sh "results: synchronize experimental datasets and reports"
-
-auto-update-figures:
-	@if command -v python3 >/dev/null 2>&1; then \
-		python3 scripts/auto_update_simulation_figures_and_github.py; \
-	elif [ -f uv ]; then \
-		uv run python scripts/auto_update_simulation_figures_and_github.py; \
-	else \
-		python scripts/auto_update_simulation_figures_and_github.py; \
-	fi
-
 sync-cross:
-	@echo "Executando sincronização cruzada bidirecional F1 <-> F2, GitHub e Drive..."
+	@echo "Executando sincronização cruzada bidirecional F1 <-> F2..."
 	@if command -v python3 >/dev/null 2>&1; then \
 		python3 scripts/sync_cross_repos.py; \
 	elif [ -f uv ]; then \
@@ -371,17 +359,8 @@ run-and-sync:
 	@$(MAKE) sync-cross
 
 push-results: sync-cross
-	@echo "Todos os dados, relatórios e figuras de F1 e F2 foram sincronizados e enviados!"
+	@echo "Todos os dados, relatórios e figuras de F1 e F2 foram sincronizados!"
 
-backup-drive:
-	@echo "Executando backup de governança para o Google Drive..."
-	@if command -v uv >/dev/null 2>&1; then \
-		uv run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python3 scripts/backup_to_google_drive.py; \
-	elif [ -f uv ]; then \
-		uv run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python scripts/backup_to_google_drive.py; \
-	else \
-		python scripts/backup_to_google_drive.py; \
-	fi
 
 
 

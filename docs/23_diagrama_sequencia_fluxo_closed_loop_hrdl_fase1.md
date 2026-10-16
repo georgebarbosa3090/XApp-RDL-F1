@@ -226,6 +226,81 @@ sequenceDiagram
     Note over XApp,OBS: ACK não substitui estado aplicado; estado aplicado não substitui benefício de serviço observado.
 ```
 
+---
+
+## 2.2 Diagrama de Sequência Compacto para Dissertação e Publicações (4 Macro-Entidades Canônicas)
+
+> **Arquivos Standalone Compactos:**  
+> - **Mermaid:** [`docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid`](figures/diagrama_sequencia_compacto_dissertacao.mermaid)  
+> - **PlantUML (LaTeX/Vector):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.puml`](figures/diagrama_sequencia_compacto_dissertacao.puml)  
+> - **TikZ Puro (LaTeX Standalone):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.tex`](figures/diagrama_sequencia_compacto_dissertacao.tex)
+
+Para atender estritamente aos requisitos de formatação de teses e dissertações (padrão SBC / UFPA e periódicos IEEE em formato de página A4 retrato com largura de texto de $16\text{ cm}$), o diagrama a seguir consolida as 10 linhas de vida anteriores em **4 macro-entidades arquiteturais canônicas da O-RAN Alliance**. As micro-etapas internas da H-RDL (Percepção $\to$ Raciocínio $\to$ Safety Guards $\to$ RCMapper) são modeladas como ativações de execução e auto-processamento na linha de vida da `Near-RT RIC (xApp-RDL)`, garantindo que todas as mensagens e legendas permaneçam 100% legíveis sem necessidade de rotação da página:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    
+    participant SMO as SMO / Non-RT RIC<br/>(A1-P Governance)
+    participant XAPPS as xApps Concorrentes<br/>(xSlice / ES / TS)
+    participant RDL as Near-RT RIC (xApp-RDL)<br/>(Cognitive Decision Layer)
+    participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
+
+    %% FASE I
+    rect rgb(245, 247, 250)
+        Note over SMO,RAN: Fase I: Handshake E2AP e Governança A1-P (t < 0)
+        RAN->>RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
+        RDL-->>RAN: E2 Setup Response (OK)
+        SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)
+        RDL->>RAN: RIC Subscription Request (mtype 12010, KPM Período = 200ms)
+        RAN-->>RDL: RIC Subscription Response (mtype 12011, Subscribed OK)
+    end
+
+    %% FASE II
+    rect rgb(240, 248, 255)
+        Note over XAPPS,RAN: Fase II: Telemetria Inicial E2SM-KPM [t0] e Submissão Concorrente via RMR
+        RAN->>RDL: RIC Indication [t0] (E2SM-KPM ASN.1 APER: Throughput, Delay, PRB)
+        
+        par Propostas Concorrentes de Controle (RMR mtype 20010)
+            XAPPS->>RDL: Action Proposal (xSlice: PRB_QUOTA = 80%, Prio = 90)
+        and
+            XAPPS->>RDL: Action Proposal (Energy Saving: TX_POWER = 20 dBm, Prio = 65)
+        and
+            XAPPS->>RDL: Action Proposal (Traffic Steering: HANDOVER = 1, Prio = 80)
+        end
+        Note over RDL: Acúmulo em Fila Concorrente durante a Janela Nominal (Δtwin = 200 ms)
+    end
+
+    %% FASE III
+    rect rgb(240, 253, 244)
+        Note over RDL: Fase III: Expiração da Janela (200ms), Arbitragem Heurística e Safety Guards
+        activate RDL
+        RDL->>RDL: Detecção e Modelagem do Grafo de Conflitos G_t = (A_t, E_t)
+        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.12 ms)
+        RDL->>RDL: Safety Guards: Hard Bounds (38.104) + Lockout Hysteresis (Δt ≥ 1000 ms)
+        RDL->>RDL: Formalização Imutável RDLDecision + Codificação ASN.1 APER (E2SM-RC v01.03)
+        deactivate RDL
+    end
+
+    %% FASE IV
+    rect rgb(254, 252, 232)
+        Note over RDL,RAN: Fase IV: Despacho de Controle E2SM-RC e Confirmação Causal
+        RDL->>RAN: RIC Control Request (mtype 12040, ASN.1 APER E2SM-RC Format 1 Header/Msg)
+        activate RAN
+        RAN->>RAN: Reconfiguração Física do Escalonador MAC OFDMA PF e Potências de Rádio
+        RAN-->>RDL: RIC Control Acknowledge (mtype 12041, RTT_ack ≈ 2.10 ms, Status: Success)
+        deactivate RAN
+        Note over RDL: Fechamento de Transação Causal e Registro de Rastreabilidade SHA-256
+    end
+
+    %% FASE V
+    rect rgb(255, 241, 242)
+        Note over XAPPS,RAN: Fase V: Observabilidade Causal e Fechamento Closed-Loop [t1]
+        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.4%, UnsafeApplied ≡ 0)
+        Note over RDL: Validação Causal Integral: Decisão(t0) ⟹ Controle(Δt) ⟹ Benefício de Rede(t1)
+    end
+```
+
 ### Explicação Detalhada das 10 Etapas do Ciclo
 
 | Etapa | Descrição | Evidência |

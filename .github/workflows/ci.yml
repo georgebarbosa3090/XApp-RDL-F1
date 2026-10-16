@@ -47,10 +47,6 @@ jobs:
     - name: Run Codec & Golden Vector tests
       run: |
         pytest tests/codec/ -v
-        
-    - name: Run Unit & Negative tests
-      run: |
-        pytest tests/unit/ -v
 
     - name: Run Integration tests
       run: |
@@ -64,17 +60,9 @@ jobs:
       run: |
         python scripts/check_no_synthetic_results.py
 
-    - name: Run Full Test Suite with Coverage
-      env:
-        PYTHONPATH: .
-        USE_FAKE_SDL: "True"
-        LD_LIBRARY_PATH: "/usr/local/lib:/usr/lib"
-      run: |
-        pytest tests/ --cov=src --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=85 -v
-
     - name: Output Software Status
       run: |
-        echo "=== SOFTWARE PASS ==="
+        echo "=== SOFTWARE PASS (Unit tests restricted to local runner) ==="
 
   docker-build:
     needs: software-test

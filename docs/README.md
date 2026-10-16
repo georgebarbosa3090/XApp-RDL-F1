@@ -23,7 +23,7 @@ docs/
 ├── 06_roadmap_e_pesquisa_futura_6g.md       # [Vol 06] Roadmap 2026-2028, Fase 3 Federada 6G e Testbed UFPA
 ├── 07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md # [Vol 07] Resultados da Simulação, Baselines e Cenários (S0–S15)
 ├── 20_relatorio_experimental_ns3_flowmonitor_s0_s15.md       # [Vol 20] Relatório Técnico Experimental ns-3 FlowMonitor (S0–S15)
-├── 21_relatorio_demonstracao_rica_closed_loop.md             # [Vol 21] Relatório de Demonstração Rica Closed-Loop (D1–D5 / Cenários A–C)
+├── 21_relatorio_demonstracao_rica_closed_loop.md             # [Vol 21] Relatório de Demonstração Rica Closed-Loop (H-RDL Fase 1 / D1–D5)
 ├── 22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md # [Vol 22] Plano Editorial Estratégico & Matriz de Publicações
 ├── 23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md     # [Vol 23] Especificação Formal e Diagrama de Sequência Closed-Loop H-RDL
 ├── assets/                                  # Diagramas de arquitetura e modelos visuais
@@ -71,14 +71,14 @@ Apresenta o comparativo multidimensional completo cruzando os 7 baselines (B0 a 
 ### [Volume 20: Relatório Técnico Experimental e Rastreabilidade ns-3 FlowMonitor](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)
 Registro oficial exaustivo de nível de pacote extraído diretamente dos traces FlowMonitor XML gerados pelo simulador ns-3.48 / 5G-LENA / NORI, cobrindo os 16 cenários (S0 a S15) ordenados cronologicamente, matrizes de RF, dispersão de pacotes, jitter e governança determinística.
 
-### [Volume 21: Relatório de Demonstração Científica Rica em Circuito Fechado](21_relatorio_demonstracao_rica_closed_loop.md)
-Documento oficial consolidando os resultados empíricos da suíte operacional D1 a D5 e do inspetor visual dos 8 estágios cognitivos (Cenários A, B e C), comprovando a validação irrefutável dos Gates 1 a 4, conformidade ASN.1 APER WG3, envelopes dApp sub-1ms (O-RAN nGRG) e estabilidade de sinalização sob tempestade de conflitos.
+### [Volume 21: Relatório de Demonstração Científica Rica em Circuito Fechado (H-RDL Fase 1)](21_relatorio_demonstracao_rica_closed_loop.md)
+Documento oficial consolidando os resultados empíricos da suíte de demonstrações operacionais D1 a D5 da H-RDL Fase 1 (`scripts/run_live_demonstrations_d1_d5.py`), comprovando a validação irrefutável dos 4 Gates Causais, conformidade ASN.1 APER WG3 (E2SM-KPM e E2SM-RC), resiliência a falhas SCTP via rollback determinístico e erradicação total de violações de SLA (0,0%).
 
 ### [Volume 22: Plano Editorial Estratégico & Matriz Exaustiva de Publicações (2026–2028)](22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md)
 Roteiro de submissão dos 6 manuscritos planejados para IEEE TNSM, IEEE TCCN, IEEE CommMag e Elsevier Computer Networks, definindo escopo, novidade científica, baselines e conformidade com os critérios de reprodutibilidade da IEEE Communications Society.
 
 ### [Volume 23: Especificação Formal, Diagrama de Sequência e Fluxo Closed-Loop H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)
-Especificação formal completa da cadeia causal closed-loop da H-RDL Fase 1, contendo o diagrama de sequência detalhado (Mermaid), matriz normativa de mensagens O-RAN (E2AP v02.03, E2SM-KPM v02.03/v03.00, E2SM-RC v01.03), orçamento temporal de latência ($T_{decision} = 0,12\text{ ms}$, $RTT_{ack} = 2,10\text{ ms}$) e rastreabilidade estrita de código.
+Especificação formal completa da cadeia causal closed-loop da H-RDL Fase 1, contendo o diagrama de sequência detalhado e a **Seção 2.2 com o Diagrama de Sequência Compacto Canônico** em 4 macro-entidades para a dissertação de mestrado (disponível em Mermaid, PlantUML e LaTeX/TikZ), matriz normativa de mensagens O-RAN (E2AP v02.03, E2SM-KPM, E2SM-RC v01.03) e orçamento temporal de latência.
 
 
 

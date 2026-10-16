@@ -1,0 +1,79 @@
+%% ==============================================================================
+%% Diagrama de Sequência Compacto para Dissertação de Mestrado (PPGC/UFPA)
+%% Obra: H-RDL: Governança Determinística e Mitigação de Conflitos no Near-RT RIC
+%% Autor: George Alexandro Ferreira Barbosa | Orientador: Prof. Dr. André Riker
+%% Padrão Visual: Clean Architecture / O-RAN Alliance / Light Academic Theme
+%% ==============================================================================
+
+sequenceDiagram
+    autonumber
+    
+    %% DEFINIÇÃO DAS MACRO-ENTIDADES CANÔNICAS (4 Lifelines para caber em A4 Retrato)
+    participant SMO as SMO / Non-RT RIC<br/>(A1-P Governance)
+    participant XAPPS as xApps Concorrentes<br/>(xSlice / ES / TS)
+    participant RDL as Near-RT RIC (xApp-RDL)<br/>(Cognitive Decision Layer)
+    participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
+
+    %% -------------------------------------------------------------------------
+    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P
+    %% -------------------------------------------------------------------------
+    rect rgb(245, 247, 250)
+        Note over SMO,RAN: <b>Fase I: Handshake E2AP e Injeção de Políticas A1-P (t < 0)</b>
+        RAN->>RDL: E2 Setup Request (SCTP :36421, RAN Functions: KPM-ID=2, RC-ID=3)
+        RDL-->>RAN: E2 Setup Response (OK)
+        SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)
+        RDL->>RAN: RIC Subscription Request (mtype 12010, KPM Período = 200ms)
+        RAN-->>RDL: RIC Subscription Response (mtype 12011, Subscribed OK)
+    end
+
+    %% -------------------------------------------------------------------------
+    %% FASE II: INGESTÃO DE TELEMETRIA E SUBMISSÃO CONCORRENTE DE PROPOSTAS
+    %% -------------------------------------------------------------------------
+    rect rgb(240, 248, 255)
+        Note over XAPPS,RAN: <b>Fase II: Telemetria Inicial E2SM-KPM [t0] e Submissão Concorrente via RMR</b>
+        RAN->>RDL: RIC Indication [t0] (E2SM-KPM ASN.1 APER: Throughput, Delay, PRB)
+        
+        par Propostas Concorrentes de Controle (RMR mtype 20010)
+            XAPPS->>RDL: Action Proposal (xSlice: PRB_QUOTA = 80%, Prio = 90)
+        and
+            XAPPS->>RDL: Action Proposal (Energy Saving: TX_POWER = 20 dBm, Prio = 65)
+        and
+            XAPPS->>RDL: Action Proposal (Traffic Steering: HANDOVER = 1, Prio = 80)
+        end
+        Note over RDL: Acúmulo em Fila Concorrente durante a Janela Nominal (Δtwin = 200 ms)
+    end
+
+    %% -------------------------------------------------------------------------
+    %% FASE III: EXPIRAÇÃO DA JANELA, ARBITRAGEM HEURÍSTICA E SAFETY GUARDS
+    %% -------------------------------------------------------------------------
+    rect rgb(240, 253, 244)
+        Note over RDL: <b>Fase III: Expiração da Janela (200ms), Arbitragem Heurística e Safety Guards</b>
+        activate RDL
+        RDL->>RDL: Detecção e Modelagem do Grafo de Conflitos G_t = (A_t, E_t)
+        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.12 ms)
+        RDL->>RDL: Safety Guards: Hard Bounds (38.104) + Lockout Hysteresis (Δt ≥ 1000 ms)
+        RDL->>RDL: Formalização Imutável RDLDecision + Codificação ASN.1 APER (E2SM-RC v01.03)
+        deactivate RDL
+    end
+
+    %% -------------------------------------------------------------------------
+    %% FASE IV: DESPACHO E2SM-RC, RECONFIGURAÇÃO FÍSICA E ACKNOWLEDGE
+    %% -------------------------------------------------------------------------
+    rect rgb(254, 252, 232)
+        Note over RDL,RAN: <b>Fase IV: Despacho de Controle E2SM-RC e Confirmação Causal</b>
+        RDL->>RAN: RIC Control Request (mtype 12040, ASN.1 APER E2SM-RC Format 1 Header/Msg)
+        activate RAN
+        RAN->>RAN: Reconfiguração Física do Escalonador MAC OFDMA PF e Potências de Rádio
+        RAN-->>RDL: RIC Control Acknowledge (mtype 12041, RTT_ack ≈ 2.10 ms, Status: Success)
+        deactivate RAN
+        Note over RDL: Fechamento de Transação Causal e Registro de Rastreabilidade SHA-256
+    end
+
+    %% -------------------------------------------------------------------------
+    %% FASE V: FEEDBACK CAUSAL E FECHAMENTO DO CIRCUITO FECHADO [t1]
+    %% -------------------------------------------------------------------------
+    rect rgb(255, 241, 242)
+        Note over XAPPS,RAN: <b>Fase V: Observabilidade Causal e Fechamento Closed-Loop [t1]</b>
+        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.4%, UnsafeApplied ≡ 0)
+        Note over RDL: Validação Causal Integral: Decisão(t0) ⟹ Controle(Δt) ⟹ Benefício de Rede(t1)
+    end

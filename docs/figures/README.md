@@ -15,8 +15,23 @@ docs/figures/
 ├── 01_modelos_analiticos_e_conceituais/  # Modelos matemáticos, dinâmica de equidade e trade-offs
 ├── 02_cenarios_e_topologias/             # Topologias espaciais e cenários canônicos (S0 a S15)
 ├── figures_manifest.json                 # Manifesto oficial de metadados das figuras canônicas
-└── fig_01_*.png ... fig_37_*.png         # Figuras científicas 300 DPI da última simulação
+├── diagrama_sequencia_compacto_dissertacao.mermaid # Diagrama de sequência canônico compacto (Mermaid)
+├── diagrama_sequencia_compacto_dissertacao.puml    # Diagrama de sequência canônico compacto (PlantUML)
+├── diagrama_sequencia_compacto_dissertacao.tex     # Diagrama de sequência canônico compacto (LaTeX/TikZ)
+└── fig_01_*.png ... fig_40_*.png         # Figuras científicas 300 DPI da última simulação
 ```
+
+---
+
+## 📐 Diagramas de Sequência Canônicos para Dissertação (H-RDL Fase 1)
+
+Para inclusão na dissertação de mestrado (formato A4 vertical) e artigos SBC/IEEE, disponibilizamos o diagrama de circuito fechado em 4 macro-entidades em três formatos vetoriais:
+
+| Arquivo | Formato | Caso de Uso |
+| :--- | :--- | :--- |
+| [`diagrama_sequencia_compacto_dissertacao.mermaid`](diagrama_sequencia_compacto_dissertacao.mermaid) | Mermaid.js | Markdown, GitHub, Notion e Obsidian |
+| [`diagrama_sequencia_compacto_dissertacao.puml`](diagrama_sequencia_compacto_dissertacao.puml) | PlantUML | Compilação vetorial PDF/EPS via `plantuml -tpdf` para LaTeX |
+| [`diagrama_sequencia_compacto_dissertacao.tex`](diagrama_sequencia_compacto_dissertacao.tex) | TikZ Puro | Inclusão nativa direta (`\input{...}`) no Overleaf / TeXLive |
 
 ---
 

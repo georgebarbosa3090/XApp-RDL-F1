@@ -123,13 +123,18 @@ A plataforma valida cenários de simulação científica, com foco em H-RDL:
 
 ## 4. Galeria de Figuras Científicas e Topologias de Rede
 
-Todas as figuras do ecossistema estão catalogadas na pasta [`docs/figures/`](docs/figures/README.md).
+Todas as figuras científicas, topologias e diagramas de sequência estão catalogados em [`docs/figures/`](docs/figures/README.md).
+- **Diagrama de Sequência Canônico Compacto (Dissertação / Artigos):** Modelado em 4 macro-entidades O-RAN e disponível em três formatos vetoriais:
+  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid`](docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid) (Mermaid)
+  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.puml`](docs/figures/diagrama_sequencia_compacto_dissertacao.puml) (PlantUML)
+  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.tex`](docs/figures/diagrama_sequencia_compacto_dissertacao.tex) (LaTeX / TikZ puro)
 
 ---
 
-## 5. Catálogo Formal de Tabelas Científicas e Normativas
+## 5. Catálogo Formal de Relatórios Científicos e Normativos
 
-O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md).
+O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md):
+- **Demonstração Científica Rica em Circuito Fechado (H-RDL Fase 1):** Consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) para os resultados das demonstrações operacionais D1 a D5 (`scripts/run_live_demonstrations_d1_d5.py`), resiliência E2 sob timeout/rollback e validação experimental closed-loop.
 - **Diagrama de Sequência e Fluxo de Controle Closed-Loop (H-RDL Fase 1):** Consulte o [Volume 23](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) para a decomposição dos 5 estágios de arbitragem em malha fechada, mensagens normativas O-RAN WG2/WG3 e orçamento de latência.
 
 ---
