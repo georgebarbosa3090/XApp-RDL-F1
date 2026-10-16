@@ -23,219 +23,24 @@
 Este documento constitui a especificação técnica e científica autoritativa do fluxo temporal de controle em circuito fechado (*closed-loop*) da **H-RDL (Heuristic Resource and Decision Layer — Fase 1)**.
 
 Na arquitetura Open RAN desagregada, a coexistência de múltiplas xApps operando de forma autônoma sobre o Near-RT RIC desencadeia conflitos destrutivos de sinalização, tais como:
-1. **Conflitos Diretos (DC):** Colisão no mesmo parâmetro de controle da RAN (ex.: `xSlice` solicitando $\text{PRB} = 80\%$ enquanto `Energy Saving` solicita $P_{tx} = 20\text{ dBm}$ ou modo *sleep*);
+1. **Conflitos Diretos (DC):** Colisão no mesmo parâmetro de controle da RAN (ex.: `xSlice` solicitando `PRB_QUOTA` $= 80\%$ enquanto `Energy Saving` solicita $P_{tx} = 20\text{ dBm}$ ou modo *sleep*);
 2. **Conflitos Indiretos (IC):** Ações em parâmetros ortogonais que degradam conjuntamente os mesmos SLAs (ex.: corte de potência afetando o SINR e violando a vazão mínima da fatia eMBB);
 3. **Conflitos Temporais / Ping-Pong:** Comandos subsequentes em malha rápida que induzem oscilações contínuas de sinalização (*Parameter Flipping*).
 
 A H-RDL resolve este problema implementando uma **cadeia causal fechada de não-repúdio**, onde cada ação é determinística, rastreável e matematicamente verificada:
 
-$$\text{KPM}(t_0) \longrightarrow \text{Propostas } (\text{action-id}) \longrightarrow \text{Conflito } (\text{conflict-id}) \longrightarrow \text{Decisão } (\text{decision-id}) \longrightarrow \text{Controle } (\text{RIC-CONTROL-REQ}) \longrightarrow \text{ACK } (\Delta t) \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
+$$\text{KPM}(t_0) \longrightarrow \text{Propostas } (a_i) \longrightarrow \text{Conflito } (c_k) \longrightarrow \text{Decisão } (d_t) \longrightarrow \text{Controle } (\text{RC}) \longrightarrow \text{ACK } (\Delta t) \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
 
 ---
 
-## 2. Diagrama de Sequência de Circuito Fechado (H-RDL Fase 1)
+## 2. Diagrama de Sequência Canônico de Circuito Fechado (H-RDL Fase 1)
 
-O diagrama a seguir detalha a interação cronológica entre as camadas de gerenciamento (SMO / A1-P), aplicações concorrentes (xApps da literatura), a plataforma Near-RT RIC, os módulos internos da H-RDL e a camada de rádio 5G NR simulada (ns-3.48 / 5G-LENA / NORI):
+> **Arquivos Vetoriais Standalone:**  
+> - **Mermaid (Renderização Web/Markdown):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid`](figures/diagrama_sequencia_compacto_dissertacao.mermaid)  
+> - **PlantUML (Exportação PDF/EPS 300 DPI):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.puml`](figures/diagrama_sequencia_compacto_dissertacao.puml)  
+> - **TikZ Puro (Compilação Nativa LaTeX):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.tex`](figures/diagrama_sequencia_compacto_dissertacao.tex)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    
-    box rgb(240, 244, 255) Plano de Gestão e Aplicações Concorrentes
-        participant SMO as SMO / Non-RT RIC (A1-P)
-        participant XAPPS as xApps Concorrentes (xSlice, ES, TS)
-        participant SDL as SDL / Redis (Shared Data Layer)
-    end
-
-    box rgb(235, 250, 240) Núcleo xApp-RDL (H-RDL Fase 1: Determinística)
-        participant RDL_P as Perception Agent & KpmDecoder
-        participant RDL_R as Reasoning Engine (TVS / EEVS)
-        participant RDL_S as Refinement Agent (Safety Guard)
-        participant RDL_A as Actuation Engine & RCMapper
-    end
-
-    box rgb(255, 245, 235) Infraestrutura Near-RT RIC e Nó RAN
-        participant E2T as E2 Termination / SubMgr
-        participant E2N as E2 Node (gNodeB / NORI E2 Agent)
-        participant RAN as Pilha Protocolar 5G NR (MAC / PHY)
-    end
-
-    %% ESTÁGIO 1: INICIALIZAÇÃO E POLÍTICAS
-    rect rgb(248, 250, 252)
-        Note over SMO,RAN: [Estágio 1] Inicialização, Handshake E2AP e Injeção de Políticas A1-P
-        E2N->>E2T: E2 Setup Request (SCTP:36421, E2AP v2.03, RAN-Functions: KPM-ID=2, RC-ID=3)
-        E2T->>E2N: E2 Setup Response (OK)
-        SMO->>RDL_S: A1-P Policy Create (REST PUT: Type 20000, Cooling Window: 1000ms, Max PRB: 100%)
-        RDL_A->>E2T: RIC Subscription Request (mtype: 12010, KPM-ID=2, Period: 200ms)
-        E2T->>E2N: E2AP RICsubscriptionRequest
-        E2N->>E2T: E2AP RICsubscriptionResponse
-        E2T->>RDL_A: RIC Subscription Response (mtype: 12011, Subscribed OK)
-    end
-
-    %% ESTÁGIO 2: INGESTÃO E BUFFERING
-    rect rgb(240, 249, 255)
-        Note over XAPPS,E2N: [Estágio 2] Telemetria E2SM-KPM Inicial e Emissão Concorrente de Ações
-        E2N->>E2T: E2AP RICindication (mtype: 12050, ASN.1 APER E2SM-KPM)
-        E2T->>RDL_P: RIC_INDICATION: DRB.UEThpDl, DRB.RlcSduDelayDl, RRU.PrbUsedDl [t0]
-        RDL_P->>RDL_P: Decodificação ASN.1 APER e Atualização de Estado de Rádio (KPMReport)
-        
-        par Submissão Concorrente por xApps Externas via RMR
-            XAPPS->>RDL_P: RDL_ACTION_PROPOSAL (xSlice: PRB_QUOTA = 80%, prio = 90)
-        and
-            XAPPS->>RDL_P: RDL_ACTION_PROPOSAL (Energy Saving: TX_POWER = 20 dBm, prio = 65)
-        and
-            XAPPS->>RDL_P: RDL_ACTION_PROPOSAL (Traffic Steering: HANDOVER = 1, prio = 80)
-        end
-        RDL_P->>RDL_P: Bufferização em Fila Concorrente (Início do Timer: Δtwin = 200 ms)
-    end
-
-    %% ESTÁGIO 3: DECISION WINDOW E ARBITRAGEM
-    rect rgb(245, 255, 245)
-        Note over RDL_P,RDL_S: [Estágio 3] Expiração da Decision Window (200ms), Detecção e Heurísticas
-        Note over RDL_P: Timer Expira (Δtwin >= 200ms) -> Flush de Ações do Lote
-        RDL_P->>RDL_P: Construção do Grafo de Conflitos G_t = (A_t, E_t)
-        RDL_P->>RDL_P: Detecção de Conflito Direto (PRB) e Indireto (TxPower vs QoS)
-        RDL_P->>SDL: Consulta Histórico de Resoluções Similares (Confidence >= 0.80)
-        SDL-->>RDL_R: Retorno de Padrões Homologados na SDL
-        
-        RDL_R->>RDL_R: Execução TVS / EEVS (Utilidade Convexa Multiobjetivo, T_decision = 0.12 ms)
-        Note over RDL_R: Ação Vencedora Selecionada + Isolamento de Ações Limpas (Pass-Through)
-    end
-
-    %% ESTÁGIO 4: SAFETY GUARDS E FORMALIZAÇÃO
-    rect rgb(255, 250, 240)
-        Note over RDL_R,RDL_A: [Estágio 4] Validação de Segurança Invariante e Formalização Causal
-        RDL_R->>RDL_S: Solicitação de Validação da Resolução (Winning + Clean Actions)
-        RDL_S->>RDL_S: Verificação Hard-Boundary (3GPP TS 38.104: PRB in [0, 100], P_tx in [-10, 23] dBm)
-        RDL_S->>RDL_S: Verificação Temporal Anti-Ping-Pong (Lockout Hysteresis: Δt >= 1000 ms)
-        RDL_S-->>RDL_A: Validação Aprovada (Safety Verified: UnsafeApplied ≡ 0)
-        
-        RDL_A->>RDL_A: Formalização Imutável de RDLDecision (decision_id, proposals, conflicts)
-        RDL_A->>SDL: Persistência Causal de RDLDecision e Resolução
-        RDL_A->>RDL_A: Alocação de RICrequestId (requestor_id, instance_id, ran_function_id=3)
-        RDL_A->>RDL_A: Codificação ASN.1 APER (E2SM-RC Format 1 Header / Format 2 Message)
-    end
-
-    %% ESTÁGIO 5: ATUAÇÃO, EXECUÇÃO E CLOSED-LOOP
-    rect rgb(254, 242, 242)
-        Note over RDL_A,RAN: [Estágio 5] Despacho E2SM-RC, Execução Física e Confirmação Causal
-        RDL_A->>E2T: RIC_CONTROL_REQ (mtype: 12040, E2SM-RC v1.03 Control PDU)
-        E2T->>E2N: E2AP RICcontrolRequest (SCTP:36421)
-        E2N->>RAN: Reconfiguração Física de Parâmetros (MAC Scheduler OFDMA PF & Radio Link)
-        RAN-->>E2N: Aplicação Físico-Temporal Confirmada
-        
-        E2N->>E2T: E2AP RICcontrolAcknowledge (Status: Success)
-        E2T->>RDL_A: RIC_CONTROL_ACK (mtype: 12041, RTT_ack = 2.10 ms)
-        RDL_A->>RDL_A: Fechamento de Transação Causal Pendente e Registro de Métricas Prometheus
-        
-        Note over E2N,RDL_P: [Closed-Loop Concluído] Nova Telemetria E2SM-KPM pós-atuação [t1]
-        E2N->>RDL_P: RIC_INDICATION [t1]: Violações de SLA = 0.0%, Vazão = +19.4%, Estabilização
-    end
-```
-
----
-
-## 2.1 Diagrama de Sequência Canônico da Dissertação (Governança Baseada em Regras)
-
-> **Arquivo Standalone de Referência:** [`deepseek_mermaid_20261015_306022.mermaid`](../deepseek_mermaid_20261015_306022.mermaid) | [`docs/figures/deepseek_mermaid_20261015_306022.mermaid`](figures/deepseek_mermaid_20261015_306022.mermaid)
-
-Com base na dissertação de mestrado, o diagrama abaixo explicita a interação granular entre o barramento interno RMR, o subsistema de observabilidade, as camadas cognitivas internas (`Perception`, `Reasoning`, `Refinement`, `Safety Guards`, `RDLDecision`), a terminação E2 e o agente de simulação NORI/ns-3:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant XApp as xApps (xSlice, Energia, QoS)
-    participant RMR as RMR (Barramento Interno)
-    participant PER as Perception
-    participant REA as Reasoning (TVS/EEVS)
-    participant REF as Refinement
-    participant SG as Safety Guards
-    participant DEC as RDLDecision
-    participant E2T as E2 Termination / RCMapper
-    participant NORI as NORI / e2sim
-    participant RAN as gNB / ns-3 / 5G-LENA
-    participant OBS as Observabilidade
-
-    Note over XApp,RAN: Ciclo principal H-RDL — janela nominal de 200 ms
-
-    XApp->>RMR: Envia proposta (xapp_id, node_id, parameter, value, priority)
-    RMR->>PER: Encaminha proposta normalizada
-    PER->>PER: Acumula em buffer B (t0 = TEMPOATUAL)
-    Note over PER: Aguarda ∆ = 200 ms ou fechamento da janela
-
-    RAN->>NORI: Telemetria E2SM-KPM
-    NORI->>RMR: Encaminha KPM
-    RMR->>PER: Payload KPM
-    PER->>PER: Decodifica KPM e atualiza estado
-
-    Note over PER: TEMPOATUAL − t0 ≥ ∆ → ProcessarLoteH-RDL(A)
-
-    PER->>REA: Lote normalizado + estado + conflitos detectados
-    Note over REA: Detecção: conflitos diretos e indiretos
-    REA->>REA: TVS (conflito direto) ou EEVS (conflito indireto)
-    REA->>REA: Calcula utilidade U_TVS / U_EEVS
-    REA->>REF: Ação candidata + justificativa reproduzível
-
-    REF->>REF: Ajusta valores permitidos
-    REF->>SG: Ação refinada para validação
-
-    alt Ação válida e autorizada
-        SG->>SG: Valida limites (PRB, TX_POWER, etc.)
-        SG->>SG: Verifica frequência (cooldown 1000 ms)
-        SG->>DEC: Ação segura e autorizada
-    else Ação inválida ou bloqueada
-        SG-->>REF: NÃO ENVIO (motivo, regra e evidências registrados)
-        REF-->>OBS: Registra bloqueio
-    end
-
-    Note over DEC: Formaliza RDLDecision (estado, propostas, conflitos, resultado_safety, ações selecionadas)
-
-    DEC->>E2T: EnviarControleE2(a, d.id)
-    E2T->>E2T: Resolve capability (ran_function_id, style, action_id)
-    E2T->>E2T: Codifica E2SM-RC em ASN.1 APER
-    E2T->>E2T: Constrói RIC CONTROL REQUEST (ACK requerido)
-    E2T->>E2T: Registra transação pendente
-    E2T->>RMR: Envia via RMR/E2Term/SCTP
-    RMR->>NORI: Interface E2AP/SCTP
-    NORI->>RAN: Aplica controle no gNB/E2 Node
-
-    alt ACK recebido
-        RAN->>NORI: ACK do nó E2
-        NORI->>RMR: Resposta correlacionada
-        RMR->>E2T: ProcessarRICControlACK(payload)
-        E2T->>E2T: Correlaciona transação (RTT = agora − tempo_envio)
-        E2T->>OBS: Registra ACK e RTT
-    else Failure
-        RAN->>NORI: Failure
-        NORI->>RMR: Failure correlacionado
-        RMR->>E2T: ProcessarFailure
-        E2T->>OBS: Registra Failure
-    else Timeout (evento local)
-        E2T->>E2T: Timeout expira localmente
-        E2T->>OBS: Registra timeout (não é resposta do nó)
-    end
-
-    Note over RAN,OBS: Aplicação observada no nó (estado aplicado)
-
-    RAN->>NORI: KPM posterior (t1)
-    NORI->>RMR: Telemetria E2SM-KPM
-    RMR->>OBS: Métricas de serviço, janela causal identificada
-    OBS->>OBS: Correlaciona KPM(t0), decisão, controle, estado aplicado, KPM(t1)
-    OBS->>PER: Feedback: nova telemetria inicia próxima janela
-
-    Note over XApp,OBS: ACK não substitui estado aplicado; estado aplicado não substitui benefício de serviço observado.
-```
-
----
-
-## 2.2 Diagrama de Sequência Compacto para Dissertação e Publicações (4 Macro-Entidades Canônicas)
-
-> **Arquivos Standalone Compactos:**  
-> - **Mermaid:** [`docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid`](figures/diagrama_sequencia_compacto_dissertacao.mermaid)  
-> - **PlantUML (LaTeX/Vector):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.puml`](figures/diagrama_sequencia_compacto_dissertacao.puml)  
-> - **TikZ Puro (LaTeX Standalone):** [`docs/figures/diagrama_sequencia_compacto_dissertacao.tex`](figures/diagrama_sequencia_compacto_dissertacao.tex)
-
-Para atender estritamente aos requisitos de formatação de teses e dissertações (padrão SBC / UFPA e periódicos IEEE em formato de página A4 retrato com largura de texto de $16\text{ cm}$), o diagrama a seguir consolida as 10 linhas de vida anteriores em **4 macro-entidades arquiteturais canônicas da O-RAN Alliance**. As micro-etapas internas da H-RDL (Percepção $\to$ Raciocínio $\to$ Safety Guards $\to$ RCMapper) são modeladas como ativações de execução e auto-processamento na linha de vida da `Near-RT RIC (xApp-RDL)`, garantindo que todas as mensagens e legendas permaneçam 100% legíveis sem necessidade de rotação da página:
+Para atender estritamente aos requisitos de formatação de teses e dissertações (padrão SBC / UFPA e periódicos IEEE em formato de página A4 retrato com largura de texto de $16\text{ cm}$), o diagrama a seguir consolida o fluxo em **4 macro-entidades arquiteturais canônicas da O-RAN Alliance**. As micro-etapas internas da H-RDL (Percepção $\to$ Raciocínio $\to$ Safety Guards $\to$ RCMapper) são modeladas como ativações de execução e auto-processamento na linha de vida da `Near-RT RIC (xApp-RDL)`, garantindo que todas as mensagens e legendas permaneçam 100% legíveis sem necessidade de rotação da página:
 
 ```mermaid
 sequenceDiagram
@@ -246,7 +51,7 @@ sequenceDiagram
     participant RDL as Near-RT RIC (xApp-RDL)<br/>(Cognitive Decision Layer)
     participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
 
-    %% FASE I
+    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P
     rect rgb(245, 247, 250)
         Note over SMO,RAN: Fase I: Handshake E2AP e Governança A1-P (t < 0)
         RAN->>RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
@@ -256,7 +61,7 @@ sequenceDiagram
         RAN-->>RDL: RIC Subscription Response (mtype 12011, Subscribed OK)
     end
 
-    %% FASE II
+    %% FASE II: INGESTÃO DE TELEMETRIA E SUBMISSÃO CONCORRENTE
     rect rgb(240, 248, 255)
         Note over XAPPS,RAN: Fase II: Telemetria Inicial E2SM-KPM [t0] e Submissão Concorrente via RMR
         RAN->>RDL: RIC Indication [t0] (E2SM-KPM ASN.1 APER: Throughput, Delay, PRB)
@@ -271,18 +76,18 @@ sequenceDiagram
         Note over RDL: Acúmulo em Fila Concorrente durante a Janela Nominal (Δtwin = 200 ms)
     end
 
-    %% FASE III
+    %% FASE III: ARBITRAGEM DETERMINÍSTICA E SAFETY GUARDS
     rect rgb(240, 253, 244)
         Note over RDL: Fase III: Expiração da Janela (200ms), Arbitragem Heurística e Safety Guards
         activate RDL
         RDL->>RDL: Detecção e Modelagem do Grafo de Conflitos G_t = (A_t, E_t)
-        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.12 ms)
+        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.0523 ms)
         RDL->>RDL: Safety Guards: Hard Bounds (38.104) + Lockout Hysteresis (Δt ≥ 1000 ms)
         RDL->>RDL: Formalização Imutável RDLDecision + Codificação ASN.1 APER (E2SM-RC v01.03)
         deactivate RDL
     end
 
-    %% FASE IV
+    %% FASE IV: DESPACHO E2SM-RC E CONFIRMAÇÃO CAUSAL
     rect rgb(254, 252, 232)
         Note over RDL,RAN: Fase IV: Despacho de Controle E2SM-RC e Confirmação Causal
         RDL->>RAN: RIC Control Request (mtype 12040, ASN.1 APER E2SM-RC Format 1 Header/Msg)
@@ -293,10 +98,10 @@ sequenceDiagram
         Note over RDL: Fechamento de Transação Causal e Registro de Rastreabilidade SHA-256
     end
 
-    %% FASE V
+    %% FASE V: FECHAMENTO CLOSED-LOOP E RECUPERAÇÃO DA RAN
     rect rgb(255, 241, 242)
         Note over XAPPS,RAN: Fase V: Observabilidade Causal e Fechamento Closed-Loop [t1]
-        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.4%, UnsafeApplied ≡ 0)
+        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.2%, UnsafeApplied ≡ 0)
         Note over RDL: Validação Causal Integral: Decisão(t0) ⟹ Controle(Δt) ⟹ Benefício de Rede(t1)
     end
 ```
@@ -323,7 +128,7 @@ sequenceDiagram
 3. **Estado aplicado não comprova benefício de serviço:** A alteração do registrador na RAN não garante melhora no SLA por si só; é indispensável a telemetria $KPM(t_1)$ posterior fechando a cadeia de evidências de não-repúdio.
 4. **Passagem segura para ações sem conflito (*Pass-Through*):** Propostas sem concorrência não são despachadas cegamente; passam obrigatoriamente pelas barreiras de Refinamento e Safety Guards.
 5. **Comportamento da Shared Data Layer (SDL):** No estágio de testes unitários ou execução isolada sem Redis ativo, os repositórios retornam lista vazia em `get_similar_resolutions()`, garantindo o fallback determinístico imediato para o motor analítico TVS/EEVS sem travamentos.
-6. **Dominância da Janela Temporal:** O retardo de despacho é dominado pelo agrupamento em lote na janela de $\Delta t_{win} = 200\text{ ms}$; o processamento decisório interno consome apenas $\approx 0,12\text{ ms}$ ($0,06\%$ do ciclo).
+6. **Dominância da Janela Temporal:** O retardo de despacho é dominado pelo agrupamento em lote na janela de $\Delta t_{win} = 200\text{ ms}$; o processamento decisório interno consome apenas $\approx 0,0523\text{ ms} \dots 0,12\text{ ms}$ ($< 0,06\%$ do ciclo).
 
 ---
 
@@ -360,14 +165,14 @@ sequenceDiagram
    - **TVS (Throughput vs Stability):** Otimiza a função convexa de utilidade multiobjetivo ponderando penalidades de violação de SLA, ganho de vazão (Shannon com overhead 3GPP de $14\%$) e estabilidade de enlace:
      $$u_a = w_{\text{sla}} S_{\text{sla}} + w_{\text{thp}} S_{\text{thp}} + w_{\text{energy}} S_{\text{energy}} + w_{\text{stab}} S_{\text{stab}} + w_{\text{prio}} S_{\text{prio}}$$
    - **EEVS (Energy Efficiency vs SLA):** Avalia subconjuntos combinatórios sob restrições físicas lineares do modelo de consumo Earth Project ($P_{\text{total}} = N_{\text{TRX}} \cdot (P_0 + \alpha P_{tx})$).
-   - **Sobrecarga Algorítmica:** Execução instantânea em $T_{decision} \approx 0,12\text{ ms}$ (menos de $0,06\%$ do ciclo da janela).
+   - **Sobrecarga Algorítmica:** Execução instantânea em $T_{decision} \approx 0,0523\text{ ms} \dots 0,12\text{ ms}$ (menos de $0,06\%$ do ciclo da janela).
 
 ### Estágio 4: Validação Invariante de Segurança e Formalização Causal
 1. **Hard-Boundary Clipping (3GPP TS 38.104):** O componente `Refinement` aplica filtros invioláveis sobre os parâmetros selecionados:
-   - $\text{PRB\_QUOTA} \in [0, 100]\%$;
-   - $\text{TX\_POWER} \in [-10, 23]\text{ dBm}$ (ou até $43\text{ dBm}$ para nós macro);
-   - $\text{VERTICAL\_DOWNTILT} \in [0, 15]^\circ$;
-   - $\text{HANDOVER} \in \{0, 1\}$.
+   - `PRB_QUOTA` $\in [0, 100]\%$;
+   - `TX_POWER` $\in [-10, 23]\text{ dBm}$ (ou até $43\text{ dBm}$ para nós macro);
+   - `VERTICAL_DOWNTILT` $\in [0, 15]^\circ$;
+   - `HANDOVER` $\in \{0, 1\}$.
 2. **Lockout Hysteresis (Janela Anti-Ping-Pong):** Valida o intervalo temporal contra a última atuação registrada no mesmo par `(node_id, parameter)`. Se $\Delta t < 1000\text{ ms}$, o comando é bloqueado, prevenindo *parameter flapping*.
 3. **Formalização Imutável da Decisão (`RDLDecision`):** A estrutura de dados imutável é formalizada antes de qualquer emissão, consolidando:
    - `decision_id`: Hash criptográfico / UUID único de rastreabilidade;
@@ -383,7 +188,7 @@ sequenceDiagram
 3. **Confirmação Assíncrona (`RIC_CONTROL_ACK`):** O nó E2 responde com o acknowledge de execução bem-sucedida (mtype `12041`). O módulo `ACK Tracker` da H-RDL correlaciona o `(node_id, ran_function_id, requestor_id, instance_id)`, registra o tempo de ida e volta ($RTT \approx 2,10\text{ ms}$) e encerra a transação com sucesso.
 4. **Fechamento do Loop Causal ($KPM(t_1)$):** O nó E2 emite o relatório subsequente de métricas, comprovando empiricamente:
    - **Violações de SLA:** Reduzidas de $36,7\%$ para **$0,0\%$**;
-   - **Vazão Agregada:** Aumento de **$+19,4\%$** ($85,2\text{ Mbps} \to 101,7\text{ Mbps}$);
+   - **Vazão Agregada:** Aumento de **$+19,2\%$** ($85,2\text{ Mbps} \to 102,5\text{ Mbps}$);
    - **Action Churn:** Suprimido de $1,00\text{ ações/s}$ para **$0,05\text{ ações/s}$**;
    - **Garantia Invariante:** $\text{UnsafeApplied} \equiv 0$ sob quaisquer condições de contorno.
 

@@ -50,7 +50,7 @@ sequenceDiagram
         Note over RDL: <b>Fase III: Expiração da Janela (200ms), Arbitragem Heurística e Safety Guards</b>
         activate RDL
         RDL->>RDL: Detecção e Modelagem do Grafo de Conflitos G_t = (A_t, E_t)
-        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.12 ms)
+        RDL->>RDL: Arbitragem Heurística TVS / EEVS (Utilidade Convexa Multiobjetivo, Tdec = 0.0523 ms)
         RDL->>RDL: Safety Guards: Hard Bounds (38.104) + Lockout Hysteresis (Δt ≥ 1000 ms)
         RDL->>RDL: Formalização Imutável RDLDecision + Codificação ASN.1 APER (E2SM-RC v01.03)
         deactivate RDL
@@ -74,6 +74,6 @@ sequenceDiagram
     %% -------------------------------------------------------------------------
     rect rgb(255, 241, 242)
         Note over XAPPS,RAN: <b>Fase V: Observabilidade Causal e Fechamento Closed-Loop [t1]</b>
-        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.4%, UnsafeApplied ≡ 0)
+        RAN->>RDL: RIC Indication [t1] (KPM: SLA Violations = 0.0%, Vazão +19.2%, UnsafeApplied ≡ 0)
         Note over RDL: Validação Causal Integral: Decisão(t0) ⟹ Controle(Δt) ⟹ Benefício de Rede(t1)
     end
