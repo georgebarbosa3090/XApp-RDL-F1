@@ -57,27 +57,52 @@ class XSliceXApp:
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
 
-        # Estado interno de slicing
-        self.target_nodes = ["gnb_01", "gnb_02"]
-        self.default_slice = "URLLC"
-        self.default_prb_quota = 80.0  # 80% dos PRBs alocados
-        self.priority = 90
+        # Estado interno de slicing e adaptabilidade para Testbed (Twelve-Factor App)
+        target_nodes_raw = os.getenv("TARGET_NODES", "gnb_01,gnb_02")
+        self.target_nodes = [n.strip() for n in target_nodes_raw.split(",") if n.strip()]
+        self.default_slice = os.getenv("XSLICE_SLICE_TYPE", "URLLC")
+        self.target_parameter = os.getenv("XSLICE_PARAMETER", "PRB_QUOTA")  # Suporta PRB_QUOTA ou SCHEDULER_WEIGHT
+        self.default_prb_quota = float(os.getenv("XSLICE_DEFAULT_VALUE", "80.0"))
+        self.priority = int(os.getenv("XSLICE_PRIORITY", "90"))
+        self.rdl_endpoint = os.getenv("RDL_HTTP_URL", os.getenv("RDL_ENDPOINT", ""))
 
-    def generate_action_proposal(self, node_id: str = "gnb_01", prb_quota: float = 80.0) -> Dict[str, Any]:
+    def generate_action_proposal(
+        self,
+        node_id: str = "gnb_01",
+        prb_quota: Optional[float] = None,
+        parameter: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Gera proposta estruturada compatível com o componente Perception da xApp RDL."""
+        val = prb_quota if prb_quota is not None else self.default_prb_quota
+        param = parameter if parameter is not None else self.target_parameter
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": node_id,
-            "parameter": "PRB_QUOTA",
-            "value": prb_quota,
+            "parameter": param,
+            "value": val,
             "priority": self.priority,
             "slice_type": self.default_slice,
             "timestamp": time.time()
         }
         XSLICE_PROPOSALS_TOTAL.labels(slice_type=self.default_slice, node_id=node_id).inc()
-        XSLICE_PRB_QUOTA_REQUESTED.labels(slice_type=self.default_slice, node_id=node_id).set(prb_quota / 100.0)
+        XSLICE_PRB_QUOTA_REQUESTED.labels(slice_type=self.default_slice, node_id=node_id).set(val / 100.0)
         XSLICE_SLA_SATISFACTION.set(0.98)
         return proposal
+
+    def _dispatch_proposal(self, proposal: Dict[str, Any]):
+        """Despacha a proposta ativamente para a xApp RDL via HTTP Webhook se configurado."""
+        if self.rdl_endpoint:
+            try:
+                import urllib.request
+                req = urllib.request.Request(
+                    self.rdl_endpoint,
+                    data=json.dumps(proposal).encode("utf-8"),
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=1.0) as resp:
+                    pass
+            except Exception as e:
+                logger.debug(f"[xSlice] Falha ao despachar via HTTP para {self.rdl_endpoint}: {e}")
 
     def _run_http(self):
         """Servidor FastAPI para /health, /ready e /metrics."""
@@ -110,10 +135,11 @@ class XSliceXApp:
 
     def _loop(self):
         """Loop de emissão periódica de propostas de slicing."""
-        logger.info(f"xSlice xApp ativa. Monitorando SLA e emitindo propostas PRB_QUOTA={self.default_prb_quota}%...")
+        logger.info(f"xSlice xApp ativa. Monitorando SLA ({self.target_parameter}={self.default_prb_quota}) nos nós {self.target_nodes}...")
         while self.running:
             for node in self.target_nodes:
                 proposal = self.generate_action_proposal(node_id=node, prb_quota=self.default_prb_quota)
+                self._dispatch_proposal(proposal)
                 logger.debug(f"[xSlice Proposal] Emitida: {proposal}")
             time.sleep(2.0)
 

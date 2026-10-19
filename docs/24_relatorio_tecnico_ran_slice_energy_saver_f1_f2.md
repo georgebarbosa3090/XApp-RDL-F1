@@ -362,6 +362,20 @@ Para contornar essa restrição técnica mantendo a integridade científica da d
 * No host Linux onde roda a User Plane Function (UPF), aplicam-se regras de `tc` (*Traffic Control*) com filas HTB (*Hierarchical Token Bucket*) ou marcação de pacotes DSCP *Expedited Forwarding*.
 * A telemetria E2SM-KPM reporta as métricas de latência de buffer RLC, fechando o ciclo de percepção da xApp-RDL.
 
+### 7.3. Implementação Prática das Adaptações no Código das xApps (Twelve-Factor App)
+Para viabilizar a transição sem atrito entre o simulador ns-3 e o hardware físico do testbed da UFPA sem a necessidade de criar novas xApps do zero, os arquivos [`reference-xapps/qos-xslice/xslice_xapp.py`](../../reference-xapps/qos-xslice/xslice_xapp.py) e [`reference-xapps/energy-saving/energy_saving_xapp.py`](../../reference-xapps/energy-saving/energy_saving_xapp.py) foram aprimorados com desacoplamento via variáveis de ambiente:
+
+| Variável de Ambiente | xApp Alvo | Valor Padrão | Função no Testbed UFPA / OpenRAN@Brasil |
+| :--- | :--- | :--- | :--- |
+| `TARGET_NODES` | Ambas | `"gnb_01,gnb_02"` | Permite apontar para o `node_id` real da gNodeB srsRAN cadastrada no Near-RT RIC da UFPA. |
+| `XSLICE_PARAMETER` | `xSlice` | `"PRB_QUOTA"` | Permite chavear dinamicamente para `"SCHEDULER_WEIGHT"` sem alterar o código, contornando a ausência de slicing MAC no srsRAN. |
+| `XSLICE_DEFAULT_VALUE` | `xSlice` | `80.0` | Valor nominal da cota ou peso de escalonamento solicitado. |
+| `ES_PARAMETER` | `EnergySaver` | `"TX_POWER"` | Parâmetro alvo da economia de energia (`"TX_POWER"` para atenuação de ganho RF na USRP). |
+| `ES_DEFAULT_VALUE` | `EnergySaver` | `20.0` | Potência alvo em dBm (ou percentual de estrangulamento de PRBs). |
+| `RDL_ENDPOINT` / `RDL_HTTP_URL` | Ambas | `""` | Habilita o método de disparo ativo `_dispatch_proposal()` para injetar propostas no Near-RT RIC em tempo real. |
+
+Essa flexibilização segue os princípios de *Cloud-Native 12-Factor App*, dispensando a criação de novas imagens de contêiner ou branches separadas para testes físicos.
+
 ---
 
 ## 8. Aplicabilidade em Verticais Estratégicas e Alinhamento com o Projeto GreenRAN / UFPA

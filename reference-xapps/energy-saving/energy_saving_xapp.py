@@ -57,26 +57,51 @@ class EnergySavingXApp:
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
 
-        # Estado interno de economia de energia
-        self.target_nodes = ["gnb_01", "gnb_02"]
-        self.target_tx_power = 20.0  # Redução de potência para 20 dBm
-        self.priority = 65
+        # Estado interno de economia de energia e adaptabilidade para Testbed
+        target_nodes_raw = os.getenv("TARGET_NODES", "gnb_01,gnb_02")
+        self.target_nodes = [n.strip() for n in target_nodes_raw.split(",") if n.strip()]
+        self.target_parameter = os.getenv("ES_PARAMETER", "TX_POWER")
+        self.target_tx_power = float(os.getenv("ES_DEFAULT_VALUE", "20.0"))  # Redução de potência para 20 dBm
+        self.priority = int(os.getenv("ES_PRIORITY", "65"))
+        self.rdl_endpoint = os.getenv("RDL_HTTP_URL", os.getenv("RDL_ENDPOINT", ""))
 
-    def generate_action_proposal(self, node_id: str = "gnb_01", tx_power: float = 20.0) -> Dict[str, Any]:
+    def generate_action_proposal(
+        self,
+        node_id: str = "gnb_01",
+        tx_power: Optional[float] = None,
+        parameter: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Gera proposta estruturada compatível com o componente Perception da xApp RDL."""
+        val = tx_power if tx_power is not None else self.target_tx_power
+        param = parameter if parameter is not None else self.target_parameter
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": node_id,
-            "parameter": "TX_POWER",
-            "value": tx_power,
+            "parameter": param,
+            "value": val,
             "priority": self.priority,
             "energy_target_kwh": 0.35,
             "timestamp": time.time()
         }
         ES_PROPOSALS_TOTAL.labels(action_type="TX_POWER_REDUCTION", node_id=node_id).inc()
-        ES_TX_POWER_TARGET.labels(node_id=node_id).set(tx_power)
+        ES_TX_POWER_TARGET.labels(node_id=node_id).set(val)
         ES_ESTIMATED_ENERGY_SAVED.set(0.28)  # 28% economia
         return proposal
+
+    def _dispatch_proposal(self, proposal: Dict[str, Any]):
+        """Despacha a proposta ativamente para a xApp RDL via HTTP Webhook se configurado."""
+        if self.rdl_endpoint:
+            try:
+                import urllib.request
+                req = urllib.request.Request(
+                    self.rdl_endpoint,
+                    data=json.dumps(proposal).encode("utf-8"),
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=1.0) as resp:
+                    pass
+            except Exception as e:
+                logger.debug(f"[EnergySaving] Falha ao despachar via HTTP para {self.rdl_endpoint}: {e}")
 
     def _run_http(self):
         """Servidor FastAPI para /health, /ready e /metrics."""
@@ -109,10 +134,11 @@ class EnergySavingXApp:
 
     def _loop(self):
         """Loop de emissão periódica de propostas de eficiência energética."""
-        logger.info(f"Energy Saving xApp ativa. Monitorando consumo e emitindo propostas TX_POWER={self.target_tx_power} dBm...")
+        logger.info(f"Energy Saving xApp ativa. Monitorando consumo ({self.target_parameter}={self.target_tx_power}) nos nós {self.target_nodes}...")
         while self.running:
             for node in self.target_nodes:
                 proposal = self.generate_action_proposal(node_id=node, tx_power=self.target_tx_power)
+                self._dispatch_proposal(proposal)
                 logger.debug(f"[EnergySaving Proposal] Emitida: {proposal}")
             time.sleep(2.5)
 
