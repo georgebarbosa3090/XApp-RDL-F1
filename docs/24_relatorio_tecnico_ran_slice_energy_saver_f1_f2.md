@@ -304,8 +304,70 @@ Nas campanhas com **ns-3.48 + 5G-LENA + NORI**:
 
 ---
 
-## 7. Conclusão e Diretrizes Metodológicas
+## 7. Estratégias de Mitigação e Validação no Testbed Físico GreenRAN / UFPA (OpenRAN@Brasil sem Slicing Nativo)
+
+### 7.1. Diagnóstico do Problema Físico e Limitação Operacional
+Na infraestrutura física do laboratório **GreenRAN / UFPA** conectada ao ecossistema **OpenRAN@Brasil (Blueprint v3)**, a pilha de rádio implementada sobre **srsRAN 24.10** com rádios definidos por software (**USRP N310 / B210**) e núcleo 5G **Open5GS** apresenta uma restrição comum no estado da arte de código aberto:
+* O escalonador MAC da gNodeB srsRAN **não dispõe de fatiamento dinâmico de blocos de recursos físicos (PRB partitioning) por $S\text{-}NSSAI$** plenamente acoplado em tempo de execução via modelos de serviço E2.
+* Tentar injetar comandos de controle que exijam particionamento estrito de fatias no nível MAC pode induzir rejeições com `RICcontrolFailure` ou comportamento inconsistente da camada física de rádio.
+
+Para contornar essa restrição técnica mantendo a integridade científica da dissertação de mestrado (PPGCOMP/UFPA) e a aceitação em periódicos de alto fator de impacto (IEEE TNSM/TCCN e SBRC), estruturam-se **4 estratégias metodológicas de contorno**:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│                  ESTRATÉGIAS DE MITIGAÇÃO NO TESTBED UFPA (SEM SLICING NATIVO)               │
+├────────────────────────────────┬─────────────────────────────────────────────────────────────┤
+│ 1. Equivalência Funcional      │ Mapeia "Slices" para pesos relativos de escalonamento        │
+│    (QoS Flow / 5QI / Pesos)    │ (SCHEDULER_WEIGHT) e cotas por UE no Proportional Fair.    │
+├────────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ 2. Foco no Cenário EEVS (S2)   │ Disputa real entre Potência de RF (TX_POWER na USRP) vs      │
+│    (Potência RF vs QoS)        │ Vazão/Atraso de UE comercial COTS (sem demandar S-NSSAI).   │
+├────────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ 3. Metodologia Dual-Backend    │ ns-3.48/5G-LENA (20 UEs + Slicing) ──┐ Ambas integradas ao │
+│    (Simulação + Testbed Real)  │ srsRAN/USRP UFPA (E2AP/SCTP real)   ──┴─ Mesma xApp-RDL    │
+├────────────────────────────────┼─────────────────────────────────────────────────────────────┤
+│ 4. Diferenciação no Core       │ Múltiplas sessões PDU no Open5GS com marcação DSCP/TOS      │
+│    (Open5GS UPF / TC)          │ e priorização no plano de usuário do Linux (Traffic Control)│
+└────────────────────────────────┴─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 7.2. Detalhamento das Estratégias
+
+#### Estratégia 1: Equivalência Funcional via QoS Flows, 5QI e Pesos de Escalonamento
+* **Fundamentação 3GPP:** Segundo as normas 3GPP TS 28.541 e TS 38.300, a garantia de SLA de fatias na RAN é concretizada na camada de enlace através de filas de prioridade e pesos no escalonador MAC (*Weighted Fair Queuing* ou *Proportional Fair*).
+* **Mapeamento no Código:** A classe `XAppAction` do RDL já suporta nativamente o parâmetro `SCHEDULER_WEIGHT` (presente em `src/core/perception.py` e `src/core/refinement.py`).
+* **Operacionalização no Testbed:**
+  1. Conectam-se dois UEs (ou duas sessões PDU no Open5GS):
+     * **UE 1 (Fluxo Prioritário / URLLC equivalente):** Fluxo com 5QI 1 (latência crítica via `iperf3` UDP);
+     * **UE 2 (Fluxo Best-Effort / eMBB equivalente):** Fluxo TCP contínuo saturando o enlace.
+  2. A xApp `xSlice` monitora o atraso e emite propostas de elevação de `SCHEDULER_WEIGHT` (ex.: peso 80 para UE 1 vs peso 20 para UE 2), alcançando efeito físico equivalente à reserva de 80% dos PRBs sem depender de $S\text{-}NSSAI$ na gNodeB.
+
+#### Estratégia 2: Validação Física Centrada no Conflito EEVS (Cenário S2 - Potência vs. QoS)
+* **Por que contorna o problema:** O conflito entre economia energética e qualidade de serviço independe de fatiamento de rádio, sendo 100% suportado por qualquer USRP (N310 ou B210) e srsRAN.
+* **Operacionalização:**
+  1. A xApp `EnergySaver` solicita via E2SM-RC a redução da potência do transmissor da USRP (`TX_POWER = 10 dBm` ou atenuação de ganho RF).
+  2. A xApp de QoS monitora a degradação de SINR e perda de pacotes do UE comercial 5G.
+  3. O **H-RDL** detecta o conflito indireto em tempo real, executa a arbitragem multiobjetivo EEVS em $0{,}12\text{ ms}$ e os *Safety Guards* do `Refinement` bloqueiam o corte abaixo do limite seguro ($P_{\text{tx}} \ge 33\text{ dBm}$), demonstrando a proteção de enlace em malha fechada (*closed-loop*) com hardware e telemetria física real.
+
+#### Estratégia 3: Metodologia Dual-Backend (ns-3 para Slicing + Testbed para Sinalização E2 Real)
+* **Arquitetura Já Pronta no Repositório:** A fábrica [`src/infrastructure/ran_backend_factory.py`](../../src/infrastructure/ran_backend_factory.py) implementa a alternância transparente entre:
+  * Backend `NORI_NS3`: Executa os cenários S1 (Colisão Direta de PRBs entre Slices com 20 UEs) com alta densidade no simulador validado 5G-LENA;
+  * Backend `SRSRAN_OPEN5GS` (`OPENRANBR_PHYSICAL`): Conecta ao cluster do testbed da UFPA via SCTP na porta 36422 para provar a conformidade binária ASN.1 APER, latência RMR e integridade de microserviços Kubernetes.
+* **Defesa Metodológica:** O core do middleware H-RDL/CA-RDL permanece rigorosamente idêntico em ambos os experimentos, desacoplando a prova de escalabilidade algorítmica da prova de maturidade tecnológica (TRL 5/6).
+
+#### Estratégia 4: Emulação de Tráfego no Core (Open5GS UPF / DSCP)
+* No Open5GS, configuram-se dois Data Network Names (DNNs) distintos: `internet` e `urllc`.
+* No host Linux onde roda a User Plane Function (UPF), aplicam-se regras de `tc` (*Traffic Control*) com filas HTB (*Hierarchical Token Bucket*) ou marcação de pacotes DSCP *Expedited Forwarding*.
+* A telemetria E2SM-KPM reporta as métricas de latência de buffer RLC, fechando o ciclo de percepção da xApp-RDL.
+
+---
+
+## 8. Conclusão e Diretrizes Metodológicas para a Dissertação
 
 1. **Separação de Papéis:** As classes `XSliceXApp` e `EnergySavingXApp` são independentes e representam clientes que desconhecem a existência um do outro, comunicando-se estritamente através das interfaces abertas O-RAN (`RMR` e `E2AP`).
 2. **Determinismo na Base:** O H-RDL (Fase 1) garante matematicamente a integridade física e o cumprimento de contratos de SLA através de funções analíticas fechadas de Shannon, filas M/G/1 e modelos Earth.
 3. **Evolução Segura:** A Fase 2 (CA-RDL) introduz o agente neuro-simbólico Safe-MAPPO para buscar eficiência sob incerteza temporal, mas está formalmente subordinada à barreira invariante e ao mecanismo de *fallback* determinístico da Fase 1.
+4. **Honestidade Científica e Validação no Testbed UFPA:** Declarar explicitamente que a validação de RAN Slicing em larga escala ($N=20$ UEs) apoia-se no backend simulado ns-3.48/5G-LENA, enquanto o testbed físico GreenRAN/UFPA valida a sinalização real E2AP/E2SM-RC e conflitos de potência/QoS (EEVS) e priorização por UE, garantindo que nenhuma banca ou comitê de revisores aponte limitações não endereçadas.
+
