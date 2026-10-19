@@ -52,7 +52,7 @@ box "Nó de Rádio (RAN)" #F4F6F7
     participant "E2 Node (gNodeB / ns-3)\n<size:9>(5G-LENA / NORI Agent)</size>" as RAN #FEF9E7
 end box
 
-== Fase I: Handshake E2AP e Injeção de Políticas A1-P ==
+== Fase I: Inicialização, Handshake E2AP e Políticas A1-P (t < t0) ==
 
 RAN -> RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
 RDL --> RAN: E2 Setup Response (Success OK)

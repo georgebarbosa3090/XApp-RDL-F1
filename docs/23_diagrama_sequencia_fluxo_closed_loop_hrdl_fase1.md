@@ -51,9 +51,9 @@ sequenceDiagram
     participant RDL as Near-RT RIC (xApp-RDL)<br/>(Cognitive Decision Layer)
     participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
 
-    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P
+    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P (t < t0)
     rect rgb(245, 247, 250)
-        Note over SMO,RAN: Fase I: Handshake E2AP e Governança A1-P (t < 0)
+        Note over SMO,RAN: Fase I: Inicialização, Handshake E2AP e Políticas A1-P (t < t0)
         RAN->>RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
         RDL-->>RAN: E2 Setup Response (OK)
         SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)
@@ -134,15 +134,48 @@ sequenceDiagram
 
 ## 3. Análise Profunda dos 5 Estágios do Pipeline de Circuito Fechado
 
-### Estágio 1: Handshake Inicial, Associação E2AP e Políticas A1-P
+### Estágio 1: Inicialização e Pré-condicionamento Normativo A1-P ($t < t_0$)
+
+#### 1. Fundamentação Metodológica: O Significado Epistêmico de $t < t_0$
+Na convenção temporal experimental adotada no projeto e na dissertação, o marco **$t < t_0$ não representa tempo físico negativo**, mas sim a **fase de inicialização, descoberta e pré-condicionamento experimental**, executada antes do início da janela de observação e controle ativo da rede:
+
+$$\boxed{t < t_0 \implies \text{Warm-up, Handshake E2AP e Injeção do Envelope de Políticas A1-P}}$$
+$$\boxed{t = t_0 \implies \text{Início da Observação Experimental (Aquisição do primeiro KPM e Atuação)}}$$
+
+Essa separação decorre do **princípio rigoroso de causalidade temporal**: a política normativa deve necessariamente existir antes dos eventos e decisões que ela se propõe a governar ($t_{\text{policy}} < t_{\text{event}}$). Não faria sentido científico arbitrar uma colisão de recursos em $t_0 = 200\text{ ms}$ utilizando diretrizes carregadas tardiamente em $t = 300\text{ ms}$.
+
+#### 2. Natureza da Política A1-P vs. Atuação E2
+Na arquitetura O-RAN, a interface A1 interliga o **Non-RT RIC (SMO)** ao **Near-RT RIC**, estabelecendo um canal para **envelopes declarativos de governança**, e não para comandos operacionais determinísticos de baixo nível:
+- **O que a interface A1 NÃO deve ditar:** Comandos operacionais granulares de tempo real (ex.: *"alocar exatamente 53 PRBs para o UE 7 agora"*), os quais pertencem privativamente ao domínio Near-RT / nó E2 via E2SM-RC;
+- **O que a política A1-P estabelece:** O *envelope normativo* de objetivos e restrições globais dentro do qual a H-RDL opera (ex.: *"fatia URLLC possui prioridade estrita de SLA"*, *"limite teto operacional de ocupação de PRBs $\le 100\%$"*, *"intervalo de cooling lockout anti-ping-pong de $1000\text{ ms}$"*).
+
+#### 3. A Tríade Arquitetural: A1-P, TVS/EEVS e Safety Guards
+A governança na H-RDL estrutura-se em três camadas conceituais ortogonais e complementares:
+
+$$\boxed{\text{A1-P} = \text{``O que a rede deseja e pode permitir'' (Envelope Normativo)}}$$
+$$\boxed{\text{TVS / EEVS} = \text{``Qual conjunto de ações é ótimo e mais adequado'' (Arbitragem de Utilidade)}}$$
+$$\boxed{\text{Safety Guard} = \text{``Essa decisão pode realmente ser aplicada na RAN física?'' (Invariantes e Integridade)}}$$
+
+O fluxo de decisão ideal obedece à cadeia:
+
+$$\text{A1 Policy} \longrightarrow \text{A1PolicyManager} \longrightarrow \text{H-RDL}$$
+$$\text{Policy} + \text{KPM} + \text{XAppActions} \longrightarrow \text{Reasoning (TVS/EEVS)} \longrightarrow \text{Safety Guards} \longrightarrow \text{RDLDecision} \longrightarrow \text{E2SM-RC}$$
+
+Onde a função de utilidade multiobjetivo é condicionada pelo envelope de política recebido: $U(a \mid s, \pi_{A1})$. Caso a política estipule prioridade estrita para tráfego ultraconfiável, propostas que salvaguardem o SLA URLLC recebem preferência na fronteira de Pareto. Em seguida, os *Safety Guards* verificam se a ação atende aos limites físicos (ex.: $\text{PRB} \le 100\%$) e ao tempo de resfriamento ($\Delta t_{\text{opposite}} \ge 1000\text{ ms}$).
+
+#### 4. Procedimentos de Inicialização do Estágio 1
 1. **Handshake E2AP:** O simulador ns-3 / NORI inicializa a pilha E2 e estabelece a conexão SCTP na porta `36421` com o componente `E2term` do Near-RT RIC. O nó RAN envia `E2_SETUP_REQ` reportando suas capacidades:
    - `RANfunctionID = 2`: E2SM-KPM v02.03 / v03.00 (Serviço de Coleta de Métricas);
    - `RANfunctionID = 3`: E2SM-RC v01.03 (Serviço de Controle de Recursos).
-2. **Injeção de Políticas A1-P:** O Non-RT RIC (SMO) submete políticas de alto nível via REST HTTP/2 (`src/interfaces/a1_policy_receiver.py`), instanciando a política `ORAN_RDL_Governance_Policy` (ID `20000`). São definidos os limites:
+2. **Injeção de Políticas A1-P:** O Non-RT RIC (SMO) submete políticas via REST HTTP/2 (`src/interfaces/a1_policy_receiver.py`), instanciando o Policy Type `20000` (`ORAN_RDL_Governance_Policy`):
    - `max_cell_prb_limit = 100`: Limite teto de ocupação do agendador MAC;
    - `cooling_lockout_ms = 1000`: Janela temporal mínima de resfriamento entre atuações no mesmo recurso;
    - `urllc_priority_boost = 25`: Peso de prioridade estrita para tráfego ultraconfiável.
 3. **Subscrição E2SM-KPM:** A H-RDL envia `RIC_SUBSCRIPTION_REQ` (mtype `12010`) via RMR para o *Subscription Manager* (SubMgr), solicitando o envio de relatórios periódicos a cada $200\text{ ms}$.
+
+> [!IMPORTANT]
+> **Nota Metodológica e Honestidade Científica sobre a Fase 1:**  
+> No estágio atual auditado da implementação (H-RDL Fase 1), o componente [`src/interfaces/a1_policy_receiver.py`](../src/interfaces/a1_policy_receiver.py) implementa a interface REST A1-P, recebendo e armazenando formalmente as políticas do tipo `20000` em memória / SDL com validação de esquema JSON. Contudo, a propagação dinâmica em tempo real dessas políticas para alterar pesos da função utilidade TVS/EEVS ou reconfigurar limites de Safety Guards durante a execução contínua em ns-3 constitui uma **capacidade arquitetural modelada e vetor de integração contínua**, e não uma capacidade demonstrada de ponta a ponta em malha fechada ao vivo. Portanto, para rigor científico na dissertação, declara-se que *a política A1-P é injetada durante a fase de inicialização e armazenada pelo serviço de políticas; sua efetiva propagação dinâmica para os pesos de arbitragem e limites operacionais constitui etapa de integração a ser validada nas fases subsequentes.*
 
 ### Estágio 2: Ingestão de Telemetria e Submissão Concorrente de Propostas
 1. **Telemetria de Estado $KPM(t_0)$:** O nó E2 emite `RIC_INDICATION` (mtype `12050`). O módulo `KpmDecoder` decodifica a PDU binária ASN.1 APER, extraindo os KPIs de nível de rádio:

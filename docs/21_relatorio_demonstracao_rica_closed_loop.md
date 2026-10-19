@@ -36,7 +36,7 @@ A suíte executiva está alicerçada em duas frentes metodológicas:
 ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
 │             PIPELINE DE CONTROLE DETERMINÍSTICO EM CIRCUITO FECHADO (H-RDL FASE 1)             │
 │                                                                                                │
-│  [1] Políticas A1-P & E2 Setup ──► [2] Telemetria KPM(t0) ──► [3] Janela Temporal (Δtwin=200ms)│
+│  [1] Políticas A1-P & E2 Setup (t < t0) ──► [2] Telemetria KPM(t0) ──► [3] Janela (Δtwin=200ms) │
 │                                                                        │                       │
 │  [6] Despacho E2SM-RC (Gate 3) ◄── [5] Safety Guards (TS 38.104) ◄── [4] Arbitragem TVS/EEVS   │
 │            │                                                                                   │
@@ -116,9 +116,9 @@ sequenceDiagram
     participant RDL as Near-RT RIC (xApp-RDL)<br/>(Cognitive Decision Layer)
     participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
 
-    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P
+    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P (t < t0)
     rect rgb(245, 247, 250)
-        Note over SMO,RAN: Fase I: Handshake E2AP e Governança A1-P (t < 0)
+        Note over SMO,RAN: Fase I: Inicialização, Handshake E2AP e Políticas A1-P (t < t0)
         RAN->>RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
         RDL-->>RAN: E2 Setup Response (OK)
         SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)
@@ -189,6 +189,10 @@ Cada componente da demonstração closed-loop mapeia-se diretamente sobre os arq
 | **Codec ASN.1 E2SM-KPM** | [`src/e2/kpm_decoder.py`](../src/e2/kpm_decoder.py) | [`tests/unit/test_kpm_decoder.py`](../tests/unit/test_kpm_decoder.py) | **100% PASS** |
 | **ACK Tracker & Rollback** | [`src/coordination/control_dispatcher.py`](../src/coordination/control_dispatcher.py) | [`tests/unit/test_ack_tracker.py`](../tests/unit/test_ack_tracker.py) | **100% PASS** |
 | **Suíte de Demonstração D1–D5** | [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py) | Terminal stdout / JSON summary | **100% PASS** |
+
+> [!NOTE]
+> **Rigor Metodológico sobre o Papel da Governança A1-P ($t < t_0$):**  
+> A injeção de políticas A1-P na Fase I ($t < t_0$) estabelece a causalidade pré-experimental ($t_{\text{policy}} < t_{\text{event}}$), definindo o *envelope normativo* de objetivos e restrições (ex.: cooling lockout de $1000\text{ ms}$, limites de PRB). Na implementação auditada da Fase 1, o receptor REST [`src/interfaces/a1_policy_receiver.py`](../src/interfaces/a1_policy_receiver.py) valida, recebe e persiste as políticas Type 20000; a propagação dinâmica em tempo real para os pesos analíticos TVS/EEVS e limites operacionais constitui capacidade modelada e vetor de integração contínua para fases subsequentes.
 
 ---
 

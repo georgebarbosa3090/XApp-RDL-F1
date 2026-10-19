@@ -15,10 +15,10 @@ sequenceDiagram
     participant RAN as E2 Node (gNodeB / ns-3)<br/>(5G-LENA / NORI Agent)
 
     %% -------------------------------------------------------------------------
-    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P
+    %% FASE I: INICIALIZAÇÃO, HANDSHAKE E2AP E POLÍTICAS A1-P (t < t0)
     %% -------------------------------------------------------------------------
     rect rgb(245, 247, 250)
-        Note over SMO,RAN: <b>Fase I: Handshake E2AP e Injeção de Políticas A1-P (t < 0)</b>
+        Note over SMO,RAN: <b>Fase I: Inicialização, Handshake E2AP e Políticas A1-P (t < t0)</b>
         RAN->>RDL: E2 Setup Request (SCTP :36421, RAN Functions: KPM-ID=2, RC-ID=3)
         RDL-->>RAN: E2 Setup Response (OK)
         SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)

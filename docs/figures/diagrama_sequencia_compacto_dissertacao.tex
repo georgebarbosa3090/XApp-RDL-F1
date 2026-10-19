@@ -53,8 +53,8 @@
     \draw[lifeline] (rdlTop.south) -- (rdlBot.north);
     \draw[lifeline] (ranTop.south) -- (ranBot.north);
 
-    % FASE I: Handshake E2AP e Injeção de Políticas A1-P (y = -1.2 a -3.0)
-    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=gray!15, inner sep=2pt, rounded corners=2pt] at (-0.5, -1.2) {Fase I: Handshake E2AP e Governança A1-P};
+    % FASE I: Inicialização, Handshake E2AP e Políticas A1-P (y = -1.2 a -3.0)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=gray!15, inner sep=2pt, rounded corners=2pt] at (-0.5, -1.2) {Fase I: Inicialização, Handshake E2AP e Políticas A1-P ($t < t_0$)};
     \draw[msg] (\xRAN, -1.6) -- node[above, font=\scriptsize] {1. E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)} (\xRDL, -1.6);
     \draw[msg, dashed] (\xRDL, -2.0) -- node[above, font=\scriptsize] {2. E2 Setup Response (OK)} (\xRAN, -2.0);
     \draw[msg] (\xSMO, -2.5) -- node[above, font=\scriptsize] {3. A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100\%)} (\xRDL, -2.5);
