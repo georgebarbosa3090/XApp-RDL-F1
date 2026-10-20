@@ -10,8 +10,8 @@ Este repositório diferencia explicitamente **xApps de Terceiros (Oficiais O-RAN
 | :--- | :--- | :---: | :--- | :--- |
 | **Traffic Steering** | `reference-xapps/traffic-steering` | `ORAN_SC_OFFICIAL` | [O-RAN SC `ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | Terceiros / Oficial O-RAN SC (Release J) |
 | **KPIMON** | `reference-xapps/kpimon` | `ORAN_SC_OFFICIAL` | [O-RAN SC `ric-app-kpimon`](https://github.com/o-ran-sc/ric-app-kpimon) | Terceiros / Oficial O-RAN SC (Coleta KPM) |
-| **xSlice / QoS Slicing** | `reference-xapps/qos-xslice` | `ACADEMIC_REIMPLEMENTATION` | [peihaoY/xslice-oran](https://github.com/peihaoY/xslice-oran) (Yan et al., 2025 / CAMAD) | Terceiros / Reimplementação Acadêmica |
-| **Energy Saving** | `reference-xapps/energy-saving` | `LITERATURE_INSPIRED` | [Orange-OpenSource/ns-O-RAN-flexric](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) (Wadud et al., 2024) | Terceiros / Inspirada na Literatura |
+| **xSlice / QoS Slicing** | `reference-xapps/qos-xslice` | `ACADEMIC_REIMPLEMENTATION` | [peihaoY/xslice-oran](https://github.com/peihaoY/xslice-oran) (Yan et al., 2025 / CAMAD) | Terceiros / Reimplementação Acadêmica (*Adaptada GreenRAN: Agro 4.0 / Campus*) |
+| **Energy Saving** | `reference-xapps/energy-saving` | `LITERATURE_INSPIRED` | [Orange-OpenSource/ns-O-RAN-flexric](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) (Wadud et al., 2024) | Terceiros / Inspirada na Literatura (*Adaptada GreenRAN: Solar/Bateria/Micro-Sleep*) |
 | **Load Balancer** | `reference-xapps/load-balancer` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL |
 | **Beamformer** | `reference-xapps/beamformer` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL |
 | **ISAC Radar** | `reference-xapps/isac-radar` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL (6G ISAC) |

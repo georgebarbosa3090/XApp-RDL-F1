@@ -47,8 +47,8 @@ flowchart LR
         B6["B6: Safe-MAPPO (Cognitiva)"]
     end
 
-    Baselines -->|Eliminação de Colisão / SLA = 0%| HRDL
-    HRDL -->|Otimização de Utilidade / +4% Vazão| CARDL
+    Baselines -->|"Eliminação de Colisão / SLA = 0%"| HRDL
+    HRDL -->|"Otimização de Utilidade / +4% Vazão"| CARDL
 ```
 
 ### Principais Indicadores Globais:

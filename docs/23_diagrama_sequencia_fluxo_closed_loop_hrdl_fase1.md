@@ -2,7 +2,7 @@
 ## Coordenação Determinística Multi-xApp, Codecs ASN.1 APER (E2SM-KPM / E2SM-RC), Safety Guards Invariantes e Auditoria Causal Closed-Loop no Near-RT RIC
 
 > **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[22. Plano Editorial Estratégico](22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md)** | **[23. Diagrama de Sequência H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)**
+> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[22. Plano Editorial Estratégico](22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md)** | **[23. Diagrama de Sequência H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)** | **[24. Relatório RAN Slice & EnergySaver (GreenRAN)](24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md)**
 
 ---
 
@@ -278,5 +278,8 @@ Para garantir que nenhuma ação insegura atinja a rede de acesso sob falhas de 
 3. **Resiliência a Queda de Barramento:** Se o barramento RMR estiver indisponível ou em estado de saturação, a H-RDL retém o estado anterior de alocação de rádio, impedindo colapsos em cascata ou degradação catastrófica de QoS.
 
 ---
+
+> [!NOTE]
+> Para o mapeamento exaustivo da genealogia upstream das xApps `xSlice` e `EnergySaver`, a especificação de adaptação ao projeto **GreenRAN** (Agro 4.0 e Smart Campus UFPA) e os requisitos de suporte multi-backend para H-RDL e CA-RDL, consulte o **[Volume 24: Relatório Técnico RAN Slice e EnergySaver no xApp-RDL](24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md)**.
 
 

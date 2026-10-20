@@ -26,6 +26,7 @@ docs/
 ├── 21_relatorio_demonstracao_rica_closed_loop.md             # [Vol 21] Relatório de Demonstração Rica Closed-Loop (H-RDL Fase 1 / D1–D5)
 ├── 22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md # [Vol 22] Plano Editorial Estratégico & Matriz de Publicações
 ├── 23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md     # [Vol 23] Especificação Formal e Diagrama de Sequência Closed-Loop H-RDL
+├── 24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md     # [Vol 24] Relatório Técnico RAN Slice & EnergySaver (GreenRAN & Multi-Backend)
 ├── assets/                                  # Diagramas de arquitetura e modelos visuais
 ├── compliance/                              # Perfis de compatibilidade O-RAN congelados
 ├── e2/                                      # Definições ASN.1 e matrizes normativas E2AP/E2SM
@@ -80,7 +81,8 @@ Roteiro de submissão dos 6 manuscritos planejados para IEEE TNSM, IEEE TCCN, IE
 ### [Volume 23: Especificação Formal, Diagrama de Sequência e Fluxo Closed-Loop H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)
 Especificação formal completa da cadeia causal closed-loop da H-RDL Fase 1, contendo o diagrama de sequência detalhado e a **Seção 2.2 com o Diagrama de Sequência Compacto Canônico** em 4 macro-entidades para a dissertação de mestrado (disponível em Mermaid, PlantUML e LaTeX/TikZ), matriz normativa de mensagens O-RAN (E2AP v02.03, E2SM-KPM, E2SM-RC v01.03) e orçamento temporal de latência.
 
-
+### [Volume 24: Relatório Técnico RAN Slice e EnergySaver no xApp-RDL (GreenRAN & Multi-Backend)](24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md)
+Mapeamento exaustivo da genealogia upstream das controladoras de referência `xSlice` e `EnergySaver`, dinâmicas de concorrência e egoísmo funcional, mitigação para o testbed físico da UFPA sem suporte a slicing MAC, aplicabilidade nas verticais de Smart Cities, Smart Campus e Agro 4.0, especificação das adequações GreenRAN Edition e arquitetura de múltiplos backends para H-RDL e CA-RDL.
 
 ---
  

@@ -1,8 +1,14 @@
 """
-Energy Saving Reference xApp (Green RAN & Cell Sleep Optimizer)
+Energy Saving Reference xApp (Green RAN & Cell Sleep Optimizer - GreenRAN Edition)
 Baseado em: Orange-OpenSource/ns-O-RAN-flexric (xapp_es_with_cell_util)
-Papel no RDL: Controladora de Eficiência Energética focada em redução de consumo e Green RAN.
-Gera propostas de prioridade moderada (Prio: 65) para TX_POWER reduction, PRB_THROTTLING e CELL_SLEEP.
+Adaptado para o Projeto GreenRAN (UFPA / OpenRAN@Brasil - Agro 4.0 e Smart Campus)
+
+Papel no RDL / GreenRAN:
+Controladora de Eficiência Energética sustentável com consciência de:
+- Estado de Bateria (State-of-Charge - SoC) e Geração Fotovoltaica em nós rurais remotos.
+- Proteção de Cobertura Rural (Rural Coverage Guard) para evitar isolamento de UEs/sensores de borda.
+- Modos graduados de sono: Micro-Sleep (símbolos OFDM), Redução de Potência e Carrier Shutdown.
+- Respeito aos limites físicos de rádio SDR COTS (23 dBm em bancada indoor USRP B210/N310).
 """
 
 import time
@@ -35,7 +41,7 @@ logger = logging.getLogger("energy_saving_xapp")
 ES_PROPOSALS_TOTAL = Counter(
     "es_proposals_total",
     "Total de propostas de economia de energia emitidas pela ES xApp",
-    ["action_type", "node_id"]
+    ["action_type", "node_id", "greenran_env"]
 )
 ES_TX_POWER_TARGET = Gauge(
     "es_tx_power_target_dbm",
@@ -45,6 +51,16 @@ ES_TX_POWER_TARGET = Gauge(
 ES_ESTIMATED_ENERGY_SAVED = Gauge(
     "es_estimated_energy_saved_ratio",
     "Percentual estimado de economia de energia obtido com as politicas ativas"
+)
+ES_BATTERY_SOC = Gauge(
+    "es_battery_soc_ratio",
+    "Nivel de carga da bateria (State of Charge - SoC) do nó remoto off-grid",
+    ["node_id"]
+)
+ES_SOLAR_POWER_WATTS = Gauge(
+    "es_solar_power_watts",
+    "Potencia gerada instantaneamente pelos paineis solares",
+    ["node_id"]
 )
 
 class EnergySavingXApp:
@@ -57,13 +73,59 @@ class EnergySavingXApp:
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
 
-        # Estado interno de economia de energia e adaptabilidade para Testbed
+        # Estado interno de economia de energia e adaptabilidade para Testbed GreenRAN
         target_nodes_raw = os.getenv("TARGET_NODES", "gnb_01,gnb_02")
         self.target_nodes = [n.strip() for n in target_nodes_raw.split(",") if n.strip()]
+        
+        # Ambiente operacional GreenRAN: "AGRO_RURAL_OFFGRID" ou "CAMPUS_SMART_GRID"
+        self.greenran_env = os.getenv("GREENRAN_ENV", "AGRO_RURAL_OFFGRID").upper().strip()
         self.target_parameter = os.getenv("ES_PARAMETER", "TX_POWER")
-        self.target_tx_power = float(os.getenv("ES_DEFAULT_VALUE", "20.0"))  # Redução de potência para 20 dBm
+        
+        # Limites físicos de rádio (em bancada/indoor COTS USRP limite é 23 dBm)
+        self.max_allowed_tx_power = float(os.getenv("MAX_ALLOWED_TX_POWER", "23.0"))
+        self.target_tx_power = float(os.getenv("ES_DEFAULT_VALUE", "20.0"))
         self.priority = int(os.getenv("ES_PRIORITY", "65"))
         self.rdl_endpoint = os.getenv("RDL_HTTP_URL", os.getenv("RDL_ENDPOINT", ""))
+
+        # Parâmetros de sustentabilidade e renováveis (Agro 4.0)
+        self.battery_soc = float(os.getenv("BATTERY_SOC_PERCENT", "75.0")) / 100.0  # 0.0 a 1.0
+        self.solar_connected = os.getenv("SOLAR_PANEL_CONNECTED", "true").lower() in ("1", "true", "yes")
+        self.solar_power_w = float(os.getenv("SOLAR_POWER_WATTS", "120.0")) if self.solar_connected else 0.0
+        self.rural_coverage_guard = os.getenv("RURAL_COVERAGE_GUARD", "true").lower() in ("1", "true", "yes")
+
+    def decide_energy_policy(self, node_id: str) -> Dict[str, Any]:
+        """
+        Calcula a política ótima de economia de energia baseada na telemetria ecológica.
+        - Em AGRO_RURAL_OFFGRID: Se bateria estiver baixa (< 30%), propõe Micro-Sleep e redução controlada de TxPower sem criar buraco de cobertura.
+        - Em CAMPUS_SMART_GRID: Aplica corte noturno de portadoras secundárias ou Micro-Sleep diurno.
+        """
+        action_type = "TX_POWER_REDUCTION"
+        param = self.target_parameter
+        power_val = min(self.target_tx_power, self.max_allowed_tx_power)
+
+        if self.greenran_env == "AGRO_RURAL_OFFGRID":
+            # No Agro, se bateria < 35%, entra em modo de contingência severa
+            if self.battery_soc < 0.35:
+                action_type = "MICRO_SLEEP_AND_THROTTLING"
+                # Cobertura rural mínima não pode cair abaixo de 18 dBm para não desconectar tratores de borda
+                power_val = 18.0 if self.rural_coverage_guard else 15.0
+                target_kwh = 0.15
+            else:
+                action_type = "MODERATE_POWER_SCALING"
+                power_val = 21.0
+                target_kwh = 0.28
+        else:
+            # Em Campus universitário com regime circadiano
+            action_type = "CARRIER_MICRO_SLEEP"
+            power_val = 20.0
+            target_kwh = 0.25
+
+        return {
+            "action_type": action_type,
+            "parameter": param,
+            "target_value": power_val,
+            "energy_target_kwh": target_kwh
+        }
 
     def generate_action_proposal(
         self,
@@ -71,21 +133,39 @@ class EnergySavingXApp:
         tx_power: Optional[float] = None,
         parameter: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Gera proposta estruturada compatível com o componente Perception da xApp RDL."""
-        val = tx_power if tx_power is not None else self.target_tx_power
-        param = parameter if parameter is not None else self.target_parameter
+        """Gera proposta estruturada compatível com o componente Perception da xApp RDL / GreenRAN."""
+        policy = self.decide_energy_policy(node_id)
+        val = tx_power if tx_power is not None else policy["target_value"]
+        param = parameter if parameter is not None else policy["parameter"]
+
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": node_id,
             "parameter": param,
-            "value": val,
+            "value": round(val, 2),
             "priority": self.priority,
-            "energy_target_kwh": 0.35,
+            "greenran_env": self.greenran_env,
+            "action_strategy": policy["action_type"],
+            "energy_target_kwh": policy["energy_target_kwh"],
+            "telemetry_context": {
+                "battery_soc_ratio": round(self.battery_soc, 2),
+                "solar_power_watts": round(self.solar_power_w, 1),
+                "rural_coverage_guard_active": self.rural_coverage_guard,
+                "prohibit_urllc_degradation": True
+            },
             "timestamp": time.time()
         }
-        ES_PROPOSALS_TOTAL.labels(action_type="TX_POWER_REDUCTION", node_id=node_id).inc()
+
+        ES_PROPOSALS_TOTAL.labels(
+            action_type=policy["action_type"],
+            node_id=node_id,
+            greenran_env=self.greenran_env
+        ).inc()
         ES_TX_POWER_TARGET.labels(node_id=node_id).set(val)
-        ES_ESTIMATED_ENERGY_SAVED.set(0.28)  # 28% economia
+        ES_BATTERY_SOC.labels(node_id=node_id).set(self.battery_soc)
+        ES_SOLAR_POWER_WATTS.labels(node_id=node_id).set(self.solar_power_w)
+        ES_ESTIMATED_ENERGY_SAVED.set(0.32 if self.battery_soc < 0.35 else 0.22)
+
         return proposal
 
     def _dispatch_proposal(self, proposal: Dict[str, Any]):
@@ -109,11 +189,18 @@ class EnergySavingXApp:
             logger.warning("FastAPI não instalado. Endpoints HTTP em modo mock.")
             return
 
-        app = FastAPI(title="Energy Saving xApp (Orange / FlexRIC)", version="1.0.0")
+        app = FastAPI(title="Energy Saving xApp (GreenRAN Edition)", version="2.0.0")
 
         @app.get("/health")
         def health():
-            return {"status": "UP", "xapp": self.xapp_id, "role": "Energy_Saving"}
+            return {
+                "status": "UP",
+                "xapp": self.xapp_id,
+                "role": "Energy_Saving",
+                "greenran_env": self.greenran_env,
+                "battery_soc": self.battery_soc,
+                "solar_power_w": self.solar_power_w
+            }
 
         @app.get("/ready")
         def ready():
@@ -134,21 +221,22 @@ class EnergySavingXApp:
 
     def _loop(self):
         """Loop de emissão periódica de propostas de eficiência energética."""
-        logger.info(f"Energy Saving xApp ativa. Monitorando consumo ({self.target_parameter}={self.target_tx_power}) nos nós {self.target_nodes}...")
+        logger.info(
+            f"Energy Saving xApp (GreenRAN Edition) ativa. Ambiente={self.greenran_env}, "
+            f"SoC={self.battery_soc*100}%, Solar={self.solar_power_w}W, Nós={self.target_nodes}..."
+        )
         while self.running:
             for node in self.target_nodes:
-                proposal = self.generate_action_proposal(node_id=node, tx_power=self.target_tx_power)
+                proposal = self.generate_action_proposal(node_id=node)
                 self._dispatch_proposal(proposal)
-                logger.debug(f"[EnergySaving Proposal] Emitida: {proposal}")
+                logger.debug(f"[EnergySaving GreenRAN Proposal] Emitida: {proposal}")
             time.sleep(2.5)
 
     def start(self):
         self.running = True
-        # Iniciar HTTP em background
         t_http = threading.Thread(target=self._run_http, daemon=True)
         t_http.start()
 
-        # Iniciar Loop de decisões
         self.worker_thread = threading.Thread(target=self._loop, daemon=True)
         self.worker_thread.start()
         logger.info(f"Energy Saving xApp iniciada com sucesso. HTTP: {self.http_port}, Metrics: {self.http_port}/metrics")

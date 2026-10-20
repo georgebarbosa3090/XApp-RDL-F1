@@ -29,11 +29,18 @@ skills/
 
 # 2. Auditoria Técnica e Relatórios Extensos Internos (Permanentemente Proibido)
 auditoria/
+docs/auditoria/
 *relatorio_extenso*
 *.audit.md
 docs/relatorio_extenso*
-!docs/auditoria/
-!docs/auditoria/*
+
+# Relatórios Restritos e Somente Locais (Permanentemente Proibido Subir ao GitHub)
+docs/06_*
+docs/08_*
+docs/09_*
+docs/10_*
+docs/22_*
+docs/24_*
 
 # 3. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1)
 experiments/results/rdl_phase2/
@@ -43,10 +50,8 @@ experiments/results/rdl_phase2/
 !scripts/testbed/*
 
 # 4. Notebooks do Google Colab e Análises Locais
-notebooks/*
-!notebooks/rdl_colab_scikit_learn.ipynb
+notebooks/
 *.ipynb
-!notebooks/rdl_colab_scikit_learn.ipynb
 .ipynb_checkpoints/
 
 # 5. Artigos Científicos, Papers, Fontes LaTeX / Typst e PDFs

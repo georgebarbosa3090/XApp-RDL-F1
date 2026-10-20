@@ -21,6 +21,9 @@ SUPPORTED_BACKENDS = {
     "OPEN5GS": SrsRanBackendAdapter,
     "OPENRANBR": SrsRanBackendAdapter,
     "OPENRANBR_PHYSICAL": SrsRanBackendAdapter,
+    "OSC": SrsRanBackendAdapter,
+    "OSC_RIC": SrsRanBackendAdapter,
+    "OSC_NEAR_RT_RIC": SrsRanBackendAdapter,
 }
 
 from src.infrastructure.ran_backend_adapter import UnsupportedBackendError
