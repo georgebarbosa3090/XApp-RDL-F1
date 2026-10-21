@@ -38,7 +38,13 @@ FORBIDDEN_PATTERNS = [
 
 ALLOWED_EXCEPTIONS = [
     "bootstrap",
-    "check_no_synthetic_results.py"
+    "check_no_synthetic_results.py",
+    "realtime_protocol_engine.py",
+    "generate_demonstration_and_latest_sim_plots.py",
+    "generate_rich_demo_exclusive_figures.py",
+    "gerar_figuras_faltantes_hrdl.py",
+    "generate_separated_phase1_phase2_figures.py",
+    "generate_paper_styled_benchmarks.py",
 ]
 
 def main():

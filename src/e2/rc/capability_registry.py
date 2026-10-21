@@ -160,6 +160,8 @@ class RanFunctionCapabilityRegistry:
         if param_name in RAN_PARAMETERS:
             p = RAN_PARAMETERS[param_name]
             return 1, 1, p.param_id
+            
+        raise KeyError(f"Parameter '{param_name}' not found in capability registry or canonical RAN parameters.")
 
     def register_ran_function_id(self, node_id: str, short_name: str, func_id: int) -> None:
         """Registra dinamicamente o ID numérico de uma RAN Function descoberto no E2 Setup."""

@@ -129,6 +129,7 @@ env/
 # 9. Testes e Cobertura
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
 
 # 10. Logs, Bancos de Dados e Binários Locais
@@ -178,7 +179,6 @@ scripts/export_pdf.*
 scripts/check_math_syntax.*
 scripts/check_agent.*
 scripts/test_batching.*
-scripts/run_pyright_check.*
 scripts/update_colab_notebook.*
 scripts/update_p1_gitignore.*
 scripts/resolve_phase1_rebase.*

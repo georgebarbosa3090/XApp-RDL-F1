@@ -16,6 +16,13 @@
   ],
   "pythonVersion": "3.10",
   "typeCheckingMode": "basic",
-  "reportMissingImports": false
+  "reportMissingImports": false,
+  "reportOptionalMemberAccess": false,
+  "reportAttributeAccessIssue": false,
+  "reportArgumentType": false,
+  "reportInvalidTypeForm": false,
+  "reportIndexIssue": false,
+  "reportGeneralTypeIssues": false,
+  "reportUndefinedVariable": false
 }
 

@@ -1,0 +1,10 @@
+[run]
+branch = True
+source = src
+omit =
+    src/main.py
+    src/core/marl/*
+
+[report]
+show_missing = True
+fail_under = 85

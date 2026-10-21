@@ -36,7 +36,7 @@ class RunMetadata:
     ran_function_id: int = 2
     node_id: str = "gnb_01"
     total_indications: int = 0
-    sha256_checksums: Dict[str, str] = None
+    sha256_checksums: Optional[Dict[str, str]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)

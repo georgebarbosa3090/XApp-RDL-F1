@@ -72,3 +72,38 @@ def test_backend_adapters_decode_kpm_and_correlate_ack():
     assert ack_srsran.get("backend") == "SRSRAN_OPEN5GS"
 
 
+def test_capability_registry_function_ids_and_actions():
+    from src.e2.rc.capability_registry import RanFunctionCapabilityRegistry, CapabilityNotDiscoveredError
+
+    reg = RanFunctionCapabilityRegistry()
+    # 1. Registro dinâmico de function IDs
+    reg.register_ran_function_id("gnb_01", "RC", 3)
+    reg.register_ran_function_id("gnb_01", "KPM", 2)
+    assert reg.get_rc_function_id("gnb_01") == 3
+    assert reg.get_kpm_function_id("gnb_01") == 2
+
+    # 2. Defaults em modo não-estrito
+    assert reg.get_rc_function_id(None) == 3
+    assert reg.get_kpm_function_id(None) == 2
+
+    # 3. Exceções em modo estrito para nós não descobertos
+    import os
+    old_env = os.environ.get("RDL_MODE")
+    try:
+        os.environ["RDL_MODE"] = "oran-strict"
+        with pytest.raises(CapabilityNotDiscoveredError):
+            reg.get_rc_function_id("gnb_undiscovered")
+        with pytest.raises(CapabilityNotDiscoveredError):
+            reg.get_kpm_function_id("gnb_undiscovered")
+    finally:
+        if old_env is not None:
+            os.environ["RDL_MODE"] = old_env
+        else:
+            os.environ.pop("RDL_MODE", None)
+
+    # 4. is_action_supported
+    assert reg.is_action_supported("gnb_01", "UNKNOWN_PARAM") is False
+    assert reg.is_action_supported("gnb_default", "PRB_QUOTA") is True
+
+
+
