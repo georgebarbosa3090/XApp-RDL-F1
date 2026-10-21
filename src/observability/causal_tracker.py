@@ -69,6 +69,7 @@ class CausalTracker:
         self.conflicts_resolved_count: int = 0
         self.safety_interventions_count: int = 0
         self.total_proposals_count: int = 0
+        self.decision_latencies_ms: List[float] = []
 
     def register_conflict_event(self, conflict_id: str, conflict_type: str, num_actions: int):
         self.conflicts_detected_count += 1
@@ -84,8 +85,11 @@ class CausalTracker:
         old_val: float,
         new_val: float,
         kpm_before: Dict[str, float],
-        strategy: str = "SHANNON_OPTIMAL"
+        strategy: str = "SHANNON_OPTIMAL",
+        decision_latency_ms: Optional[float] = None
     ) -> CausalRecord:
+        if decision_latency_ms is not None:
+            self.decision_latencies_ms.append(float(decision_latency_ms))
         rec = CausalRecord(
             action_id=action_id,
             decision_id=decision_id,
@@ -125,34 +129,40 @@ class CausalTracker:
     ) -> bool:
         """
         Associa a telemetria pós-ação (t1) à ação executada e avalia a causalidade de melhoria de KPI.
+        Sem fallback sintético: caso os dados sejam ausentes, a melhoria causal não é confirmada (Fail-Closed).
         """
         for r in reversed(self.records):
             if r.action_id == action_id:
                 r.kpm_after = dict(kpm_after)
                 
-                # Avaliação de melhoria de KPI alvo conforme parâmetro
                 improved = False
-                lat_before = r.kpm_before.get("latency_ms", 12.0)
-                lat_after = kpm_after.get("latency_ms", 2.8)
-                thp_before = r.kpm_before.get("throughput_mbps", 100.0)
-                thp_after = kpm_after.get("throughput_mbps", 100.0)
-                pdr_before = r.kpm_before.get("pdr_percent", 95.0)
-                pdr_after = kpm_after.get("pdr_percent", 95.0)
+                lat_before = r.kpm_before.get("latency_ms")
+                lat_after = kpm_after.get("latency_ms")
+                thp_before = r.kpm_before.get("throughput_mbps")
+                thp_after = kpm_after.get("throughput_mbps")
+                pdr_before = r.kpm_before.get("pdr_percent")
+                pdr_after = kpm_after.get("pdr_percent")
 
                 if r.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT"):
                     # Espera-se redução de latência ou aumento de PDR/Vazão
-                    if lat_after < lat_before or pdr_after > pdr_before or thp_after > thp_before:
+                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
+                       (pdr_before is not None and pdr_after is not None and pdr_after > pdr_before) or \
+                       (thp_before is not None and thp_after is not None and thp_after > thp_before):
                         improved = True
                 elif r.parameter == "TX_POWER":
                     # Espera-se preservação de SLA com redução de consumo/interferência
-                    if lat_after <= lat_before * 1.05 and pdr_after >= 99.0:
-                        improved = True
+                    if lat_before is not None and lat_after is not None and pdr_after is not None:
+                        if lat_after <= lat_before * 1.05 and pdr_after >= 99.0:
+                            improved = True
                 elif r.parameter == "HANDOVER":
                     # Mitigação de ping-pong e sobrecarga de célula
-                    if lat_after < lat_before or pdr_after >= pdr_before:
+                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
+                       (pdr_before is not None and pdr_after is not None and pdr_after >= pdr_before):
                         improved = True
                 else:
-                    improved = (lat_after < lat_before) or (thp_after > thp_before)
+                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
+                       (thp_before is not None and thp_after is not None and thp_after > thp_before):
+                        improved = True
 
                 r.kpi_improved = (r.ack_status == "ACKNOWLEDGED") and improved
                 return True
@@ -162,11 +172,11 @@ class CausalTracker:
         """Calcula o índice de equidade de Jain J = (sum(x))^2 / (n * sum(x^2))."""
         clean_vals = [max(0.0, float(v)) for v in values if v is not None and not np.isnan(v)]
         if not clean_vals or len(clean_vals) == 0:
-            return 1.0
+            return float("nan")
         sum_v = sum(clean_vals)
         sum_sq = sum(v * v for v in clean_vals)
         if sum_sq <= 1e-9:
-            return 1.0
+            return float("nan")
         return float((sum_v * sum_v) / (len(clean_vals) * sum_sq))
 
     def compute_metrics(self) -> ScientificSummary:
@@ -178,39 +188,49 @@ class CausalTracker:
         improved_records = [r for r in self.records if r.kpi_improved and r.ack_status == "ACKNOWLEDGED"]
         cre = (len(improved_records) / total_conflicts) * 100.0 if total_conflicts > 0 else 0.0
 
-        # Estatísticas de latência agregada
-        lat_before_list = [r.kpm_before.get("latency_ms", 12.0) for r in self.records if "latency_ms" in r.kpm_before]
-        lat_after_list = [r.kpm_after.get("latency_ms", 2.8) for r in self.records if r.kpm_after and "latency_ms" in r.kpm_after]
+        # Estatísticas de latência agregada puramente empíricas
+        lat_before_list = [float(r.kpm_before["latency_ms"]) for r in self.records if "latency_ms" in r.kpm_before]
+        lat_after_list = [float(r.kpm_after["latency_ms"]) for r in self.records if r.kpm_after and "latency_ms" in r.kpm_after]
 
-        lat_mean_before = float(np.mean(lat_before_list)) if lat_before_list else 12.0
-        lat_mean_after = float(np.mean(lat_after_list)) if lat_after_list else 2.8
-        lat_reduction = ((lat_mean_before - lat_mean_after) / max(0.001, lat_mean_before)) * 100.0 if lat_mean_before > 0 else 0.0
+        lat_mean_before = float(np.mean(lat_before_list)) if lat_before_list else float("nan")
+        lat_mean_after = float(np.mean(lat_after_list)) if lat_after_list else float("nan")
+        lat_reduction = ((lat_mean_before - lat_mean_after) / max(0.001, lat_mean_before)) * 100.0 if (not np.isnan(lat_mean_before) and not np.isnan(lat_mean_after) and lat_mean_before > 0) else float("nan")
 
-        p95 = float(np.percentile(lat_after_list, 95)) if lat_after_list else lat_mean_after
-        p99 = float(np.percentile(lat_after_list, 99)) if lat_after_list else lat_mean_after
+        p95 = float(np.percentile(lat_after_list, 95)) if lat_after_list else float("nan")
+        p99 = float(np.percentile(lat_after_list, 99)) if lat_after_list else float("nan")
 
         # Violações de SLA (latência > 5ms para fatias críticas)
-        sla_before_viol = (sum(1 for l in lat_before_list if l > 5.0) / max(1, len(lat_before_list))) * 100.0 if lat_before_list else 0.0
-        sla_after_viol = (sum(1 for l in lat_after_list if l > 5.0) / max(1, len(lat_after_list))) * 100.0 if lat_after_list else 0.0
-        sla_reduction = ((sla_before_viol - sla_after_viol) / max(0.001, sla_before_viol)) * 100.0 if sla_before_viol > 0 else 100.0
+        sla_before_viol = (sum(1 for l in lat_before_list if l > 5.0) / len(lat_before_list)) * 100.0 if lat_before_list else float("nan")
+        sla_after_viol = (sum(1 for l in lat_after_list if l > 5.0) / len(lat_after_list)) * 100.0 if lat_after_list else float("nan")
+        sla_reduction = ((sla_before_viol - sla_after_viol) / max(0.001, sla_before_viol)) * 100.0 if (not np.isnan(sla_before_viol) and not np.isnan(sla_after_viol) and sla_before_viol > 0) else (100.0 if sla_before_viol == 0.0 else float("nan"))
 
         acks = sum(1 for r in self.records if r.ack_status == "ACKNOWLEDGED")
         fails = sum(1 for r in self.records if r.ack_status == "FAILED")
         
         # Vazão para equidade de Jain
-        thp_before = [r.kpm_before.get("throughput_mbps", 50.0) for r in self.records if "throughput_mbps" in r.kpm_before]
-        thp_after = [r.kpm_after.get("throughput_mbps", 90.0) for r in self.records if r.kpm_after and "throughput_mbps" in r.kpm_after]
+        thp_before = [float(r.kpm_before["throughput_mbps"]) for r in self.records if "throughput_mbps" in r.kpm_before]
+        thp_after = [float(r.kpm_after["throughput_mbps"]) for r in self.records if r.kpm_after and "throughput_mbps" in r.kpm_after]
         
-        jain_before = self._calculate_jain_fairness(thp_before) if thp_before else 0.52
-        jain_after = self._calculate_jain_fairness(thp_after) if thp_after else 0.94
+        jain_before = self._calculate_jain_fairness(thp_before) if thp_before else float("nan")
+        jain_after = self._calculate_jain_fairness(thp_after) if thp_after else float("nan")
         
         # RTT e latência de malha
         rtt_list = [r.control_to_effect_latency_ms for r in self.records if r.control_to_effect_latency_ms > 0]
-        mean_control_to_effect = float(np.mean(rtt_list)) if rtt_list else 18.5
+        mean_control_to_effect = float(np.mean(rtt_list)) if rtt_list else float("nan")
         
         # Taxa de intervenção de segurança
         total_proposals = max(1, self.total_proposals_count)
         safety_rate = (self.safety_interventions_count / total_proposals) * 100.0 if self.safety_interventions_count > 0 else 0.0
+
+        # Latência média de decisão a partir de medições reais registradas
+        mean_decision_latency = float(np.mean(self.decision_latencies_ms)) if self.decision_latencies_ms else float("nan")
+
+        # Ganho de eficiência energética calculado a partir de reduções de TX_POWER reais
+        tx_power_reductions = []
+        for r in self.records:
+            if r.parameter == "TX_POWER" and r.old_value > 0 and r.new_value < r.old_value:
+                tx_power_reductions.append((r.old_value - r.new_value) / r.old_value * 100.0)
+        energy_gain = float(np.mean(tx_power_reductions)) if tx_power_reductions else float("nan")
 
         return ScientificSummary(
             total_conflicts_detected=self.conflicts_detected_count,
@@ -234,9 +254,9 @@ class CausalTracker:
             ping_pong_rate_after_epm=0.0,
             safety_intervention_rate=safety_rate,
             unsafe_action_rate=0.0,  # Invariante formal UnsafeApplied == 0
-            mean_decision_latency_ms=0.12,  # Sub-milissegundo comprovado via benchmark micro-bench
+            mean_decision_latency_ms=mean_decision_latency,
             mean_control_to_effect_latency_ms=mean_control_to_effect,
-            energy_efficiency_gain_pct=15.2
+            energy_efficiency_gain_pct=energy_gain
         )
 
     def export_causal_log_json(self) -> str:

@@ -139,12 +139,26 @@ class RDLxApp:
         if self.mode != "O_RAN_INTEROP":
             self.xapp.register = lambda: True
             self.xapp.deregister = lambda: True
+            self.xapp.rmr_send = lambda payload, mtype, **kwargs: True
+            self.xapp.rmr_free = lambda sbuf: None
         
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
         self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
+
+    def _safe_rmr_free(self, xapp_instance: Any, sbuf: Any):
+        """Libera buffer RMR com segurança, ignorando objetos mock ou inválidos."""
+        if not xapp_instance or not sbuf:
+            return
+        if hasattr(sbuf, "__class__") and sbuf.__class__.__name__ == "MockSbuf":
+            return
+        try:
+            if hasattr(xapp_instance, "rmr_free"):
+                xapp_instance.rmr_free(sbuf)
+        except Exception:
+            pass
 
     def start(self):
         logger.info(f"Iniciando xApp RDL (H-RDL Fase 1 | Modo: {self.mode})")
@@ -160,7 +174,7 @@ class RDLxApp:
         
     def _default_handler(self, xapp_instance, summary, sbuf):
         logger.debug("Mensagem RMR nao mapeada recebida", mtype=summary.get("mtype"))
-        xapp_instance.rmr_free(sbuf)
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def _entrypoint(self, xapp_instance):
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
@@ -205,8 +219,7 @@ class RDLxApp:
     def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
         logger.info("RIC_SUB_RESP recebido com sucesso", summary=summary)
-        if xapp_instance and sbuf:
-            xapp_instance.rmr_free(sbuf)
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def _kpm_indication_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         self.metrics.record_kpm()
@@ -224,7 +237,7 @@ class RDLxApp:
                         prb_used_dl=data.get("prb_used_dl", 0)
                     )
                     self.perception.update_kpm_report(report)
-        xapp_instance.rmr_free(sbuf)
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Recebe acoes propostas por outras xApps via RMR e enfileira na janela temporal."""
@@ -246,7 +259,7 @@ class RDLxApp:
                     logger.debug(f"Action buffered. Queue size: {len(self.proposal_buffer)}")
             except Exception as e:
                 logger.error("Erro ao processar RDL_ACTION_PROPOSAL", error=str(e))
-        xapp_instance.rmr_free(sbuf)
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def _control_ack_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata confirmacoes de execucao de controle emitidas pelo E2 Node / E2Term."""
@@ -256,8 +269,9 @@ class RDLxApp:
                 ack_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
                 req_id = ack_info.get("requestor_id")
                 inst_id = ack_info.get("instance_id")
-                ran_fn_id = ack_info.get("ran_function_id", 3)
                 node_id = ack_info.get("node_id", "gnb_01")
+                from src.e2.rc.capability_registry import rc_capability_registry
+                ran_fn_id = ack_info.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
                 
                 tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
                 if not tx_key or tx_key not in self.pending_transactions:
@@ -272,13 +286,30 @@ class RDLxApp:
             except Exception as err:
                 logger.warning("Falha ao processar RIC_CONTROL_ACK", error=str(err))
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
-        if xapp_instance and sbuf:
-            xapp_instance.rmr_free(sbuf)
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def _control_failure_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         logger.warning("Recebido RIC_CONTROL_FAILURE", summary=summary)
-        if xapp_instance and sbuf:
-            xapp_instance.rmr_free(sbuf)
+        payload = summary.get("payload")
+        if payload:
+            try:
+                if isinstance(payload, bytes) and payload.startswith(b'{'):
+                    data = json.loads(payload.decode('utf-8'))
+                    req_id = data.get("requestor_id")
+                    inst_id = data.get("instance_id")
+                    node_id = data.get("node_id", "gnb_01")
+                    from src.e2.rc.capability_registry import rc_capability_registry
+                    ran_fn_id = data.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
+                    tx_id = data.get("transaction_id")
+                    
+                    tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
+                    if tx_key and tx_key in self.pending_transactions:
+                        del self.pending_transactions[tx_key]
+                    if tx_id and tx_id in self.pending_transactions:
+                        del self.pending_transactions[tx_id]
+            except Exception as e:
+                logger.debug(f"Falha ao correlacionar failure payload: {e}")
+        self._safe_rmr_free(xapp_instance, sbuf)
 
     def inject_xapp_action(self, action: XAppAction):
         """API publica para injecao de acoes simuladas (usada em testes)"""
@@ -363,10 +394,25 @@ class RDLxApp:
         for act in all_selected:
             self._send_control(act.node_id, act.parameter, act.value, action=act, decision_id=decision.decision_id)
 
+    def cleanup_expired_transactions(self, timeout_s: float = 5.0) -> int:
+        """Limpa transações pendentes expiradas para evitar vazamento de memória (Anti-Leak)."""
+        now = now_ts()
+        expired_keys = [k for k, ts in list(self.pending_transactions.items()) if (now - ts) > timeout_s]
+        for k in expired_keys:
+            self.pending_transactions.pop(k, None)
+        return len(expired_keys)
+
     def _decision_loop(self):
+        last_cleanup = now_ts()
         while self.running:
             time.sleep(0.05) # Verifica a cada 50ms
             
+            # Anti-leak cleanup a cada 1 segundo
+            now = now_ts()
+            if (now - last_cleanup) >= 1.0:
+                self.cleanup_expired_transactions()
+                last_cleanup = now
+
             with self.buffer_lock:
                 if self.proposal_buffer:
                     elapsed_ms = (now_ts() - self.window_start) * 1000
@@ -383,7 +429,8 @@ class RDLxApp:
     def _send_control(self, node_id: str, parameter: str, value: float, action: Optional[XAppAction] = None, decision_id: Optional[str] = None):
         try:
             target_action = action or XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
-            ran_fn_id = 3
+            from src.e2.rc.capability_registry import rc_capability_registry
+            ran_fn_id = rc_capability_registry.get_rc_function_id(node_id)
             req_id_obj = self.allocator.allocate(
                 node_id=node_id,
                 ran_function_id=ran_fn_id,

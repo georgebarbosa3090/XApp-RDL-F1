@@ -9,6 +9,12 @@ on:
 jobs:
   software-test:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+      USE_FAKE_SDL: "True"
+      RDL_MODE: OFFLINE_SIMULATION
+      RAN_BACKEND: NORI_NS3
+      LD_LIBRARY_PATH: "/usr/local/lib:/usr/lib"
     
     steps:
     - name: Checkout repository

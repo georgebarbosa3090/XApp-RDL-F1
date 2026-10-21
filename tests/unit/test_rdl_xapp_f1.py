@@ -25,3 +25,5 @@ def test_rdl_xapp_f1_lifecycle():
     }
     xapp._control_ack_handler(xapp.xapp, summary_ack, None)
     xapp._control_failure_handler(xapp.xapp, summary_ack, None)
+    xapp.stop()
+
