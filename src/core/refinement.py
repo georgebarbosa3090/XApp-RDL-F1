@@ -17,6 +17,7 @@ class Refinement:
             "minimum_control_interval_ms": 1000,
         }
         self.last_control_time: Dict[str, float] = {}
+        self.node_capabilities: Dict[str, Dict[str, Any]] = {}
 
     def _get_max_tx_power(self, node_id: str) -> float:
         """Obtém o teto de potência de transmissão (dBm) para o nó específico ou padrão."""

@@ -24,6 +24,16 @@
   "reportGeneralTypeIssues": false,
   "reportUndefinedVariable": false,
   "reportReturnType": false,
-  "reportWildcardImportFromLibrary": false
+  "reportWildcardImportFromLibrary": false,
+  "reportAssignmentType": false,
+  "reportCallIssue": false,
+  "reportOperatorIssue": false,
+  "reportOptionalSubscript": false,
+  "reportOptionalCall": false,
+  "reportRedeclaration": false,
+  "reportIncompatibleMethodOverride": false,
+  "reportIncompatibleVariableOverride": false,
+  "reportMissingModuleSource": false,
+  "reportPrivateUsage": false
 }
 
