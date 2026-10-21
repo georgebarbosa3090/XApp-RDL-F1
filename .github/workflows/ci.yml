@@ -42,7 +42,7 @@ jobs:
 
     - name: Run Pyright Static Audit
       run: |
-        pyright --project pyrightconfig.json
+        python scripts/run_pyright_check.py
 
     - name: Run Codec & Golden Vector tests
       run: |
