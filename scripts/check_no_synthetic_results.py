@@ -47,6 +47,16 @@ ALLOWED_EXCEPTIONS = [
     "generate_paper_styled_benchmarks.py",
 ]
 
+def log_step_summary(content: str):
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        try:
+            with open(summary_path, "a", encoding="utf-8") as f:
+                f.write(content + "\n")
+        except Exception:
+            pass
+
+
 def main():
     print("=" * 80)
     print(" AUDITORIA ESTÁTICA DE ZERO DADOS SINTÉTICOS")
@@ -74,17 +84,21 @@ def main():
                                     violations.append((fpath, lno, name, line_strip))
 
     if violations:
-        print(f"\n[FALHA CRÍTICA] Encontradas {len(violations)} violações da política de Zero Dados Sintéticos:")
+        err_msg = f"[FALHA CRÍTICA] Encontradas {len(violations)} violações da política de Zero Dados Sintéticos:\n"
         for path, lno, name, line in violations:
             rel_path = os.path.relpath(path, BASE_DIR)
-            print(f"  - [{name}] {rel_path}:L{lno} -> {line}")
+            err_msg += f"  - [{name}] {rel_path}:L{lno} -> {line}\n"
+        print(err_msg)
         print("\n[ERRO] Abortando. Remova os geradores sintéticos antes de prosseguir.")
+        log_step_summary(f"### [FAIL] Zero-Synthetic Audit\n```\n{err_msg}\n```")
         sys.exit(1)
 
     # Validação da existência e integridade da política de proveniência em YAML
     policy_file = os.path.join(BASE_DIR, "reproducibility", "provenance_policy.yaml")
     if not os.path.exists(policy_file):
-        print(f"\n[FALHA CRÍTICA] Política de proveniência não encontrada em: {policy_file}")
+        err = f"Política de proveniência não encontrada em: {policy_file}"
+        print(f"\n[FALHA CRÍTICA] {err}")
+        log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
     import yaml
@@ -102,13 +116,17 @@ def main():
         print(f"  - Fontes Restritas: {non_pub_sources}")
         print(f"  - Regra de Ouro: {firewall.get('golden_rule', 'N/A')}")
     except Exception as e:
-        print(f"\n[FALHA CRÍTICA] Erro ao carregar provenance_policy.yaml: {e}")
+        err = f"Erro ao carregar provenance_policy.yaml: {e}"
+        print(f"\n[FALHA CRÍTICA] {err}")
+        log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
     # Validação do figures_manifest.json (Solução 2)
     manifest_path = os.path.join(REPORTS_DIR, "figures", "figures_manifest.json")
     if not os.path.exists(manifest_path):
-        print(f"\n[FALHA CRÍTICA] figures_manifest.json não encontrado em: {manifest_path}")
+        err = f"figures_manifest.json não encontrado em: {manifest_path}"
+        print(f"\n[FALHA CRÍTICA] {err}")
+        log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
     import json
@@ -117,11 +135,14 @@ def main():
     figs = mdata.get("figures", [])
     ssot_hash = mdata.get("ssot_source", {}).get("sha256", "")
     if not ssot_hash or len(figs) < 25:
-        print(f"\n[FALHA CRÍTICA] figures_manifest.json incompleto! Figuras catalogadas: {len(figs)} (esperado >= 25)")
+        err = f"figures_manifest.json incompleto! Figuras catalogadas: {len(figs)} (esperado >= 25)"
+        print(f"\n[FALHA CRÍTICA] {err}")
+        log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
     print(f"[OK] figures_manifest.json validado com sucesso! ({len(figs)} figuras empíricas vinculadas à SSOT {ssot_hash[:12]}...)")
     print("[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
+    log_step_summary(f"### [PASS] Zero-Synthetic Audit: {len(figs)} figuras empíricas vinculadas à SSOT {ssot_hash[:12]}.")
     sys.exit(0)
 
 if __name__ == "__main__":

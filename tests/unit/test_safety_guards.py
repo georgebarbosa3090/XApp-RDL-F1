@@ -28,3 +28,54 @@ def test_safety_guard_prb_bounds():
     invalid_prb = XAppAction("xslice", "gnb_01", "PRB_QUOTA", 120.0, 90)
     is_safe, _, reason = refinement.validate_single_action(invalid_prb)
     assert is_safe is False
+
+
+def test_safety_guard_default_deny():
+    memory = MemoryModule()
+    refinement = Refinement(memory)
+
+    # Parâmetro desconhecido/não suportado deve ser rejeitado imediatamente (Default-Deny)
+    malicious_act = XAppAction("malicious_xapp", "gnb_01", "UNSUPPORTED_PARAMETER", 42.0, 99)
+    is_safe, level, reason = refinement.validate_single_action(malicious_act)
+    assert is_safe is False
+    assert "default-deny" in reason.lower() or "unsupported" in reason.lower()
+
+
+def test_safety_guard_transactional_atomic_rollback():
+    from src.conflict_types import ConflictEvent, ConflictType, ConflictSeverity, ResolutionAction, ResolutionStrategy
+    memory = MemoryModule()
+    refinement = Refinement(memory)
+
+    # Batch onde a primeira ação é válida e a segunda viola os limites
+    act1 = XAppAction("qos_xapp", "gnb_01", "PRB_QUOTA", 50.0, 80)
+    act2 = XAppAction("bad_xapp", "gnb_02", "UNSUPPORTED_PARAM", 10.0, 10)
+
+    conflict = ConflictEvent(conflict_type=ConflictType.DIRECT, severity=ConflictSeverity.HIGH, involved_xapps=[act1, act2])
+    resolution = ResolutionAction(
+        conflict_id="c_01",
+        strategy_used=ResolutionStrategy.PRIORITY_TABLE,
+        winning_actions=[act1, act2],
+        modified_value=None,
+        confidence=1.0,
+        validation_level=1
+    )
+
+    is_safe, level, reason = refinement.validate(resolution, conflict)
+    assert is_safe is False
+
+    # Validação atômica: gnb_01_PRB_QUOTA NÃO pode ter seu timestamp gravado se o lote falhou
+    assert "gnb_01_PRB_QUOTA" not in refinement.last_control_time
+
+
+def test_safety_guard_dynamic_power_ceiling():
+    memory = MemoryModule()
+    refinement = Refinement(memory)
+    # Define limite específico para pico-célula gnb_pico
+    refinement.node_capabilities = {"gnb_pico": {"max_tx_power_dbm": 15.0}}
+
+    # 18 dBm é válido para macro (< 23 dBm), mas deve ser rejeitado para gnb_pico (max 15 dBm)
+    pico_act = XAppAction("es_xapp", "gnb_pico", "TX_POWER", 18.0, 50)
+    is_safe, level, reason = refinement.validate_single_action(pico_act)
+    assert is_safe is False
+    assert "out of bounds" in reason.lower()
+
