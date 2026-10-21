@@ -16,6 +16,16 @@ TESTS_DIR = os.path.join(ROOT_DIR, "tests")
 CONFIG_PATH = os.path.join(ROOT_DIR, "pyrightconfig.json")
 
 
+def log_step_summary(content: str):
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        try:
+            with open(summary_path, "a", encoding="utf-8") as f:
+                f.write(content + "\n")
+        except Exception:
+            pass
+
+
 def audit_python_files_ast(directory: str) -> List[Tuple[str, str]]:
     errors = []
     for root, _, files in os.walk(directory):
@@ -32,27 +42,44 @@ def audit_python_files_ast(directory: str) -> List[Tuple[str, str]]:
 
 
 def run_pyright_if_available() -> bool:
-    try:
-        cmd = ["pyright", "--project", CONFIG_PATH]
-        print(f"[PYRIGHT] Executando: {' '.join(cmd)}")
-        p_res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        print(p_res.stdout)
-        if p_res.stderr:
-            print(p_res.stderr, file=sys.stderr)
-        return p_res.returncode == 0
-    except FileNotFoundError:
-        # Tenta via python -m pyright se binário direto não estiver no PATH
+    # Tenta primeiramente via python -m pyright (wrapper canônico do pacote pip)
+    commands = [
+        [sys.executable, "-m", "pyright", "--project", CONFIG_PATH],
+        ["pyright", "--project", CONFIG_PATH],
+    ]
+    
+    last_stdout = ""
+    last_stderr = ""
+    last_code = 1
+    
+    for cmd in commands:
         try:
-            cmd = [sys.executable, "-m", "pyright", "--project", CONFIG_PATH]
-            print(f"[PYRIGHT] Executando fallback: {' '.join(cmd)}")
+            print(f"[PYRIGHT] Executando: {' '.join(cmd)}")
+            sys.stdout.flush()
             p_res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            last_stdout = p_res.stdout
+            last_stderr = p_res.stderr
+            last_code = p_res.returncode
             print(p_res.stdout)
             if p_res.stderr:
                 print(p_res.stderr, file=sys.stderr)
-            return p_res.returncode == 0
-        except FileNotFoundError:
-            print("[PYRIGHT] Pyright não encontrado no ambiente. Instale com: pip install pyright")
-            return False
+            sys.stdout.flush()
+            sys.stderr.flush()
+            
+            if p_res.returncode == 0:
+                log_step_summary(f"### [PASS] Pyright Static Audit\nCommand: `{' '.join(cmd)}`\n```\n{p_res.stdout}\n```")
+                return True
+        except FileNotFoundError as e:
+            print(f"[PYRIGHT] Comando {' '.join(cmd)} não encontrado: {e}")
+            continue
+
+    log_step_summary(
+        f"### [FAIL] Pyright Static Audit\n"
+        f"**Exit Code:** {last_code}\n"
+        f"**Stdout:**\n```\n{last_stdout}\n```\n"
+        f"**Stderr:**\n```\n{last_stderr}\n```\n"
+    )
+    return False
 
 
 def main():
@@ -62,12 +89,15 @@ def main():
     all_ast_errors = ast_errors_src + ast_errors_tests
     
     if all_ast_errors:
-        print(f"[ERRO] Encontrados {len(all_ast_errors)} arquivos com falhas de sintaxe/AST:")
+        err_msg = f"[ERRO] Encontrados {len(all_ast_errors)} arquivos com falhas de sintaxe/AST:\n"
         for path, err in all_ast_errors:
-            print(f"  - {path}: {err}")
+            err_msg += f"  - {path}: {err}\n"
+        print(err_msg)
+        log_step_summary(f"### [FAIL] AST Syntax Audit\n```\n{err_msg}\n```")
         sys.exit(1)
     else:
-        print(f"[OK] Todos os arquivos Python em src/ e tests/ passaram no parse sintático e AST.")
+        print("[OK] Todos os arquivos Python em src/ e tests/ passaram no parse sintático e AST.")
+        log_step_summary("### [PASS] AST Syntax Audit: 100% dos arquivos Python conformes.")
 
     pyright_ok = run_pyright_if_available()
     if not pyright_ok:
