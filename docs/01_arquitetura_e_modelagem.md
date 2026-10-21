@@ -77,10 +77,11 @@ O código-fonte segue estritamente a separação em camadas independentes:
 
 ```text
 src/
-├── agents/                      # Camada de Inteligência e Governança
-│   ├── perception_agent.py      # Agrupamento temporal e detecção de colisões
-│   ├── reasoning_agent.py       # Resolução Nível 1 (Heurísticas) / Nível 2 (NDT) / Nível 3 (MAPPO)
-│   └── refinement_agent.py      # Safety Guards físicos invariantes
+├── core/                        # Camada de Inteligência e Governança (Tríade Cognitiva e MARL)
+│   ├── perception.py            # Agrupamento temporal e detecção de colisões
+│   ├── reasoning.py             # Resolução Nível 1 (Heurísticas) / Nível 2 (NDT) / Nível 3 (MAPPO)
+│   ├── refinement.py            # Safety Guards físicos invariantes
+│   └── marl/                    # Multi-Agent Reinforcement Learning (MAPPO & Ambientes)
 ├── conflict_types.py            # Contratos de dados imutáveis (RDLDecision, XAppAction)
 ├── coordination/                # Despacho e rastreamento de transações
 │   ├── dispatcher.py            # Envio E2SM-RC via RMR

@@ -23,7 +23,6 @@ snapshots/
 # 1. Diretórios de Agentes e Skills Locais (Permanentemente Proibido)
 .agents/
 /agents/
-!src/agents/
 skills/
 .system_generated/
 
