@@ -23,6 +23,8 @@
   "reportInvalidTypeForm": false,
   "reportIndexIssue": false,
   "reportGeneralTypeIssues": false,
-  "reportUndefinedVariable": false
+  "reportUndefinedVariable": false,
+  "reportReturnType": false,
+  "reportWildcardImportFromLibrary": false
 }
 
