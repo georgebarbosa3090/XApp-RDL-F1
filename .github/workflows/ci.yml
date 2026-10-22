@@ -39,7 +39,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install -r requirements.txt -r requirements-dev.txt
-        pip install pytest pytest-cov pytest-env pyyaml pyright
+        pip install pytest pytest-cov pytest-env pyyaml pyright pytest-timeout
         
     - name: Syntax & Smoke Import Check
       run: |
@@ -52,19 +52,19 @@ jobs:
 
     - name: Run Codec & Golden Vector tests
       run: |
-        pytest tests/codec/ -v
+        pytest tests/codec/ -v --timeout=60
 
     - name: Run Unit & Negative tests
       run: |
-        pytest tests/unit/ -v
+        pytest tests/unit/ -v --timeout=60
 
     - name: Run Integration tests
       run: |
-        pytest tests/integration/ -v
+        pytest tests/integration/ -v --timeout=60
 
     - name: Run Interoperability tests
       run: |
-        pytest tests/interoperability/ -v
+        pytest tests/interoperability/ -v --timeout=60
 
     - name: Run Zero-Synthetic Audit
       run: |
@@ -76,7 +76,7 @@ jobs:
         USE_FAKE_SDL: "True"
         LD_LIBRARY_PATH: "/usr/local/lib:/usr/lib"
       run: |
-        pytest tests/ --cov=src --cov-config=.coveragerc --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=85 -v
+        pytest tests/ --cov=src --cov-config=.coveragerc --cov-branch --cov-report=term-missing --cov-report=xml --cov-fail-under=85 -v --timeout=60
 
     - name: Output Software Status
       run: |

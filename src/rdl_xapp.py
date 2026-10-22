@@ -6,28 +6,37 @@ import uuid
 from typing import Dict, Any, List, Optional, Tuple
 
 try:
-    from ricxappframe.xapp_frame import RMRXapp, Xapp
+    from ricxappframe.xapp_frame import RMRXapp as _RealRMRXapp, Xapp as _RealXapp
     _HAS_RICXAPPFRAME = True
 except (ImportError, OSError, Exception):
     _HAS_RICXAPPFRAME = False
-    class RMRXapp:  # type: ignore
-        """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
-        def __init__(self, default_handler=None, rmr_port=4560, rmr_wait_for_ready=False, use_fake_sdl=True, post_init=None):
-            self.default_handler = default_handler
-            self.post_init = post_init
-            self.callbacks = {}
-        def register_callback(self, handler, mtype):
-            self.callbacks[mtype] = handler
-        def run(self):
-            if self.post_init:
-                self.post_init(self)
-        def stop(self):
-            pass
-        def rmr_send(self, payload, mtype, **kwargs):
-            return True
-        def rmr_free(self, sbuf):
-            pass
-    Xapp = RMRXapp
+    _RealRMRXapp = None
+    _RealXapp = None
+
+class MockRMRXapp:
+    """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
+    def __init__(self, default_handler=None, rmr_port=4560, rmr_wait_for_ready=False, use_fake_sdl=True, post_init=None):
+        self.default_handler = default_handler
+        self.post_init = post_init
+        self.callbacks = {}
+    def register_callback(self, handler, mtype):
+        self.callbacks[mtype] = handler
+    def run(self):
+        if self.post_init:
+            self.post_init(self)
+    def stop(self):
+        pass
+    def register(self):
+        return True
+    def deregister(self):
+        return True
+    def rmr_send(self, payload, mtype, **kwargs):
+        return True
+    def rmr_free(self, sbuf):
+        pass
+
+Xapp = _RealXapp if _RealXapp is not None else MockRMRXapp
+RMRXapp = _RealRMRXapp if _RealRMRXapp is not None else MockRMRXapp
 
 from src.observability.logging import setup_logger, now_ts
 from src.observability.health_server import HealthServer, AppState
@@ -127,20 +136,22 @@ class RDLxApp:
         self.pending_transactions: Dict[Any, float] = {}
         self.active_subscriptions: Dict[str, bool] = {}
         
-        self.xapp = RMRXapp(
-            default_handler=self._default_handler,
-            rmr_port=4560,
-            rmr_wait_for_ready=rmr_wait_for_ready,
-            use_fake_sdl=use_fake_sdl,
-            post_init=self._entrypoint
-        )
-        # Em modo standalone / simulação sem AppMgr externo, registro é tratado como no-op limpo.
-        # Em O_RAN_INTEROP, preserva a chamada real de ciclo de vida do xapp_frame.
-        if self.mode != "O_RAN_INTEROP":
-            self.xapp.register = lambda: True
-            self.xapp.deregister = lambda: True
-            self.xapp.rmr_send = lambda payload, mtype, **kwargs: True
-            self.xapp.rmr_free = lambda sbuf: None
+        if self.mode == "O_RAN_INTEROP":
+            self.xapp = _RealRMRXapp(
+                default_handler=self._default_handler,
+                rmr_port=4560,
+                rmr_wait_for_ready=rmr_wait_for_ready,
+                use_fake_sdl=use_fake_sdl,
+                post_init=self._entrypoint
+            )
+        else:
+            self.xapp = MockRMRXapp(
+                default_handler=self._default_handler,
+                rmr_port=4560,
+                rmr_wait_for_ready=False,
+                use_fake_sdl=use_fake_sdl,
+                post_init=self._entrypoint
+            )
         
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
