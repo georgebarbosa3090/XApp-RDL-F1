@@ -97,7 +97,7 @@ class RCEncoder:
                 }
             ]}
         })
-        pdu_aper = pdu.to_aper()
+        pdu_aper = pdu.to_aper() or b""
         return EncodedRCControl(header_aper=header_aper, message_aper=msg_aper, pdu_aper=pdu_aper)
 
     def encode_control_pdu(self, node_id: str, parameter: str, value: float, style_type: int = 1, action_id: int = 1) -> Tuple[bytes, bytes]:
@@ -127,7 +127,7 @@ class RCEncoder:
             }
         ]})
         msg_aper = msg.to_aper()
-        return header_aper, msg_aper
+        return (header_aper or b""), (msg_aper or b"")
 
     def encode_control_request(self, node_id: str, parameter: str, value: float) -> bytes:
         _, msg_aper = self.encode_control_pdu(node_id, parameter, value)

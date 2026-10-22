@@ -546,9 +546,19 @@ def test_rdlxapp_entrypoint_and_send_control_branches():
 
 def test_main_roles_import(monkeypatch):
     import src.main
-    # Test role dispatch functions without blocking
-    monkeypatch.setenv("XAPP_ROLE", "rdl")
-    assert os.getenv("XAPP_ROLE") == "rdl"
+    class FakeApp:
+        started = False
 
+        def start(self):
+            self.started = True
+
+        def stop(self):
+            pass
+
+    app = FakeApp()
+    monkeypatch.setattr(src.main, "RDLxApp", lambda: app)
+    monkeypatch.setenv("XAPP_ROLE", "rdl")
+    src.main.main()
+    assert app.started is True
 
 

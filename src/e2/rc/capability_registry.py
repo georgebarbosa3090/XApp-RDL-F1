@@ -105,8 +105,8 @@ class RanFunctionCapabilityRegistry:
         """
         strict = self.is_strict_mode(strict_mode)
         if node_id not in self._node_capabilities:
-            self._node_capabilities[node_id] = {} if strict else dict(self._default_capabilities)
-            
+            self._node_capabilities[node_id] = {}
+
         self._node_capabilities[node_id][param_name] = ControlActionCapability(
             style_type=style_type,
             action_id=action_id,
@@ -134,8 +134,29 @@ class RanFunctionCapabilityRegistry:
         deve ter sido explicitamente descoberto via RANFunctionDefinition.
         """
         is_strict = self.is_strict_mode(strict_mode)
+        try:
+            capability = self.get_action_capability(param_name, node_id, strict_mode)
+            return capability.style_type, capability.action_id, capability.param_id
+        except KeyError:
+            if is_strict:
+                raise
 
-        if is_strict:
+        # Fallback para dicionário canônico se registrado
+        if param_name in RAN_PARAMETERS:
+            p = RAN_PARAMETERS[param_name]
+            return 1, 1, p.param_id
+
+        raise KeyError(f"Parameter '{param_name}' not found in capability registry or canonical RAN parameters.")
+
+    def get_action_capability(
+        self,
+        param_name: str,
+        node_id: Optional[str] = None,
+        strict_mode: Optional[bool] = None
+    ) -> ControlActionCapability:
+        """Return a discovered capability, or an offline profile capability."""
+        strict = self.is_strict_mode(strict_mode)
+        if strict:
             if not node_id or node_id not in self._node_capabilities:
                 raise CapabilityNotDiscoveredError(
                     f"[ORAN-STRICT] Nó E2 '{node_id}' não possui RANFunctionDefinition descoberta em runtime."
@@ -144,24 +165,15 @@ class RanFunctionCapabilityRegistry:
                 raise CapabilityNotDiscoveredError(
                     f"[ORAN-STRICT] Parâmetro '{param_name}' não foi anunciado nas capacidades descobertas do nó '{node_id}'."
                 )
-            cap = self._node_capabilities[node_id][param_name]
-            return cap.style_type, cap.action_id, cap.param_id
+            return self._node_capabilities[node_id][param_name]
 
-        # Modo OFFLINE_SIMULATION / Fallback desacoplado
-        cap_map = self._default_capabilities
         if node_id and node_id in self._node_capabilities:
-            cap_map = self._node_capabilities[node_id]
-
-        if param_name in cap_map:
-            cap = cap_map[param_name]
-            return cap.style_type, cap.action_id, cap.param_id
-            
-        # Fallback para dicionário canônico se registrado
-        if param_name in RAN_PARAMETERS:
-            p = RAN_PARAMETERS[param_name]
-            return 1, 1, p.param_id
-            
-        raise KeyError(f"Parameter '{param_name}' not found in capability registry or canonical RAN parameters.")
+            capability = self._node_capabilities[node_id].get(param_name)
+            if capability is not None:
+                return capability
+        if param_name in self._default_capabilities:
+            return self._default_capabilities[param_name]
+        raise KeyError(f"Parameter '{param_name}' not found in capability registry.")
 
     def register_ran_function_id(self, node_id: str, short_name: str, func_id: int) -> None:
         """Registra dinamicamente o ID numérico de uma RAN Function descoberto no E2 Setup."""
@@ -193,12 +205,11 @@ class RanFunctionCapabilityRegistry:
     def is_action_supported(self, node_id: str, param_name: str) -> bool:
         """Verifica se uma determinada ação/parâmetro é suportada pelo nó."""
         if node_id in self._node_capabilities:
-            return param_name in self._node_capabilities[node_id]
+            if param_name in self._node_capabilities[node_id]:
+                return True
         if not self.is_strict_mode():
             return param_name in self._default_capabilities
         return False
 
 # Instância Singleton do Registry
 rc_capability_registry = RanFunctionCapabilityRegistry()
-
-

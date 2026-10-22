@@ -7,6 +7,11 @@ Responsável por:
   3. Mapeamento de métricas físicas para o vetor de estado normalizado da H-RDL;
   4. Codificação e despacho de mensagens de controle E2SM-RC com ponto fixo estrito (Q8.8 e Q16.16);
   5. Pareamento com confirmação externa (RICcontrolAcknowledge) e rastreamento causal.
+
+Nota de Prontidão Experimental:
+  Adaptador de integração de arquitetura e validação local de protocolo (L3).
+  A validação física em rádio real sobre SDR (USRP) e UEs COTS no testbed OpenRAN@Brasil
+  está planejada como etapa subsequente de consolidação experimental.
 """
 
 import time
@@ -145,11 +150,14 @@ class SrsranE2Adapter(RadioBackendAdapter):
             rc_payload += name_bytes + struct.pack(">H", q_val)
         rc_payload += struct.pack(">I", fixed_tx_power)
 
-        # Envio sobre socket SCTP se conectado
-        ack_received = True
-        raw_ack = b"\x20\x04\x00\x0a" + struct.pack(">I", tx_id)
+        # Envio sobre socket SCTP se conectado, ou simulação se mock_socket ativo
+        ack_received = False
+        raw_ack = b""
 
-        if self.sock and self.is_connected:
+        if self.mock_socket:
+            ack_received = True
+            raw_ack = b"\x20\x04\x00\x0a" + struct.pack(">I", tx_id)
+        elif self.sock and self.is_connected:
             try:
                 self.sock.sendall(rc_payload)
                 self.sock.settimeout(0.35)

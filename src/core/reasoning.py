@@ -30,6 +30,7 @@ class Reasoning:
         self.w_energy_ind = self.config.get("w_energy_ind", 0.20)
         self.w_fairness_ind = self.config.get("w_fairness_ind", 0.15)
         self.w_viol_ind = self.config.get("w_viol_ind", 0.35)
+        self.max_exact_actions = min(16, max(1, int(self.config.get("max_exact_actions", 16))))
 
         # Parâmetros Físicos Calibrados de Rádio 5G (Banda n78 3.5 GHz)
         self.BANDWIDTH_HZ = 100e6         # 100 MHz de BWP
@@ -86,41 +87,72 @@ class Reasoning:
     def _resolve_indirect_conflict(self, conflict: ConflictEvent) -> ResolutionAction:
         actions = conflict.involved_xapps
         max_prio_in_conflict = max(getattr(a, "priority", 50) for a in actions) if actions else 50
-        
-        best_score = -float("inf")
-        best_subset: List[XAppAction] = []
 
-        powerset = []
-        for i in range(1, len(actions) + 1):
-            powerset.extend(list(itertools.combinations(actions, i)))
-            
-        for subset in powerset:
-            subset_list = list(subset)
-            if self._has_physical_incompatibility(subset_list):
-                score = -float("inf")
-            else:
-                sub_scores = self._calculate_subset_scores(subset_list, max_prio_in_conflict)
-                
-                # Função de Utilidade Global EEVS
-                score = (self.w_qos_ind * sub_scores["qos"] +
-                         self.w_energy_ind * sub_scores["energy"] +
-                         self.w_fairness_ind * sub_scores["fairness"] -
-                         self.w_viol_ind * sub_scores["violations"])
-                         
-            if score > best_score:
-                best_score = score
-                best_subset = subset_list
-                
+        if len(actions) > self.max_exact_actions:
+            best_subset = self._resolve_indirect_greedy(actions, max_prio_in_conflict)
+            confidence = 0.70
+        else:
+            best_subset = []
+            best_score = -float("inf")
+            for size in range(1, len(actions) + 1):
+                for subset in itertools.combinations(actions, size):
+                    subset_list = list(subset)
+                    score = self._score_indirect_subset(subset_list, max_prio_in_conflict)
+                    if score > best_score:
+                        best_score = score
+                        best_subset = subset_list
+            confidence = 0.88
+
         modified_val = best_subset[0].value if len(best_subset) == 1 else None
-
         return ResolutionAction(
             conflict_id=conflict.conflict_id,
-            strategy_used=ResolutionStrategy.EEVS, 
+            strategy_used=ResolutionStrategy.EEVS,
             winning_actions=best_subset,
             modified_value=modified_val,
-            confidence=0.88,
+            confidence=confidence,
             validation_level=0
         )
+
+    def _score_indirect_subset(self, subset: List[XAppAction], max_priority: int) -> float:
+        if self._has_physical_incompatibility(subset):
+            return -float("inf")
+        sub_scores = self._calculate_subset_scores(subset, max_priority)
+        return (
+            self.w_qos_ind * sub_scores["qos"]
+            + self.w_energy_ind * sub_scores["energy"]
+            + self.w_fairness_ind * sub_scores["fairness"]
+            - self.w_viol_ind * sub_scores["violations"]
+        )
+
+    def _resolve_indirect_greedy(
+        self, actions: List[XAppAction], max_priority: int
+    ) -> List[XAppAction]:
+        """Build a deterministic compatible subset without enumerating the powerset."""
+        selected: List[XAppAction] = []
+        selected_score = -float("inf")
+        for action in actions:
+            candidate_score = self._score_indirect_subset([action], max_priority)
+            if candidate_score > selected_score:
+                selected = [action]
+                selected_score = candidate_score
+
+        while selected:
+            best_candidate = selected
+            best_score = selected_score
+            selected_ids = {action.action_id for action in selected}
+            for action in actions:
+                if action.action_id in selected_ids:
+                    continue
+                candidate = selected + [action]
+                candidate_score = self._score_indirect_subset(candidate, max_priority)
+                if candidate_score > best_score:
+                    best_candidate = candidate
+                    best_score = candidate_score
+            if best_candidate is selected:
+                break
+            selected = best_candidate
+            selected_score = best_score
+        return selected
 
     def _has_physical_incompatibility(self, subset: List[XAppAction]) -> bool:
         param_targets = {}
@@ -129,6 +161,17 @@ class Reasoning:
             if key in param_targets and param_targets[key] != act.value:
                 return True
         return False
+
+    def _get_max_tx_power(self, node_id: str) -> float:
+        """Obtém o teto de potência do nó consultando o capability registry ou configuração."""
+        try:
+            from src.e2.rc.capability_registry import rc_capability_registry
+            node_caps = rc_capability_registry._node_capabilities.get(node_id, {})
+            if "TX_POWER" in node_caps:
+                return float(node_caps["TX_POWER"].max_value)
+        except Exception:
+            pass
+        return float(self.config.get("max_tx_power_dbm", 23.0))
 
     def _calculate_action_scores(self, act: XAppAction) -> Dict[str, float]:
         param = act.parameter
@@ -140,7 +183,9 @@ class Reasoning:
             fraction_prb = max(0.05, min(1.0, val / 100.0))
             tput_score = fraction_prb
         elif param == "TX_POWER":
-            norm_power = (val - (-10.0)) / (23.0 - (-10.0))
+            max_pwr = self._get_max_tx_power(act.node_id)
+            min_pwr = -10.0
+            norm_power = (val - min_pwr) / max(1.0, max_pwr - min_pwr)
             tput_score = max(0.1, min(1.0, 0.4 + 0.6 * norm_power))
         else:
             tput_score = 0.70

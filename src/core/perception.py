@@ -1,7 +1,5 @@
 from typing import Dict, List, Optional
 from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
-import networkx as nx
-import itertools
 
 class Perception:
     """
@@ -38,31 +36,37 @@ class Perception:
                 active[action.xapp_id].append(action)
         return active
 
-    def register_action_group(self, actions: List[XAppAction]) -> List[ConflictEvent]:
+    def detect_action_group(self, actions: List[XAppAction]) -> List[ConflictEvent]:
+        """Detect conflicts without treating unselected proposals as active state."""
         conflicts = []
         
         # Avalia combinações dentro do próprio grupo (Decision Window)
-        for i in range(len(actions)):
-            for j in range(i + 1, len(actions)):
-                action_a = actions[i]
-                action_b = actions[j]
-                
-                # Check Direct
-                if action_a.node_id == action_b.node_id and action_a.parameter == action_b.parameter and action_a.xapp_id != action_b.xapp_id:
-                    conflicts.append(ConflictEvent(
-                        conflict_type=ConflictType.DIRECT,
-                        severity=ConflictSeverity.HIGH,
-                        involved_xapps=[action_a, action_b],
-                        affected_kpis=self.kpi_dependency_graph.get(action_a.parameter, []),
-                        description=f"Direct conflict on parameter {action_a.parameter}"
-                    ))
-                
-                # Check Indirect
-                else:
+        actions_by_node: Dict[str, List[XAppAction]] = {}
+        for action in actions:
+            actions_by_node.setdefault(action.node_id, []).append(action)
+
+        for node_actions in actions_by_node.values():
+            for i in range(len(node_actions)):
+                for j in range(i + 1, len(node_actions)):
+                    action_a = node_actions[i]
+                    action_b = node_actions[j]
+                    if action_a.xapp_id == action_b.xapp_id:
+                        continue
+
+                    if action_a.parameter == action_b.parameter:
+                        conflicts.append(ConflictEvent(
+                            conflict_type=ConflictType.DIRECT,
+                            severity=ConflictSeverity.HIGH,
+                            involved_xapps=[action_a, action_b],
+                            affected_kpis=self.kpi_dependency_graph.get(action_a.parameter, []),
+                            description=f"Direct conflict on parameter {action_a.parameter}"
+                        ))
+                        continue
+
                     kpis_a = self.kpi_dependency_graph.get(action_a.parameter, [])
                     kpis_b = self.kpi_dependency_graph.get(action_b.parameter, [])
-                    common_kpis = set(kpis_a).intersection(set(kpis_b))
-                    if common_kpis and action_a.node_id == action_b.node_id and action_a.xapp_id != action_b.xapp_id:
+                    common_kpis = set(kpis_a).intersection(kpis_b)
+                    if common_kpis:
                         conflicts.append(ConflictEvent(
                             conflict_type=ConflictType.INDIRECT,
                             severity=ConflictSeverity.MEDIUM,
@@ -71,7 +75,7 @@ class Perception:
                             description=f"Indirect conflict on KPIs {common_kpis}"
                         ))
 
-        # Avalia cada ação contra o registry anterior (ações em vigor que não expiraram)
+        # Avalia cada ação contra o estado persistido de ações admitidas
         for action in actions:
             # Check Direct contra o histórico
             direct = self._detect_direct_conflict(action)
@@ -82,12 +86,29 @@ class Perception:
             indirects = self._detect_indirect_conflict(action)
             conflicts.extend(indirects)
 
-        # Registra o novo lote de ações no registry
+        return conflicts
+
+    def commit_actions(self, actions: List[XAppAction]) -> None:
+        """Persist actions admitted by RDL until replaced or explicitly removed."""
         for action in actions:
             if action.node_id not in self._action_registry:
                 self._action_registry[action.node_id] = {}
             self._action_registry[action.node_id][action.parameter] = action
-            
+
+    def remove_action(self, node_id: str, parameter: str) -> bool:
+        """Remove a persisted action when its owner or control state is withdrawn."""
+        node_actions = self._action_registry.get(node_id)
+        if not node_actions or parameter not in node_actions:
+            return False
+        del node_actions[parameter]
+        if not node_actions:
+            del self._action_registry[node_id]
+        return True
+
+    def register_action_group(self, actions: List[XAppAction]) -> List[ConflictEvent]:
+        """Compatibility helper for callers that register an entire group as active."""
+        conflicts = self.detect_action_group(actions)
+        self.commit_actions(actions)
         return conflicts
 
     def _detect_direct_conflict(self, new_action: XAppAction) -> Optional[ConflictEvent]:

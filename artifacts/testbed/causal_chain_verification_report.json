@@ -48,5 +48,7 @@
     "causal_restoration_verified": true,
     "sla_restored": true
   },
-  "overall_status": "CERTIFIED_NON_REPUDIABLE"
+  "overall_status": "VERIFIED_FIXTURE_INTEGRITY",
+  "provenance_category": "CAUSAL_FIXTURE",
+  "external_g4_status": "PENDING_TESTBED_E2_CAPTURE"
 }

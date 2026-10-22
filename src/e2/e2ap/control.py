@@ -32,11 +32,13 @@ class RICrequestID:
     def set_val(self, val: Dict[str, Any]):
         self._obj.set_val(val)
     def to_aper(self) -> bytes:
-        return self._obj.to_aper()
+        res = self._obj.to_aper()
+        return res if res is not None else b""
     def from_aper(self, char: bytes):
         self._obj.from_aper(char)
     def __call__(self) -> Dict[str, Any]:
-        return self._obj()
+        val = self._obj()
+        return val if isinstance(val, dict) else {}
 
 class RICcontrolRequest:
     def __init__(self):
@@ -76,7 +78,8 @@ class RICcontrolRequest:
             })
 
     def to_aper(self) -> bytes:
-        return self._obj.to_aper()
+        res = self._obj.to_aper()
+        return res if res is not None else b""
 
     def from_aper(self, char: bytes):
         self._obj.from_aper(char)
@@ -143,7 +146,8 @@ class RICcontrolAcknowledge:
             self._obj.set_val({'protocolIEs': ies})
 
     def to_aper(self) -> bytes:
-        return self._obj.to_aper()
+        res = self._obj.to_aper()
+        return res if res is not None else b""
 
     def from_aper(self, char: bytes):
         self._obj.from_aper(char)
@@ -197,7 +201,8 @@ class RICcontrolFailure:
             self._obj.set_val({'protocolIEs': ies, 'cause': cause_val})
 
     def to_aper(self) -> bytes:
-        return self._obj.to_aper()
+        res = self._obj.to_aper()
+        return res if res is not None else b""
 
     def from_aper(self, char: bytes):
         self._obj.from_aper(char)

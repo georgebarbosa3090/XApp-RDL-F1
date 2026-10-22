@@ -22,7 +22,7 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
 │  │                            xApp-RDL CORE                              │  │
 │  │  - Perception Agent (Decodificador ASN.1 APER E2SM-KPM / Telemetria) │  │
-│  │  - Conflict Detector (Direto, Indireto, Implícito, Temporal)          │  │
+│  │  - Conflict Detector (Direto/Indireto) + Cooldown Guard                │  │
 │  │  - Knowledge Graph & Context Engine (Neo4j / Matriz de Associação)    │  │
 │  │  - Reasoning Engine: Nível 1 (H-RDL) | Nível 2 (NDT) | Nível 3 (MAPPO)│  │
 │  │  - Refinement Agent & Safety Guard (Action Masking / Boundary Clip)   │  │
@@ -54,6 +54,8 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 
 ![Arquitetura Global de Co-Simulação ns-3 e Near-RT RIC](figures/01_arquitetura_e_governanca/diagram_01_global_pipeline_architecture.png)
 
+O diagrama descreve a arquitetura-alvo. Testes locais de codec, fixtures e contratos de cenário não demonstram conexão E2 live; os gates de KPM externo, RC/ACK e causalidade permanecem conforme o estado indicado no README.
+
 ---
 
 ## 2. Paradigmas Evolutivos: H-RDL (Fase 1) × CA-RDL (Fase 2)
@@ -65,9 +67,11 @@ A RDL é estruturada em duas fases complementares:
 | **Paradigma Decisório** | Heurística determinística + Matriz TVS/EEVS | Sensibilidade contextual + Grafo de Conhecimento + MAPPO |
 | **Janela de Decisão** | Lote fixo ($\Delta t = 200\text{ ms}$) | Janela adaptativa orientada a eventos e telemetria |
 | **Garantia de Segurança** | *Safety Guards* invariantes (Boundary Clipping) | *Action Masking* em tempo de inferência + Safety Guard desacoplado |
-| **Sobrecarga ($T_{decision}$)** | **0,12 ms** (Sub-milissegundo, 0,06% do ciclo) | **1,84 ms** (Inferência de Redes Neurais, 0,92% do ciclo) |
-| **Ganho de Vazão (vs B0)** | **+19,4%** (101,7 Mbps) | **+24,2%** (105,8 Mbps) |
-| **Violações de SLA** | **0,0%** (Erradicação completa) | **0,0%** (Erradicação completa com maior eficiência) |
+| **Sobrecarga ($T_{decision}$)** | A medir em campanha ns-3/NORI elegível para publicação (G5 pendente) | A medir na campanha da Fase 2 |
+| **Ganho de Vazão (vs B0)** | Não certificado; resultados locais/offline não são evidência científica | Não certificado |
+| **Violações de SLA** | Não certificado; requer traces elegíveis e seeds pareadas | Não certificado |
+
+Os valores numéricos de desempenho anteriormente apresentados neste comparativo foram removidos por não estarem associados aqui a uma campanha elegível e reproduzível. Conforme a política de evidência, fixtures, mocks e simuladores locais não comprovam ganhos de rede.
 
 ---
 
@@ -119,9 +123,9 @@ src/
 
 ### 4.3. Refinement & Safety Guards (Segurança Invariante)
 Aplica restrições físicas invioláveis antes de qualquer emissão para a interface E2:
-1. **Limites de Potência ($P_{tx}$):** $P_{min} \le P_{tx} \le P_{max}$ (ex.: $10\text{ dBm} \le P_{tx} \le 43\text{ dBm}$).
-2. **Orçamento de Recursos ($PRB$):** $\sum_{s \in \mathcal{S}} \text{Quota}(s) \le 100\%$.
-3. **Janela Anti-Ping-Pong:** $\Delta t_{min} \ge 1000\text{ ms}$ entre comandos opostos no mesmo nó.
+1. **Limites de Potência ($P_{tx}$):** aplicar os limites anunciados pelo nó; o perfil offline usa $-10$ a $23\text{ dBm}$. Em modo estrito, uma capacidade `TX_POWER` não descoberta bloqueia a ação.
+2. **Orçamento de Recursos ($PRB$):** cada comando `PRB_QUOTA` é validado no intervalo de $0$ a $100\%$. A soma de cotas por fatia ainda requer estado agregado de alocação e não deve ser descrita como invariante já aplicada.
+3. **Intervalo mínimo de controle:** o Safety Guard aplica $\Delta t_{min} = 1000\text{ ms}$ por par (nó, parâmetro), independentemente da direção da alteração.
 
 ![Componentes e Fluxo de Decisão xApp-RDL](figures/01_arquitetura_e_governanca/fig_componentes_fluxo_decisao.png)
 
@@ -155,39 +159,39 @@ Onde $P_0 = 130\text{ W}$ é a potência estática do circuito em repouso e $\al
 
 ### 5.4. Formalização do Grafo de Conflitos e Otimização Combinatória
 
-Seja $\mathcal{X} = \{x_1, x_2, \dots, x_K\}$ o conjunto de $K$ xApps concorrentes operando sobre o Near-RT RIC. Em cada janela de decisão temporal $\mathcal{W}_t = [t, t + \Delta t_{win})$, com $\Delta t_{win} = 200\text{ ms}$, as xApps submetem um conjunto de $m$ propostas de controle $\mathcal{A}_t = \{a_1, a_2, \dots, a_m\}$. Cada proposta $a_i \in \mathcal{A}_t$ é caracterizada pela tupla:
+Seja $\mathcal{X} = \{x_1, x_2, \dots, x_K\}$ o conjunto de $K$ xApps concorrentes operando sobre o Near-RT RIC. Em cada janela de decisão temporal $\mathcal{W}_t = [t, t + \Delta t_{win})$, com $\Delta t_{win} = 200\text{ ms}$, as xApps submetem um conjunto de $m$ propostas de controle $\mathcal{A}_t = \{a_1, a_2, \dots, a_m\}$. Cada proposta $a_i \in \mathcal{A}_t$ é caracterizada pelos campos disponíveis no contrato de ação:
 
-$$a_i = \langle \text{app\_id}_i, \text{target\_id}_i, \text{param\_id}_i, \Delta v_i, \rho_i, \tau_i \rangle$$
+$$a_i = \langle \text{app\_id}_i, \text{node\_id}_i, \text{param\_id}_i, v_i, \rho_i, t_i \rangle$$
 
-onde $\text{app\_id}_i$ identifica a aplicação emissora, $\text{target\_id}_i \in \{\text{UE}_k, \text{Slice}_s, \text{Cell}_c\}$ é o alvo de atuação, $\text{param\_id}_i \in \{\text{PRB\_QUOTA}, \text{TX\_POWER}, \text{HO\_OFFSET}\}$ é o parâmetro de rádio solicitado, $\Delta v_i$ é a magnitude da modificação pretendida, $\rho_i \in [1, \rho_{max}]$ é o peso de prioridade nominal e $\tau_i$ é o tempo limite de validade da proposta.
+onde $\text{app\_id}_i$ identifica a aplicação emissora, $\text{node\_id}_i$ identifica o nó RAN, $\text{param\_id}_i$ é o parâmetro solicitado, $v_i$ é o valor desejado, $\rho_i$ é a prioridade e $t_i$ é o timestamp da proposta. O contrato atual não contém TTL para propostas; ações admitidas permanecem no estado até serem substituídas ou removidas.
 
 #### Grafo de Conflitos Dinâmico
 A camada de percepção da H-RDL mapeia as propostas concorrentes em um Grafo de Conflitos não-direcionado $G_t = (\mathcal{A}_t, \mathcal{E}_t)$, onde as arestas $(a_i, a_j) \in \mathcal{E}_t$ modelam colisões de controle satisfazendo o predicado:
 
-$$(a_i, a_j) \in \mathcal{E}_t \iff 
+$$(a_i, a_j) \in \mathcal{E}_t \iff
 \begin{cases}
-\text{target\_id}_i = \text{target\_id}_j \land \text{param\_id}_i = \text{param\_id}_j \land \operatorname{sgn}(\Delta v_i) \neq \operatorname{sgn}(\Delta v_j) & \text{(Conflito Direto)}, \\
-\exists k \in \mathcal{K}, \ \frac{\partial \text{KPI}_k}{\partial \text{param}_i} \cdot \frac{\partial \text{KPI}_k}{\partial \text{param}_j} < 0 & \text{(Conflito Indireto)}, \\
-\text{target\_id}_i = \text{target\_id}_j \land t - t_{\text{last\_actuation}} < \Delta t_{\text{cooldown}} & \text{(Conflito Temporal / Ping-Pong)}.
+\text{target}_i = \text{target}_j \land \text{param}_i = \text{param}_j \land \text{app}_i \neq \text{app}_j & \text{(Conflito Direto)}, \\
+\text{target}_i = \text{target}_j \land \text{param}_i \neq \text{param}_j \land \text{app}_i \neq \text{app}_j \land \left(K(\text{param}_i) \cap K(\text{param}_j)\right) \neq \emptyset & \text{(Conflito Indireto)}.
 \end{cases}$$
 
-#### Formulação como Otimização Combinatória (Maximum Weight Independent Set)
-A arbitragem ótima consiste em selecionar um subconjunto de ações admissíveis $\mathcal{A}_t^* \subseteq \mathcal{A}_t$ que maximize a função de utilidade global da rede sujeita a restrições de não-conflito e barreiras físicas de segurança (*Safety Guards*):
+Aqui, $K(p)$ é a lista configurada de KPIs associada ao parâmetro $p$. A histerese temporal é uma validação do `Refinement` por nó/parâmetro; ela não é atualmente emitida como um terceiro tipo de `ConflictEvent`.
 
-$$\max_{\mathbf{x} \in \{0,1\}^m} \sum_{i=1}^m x_i \cdot U(a_i \mid s_t)$$
+#### Seleção de subconjunto admissível pela EEVS
+A arbitragem seleciona um subconjunto compatível $\mathcal{A}_t^* \subseteq \mathcal{A}_t$ que maximize a utilidade EEVS implementada para o grupo de conflito:
+
+$$\max_{\emptyset \neq S \subseteq \mathcal{A}_t} U_{\mathrm{EEVS}}(S \mid s_t)$$
 
 $$\text{sujeito a:} \quad 
 \begin{cases}
-x_i + x_j \le 1, & \forall (a_i, a_j) \in \mathcal{E}_t, \\
-\sum_{i=1}^m x_i \cdot \text{PRB}(a_i) \le \text{PRB}_{\max}^{\text{cell}}, & \forall \text{Cell } c, \\
-P_{tx}^{\min} \le P_{tx}^{(0)} + \sum_{i=1}^m x_i \cdot \Delta P_{tx}(a_i) \le P_{tx}^{\max}, & \forall \text{Cell } c, \\
-x_i \in \{0, 1\}, & \forall i \in \{1, \dots, m\}.
+S \neq \emptyset, \\
+\text{não incluir duas ações com valores diferentes para o mesmo (nó, parâmetro)}, \\
+\text{validar cada ação pelo Safety Guard antes do despacho}.
 \end{cases}$$
 
-#### Teorema de Terminação Determinística e Ausência de Deadlock
-**Teorema 1 (Deadlock-Free Determinism):** *O motor de arbitragem da H-RDL garante convergência determinística e ausência de deadlocks em tempo estritamente limitado $\mathcal{O}(|\mathcal{A}_t| + |\mathcal{E}_t|)$ sob heurística gulosa com desempate lexicográfico e $\mathcal{O}(2^m)$ sob busca exata com poda branch-and-bound.*
+#### Limite computacional implementado
+Para grupos com até 16 ações, o código avalia subconjuntos não vazios por busca exata, com custo temporal $\mathcal{O}(m 2^m)$ e memória auxiliar linear, mantendo apenas a melhor solução. Acima desse limite, usa uma heurística gulosa determinística, com custo temporal $\mathcal{O}(m^3)$ e memória auxiliar linear; essa solução é admissível, mas não possui garantia de ótimo global. A confiança da resolução é registrada como 0,88 na busca exata e 0,70 na heurística. Não se afirma uma prova formal de ausência de deadlock nem de ótimo global para grupos acima do limite.
 
-**Demonstração:** Seja a relação de ordem estrita $\succ$ definida sobre $\mathcal{A}_t$ pelo vetor de tuplas $\langle \rho_i, U(a_i \mid s_t), -\text{timestamp}_i, \text{app\_id}_i \rangle$. Como a prioridade $\rho_i$ é finita, a utilidade $U \in \mathbb{R}$ é contínua e bounded, o timestamp é estritamente monotônico e o identificador $\text{app\_id}_i$ é único e disjunto, a relação $\succ$ induz uma ordem total estrita e imutável sobre $\mathcal{A}_t$. O algoritmo guloso de seleção independente remove recursivamente o vértice de maior peso $v^* = \arg\max_{v \in G_t} \operatorname{score}(v)$ e elimina sua vizinhança aberta $N(v^*)$. Como o número de vértices $m$ decresce estritamente a cada iteração ($|V_{k+1}| \le |V_k| - 1$), o grafo torna-se vazio em no máximo $m$ passos, impedindo dependências circulares e garantindo execução determinística livre de bloqueios mútuos. $\blacksquare$
+As ações admitidas são mantidas como estado corrente por nó/parâmetro até serem substituídas ou removidas. Propostas não selecionadas não atualizam esse estado.
 
 ### 5.5. Formulação CMDP e Safe-MAPPO (Fase 2)
 O problema de controle multi-xApp é formulado como um **Processo de Decisão de Markov Parcialmente Observável e Restrito (CMP-POMDP)**:
@@ -217,7 +221,7 @@ A camada RDL implementa o desacoplamento formal de codecs ASN.1 APER conforme os
 ### Tabela Canônica de Parâmetros RAN Controlados
 - `PRB_QUOTA` (Parameter ID: 1, Faixa: 0–100%);
 - `SCHEDULER_WEIGHT` (Parameter ID: 2, Faixa: 1–100);
-- `TX_POWER` (Parameter ID: 3, Faixa: 10–43 dBm);
+- `TX_POWER` (Parameter ID: 3, faixa conforme capacidade anunciada; perfil offline: -10 a 23 dBm);
 - `HANDOVER_TARGET` (Parameter ID: 4, Cell ID de destino).
 
 ![Conformidade com os Padrões O-RAN Alliance](figures/01_arquitetura_e_governanca/diagram_05_conformidade_oran_standards.png)

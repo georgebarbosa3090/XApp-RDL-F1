@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List, Optional
 import time
 from src.conflict_types import ConflictEvent, ResolutionAction, XAppAction
 from src.observability.logging import setup_logger
@@ -10,8 +10,9 @@ class Refinement:
     Componente de Refinamento e Guardiões de Segurança (Safety Guards / Núcleo / Core).
     Aplica validação invariante, limites físicos de rádio (Boundary Clipping) e histerese temporal.
     """
-    def __init__(self, memory):
+    def __init__(self, memory, strict_capabilities: bool = False):
         self.memory = memory
+        self.strict_capabilities = strict_capabilities
         self.config = {
             "enabled": True,
             "minimum_control_interval_ms": 1000,
@@ -19,10 +20,30 @@ class Refinement:
         self.last_control_time: Dict[str, float] = {}
         self.node_capabilities: Dict[str, Dict[str, Any]] = {}
 
-    def _get_max_tx_power(self, node_id: str) -> float:
+    def _get_max_tx_power(self, node_id: str) -> Optional[float]:
         """Obtém o teto de potência de transmissão (dBm) para o nó específico ou padrão."""
-        if hasattr(self, "node_capabilities") and isinstance(self.node_capabilities, dict):
-            return float(self.node_capabilities.get(node_id, {}).get("max_tx_power_dbm", 23.0))
+        cap = self.node_capabilities.get(node_id, {})
+        if "max_tx_power_dbm" in cap:
+            return float(cap["max_tx_power_dbm"])
+
+        from src.e2.rc.capability_registry import (
+            CapabilityNotDiscoveredError,
+            rc_capability_registry,
+        )
+        try:
+            capability = rc_capability_registry.get_action_capability(
+                "TX_POWER", node_id, strict_mode=self.strict_capabilities
+            )
+        except CapabilityNotDiscoveredError:
+            return None
+        except KeyError:
+            if self.strict_capabilities:
+                return None
+        else:
+            return float(capability.max_value)
+
+        if self.strict_capabilities:
+            return None
         return float(self.config.get("max_tx_power_dbm", 23.0))
 
     def _validate_parameter_bounds(self, action: XAppAction) -> Tuple[bool, str]:
@@ -36,6 +57,8 @@ class Refinement:
             if action.value < 0 or action.value > 100:
                 return False, "PRB value out of bounds (0-100)"
         elif action.parameter == "TX_POWER":
+            if max_tx is None:
+                return False, f"TX_POWER capability not discovered for node {action.node_id}"
             if action.value < -10 or action.value > max_tx:
                 return False, f"TX Power out of bounds (-10 to {max_tx} dBm)"
         elif action.parameter == "HANDOVER":

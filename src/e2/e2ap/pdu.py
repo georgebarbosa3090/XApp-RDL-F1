@@ -49,7 +49,7 @@ def wrap_initiating_message(procedure_code: int, value_bytes: bytes, criticality
         'criticality': crit_str,
         'value': value_bytes
     }))
-    return pdu.to_aper()
+    return pdu.to_aper() or b""
 
 def wrap_successful_outcome(procedure_code: int, value_bytes: bytes, criticality: int = CRITICALITY_IGNORE) -> bytes:
     """
@@ -62,7 +62,7 @@ def wrap_successful_outcome(procedure_code: int, value_bytes: bytes, criticality
         'criticality': crit_str,
         'value': value_bytes
     }))
-    return pdu.to_aper()
+    return pdu.to_aper() or b""
 
 def wrap_unsuccessful_outcome(procedure_code: int, value_bytes: bytes, criticality: int = CRITICALITY_REJECT) -> bytes:
     """
@@ -75,7 +75,7 @@ def wrap_unsuccessful_outcome(procedure_code: int, value_bytes: bytes, criticali
         'criticality': crit_str,
         'value': value_bytes
     }))
-    return pdu.to_aper()
+    return pdu.to_aper() or b""
 
 def unwrap_e2ap_pdu(payload_bytes: bytes) -> Tuple[str, int, int, bytes]:
     """

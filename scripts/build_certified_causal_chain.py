@@ -3,17 +3,19 @@
 """
 scripts/build_certified_causal_chain.py
 =======================================
-Constrói o Harness Canônico de Validação Causal End-to-End em 6 Elos (Solução 3).
+Constrói o Harness Local de Teste de Integração e Codec Causal em 6 Elos.
+Classificação de Proveniência: CAUSAL_FIXTURE / LOCAL_GENERATOR
+(Uso restrito a testes locais de integração de pipeline L3; não elegível como evidência externa G4).
 
-Gera o repositório forense em experiments/runs/certified_closed_loop_chain/:
+Gera o repositório de fixture em experiments/runs/certified_closed_loop_chain/:
   1. 01_indication_t0.raw & .json (RICindication E2SM-KPM com SLA violada em URLLC)
   2. 02_rdl_decision.json (Decisão H-RDL determinística com Nash Bargaining)
   3. 03_control_request.raw & .json (RICcontrolRequest E2SM-RC com ponto fixo Q8.8/Q16.16)
   4. 04_control_ack.raw & .json (RICcontrolAcknowledge pareado com TxID)
   5. 05_ran_mac_transition.log (Log de reconfiguração de cotas no escalonador MAC da gNodeB)
   6. 06_indication_t1.raw & .json (RICindication E2SM-KPM comprovando restauração da SLA)
-  7. e2_closed_loop_live.pcap (Captura de pacotes PCAP dos PDUs E2AP sobre SCTP na porta 36422)
-  8. chain_manifest.json (Hashes SHA-256 criptograficamente encadeados)
+  7. e2_closed_loop_live.pcap (Captura simulada de pacotes PCAP para validação de parse)
+  8. chain_manifest.json (Hashes SHA-256 encadeados do fixture)
 """
 
 import os
@@ -26,6 +28,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT))
 CHAIN_DIR = REPO_ROOT / "experiments" / "runs" / "certified_closed_loop_chain"
 CHAIN_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -259,8 +262,13 @@ def generate_chain():
     h6 = hashlib.sha256((h5 + raw_ind1.hex()).encode("utf-8")).hexdigest()
 
     manifest = {
-        "manifest_version": "1.0.0-certified-causal",
-        "chain_id": "CERTIFIED_CLOSED_LOOP_S1_B3_5001",
+        "manifest_version": "1.0.0-causal-test-fixture",
+        "chain_id": "CAUSAL_TEST_FIXTURE_S1_B3_5001",
+        "provenance_category": "CAUSAL_FIXTURE",
+        "status": "LOCAL_INTEGRATION_FIXTURE",
+        "publication_eligible": False,
+        "external_evidence": False,
+        "note": "Harness de validação local de decodificação e integridade de pipeline (L3). Validação externa G4 requer captura em testbed.",
         "created_at_iso": "2026-09-18T11:40:00Z",
         "causal_links": [
             {"link": 1, "name": "01_indication_t0", "raw_sha256": h1, "chained_sha256": h1},
@@ -279,7 +287,7 @@ def generate_chain():
         }
     }
     (CHAIN_DIR / "chain_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-    print(f" [OK] Manifest encadeado salvo: chain_manifest.json (Root Hash: {h6[:16]}...)")
+    print(f" [OK] Manifest de fixture salvo: chain_manifest.json (Root Hash: {h6[:16]}...)")
     print("=" * 80)
     print(" HARNESS CAUSAL CONSTRUÍDO COM SUCESSO")
     print("=" * 80)

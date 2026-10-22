@@ -68,7 +68,7 @@ def build_kpm_action_definition(
                 'granulPeriod': int(granularity_period_ms)
             }
         })
-        aper_bytes = action_def.to_aper()
+        aper_bytes = action_def.to_aper() or b""
         logger.debug(f"E2SM-KPM Action Definition gerada ({len(aper_bytes)} bytes) com {len(metric_names)} metricas")
         return aper_bytes
     except Exception as e:

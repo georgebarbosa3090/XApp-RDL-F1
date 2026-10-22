@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from src.core.refinement import Refinement
 from src.infrastructure.memory_module import MemoryModule
@@ -79,3 +81,81 @@ def test_safety_guard_dynamic_power_ceiling():
     assert is_safe is False
     assert "out of bounds" in reason.lower()
 
+
+def test_strict_safety_guard_rejects_undiscovered_tx_power_capability():
+    from src.e2.rc.capability_registry import rc_capability_registry
+
+    node_id = "strict_safety_unknown_tx_power"
+    rc_capability_registry.register_node_capability(
+        node_id=node_id,
+        param_name="PRB_QUOTA",
+        style_type=1,
+        action_id=1,
+        param_id=1,
+        min_val=0,
+        max_val=100,
+        strict_mode=False,
+    )
+    refinement = Refinement(MemoryModule(), strict_capabilities=True)
+    action = XAppAction("energy_saving", node_id, "TX_POWER", 15.0, 50)
+
+    is_safe, _, reason = refinement.validate_single_action(action)
+
+    assert is_safe is False
+    assert "capability not discovered" in reason.lower()
+
+
+def test_strict_safety_guard_uses_discovered_tx_power_limit():
+    from src.e2.rc.capability_registry import rc_capability_registry
+
+    node_id = "strict_safety_discovered_tx_power"
+    rc_capability_registry.register_node_capability(
+        node_id=node_id,
+        param_name="TX_POWER",
+        style_type=2,
+        action_id=1,
+        param_id=3,
+        min_val=-10,
+        max_val=18,
+        unit="dBm",
+        strict_mode=True,
+    )
+    refinement = Refinement(MemoryModule(), strict_capabilities=True)
+    action = XAppAction("energy_saving", node_id, "TX_POWER", 18.0, 50)
+
+    is_safe, _, reason = refinement.validate_single_action(action)
+
+    assert is_safe is True
+    assert reason == "Passed safety checks"
+
+
+def test_resolution_rejects_action_inside_control_cooldown():
+    from src.conflict_types import (
+        ConflictEvent,
+        ConflictSeverity,
+        ConflictType,
+        ResolutionAction,
+        ResolutionStrategy,
+    )
+
+    action = XAppAction("xslice", "gnb_cooldown", "PRB_QUOTA", 80.0, 90)
+    conflict = ConflictEvent(
+        conflict_type=ConflictType.DIRECT,
+        severity=ConflictSeverity.HIGH,
+        involved_xapps=[action],
+    )
+    resolution = ResolutionAction(
+        conflict_id=conflict.conflict_id,
+        strategy_used=ResolutionStrategy.TVS,
+        winning_actions=[action],
+        modified_value=action.value,
+        confidence=1.0,
+        validation_level=0,
+    )
+    refinement = Refinement(MemoryModule())
+    refinement.last_control_time["gnb_cooldown_PRB_QUOTA"] = time.time() * 1000
+
+    is_safe, _, reason = refinement.validate(resolution, conflict)
+
+    assert is_safe is False
+    assert "control frequency exceeded" in reason.lower()

@@ -260,6 +260,8 @@ class DiscreteEventRANSimulator:
         """Aplica comando E2SM-RC Format 1 diretamente nos nós de rádio."""
         param = action_dict.get("parameter")
         val = action_dict.get("value")
+        if val is None:
+            return
         gnb_id = action_dict.get("node_id", "gnb_01")
         
         if gnb_id in self.gnbs:
@@ -414,7 +416,15 @@ class DiscreteEventRANSimulator:
             })
 
         final_kpm = self.get_kpm_metrics()
-        ee_index = 1.145 if self.mode == "B3" else (1.08 if self.mode == "B2" else (1.03 if self.mode == "B1" else 1.00))
+        urllc_flows = [f for f in flow_metrics if f["slice_type"] == "URLLC"]
+        computed_sla_viol_pct = round((sum(f["sla_violated"] for f in urllc_flows) / max(1, len(urllc_flows))) * 100.0, 2)
+        
+        # Eficiência energética empírica: Throughput / Potência RF agregada dos gNBs
+        total_rf_power_w = sum(10 ** ((gnb.tx_power_dbm - 30.0) / 10.0) for gnb in self.gnbs.values())
+        empirical_ee_mbps_per_w = round(final_kpm["throughput_mbps"] / max(0.1, total_rf_power_w), 3)
+
+        decision_latencies = [r.get("decision_latency_ms", 0.0) for r in self.time_records if r.get("decision_latency_ms", 0.0) > 0.0]
+        avg_decision_latency = round(sum(decision_latencies) / len(decision_latencies), 2) if decision_latencies else 0.0
 
         return {
             "mode": self.mode,
@@ -426,12 +436,12 @@ class DiscreteEventRANSimulator:
             "conflict_rate_pct": round((unresolved_conflicts / max(1, total_proposals)) * 100.0, 2),
             "urllc_mean_latency_ms": final_kpm["urllc_latency_mean_ms"],
             "urllc_p99_latency_ms": final_kpm["urllc_latency_p99_ms"],
-            "urllc_sla_violations_pct": 0.0 if self.mode == "B3" else (25.0 if self.mode == "B2" else (65.0 if self.mode == "B1" else 93.33)),
+            "urllc_sla_violations_pct": computed_sla_viol_pct,
             "throughput_mbps": final_kpm["throughput_mbps"],
             "delivery_ratio_pct": final_kpm["delivery_ratio_pct"],
             "jain_fairness": final_kpm["jain_fairness"],
-            "energy_efficiency_index": ee_index,
-            "mean_decision_latency_ms": 14.2 if self.mode == "B3" else 0.0,
+            "energy_efficiency_index": empirical_ee_mbps_per_w,
+            "mean_decision_latency_ms": avg_decision_latency,
             "flow_metrics": flow_metrics,
             "time_records": self.time_records
         }

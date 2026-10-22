@@ -1,6 +1,6 @@
 # Mapeamento e Matriz Metodológica da Campanha de Cenários (S0 a S15)
 
-Este diretório contém a suíte de simulações físicas **ns-3 + 5G-LENA + NORI + E2 real** para validação experimental do middleware **xApp RDL (H-RDL)**.
+Este diretório contém fontes e instruções para cenários de co-simulação **ns-3 + 5G-LENA + NORI/E2**, destinados à avaliação do middleware **xApp RDL (H-RDL)**. A presença de um cenário C++ ou de um teste local não comprova execução integrada nem evidência externa: os gates G1, G3, G4 e G5 permanecem sujeitos aos critérios do [README principal](../../README.md).
 
 ---
 
@@ -14,9 +14,9 @@ Este diretório contém a suíte de simulações físicas **ns-3 + 5G-LENA + NOR
 | **S3** | Multi-Métrica Cross-Layer (Power x QoS) | [`scenario_rdl_energy_vs_qos.cc`](scenario_rdl_energy_vs_qos.cc) | Equilíbrio Pareto entre Economia de Energia e SLA |
 | **S4** | Mobilidade (TS) x Economia de Energia (ES) | [`scenario_rdl_ts_vs_energy.cc`](scenario_rdl_ts_vs_energy.cc) | Arbitragem Assimétrica de Sono de gNB e Cobertura |
 | **S5** | Histerese Temporal e Trava de Ping-Pong | [`scenario_rdl_temporal_pingpong.cc`](scenario_rdl_temporal_pingpong.cc) | Cooldown Lock e Supressão de Oscilação Temporal |
-| **S6** | Conflict Storm (50 req/janela) | [`scenario_rdl_conflict_storm.cc`](scenario_rdl_conflict_storm.cc) | Tempo de Resolução Near-RT Estritamente < 50 ms |
-| **S7** | Injeção de Falhas Adversárias | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | Zero-Violation (100% de Ações Inseguras Bloqueadas) |
-| **S8** | Malha Fechada E2AP/E2SM com NORI | [`scenario_rdl_closed_loop_nori.cc`](scenario_rdl_closed_loop_nori.cc) | Integração Completa com Codec ASN.1 e RIC Real |
+| **S6** | Conflict Storm (50 req/janela) | [`scenario_rdl_conflict_storm.cc`](scenario_rdl_conflict_storm.cc) | Meta do projeto: avaliar tempo de resolução abaixo de 50 ms |
+| **S7** | Injeção de Falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | Testar bloqueio de ações inseguras; não é taxa de sucesso empírica de RAN |
+| **S8** | Caminho de co-simulação E2AP/E2SM com NORI | [`scenario_rdl_closed_loop_nori.cc`](scenario_rdl_closed_loop_nori.cc) | Validar a integração live após executar e coletar evidência externa |
 
 ---
 
@@ -40,7 +40,7 @@ Os cenários **S9 a S15** representam a extensão da campanha para ambientes de 
 
 **É expressamente proibido utilizar simuladores discretos simplificados ou geradores sintéticos estáticos para produzir dados científicos.**
 
-Todos os datasets, métricas de SLA, vazão, perdas de pacotes e latência de rádio devem ser **obrigatoriamente exportados pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1 / NORI)** a partir dos códigos-fonte C++ (`simulations/ns3/*.cc`).
+Métricas de tráfego e QoS da simulação devem ser exportadas pelo módulo nativo `FlowMonitor` do ns-3 (5G-LENA v5.1). Alegações de KPM, controle RC ou closed loop também exigem traces E2/RIC externos e manifesto de proveniência; FlowMonitor isoladamente não comprova esses elos. Cenários definidos ou compiláveis, por si só, não constituem resultados experimentais.
 
 $$
 \text{Cenário C++} \longrightarrow \text{ns-3.48 + 5G-LENA v5.1} \longrightarrow \text{FlowMonitor XML/CSV} \longrightarrow \text{Relatório Markdown Oficial}

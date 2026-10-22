@@ -1,6 +1,7 @@
 """
-Testes de Interoperabilidade E2SM-KPM / NORI
-Valida a recepção, decodificação e agregação de telemetria multicélula transmitida pelo E2 Node/NORI.
+Testes de Contrato de Codec e Mapeamento Local E2SM-KPM / NORI (L2/L3)
+Valida a geração de Event Trigger/Action Definition e a decodificação de telemetria multicélula via APER local.
+Nota: Teste local de conformidade de contrato de codec; não executa socket de rede externo com NORI.
 """
 
 import pytest

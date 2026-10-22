@@ -1,6 +1,7 @@
 """
-Testes de Interoperabilidade E2SM-RC / NORI
-Valida o ciclo completo de mapeamento RDL -> RC -> E2AP-PDU com ProtocolIE-Container e o processamento de ACK/Failure.
+Testes de Interoperabilidade e Protocolo Local E2SM-RC / NORI (L2/L3)
+Valida o ciclo completo de mapeamento RDL -> RC -> E2AP-PDU com ProtocolIE-Container e o processamento de ACK/Failure local.
+Nota: Teste de integração de protocolo e camadas locais; não executa socket de rede externo com NORI.
 """
 
 import pytest

@@ -3,12 +3,13 @@
 <div align="center">
 
 **Arquitetura Unificada de Governança Cognitiva, Arbitragem Determinística e Mitigação de Conflitos Multi-xApp para Near-RT RIC**  
-*Homologado para O-RAN ALLIANCE WG2/WG3, O-RAN SC (Release J), NORI (5G-LENA v5.1 / ns-3.48) e OpenRAN@Brasil Blueprint v3.*
+*Perfil-alvo documentado para O-RAN ALLIANCE WG2/WG3, O-RAN SC (Release J), NORI (5G-LENA v5.1 / ns-3.48) e OpenRAN@Brasil Blueprint v3; interoperabilidade externa segue em validação.*
 
 [![O-RAN WG3](https://img.shields.io/badge/O--RAN%20Alliance-WG3%20E2AP%20v2.03%20%7C%20E2SM--RC%20v1.03-blue.svg)](https://o-ran.org)
 [![ns-3 5G-LENA](https://img.shields.io/badge/ns--3.48-5G--LENA%20v5.1%20%7C%20NORI-green.svg)](https://cttc.es)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![Test Suite](https://img.shields.io/badge/Tests-PASS%20(100%25)-brightgreen.svg)](tests/)
+[![Test Suite](https://img.shields.io/badge/Tests-108%20PASS-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-85.02%25%20(Gate%20%E2%89%A585%25)-brightgreen.svg)](tests/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
 [![Google Drive Backup](https://img.shields.io/badge/Google%20Drive-Automated%20Backup%20Active-brightgreen.svg)](https://drive.google.com/drive/folders/14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM?usp=sharing)
 
@@ -20,9 +21,25 @@
 
 | Fase do Projeto | Descrição e Paradigma de Controle | Status de Implementação | Repositório Oficial |
 | :---: | :--- | :---: | :---: |
-| **Fase 1** | **RDL Determinística e Segura (H-RDL)**<br/>*Janela em lote nominal ($\Delta t_{win} = 200	ext{ ms}$), heurísticas de prioridade TVS/EEVS, Safety Guards físicos e mapeamento formal E2AP/E2SM.* | **100% Validada & Operacional** | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
-| **Fase 2** | **RDL Baseada em Contexto e Safe-RL (CA-RDL)**<br/>*Aprendizado por Reforço Multiagente (Safe-MAPPO sob CMDP Lagrangian), Grafos de Conhecimento (GraphSAGE / GNN) e Sensibilidade Contextual.* | **100% Validada & Operacional** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
+| **Fase 1** | **RDL Determinística e Segura (H-RDL)**<br/>*Janela em lote nominal ($\Delta t_{win} = 200\text{ ms}$), heurísticas de prioridade TVS/EEVS, Safety Guards físicos com default-deny, rollback atômico e mapeamento formal E2AP/E2SM.* | **Implementada & Localmente Integrada (L3 forte)**<br/>*(Validação E2 externa, closed-loop causal e campanha científica multi-seed em consolidação no testbed)* | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
+| **Fase 2** | **RDL Baseada em Contexto e Safe-RL (CA-RDL)**<br/>*Aprendizado por Reforço Multiagente (Safe-MAPPO sob CMDP Lagrangian), Grafos de Conhecimento (GraphSAGE / GNN) e Sensibilidade Contextual.* | **Em desenvolvimento ativo** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
 | **Fase 3** | **RDL Autônoma e Federada 6G (Zero-Touch)**<br/>*Inteligência distribuída, orquestração por intenção (A1 Intent-Driven), Federação Multi-RIC e SAGIN.* | **Roadmap Ativo (2026–2028)** | *Em especificação e testbed* |
+
+---
+
+### 🛡️ Matriz de Maturidade dos Gates de Evidência Experimental (Fase 1 — H-RDL)
+
+Em conformidade rigorosa com a política de proveniência (`reproducibility/provenance_policy.yaml`) e auditoria técnica de 22/10/2026:
+
+| Gate | Descrição Normativa | Status Atual | Evidência & Diagnóstico Técnico |
+| :---: | :--- | :---: | :--- |
+| **G0** | Ambiente Normativo Reproduzível | 🟡 **PARCIAL** | `uv.lock` fixa o ambiente Python; dependências transitivas do testbed ns-3/NORI precisam de registro de versão/commit por execução. |
+| **G1** | E2SM-KPM Real (Telemetria Externa) | 🔴 **PENDENTE EXTERNO** | Codec APER e CapabilityRegistry dinâmico validados localmente; discovery externo em consolidação. |
+| **G2** | H-RDL Funcional (Decisão Determinística) | 🟢 **APROVADO LOCAL** | Testes locais de detecção, Safety default-deny, limites de potência e rollback; não certifica interoperabilidade E2 externa. |
+| **G3** | E2SM-RC Real (Controle + ACK Externo) | 🔴 **PENDENTE EXTERNO** | Codec RC Format 1, pareamento estrito TxID e correlação sem fallback validados; aguarda socket live NORI. |
+| **G4** | Closed-Loop Causal End-to-End | 🔴 **PENDENTE EXTERNO** | Harness causal em 6 elos validado como fixture de integração (`CAUSAL_FIXTURE`); captura live em testbed em progresso. |
+| **G5** | Campanha Científica Multi-Semente | 🔴 **NÃO APROVADO** | Bateria N=30 reclassificada como Benchmark de Engenharia Offline (`DISCRETE_EVENT_SIMULATOR`); execução ns-3/testbed em consolidação. |
+| **G6** | Artifact Readiness (ACM SIGSIM / IEEE) | ⚪ **BLOQUEADO** | Bloqueado formalmente até a coleta e certificação das evidências empíricas externas de G4 e G5. |
 
 ---
 
@@ -83,7 +100,7 @@ flowchart TD
         A1["Propostas de xApps"] --> A2["Janela Fixa (200 ms)"]
         A2 --> A3["Heurística & Utilidade (TVS/EEVS)"]
         A3 --> A4["Safety Guard (Boundary Clip)"]
-        A4 --> A5["Comando E2SM-RC Seguro (0,12 ms)"]
+        A4 --> A5["Comando E2SM-RC validado (latência a medir)"]
     end
 
     subgraph F2["Fase 2: CA-RDL (Context-Aware & Safe-MAPPO)"]
@@ -91,7 +108,7 @@ flowchart TD
         B1["Propostas de xApps"] --> B2["Janela Adaptativa (50 a 500 ms)"]
         B2 --> B3["Knowledge Graph & GNN (Topologia Dinâmica)"]
         B3 --> B4["Safe-MAPPO com Action Masking"]
-        B4 --> B5["Comando E2SM-RC Otimizado (4,8 ms)"]
+        B4 --> B5["Comando E2SM-RC otimizado (meta < 10 ms; não medido)"]
     end
 ```
 
@@ -104,12 +121,12 @@ flowchart TD
 | **Mecanismo de Detecção** | **Tabela de Conflitos e Regras Estáticas:** Verifica sobreposição de parâmetros físicos ($P_{tx}$, PRBs, Handover) na matriz de conflito. | **Knowledge Graph & GraphSAGE (GNN):** Mapeia a topologia como grafo dinâmico e detecta conflitos diretos, indiretos e implícitos. |
 | **Motor de Decisão (Reasoning)** | **Heurísticas TVS / EEVS:** Otimização combinatória convexa baseada em pesos estáticos de QoS e penalidades lineares. | **Safe-MAPPO (MARL):** Agentes neurais cooperativos treinados sob CMDP (*Constrained Markov Decision Process*) via Multiplicadores de Lagrange. |
 | **Garantia de Segurança** | **Safety Guard Rígido (Hard Bound):** *Clipping* e truncamento imediato de comandos fora dos limites do 3GPP TS 38.104. | **Action Masking + Lagrange Guard:** Invalidação prévia de ações inseguras no espaço de probabilidade da política neural. |
-| **Latência de Decisão** | **Ultra-baixa ($0,12	ext{ ms}$):** Execução vetorial imediata em C++/Python sem inferência neural. | **Determinada ($4,8	ext{ ms}$):** Inferência neural via PyTorch/ONNX Runtime dentro do orçamento Near-RT (< 10 ms). |
+| **Latência de Decisão** | A medir com traces de execução elegíveis; não há valor certificado nesta versão. | Meta arquitetural (< 10 ms), ainda sem resultado experimental certificado. |
 | **Cenário Ideal de Operação** | Redes estáveis, tráfego homogêneo e requisitos determinísticos estritos de sub-milissegundo. | Redes densas heterogêneas, fatiamento dinâmico (URLLC/eMBB/mMTC), ISAC 6G e mobilidade NTN/V2X. |
 
 ---
 
-## 3. Topologia e Cenários de Simulação Homologados (O-RAN / ns-3)
+## 3. Topologias e Cenários Especificados para Avaliação (O-RAN / ns-3)
 
 A plataforma valida cenários de simulação científica, com foco em H-RDL:
 
@@ -134,7 +151,7 @@ Todas as figuras científicas, topologias e diagramas de sequência estão catal
 ## 5. Catálogo Formal de Relatórios Científicos e Normativos
 
 O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md):
-- **Demonstração Científica Rica em Circuito Fechado (H-RDL Fase 1):** Consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) para os resultados das demonstrações operacionais D1 a D5 (`scripts/run_live_demonstrations_d1_d5.py`), resiliência E2 sob timeout/rollback e validação experimental closed-loop.
+- **Demonstrações operacionais locais (H-RDL Fase 1):** Consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) para os roteiros D1 a D5 (`scripts/run_live_demonstrations_d1_d5.py`). Fixtures e demonstrações locais não substituem a evidência live exigida pelo gate G4.
 - **Diagrama de Sequência e Fluxo de Controle Closed-Loop (H-RDL Fase 1):** Consulte o [Volume 23](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) para a decomposição dos 5 estágios de arbitragem em malha fechada, mensagens normativas O-RAN WG2/WG3 e orçamento de latência.
 
 ---
@@ -143,14 +160,21 @@ O arcabouço científico consolida as matrizes de rastreabilidade normativa, or�
 
 ### 6.1 Execução dos Testes Automatizados
 ```bash
-# Execução da suíte de testes em ambiente WSL / Linux
+# Instalação das dependências para desenvolvimento e testes
+# Inclui ferramentas de teste e, opcionalmente, dependência O-RAN SC/RMR
+uv sync --extra test --extra oran
+
+# Execução da suíte de testes
 pytest tests/ -v
 ```
 
-### 6.2 Execução do Módulo de Arbitragem Heurística
+### 6.2 Execução da xApp
 ```bash
-# Execução da arbitragem H-RDL
-python -m src.rdl_engine --scenario cenario_1_eevs
+# Execução instalada
+xapp-rdl
+
+# Alternativa sem instalar o entry point
+python -m src.main
 ```
 
 ---
@@ -163,7 +187,7 @@ python -m src.rdl_engine --scenario cenario_1_eevs
 - **Programa:** Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
 - **Área de Concentração:** Sistemas de Computação e Redes de Comunicação
 - **Linha de Pesquisa:** Redes Sem Fio Inteligentes, Open RAN e Arquiteturas Cognitivas 6G
-- **Release Homologada:** `1.2.0-certified` (18 de setembro de 2026)
+- **Versão declarada do pacote:** `1.1.0` (metadados de `pyproject.toml`)
 
 ---
 

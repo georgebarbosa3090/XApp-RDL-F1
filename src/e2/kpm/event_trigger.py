@@ -1,3 +1,4 @@
+from typing import Optional
 from pycrate_asn1rt.asnobj_basic import INT
 from pycrate_asn1rt.asnobj_construct import SEQ, ASN1Dict
 from src.observability.logging import setup_logger
@@ -23,7 +24,7 @@ class E2SM_KPM_EventTriggerDefinition(SEQ):
     _root = ['eventDefinition_formats']
     _ext = None
 
-def build_kpm_event_trigger(report_period_ms: int = 200, reporting_period_ms: int = None) -> bytes:
+def build_kpm_event_trigger(report_period_ms: int = 200, reporting_period_ms: Optional[int] = None) -> bytes:
     """
     Constrói o buffer binário APER normativo para o Event Trigger Definition do E2SM-KPM.
     Define o intervalo periódico de envio de telemetria pelo nó E2 / simulador 5G-LENA.
@@ -36,7 +37,7 @@ def build_kpm_event_trigger(report_period_ms: int = 200, reporting_period_ms: in
                 'reportingPeriodMs': int(period)
             }
         })
-        aper_bytes = trigger.to_aper()
+        aper_bytes = trigger.to_aper() or b""
         logger.debug(f"E2SM-KPM Event Trigger gerado ({len(aper_bytes)} bytes) para período {period}ms")
         return aper_bytes
     except Exception as e:

@@ -12,6 +12,7 @@ utilize geradores aleatórios sintéticos (np.random, random.gauss, etc.).
 import os
 import sys
 import re
+import json
 from typing import List, Tuple
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -122,6 +123,37 @@ def main():
         log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
+    # Validação de Linhagem e Proveniência de Manifestos em experiments/
+    print("\n--- Verificação de Linhagem e Proveniência de Manifestos ---")
+    manifest_dirs = [os.path.join(BASE_DIR, "experiments", "results"), os.path.join(BASE_DIR, "experiments", "runs")]
+    for mdir in manifest_dirs:
+        if not os.path.exists(mdir):
+            continue
+        for root, _, files in os.walk(mdir):
+            for file in files:
+                if file.endswith(("_manifest.json", "manifest.json")) or file.startswith("manifest_"):
+                    m_fpath = os.path.join(root, file)
+                    try:
+                        with open(m_fpath, "r", encoding="utf-8") as f_m:
+                            m_obj = json.load(f_m)
+                        cat = m_obj.get("provenance_category")
+                        pub_elig = m_obj.get("publication_eligible", False)
+                        gate = str(m_obj.get("gate", ""))
+                        status = str(m_obj.get("status", ""))
+                        # Se categoria for não publicável, não pode ter publication_eligible=True ou alegar certificação externa
+                        if cat in non_pub_sources:
+                            if pub_elig:
+                                err = f"Violação de Linhagem: {m_fpath} categorizado como {cat} mas declara publication_eligible=True!"
+                                print(f"[FALHA CRÍTICA] {err}")
+                                sys.exit(1)
+                            if "CERTIFIED_NON_REPUDIABLE" in status or "G5_CERTIFIED" in status or "Gate 1 - Multi-Seed" in gate:
+                                err = f"Violação de Linhagem: {m_fpath} categorizado como {cat} mas declara certificação externa G5/Gate1!"
+                                print(f"[FALHA CRÍTICA] {err}")
+                                sys.exit(1)
+                    except Exception:
+                        pass
+    print("[OK] Linhagem e conformidade de proveniência de manifestos 100% verificadas!")
+
     # Validação do figures_manifest.json (Solução 2)
     manifest_path = os.path.join(REPORTS_DIR, "figures", "figures_manifest.json")
     if not os.path.exists(manifest_path):
@@ -130,7 +162,6 @@ def main():
         log_step_summary(f"### [FAIL] {err}")
         sys.exit(1)
 
-    import json
     with open(manifest_path, "r", encoding="utf-8") as mf:
         mdata = json.load(mf)
     figs = mdata.get("figures", [])

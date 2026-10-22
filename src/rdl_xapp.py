@@ -116,7 +116,7 @@ class RDLxApp:
             
         self.perception = Perception()
         self.reasoning = Reasoning(self.memory, config={})
-        self.refinement = Refinement(self.memory)
+        self.refinement = Refinement(self.memory, strict_capabilities=self.oran_strict)
         self.health = HealthServer(port=8080)
         self.health.set_state(AppState.STARTING)
         self.metrics = MetricsServer(port=8081)
@@ -197,18 +197,28 @@ class RDLxApp:
             self.backend.register_static_profile_capabilities("gnb_01")
         # Inicia subscricao E2SM-KPM com o tempo de reporte padrao do backend
         kpm_period = self.backend.metadata.default_kpm_period_ms
-        self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+        from src.e2.rc.capability_registry import rc_capability_registry
+        try:
+            kpm_fn_id = rc_capability_registry.get_kpm_function_id("gnb_01")
+            self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+        except Exception as e:
+            if self.oran_strict:
+                logger.warning(f"[ORAN-STRICT] Subscrição E2SM-KPM suspensa: aguardando descoberta de KPM via E2 Setup ({e})")
+            else:
+                self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
         threading.Thread(target=self._decision_loop, daemon=True).start()
 
 
-    def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: int = 2, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
+    def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: Optional[int] = None, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
         """
         Emite requisicao de subscricao E2 (RIC_SUB_REQ) com payloads APER normativos.
         """
         try:
+            from src.e2.rc.capability_registry import rc_capability_registry
+            resolved_fn_id = ran_function_id if ran_function_id is not None else rc_capability_registry.get_kpm_function_id(node_id)
             sub_req_payload = build_ric_subscription_request_payload(
                 target_node=node_id,
-                ran_function_id=ran_function_id,
+                ran_function_id=resolved_fn_id,
                 report_period_ms=report_period_ms
             )
             payload_bytes = json.dumps(sub_req_payload).encode('utf-8')
@@ -341,7 +351,7 @@ class RDLxApp:
         for act in actions:
             self.memory.add_action(act)
             
-        conflicts = self.perception.register_action_group(actions)
+        conflicts = self.perception.detect_action_group(actions)
         self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
         
         # Mapeia acoes em conflito para isolar as acoes limpas
@@ -390,6 +400,7 @@ class RDLxApp:
 
         # 3. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
         all_selected = selected_winning_actions + selected_clean_actions
+        self.perception.commit_actions(all_selected)
         decision = RDLDecision(
             state={"active_xapps": len(self.perception.get_active_xapps())},
             proposals=actions,

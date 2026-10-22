@@ -22,3 +22,25 @@ def test_reasoning_shannon_and_tvs_resolution():
     assert resolution.strategy_used in (ResolutionStrategy.TVS, ResolutionStrategy.PRIORITY_TABLE)
     assert len(resolution.winning_actions) > 0
     assert resolution.winning_actions[0].xapp_id == "xslice"
+
+
+def test_large_indirect_conflict_uses_deterministic_bounded_strategy():
+    reasoning = Reasoning(MemoryModule(), config={"max_exact_actions": 4})
+    actions = [
+        XAppAction(f"xapp_{index}", "gnb_01", f"PARAM_{index}", float(index), 50)
+        for index in range(12)
+    ]
+    conflict = ConflictEvent(
+        conflict_type=ConflictType.INDIRECT,
+        severity=ConflictSeverity.MEDIUM,
+        involved_xapps=actions,
+        affected_kpis=["DRB.UEThpDl"],
+        description="Large indirect conflict",
+    )
+
+    resolution = reasoning.resolve(conflict)
+
+    assert resolution.strategy_used == ResolutionStrategy.EEVS
+    assert resolution.winning_actions
+    assert resolution.confidence == 0.70
+    assert resolution.winning_actions == reasoning.resolve(conflict).winning_actions

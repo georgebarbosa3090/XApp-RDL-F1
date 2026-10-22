@@ -3,18 +3,15 @@
 """
 scripts/verify_causal_chain.py
 ==============================
-Solução 3: Script de Verificação de Não-Repúdio e Prova Forense Causal em 6 Elos.
+Verificador de Integridade Interna de Fixture Causal em 6 Elos.
+Classificação: CAUSAL_FIXTURE / LOCAL_GENERATOR (L3 Local Pipeline Verification)
 
-Executa a validação formal inquebrável:
+Valida a consistência criptográfica interna dos elos produzidos pelo harness de teste:
   Cadeia Válida <=> Hash(KPM_t0) -> Hash(Decisão) -> Hash(RC) -> Hash(ACK) -> Hash(MAC) -> Hash(KPM_t1)
   
-Critérios de Certificação:
-  1. Integridade de Hash SHA-256 de todos os 6 artefatos brutos (.raw e .json);
-  2. Monotonicidade temporal estrita de timestamps (t0 < t_dec < t_ctrl < t_ack < t_ran < t1);
-  3. Pareamento estrito de Transaction ID (TxID_ctrl == TxID_ack);
-  4. Validação do efeito causal na camada física (Latência URLLC reduzida de 18.2 ms para 4.1 ms < 10 ms SLA);
-  5. Integridade do arquivo de captura de rede PCAP (e2_closed_loop_live.pcap);
-  6. Emissão de laudo formal auditável (artifacts/testbed/causal_chain_verification_report.json).
+Nota Metodológica:
+  Esta verificação comprova a integridade e conformidade de pipeline do software local (L3).
+  A validação empírica externa da RAN (G4) depende de capturas reais em testbed ns-3/srsRAN.
 """
 
 import sys
@@ -182,11 +179,14 @@ def verify_chain() -> Dict[str, Any]:
     }
 
     if time_monotone and tx_match and causal_effect_verified and pcap_ok:
-        report["overall_status"] = "CERTIFIED_NON_REPUDIABLE"
-        print("\n===> [PROVA CAUSAL APROVADA: CADEIA INQUEBRÁVEL 100% CERTIFICADA] <===")
+        report["overall_status"] = "VERIFIED_FIXTURE_INTEGRITY"
+        report["provenance_category"] = "CAUSAL_FIXTURE"
+        report["external_g4_status"] = "PENDING_TESTBED_E2_CAPTURE"
+        print("\n===> [INTEGRIDADE DO FIXTURE CAUSAL APROVADA: PIPELINE H-RDL L3 VALIDADO] <===")
+        print(" [NOTA] Artefato validado como CAUSAL_FIXTURE. Prova causal externa G4 pendente de captura no testbed.")
     else:
         report["overall_status"] = "VERIFICATION_FAILED"
-        print("\n===> [FALHA NA VERIFICAÇÃO CAUSAL] <===")
+        print("\n===> [FALHA NA VERIFICAÇÃO DO FIXTURE CAUSAL] <===")
 
     out_file = ARTIFACTS_DIR / "causal_chain_verification_report.json"
     with open(out_file, "w", encoding="utf-8") as f:
@@ -198,7 +198,7 @@ def verify_chain() -> Dict[str, Any]:
 
 def main():
     res = verify_chain()
-    if res["overall_status"] != "CERTIFIED_NON_REPUDIABLE":
+    if res["overall_status"] != "VERIFIED_FIXTURE_INTEGRITY":
         sys.exit(1)
     sys.exit(0)
 

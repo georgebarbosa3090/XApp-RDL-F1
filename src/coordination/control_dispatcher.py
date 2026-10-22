@@ -58,9 +58,12 @@ class ControlDispatcher:
         requestor_id = int(str(uuid.uuid4().int)[:4]) % 65535 + 1
         instance_id = 1
         
+        from src.e2.rc.capability_registry import rc_capability_registry
+        ran_fn_id = rc_capability_registry.get_rc_function_id(target_node)
+
         ctrl_ctx = build_ric_control_request(
             node_id=target_node,
-            ran_function_id=3,
+            ran_function_id=ran_fn_id,
             header_bytes=encoded.header_aper,
             message_bytes=encoded.message_aper,
             requestor_id=requestor_id,
@@ -75,7 +78,7 @@ class ControlDispatcher:
             "control_request_id": control_request_id,
             "requestor_id": requestor_id,
             "instance_id": instance_id,
-            "ran_function_id": 3,
+            "ran_function_id": ran_fn_id,
             "meid": target_node,
             "decision_id": decision.decision_id,
             "action_id": action_id,
@@ -110,11 +113,15 @@ class ControlDispatcher:
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
             key = f"{req_id}_{inst_id}"
-            
+            from src.e2.rc.capability_registry import rc_capability_registry
             ctrl_id = self.req_key_to_id.get(key)
-            if not ctrl_id and self.pending_requests:
-                # Fallback para o último pendente caso não encontre por chave
-                ctrl_id = list(self.pending_requests.keys())[-1]
+            if not ctrl_id:
+                if not rc_capability_registry.is_strict_mode() and self.pending_requests:
+                    # Fallback permissivo apenas em modo offline/desenvolvimento
+                    ctrl_id = list(self.pending_requests.keys())[-1]
+                else:
+                    logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_ACK recebido para req não rastreado: {key}")
+                    return None
                 
             if ctrl_id and ctrl_id in self.pending_requests:
                 info = self.pending_requests[ctrl_id]
@@ -206,10 +213,12 @@ class ControlDispatcher:
         
         # Codifica e envia comando de restauração segura
         try:
+            from src.e2.rc.capability_registry import rc_capability_registry
+            ran_fn_id = rc_capability_registry.get_rc_function_id(target_node)
             encoded = self.encoder.encode_control_parts(node_id=target_node, parameter=param, value=safe_val)
             ctrl_ctx = build_ric_control_request(
                 node_id=target_node,
-                ran_function_id=3,
+                ran_function_id=ran_fn_id,
                 header_bytes=encoded.header_aper,
                 message_bytes=encoded.message_aper,
                 requestor_id=9999,

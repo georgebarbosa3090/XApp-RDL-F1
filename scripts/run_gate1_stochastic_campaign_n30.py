@@ -2,14 +2,12 @@
 """
 ========================================================================================
 Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
-Módulo: GATE 1 - Campanha Experimental N=30 Genuinamente Estocástica (B0 a B3)
+Módulo: Benchmark de Engenharia Offline N=30 (B0 a B3)
 Arquivo: scripts/run_gate1_stochastic_campaign_n30.py
-Descrição: Executa 120 simulações contínuas completas (4 baselines x 30 seeds reais)
-           com desvanecimento log-normal 3GPP UMi (sigma=4dB), processos Poisson
-           de chegadas nos buffers e dispersão espacial de UEs.
-           Todas as métricas emergem 100% da dinâmica de filas e canais do simulador
-           (Zero amostragens sintéticas post-hoc).
-           Calcula inferência estatística confirmatória formal (IC95%, Wilcoxon, Cohen's dz).
+Descrição: Executa 120 simulações no simulador interno (DiscreteEventRANSimulator)
+           para regressão de software e verificação comparativa das heurísticas H-RDL.
+Classificação de Proveniência: DISCRETE_EVENT_SIMULATOR (Não elegível como publicação G5
+                              conforme reproducibility/provenance_policy.yaml).
 ========================================================================================
 """
 
@@ -82,9 +80,9 @@ def run_single_simulation(mode: str, seed: int, duration_s: float = 5.0) -> Dict
 
 def run_gate1_campaign():
     print("=" * 80)
-    print(" GATE 1: EXECUÇÃO DA CAMPANHA MULTI-SEMENTE ESTOCÁSTICA N=30 (B0 A B3)")
-    print(" Padrão: 3GPP TR 38.901 UMi + Processos Poisson + Decisões O-RAN Near-RT")
-    print(" Metodologia: 100% Emergente de Fila MAC e Fading (Zero Amostragem Sintética)")
+    print(" BENCHMARK DE ENGENHARIA OFFLINE N=30: B0 A B3 (DiscreteEventRANSimulator)")
+    print(" Objetivo: Regressão de software e verificação comparativa pré-G5")
+    print(" Proveniência: DISCRETE_EVENT_SIMULATOR (Uso restrito a engenharia interna)")
     print("=" * 80)
 
     baselines = ["B0", "B1", "B2", "B3"]
@@ -208,12 +206,16 @@ def run_gate1_campaign():
         raw_hash = hashlib.sha256(f.read()).hexdigest()
 
     manifest = {
-        "gate": "Gate 1 - Multi-Seed Stochastic Campaign N=30",
-        "protocol": "3GPP TR 38.901 UMi + Poisson Queue Arrivals + O-RAN Near-RT Closed-Loop",
+        "benchmark_type": "OFFLINE_ENGINEERING_BENCHMARK",
+        "status": "OFFLINE_ALGORITHM_REGRESSION",
+        "provenance_category": "DISCRETE_EVENT_SIMULATOR",
+        "publication_eligible": False,
+        "gate_association": "Pre-G5 Software Regression",
+        "protocol": "DiscreteEventRANSimulator internal MAC queues (Local Simulation)",
         "sample_size_per_baseline": 30,
         "total_simulations": total_runs,
         "seed_range": [1001, 1030],
-        "metrics_source": "100% Emergent from DiscreteEventRANSimulator MAC Queues & Fading (Zero Synthetic RNG)",
+        "metrics_source": "DiscreteEventRANSimulator dynamic queue state",
         "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "sha256_raw_data": raw_hash,
         "files_generated": [

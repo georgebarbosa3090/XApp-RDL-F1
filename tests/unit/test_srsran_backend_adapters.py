@@ -92,6 +92,26 @@ class TestSrsranE2Adapter:
         adapter.disconnect()
         assert adapter.is_connected is False
 
+    def test_unconnected_or_real_socket_failure(self):
+        adapter = SrsranE2Adapter(e2t_host="127.0.0.1", e2t_port=59999, mock_socket=False)
+        assert adapter.is_connected is False
+        
+        # Conexão a porta fechada falha de forma segura
+        ok = adapter.connect_e2(timeout_s=0.1)
+        assert ok is False
+        assert adapter.is_connected is False
+        
+        # Subscrição desconectado retorna False
+        assert adapter.subscribe_kpm("gnb_01") is False
+        
+        # Despacho desconectado retorna ack_received=False
+        res = adapter.dispatch_control("gnb_01", {"tx_power_dbm": 30.0})
+        assert res.ack_received is False
+        
+        # Disconnect quando não conectado é no-op seguro
+        adapter.disconnect()
+        assert adapter.is_connected is False
+
 
 class TestZmqVirtualAdapter:
     """Testes de conformidade do adaptador de bancada virtual ZeroMQ."""
