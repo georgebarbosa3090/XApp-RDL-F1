@@ -1,7 +1,7 @@
 {
   "verifier": "CausalChainForensicVerifier",
   "timestamp_utc": "2026-09-18T11:48:00Z",
-  "chain_dir": "C:\\Users\\georg\\.antigravity-ide\\iqos-xapp-rdl-phase1\\experiments\\runs\\certified_closed_loop_chain",
+  "chain_dir": "/mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1/experiments/runs/certified_closed_loop_chain",
   "link_checks": {
     "link_1_kpm_t0": {
       "sha256_match": true,

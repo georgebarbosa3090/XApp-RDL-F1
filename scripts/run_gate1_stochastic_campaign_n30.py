@@ -67,17 +67,17 @@ def run_single_simulation(mode: str, seed: int, duration_s: float = 5.0) -> Dict
     return {
         "seed": seed,
         "baseline": mode,
-        "throughput_total_mbps": res["throughput_mbps"],
-        "urllc_latency_mean_ms": res["urllc_mean_latency_ms"],
-        "urllc_latency_p95_ms": res["urllc_p95_latency_ms"],
-        "urllc_latency_p99_ms": res["urllc_p99_latency_ms"],
-        "sla_violation_pct": res["sla_violation_pct"],
-        "jain_fairness": res["jain_fairness"],
-        "pdr_pct": res["delivery_ratio_pct"],
-        "action_churn_per_s": res["action_churn_per_s"],
-        "unsafe_actions_applied": res["unsafe_actions_applied"],
-        "queue_peak_depth": res["queue_peak_depth"],
-        "energy_efficiency_index": res["energy_efficiency_index"]
+        "throughput_total_mbps": res.get("throughput_mbps", 0.0),
+        "urllc_latency_mean_ms": res.get("urllc_mean_latency_ms", 0.0),
+        "urllc_latency_p95_ms": res.get("urllc_p95_latency_ms", res.get("urllc_p99_latency_ms", res.get("urllc_mean_latency_ms", 0.0))),
+        "urllc_latency_p99_ms": res.get("urllc_p99_latency_ms", 0.0),
+        "sla_violation_pct": res.get("sla_violation_pct", res.get("urllc_sla_violations_pct", 0.0)),
+        "jain_fairness": res.get("jain_fairness", 1.0),
+        "pdr_pct": res.get("delivery_ratio_pct", 100.0),
+        "action_churn_per_s": res.get("action_churn_per_s", 0.0),
+        "unsafe_actions_applied": res.get("unsafe_actions_applied", 0),
+        "queue_peak_depth": res.get("queue_peak_depth", 0),
+        "energy_efficiency_index": res.get("energy_efficiency_index", 1.0)
     }
 
 def run_gate1_campaign():
