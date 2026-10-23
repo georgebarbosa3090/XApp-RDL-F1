@@ -361,8 +361,17 @@ run-and-sync:
 push-results: sync-cross
 	@echo "Todos os dados, relatórios e figuras de F1 e F2 foram sincronizados!"
 
+# -------------------------------------------------------------
+# Sincronização Automática com GitHub (Auto Git Sync)
+# -------------------------------------------------------------
+auto-sync:
+	@echo "Iniciando Auto Git Sync em primeiro plano (Ctrl+C para encerrar)..."
+	python scripts/auto_git_sync.py
 
+auto-sync-bg:
+	@echo "Iniciando Auto Git Sync em segundo plano via PowerShell..."
+	powershell -ExecutionPolicy Bypass -File scripts/start_auto_sync.ps1
 
-
-
-
+auto-sync-stop:
+	@echo "Parando processos do Auto Git Sync..."
+	powershell -ExecutionPolicy Bypass -File scripts/stop_auto_sync.ps1
