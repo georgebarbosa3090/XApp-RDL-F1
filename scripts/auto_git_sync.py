@@ -107,6 +107,10 @@ def main():
     except Exception as exc:
         print(f" [ERRO] Exceção durante sincronização inicial: {exc}", file=sys.stderr)
 
+    if "--once" in sys.argv:
+        print("[INFO] Modo de execução única (--once) finalizado.")
+        return
+
     while True:
         try:
             time.sleep(CHECK_INTERVAL_SECONDS)

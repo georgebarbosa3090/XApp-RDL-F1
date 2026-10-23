@@ -366,7 +366,7 @@ push-results: sync-cross
 # -------------------------------------------------------------
 auto-sync:
 	@echo "Iniciando Auto Git Sync em primeiro plano (Ctrl+C para encerrar)..."
-	python scripts/auto_git_sync.py
+	uv run python scripts/auto_git_sync.py
 
 auto-sync-bg:
 	@echo "Iniciando Auto Git Sync em segundo plano via PowerShell..."

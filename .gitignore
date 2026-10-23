@@ -211,4 +211,5 @@ scripts/validate_ml_provenance.*
 !scripts/start_auto_sync.ps1
 !scripts/stop_auto_sync.ps1
 auto_git_sync.log
+auto_git_sync.err.log
 
