@@ -35,25 +35,29 @@ cd ~/XApp-RDL-F1
 
 ## 2. Provisionamento do Cluster Kubernetes com k3d
 
-Para viabilizar a comunicação de sinalização O-RAN e observabilidade, o cluster k3d deve expor portas dedicadas para tráfego SCTP (E2) e HTTP/RMR:
+Para viabilizar a comunicação de sinalização O-RAN e observabilidade, o cluster k3d deve expor portas dedicadas para tráfego SCTP (E2) e HTTP/RMR. O nome padrão do cluster utilizado nos scripts e no Makefile é `rancher-lab`.
 
-### 2.1. Criação do Cluster Single-Node (Padrão para Dev/CI)
+### 2.1. Criação do Cluster Single-Node (Padrão Homologado via Makefile)
 ```bash
-k3d cluster create rdl-cluster \
+# Via Make:
+make cluster-create
+
+# Ou diretamente via k3d:
+k3d cluster create rancher-lab \
   --servers 1 \
+  --agents 0 \
   -p "36422:36422/sctp@server:0" \
   -p "8080-8087:8080-8087@server:0" \
-  -p "4560-4561:4560-4561@server:0"
+  -p "4560-4561:4560-4561@server:0" \
+  --k3s-arg "--disable=traefik@server:0" \
+  --timeout 120s
 ```
 
-### 2.2. Criação do Cluster Dual-Node (Separação Control-Plane e Worker)
+### 2.2. Recriação ou Limpeza do Cluster
 ```bash
-k3d cluster create rdl-cluster \
-  --servers 1 \
-  --agents 1 \
-  -p "36422:36422/sctp@server:0" \
-  -p "8080-8087:8080-8087@server:0" \
-  -p "4560-4561:4560-4561@server:0"
+# Caso precise remover o cluster e liberar as portas:
+make cluster-delete
+# ou: k3d cluster delete rancher-lab
 ```
 
 ### 2.3. Configuração dos Namespaces O-RAN
