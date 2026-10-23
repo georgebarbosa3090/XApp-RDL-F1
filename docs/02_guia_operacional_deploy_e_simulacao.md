@@ -202,16 +202,20 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 | **Conflitos de portas locais (8080)** | Outro serviço ocupando a porta | Modificar mapeamento no `k3d cluster create` para `8090:8080` |
 | **Falha de memória no ns-3** | Múltiplas instâncias simultâneas | Executar com limitador de processos simultâneos |
 
-### 7.2. Backup e Sincronização
-Para arquivar snapshots do repositório ou sincronizar artefatos entre fases:
+### 7.2. Backup e Sincronização Automática com GitHub
+Para manter qualquer alteração local sincronizada automaticamente no GitHub em tempo real:
 
-- **Diretório Local de Backups:** `backups/`
-- **Sincronização entre Repositórios:**
 ```bash
-# Sincronização cruzada F1 <-> F2
-python scripts/sync_cross_repos.py
+# Execução do daemon de sincronização contínua (auto add, commit e push)
+uv run python scripts/auto_git_sync.py
 
-# Ou via Make
+# Ou via Make:
+make auto-sync
+```
+
+O repositório também inclui hook nativo `.git/hooks/post-commit` para envio automático imediato ao realizar commits manuais. Para sincronização entre repositórios F1 e F2:
+
+```bash
 make sync-cross
 ```
 
