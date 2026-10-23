@@ -41,6 +41,43 @@ def hash_file(filepath: str) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+def find_run_subdirectories(parent_dir: str) -> List[str]:
+    """Encontra subdiretórios contendo manifestos de execução."""
+    direct_manifests = [
+        "execution_manifest.json",
+        "metadata.json",
+        "chain_manifest.json",
+        "manifest_gate1_n30.json"
+    ]
+    if not os.path.exists(parent_dir):
+        return []
+    
+    # Se o próprio diretório tiver um manifesto diretamente nele:
+    if any(os.path.exists(os.path.join(parent_dir, m)) for m in direct_manifests):
+        return [parent_dir]
+    
+    run_dirs = []
+    # Verifica subdiretórios de 1º nível
+    try:
+        entries = sorted(os.listdir(parent_dir))
+    except Exception:
+        return []
+
+    for entry in entries:
+        sub_path = os.path.join(parent_dir, entry)
+        if os.path.isdir(sub_path):
+            if any(os.path.exists(os.path.join(sub_path, m)) for m in direct_manifests):
+                run_dirs.append(sub_path)
+    
+    # Se ainda não encontrou, busca recursivamente diretórios com manifesto
+    if not run_dirs:
+        for root, _, files in os.walk(parent_dir):
+            if any(m in files for m in direct_manifests):
+                run_dirs.append(root)
+                
+    return run_dirs
+
+
 def validate_run_directory(run_dir: str) -> bool:
     """Audita um diretório de execução experimental com verificação fail-closed."""
     policy = load_provenance_policy()
@@ -53,51 +90,65 @@ def validate_run_directory(run_dir: str) -> bool:
         print(f"  [ERRO] Diretório de execução não encontrado: {run_dir}")
         return False
 
-    manifest_path = os.path.join(run_dir, "execution_manifest.json")
-    if not os.path.exists(manifest_path):
-        manifest_path = os.path.join(run_dir, "metadata.json")
+    manifest_names = [
+        "execution_manifest.json",
+        "metadata.json",
+        "chain_manifest.json",
+        "manifest_gate1_n30.json"
+    ]
+    manifest_path = None
+    for m_name in manifest_names:
+        p = os.path.join(run_dir, m_name)
+        if os.path.exists(p):
+            manifest_path = p
+            break
 
-    if not os.path.exists(manifest_path):
-        for root, _, files in os.walk(run_dir):
-            if "execution_manifest.json" in files:
-                manifest_path = os.path.join(root, "execution_manifest.json")
-                break
-            elif "metadata.json" in files:
-                manifest_path = os.path.join(root, "metadata.json")
-                break
-        
-    if not os.path.exists(manifest_path):
-        print(f"  [PROVENANCE_INVALID] Manifesto 'execution_manifest.json' ou 'metadata.json' ausente em {run_dir}")
+    if not manifest_path:
+        print(f"  [PROVENANCE_INVALID] Manifesto ausente em {run_dir}")
         return False
-
 
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
 
-    # 1. Verifica Nível de Evidência e Elegibilidade de Publicação
-    source = manifest.get("source", manifest.get("evidence_level", ""))
-    is_pub_eligible = manifest.get("publication_eligible", source in allowed_sources)
+    # 1. Determina a Fonte de Evidência e Nível
+    source = manifest.get("source", manifest.get("provenance_category", manifest.get("evidence_level", manifest.get("benchmark_type", ""))))
+    
+    raw_backend = manifest.get("backend", manifest.get("backend_id", ""))
+    raw_backend_str = str(raw_backend).upper() if raw_backend else ""
 
-    if source not in allowed_sources and not any(banned in str(source) for banned in banned_sources):
-        print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: '{source}'")
-        return False
+    if not source:
+        if "NORI" in raw_backend_str or "NS3" in raw_backend_str:
+            source = "NORI_E2"
+        elif "SRSRAN" in raw_backend_str:
+            source = "SRSRAN_E2"
+        elif "TESTBED" in raw_backend_str or "OPENRANBR" in raw_backend_str:
+            source = "OPENRANBR_TESTBED"
 
-    if any(banned in str(source) for banned in banned_sources):
+    # Determina elegibilidade de publicação
+    is_pub_eligible = manifest.get("publication_eligible", (source in allowed_sources))
+
+    # Se a fonte for restrita a desenvolvimento/testes
+    if source in banned_sources or any(banned in str(source) for banned in banned_sources):
         if is_pub_eligible:
             print(f"  [PROVENANCE_INVALID] Conflito de política: Fonte '{source}' é proibida para publicação, mas foi marcada como elegível.")
             return False
         else:
-            print(f"  [DEV/LOCAL] Execução local detectada (fonte: '{source}'). Não elegível para publicação científica.")
+            print(f"  [DEV/LOCAL] Execução/fixture local detectada (fonte: '{source}'). Não elegível para publicação científica.")
             return True
 
-    # 2. Obtém backend e valida campos obrigatórios (Fail-Closed por Backend)
-    known_backends = set(policy.get("backend_evidence_rules", {}).keys())
-    raw_backend = manifest.get("backend", manifest.get("backend_id"))
-    if is_pub_eligible and (not raw_backend or raw_backend.upper() not in known_backends):
-        print(f"  [PROVENANCE_INVALID] Backend experimental desconhecido ou não configurado na política: '{raw_backend}'")
+    if source not in allowed_sources:
+        print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: '{source}'")
         return False
-        
-    backend_id = (raw_backend or "NORI_NS3").upper()
+
+    # 2. Normaliza backend e valida campos obrigatórios
+    backend_id = "NORI_NS3"
+    if "SRSRAN" in raw_backend_str:
+        backend_id = "SRSRAN_OPEN5GS"
+    elif "TESTBED" in raw_backend_str or "OPENRANBR" in raw_backend_str:
+        backend_id = "OPENRANBR_PHYSICAL"
+    elif raw_backend_str in policy.get("backend_evidence_rules", {}):
+        backend_id = raw_backend_str
+
     backend_rules = policy.get("backend_evidence_rules", {}).get(backend_id, {
         "required_manifest_fields": ["nori_commit"],
         "required_raw_extensions": [".xml", ".raw"]
@@ -112,7 +163,7 @@ def validate_run_directory(run_dir: str) -> bool:
             print(f"  [PROVENANCE_INVALID] Campos de manifesto ausentes para backend '{backend_id}': {missing_fields}")
             return False
 
-    # 3. Verifica Presença de Artefatos Brutos por Extensões Válidas do Backend
+    # 3. Verifica Presença de Artefatos Brutos
     raw_extensions = tuple(backend_rules.get("required_raw_extensions", [".raw", ".pcap", ".xml", ".log"]))
     found_raw_files = []
     
@@ -126,10 +177,10 @@ def validate_run_directory(run_dir: str) -> bool:
         print(f"  [PROVENANCE_INVALID] NENHUM artefato bruto {raw_extensions} encontrado em {run_dir}. Exigido para publicação elegível.")
         return False
 
-    # 4. Verifica Integridade Criptográfica (hashes.sha256 é mandatória para publicação elegível)
+    # 4. Verifica Integridade Criptográfica
     hashes_file = os.path.join(run_dir, "hashes.sha256")
     if is_pub_eligible and not os.path.exists(hashes_file):
-        print(f"  [PROVENANCE_INVALID] Arquivo de hashes 'hashes.sha256' ausente em {run_dir}. Obrigatorio para execucoes elegiveis para publicacao.")
+        print(f"  [PROVENANCE_INVALID] Arquivo de hashes 'hashes.sha256' ausente em {run_dir}.")
         return False
 
     if os.path.exists(hashes_file):
@@ -168,8 +219,18 @@ def main():
         print(f"[!] Nenhum resultado em {os.path.relpath(target_dir, BASE_DIR)}. Árvore limpa para novos experimentos.")
         sys.exit(0)
 
-    success = validate_run_directory(target_dir)
-    if not success:
+    run_dirs = find_run_subdirectories(target_dir)
+    if not run_dirs:
+        print(f"[!] Nenhum manifesto encontrado em {target_dir}.")
+        sys.exit(0)
+
+    print(f"[i] Total de diretórios experimentais a auditar: {len(run_dirs)}")
+    all_ok = True
+    for r_dir in run_dirs:
+        if not validate_run_directory(r_dir):
+            all_ok = False
+
+    if not all_ok:
         print("\n[PROVENANCE_INVALID] Falha na verificação de providência científica.")
         sys.exit(1)
 

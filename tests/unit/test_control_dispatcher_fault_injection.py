@@ -155,3 +155,34 @@ def test_control_dispatcher_safety_guard_blocks_dispatch():
     assert ctrl_id is None
     assert len(rmr.sent_messages) == 0
     assert len(dispatcher.pending_requests) == 0
+
+def test_control_dispatcher_strict_mode_correlation_error(monkeypatch):
+    rmr = MockRMR()
+    sdl = MockSDL()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=sdl)
+
+    # Cria payload de ACK com requestor_id desconhecido
+    ack_ie = RICcontrolAcknowledge()
+    ack_ie.set_val({
+        'ricRequestID': {'ricRequestorID': 9999, 'ricInstanceID': 8888},
+        'ranFunctionID': 3,
+        'ricControlOutcome': b'OK'
+    })
+    pdu_ack = wrap_successful_outcome(PROC_RIC_CONTROL, ack_ie.to_aper(), criticality=CRITICALITY_IGNORE)
+
+    # Em modo estrito (O_RAN_INTEROP), ACK sem rastreio deve retornar None (CORRELATION_ERROR)
+    monkeypatch.setenv("RDL_MODE", "O_RAN_INTEROP")
+    res = dispatcher.handle_ack(pdu_ack)
+    assert res is None
+
+    # Teste de payload malformado
+    assert dispatcher.handle_ack(b"corrupt_ack_bytes") is None
+    assert dispatcher.handle_failure(b"corrupt_failure_bytes") is None
+
+    # Teste de dispatch com lista vazia de ações
+    empty_decision = RDLDecision(decision_id="dec_empty", selected_actions=[], safety_result={"is_safe": True})
+    assert dispatcher.dispatch_control(empty_decision) is None
+
+    # Teste de rollback de ID inexistente
+    assert not dispatcher.trigger_rollback("non_existent_ctrl_id")
+

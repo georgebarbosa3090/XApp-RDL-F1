@@ -51,3 +51,14 @@ def test_health_server_endpoints():
     sdata = r.json()
     assert sdata["state"] == AppState.DEGRADED
     assert sdata["version"] == "1.1.0"
+
+def test_health_server_fallback_and_run():
+    server = HealthServer(host="127.0.0.1", port=9099)
+    server.run()
+    assert server.state == AppState.STARTING
+    from src.observability.health_server import Response, status
+    resp = Response(status_code=503)
+    assert resp.status_code == 503
+    assert status.HTTP_200_OK == 200
+    assert status.HTTP_503_SERVICE_UNAVAILABLE == 503
+

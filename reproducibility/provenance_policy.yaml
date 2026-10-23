@@ -24,6 +24,7 @@ non_publication_sources:
   - MOCK
   - CODEC_TEST
   - LOCAL_GENERATOR
+  - CAUSAL_FIXTURE
   - DISCRETE_EVENT_SIMULATOR
   - EMULATED
   - MANUAL
