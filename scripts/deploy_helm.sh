@@ -108,21 +108,18 @@ echo " -> 4.1 Instalando 1. xSlice QoS xApp (peihaoY/xslice-oran)..."
 helm upgrade --install ricxapp-qos-xslice deploy/helm/xapp-qos-xslice \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --force \
   --set image.pullPolicy=Never
 
 echo " -> 4.2 Instalando 2. Energy Saving xApp (Orange-OpenSource/ns-O-RAN-flexric)..."
 helm upgrade --install ricxapp-energy-saving deploy/helm/xapp-energy-saving \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --force \
   --set image.pullPolicy=Never
 
 echo " -> 4.3 Instalando 3. Traffic Steering xApp (o-ran-sc/ric-app-ts)..."
 helm upgrade --install ricxapp-traffic-steering deploy/helm/xapp-traffic-steering \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --force \
   --set image.pullPolicy=Never
 
 # 5. Deploy do RDL (se habilitado)
@@ -131,7 +128,6 @@ if [ "$DEPLOY_RDL" = true ]; then
     helm upgrade --install ricxapp-iqos-xapp-rdl deploy/helm/iqos-xapp-rdl \
       --namespace ${NAMESPACE_XAPP} \
       --create-namespace \
-      --force \
       --set image.pullPolicy=Never \
       --set env.useFakeSdl="false" \
       --set env.rmrWaitForReady="false"
