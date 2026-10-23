@@ -30,6 +30,7 @@ securityContext:
 
 env:
   rdlMode: "oran-strict"
+  ranBackend: "NORI_NS3"
   useFakeSdl: "false"
   rmrSeedRt: "/app/configs/routes.rt"
   configFile: "/app/configs/config-file.json"
