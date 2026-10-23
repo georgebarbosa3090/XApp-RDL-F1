@@ -1,10 +1,12 @@
-# Volume 07: Relatório Exaustivo de Resultados da Simulação
+# Volume 07: Relatório Legado de Resultados de Simulação (não validado)
 ## Comparativo Multidimensional entre Baselines, H-RDL (Fase 1) e CA-RDL (Fase 2) em Todos os Cenários (S0 a S15)
 
 > **Navegação da Documentação Consolidada:**  
 > **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados da Simulação S0–S15](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
 
 ---
+
+> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** Os números, tabelas comparativas, intervalos de confiança e conclusões deste relatório não foram validados contra traces brutos de execuções elegíveis. Eles estão **retirados como evidência científica** e não devem ser citados. Um manifesto, hash ou nome de backend não demonstra que a execução ocorreu. A campanha precisa ser reproduzida com ns-3 + 5G-LENA e passar os gates G0–G6 aplicáveis antes de republicar métricas.
 
 ### Metadados e Controle de Governança Experimental
 - **Título do Documento:** Relatório Técnico-Científico Consolidado de Resultados de Simulação, Baselines e Cenários
@@ -13,9 +15,8 @@
 - **Framework O-RAN:** O-RAN Alliance (WG2 A1-P v03.01, WG3 E2AP v02.03, E2SM-KPM v02.03, E2SM-RC v01.03)
 - **Plataforma de Simulação:** ns-3.48 / 5G-LENA v5.1 / NORI E2 Agent / OSC Near-RT RIC
 - **Matriz Canônica de Referência:** `experiments/results/canonical_simulation_master.csv` (SSOT)
-- **Data da Homologação:** 18 de setembro de 2026
-- **Release Oficial:** `v1.2.0-certified` (Commit `2da3119`)
-- **Status de Auditoria:** **CERTIFICADO COM ZERO DADOS SINTÉTICOS E PROVA CAUSAL NÃO-REPUDIÁVEL**
+- **Data da retificação:** 23 de outubro de 2026
+- **Status de auditoria:** Não validado; conteúdo quantitativo legado retirado como evidência
 
 ---
 
@@ -27,7 +28,7 @@ O presente relatório atende à necessidade de consolidação analítica e trans
 3. **Módulos de Transição Cognitiva:** B4 (Heurística Sensível ao Contexto), B5 (Grafo de Conhecimento Contextual / *Context Knowledge Graph*);
 4. **CA-RDL (Fase 2 Cognitiva):** B6 (*Safe-MAPPO* com *Action Masking* desacoplado sob formulação CMDP).
 
-A bateria de testes engloba **16 cenários de estresse e operação avançada (S0 a S15)**, modelados no simulador de eventos discretos **ns-3.48 com 5G-LENA v5.1** e com telemetria rastreada pelo módulo nativo **FlowMonitor**.
+Este relatório legado descreve uma bateria de 16 cenários (S0–S15), mas a existência dessa descrição não prova que todos foram executados no ns-3/5G-LENA. Os resultados quantitativos abaixo não estão aprovados para uso científico.
 
 ```mermaid
 flowchart LR

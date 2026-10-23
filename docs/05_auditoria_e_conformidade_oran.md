@@ -1,5 +1,7 @@
 # Volume 05: Relatório de Auditoria Técnico-Científica e Conformidade Normativa O-RAN
 
+> **RETIFICAÇÃO DE AUDITORIA:** Este arquivo contém alegações históricas de conformidade, captura E2, resultados estatísticos e desempenho que não foram verificados com evidência elegível. Todos os percentuais “100% conforme”, contagens de testes e métricas abaixo estão retirados como prova de interoperabilidade ou resultado experimental. A arquitetura descrita é alvo de pesquisa, não integração certificada.
+
 > **Navegação da Documentação Consolidada:**  
 > **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
 
@@ -7,14 +9,14 @@
 
 ## 1. Escopo e Propósito da Auditoria Profunda
 
-Esta auditoria consolida a análise técnico-científica sobre as arquiteturas **H-RDL (Fase 1)** e **CA-RDL (Fase 2)**, estabelecendo o fechamento do círculo causal e garantindo que o projeto atinja o padrão de publicabilidade e reprodutibilidade exigido pelos principais periódicos e conferências (IEEE Transactions, Nature Communications, SBRC).
+Este documento registra uma análise histórica das arquiteturas **H-RDL (Fase 1)** e **CA-RDL (Fase 2)**. Ele não estabelece fechamento causal nem garante publicabilidade ou reprodutibilidade; tais condições dependem de evidências externas verificadas.
 
 ### Diagnóstico Central da Auditoria
 Historicamente, projetos de pesquisa em Open RAN enfrentam a lacuna entre a conformidade funcional de código e a comprovação causal em ambiente de rádio:
 
 $$\boxed{\text{Implementação de Software Forte} \not\Rightarrow \text{Evidência Experimental Causal Forte}}$$
 
-Para superar esta limitação, a arquitetura RDL foi auditada e reestruturada sob o protocolo **Golden Closed Loop**, onde cada decisão de controle é vinculada a uma cadeia verificável de evidências de ponta a ponta:
+O protocolo **Golden Closed Loop** foi proposto como objetivo. A cadeia abaixo não foi demonstrada de ponta a ponta:
 
 $$\text{KPM}(t_0) \longrightarrow \text{Conflito} \longrightarrow \text{Decisão} \longrightarrow \text{E2SM-RC} \longrightarrow \text{ACK} \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
 
@@ -22,22 +24,19 @@ $$\text{KPM}(t_0) \longrightarrow \text{Conflito} \longrightarrow \text{Decisão
 
 ## 2. Conformidade com Padrões O-RAN Alliance e 3GPP
 
-A tabela a seguir documenta o perfil de compatibilidade normativa homologado em ambas as fases do projeto:
+A tabela abaixo descreve o perfil-alvo. Nenhum percentual de conformidade foi comprovado por validação normativa independente:
 
 | Grupo de Trabalho / Especificação | Versão | Status de Conformidade | Mecanismo de Implementação |
 | :--- | :---: | :---: | :--- |
-| **O-RAN WG3 E2AP** | v02.03 | **100% Conforme** | Codecs ASN.1 APER puros em `src/e2/e2ap/` sobre SCTP (porta 36422) |
-| **O-RAN WG3 E2SM-KPM** | v03.00 | **100% Conforme** | `EventTriggerDefinition` e `ActionDefinition` Formato 1 em `src/e2/kpm/` |
-| **O-RAN WG3 E2SM-RC** | v01.03 | **100% Conforme** | `ControlHeader` Formato 1 e `ControlMessage` Formato 2 em `src/e2/rc/` |
-| **O-RAN WG2 A1-P** | v03.01 | **Alinhado / Fase 3** | Esquemas JSON Schema para diretivas de intenção de SLA |
-| **3GPP TS 38.331 (NR RRC)** | Rel. 17 | **100% Conforme** | Mensagens de reconfiguração de medição e handover |
-| **3GPP TS 28.552 (5G KPIs)** | Rel. 18 | **100% Conforme** | Métricas padronizadas: `DRB.UEThpDl`, `RRU.PrbTotDl`, `DRB.PacketLossRateDl` |
+| **O-RAN WG3 E2AP** | v02.03 | **Não validado independentemente** | Há código local; interoperabilidade/APer em stack externo não demonstrados |
+| **O-RAN WG3 E2SM-KPM** | v03.00 | **Não validado independentemente** | Parser e estruturas locais não provam interoperabilidade de ponta a ponta |
+| **O-RAN WG3 E2SM-RC** | v01.03 | **Não validado independentemente** | Codec de pesquisa; atuação causal e ACK externo não demonstrados |
+| **O-RAN WG2 A1-P** | v03.01 | **Perfil de pesquisa** | Esquemas locais não constituem validação normativa |
+| **3GPP TS 38.331 (NR RRC)** | Rel. 17 | **Não avaliado** | Nenhuma conformidade normativa foi demonstrada |
+| **3GPP TS 28.552 (5G KPIs)** | Rel. 18 | **Não avaliado** | Nomes locais de métricas não demonstram conformidade |
 
 ### 2.1. Descoberta Dinâmica de Capacidades RAN
-A xApp RDL **não utiliza identificadores fixos estáticos** de funções RAN. A conformidade é garantida pelo handshake dinâmico:
-1. O nó E2 (gNodeB / NORI) emite `E2SetupRequest` contendo `RANFunctionDefinition` codificada em ASN.1;
-2. O `RanFunctionCapabilityRegistry` decodifica a mensagem em tempo de execução e registra os `ran_function_id` reais (ex.: `KPM_ID=2`, `RC_ID=3`);
-3. Todas as subscrições e comandos de controle são emitidos exclusivamente com base nos IDs descobertos.
+A descoberta dinâmica de funções RAN ainda não está conectada ao runtime da xApp. No modo estrito, a ausência desse handshake mantém o serviço fora de `READY`; IDs fixos usados em modos de compatibilidade não constituem descoberta nem evidência de interoperabilidade.
 
 ---
 
@@ -110,17 +109,17 @@ Qualquer alteração posterior em traces brutos ou métricas calculadas resulta 
 ### 6.1. Auditoria Estática de Zero Dados Sintéticos
 Em conformidade com a política de integridade estrita do projeto:
 * **Proibição Inviolável:** Nenhum script de análise ou experimento pode conter ruído aleatório sintético (`np.random.normal`, `random.gauss`, etc.).
-* **Status de Auditoria:** `scripts/verify_provenance_and_integrity.py` executados com **0 violações (100% CONFORME)**.
+* **Status de Auditoria:** alegações históricas de “0 violações” foram retiradas. O validador atual falha quando faltam tabelas ou proveniência; nenhuma conformidade científica é inferida por uma verificação estática.
 
 ### 6.2. Reconciliação Formal do $p$-Valor & Exclusão da Grade Matemática Sintética
-* **Evidência Empírica Primária da Fase 1 ($N = 5$ sementes reais, 35 runs brutos):** Carregada estritamente dos traces reais de simulação ns-3.48 / FlowMonitor em `experiments/runs/` (sementes 1001 a 1005). O teste pareado bicaudal de Wilcoxon atinge exatamente o limite matemático $p_{\min} = (1/2)^4 = 0,0625$, comprovando que em 100% das sementes o H-RDL superou estritamente o FIFO ($\Delta\text{Throughput} = +13,30\text{ Mbps}$, $\Delta\text{Latência P95} = -7,20\text{ ms}$, $\Delta\text{SLA} = -24,00\text{ p.p.}$, $\Delta\text{Jain} = +0,29$).
-* **Exclusão Epistemológica da Grade Matemática de 30 Pontos:** Qualquer grade/grid matemático determinístico sintético de 30 pontos está **formalmente excluído da evidência confirmatória**, pois não carrega execuções brutas de simulação nem traces XML reais.
-* **Campanha Confirmatória Ampla ($N = 30$ runs físicos / Fase 2):** A confirmação assintótica $p < 0,001$ ($1,86 \times 10^{-9}$) em regime estocástico completo de 30 sementes é o marco confirmatório com traces brutos da Fase 2.
+* **Resultados históricos de Fase 1:** sementes, traces, métricas e testes estatísticos relatados anteriormente não foram verificados contra execuções elegíveis; estão retirados como evidência.
+* **Grades matemáticas ou fixtures:** não são evidência confirmatória nem substituem execuções brutas de ns-3/5G-LENA.
+* **Campanha multi-semente:** não há campanha confirmatória elegível verificada neste workspace.
 
 ### 6.3. Resiliência E2, Injeção de Falhas e Rollback de Segurança
 * **Mecanismo:** Implementado em `ControlDispatcher` e coberto em `tests/unit/test_control_dispatcher_fault_injection.py`.
-* **Comportamento:** Perda de ACK SCTP ou recepção de `RICcontrolFailure` aciona timeout automático ($1,0\text{ s}$) e comando de restauração segura em $< 310\text{ ms}$, mantendo a invariante $\text{UnsafeApplied} \equiv 0$.
-* **Suíte de Testes:** **81/81 testes aprovados (100% PASS)** em `tests/unit`, `tests/integration`, `tests/interoperability` e `tests/codec`.
+* **Comportamento no código:** existem caminhos para timeout, falha e rollback; não há evidência de comportamento temporal ou invariantes em uma RAN executada.
+* **Suíte de Testes:** a contagem histórica **81/81** não representa a suíte atual e não foi reexecutada neste documento. Testes unitários não aprovam conformidade E2 nem gates experimentais.
 
 ---
 
@@ -207,7 +206,6 @@ Para manter o alinhamento 100% rigoroso entre os artefatos do repositório e a p
 - **Aditivo da Dissertação de Mestrado:** [`ATUALIZACAO_DISSERTACAO_HRDL_2026.md`](auditoria/ATUALIZACAO_DISSERTACAO_HRDL_2026.md)
 - **Aditivo da Apresentação de Estado Atual:** [`ATUALIZACAO_APRESENTACAO_ESTADO_ATUAL_HRDL_2026.md`](auditoria/ATUALIZACAO_APRESENTACAO_ESTADO_ATUAL_HRDL_2026.md)
 - **Laudo de Estabilização e Prova Experimental:** [`RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md`](auditoria/RELATORIO_ESTABILIZACAO_E_PROVA_EXPERIMENTAL_2026.md)
-
 
 
 

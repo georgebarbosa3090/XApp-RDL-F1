@@ -94,28 +94,7 @@ def test_perception_and_resolution_with_new_parameters():
     is_valid, level, reason = refinement.validate(resolution, conflicts[0])
     assert is_valid
 
-def test_discrete_event_ran_simulator_physics_and_metrics():
-    """Valida o funcionamento físico do DiscreteEventRANSimulator sem dados sintéticos."""
-    sim = DiscreteEventRANSimulator(seed=42)
-    sim.add_gnb("gnb_01", x=0.0, y=0.0, tx_power_dbm=43.0)
-    sim.add_gnb("gnb_02", x=80.0, y=0.0, tx_power_dbm=30.0)
-
-    # Adiciona 5 UEs em diferentes distâncias
-    sim.add_ue("ue_01", "URLLC", x=15.0, y=10.0, gnb_id="gnb_01")
-    sim.add_ue("ue_02", "eMBB", x=30.0, y=20.0, gnb_id="gnb_01")
-    sim.add_ue("ue_03", "SENSING", x=40.0, y=0.0, gnb_id="gnb_01")
-    sim.add_ue("ue_04", "URLLC", x=70.0, y=5.0, gnb_id="gnb_02")
-    sim.add_ue("ue_05", "eMBB", x=75.0, y=15.0, gnb_id="gnb_02")
-
-    # Roda 50 slots de 10ms (500 ms de tráfego real)
-    for _ in range(50):
-        sim.step_slot(0.010)
-
-    metrics = sim.get_kpm_metrics()
-    assert metrics["throughput_mbps"] > 0.0
-    assert metrics["urllc_latency_mean_ms"] > 0.0
-    assert 0.0 <= metrics["jain_fairness"] <= 1.0
-
-    # Aplica controle E2SM-RC real e verifica mudança física
-    sim.apply_rc_control({"node_id": "gnb_01", "parameter": "TX_POWER", "value": 35.0})
-    assert sim.gnbs["gnb_01"].tx_power_dbm == 35.0
+def test_retired_discrete_event_simulator_is_disabled():
+    """Ensures the former local simulator cannot be run as experimental evidence."""
+    with pytest.raises(RuntimeError, match="disabled.*ns-3 and 5G-LENA"):
+        DiscreteEventRANSimulator(seed=42)

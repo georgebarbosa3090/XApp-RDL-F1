@@ -8,8 +8,8 @@ Validador Automatizado de Conformidade com a Diretriz Estrita de ZERO DADOS SINT
 Regras Invioláveis de Auditoria:
   1. É PERMANENTEMENTE PROIBIDO gerar, usar ou fabricar dados sintéticos ou mocks aleatórios
      (np.random.normal, np.random.uniform, random.gauss, random.uniform, RandomState, etc.).
-  2. Apenas dados extraídos do FlowMonitor do ns-3 NORI / 5G-LENA ou do motor discreto
-     físico DiscreteEventRANSimulator (3GPP TR 38.901 + Near-RT RIC H-RDL) são aceitos.
+  2. Apenas evidência de execuções elegíveis e completas de ns-3 / 5G-LENA pode alimentar
+     tabelas científicas. Fixtures, mocks e simuladores locais não são evidência empírica.
   3. Todos os datasets de saída e tabelas científicas devem conter rastreabilidade 100% comprovada.
 ========================================================================================
 """
@@ -37,7 +37,7 @@ FORBIDDEN_PATTERNS = [
     ("generate_synthetic", re.compile(r"generate_synthetic|synthetic_data|generate_multi_seed_data", re.IGNORECASE)),
 ]
 
-ALLOWED_EXCEPTIONS = [
+ALLOWED_EXCEPTIONS = {
     "verify_provenance_and_integrity.py",
     "check_no_synthetic_results.py",
     "bootstrap",
@@ -48,7 +48,7 @@ ALLOWED_EXCEPTIONS = [
     "generate_separated_phase1_phase2_figures.py",
     "generate_paper_styled_benchmarks.py",
     "mappo_trainer.py",
-]
+}
 
 def audit_codebase_for_synthetic_generators() -> List[Tuple[str, int, str, str]]:
     """Varre todos os scripts e módulos para garantir ausência total de geradores mock."""
@@ -60,7 +60,7 @@ def audit_codebase_for_synthetic_generators() -> List[Tuple[str, int, str, str]]
                 continue
             for f in files:
                 if f.endswith((".py", ".sh", ".ps1")):
-                    if any(exc in f for exc in ALLOWED_EXCEPTIONS):
+                    if f in ALLOWED_EXCEPTIONS:
                         continue
                     fpath = os.path.join(root, f)
                     with open(fpath, "r", encoding="utf-8", errors="ignore") as fh:
@@ -87,13 +87,13 @@ def audit_datasets_provenance() -> Tuple[bool, bool]:
     
     paper_csv = os.path.join(RESULTS_DIR, "reproduced_audit_2026", "statistics", "paper_table.csv")
     if not os.path.exists(paper_csv):
-        print(f"[!] Aviso: paper_table.csv não encontrado em {paper_csv}. Nenhuma tabela de publicação ativa para auditar.")
-        print("  Status: NO_PUBLICATION_DATA_TO_VALIDATE")
-        return True, False
+        print(f"[ERRO] paper_table.csv ausente: nenhuma tabela científica foi validada: {paper_csv}")
+        print("  Status: PUBLICATION_DATA_MISSING")
+        return False, False
 
     with open(paper_csv, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        if "Fonte_Dados" not in reader.fieldnames:
+        if not reader.fieldnames or "Fonte_Dados" not in reader.fieldnames:
             print("[!] Erro: Coluna 'Fonte_Dados' ausente em paper_table.csv!")
             return False, True
 
@@ -112,6 +112,9 @@ def audit_datasets_provenance() -> Tuple[bool, bool]:
     if non_pub_count > 0:
         print(f"[ERRO PROVENIÊNCIA CRÍTICO] paper_table.csv contém {non_pub_count} registros marcados como NON_PUBLICATION ({non_eligible_sources}).")
         print("  Conforme provenance_policy.yaml, dados NON_PUBLICATION NÃO PODEM estar presentes em tabelas destinadas a artigos/papers.")
+        return False, True
+    if count == 0:
+        print("[!] Erro: paper_table.csv não contém registros para validar.")
         return False, True
     else:
         print(f"[OK] paper_table.csv validado com 100% de fontes elegíveis para publicação ({count} registros auditados).")
@@ -133,7 +136,7 @@ def main():
             print(f"  - [{name}] {os.path.basename(path)}:L{lno} -> {line}")
         sys.exit(1)
     else:
-        print(" [OK] Nenhum gerador sintético detectado no código! (100% LIMPO E FACTUAL)")
+        print(" [OK] Nenhum padrão proibido detectado pela verificação estática limitada.")
 
     # 2. Auditoria de Datasets e Rastreabilidade
     print("[2/2] Auditando proveniência e integridade dos datasets de saída...")
@@ -144,9 +147,9 @@ def main():
 
     print("\n" + "=" * 80)
     if table_audited:
-        print(" [SUCESSO] REPOSITÓRIO 100% CONFORME COM A DIRETRIZ DE PROVENIÊNCIA CIENTÍFICA! [APROVADO]")
+        print(" [OK] Fontes declaradas da tabela passaram pelas verificações configuradas; proveniência externa ainda exige auditoria.")
     else:
-        print(" [OK] REPOSITÓRIO LIMPO: Nenhum gerador sintético encontrado. [NO_PUBLICATION_DATA_TO_VALIDATE]")
+        print(" [FALHA] Nenhum dado de publicação disponível para validação.")
     print("=" * 80)
     sys.exit(0)
 

@@ -201,3 +201,7 @@ scripts/run_full_campaign_s0_s8.*
 scripts/run_3_consecutive_simulations.*
 scripts/evaluate_and_improve_algorithms.*
 scripts/validate_ml_provenance.*
+!scripts/generate_publication_report_figures.py
+!scripts/reproduce_paper_artifacts.py
+!scripts/run_full_campaign_s0_s8.py
+!scripts/run_3_consecutive_simulations.py

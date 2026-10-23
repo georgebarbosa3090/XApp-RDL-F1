@@ -14,6 +14,8 @@ import json
 from typing import Dict, Any, List
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 def validate_gate1() -> bool:
     """
@@ -21,10 +23,6 @@ def validate_gate1() -> bool:
     G1 = g1_nori_connected ∧ g2_e2_setup ∧ g3_kpm_function ∧ g4_subscription_ack 
          ∧ g5_indication_raw ∧ g6_aper_decode ∧ g7_semantic_validation (< 5%)
     """
-    gate1_required = os.getenv("GATE_1_REQUIRED", "true").lower() in ("true", "1", "yes")
-    if not gate1_required:
-        return True
-
     print("\n[Gate 1] Avaliando status dos 7 critérios formais de interoperabilidade KPM...")
     
     gate1_runs_dir = os.path.join(BASE_DIR, "experiments", "runs", "gate1")
@@ -48,28 +46,58 @@ def validate_gate1() -> bool:
         print("  [Gate 1: FAIL] Manifesto execution_manifest.json ausente no run do Gate 1.")
         return False
 
-    with open(manifest_file, "r", encoding="utf-8") as f:
-        manifest = json.load(f)
+    try:
+        with open(manifest_file, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"  [Gate 1: FAIL] Manifesto inválido ou ilegível: {exc}")
+        return False
 
-    # g1: NORI Connected
-    g1 = manifest.get("nori_connected", False) or bool(manifest.get("nori_commit", ""))
-    # g2: E2 Setup
-    g2 = os.path.exists(os.path.join(run_dir, "e2", "setup", "request.raw")) or manifest.get("e2_setup_success", False)
-    # g3: KPM Function Announced
-    g3 = manifest.get("kpm_function_id", 0) > 0 or manifest.get("kpm_announced", False)
-    # g4: Subscription ACK
-    g4 = os.path.exists(os.path.join(run_dir, "e2", "kpm", "subscription_response.raw")) or manifest.get("subscription_ack", False)
-    # g5: RIC Indication Raw
+    # Gate status is derived from captured files; manifest assertions alone are insufficient.
+    g1 = manifest.get("nori_connected") is True
+    setup_dir = os.path.join(run_dir, "e2", "setup")
+    g2 = all(
+        os.path.isfile(os.path.join(setup_dir, name))
+        for name in ("request.raw", "response.raw", "ran_function_definition.raw")
+    )
+    g3 = isinstance(manifest.get("kpm_function_id"), int) and manifest["kpm_function_id"] > 0
+    subscription_dir = os.path.join(run_dir, "e2", "kpm")
+    g4 = all(
+        os.path.isfile(os.path.join(subscription_dir, name))
+        for name in ("subscription_request.raw", "subscription_response.raw")
+    )
     raw_kpm_dir = os.path.join(run_dir, "e2", "kpm")
-    raw_files = [f for f in os.listdir(raw_kpm_dir) if f.endswith(".raw")] if os.path.exists(raw_kpm_dir) else []
-    g5 = len(raw_files) > 0
-    # g6: APER Decode
-    decoded_files = [f for f in os.listdir(raw_kpm_dir) if f.endswith("_decoded.json")] if os.path.exists(raw_kpm_dir) else []
-    g6 = len(decoded_files) > 0
-    # g7: Semantic Validation (< 5%)
-    sem_val = manifest.get("semantic_validation_error_pct", 100.0)
-    g7 = sem_val < 5.0
+    raw_files = [
+        name for name in os.listdir(raw_kpm_dir)
+        if name.startswith("indication_") and name.endswith(".raw")
+    ] if os.path.exists(raw_kpm_dir) else []
+    decoded_files = [
+        name for name in os.listdir(raw_kpm_dir)
+        if name.startswith("indication_") and name.endswith("_decoded.json")
+    ] if os.path.exists(raw_kpm_dir) else []
+    g5 = bool(raw_files)
+    g6 = bool(decoded_files)
+    sem_val = manifest.get("semantic_validation_error_pct")
+    g7 = isinstance(sem_val, (int, float)) and 0 <= sem_val < 5.0
+    manifest_ok = (
+        manifest.get("source") == "NORI_E2"
+        and manifest.get("publication_eligible") is True
+        and manifest.get("backend") in ("NORI_NS3", "NORI_NS3_5GLENA")
+        and manifest.get("ns3_version") == "3.48"
+        and manifest.get("fiveg_lena_version") == "5.1"
+        and manifest.get("run_status") == "SUCCESS"
+        and manifest.get("exit_code") == 0
+        and bool(manifest.get("nori_commit"))
+        and isinstance(manifest.get("seed"), int)
+    )
+    try:
+        from scripts.validate_provenance import validate_run_directory
+        provenance_ok = validate_run_directory(run_dir)
+    except (ImportError, OSError, ValueError) as exc:
+        print(f"  [Gate 1: FAIL] Verificação de proveniência falhou: {exc}")
+        provenance_ok = False
 
+    print(f"  - Manifesto e proveniência de execução: {'OK' if manifest_ok and provenance_ok else 'FAIL'}")
     print(f"  - G1.1 NORI Connected: {'OK' if g1 else 'FAIL'}")
     print(f"  - G1.2 E2 Setup: {'OK' if g2 else 'FAIL'}")
     print(f"  - G1.3 KPM Function: {'OK' if g3 else 'FAIL'}")
@@ -78,7 +106,7 @@ def validate_gate1() -> bool:
     print(f"  - G1.6 APER Decode ({len(decoded_files)} files): {'OK' if g6 else 'FAIL'}")
     print(f"  - G1.7 Semantic Validation (error={sem_val:.2f}%): {'OK' if g7 else 'FAIL'}")
 
-    all_passed = g1 and g2 and g3 and g4 and g5 and g6 and g7
+    all_passed = manifest_ok and provenance_ok and g1 and g2 and g3 and g4 and g5 and g6 and g7
     if not all_passed:
         print("  [Gate 1: PENDENTE / FAIL] Um ou mais dos 7 critérios formais não foram satisfeitos.")
         return False

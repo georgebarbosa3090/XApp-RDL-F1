@@ -154,7 +154,39 @@ def test_control_dispatcher_safety_guard_blocks_dispatch():
     ctrl_id = dispatcher.dispatch_control(unsafe_decision)
     assert ctrl_id is None
     assert len(rmr.sent_messages) == 0
-    assert len(dispatcher.pending_requests) == 0
+
+
+def test_control_dispatcher_rejects_missing_safety_result():
+    rmr = MockRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
+    decision = RDLDecision(
+        decision_id="decision_without_safety",
+        selected_actions=[
+            XAppAction(xapp_id="xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=50, priority=50)
+        ],
+    )
+
+    assert dispatcher.dispatch_control(decision) is None
+    assert rmr.sent_messages == []
+
+
+def test_control_dispatcher_does_not_track_rejected_rmr_send():
+    class RejectingRMR(MockRMR):
+        def rmr_send(self, payload, mtype, target):
+            return False
+
+    dispatcher = ControlDispatcher(rmr_client=RejectingRMR(), sdl_repo=MockSDL())
+    decision = RDLDecision(
+        decision_id="decision_send_rejected",
+        selected_actions=[
+            XAppAction(xapp_id="xslice", node_id="gnb_01", parameter="PRB_QUOTA", value=50, priority=50)
+        ],
+        safety_result={"is_safe": True},
+    )
+
+    assert dispatcher.dispatch_control(decision) is None
+    assert dispatcher.pending_requests == {}
+    assert dispatcher.req_key_to_id == {}
 
 def test_control_dispatcher_strict_mode_correlation_error(monkeypatch):
     rmr = MockRMR()
@@ -185,4 +217,3 @@ def test_control_dispatcher_strict_mode_correlation_error(monkeypatch):
 
     # Teste de rollback de ID inexistente
     assert not dispatcher.trigger_rollback("non_existent_ctrl_id")
-

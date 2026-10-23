@@ -3,9 +3,8 @@
  * =========================================================================================
  * Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL Determinística)
  * Arquivo: scenario_rdl_closed_loop_nori.cc
- * Descrição: Cenário de Co-Simulação Closed-Loop 5G-LENA + ns-O-RAN / NORI
- *            Validação de Malha Fechada Ponta a Ponta:
- *            KPM(t0) -> NORI E2 Report -> Near-RT RIC -> RDL -> RIC Control -> NORI -> 5G-LENA MAC/PHY -> KPM(t1)
+ * Descrição: Cenário de tráfego NR 5G-LENA com instalação opcional de E2 Agent.
+ *            Este código não aplica E2SM-RC nem fecha um loop de controle RDL->RAN.
  * Topologia: 2 gNodeBs 5G NR (Macro + Micro), 30 UEs (Fatias URLLC, eMBB e mMTC)
  * =========================================================================================
  */
@@ -40,14 +39,14 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioRdlClosedLoopNori");
 
-static void InjectConflictEvent ()
+static void TraceConflictWindowStart ()
 {
-    NS_LOG_UNCOND (">>> [EVENTO CRÍTICO t=" << Simulator::Now ().GetSeconds () << "s] Injetando tempestade de tráfego e colisão de PRBs (Conflito TVS/QoS)");
+    NS_LOG_UNCOND (">>> [TRACE] Início da janela de carga/conflito em t=" << Simulator::Now ().GetSeconds () << "s");
 }
 
-static void RecoverConflictEvent ()
+static void TraceConflictWindowEnd ()
 {
-    NS_LOG_UNCOND (">>> [EVENTO RECUPERAÇÃO t=" << Simulator::Now ().GetSeconds () << "s] Encerrando tempestade de tráfego; iniciando janela de observação H-RDL");
+    NS_LOG_UNCOND (">>> [TRACE] Fim da janela de carga/conflito em t=" << Simulator::Now ().GetSeconds () << "s");
 }
 
 int main (int argc, char *argv[])
@@ -84,6 +83,11 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ricPort", "Porta SCTP E2", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
     cmd.Parse (argc, argv);
+
+    if (demoMode == "experiment")
+    {
+        NS_FATAL_ERROR ("S8 closed-loop experimental indisponível: este cenário não implementa atuação E2SM-RC/RDL na RAN. Use um cenário ns-3 identificado apenas para métricas de tráfego, sem alegar closed loop.");
+    }
 
     /**
      * =========================================================================================
@@ -309,8 +313,8 @@ int main (int argc, char *argv[])
     #endif
 
     NS_LOG_INFO ("Agendando evento de inicio de conflito para t=" << conflictStart << "s e fim para t=" << conflictEnd << "s");
-    Simulator::Schedule (Seconds (conflictStart), &InjectConflictEvent);
-    Simulator::Schedule (Seconds (conflictEnd), &RecoverConflictEvent);
+    Simulator::Schedule (Seconds (conflictStart), &TraceConflictWindowStart);
+    Simulator::Schedule (Seconds (conflictEnd), &TraceConflictWindowEnd);
 
     NS_LOG_INFO ("Executando simulacao closed-loop por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));

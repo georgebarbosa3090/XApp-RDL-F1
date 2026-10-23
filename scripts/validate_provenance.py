@@ -49,7 +49,7 @@ def find_run_subdirectories(parent_dir: str) -> List[str]:
         "chain_manifest.json",
         "manifest_gate1_n30.json"
     ]
-    if not os.path.exists(parent_dir):
+    if not os.path.isdir(parent_dir):
         return []
     
     # Se o próprio diretório tiver um manifesto diretamente nele:
@@ -58,10 +58,7 @@ def find_run_subdirectories(parent_dir: str) -> List[str]:
     
     run_dirs = []
     # Verifica subdiretórios de 1º nível
-    try:
-        entries = sorted(os.listdir(parent_dir))
-    except Exception:
-        return []
+    entries = sorted(os.listdir(parent_dir))
 
     for entry in entries:
         sub_path = os.path.join(parent_dir, entry)
@@ -111,21 +108,17 @@ def validate_run_directory(run_dir: str) -> bool:
         manifest = json.load(f)
 
     # 1. Determina a Fonte de Evidência e Nível
-    source = manifest.get("source", manifest.get("provenance_category", manifest.get("evidence_level", manifest.get("benchmark_type", ""))))
-    
+    source = manifest.get("source", manifest.get("provenance_category", ""))
     raw_backend = manifest.get("backend", manifest.get("backend_id", ""))
     raw_backend_str = str(raw_backend).upper() if raw_backend else ""
+    if not isinstance(source, str) or not source:
+        print("  [PROVENANCE_INVALID] Campo 'source'/'provenance_category' explícito ausente.")
+        return False
 
-    if not source:
-        if "NORI" in raw_backend_str or "NS3" in raw_backend_str:
-            source = "NORI_E2"
-        elif "SRSRAN" in raw_backend_str:
-            source = "SRSRAN_E2"
-        elif "TESTBED" in raw_backend_str or "OPENRANBR" in raw_backend_str:
-            source = "OPENRANBR_TESTBED"
-
-    # Determina elegibilidade de publicação
-    is_pub_eligible = manifest.get("publication_eligible", (source in allowed_sources))
+    is_pub_eligible = manifest.get("publication_eligible")
+    if not isinstance(is_pub_eligible, bool):
+        print("  [PROVENANCE_INVALID] Campo booleano 'publication_eligible' explícito ausente.")
+        return False
 
     # Se a fonte for restrita a desenvolvimento/testes
     if source in banned_sources or any(banned in str(source) for banned in banned_sources):
@@ -140,69 +133,96 @@ def validate_run_directory(run_dir: str) -> bool:
         print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: '{source}'")
         return False
 
-    # 2. Normaliza backend e valida campos obrigatórios
-    backend_id = "NORI_NS3"
-    if "SRSRAN" in raw_backend_str:
-        backend_id = "SRSRAN_OPEN5GS"
-    elif "TESTBED" in raw_backend_str or "OPENRANBR" in raw_backend_str:
-        backend_id = "OPENRANBR_PHYSICAL"
-    elif raw_backend_str in policy.get("backend_evidence_rules", {}):
-        backend_id = raw_backend_str
+    if not is_pub_eligible:
+        print(f"  [DEV/LOCAL] Fonte elegível '{source}' explicitamente marcada como não publicável.")
+        return True
 
-    backend_rules = policy.get("backend_evidence_rules", {}).get(backend_id, {
-        "required_manifest_fields": ["nori_commit"],
-        "required_raw_extensions": [".xml", ".raw"]
-    })
+    # 2. Resolve only declared backend identifiers; never infer from free-form text.
+    if raw_backend_str in ("NORI_NS3", "NORI_NS3_5GLENA"):
+        backend_id = "NORI_NS3"
+    elif raw_backend_str in ("SRSRAN_OPEN5GS",):
+        backend_id = "SRSRAN_OPEN5GS"
+    elif raw_backend_str in ("OPENRANBR_PHYSICAL",):
+        backend_id = "OPENRANBR_PHYSICAL"
+    else:
+        print(f"  [PROVENANCE_INVALID] Backend explícito ausente ou desconhecido: '{raw_backend}'")
+        return False
+
+    backend_rules = policy.get("backend_evidence_rules", {}).get(backend_id)
+    if not backend_rules:
+        print(f"  [PROVENANCE_INVALID] Regras de evidência ausentes para backend '{backend_id}'.")
+        return False
 
     print(f"  - Backend Experimental: {backend_id}")
     print(f"  - Fonte de Evidência: {source}")
 
-    if is_pub_eligible:
-        missing_fields = [field for field in backend_rules.get("required_manifest_fields", []) if not manifest.get(field)]
-        if missing_fields:
-            print(f"  [PROVENANCE_INVALID] Campos de manifesto ausentes para backend '{backend_id}': {missing_fields}")
-            return False
-
-    # 3. Verifica Presença de Artefatos Brutos
-    raw_extensions = tuple(backend_rules.get("required_raw_extensions", [".raw", ".pcap", ".xml", ".log"]))
-    found_raw_files = []
-    
-    for root, _, files in os.walk(run_dir):
-        for f in files:
-            if f.endswith(raw_extensions):
-                found_raw_files.append(f)
-        
-    print(f"  - Artefatos Brutos Encontrados ({', '.join(raw_extensions)}): {len(found_raw_files)} arquivos")
-    if is_pub_eligible and len(found_raw_files) == 0:
-        print(f"  [PROVENANCE_INVALID] NENHUM artefato bruto {raw_extensions} encontrado em {run_dir}. Exigido para publicação elegível.")
+    # 3. Require an explicit successful execution record.
+    requirements = policy.get("publication_manifest_requirements", {})
+    required_fields = backend_rules.get("required_manifest_fields", [])
+    missing_fields = [field for field in required_fields if manifest.get(field) is None or manifest.get(field) == ""]
+    if missing_fields:
+        print(f"  [PROVENANCE_INVALID] Campos de manifesto ausentes para backend '{backend_id}': {missing_fields}")
+        return False
+    if manifest.get("run_status") != requirements.get("successful_run_status", "SUCCESS"):
+        print(f"  [PROVENANCE_INVALID] run_status não confirma execução bem-sucedida: {manifest.get('run_status')!r}")
+        return False
+    if manifest.get("exit_code") != requirements.get("successful_exit_code", 0):
+        print(f"  [PROVENANCE_INVALID] exit_code não confirma execução bem-sucedida: {manifest.get('exit_code')!r}")
         return False
 
-    # 4. Verifica Integridade Criptográfica
+    # 4. Require every evidence class specified by policy (not merely one matching extension).
+    required_groups = backend_rules.get("required_raw_groups", [])
+    found_raw_files = []
+    for root, _, files in os.walk(run_dir):
+        found_raw_files.extend(os.path.join(root, name) for name in files)
+    missing_groups = [
+        group for group in required_groups
+        if not any(path.lower().endswith(tuple(ext.lower() for ext in group)) for path in found_raw_files)
+    ]
+    print(f"  - Artefatos brutos encontrados: {len(found_raw_files)} arquivos")
+    if missing_groups:
+        print(f"  [PROVENANCE_INVALID] Classes de evidência bruta ausentes: {missing_groups}")
+        return False
+
+    # 5. Verify complete, nonempty hash coverage and reject paths outside this run.
     hashes_file = os.path.join(run_dir, "hashes.sha256")
-    if is_pub_eligible and not os.path.exists(hashes_file):
+    if not os.path.exists(hashes_file):
         print(f"  [PROVENANCE_INVALID] Arquivo de hashes 'hashes.sha256' ausente em {run_dir}.")
         return False
 
-    if os.path.exists(hashes_file):
-        print(f"  - Verificando integridade SHA256 em {hashes_file}...")
-        with open(hashes_file, "r", encoding="utf-8") as hf:
-            for line in hf:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                parts = line.split(maxsplit=1)
-                if len(parts) == 2:
-                    expected_hash, rel_path = parts[0], parts[1].strip()
-                    target_file = os.path.join(run_dir, rel_path)
-                    if not os.path.exists(target_file):
-                        target_file = os.path.join(os.path.dirname(hashes_file), rel_path)
-                    if not os.path.exists(target_file):
-                        print(f"  [PROVENANCE_INVALID] Arquivo referenciado em hashes.sha256 não encontrado no disco: '{rel_path}'")
-                        return False
-                    actual_hash = hash_file(target_file)
-                    if actual_hash.lower() != expected_hash.lower():
-                        print(f"  [PROVENANCE_INVALID] Divergência SHA256 em '{rel_path}': esperado {expected_hash[:8]}..., obtido {actual_hash[:8]}...")
-                        return False
+    hashed_paths = set()
+    with open(hashes_file, "r", encoding="utf-8") as hf:
+        hash_lines = [line.strip() for line in hf if line.strip() and not line.lstrip().startswith("#")]
+    if not hash_lines:
+        print("  [PROVENANCE_INVALID] hashes.sha256 está vazio.")
+        return False
+    run_root = os.path.realpath(run_dir)
+    for line in hash_lines:
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            print(f"  [PROVENANCE_INVALID] Linha de hash malformada: {line!r}")
+            return False
+        expected_hash, rel_path = parts[0], parts[1].lstrip("* ")
+        target_file = os.path.realpath(os.path.join(run_dir, rel_path))
+        if os.path.commonpath((run_root, target_file)) != run_root:
+            print(f"  [PROVENANCE_INVALID] Caminho de hash escapa do diretório da execução: '{rel_path}'")
+            return False
+        if not os.path.isfile(target_file):
+            print(f"  [PROVENANCE_INVALID] Arquivo referenciado em hashes.sha256 não encontrado: '{rel_path}'")
+            return False
+        actual_hash = hash_file(target_file)
+        if actual_hash.lower() != expected_hash.lower():
+            print(f"  [PROVENANCE_INVALID] Divergência SHA256 em '{rel_path}'.")
+            return False
+        hashed_paths.add(os.path.normcase(target_file))
+    if requirements.get("require_all_evidence_hashed", True):
+        untracked_evidence = [
+            os.path.normcase(os.path.realpath(path)) for path in found_raw_files
+            if os.path.normcase(os.path.realpath(path)) not in hashed_paths
+        ]
+        if untracked_evidence:
+            print(f"  [PROVENANCE_INVALID] Evidências brutas sem hash: {untracked_evidence}")
+            return False
 
     print(f"  [OK] Rastreabilidade de proveniência aprovada para {os.path.basename(run_dir)} [Backend={backend_id}]")
     return True
@@ -216,13 +236,13 @@ def main():
     target_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(BASE_DIR, "experiments", "runs")
     
     if not os.path.exists(target_dir):
-        print(f"[!] Nenhum resultado em {os.path.relpath(target_dir, BASE_DIR)}. Árvore limpa para novos experimentos.")
-        sys.exit(0)
+        print(f"[PROVENANCE_INVALID] Diretório obrigatório de resultados ausente: {os.path.relpath(target_dir, BASE_DIR)}")
+        sys.exit(1)
 
     run_dirs = find_run_subdirectories(target_dir)
     if not run_dirs:
-        print(f"[!] Nenhum manifesto encontrado em {target_dir}.")
-        sys.exit(0)
+        print(f"[PROVENANCE_INVALID] Nenhum manifesto de execução encontrado em {target_dir}.")
+        sys.exit(1)
 
     print(f"[i] Total de diretórios experimentais a auditar: {len(run_dirs)}")
     all_ok = True

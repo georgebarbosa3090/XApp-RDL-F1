@@ -73,7 +73,7 @@ Apresenta o comparativo multidimensional completo cruzando os 7 baselines (B0 a 
 Registro oficial exaustivo de nível de pacote extraído diretamente dos traces FlowMonitor XML gerados pelo simulador ns-3.48 / 5G-LENA / NORI, cobrindo os 16 cenários (S0 a S15) ordenados cronologicamente, matrizes de RF, dispersão de pacotes, jitter e governança determinística.
 
 ### [Volume 21: Relatório de Demonstração Científica Rica em Circuito Fechado (H-RDL Fase 1)](21_relatorio_demonstracao_rica_closed_loop.md)
-Documento oficial consolidando os resultados empíricos da suíte de demonstrações operacionais D1 a D5 da H-RDL Fase 1 (`scripts/run_live_demonstrations_d1_d5.py`), comprovando a validação irrefutável dos 4 Gates Causais, conformidade ASN.1 APER WG3 (E2SM-KPM e E2SM-RC), resiliência a falhas SCTP via rollback determinístico e erradicação total de violações de SLA (0,0%).
+Documento legado de demonstrações D1 a D5. As métricas e afirmações de validação foram retiradas como evidência; o script `scripts/run_live_demonstrations_d1_d5.py` foi desativado por não executar experimento live. Os gates de interoperabilidade continuam pendentes.
 
 ### [Volume 22: Plano Editorial Estratégico & Matriz Exaustiva de Publicações (2026–2028)](22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md)
 Roteiro de submissão dos 6 manuscritos planejados para IEEE TNSM, IEEE TCCN, IEEE CommMag e Elsevier Computer Networks, definindo escopo, novidade científica, baselines e conformidade com os critérios de reprodutibilidade da IEEE Communications Society.

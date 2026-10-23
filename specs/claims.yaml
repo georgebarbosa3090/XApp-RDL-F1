@@ -1,12 +1,15 @@
 # ============================================================================
 # CLAIMS FIREWALL - XAPP-RDL FASE 1 (H-RDL) & FASE 2 (CA-RDL)
-# Especificação Formal de Claims, Hipóteses, Cenários e Evidências Empíricas
+# Registro de Claims, Hipóteses e Estado de Evidência
 # Auditoria Técnica e Conformidade O-RAN WG2 / WG3 / E2SM
 # ============================================================================
 
 version: "1.2.0"
-audit_date: "2026-09-14"
-audit_reference: "RELATORIO_AUDITORIA_PROFUNDA_RDL_F1_F2_2026-09-14.md"
+audit_date: "2026-10-23"
+audit_reference: "Auditoria técnica e científica do repositório; evidências live não aprovadas"
+evidence_status_notice: >
+  Observações numéricas e fontes legadas abaixo não foram validadas contra execuções
+  elegíveis. Não citar como resultados empíricos até que os gates aplicáveis sejam aprovados.
 
 claims:
   - id: "C1"
@@ -19,15 +22,15 @@ claims:
     metrics:
       - name: "rdl_decision_latency_seconds"
         target: "< 0.001 s"
-        observed_median: "0.000045 s"
-        observed_p99: "0.000350 s"
+        observed_median: "NOT_VALIDATED"
+        observed_p99: "NOT_VALIDATED"
     scenarios:
       - "S0"
       - "S1"
       - "S2"
       - "S3"
-    evidence_source: "FlowMonitor traces, pytest causal tracker logs, discrete event simulator"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "Pending eligible ns-3/5G-LENA runs; legacy sources include non-publication data"
+    compliance_status: "NOT_VERIFIED"
 
   - id: "C2"
     name: "Strict Closed-Loop Control Loop Adherence (< 10 ms)"
@@ -39,15 +42,15 @@ claims:
     metrics:
       - name: "rdl_e2e_loop_latency_seconds"
         target: "< 0.010 s"
-        observed_median: "0.001200 s"
-        observed_p99: "0.003500 s"
+        observed_median: "NOT_VALIDATED"
+        observed_p99: "NOT_VALIDATED"
     scenarios:
       - "S1"
       - "S2"
       - "S4"
       - "S7"
-    evidence_source: "ns-3 NORI E2 Term traces, e2sm_kpm_indication raw golden vectors"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "Pending externally captured NORI E2 traces and approved G1-G4 evidence"
+    compliance_status: "NOT_VERIFIED"
 
   - id: "C3"
     name: "Zero SLA Violations Under Adversarial Overload"
@@ -59,18 +62,18 @@ claims:
     metrics:
       - name: "sla_violation_rate"
         target: "0.0000"
-        observed: "0.0000"
+        observed: "NOT_VALIDATED"
       - name: "packet_loss_ratio_urllc"
         target: "< 0.0001"
-        observed: "0.0000"
+        observed: "NOT_VALIDATED"
     scenarios:
       - "S2"
       - "S5"
       - "S6"
       - "S7"
       - "S8"
-    evidence_source: "FlowMonitor XML traces (s2_cross_slice_ran_sharing, s5_adversarial, s7_high_load)"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "Pending eligible FlowMonitor traces from completed ns-3/5G-LENA runs"
+    compliance_status: "NOT_VERIFIED"
 
   - id: "C4"
     name: "Causal Traceability and Non-Repudiation"
@@ -82,10 +85,10 @@ claims:
     metrics:
       - name: "traceability_coverage"
         target: "100.0%"
-        observed: "100.0%"
+        observed: "NOT_VALIDATED"
       - name: "ric_request_id_collision_rate"
         target: "0.0%"
-        observed: "0.0%"
+        observed: "NOT_VALIDATED"
     scenarios:
       - "S0"
       - "S1"
@@ -96,8 +99,8 @@ claims:
       - "S6"
       - "S7"
       - "S8"
-    evidence_source: "causal_tracker.py, RicRequestIdAllocator, RDLDecision audit logs"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "Local implementation/tests only; external causal chain not demonstrated"
+    compliance_status: "NOT_VERIFIED"
 
   - id: "C5"
     name: "Cognitive Context-Aware Multi-Objective Optimization (CA-RDL)"
@@ -109,10 +112,10 @@ claims:
     metrics:
       - name: "multi_objective_utility_score"
         target: "> 0.85"
-        observed: "0.92"
+        observed: "NOT_VALIDATED"
       - name: "spectral_efficiency_gain_pct"
         target: "> 15.0%"
-        observed: "22.4%"
+        observed: "NOT_VALIDATED"
     scenarios:
       - "S9"
       - "S10"
@@ -121,8 +124,8 @@ claims:
       - "S13"
       - "S14"
       - "S15"
-    evidence_source: "ns-3 5G-LENA orbital handover & slicing FlowMonitor datasets"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "No eligible Phase 2 ns-3 dataset verified"
+    compliance_status: "NOT_VERIFIED"
 
   - id: "C6"
     name: "Strict Fail-Closed Safety in Production Interoperability Mode"
@@ -134,8 +137,8 @@ claims:
     metrics:
       - name: "fail_closed_compliance_rate"
         target: "100.0%"
-        observed: "100.0%"
+        observed: "NOT_VALIDATED"
     scenarios:
       - "ALL"
-    evidence_source: "negative cases tests, sdl_repository, ran_backend_adapter"
-    compliance_status: "VERIFIED_EMPIRICAL"
+    evidence_source: "Unit tests do not establish production strict-mode integration; SDL wiring remains unverified"
+    compliance_status: "NOT_VERIFIED"

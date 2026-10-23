@@ -1,4 +1,4 @@
-# Volume 04: Relatório Científico Mestre de Experimentos RDL (F1 H-RDL × F2 CA-RDL)
+# Volume 04: Relatório Científico Mestre de Experimentos RDL (legado, não validado)
 ## Governança Cognitiva, Arbitragem de Conflitos Multi-xApp e Validação Causal em Circuito Fechado O-RAN (ns-3 + 5G-LENA + NORI + Near-RT RIC)
 
 > **Navegação da Documentação Consolidada:**  
@@ -6,13 +6,15 @@
 
 ---
 
+> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** Este documento contém resultados numéricos e afirmações de integração que não foram confirmados por uma campanha elegível. Manifestos/artefatos legados não provam origem ns-3/NORI; o cenário C++ atual não fecha o loop de controle. **Os números, testes de hipótese, tabelas e conclusões deste relatório estão retirados como evidência empírica e não devem ser citados.** Consulte [`README.md`](../README.md) e [`specs/claims.yaml`](../specs/claims.yaml) para o estado dos gates e claims. A versão deste documento deve ser substituída somente após reprodução independente com ns-3 + 5G-LENA e evidências externas completas.
+
 ### Metadados de Governança e Autoria Científica
 - **Autor Principal:** George Alexandro Ferreira Barbosa
 - **Orientador:** Prof. Dr. André Riker
 - **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC) — Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
 - **Padrão de Publicação:** Padrão SBC / SBRC e IEEE Transactions (TNSM / TCCN / Nature Comms)
-- **Data de Emissão:** 18 de Setembro de 2026 (Reconciliação e Homologação Oficial v1.2.0-certified)
-- **Status Metodológico:** Ratificado, Irrefutável e Reproduzível (Golden Closed Loop)
+- **Data da retificação:** 23 de Outubro de 2026
+- **Status Metodológico:** Não validado; conteúdo quantitativo legado retirado como evidência
 - **Framework O-RAN:** O-RAN Alliance SC (E2AP v02.03, E2SM-KPM v03.00, E2SM-RC v01.03)
 - **Simulador RAN & Interface:** ns-3.48 / 5G-LENA v5.1 / NORI E2 Agent (SBrT 2025 extension)
 - **Repositórios de Código-Fonte e Dados Brutos:**
@@ -21,9 +23,9 @@
 
 ---
 
-## Resumo
+## Resumo legado — não usar como resultado
 
-A desagregação das Redes de Acesso Aberto (Open RAN) e a introdução do Controlador Inteligente da RAN em Tempo Quase Real (Near-RT RIC) viabilizam a orquestração autônoma da rede por meio de micro-aplicações especializadas (*xApps*). Contudo, a coexistência de múltiplas xApps operando de forma descentralizada engendra severos conflitos de controle — tanto diretos (colisão no mesmo parâmetro de rádio) quanto indiretos (parâmetros distintos que impactam os mesmos SLAs) e temporais (*parameter flipping* / *ping-pong*). Neste trabalho, propomos e avaliamos experimentalmente duas abordagens complementares de coordenação integradas na camada RDL (*Resource and Decision Layer*): a **H-RDL (Fase 1)**, fundamentada em arbitragem hierárquica/heurística determinística com *Safety Guards* invariantes; e a **CA-RDL (Fase 2)**, baseada em sensibilidade contextual, grafos de conhecimento (*Knowledge Graphs*) e Aprendizado por Reforço Multi-Agente (*Safe-MAPPO* sob formulação CMDP). Utilizando um ambiente de co-simulação de alta fidelidade integrando ns-3.48, 5G-LENA v5.1, o agente E2 NORI e o Near-RT RIC OSC, estruturamos uma cadeia causal fechada de não-repúdio:
+O texto abaixo é preservado apenas como registro de uma versão anterior e não representa resultados validados. As alegações de co-simulação NORI/RIC, cadeia causal completa, resultados de Fase 1/Fase 2 e desempenho foram retiradas até que evidências elegíveis sejam coletadas e aprovadas.
 
 $$\text{KPM}(t_0) \longrightarrow \text{Propostas } (\text{action-id}) \longrightarrow \text{Conflito } (\text{conflict-id}) \longrightarrow \text{Decisão } (\text{decision-id}) \longrightarrow \text{Controle } (\text{RIC-CONTROL-REQ}) \longrightarrow \text{ACK } (\Delta t) \longrightarrow \Delta\text{RAN} \longrightarrow \text{KPM}(t_1)$$
 
@@ -749,4 +751,3 @@ Como etapas imediatas de evolução (Fase 3):
 18. **`e2_fault_resilience_metrics.csv`**: Métricas de tolerância a falhas, tempos de fallback e recuperação no Cenário S7.
 19. **`jain_fairness_longitudinal_metrics.csv`**: Análise longitudinal da equidade de Jain por fatia e semente ($p < 0,001$).
 20. **`cross_tier_latency_budget.csv`**: Orçamento de latência entre rApp (Non-RT), xApp (Near-RT) e dApp (Real-Time).
-

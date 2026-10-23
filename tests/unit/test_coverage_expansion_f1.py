@@ -84,6 +84,27 @@ def test_sdl_repository_operations():
     assert sdl.get_similar_resolutions(conflict) == []
 
 
+def test_sdl_repository_requires_real_client_when_bound_strictly():
+    sdl = SdlRepository()
+    with pytest.raises(RuntimeError, match="sdl_set and sdl_get"):
+        sdl.bind_xapp(object(), required=True)
+
+    class SdlClient:
+        def __init__(self):
+            self.data = {}
+
+        def sdl_set(self, namespace, key, value):
+            self.data[(namespace, key)] = value
+
+        def sdl_get(self, namespace, key):
+            return self.data.get((namespace, key))
+
+    client = SdlClient()
+    sdl.bind_xapp(client, required=True)
+    sdl.save_decision("decision-1", {"strategy": "TVS"})
+    assert sdl._get("decisions:decision-1") == {"strategy": "TVS"}
+
+
 # ============================================================================
 # 2. TESTES DE OBSERVABILIDADE (HEALTH & METRICS & CAUSAL)
 # ============================================================================
@@ -153,13 +174,11 @@ def test_causal_tracker_full_cycle():
 # 3. TESTES DO REFINEMENT AGENT (SAFETY GUARDS)
 # ============================================================================
 
-def test_discrete_event_ran_simulator_modes():
+def test_retired_discrete_event_simulator_is_disabled():
     from src.simulation.discrete_event_ran_simulator import DiscreteEventRANSimulator
-    for m in ["B0", "B1", "B2", "B3"]:
-        sim = DiscreteEventRANSimulator(seed=42, duration_s=0.2, decision_interval_s=0.1, mode=m, num_ues=6, demo_mode="fast")
-        res = sim.run()
-        assert res["mode"] == m
-        assert len(res["flow_metrics"]) > 0
+
+    with pytest.raises(RuntimeError, match="disabled.*ns-3 and 5G-LENA"):
+        DiscreteEventRANSimulator(seed=42)
 
 
 def test_control_dispatcher_full():
@@ -314,7 +333,7 @@ def test_rdlxapp_advanced_pipeline_and_decision_loop():
 
     mock_dec = RDLDecision(
         selected_actions=[act],
-        safety_result={"safe": True}
+        safety_result={"is_safe": True}
     )
     mock_dec.safety_validation = True
     mock_dec.selected_action = MockSelectedAction()
@@ -560,5 +579,3 @@ def test_main_roles_import(monkeypatch):
     monkeypatch.setenv("XAPP_ROLE", "rdl")
     src.main.main()
     assert app.started is True
-
-

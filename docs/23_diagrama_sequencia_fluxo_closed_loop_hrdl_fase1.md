@@ -1,10 +1,12 @@
-# Volume 23: Especificação Formal, Diagrama de Sequência e Fluxo de Controle em Circuito Fechado (H-RDL Fase 1)
+# Volume 23: Arquitetura-alvo e Diagrama Conceitual de Controle (H-RDL Fase 1)
 ## Coordenação Determinística Multi-xApp, Codecs ASN.1 APER (E2SM-KPM / E2SM-RC), Safety Guards Invariantes e Auditoria Causal Closed-Loop no Near-RT RIC
 
 > **Navegação da Documentação Consolidada:**  
 > **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[22. Plano Editorial Estratégico](22_plano_editorial_estrategico_matriz_publicacoes_2026_2028.md)** | **[23. Diagrama de Sequência H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)** | **[24. Relatório RAN Slice & EnergySaver (GreenRAN)](24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md)**
 
 ---
+
+> **Status:** diagrama conceitual de arquitetura-alvo, não evidência de implementação. As mensagens, IDs, subscrições, propostas e alterações de RAN desenhadas abaixo não foram verificadas em uma execução interoperável. A xApp não integra descoberta de RAN Functions/capacidades de E2 Setup no runtime, e o cenário C++ não aplica E2SM-RC à NR. Não descrever este desenho como closed loop implementado até G1, G3 e G4 serem aprovados.
 
 ### Metadados de Governança e Autoria Científica
 - **Autor Principal:** George Alexandro Ferreira Barbosa
@@ -18,9 +20,9 @@
 
 ---
 
-## 1. Sumário Executivo e Fundamentos Epistêmicos
+## 1. Fluxo-alvo e limites de validação
 
-Este documento constitui a especificação técnica e científica autoritativa do fluxo temporal de controle em circuito fechado (*closed-loop*) da **H-RDL (Heuristic Resource and Decision Layer — Fase 1)**.
+Este documento descreve um fluxo temporal-alvo para a **H-RDL (Fase 1)**. Não é uma especificação de comportamento já validado nem comprova uma cadeia causal fechada.
 
 Na arquitetura Open RAN desagregada, a coexistência de múltiplas xApps operando de forma autônoma sobre o Near-RT RIC desencadeia conflitos destrutivos de sinalização, tais como:
 1. **Conflitos Diretos (DC):** Colisão no mesmo parâmetro de controle da RAN (ex.: `xSlice` solicitando `PRB_QUOTA` $= 80\%$ enquanto `Energy Saving` solicita $P_{tx} = 20\text{ dBm}$ ou modo *sleep*);
@@ -281,5 +283,4 @@ Para garantir que nenhuma ação insegura atinja a rede de acesso sob falhas de 
 
 > [!NOTE]
 > Para o mapeamento exaustivo da genealogia upstream das xApps `xSlice` e `EnergySaver`, a especificação de adaptação ao projeto **GreenRAN** (Agro 4.0 e Smart Campus UFPA) e os requisitos de suporte multi-backend para H-RDL e CA-RDL, consulte o **[Volume 24: Relatório Técnico RAN Slice e EnergySaver no xApp-RDL](24_relatorio_tecnico_ran_slice_energy_saver_f1_f2.md)**.
-
 

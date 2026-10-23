@@ -35,15 +35,15 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 └──────────────────────────────────────┼──────────────────────────────────────┘
                                        │ Protocolo E2AP v02.03 (SCTP)
 ┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                    SIMULADOR DISCRETO ns-3.48 / 5G-LENA v5.1                │
+│                 CENÁRIO-ALVO ns-3.48 / 5G-LENA v5.1                         │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                           NORI E2 AGENT                               │  │
+│  │                NORI E2 Agent (integração a validar)                   │  │
 │  │  - E2AP Handler (SetupRequest, Subscription, RICcontrolRequest)       │  │
 │  │  - RAN Function Capability Registry (RC_ID=3, KPM_ID=2)               │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
 │                                      │ Callback em Memória C++ / IPC        │
 │  ┌───────────────────────────────────▼───────────────────────────────────┐  │
-│  │                      PILHA PROTOCOLAR 5G-LENA NR                      │  │
+│  │                 PILHA PROTOCOLAR 5G-LENA NR                            │  │
 │  │  - SDAP / RLC-AM & RLC-UM (Buffers de 10 MB, HOL Delay Tracking)     │  │
 │  │  - MAC: NrMacSchedulerOfdmaPF (Proportional Fair Slicing / BWP)       │  │
 │  │  - PHY: 3GPP 38.901 UMi Channel (3.5 GHz n78, 100 MHz, HARQ-IR, AMC) │  │
@@ -54,7 +54,7 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 
 ![Arquitetura Global de Co-Simulação ns-3 e Near-RT RIC](figures/01_arquitetura_e_governanca/diagram_01_global_pipeline_architecture.png)
 
-O diagrama descreve a arquitetura-alvo. Testes locais de codec, fixtures e contratos de cenário não demonstram conexão E2 live; os gates de KPM externo, RC/ACK e causalidade permanecem conforme o estado indicado no README.
+**Arquitetura-alvo, não descrição de uma integração validada.** O cenário C++ disponível configura NR/FlowMonitor e pode instalar um E2 Agent, mas não aplica ações RC à RAN; a xApp ainda não integra descoberta de RAN Functions/capacidades de E2 Setup no runtime. O diagrama não comprova a presença de cada bloco ou ligação. Testes locais, fixtures e o cenário sem atuação RC não demonstram conexão E2 live. G1, G3, G4 e G5 permanecem pendentes.
 
 ---
 
@@ -71,7 +71,7 @@ A RDL é estruturada em duas fases complementares:
 | **Ganho de Vazão (vs B0)** | Não certificado; resultados locais/offline não são evidência científica | Não certificado |
 | **Violações de SLA** | Não certificado; requer traces elegíveis e seeds pareadas | Não certificado |
 
-Os valores numéricos de desempenho anteriormente apresentados neste comparativo foram removidos por não estarem associados aqui a uma campanha elegível e reproduzível. Conforme a política de evidência, fixtures, mocks e simuladores locais não comprovam ganhos de rede.
+Os valores numéricos de desempenho anteriormente apresentados neste comparativo foram removidos por não estarem associados aqui a uma campanha elegível e reproduzível. Conforme a política de evidência, fixtures, mocks e simuladores locais não comprovam ganhos de rede. A demonstração de uma implementação estática em teste também não prova o comportamento da pilha NR em execução.
 
 ---
 
@@ -90,10 +90,10 @@ src/
 ├── coordination/                # Despacho e rastreamento de transações
 │   ├── dispatcher.py            # Envio E2SM-RC via RMR
 │   └── ack_tracker.py           # Rastreamento assíncrono de RIC_CONTROL_ACK e RTT
-├── e2/                          # Camada Normativa O-RAN (ASN.1 APER isolado)
-│   ├── e2ap/                    # Codecs E2AP v02.03 (Setup, Subscriptions, Control)
-│   ├── kpm/                     # Codecs E2SM-KPM v03.00 (EventTrigger / ActionDefinition)
-│   └── rc/                      # Codecs E2SM-RC v01.03 (RCMapper, Format 1 Header / Format 2 Message)
+├── e2/                          # Adaptadores/protótipos E2; conformidade externa pendente
+│   ├── e2ap/                    # Builders e parsers locais; interoperabilidade pendente
+│   ├── kpm/                     # Builders/decoder locais; vetores externos pendentes
+│   └── rc/                      # RCMapper/encoder de pesquisa; schema e RAN apply pendentes
 ├── models/                      # Modelos Analíticos Calibrados de Rádio 5G
 │   ├── shannon_capacity.py      # Capacidade espectral com overhead 3GPP
 │   ├── queuing_delay.py         # Modelo de atraso M/G/1 com saturação
@@ -210,7 +210,7 @@ As restrições de custo $C_k$ penalizam violações de invariantes físicas, re
 
 ## 6. Mapeamento Normativo O-RAN (E2AP, E2SM-KPM e E2SM-RC)
 
-A camada RDL implementa o desacoplamento formal de codecs ASN.1 APER conforme os padrões O-RAN WG3:
+A camada contém builders/decoders locais e uma codificação APER de pesquisa. Não foi demonstrada conformidade com schemas normativos independentes nem interoperabilidade com NORI/RIC; as versões abaixo são metas de compatibilidade, não certificações:
 
 | Protocolo | Versão Normativa | Função na Arquitetura RDL |
 | :--- | :---: | :--- |

@@ -135,6 +135,7 @@ class RDLxApp:
         # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
         self.pending_transactions: Dict[Any, float] = {}
         self.active_subscriptions: Dict[str, bool] = {}
+        self.decision_loop_started = False
         
         if self.mode == "O_RAN_INTEROP":
             self.xapp = _RealRMRXapp(
@@ -152,6 +153,16 @@ class RDLxApp:
                 use_fake_sdl=use_fake_sdl,
                 post_init=self._entrypoint
             )
+
+        if isinstance(self.memory, SdlRepository):
+            try:
+                self.memory.bind_xapp(self.xapp, required=self.oran_strict)
+            except RuntimeError as exc:
+                if self.oran_strict:
+                    raise RuntimeError("SDL obrigatório indisponível no modo O_RAN_INTEROP.") from exc
+                logger.warning("SDL indisponível; utilizando armazenamento local não persistente.", error=str(exc))
+                self.memory = MemoryModule()
+                self.reasoning.memory = self.memory
         
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
@@ -189,7 +200,19 @@ class RDLxApp:
 
     def _entrypoint(self, xapp_instance):
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
-        self.health.set_state(AppState.READY)
+        if isinstance(self.memory, SdlRepository):
+            try:
+                self.memory.bind_xapp(xapp_instance, required=self.oran_strict)
+            except RuntimeError as exc:
+                if not self.oran_strict:
+                    logger.warning("SDL indisponível; xApp permanece em armazenamento local.", error=str(exc))
+                    self.memory = MemoryModule()
+                    self.reasoning.memory = self.memory
+                else:
+                    self.health.set_state(AppState.ERROR)
+                    logger.error("SDL obrigatório indisponível; xApp mantida fora de READY.", error=str(exc))
+                    return
+
         if self.oran_strict or self.mode == "O_RAN_INTEROP":
             logger.info("Modo O_RAN_INTEROP/oran-strict: Descoberta estatica desabilitada. As capacidades de controle serao descobertas exclusivamente via RANFunctionDefinition (E2 Setup).")
         else:
@@ -200,13 +223,19 @@ class RDLxApp:
         from src.e2.rc.capability_registry import rc_capability_registry
         try:
             kpm_fn_id = rc_capability_registry.get_kpm_function_id("gnb_01")
-            self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+            subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
         except Exception as e:
             if self.oran_strict:
-                logger.warning(f"[ORAN-STRICT] Subscrição E2SM-KPM suspensa: aguardando descoberta de KPM via E2 Setup ({e})")
+                self.health.set_state(AppState.ERROR)
+                logger.error(f"[ORAN-STRICT] xApp não pronta: descoberta KPM/E2 Setup não foi conectada ao runtime ({e})")
+                return
             else:
-                self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
-        threading.Thread(target=self._decision_loop, daemon=True).start()
+                subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+        if not subscribed:
+            self.health.set_state(AppState.ERROR)
+            logger.error("Subscrição KPM não foi aceita pelo transporte; xApp mantida fora de READY.")
+            return
+        self.health.set_state(AppState.SUBSCRIBING)
 
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: Optional[int] = None, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
@@ -240,6 +269,14 @@ class RDLxApp:
     def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
         logger.info("RIC_SUB_RESP recebido com sucesso", summary=summary)
+        if not any(self.active_subscriptions.values()):
+            logger.warning("RIC_SUB_RESP recebido sem subscrição local pendente; readiness não alterada.")
+            self._safe_rmr_free(xapp_instance, sbuf)
+            return
+        self.health.set_state(AppState.READY)
+        if not self.decision_loop_started:
+            self.decision_loop_started = True
+            threading.Thread(target=self._decision_loop, daemon=True).start()
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def _kpm_indication_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
@@ -301,6 +338,8 @@ class RDLxApp:
                 
                 if tx_key and tx_key in self.pending_transactions:
                     rtt_ms = (now_ts() - self.pending_transactions.pop(tx_key)) * 1000.0
+                    if req_id is not None and ran_fn_id is not None:
+                        self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
                     logger.info("RIC_CONTROL_ACK recebido e confirmado", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
                 else:
                     logger.info("RIC_CONTROL_ACK recebido sem transacao pendente", status=ack_info.get("status"))
@@ -326,6 +365,8 @@ class RDLxApp:
                     tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
                     if tx_key and tx_key in self.pending_transactions:
                         del self.pending_transactions[tx_key]
+                        if req_id is not None:
+                            self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
                     if tx_id and tx_id in self.pending_transactions:
                         del self.pending_transactions[tx_id]
             except Exception as e:
@@ -422,6 +463,7 @@ class RDLxApp:
         expired_keys = [k for k, ts in list(self.pending_transactions.items()) if (now - ts) > timeout_s]
         for k in expired_keys:
             self.pending_transactions.pop(k, None)
+        self.allocator.cleanup_expired(timeout_s)
         return len(expired_keys)
 
     def _decision_loop(self):
@@ -449,6 +491,9 @@ class RDLxApp:
                         threading.Thread(target=self._process_action_group, args=(actions_to_process,), daemon=True).start()
 
     def _send_control(self, node_id: str, parameter: str, value: float, action: Optional[XAppAction] = None, decision_id: Optional[str] = None):
+        correlation_key = None
+        ric_req_key = None
+        tx_id = None
         try:
             target_action = action or XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
             from src.e2.rc.capability_registry import rc_capability_registry
@@ -461,6 +506,7 @@ class RDLxApp:
             )
             requestor_id = req_id_obj.requestor_id
             instance_id = req_id_obj.instance_id
+            correlation_key = (node_id, ran_fn_id, requestor_id, instance_id)
             aper_payload = self.backend.map_action_to_control_pdu(target_action, requestor_id=requestor_id, instance_id=instance_id)
             
             tx_id = str(uuid.uuid4())[:8]
@@ -494,6 +540,12 @@ class RDLxApp:
             logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id, action_id=getattr(action, "action_id", None))
         else:
             logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
+            if correlation_key is not None:
+                self.allocator.pop_correlation(*correlation_key)
+            if ric_req_key is not None:
+                self.pending_transactions.pop(ric_req_key, None)
+            if tx_id is not None:
+                self.pending_transactions.pop(tx_id, None)
 
 
 

@@ -22,11 +22,11 @@ class ControlDispatcher:
 
     def dispatch_control(self, decision: Decision) -> Optional[str]:
         # Suporta tanto safety_result dict quanto safety_validation booleano
-        is_safe = True
+        is_safe = False
         if hasattr(decision, "safety_result") and isinstance(decision.safety_result, dict):
-            is_safe = decision.safety_result.get("is_safe", True)
+            is_safe = decision.safety_result.get("is_safe") is True
         elif hasattr(decision, "safety_validation"):
-            is_safe = bool(getattr(decision, "safety_validation"))
+            is_safe = getattr(decision, "safety_validation") is True
             
         selected_act = None
         if hasattr(decision, "selected_actions") and decision.selected_actions:
@@ -101,7 +101,12 @@ class ControlDispatcher:
             
         # Enviar via RMR (Message Type 12010 = RIC_CONTROL_REQUEST)
         logger.info(f"Enviando RIC_CONTROL_REQUEST {control_request_id} (ReqID {requestor_id}) para MEID {target_node}")
-        self.rmr.rmr_send(payload, 12010, target_node)
+        if not self.rmr.rmr_send(payload, 12010, target_node):
+            tracking_info["status"] = "SEND_FAILED"
+            self.pending_requests.pop(control_request_id, None)
+            self.req_key_to_id.pop(key, None)
+            logger.error(f"RMR rejeitou RIC_CONTROL_REQUEST {control_request_id}; despacho cancelado.")
+            return None
         return control_request_id
 
     def handle_ack(self, payload: bytes) -> Optional[Dict[str, Any]]:
@@ -113,15 +118,10 @@ class ControlDispatcher:
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
             key = f"{req_id}_{inst_id}"
-            from src.e2.rc.capability_registry import rc_capability_registry
             ctrl_id = self.req_key_to_id.get(key)
             if not ctrl_id:
-                if not rc_capability_registry.is_strict_mode() and self.pending_requests:
-                    # Fallback permissivo apenas em modo offline/desenvolvimento
-                    ctrl_id = list(self.pending_requests.keys())[-1]
-                else:
-                    logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_ACK recebido para req não rastreado: {key}")
-                    return None
+                logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_ACK recebido para req não rastreado: {key}")
+                return None
                 
             if ctrl_id and ctrl_id in self.pending_requests:
                 info = self.pending_requests[ctrl_id]
@@ -133,6 +133,7 @@ class ControlDispatcher:
                 except Exception:
                     pass
                 causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
+                self.req_key_to_id.pop(key, None)
                 logger.info(f"Recebido RIC_CONTROL_ACK para req {ctrl_id} (ReqID {req_id}) - RTT: {rtt_ms:.2f} ms")
                 return info
             else:
@@ -154,8 +155,9 @@ class ControlDispatcher:
             key = f"{req_id}_{inst_id}"
             
             ctrl_id = self.req_key_to_id.get(key)
-            if not ctrl_id and self.pending_requests:
-                ctrl_id = list(self.pending_requests.keys())[-1]
+            if not ctrl_id:
+                logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_FAILURE recebido para req não rastreado: {key}")
+                return None
                 
             if ctrl_id and ctrl_id in self.pending_requests:
                 info = self.pending_requests[ctrl_id]
@@ -167,6 +169,7 @@ class ControlDispatcher:
                     pass
                 causal_tracker.record_failure(req_id, cause_code=cause)
                 logger.error(f"Recebido RIC_CONTROL_FAILURE para req {ctrl_id} (ReqID {req_id}, Cause {cause})")
+                self.req_key_to_id.pop(key, None)
                 self.trigger_rollback(ctrl_id)
                 return info
             else:
@@ -188,6 +191,8 @@ class ControlDispatcher:
                 logger.warning(f"Timeout de controle E2 detectado para {ctrl_id} (ultrapassou {info['timeout_at']})")
                 info["status"] = "TIMEOUT"
                 timed_out_ids.append(ctrl_id)
+                key = f"{info['requestor_id']}_{info['instance_id']}"
+                self.req_key_to_id.pop(key, None)
                 self.trigger_rollback(ctrl_id)
                 
         return timed_out_ids
@@ -238,4 +243,3 @@ class ControlDispatcher:
             "restored_value": safe_val,
             "timestamp": info["rolled_back_at"]
         })
-

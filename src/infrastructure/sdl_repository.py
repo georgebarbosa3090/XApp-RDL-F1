@@ -16,7 +16,17 @@ class SdlRepository:
         self.port = port
         self.namespace = "iqos-xapp-rdl"
         self._local_cache = []
+        self._required = False
 
+    def bind_xapp(self, xapp_instance: Any, required: bool = False) -> None:
+        """Attach the initialized xApp SDL client, rejecting missing APIs in strict mode."""
+        self.xapp = xapp_instance
+        self._required = required
+        if not callable(getattr(xapp_instance, "sdl_set", None)) or not callable(
+            getattr(xapp_instance, "sdl_get", None)
+        ):
+            self.xapp = None
+            raise RuntimeError("SDL client must provide callable sdl_set and sdl_get methods.")
 
     def _set(self, key: str, value: Any):
         try:
@@ -28,15 +38,25 @@ class SdlRepository:
             
             if self.xapp is not None:
                 self.xapp.sdl_set(self.namespace, key, value)
+            elif self._required:
+                raise RuntimeError("SDL is required but no SDL client is bound.")
             else:
                 logger.debug(f"[MOCK SDL] Set {key} = {value}")
         except Exception as e:
             logger.error(f"Falha ao persistir {key} no SDL: {e}")
+            if self._required:
+                raise RuntimeError(f"Falha ao persistir {key} no SDL.") from e
 
     def _get(self, key: str) -> Optional[Any]:
         try:
+            if self.xapp is None:
+                if self._required:
+                    raise RuntimeError("SDL is required but no SDL client is bound.")
+                return None
             data = self.xapp.sdl_get(self.namespace, key)
             if data:
+                if isinstance(data, str):
+                    data = data.encode("utf-8")
                 try:
                     return json.loads(data.decode('utf-8'))
                 except json.JSONDecodeError:
@@ -44,6 +64,8 @@ class SdlRepository:
             return None
         except Exception as e:
             logger.error(f"Falha ao ler {key} do SDL: {e}")
+            if self._required:
+                raise RuntimeError(f"Falha ao ler {key} do SDL.") from e
             return None
 
     # Implementações RF-19
@@ -94,4 +116,3 @@ class SdlRepository:
 
     def get_recent_actions(self, n=50) -> list:
         return self._local_cache[-n:]
-

@@ -1,4 +1,4 @@
-# Relatório Técnico Experimental e Rastreabilidade do ns-3 FlowMonitor (Cenários S0 a S15)
+# Relatório legado de FlowMonitor (S0–S15; proveniência não validada)
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva (Cronológica S0 a S15)  
 > **Projeto:** xApp RDL (Resource and Decision Layer) — Fases 1 (H-RDL) e 2 (CA-RDL)  
@@ -8,18 +8,14 @@
 
 ---
 
+> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** O conteúdo quantitativo deste relatório e a alegação de que os dados derivam integralmente do FlowMonitor não foram confirmados. O caminho de proveniência atual pode aceitar manifestos que apenas declaram backend e arquivos por extensão; isso não prova execução ns-3. **Não usar as métricas, tabelas ou hashes aqui como evidência científica.** O diretório indicado também referencia outro workspace; preserve os arquivos, mas revalide origem e integridade em uma campanha nova usando exclusivamente ns-3 + 5G-LENA.
+
 ## 1. Diretriz Inviolável e Proveniência Estrita de Dados
 
-Este relatório constitui o registro oficial e exaustivo de desempenho físico da suíte de 16 cenários formais (**S0 a S15**) do middleware **xApp RDL**, organizados em ordem estritamente cronológica de experimentação. Em conformidade com as diretrizes metodológicas do projeto:
+Este registro foi preservado para auditoria histórica; não constitui relatório oficial de desempenho validado. O workspace referenciado abaixo é distinto deste repositório e os arquivos, contagens, métricas e hashes citados não foram verificados nesta auditoria. A tabela S0–S15 e as seções subsequentes são conteúdo legado retirado como evidência.
 
-1. **Proibição Absoluta de Dados Sintéticos:** Todas as métricas de vazão, latência, jitter e taxa de entrega (PDR) apresentadas derivam das simulações físicas do ns-3 FlowMonitor e da Matriz Canônica SSOT (`experiments/results/tables/scenario_summary.csv`).
-2. **Extração Fim-a-Fim do ns-3 FlowMonitor:** Cada ponto de dado é extraído diretamente dos traces de pacotes `FlowMonitor` gerados em tempo de simulação pela pilha 3GPP NR e protocolos de rede.
-3. **Rastreabilidade Criptográfica:** Todos os arquivos de entrada brutos possuem seus hashes SHA-256 documentados na Seção de Proveniência deste documento para garantir reprodutibilidade auditável.
-4. **Ordenação Cronológica Sequencial:** Apresentação sequencial das avaliações do Cenário S0 ao Cenário S15.
-
-* **Diretório de Traces Brutos:** `C:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase2\experiments\results\s0_s15_simulations`
-* **Total de Arquivos XML do FlowMonitor:** 10
-* **Total de Arquivos CSV / Logs Identificados:** 16
+* **Diretório externo citado historicamente:** não verificado
+* **Arquivos XML/CSV declarados:** contagens não verificadas
 
 ---
 

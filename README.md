@@ -8,10 +8,7 @@
 [![O-RAN WG3](https://img.shields.io/badge/O--RAN%20Alliance-WG3%20E2AP%20v2.03%20%7C%20E2SM--RC%20v1.03-blue.svg)](https://o-ran.org)
 [![ns-3 5G-LENA](https://img.shields.io/badge/ns--3.48-5G--LENA%20v5.1%20%7C%20NORI-green.svg)](https://cttc.es)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![Test Suite](https://img.shields.io/badge/Tests-108%20PASS-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/Coverage-85.02%25%20(Gate%20%E2%89%A585%25)-brightgreen.svg)](tests/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
-[![Google Drive Backup](https://img.shields.io/badge/Google%20Drive-Automated%20Backup%20Active-brightgreen.svg)](https://drive.google.com/drive/folders/14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM?usp=sharing)
 
 </div>
 
@@ -21,7 +18,7 @@
 
 | Fase do Projeto | Descrição e Paradigma de Controle | Status de Implementação | Repositório Oficial |
 | :---: | :--- | :---: | :---: |
-| **Fase 1** | **RDL Determinística e Segura (H-RDL)**<br/>*Janela em lote nominal ($\Delta t_{win} = 200\text{ ms}$), heurísticas de prioridade TVS/EEVS, Safety Guards físicos com default-deny, rollback atômico e mapeamento formal E2AP/E2SM.* | **Implementada & Localmente Integrada (L3 forte)**<br/>*(Validação E2 externa, closed-loop causal e campanha científica multi-seed em consolidação no testbed)* | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
+| **Fase 1** | **RDL Determinística e Segura (H-RDL)**<br/>*Código experimental para heurísticas de prioridade, safety guards e mapeamento E2AP/E2SM.* | **Integração E2 e validação experimental não verificadas**<br/>*(closed loop causal e campanha científica multi-seed pendentes)* | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
 | **Fase 2** | **RDL Baseada em Contexto e Safe-RL (CA-RDL)**<br/>*Aprendizado por Reforço Multiagente (Safe-MAPPO sob CMDP Lagrangian), Grafos de Conhecimento (GraphSAGE / GNN) e Sensibilidade Contextual.* | **Em desenvolvimento ativo** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
 | **Fase 3** | **RDL Autônoma e Federada 6G (Zero-Touch)**<br/>*Inteligência distribuída, orquestração por intenção (A1 Intent-Driven), Federação Multi-RIC e SAGIN.* | **Roadmap Ativo (2026–2028)** | *Em especificação e testbed* |
 
@@ -34,12 +31,14 @@ Em conformidade rigorosa com a política de proveniência (`reproducibility/prov
 | Gate | Descrição Normativa | Status Atual | Evidência & Diagnóstico Técnico |
 | :---: | :--- | :---: | :--- |
 | **G0** | Ambiente Normativo Reproduzível | 🟡 **PARCIAL** | `uv.lock` fixa o ambiente Python; dependências transitivas do testbed ns-3/NORI precisam de registro de versão/commit por execução. |
-| **G1** | E2SM-KPM Real (Telemetria Externa) | 🔴 **PENDENTE EXTERNO** | Codec APER e CapabilityRegistry dinâmico validados localmente; discovery externo em consolidação. |
+| **G1** | E2SM-KPM Real (Telemetria Externa) | 🔴 **NÃO VALIDADO** | Não há evidência elegível de Setup/descoberta E2, subscrição e Indications de uma execução ns-3/5G-LENA + NORI. |
 | **G2** | H-RDL Funcional (Decisão Determinística) | 🟢 **APROVADO LOCAL** | Testes locais de detecção, Safety default-deny, limites de potência e rollback; não certifica interoperabilidade E2 externa. |
-| **G3** | E2SM-RC Real (Controle + ACK Externo) | 🔴 **PENDENTE EXTERNO** | Codec RC Format 1, pareamento estrito TxID e correlação sem fallback validados; aguarda socket live NORI. |
-| **G4** | Closed-Loop Causal End-to-End | 🔴 **PENDENTE EXTERNO** | Harness causal em 6 elos validado como fixture de integração (`CAUSAL_FIXTURE`); captura live em testbed em progresso. |
-| **G5** | Campanha Científica Multi-Semente | 🔴 **NÃO APROVADO** | Bateria N=30 reclassificada como Benchmark de Engenharia Offline (`DISCRETE_EVENT_SIMULATOR`); execução ns-3/testbed em consolidação. |
+| **G3** | E2SM-RC Real (Controle + ACK Externo) | 🔴 **NÃO VALIDADO** | Não há evidência de ação E2SM-RC aplicada à RAN nem ACK externo correlacionado. |
+| **G4** | Closed-Loop Causal End-to-End | 🔴 **NÃO VALIDADO** | A fixture `CAUSAL_FIXTURE` não é experimento; não foi demonstrado loop causal na RAN simulada. |
+| **G5** | Campanha Científica Multi-Semente | 🔴 **NÃO APROVADO** | Execuções do simulador Python local estão desativadas; não há campanha elegível ns-3/5G-LENA com proveniência completa. |
 | **G6** | Artifact Readiness (ACM SIGSIM / IEEE) | ⚪ **BLOQUEADO** | Bloqueado formalmente até a coleta e certificação das evidências empíricas externas de G4 e G5. |
+
+> **Retificação de evidências (23/10/2026):** valores numéricos e manifestos legados não foram verificados contra execuções elegíveis de ns-3/5G-LENA; não usar relatórios históricos como evidência científica. O simulador Python local está desativado e não deve ser usado para experimentos. C1–C6 estão `NOT_VERIFIED` em [`specs/claims.yaml`](specs/claims.yaml); testes unitários locais não aprovam gates experimentais.
 
 ---
 
@@ -151,7 +150,7 @@ Todas as figuras científicas, topologias e diagramas de sequência estão catal
 ## 5. Catálogo Formal de Relatórios Científicos e Normativos
 
 O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md):
-- **Demonstrações operacionais locais (H-RDL Fase 1):** Consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) para os roteiros D1 a D5 (`scripts/run_live_demonstrations_d1_d5.py`). Fixtures e demonstrações locais não substituem a evidência live exigida pelo gate G4.
+- **Demonstrações legadas D1–D5:** consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) somente como registro histórico retirado de evidência; o script correspondente está desativado.
 - **Diagrama de Sequência e Fluxo de Controle Closed-Loop (H-RDL Fase 1):** Consulte o [Volume 23](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) para a decomposição dos 5 estágios de arbitragem em malha fechada, mensagens normativas O-RAN WG2/WG3 e orçamento de latência.
 
 ---

@@ -11,13 +11,25 @@ O ambiente de execução e desenvolvimento da xApp RDL é homologado sobre **WSL
 
 | Componente | Versão Homologada | Finalidade |
 | :--- | :---: | :--- |
-| **Docker Engine** | $\ge 24.0$ | Execução de containers e nós k3d |
-| **k3d (K3s em Docker)** | $\ge 5.6.0$ | Provisionamento de cluster Kubernetes leve |
-| **Helm** | $\ge 3.12.0$ | Gerenciamento de pacotes e deploys de xApps |
-| **Python** | $3.10+$ | Runtime da xApp RDL, bibliotecas e agentes |
-| **ns-3** | $3.48$ | Simulador de eventos discretos da RAN |
+| **Docker Engine** | ≥ 24.0 | Execução de containers e nós k3d |
+| **k3d (K3s em Docker)** | ≥ 5.6.0 | Provisionamento de cluster Kubernetes leve |
+| **Helm** | ≥ 3.12.0 | Gerenciamento de pacotes e deploys de xApps |
+| **Python** | ≥ 3.10 | Runtime da xApp RDL, bibliotecas e agentes |
+| **ns-3** | 3.48 | Simulador de eventos discretos da RAN |
 | **5G-LENA** | v5.1 | Módulo NR CTTC-LENA para camada física/MAC |
 | **NORI E2 Agent** | SBrT 2025 (`9b64c12`) | Agente E2 C++ com suporte a E2AP v2.03 / E2SM-KPM / E2SM-RC |
+
+### 1.1. Clonagem e Preparação do Repositório (WSL2 / Linux)
+
+Para clonar ou restaurar o ambiente limpo do repositório oficial da Fase 1:
+
+```bash
+cd ~
+rm -rf ~/XApp-RDL-F1
+
+git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+cd ~/XApp-RDL-F1
+```
 
 ---
 
@@ -50,8 +62,6 @@ kubectl create namespace ricplt    # Plataforma Near-RT RIC (E2term, AppMgr, Sub
 kubectl create namespace ricxapp   # Micro-aplicações (RDL, xSlice, Energy Saving, Traffic Steering)
 ```
 
-![Infraestrutura Kubernetes k3d e Rancher Dashboard](figures/01_arquitetura_e_governanca/diagram_03_infraestrutura_k3d_rancher.png)
-
 ---
 
 ## 3. Pipeline de Deploy das xApps e Near-RT RIC
@@ -66,22 +76,22 @@ bash scripts/deploy_helm.sh
 
 Ou realize o deploy modular manualmente:
 ```bash
-# 1. Deploy da infraestrutura Redis / Shared Data Layer
-helm install rdl-sdl deploy/helm/rdl-sdl -n ricplt
+# 1. Deploy da infraestrutura Near-RT RIC e Redis DBAAS
+kubectl apply -f deploy/kubernetes/near-rt-ric.yaml
 
 # 2. Deploy das 3 xApps de referência abertas
-helm install xslice deploy/helm/xslice -n ricxapp
-helm install energy-saving deploy/helm/energy-saving -n ricxapp
-helm install traffic-steering deploy/helm/traffic-steering -n ricxapp
+helm install ricxapp-qos-xslice deploy/helm/xapp-qos-xslice -n ricxapp
+helm install ricxapp-energy-saving deploy/helm/xapp-energy-saving -n ricxapp
+helm install ricxapp-traffic-steering deploy/helm/xapp-traffic-steering -n ricxapp
 
 # 3. Deploy da xApp RDL (Governança e Arbitragem)
-helm install xapp-rdl deploy/helm/xapp-rdl -n ricxapp
+helm install ricxapp-iqos-xapp-rdl deploy/helm/iqos-xapp-rdl -n ricxapp
 ```
 
-### 3.2. Deploy Alternativo via Manifestos Kubernetes Puros
+### 3.2. Deploy Alternativo via Manifestos Kubernetes
 ```bash
-kubectl apply -f deploy/kubernetes/ricplt/
-kubectl apply -f deploy/kubernetes/ricxapp/
+kubectl apply -f deploy/kubernetes/near-rt-ric.yaml
+kubectl apply -k deploy/kubernetes/
 ```
 
 ### 3.3. Verificação de Saúde e Prontidão dos Pods
@@ -104,20 +114,18 @@ bash scripts/verify_3_xapps.sh
 - **Métricas Prometheus:** `http://localhost:8081/metrics`
   - `rdl_conflicts_total`: Total de conflitos detectados por tipo.
   - `rdl_decisions_total`: Total de decisões emitidas por nível.
-  - `rdl_decision_latency_seconds`: Histograma da latência de decisão ($T_{decision}$).
+  - `rdl_decision_latency_seconds`: Histograma da latência de decisão (*T*<sub>decision</sub>).
   - `rdl_safety_blocks_total`: Total de comandos inseguros barrados pelos Safety Guards.
 
 ### 4.2. Dashboard Rancher e Kiali Service Mesh
 Para habilitar observabilidade gráfica do fluxo de microsserviços:
 ```bash
 # Instalação do Rancher Manager no k3d
-docker run -d --restart=unless-stopped -p 8443:443 --privileged rancher/rancher:latest
+docker run -d --restart=unless-stopped -p 8443:443 --privileged --name rancher-server rancher/rancher:latest
 
 # Instalação do Kiali (após provisionamento Istio)
-kubectl apply -f https://raw.githubusercontent.com/kiali/kiali/master/deploy/kubernetes/kiali.yaml
+bash scripts/install_kiali.sh
 ```
-
-![Observabilidade com Prometheus, Grafana e Kiali](figures/01_arquitetura_e_governanca/diagram_04_observabilidade_prometheus_kiali.png)
 
 ---
 
@@ -145,13 +153,10 @@ bash simulations/ns3/run_all_s0_s15_simulations.sh all
 python3 scripts/generate_ns3_flowmonitor_markdown_report.py
 ```
 
-### 5.4. Regeneração Automática de Figuras e Tabelas Científicas
-Para atualizar instantaneamente as **25 figuras científicas (300 DPI)** e as **15 tabelas consolidadas CSV**:
+### 5.4. Geração de Gráficos e Tabelas Analíticas
+Para atualizar os gráficos e as tabelas analíticas a partir dos dados experimentais:
 ```bash
-# Executa a geração via Make
-make auto-update-figures
-
-# Ou execute diretamente com uv:
+# Execução direta com uv:
 uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/generate_plots.py
 uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/export_tables.py
 ```
@@ -174,7 +179,7 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 │                                       ┌────────▼─────────┐  │
 │                                       │  USRP N310 / B210│  │
 │                                       └────────┬─────────┘  │
-│                                                │ Over-The-Air
+│                                                │ Over-The-Air│
 │                                       ┌────────▼─────────┐  │
 │                                       │ UEs Comerciais 5G│  │
 │                                       └──────────────────┘  │
@@ -183,11 +188,11 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 
 1. **Configuração da gNodeB srsRAN 24.10:** Configurar `e2_ip` apontando para o IP do pod `e2term` no cluster K8s.
 2. **Core 5G (Open5GS):** Provisionar fatias URLLC (`SST=2, SD=0x000001`) e eMBB (`SST=1, SD=0x000001`).
-3. **Rádios USRP:** Fixar potência de transmissão em $23\text{ dBm}$ (limite COTS indoor) e canal $100\text{ MHz}$ na banda n78.
+3. **Rádios USRP:** Fixar potência de transmissão em 23 dBm (limite COTS indoor) e largura de canal em 100 MHz na banda n78 (3,5 GHz).
 
 ---
 
-## 7. Troubleshooting, Backups e Limpeza
+## 7. Troubleshooting e Limpeza do Ambiente
 
 ### 7.1. Diagnóstico e Resolução de Problemas
 | Sintoma | Causa Mais Provável | Procedimento de Resolução |
@@ -195,30 +200,26 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 | **Porta 36422 recusada (SCTP)** | Pod `e2term` não inicializado ou firewall | `kubectl describe pod -l app=e2term -n ricplt` e verificar regras `iptables` |
 | **RMR Routing Failure (`RMR_ERR_NOENDPT`)** | Tabela de rotas RMR desatualizada | Verificar `configs/routes.rt` e reiniciar pod da RDL |
 | **Conflitos de portas locais (8080)** | Outro serviço ocupando a porta | Modificar mapeamento no `k3d cluster create` para `8090:8080` |
-| **Falha de memória no ns-3** | Múltiplas instâncias simultâneas | Executar com limitador de jobs: `make run-simulations JOBS=2` |
+| **Falha de memória no ns-3** | Múltiplas instâncias simultâneas | Executar com limitador de processos simultâneos |
 
-### 7.2. Backup Automatizado para o Google Drive
-O projeto inclui um pipeline autônomo de empacotamento com manifesto criptográfico SHA-256 e streaming para o Google Drive:
+### 7.2. Backup e Sincronização
+Para arquivar snapshots do repositório ou sincronizar artefatos entre fases:
 
-- **Pasta Destino:** [Google Drive - XApp-RDL Backups](https://drive.google.com/drive/folders/14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM?usp=sharing)
-- **Folder ID:** `14ZHofqW5rT3UIXe248wb6JHiNX0WiGiM`
-
+- **Diretório Local de Backups:** `backups/`
+- **Sincronização entre Repositórios:**
 ```bash
-# Execução via Make
-make backup-drive
+# Sincronização cruzada F1 <-> F2
+python scripts/sync_cross_repos.py
 
-# Execução via PowerShell (Windows)
-powershell -ExecutionPolicy Bypass -File scripts/backup_to_google_drive.ps1
-
-# Execução direta via Python / uv
-uv run --with google-api-python-client --with google-auth-httplib2 --with google-auth-oauthlib python scripts/backup_to_google_drive.py
+# Ou via Make
+make sync-cross
 ```
 
 ### 7.3. Limpeza e Reinicialização Completa do Ambiente
 ```bash
-# Remove o cluster k3d e containers residuais
-k3d cluster delete rdl-cluster
+# Desinstala as xApps do cluster
+make helm-uninstall
 
-# Limpeza de artefatos temporários
-make clean
+# Remove o cluster k3d e containers residuais
+make cluster-delete
 ```

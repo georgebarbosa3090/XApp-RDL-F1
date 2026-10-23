@@ -4,7 +4,16 @@ import sys
 
 run_arg = sys.argv[1] if len(sys.argv) > 1 else "latest"
 
-if run_arg == "latest":
+if run_arg == "list":
+    runs_url = "https://api.github.com/repos/georgebarbosa3090/XApp-RDL-F1/actions/runs?per_page=6"
+    req_runs = urllib.request.Request(runs_url, headers={"User-Agent": "CI-Checker"})
+    with urllib.request.urlopen(req_runs) as resp:
+        runs_data = json.loads(resp.read().decode())
+    for r in runs_data.get("workflow_runs", []):
+        msg = r.get("head_commit", {}).get("message", "").splitlines()[0] if r.get("head_commit") else ""
+        print(f"ID={r['id']} | Workflow='{r['name']}' | Commit={r.get('head_sha')[:7]} | Status={r['status']} | Conclusion={r['conclusion']} | {msg}")
+    sys.exit(0)
+elif run_arg == "latest":
     runs_url = "https://api.github.com/repos/georgebarbosa3090/XApp-RDL-F1/actions/runs"
     req_runs = urllib.request.Request(runs_url, headers={"User-Agent": "CI-Checker"})
     with urllib.request.urlopen(req_runs) as resp:

@@ -1,36 +1,32 @@
-# Volume 21: Relatório de Demonstração Científica Rica em Circuito Fechado (H-RDL Fase 1)
-## Governança Determinística Multi-xApp, Arbitragem Heurística TVS/EEVS, Resiliência a Falhas E2 e Validação Operacional Closed-Loop (ns-3.48 + 5G-LENA v5.1 + NORI + Near-RT RIC OSC)
+# Volume 21: Registro Legado de Demonstração Retirado
+## Arquitetura-alvo de governança determinística; closed loop não validado
 
 > **Navegação da Documentação Consolidada:**  
 > **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[23. Diagrama de Sequência H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)**
 
 ---
 
+> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** Esta demonstração não comprova um closed loop live. Os scripts D1–D5 e o harness golden produzem fixtures/dados locais; o cenário ns-3 atual não aplica controle RC à RAN. As tabelas, métricas, afirmações de homologação e vereditos abaixo estão **retirados como evidência empírica** e não devem ser citados. G1, G3 e G4 seguem pendentes conforme o README. O harness golden foi desativado para impedir que gere novos artefatos rotulados como NORI/ns-3.
+
 ### Metadados de Governança, Autoria e Execução
 - **Autor Principal:** George Alexandro Ferreira Barbosa
 - **Orientador:** Prof. Dr. André Riker
 - **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC) — Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
 - **Padrão Normativo e Editorial:** Padrão SBC / SBRC e IEEE Transactions on Network and Service Management (TNSM)
-- **Data de Emissão:** 16 de Outubro de 2026 (Release v1.2.0-certified)
-- **Escopo Epistêmico:** **H-RDL Fase 1 (Heuristic Resource and Decision Layer — 100% Determinística)**
+- **Data da retificação:** 23 de Outubro de 2026
+- **Escopo:** descrição histórica de H-RDL Fase 1; não comprova execução ou integração.
 - **Padrões O-RAN:** O-RAN.WG2.A1AP-v03.01, O-RAN.WG3.E2AP-v02.03, E2SM-KPM-v02.03/v03.00, E2SM-RC-v01.03
-- **Script de Demonstração Operacional:** [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py)
-- **Ambiente de Co-Simulação:** ns-3.48 / 5G-LENA v5.1 / Agente NORI E2 / Near-RT RIC OSC (Release J)
+- **Script legado:** [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py) foi substituído por um bloqueio fail-fast.
+- **Ambiente-alvo não validado:** ns-3.48 / 5G-LENA v5.1 / NORI / Near-RT RIC OSC.
 - **Repositório Oficial:** [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1)
 
 ---
 
 ## 1. Sumário Executivo
 
-Este documento consolida os resultados experimentais da **Suíte de Demonstração Científica Rica em Circuito Fechado (*Closed-Loop*)** do ecossistema O-RAN **H-RDL (Fase 1)**. A demonstração operacional submete a arquitetura determinística a condições críticas de contenção espectral, colisões simultâneas de parâmetros físicos de rádio, violações iminentes de SLA em fatias URLLC/eMBB, instabilidade temporal de sinalização (*parameter flipping* / *ping-pong*) e partições severas na interface de transporte SCTP.
+Este documento preserva um relato histórico não validado. Não apresenta resultados experimentais comprovados da arquitetura H-RDL ou de um closed loop O-RAN.
 
-A suíte executiva está alicerçada em duas frentes metodológicas:
-1. **Suíte de Demonstrações Operacionais D1 a D5:** Execução automatizada e reprodutível via [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py), contrastando a ausência de mediação (D1), governança analítica multiobjetivo H-RDL (D2), contenção de falhas com rollback e timeout local (D3), observabilidade de métricas causais Prometheus (D4) e prontidão normativa para testbeds reais via ASN.1 APER (D5).
-2. **Cadeia Causal de 4 Gates de Validação Fechada:**
-   - **Gate 1 (Ingestão Normativa):** Decodificação estrita de telemetria ASN.1 APER E2SM-KPM v02.03/v03.00 sem dados sintéticos;
-   - **Gate 2 (Arbitragem Sub-Milissegundo):** Decisão determinística instantânea em $T_{\text{dec}} \approx 0,0523\text{ ms} \dots 0,12\text{ ms}$ ($< 0,1\%$ da janela nominal de $200\text{ ms}$);
-   - **Gate 3 (Despacho E2SM-RC e ACK):** Codificação compacta em ASN.1 APER ($19\text{ bytes}$), emissão via RMR e confirmação de $RTT \approx 2,10\text{ ms}$;
-   - **Gate 4 (Convergência Física da RAN):** Erradicação de $100\%$ das violações de SLA, ganho de vazão de $+19,2\%$ e garantia invariante $\text{UnsafeApplied} \equiv 0$.
+O script D1–D5 foi desativado porque emula interações e métricas localmente; não executava experimento live. Os quatro gates descritos historicamente não foram aprovados. As métricas e a cadeia causal impressas abaixo foram retiradas como evidência.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -48,7 +44,7 @@ A suíte executiva está alicerçada em duas frentes metodológicas:
 
 ## 2. Resultados da Suíte de Demonstrações Operacionais (D1 a D5)
 
-A execução formal do script [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py) avaliou o comportamento da governança Near-RT RIC em cinco regimes operacionais rigorosos. A Tabela 1 sintetiza as métricas auditadas.
+O relato histórico abaixo não corresponde a uma execução live. A tabela e as análises seguintes foram retiradas como evidência e não devem ser interpretadas como resultados auditados.
 
 ### Tabela 1: Resumo Consolidado das Demonstrações Operacionais da H-RDL Fase 1 (D1 a D5)
 
@@ -57,8 +53,8 @@ A execução formal do script [`scripts/run_live_demonstrations_d1_d5.py`](../sc
 | **D1: Sem H-RDL** | Baseline B0 (Não Coordenado) | **Sim (Crítica)** | 36,7% | 0,52 | 0,85 | N/A (Sem controle) | **FALHA DE GOVERNANÇA** (Degradação Severa) |
 | **D2: Com H-RDL** | Baseline B3 (Determinístico TVS/EEVS) | **Não (0 residual)** | **0,0%** | **0,94** | **0,05** | **0,0523 ms** ($52,3\ \mu\text{s}$) | **GOVERNANÇA DETERMINÍSTICA EFICAZ** |
 | **D3: Falhas & Resiliência** | SCTP Partition / Timeout ($1,0\text{ s}$) | Mitigado por Rollback | 0,0% | 0,91 | 0,00 | < 310 ms (Restauração) | **RESILIÊNCIA COMPROVADA ($\text{Unsafe} \equiv 0$)** |
-| **D4: Observabilidade** | Prometheus / Métricas Causais | Monitoramento Total | 0,0% | 0,94 | 0,042 | 14,20 ms (Pipeline Completo) | **OBSERVABILIDADE ATIVA HOMOLOGADA** |
-| **D5: Testbed Ready** | srsRAN + Open5GS / ASN.1 APER | Conforme WG3 | 0,0% | 0,95 | 0,040 | 19 bytes (PDU E2SM-RC) | **PRONTO PARA TESTBED EXPERIMENTAL** |
+| **D4: Observabilidade** | Prometheus / Métricas Causais | Relato local não validado | — | — | — | — | **ALEGAÇÃO RETIRADA** |
+| **D5: Testbed Ready** | srsRAN + Open5GS / ASN.1 APER | Não comprovado | — | — | — | — | **ALEGAÇÃO RETIRADA** |
 
 ### Análise Detalhada dos Experimentos D1 a D5
 
@@ -188,7 +184,7 @@ Cada componente da demonstração closed-loop mapeia-se diretamente sobre os arq
 | **Codec ASN.1 E2SM-RC** | [`src/e2/rc_encoder.py`](../src/e2/rc_encoder.py) | [`tests/unit/test_rc_encoder.py`](../tests/unit/test_rc_encoder.py) | **100% PASS** |
 | **Codec ASN.1 E2SM-KPM** | [`src/e2/kpm_decoder.py`](../src/e2/kpm_decoder.py) | [`tests/unit/test_kpm_decoder.py`](../tests/unit/test_kpm_decoder.py) | **100% PASS** |
 | **ACK Tracker & Rollback** | [`src/coordination/control_dispatcher.py`](../src/coordination/control_dispatcher.py) | [`tests/unit/test_ack_tracker.py`](../tests/unit/test_ack_tracker.py) | **100% PASS** |
-| **Suíte de Demonstração D1–D5** | [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py) | Terminal stdout / JSON summary | **100% PASS** |
+| **Suíte de Demonstração D1–D5** | [`scripts/run_live_demonstrations_d1_d5.py`](../scripts/run_live_demonstrations_d1_d5.py) | Gerador local desativado | **NÃO É EVIDÊNCIA** |
 
 > [!NOTE]
 > **Rigor Metodológico sobre o Papel da Governança A1-P ($t < t_0$):**  
@@ -205,4 +201,4 @@ A execução da suíte experimental em circuito fechado da **H-RDL Fase 1** comp
 3. **Resiliência Estrita a Falhas de Rede:** Sob partições SCTP ou perda de ACK pelo gNodeB, o mecanismo de rollback restaura o estado seguro em $< 310\text{ ms}$, assegurando $\text{UnsafeApplied} \equiv 0$ sob quaisquer contingências.
 4. **Conformidade Normativa e Prontidão Experimental:** A validação dos codecs ASN.1 APER (E2SM-KPM v02.03 e E2SM-RC v01.03) com PDUs de $19\text{ bytes}$ atesta a maturidade do sistema para transição direta de simulador ns-3 para testbeds reais com srsRAN e Open5GS.
 
-**Veredito Oficial:** H-RDL FASE 1 HOMOLOGADA, AUDITADA E 100% CERTIFICADA EM CIRCUITO FECHADO.
+**Veredito atualizado:** demonstração local não constitui validação de interoperabilidade E2 nem de malha fechada. A Fase 1 não está homologada; G1, G3 e G4 aguardam evidência externa elegível.

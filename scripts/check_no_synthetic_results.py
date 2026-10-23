@@ -37,7 +37,7 @@ FORBIDDEN_PATTERNS = [
 ]
 
 
-ALLOWED_EXCEPTIONS = [
+ALLOWED_EXCEPTIONS = {
     "bootstrap",
     "check_no_synthetic_results.py",
     "verify_provenance_and_integrity.py",
@@ -47,7 +47,7 @@ ALLOWED_EXCEPTIONS = [
     "gerar_figuras_faltantes_hrdl.py",
     "generate_separated_phase1_phase2_figures.py",
     "generate_paper_styled_benchmarks.py",
-]
+}
 
 def log_step_summary(content: str):
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -55,8 +55,8 @@ def log_step_summary(content: str):
         try:
             with open(summary_path, "a", encoding="utf-8") as f:
                 f.write(content + "\n")
-        except Exception:
-            pass
+        except OSError as exc:
+            print(f"[AVISO] Não foi possível atualizar GITHUB_STEP_SUMMARY: {exc}", file=sys.stderr)
 
 
 def main():
@@ -73,7 +73,7 @@ def main():
         for root, _, files in os.walk(scan_dir):
             for f in files:
                 if f.endswith((".py", ".sh")):
-                    if any(exc in f for exc in ALLOWED_EXCEPTIONS):
+                    if f in ALLOWED_EXCEPTIONS:
                         continue
                     fpath = os.path.join(root, f)
                     with open(fpath, "r", encoding="utf-8", errors="ignore") as fh:
@@ -150,9 +150,12 @@ def main():
                                 err = f"Violação de Linhagem: {m_fpath} categorizado como {cat} mas declara certificação externa G5/Gate1!"
                                 print(f"[FALHA CRÍTICA] {err}")
                                 sys.exit(1)
-                    except Exception:
-                        pass
-    print("[OK] Linhagem e conformidade de proveniência de manifestos 100% verificadas!")
+                    except (OSError, json.JSONDecodeError) as exc:
+                        err = f"Não foi possível validar manifesto {m_fpath}: {exc}"
+                        print(f"[FALHA CRÍTICA] {err}")
+                        log_step_summary(f"### [FAIL] {err}")
+                        sys.exit(1)
+    print("[OK] Manifestos legíveis e sem contradições explícitas detectadas; isso não comprova origem experimental.")
 
     # Validação do figures_manifest.json (Solução 2)
     manifest_path = os.path.join(REPORTS_DIR, "figures", "figures_manifest.json")
@@ -173,8 +176,8 @@ def main():
         sys.exit(1)
 
     print(f"[OK] figures_manifest.json validado com sucesso! ({len(figs)} figuras empíricas vinculadas à SSOT {ssot_hash[:12]}...)")
-    print("[OK] Nenhum gerador sintético detectado no pipeline científico! (100% CONFORME)")
-    log_step_summary(f"### [PASS] Zero-Synthetic Audit: {len(figs)} figuras empíricas vinculadas à SSOT {ssot_hash[:12]}.")
+    print("[OK] Varredura estática limitada concluída; isso não é certificação de proveniência empírica.")
+    log_step_summary(f"### [PASS] Static synthetic-pattern scan only: {len(figs)} figures linked to SSOT {ssot_hash[:12]}.")
     sys.exit(0)
 
 if __name__ == "__main__":

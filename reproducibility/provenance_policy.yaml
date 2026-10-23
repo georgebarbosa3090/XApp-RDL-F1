@@ -34,8 +34,20 @@ non_publication_sources:
 # Requisitos de Evidência Bruta por Backend Experimental
 backend_evidence_rules:
   NORI_NS3:
-    required_manifest_fields: ["nori_commit"]
-    required_raw_extensions: [".xml", ".raw"]
+    required_manifest_fields:
+      - "ns3_version"
+      - "fiveg_lena_version"
+      - "nori_commit"
+      - "scenario"
+      - "seed"
+      - "run_status"
+      - "exit_code"
+      - "command"
+      - "started_at_utc"
+      - "finished_at_utc"
+    required_raw_groups:
+      - [".xml"]
+      - [".raw"]
   SRSRAN_OPEN5GS:
     required_manifest_fields: ["srsran_version", "open5gs_version"]
     required_raw_extensions: [".pcap", ".log"]
@@ -53,9 +65,18 @@ gates:
   G5: "Campanha científica (30 seeds pareadas B0-B3 ou 3 amostras testbed)"
   G6: "Artifact readiness (reprodução independente ACM SIGSIM / IEEE)"
 
+# A declared backend, file extension, or self-generated hash is not proof of execution.
+publication_manifest_requirements:
+  explicit_source: true
+  explicit_publication_eligibility: true
+  successful_run_status: "SUCCESS"
+  successful_exit_code: 0
+  require_nonempty_hash_manifest: true
+  require_all_evidence_hashed: true
+
 # Regras de Firewall e Validação
 firewall_rules:
   no_test_artifacts_in_publication: true
   derived_metrics_only: true
   paired_seeds_required: true
-  golden_rule: "resultado_valido <=> backend real identificado + raw evidence + provenance"
+  golden_rule: "resultado_valido <=> execução identificada e bem-sucedida + evidência bruta externa + proveniência verificável"
