@@ -38,6 +38,9 @@ def main():
 
     try:
         app.start()
+        import time
+        while getattr(app, "running", True):
+            time.sleep(1)
     except KeyboardInterrupt:
         app.stop()
 
