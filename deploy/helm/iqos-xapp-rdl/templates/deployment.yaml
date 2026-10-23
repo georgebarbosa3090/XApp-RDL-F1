@@ -30,6 +30,8 @@ spec:
           env:
             - name: RDL_MODE
               value: {{ .Values.env.rdlMode | default "oran-strict" | quote }}
+            - name: RAN_BACKEND
+              value: {{ .Values.env.ranBackend | default "NORI_NS3" | quote }}
             - name: USE_FAKE_SDL
               value: {{ .Values.env.useFakeSdl | quote }}
             - name: RMR_SEED_RT
