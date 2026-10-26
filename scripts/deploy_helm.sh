@@ -135,6 +135,7 @@ if [ "$DEPLOY_RDL" = true ]; then
       --set env.useFakeSdl="false" \
       --set env.rmrWaitForReady="false" \
       --force-conflicts
+    kubectl rollout restart deployment/ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} 2>/dev/null || true
 else
     echo -e "\n${YELLOW}[5/6] Modo Baseline ativo: xApp RDL NAO será implantada neste momento.${NC}"
     helm uninstall ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} 2>/dev/null || true
