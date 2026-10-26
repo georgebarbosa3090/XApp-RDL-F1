@@ -133,6 +133,7 @@ int main (int argc, char *argv[])
     Ptr<IdealBeamformingHelper> idealBeamformingHelper = CreateObject<IdealBeamformingHelper> ();
     Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
 
+    idealBeamformingHelper->SetAttribute ("BeamformingMethod", TypeIdValue (DirectPathBeamforming::GetTypeId ()));
     nrHelper->SetBeamformingHelper (idealBeamformingHelper);
     nrHelper->SetEpcHelper (nrEpcHelper);
 
@@ -152,11 +153,11 @@ int main (int argc, char *argv[])
     // 4. Antenas UPA e Beamforming
     nrHelper->SetGnbAntennaAttribute ("NumRows", UintegerValue (4));
     nrHelper->SetGnbAntennaAttribute ("NumColumns", UintegerValue (16)); // 64 elementos
-    nrHelper->SetGnbAntennaAttribute ("AntennaElement", StringValue ("ns3::ThreeGppAntennaModel"));
+    nrHelper->SetGnbAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
 
     nrHelper->SetUeAntennaAttribute ("NumRows", UintegerValue (2));
     nrHelper->SetUeAntennaAttribute ("NumColumns", UintegerValue (2)); // 4 elementos
-    nrHelper->SetUeAntennaAttribute ("AntennaElement", StringValue ("ns3::ThreeGppAntennaModel"));
+    nrHelper->SetUeAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
     NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
