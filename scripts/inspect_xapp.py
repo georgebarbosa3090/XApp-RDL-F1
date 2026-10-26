@@ -4,9 +4,10 @@ import inspect
 import ricxappframe.xapp_frame as x
 import inspect
 
-print("--- RMRXapp.run ---")
-print(inspect.getsource(x.RMRXapp.run))
+import ricxappframe.xapp_frame as x
+import inspect
 
-print("--- _BaseXapp.registerXapp ---")
-print(inspect.getsource(x._BaseXapp.registerXapp))
+print("--- _BaseXapp.__init__ ---")
+print(inspect.getsource(x._BaseXapp.__init__))
+
 
