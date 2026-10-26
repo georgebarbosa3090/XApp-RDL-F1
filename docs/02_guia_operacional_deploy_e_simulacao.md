@@ -136,19 +136,27 @@ bash scripts/install_kiali.sh
 ## 5. Pipeline de Co-Simulação ns-3.48 / 5G-LENA / NORI
 
 ### 5.1. Compilação dos Cenários ns-3
-Dentro do workspace ns-3 com 5G-LENA v5.1 e extensão NORI:
+Navegue até a raiz do workspace do simulador ns-3 (onde reside o script `./ns3`):
 ```bash
-# Configuração do CMake com suporte a Ninja e modo otimizado
+cd ~/ns3-oran-workspace/ns-3-oran
+
+# 1. Configuração do CMake com suporte a Ninja e modo otimizado (se necessário)
 ./ns3 configure -d optimized --enable-examples --enable-tests
 
-# Compilação dos executáveis de cenário (S0 a S15)
+# 2. Compilação dos executáveis de cenário (S0 a S15)
 ./ns3 build
 ```
 
-### 5.2. Execução Automatizada da Suíte Completa (S0 a S15)
+### 5.2. Execução Automatizada da Suíte de Cenários (S0 a S15)
+A partir do repositório principal `~/XApp-RDL-F1`:
 ```bash
-# Executa todos os 16 cenários com rastreamento FlowMonitor
-bash simulations/ns3/run_all_s0_s15_simulations.sh all
+cd ~/XApp-RDL-F1
+
+# Executa todos os cenários com rastreamento FlowMonitor (use --force para sobrescrever resíduos)
+bash simulations/ns3/run_all_s0_s15_simulations.sh all --force
+
+# Ou execute um cenário específico (ex: S0 baseline sem conflito):
+bash simulations/ns3/run_all_s0_s15_simulations.sh s0 --force
 ```
 
 ### 5.3. Processamento de Traces FlowMonitor e Geração de Relatórios

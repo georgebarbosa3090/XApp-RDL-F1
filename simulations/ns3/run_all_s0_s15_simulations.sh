@@ -108,16 +108,24 @@ for scenario in "${SCENARIOS[@]}"; do
 
     scratch_file="${ACTIVE_NS3_DIR}/scratch/${scenario}.cc"
     if [[ -e "${scratch_file}" ]]; then
-        echo "[ERROR] Arquivo scratch preexistente não será sobrescrito: ${scratch_file}" >&2
-        exit 2
+        if [[ "${FORCE}" == "true" || "${OVERWRITE_SCRATCH:-false}" == "true" ]]; then
+            echo "[WARN] Sobrescrevendo arquivo scratch preexistente: ${scratch_file}"
+        else
+            echo "[ERROR] Arquivo scratch preexistente não será sobrescrito: ${scratch_file} (use --force ou FORCE=true)" >&2
+            exit 2
+        fi
     fi
     cp "${source_file}" "${scratch_file}"
     trap 'rm -f -- "${scratch_file}"' EXIT
 
     flowmonitor_file="${ACTIVE_NS3_DIR}/flowmonitor_closed_loop_results.xml"
     if [[ -e "${flowmonitor_file}" ]]; then
-        echo "[ERROR] FlowMonitor preexistente não será sobrescrito: ${flowmonitor_file}" >&2
-        exit 2
+        if [[ "${FORCE}" == "true" || "${OVERWRITE_SCRATCH:-false}" == "true" ]]; then
+            rm -f "${flowmonitor_file}"
+        else
+            echo "[ERROR] FlowMonitor preexistente não será sobrescrito: ${flowmonitor_file} (use --force ou FORCE=true)" >&2
+            exit 2
+        fi
     fi
 
     echo "[INFO] Compilando e executando ${scenario} com ns-3/5G-LENA; resultados em ${run_dir}"
