@@ -166,7 +166,7 @@ int main (int argc, char *argv[])
     mobility.SetPositionAllocator ("ns3::RandomBoxPositionAllocator",
                                    "X", StringValue ("ns3::UniformRandomVariable[Min=10.0|Max=240.0]"),
                                    "Y", StringValue ("ns3::UniformRandomVariable[Min=-60.0|Max=60.0]"),
-                                   "Z", StringValue ("ns3::ConstantRandomVariable[Value=1.5]"));
+                                   "Z", StringValue ("ns3::ConstantRandomVariable[Constant=1.5]"));
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
     mobility.Install (ueNodes);
 
