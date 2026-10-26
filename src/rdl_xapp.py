@@ -6,8 +6,12 @@ import uuid
 from typing import Dict, Any, List, Optional, Tuple
 
 try:
-    from ricxappframe.xapp_frame import RMRXapp as _RealRMRXapp, Xapp as _RealXapp
+    from ricxappframe.xapp_frame import RMRXapp as _RealRMRXapp, Xapp as _RealXapp, _BaseXapp
     _HAS_RICXAPPFRAME = True
+    # Desabilita registration loop em ambientes sem AppMgr REST endpoint
+    _BaseXapp.registerXapp = lambda self: None
+    _BaseXapp.register = lambda self: True
+    _BaseXapp.deregister = lambda self: True
 except (ImportError, OSError, Exception):
     _HAS_RICXAPPFRAME = False
     _RealRMRXapp = None
