@@ -77,7 +77,7 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 - **Dinâmica:** Nenhuma colisão de parâmetros; a RDL opera em modo pass-through transparente.
 - **Resultado:** Throughput de 100,0 Mbps, latência de 10,0 ms e 0% de violações.
 
-![Topologia do Cenário S0 - Linha de Base Nominal](figures/02_cenarios_e_topologias/s0_figure_dark.png)
+![Topologia do Cenário S0 - Linha de Base Nominal](figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png)
 
 ---
 
@@ -113,7 +113,7 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 - **Dinâmica do Conflito:** A célula secundária recebe ordens contraditórias de admissão de usuários e desligamento de transmissores de rádio.
 - **Resolução H-RDL:** Coordenação semântica que bloqueia o modo sleep até a conclusão e consolidação do fluxo de handover.
 
-![Topologia do Cenário S4 - Traffic Steering vs Green RAN](figures/02_cenarios_e_topologias/s4_figure_dark.png)
+![Topologia do Cenário S4 - Traffic Steering vs Green RAN](figures/02_cenarios_e_topologias/s4_topologia_espacial_plano_2d.png)
 
 ---
 
@@ -122,7 +122,7 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 - **Dinâmica do Conflito:** Gera taxa de oscilação contínua de 1,00 ação/s (*Action Churn*), induzindo instabilidade crônica de rádio e jitter de fila.
 - **Resolução H-RDL:** A introdução da *Cooling Window* estabiliza a decisão no primeiro ciclo ($t = 190\text{ ms}$), reduzindo o Churn para 0,05 ações/s com 0 reversões.
 
-![Topologia do Cenário S5 - Supressão de Ping-Pong e Instabilidade Temporal](figures/02_cenarios_e_topologias/s5_figure_dark.png)
+![Topologia do Cenário S5 - Supressão de Ping-Pong e Instabilidade Temporal](figures/02_cenarios_e_topologias/s5_topologia_espacial_plano_2d.png)
 
 ---
 
@@ -131,7 +131,7 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 - **Dinâmica do Conflito:** Saturação de filas de controle no Near-RT RIC e risco de atraso excessivo de processamento ($T_{decision} > 10\text{ ms}$).
 - **Resolução H-RDL:** Agrupamento em micro-lotes (*batch aggregation*), poda de comandos redundantes e resolução em tempo recorde (0,22 ms).
 
-![Topologia do Cenário S6 - Tempestade de Conflitos e Sobrecarga de Controle](figures/02_cenarios_e_topologias/s6_figure_dark.png)
+![Topologia do Cenário S6 - Tempestade de Conflitos e Sobrecarga de Controle](figures/02_cenarios_e_topologias/s6_topologia_espacial_plano_2d.png)
 
 ---
 
