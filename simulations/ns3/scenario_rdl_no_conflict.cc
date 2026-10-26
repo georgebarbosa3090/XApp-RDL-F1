@@ -188,7 +188,7 @@ int main (int argc, char *argv[])
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
     Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
     channelHelper->AssignChannelsToBands ({band});
-    allBwps = CcBwpCreator::GetAllBwps ({band});
+    BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
     NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
