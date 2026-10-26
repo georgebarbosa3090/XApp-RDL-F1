@@ -147,6 +147,8 @@ class RDLxApp:
                 use_fake_sdl=use_fake_sdl,
                 post_init=self._entrypoint
             )
+            # Evita crash da thread de registro em background caso o AppMgr não esteja presente
+            self.xapp._keep_registration = False
         else:
             self.xapp = MockRMRXapp(
                 default_handler=self._default_handler,
@@ -226,18 +228,34 @@ class RDLxApp:
         try:
             kpm_fn_id = rc_capability_registry.get_kpm_function_id("gnb_01")
             subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+            if not subscribed:
+                self.health.set_state(AppState.DEGRADED)
+                logger.warning("Subscrição KPM não foi aceita pelo transporte; xApp mantida em DEGRADED.")
+            else:
+                self.health.set_state(AppState.SUBSCRIBING)
         except Exception as e:
             if self.oran_strict:
-                self.health.set_state(AppState.ERROR)
-                logger.error(f"[ORAN-STRICT] xApp não pronta: descoberta KPM/E2 Setup não foi conectada ao runtime ({e})")
-                return
+                self.health.set_state(AppState.DISCOVERING_E2_NODES)
+                logger.info(f"[ORAN-STRICT] Aguardando conexão de nó E2 / E2 Setup no runtime ({e})")
+
+                def _await_e2_nodes_and_subscribe():
+                    while self.running and self.health.state == AppState.DISCOVERING_E2_NODES:
+                        try:
+                            kpm_id = rc_capability_registry.get_kpm_function_id("gnb_01")
+                            sub = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+                            if sub:
+                                self.health.set_state(AppState.SUBSCRIBING)
+                                break
+                        except Exception:
+                            pass
+                        time.sleep(2.0)
+                threading.Thread(target=_await_e2_nodes_and_subscribe, daemon=True).start()
             else:
                 subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
-        if not subscribed:
-            self.health.set_state(AppState.ERROR)
-            logger.error("Subscrição KPM não foi aceita pelo transporte; xApp mantida fora de READY.")
-            return
-        self.health.set_state(AppState.SUBSCRIBING)
+                if subscribed:
+                    self.health.set_state(AppState.SUBSCRIBING)
+                else:
+                    self.health.set_state(AppState.DEGRADED)
 
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: Optional[int] = None, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
