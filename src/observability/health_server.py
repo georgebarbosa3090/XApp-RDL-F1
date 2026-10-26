@@ -69,6 +69,8 @@ class HealthServer:
         self.state = new_state
 
     def run(self):
+        if self.server_thread is not None:
+            return
         if HAS_FASTAPI and self.app is not None:
             try:
                 config = uvicorn.Config(self.app, host=self.host, port=self.port, log_level="error")
