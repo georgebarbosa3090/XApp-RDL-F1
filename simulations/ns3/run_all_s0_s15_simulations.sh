@@ -118,15 +118,21 @@ for scenario in "${SCENARIOS[@]}"; do
     cp "${source_file}" "${scratch_file}"
     trap 'rm -f -- "${scratch_file}"' EXIT
 
-    flowmonitor_file="${ACTIVE_NS3_DIR}/flowmonitor_closed_loop_results.xml"
-    if [[ -e "${flowmonitor_file}" ]]; then
-        if [[ "${FORCE}" == "true" || "${OVERWRITE_SCRATCH:-false}" == "true" ]]; then
-            rm -f "${flowmonitor_file}"
-        else
-            echo "[ERROR] FlowMonitor preexistente não será sobrescrito: ${flowmonitor_file} (use --force ou FORCE=true)" >&2
-            exit 2
+    possible_flowmon=(
+        "${ACTIVE_NS3_DIR}/flowmonitor_${scenario}.xml"
+        "${ACTIVE_NS3_DIR}/flowmonitor_closed_loop_results.xml"
+        "${ACTIVE_NS3_DIR}/flowmonitor_results.xml"
+    )
+    for f in "${possible_flowmon[@]}"; do
+        if [[ -e "$f" ]]; then
+            if [[ "${FORCE}" == "true" || "${OVERWRITE_SCRATCH:-false}" == "true" ]]; then
+                rm -f "$f"
+            else
+                echo "[ERROR] FlowMonitor preexistente não será sobrescrito: $f (use --force ou FORCE=true)" >&2
+                exit 2
+            fi
         fi
-    fi
+    done
 
     echo "[INFO] Compilando e executando ${scenario} com ns-3/5G-LENA; resultados em ${run_dir}"
     (
@@ -140,10 +146,18 @@ for scenario in "${SCENARIOS[@]}"; do
     rm -f -- "${scratch_file}"
     trap - EXIT
 
-    if [[ ! -s "${flowmonitor_file}" ]]; then
-        echo "[ERROR] Execução terminou sem FlowMonitor XML não vazio: ${flowmonitor_file}" >&2
+    found_flowmon=""
+    for f in "${possible_flowmon[@]}"; do
+        if [[ -s "$f" ]]; then
+            found_flowmon="$f"
+            break
+        fi
+    done
+
+    if [[ -z "${found_flowmon}" ]]; then
+        echo "[ERROR] Execução terminou sem FlowMonitor XML não vazio em ${ACTIVE_NS3_DIR}." >&2
         exit 1
     fi
-    mv "${flowmonitor_file}" "${run_dir}/flowmonitor.xml"
+    mv "${found_flowmon}" "${run_dir}/flowmonitor.xml"
     echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
 done
