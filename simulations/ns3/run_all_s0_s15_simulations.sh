@@ -40,10 +40,10 @@ SCENARIOS=()
 
 case "${TARGET_LOWER}" in
     all)
-        for scenario in "${SCENARIO_MAP[@]}"; do SCENARIOS+=("${scenario}"); done
+        for id in s0 s1 s2 s3 s4 s5 s6 s7 s9 s10 s11 s12 s13 s14 s15; do SCENARIOS+=("${SCENARIO_MAP[$id]}"); done
         ;;
     5g)
-        for id in s0 s1 s2 s3 s4 s5 s6 s7 s8; do SCENARIOS+=("${SCENARIO_MAP[$id]}"); done
+        for id in s0 s1 s2 s3 s4 s5 s6 s7; do SCENARIOS+=("${SCENARIO_MAP[$id]}"); done
         ;;
     6g)
         for id in s9 s10 s11 s12 s13 s14 s15; do SCENARIOS+=("${SCENARIO_MAP[$id]}"); done
