@@ -98,10 +98,19 @@ int main (int argc, char *argv[])
     // Helpers 5G-LENA
     Ptr<NrPointToPointEpcHelper> nrEpcHelper = CreateObject<NrPointToPointEpcHelper> ();
     Ptr<IdealBeamformingHelper> idealBeamformingHelper = CreateObject<IdealBeamformingHelper> ();
+    idealBeamformingHelper->SetAttribute ("BeamformingMethod", TypeIdValue (DirectPathBeamforming::GetTypeId ()));
     Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
 
     nrHelper->SetBeamformingHelper (idealBeamformingHelper);
     nrHelper->SetEpcHelper (nrEpcHelper);
+
+    nrHelper->SetGnbAntennaAttribute ("NumRows", UintegerValue (8));
+    nrHelper->SetGnbAntennaAttribute ("NumColumns", UintegerValue (8)); // 64 elementos
+    nrHelper->SetGnbAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
+
+    nrHelper->SetUeAntennaAttribute ("NumRows", UintegerValue (1));
+    nrHelper->SetUeAntennaAttribute ("NumColumns", UintegerValue (1));
+    nrHelper->SetUeAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
 
     CcBwpCreator ccBwpCreator;
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
@@ -112,11 +121,6 @@ int main (int argc, char *argv[])
     nrHelper->SetSchedulerAttribute ("FixedMcsDl", BooleanValue (false));
 
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
-
-    // Antenas Phased-Array 6G mmWave
-    nrHelper->SetGnbAntennaAttribute ("NumRows", UintegerValue (8));
-    nrHelper->SetGnbAntennaAttribute ("NumColumns", UintegerValue (8)); // 64 elementos
-    nrHelper->SetGnbAntennaAttribute ("AntennaElement", StringValue ("ns3::ThreeGppAntennaModel"));
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
     NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
