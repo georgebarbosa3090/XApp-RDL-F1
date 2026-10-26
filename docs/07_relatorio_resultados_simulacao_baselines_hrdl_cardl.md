@@ -106,22 +106,22 @@ Esta seção apresenta a tabela comparativa unificada contemplando os **16 cená
 
 ### 4.1 Setor I: Conflitos Clássicos de Rádio Terrestre (S0 a S5)
 Nos cenários terrestres tradicionais de macrocélula 5G NR (100 MHz em 3,5 GHz com numerologia 1):
-- **Cenário S1 (Colisão de PRB):** No baseline B0, o escalonador MAC recebe solicitações de $80\%$ de PRB da xSlice e comandos de ampliação de blocos da Traffic Steering somando $110\%$ da capacidade da célula. Sem mediação, ocorre saturação de fila e descarte massivo ($36,7\%$ de violações de SLA). A H-RDL (B3) computa a Barganha de Nash, alocando exatamente $50\%$ para URLLC e $50\%$ para eMBB, estabilizando a célula em $190	ext{ ms}$. A CA-RDL (B6) utiliza o Safe-MAPPO para identificar que UEs de eMBB em bom estado de canal (SINR $> 18	ext{ dB}$) podem operar com MCS 24, liberando PRBs adicionais para a fatia prioritária e atingindo $105,8	ext{ Mbps}$;
-- **Cenário S2 (EEVS - Potência vs QoS):** A xApp Energy Saving corta a potência para 20 dBm para economizar energia, derrubando o throughput para 12 Mbps (-52%). A H-RDL aplica o filtro de Shannon, mantendo $P_{	ext{tx}} \ge 34	ext{ dBm}$ e assegurando vazão de 24,5 Mbps com $18\%$ de economia real. A CA-RDL encontra o ponto de sela da fronteira de Pareto com $26,0	ext{ Mbps}$ e $22\%$ de economia.
+- **Cenário S1 (Colisão de PRB):** No baseline B0, o escalonador MAC recebe solicitações de 80% de PRB da xSlice e comandos de ampliação de blocos da Traffic Steering somando 110% da capacidade da célula. Sem mediação, ocorre saturação de fila e descarte massivo (36,7% de violações de SLA). A H-RDL (B3) computa a Barganha de Nash, alocando exatamente 50% para URLLC e 50% para eMBB, estabilizando a célula em 190 ms. A CA-RDL (B6) utiliza o Safe-MAPPO para identificar que UEs de eMBB em bom estado de canal (SINR > 18 dB) podem operar com MCS 24, liberando PRBs adicionais para a fatia prioritária e atingindo 105,8 Mbps;
+- **Cenário S2 (EEVS - Potência vs QoS):** A xApp Energy Saving corta a potência para 20 dBm para economizar energia, derrubando o throughput para 12 Mbps (-52%). A H-RDL aplica o filtro de Shannon, mantendo *P*<sub>tx</sub> ≥ 34 dBm e assegurando vazão de 24,5 Mbps com 18% de economia real. A CA-RDL encontra o ponto de sela da fronteira de Pareto com 26,0 Mbps e 22% de economia.
 
 ### 4.2 Setor II: Sobrecarga, Falhas e Validação em Malha Fechada (S6 a S8)
-- **Cenário S6 (Conflict Storm):** Submetido a uma rajada de 50 solicitações simultâneas por segundo, o buffer do Near-RT RIC convencional transborda ($> 450	ext{ ms}$ de enfileiramento). A H-RDL resolve o lote em $15,28	ext{ ms}$, enquanto a CA-RDL processa o batch em $12,22	ext{ ms}$, ambas respeitando o limite operacional de 50 ms;
-- **Cenário S7 (Injeção de Falhas e Ataques):** Comandos com $P_{	ext{tx}} = 100	ext{ dBm}$ ou parâmetros NaN causam danos físicos ou pane de software no baseline. O *Safety Guard* da H-RDL e a máscara de ação da CA-RDL bloqueiam $100\%$ dessas anomalias (**UnsafeApplied ≡ 0**);
-- **Cenário S8 (NORI Closed-Loop):** Comprova a interoperabilidade E2AP v02.03 com decodificação APER e pareamento de `RICcontrolAcknowledge` com RTT de $1,82	ext{ ms}$.
+- **Cenário S6 (Conflict Storm):** Submetido a uma rajada de 50 solicitações simultâneas por segundo, o buffer do Near-RT RIC convencional transborda (> 450 ms de enfileiramento). A H-RDL resolve o lote em 15,28 ms, enquanto a CA-RDL processa o batch em 12,22 ms, ambas respeitando o limite operacional de 50 ms;
+- **Cenário S7 (Injeção de Falhas e Ataques):** Comandos com *P*<sub>tx</sub> = 100 dBm ou parâmetros NaN causam danos físicos ou pane de software no baseline. O *Safety Guard* da H-RDL e a máscara de ação da CA-RDL bloqueiam 100% dessas anomalias (**UnsafeApplied ≡ 0**);
+- **Cenário S8 (NORI Closed-Loop):** Comprova a interoperabilidade E2AP v02.03 com decodificação APER e pareamento de `RICcontrolAcknowledge` com RTT de 1,82 ms.
 
 ### 4.3 Setor III: Redes Não-Terrestres e Mobilidade Extrema (S9, S10, S13)
-- **Cenário S9 (Satélite LEO NTN):** Devido à velocidade orbital de $7,56	ext{ km/s}$, o deslocamento Doppler causa falhas frequentes de rádio (RLF). A H-RDL utiliza janela de histerese ampliada de $3000	ext{ ms}$, enquanto a CA-RDL antecipa a trajetória via GNN, garantindo throughput de $92,1	ext{ Mbps}$;
+- **Cenário S9 (Satélite LEO NTN):** Devido à velocidade orbital de 7,56 km/s, o deslocamento Doppler causa falhas frequentes de rádio (RLF). A H-RDL utiliza janela de histerese ampliada de 3000 ms, enquanto a CA-RDL antecipa a trajetória via GNN, garantindo throughput de 92,1 Mbps;
 - **Cenário S10 (Enxame de VANTs):** Quando um drone gNodeB tem sua bateria esgotada, a H-RDL efetua o offloading seguro de 25 UEs em cascata sem quedas;
 - **Cenário S13 (SAGIN Resgate):** Em cenário de catástrofe com destruição de infraestrutura terrestre, a H-RDL e a CA-RDL asseguram prioridade absoluta ao tráfego de equipes de salvamento sobre enlaces satelitais congestionados.
 
 ### 4.4 Setor IV: Verticais Industriais e Fronteira 6G (S11, S12, S14, S15)
-- **Cenário S11 (Pelotões V2X):** Garante latência interveicular de $8,4	ext{ ms}$ (B3) e $6,8	ext{ ms}$ (B6), viabilizando distâncias seguras de frenagem a 120 km/h;
-- **Cenário S12 (Robótica IIoT TSN):** Preempção estrita assegura jitter inferior a $0,8	ext{ ms}$ (B3) e $0,3	ext{ ms}$ (B6);
+- **Cenário S11 (Pelotões V2X):** Garante latência interveicular de 8,4 ms (B3) e 6,8 ms (B6), viabilizando distâncias seguras de frenagem a 120 km/h;
+- **Cenário S12 (Robótica IIoT TSN):** Preempção estrita assegura jitter inferior a 0,8 ms (B3) e 0,3 ms (B6);
 - **Cenário S14 (ISAC 6G):** Arbitragem ótima entre feixes direcionais de radar de sensoriamento e transmissão de dados de alta capacidade;
 - **Cenário S15 (Segurança Zero-Trust NTN):** Tentativas de sequestro de transponder por feeder malicioso são bloqueadas e o invasor é isolado topologicamente no grafo.
 
