@@ -11,8 +11,9 @@ spec:
       {{- include "iqos-xapp-rdl.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+        rolloutTimestamp: {{ now | quote }}
+      {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
