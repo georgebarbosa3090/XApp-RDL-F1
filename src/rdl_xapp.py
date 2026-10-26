@@ -96,7 +96,7 @@ class RDLxApp:
                     "Fallback para MockRMR é estritamente proibido em ambiente O-RAN estrito."
                 )
             use_fake_sdl = False
-            rmr_wait_for_ready = True
+            rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false").lower() in ("true", "1", "yes")
             self.dispatch_raw_aper = True
         else:
             use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
@@ -119,7 +119,9 @@ class RDLxApp:
         self.refinement = Refinement(self.memory, strict_capabilities=self.oran_strict)
         self.health = HealthServer(port=8080)
         self.health.set_state(AppState.STARTING)
+        self.health.run()
         self.metrics = MetricsServer(port=8081)
+        self.metrics.start()
         self.asn1_decoder = KpmDecoder()
         self.rc_encoder = RCEncoder()
         self.rc_mapper = RCMapper(ran_function_id=3)
