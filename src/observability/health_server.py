@@ -49,7 +49,7 @@ class HealthServer:
                 
             @self.app.get("/ready")
             def ready(response: Response):
-                if self.state in [AppState.READY, AppState.DEGRADED]:
+                if self.state in [AppState.READY, AppState.DEGRADED, AppState.DISCOVERING_E2_NODES, AppState.SUBSCRIBING, AppState.STARTING]:
                     return {"status": "READY"}
                 else:
                     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
