@@ -1,8 +1,12 @@
 import ricxappframe.xapp_frame as x
 import inspect
 
-print("--- _BaseXapp.run ---")
-print(inspect.getsource(x._BaseXapp.run))
+import ricxappframe.xapp_frame as x
+import inspect
+
+print("--- RMRXapp.run ---")
+print(inspect.getsource(x.RMRXapp.run))
 
 print("--- _BaseXapp.registerXapp ---")
 print(inspect.getsource(x._BaseXapp.registerXapp))
+
