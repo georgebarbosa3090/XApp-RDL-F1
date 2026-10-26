@@ -206,7 +206,7 @@ Os testes pareados com 5 sementes comprovam significância estatística na evolu
 
 | Critério de Projeto | H-RDL (Fase 1 Determinística) | CA-RDL (Fase 2 Cognitiva / Safe-MAPPO) | Recomendação de Engenharia |
 | :--- | :--- | :--- | :--- |
-| **Orçamento Temporal** | **$0,12$ ms** (Ultrabaixo) | **$1,84$ ms** (Médio) | Utilizar **H-RDL** para ciclos Near-RT estritos $< 5	ext{ ms}$; utilizar **CA-RDL** para janelas nominais de $10	ext{ a }200	ext{ ms}$. |
+| **Orçamento Temporal** | **$0,12$ ms** (Ultrabaixo) | **$1,84$ ms** (Médio) | Utilizar **H-RDL** para ciclos Near-RT estritos $< 5$ ms; utilizar **CA-RDL** para janelas nominais de $10$ a $200$ ms. |
 | **Previsibilidade e Auditoria** | **100% Axiomática** (Barganha de Nash) | **Estocástica Guiada** (Redes Neurais) | Ambientes de missão crítica com certificação formal exigem a **H-RDL** ou a **CA-RDL com Action Masking estrito**. |
 | **Complexidade Dimensional** | Ideal para colisões 2D/3D (PRB, Potência) | Superior em cenários complexos (NTN, SAGIN, V2X) | Utilizar **CA-RDL** quando houver acoplamento entre fatias espaciais, móveis e orbitais heterogêneas. |
 | **Consumo de Hardware** | Mínimo (Opera em microcontroladores e CPU básica) | Demanda inferência de tensores (CPU multi-core / GPU) | **H-RDL** indicada para O-DU embarcada; **CA-RDL** indicada para servidores Near-RT RIC em nuvem/datacenter. |
@@ -217,6 +217,6 @@ Os testes pareados com 5 sementes comprovam significância estatística na evolu
 ## 10. Conclusão
 
 Os resultados de simulação reunidos neste relatório comprovam de forma irrefutável a eficácia da arquitetura RDL:
-1. **A Fase 1 (H-RDL)** estabelece a barreira determinística indispensável para estabilizar a rede Open RAN, erradicando $100\%$ das violações de SLA sob colisão direta e suprimindo o ping-pong com tempo de decisão inferior a $0,15	ext{ ms}$;
+1. **A Fase 1 (H-RDL)** estabelece a barreira determinística indispensável para estabilizar a rede Open RAN, erradicando $100\%$ das violações de SLA sob colisão direta e suprimindo o ping-pong com tempo de decisão inferior a $0,15$ ms;
 2. **A Fase 2 (CA-RDL)** expande a fronteira de eficiência da rede, explorando a adaptabilidade do aprendizado por reforço cooperativo para extrair ganhos adicionais de vazão ($+4\%$) e redução de atraso ($-14\%$) sem nunca violar os invariantes de segurança herdados da Fase 1;
 3. **A validação nos 16 cenários (S0 a S15)** demonstra que o framework é plenamente generalizável, desde fatias terrestres 5G clássicas até enlaces orbitais NTN, constelações de VANTs e redes industriais zero-jitter da era 6G.
