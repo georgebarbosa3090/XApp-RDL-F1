@@ -108,19 +108,22 @@ echo " -> 4.1 Instalando 1. xSlice QoS xApp (peihaoY/xslice-oran)..."
 helm upgrade --install ricxapp-qos-xslice deploy/helm/xapp-qos-xslice \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --set image.pullPolicy=Never
+  --set image.pullPolicy=Never \
+  --force-conflicts
 
 echo " -> 4.2 Instalando 2. Energy Saving xApp (Orange-OpenSource/ns-O-RAN-flexric)..."
 helm upgrade --install ricxapp-energy-saving deploy/helm/xapp-energy-saving \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --set image.pullPolicy=Never
+  --set image.pullPolicy=Never \
+  --force-conflicts
 
 echo " -> 4.3 Instalando 3. Traffic Steering xApp (o-ran-sc/ric-app-ts)..."
 helm upgrade --install ricxapp-traffic-steering deploy/helm/xapp-traffic-steering \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
-  --set image.pullPolicy=Never
+  --set image.pullPolicy=Never \
+  --force-conflicts
 
 # 5. Deploy do RDL (se habilitado)
 if [ "$DEPLOY_RDL" = true ]; then
@@ -130,7 +133,8 @@ if [ "$DEPLOY_RDL" = true ]; then
       --create-namespace \
       --set image.pullPolicy=Never \
       --set env.useFakeSdl="false" \
-      --set env.rmrWaitForReady="false"
+      --set env.rmrWaitForReady="false" \
+      --force-conflicts
 else
     echo -e "\n${YELLOW}[5/6] Modo Baseline ativo: xApp RDL NAO será implantada neste momento.${NC}"
     helm uninstall ricxapp-iqos-xapp-rdl -n ${NAMESPACE_XAPP} 2>/dev/null || true
