@@ -61,9 +61,10 @@ make cluster-delete
 ```
 
 ### 2.3. Configuração dos Namespaces O-RAN
+Crie os namespaces para a plataforma Near-RT RIC (`ricplt`) e micro-aplicações (`ricxapp`):
 ```bash
-kubectl create namespace ricplt    # Plataforma Near-RT RIC (E2term, AppMgr, SubMgr, SDL)
-kubectl create namespace ricxapp   # Micro-aplicações (RDL, xSlice, Energy Saving, Traffic Steering)
+kubectl create namespace ricplt
+kubectl create namespace ricxapp
 ```
 
 ---
@@ -140,10 +141,10 @@ Navegue até a raiz do workspace do simulador ns-3 (onde reside o script `./ns3`
 ```bash
 cd ~/ns3-oran-workspace/ns-3-oran
 
-# 1. Configuração do CMake com suporte a Ninja e modo otimizado (se necessário)
+# 1. Configuração do CMake com suporte a Ninja e modo otimizado:
 ./ns3 configure -d optimized --enable-examples --enable-tests
 
-# 2. Compilação dos executáveis de cenário (S0 a S15)
+# 2. Compilação dos executáveis de cenário S0 a S15:
 ./ns3 build
 ```
 
@@ -152,10 +153,10 @@ A partir do repositório principal `~/XApp-RDL-F1`:
 ```bash
 cd ~/XApp-RDL-F1
 
-# Executa todos os cenários com rastreamento FlowMonitor (use --force para sobrescrever resíduos)
+# Executa todos os cenários com rastreamento FlowMonitor:
 bash simulations/ns3/run_all_s0_s15_simulations.sh all --force
 
-# Ou execute um cenário específico (ex: S0 baseline sem conflito):
+# Ou execute um cenário específico como S0 baseline sem conflito:
 bash simulations/ns3/run_all_s0_s15_simulations.sh s0 --force
 ```
 
