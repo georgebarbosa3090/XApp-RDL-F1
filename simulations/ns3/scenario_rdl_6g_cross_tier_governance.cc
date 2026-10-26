@@ -102,20 +102,25 @@ int main (int argc, char *argv[])
 
     Ptr<NrPointToPointEpcHelper> nrEpcHelper = CreateObject<NrPointToPointEpcHelper> ();
     Ptr<IdealBeamformingHelper> idealBeamformingHelper = CreateObject<IdealBeamformingHelper> ();
+    idealBeamformingHelper->SetAttribute ("BeamformingMethod", TypeIdValue (DirectPathBeamforming::GetTypeId ()));
     Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
 
     nrHelper->SetBeamformingHelper (idealBeamformingHelper);
     nrHelper->SetEpcHelper (nrEpcHelper);
+
+    nrHelper->SetGnbAntennaAttribute ("NumRows", UintegerValue (4));
+    nrHelper->SetGnbAntennaAttribute ("NumColumns", UintegerValue (8)); // 32 elementos
+    nrHelper->SetGnbAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
+
+    nrHelper->SetUeAntennaAttribute ("NumRows", UintegerValue (1));
+    nrHelper->SetUeAntennaAttribute ("NumColumns", UintegerValue (1));
+    nrHelper->SetUeAntennaAttribute ("AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
 
     CcBwpCreator ccBwpCreator;
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
 
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
-
-    nrHelper->SetGnbAntennaAttribute ("NumRows", UintegerValue (4));
-    nrHelper->SetGnbAntennaAttribute ("NumColumns", UintegerValue (8)); // 32 elementos
-    nrHelper->SetGnbAntennaAttribute ("AntennaElement", StringValue ("ns3::ThreeGppAntennaModel"));
 
     NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
     NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
