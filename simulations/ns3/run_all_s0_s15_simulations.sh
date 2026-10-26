@@ -24,7 +24,17 @@ declare -A SCENARIO_MAP=(
     ["s15"]="scenario_rdl_s15_rogue_ntn_feeder_hijacking"
 )
 
-TARGET="${1:-all}"
+FORCE="${FORCE:-false}"
+ARGS=()
+for arg in "$@"; do
+    if [[ "$arg" == "--force" || "$arg" == "-f" ]]; then
+        FORCE=true
+    else
+        ARGS+=("$arg")
+    fi
+done
+
+TARGET="${ARGS[0]:-all}"
 TARGET_LOWER="$(echo "${TARGET}" | tr '[:upper:]' '[:lower:]')"
 SCENARIOS=()
 
