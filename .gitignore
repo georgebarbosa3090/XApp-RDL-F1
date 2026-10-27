@@ -106,6 +106,7 @@ scripts/test_batching.py
 !scripts/backup_to_google_drive.*
 backups/
 *rollback*
+!tests/*rollback*
 *sync*
 !docs/compliance/*.md
 
