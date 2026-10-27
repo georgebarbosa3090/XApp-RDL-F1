@@ -598,8 +598,10 @@ class RDLxApp:
             if (now - last_cleanup) >= 1.0:
                 self.cleanup_expired_transactions()
                 expired = self.dispatcher.check_timeouts(now)
-                for _ in expired:
+                for request_id in expired:
                     self.metrics.ctrl_timeout.inc()
+                    request_info = self.dispatcher.pending_requests.get(request_id, {})
+                    self.pending_actions_by_id.pop(request_info.get("action_id"), None)
                 last_cleanup = now
 
             actions_to_process = []

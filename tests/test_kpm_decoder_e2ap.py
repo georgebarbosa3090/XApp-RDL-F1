@@ -67,6 +67,21 @@ def test_decode_raw_kpm_fallback_path(sample_kpm_payload):
     assert decoder.last_decode_path == "raw_kpm"
     assert reports[0]["drb_thp_dl"] == 55000.0
 
+
+def test_aggregation_does_not_replace_unreported_metrics_with_zero():
+    msg = E2SM_KPM_IndicationMessage()
+    msg.set_val({
+        "nodeID": "gnb_01",
+        "ueID": "ue_01",
+        "measData": [{"metricName": "DRB.UEThpDl", "metricValue": 100}],
+    })
+
+    report = KpmDecoder().decode_indication(msg.to_aper())[0]
+
+    assert report["drb_thp_dl"] == 100.0
+    assert "drb_delay_dl" not in report
+    assert "prb_used_dl" not in report
+
 def test_kpm_raw_collector_with_e2ap(tmp_path, sample_kpm_payload):
     collector = KpmRawCollector(base_exp_dir=str(tmp_path))
     kpm_dir = collector.create_run_session("run-0001")

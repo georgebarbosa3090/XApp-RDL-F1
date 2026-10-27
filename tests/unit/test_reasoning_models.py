@@ -1,7 +1,7 @@
 import pytest
 from src.core.reasoning import Reasoning
 from src.infrastructure.memory_module import MemoryModule
-from src.conflict_types import ConflictEvent, ConflictType, ConflictSeverity, XAppAction, ResolutionStrategy
+from src.conflict_types import ConflictEvent, ConflictType, ConflictSeverity, XAppAction, ResolutionStrategy, KPMReport
 
 def test_reasoning_shannon_and_tvs_resolution():
     memory = MemoryModule()
@@ -44,3 +44,28 @@ def test_large_indirect_conflict_uses_deterministic_bounded_strategy():
     assert resolution.winning_actions
     assert resolution.confidence == 0.70
     assert resolution.winning_actions == reasoning.resolve(conflict).winning_actions
+
+
+def test_observed_latency_blocks_energy_policy_score():
+    reasoning = Reasoning(MemoryModule())
+    action = XAppAction(
+        xapp_id="energy_saver",
+        node_id="gnb_01",
+        parameter="TX_POWER",
+        value=10.0,
+        priority=60,
+    )
+    baseline_score = reasoning._calculate_action_scores(action)["sla"]
+    reasoning.update_kpm_report(
+        KPMReport(
+            node_id="gnb_01",
+            ue_id="ue_01",
+            drb_thp_dl=10.0,
+            drb_thp_ul=None,
+            drb_delay_dl=8.0,
+            prb_used_dl=None,
+        )
+    )
+
+    assert baseline_score > 0.0
+    assert reasoning._calculate_action_scores(action)["sla"] == 0.0

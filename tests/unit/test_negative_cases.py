@@ -101,8 +101,10 @@ def test_negative_causal_tracker_unimproved_kpi():
         parameter="PRB_QUOTA",
         old_val=50.0,
         new_val=20.0,
-        kpm_before={"latency_ms": 5.0, "throughput_mbps": 500.0, "pdr_percent": 98.0}
+        kpm_before={"latency_ms": 5.0, "throughput_mbps": 500.0, "pdr_percent": 98.0},
+        conflict_id="conf_neg",
     )
+    tracker.record_conflict_resolution("conf_neg")
     tracker.record_ack(ric_request_id=9999, rtt_ms=10.0)
 
     # Pós-telemetria piorou (latência subiu para 15ms, vazão caiu para 100Mbps)
@@ -125,8 +127,10 @@ def test_negative_causal_tracker_failure_response():
         parameter="TX_POWER",
         old_val=23.0,
         new_val=10.0,
-        kpm_before={"latency_ms": 10.0}
+        kpm_before={"latency_ms": 10.0},
+        conflict_id="conf_fail",
     )
+    tracker.record_conflict_resolution("conf_fail")
     tracker.record_failure(ric_request_id=8888, cause_code=1)
 
     metrics = tracker.compute_metrics()

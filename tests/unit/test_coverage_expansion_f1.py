@@ -152,8 +152,11 @@ def test_causal_tracker_full_cycle():
         old_val=40.0,
         new_val=60.0,
         kpm_before={"latency_ms": 15.0, "throughput_mbps": 50.0},
-        strategy="TVS"
+        strategy="TVS",
+        conflict_id="conf_01",
     )
+    tracker.record_conflict_resolution("conf_01")
+    tracker.record_safety_validation()
     assert rec.action_id == "act_test_01"
 
     ack_ok = tracker.record_ack(1001, rtt_ms=2.5)

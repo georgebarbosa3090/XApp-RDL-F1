@@ -149,8 +149,11 @@ def test_nori_rc_causal_gate4_tracking():
         old_val=30.0,
         new_val=65.0,
         kpm_before=kpm_t0,
-        strategy="SHANNON_OPTIMAL"
+        strategy="SHANNON_OPTIMAL",
+        conflict_id="conf_01",
     )
+    tracker.record_conflict_resolution("conf_01")
+    tracker.record_safety_validation()
 
     # 2. Confirma ACK da RAN
     assert tracker.record_ack(ric_request_id=1234, rtt_ms=12.4)
@@ -165,4 +168,3 @@ def test_nori_rc_causal_gate4_tracking():
     assert metrics.conflict_resolution_effectiveness == 100.0
     assert metrics.latency_reduction_pct > 70.0
     assert metrics.unsafe_action_rate == 0.0
-
