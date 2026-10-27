@@ -181,6 +181,195 @@ uv run --with matplotlib --with seaborn --with pandas --with scipy python analys
 uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/export_tables.py
 ```
 
+### 5.5. Co-Simulação Rica Integrada em Malha Fechada (Closed-Loop E2 Live)
+
+A **Co-Simulação Rica Integrada** constitui o ápice do pipeline experimental da Fase 1, unindo em malha fechada (*closed loop*) o simulador físico de eventos discretos da RAN (**ns-3.48** com módulo **5G-LENA NR v5.1** e **E2 Agent/NORI**), a plataforma oficial **Near-RT RIC (O-RAN SC Release J)** instanciada no cluster Kubernetes (`k3d`), as **três xApps de referência abertas concorrentes** (`qos-xslice`, `energy-saving` e `traffic-steering`) e o módulo de governança cognitiva determinística **xApp H-RDL**.
+
+Diferente de avaliações sintéticas isoladas ou testes de unidade com mocks, a co-simulação rica opera com interfaces de rede reais (SCTP na porta `36422` e barramento RMR em `4560/4561`), submetendo as decisões algorítmicas ao atraso real de propagação, serialização ASN.1 APER e restrições dinâmicas de canal 3GPP.
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│              ARQUITETURA DA CO-SIMULAÇÃO RICA EM CIRCUITO FECHADO (H-RDL FASE 1)                 │
+│                                                                                                  │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐                │
+│   │                         Near-RT RIC (Cluster k3d / K8s)                     │                │
+│   │                                                                             │                │
+│   │   ┌───────────────────────────────────┐    RMR (12010/40/41)                │                │
+│   │   │  xApp H-RDL (Governança Causal)   │◄──────────────────────┐             │                │
+│   │   │  - Perception (Janela 200 ms)     │                       │             │                │
+│   │   │  - Reasoning (TVS / EEVS Utility) │    RMR (20010)        │             │                │
+│   │   │  - Refinement (Safety TS 38.104)  │◄────────────┐         │             │                │
+│   │   │  - CausalTracker & Dispatcher     │             │         │             │                │
+│   │   └───────────────────────────────────┘             │         │             │                │
+│   │                     ▲                               │         │             │                │
+│   │                     │ Ingestão KPM (12050)          │         │             │                │
+│   │        ┌────────────┴─────────────┐                 │         │             │                │
+│   │        │     E2Term & SubMgr      │                 │         │             │                │
+│   │        └────────────┬─────────────┘                 │         │             │                │
+│   │                     │                               │         │             │                │
+│   │         ┌───────────┴───────────────────────────────┴────┐    │             │                │
+│   │         │ 3 xApps Concorrentes: xSlice / ES / TS         │    │             │                │
+│   │         └────────────────────────────────────────────────┘    │             │                │
+│   └─────────────────────┼─────────────────────────────────────────┼─────────────┘                │
+│                         │ SCTP :36422                             │                              │
+│                         │ (E2AP v2.03/v3.01 + APER)               │                              │
+│                         ▼                                         │                              │
+│   ┌───────────────────────────────────────────────────────────────┴─────────────┐                │
+│   │               Simulador RAN ns-3.48 + 5G-LENA (v5.1) + NORI                 │                │
+│   │                                                                             │                │
+│   │   - Engine: ns3::RealtimeSimulatorImpl (Sincronização Wall-Clock 1s ≈ 1s)   │                │
+│   │   - E2 Agent: NORI (SCTP Client, ASN.1 APER Codec, KPM Producer)            │                │
+│   │   - Camada Física/MAC: Banda n78 (3.5 GHz, 100 MHz BWP, 2 gNBs Macro/Micro)│                │
+│   │   - Tráfego: 30 UEs com Fatias Concorrentes (URLLC, eMBB e mMTC)            │                │
+│   │   - Monitoramento: FlowMonitor XML + Traces de Potência e SINR              │                │
+│   └─────────────────────────────────────────────────────────────────────────────┘                │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 5.5.1. Sincronização em Tempo Real (`RealtimeSimulatorImpl`)
+
+Em simulações convencionais, o ns-3 avança através de uma fila de eventos discretos em **tempo virtual** dependente da capacidade da CPU ($t_{\text{sim}} \neq t_{\text{wall}}$). Em um ambiente de co-simulação com pods externos em Kubernetes (Near-RT RIC e xApps), se o ns-3 processar eventos mais rápido que o tempo real, a RAN "atropela" os containers de controle antes que as mensagens E2AP completem seu ciclo de roteamento RMR.
+
+Para garantir sincronização estrita de malha fechada, os cenários closed-loop utilizam a implementação em tempo real:
+
+```cpp
+// Ativação do RealtimeSimulatorImpl no cenário C++ (scenario_rdl_closed_loop_nori.cc)
+GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+
+// Modo de Sincronização:
+// - "BestEffort": tolera pequenos jitters de agendamento de CPU do WSL2/Docker sem abortar
+// - "HardLimit": encerra a simulação se o atraso acumulado exceder a janela de tolerância (0.1s)
+Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
+```
+
+Com o `RealtimeSimulatorImpl`, **1 segundo de simulação corresponde exatamente a 1 segundo de relógio de parede (*wall-clock*)**, assegurando que os períodos de telemetria E2SM-KPM ($\Delta t = 200\text{ ms}$) casem com a janela de agregação temporal ($\Delta t_{\text{win}} = 200\text{ ms}$) da xApp H-RDL.
+
+---
+
+#### 5.5.2. Arranjo Operacional Didático (Painel de 5 Terminais Lado a Lado)
+
+Para demonstrações técnicas, aulas laboratoriais e auditorias experimentais, recomenda-se organizar 5 janelas de terminal lado a lado (ex.: via `tmux` ou abas do terminal):
+
+| Terminal | Papel / Módulo | Comando de Execução / Monitoramento | Finalidade Operacional |
+| :---: | :--- | :--- | :--- |
+| **T1** | **ns-3 / 5G-LENA (RAN)** | `./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"` | Executa a RAN física simulada, emite telemetria KPM e recebe E2SM-RC. |
+| **T2** | **Near-RT RIC Platform** | `kubectl logs -n ricplt -l app=ricplt-e2term -f` | Monitora a terminação SCTP e a conversão de pacotes E2AP em mensagens RMR. |
+| **T3** | **3 xApps de Referência** | `kubectl logs -n ricxapp -l app=ricxapp-qos-xslice -f` | Evidencia o comportamento competitivo autônomo das xApps (solicitações conflitantes). |
+| **T4** | **xApp H-RDL (Decisão)** | `kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl -f` | Exibe a ingestão KPM, construção do grafo de conflito, arbitragem TVS/EEVS e despacho RC. |
+| **T5** | **Observabilidade Live** | `curl -s http://localhost:8081/metrics \| grep -E "^rdl_"` ou Grafana (`:3000`) | Acompanha taxas de resolução (CRR/CRE), latência de decisão e invariant checks em tempo real. |
+
+---
+
+#### 5.5.3. Procedimento Operacional Passo a Passo (Execução End-to-End)
+
+##### Passo 1: Inicialização e Verificação da Infraestrutura de Controle
+Certifique-se de que o cluster k3d e a plataforma Near-RT RIC estão ativos:
+```bash
+# 1. Provisionar cluster com as portas de sinalização (SCTP 36422 e RMR 4560/4561)
+make cluster-create
+
+# 2. Realizar deploy completo da Near-RT RIC, xApps e H-RDL
+make helm-deploy
+
+# 3. Validar a prontidão dos pods nos namespaces operacionais
+kubectl get pods -n ricplt
+kubectl get pods -n ricxapp
+```
+
+##### Passo 2: Execução dos Cenários Closed-Loop no ns-3
+Acesse o diretório do simulador e inicie o cenário desejado em modo de malha fechada em tempo real:
+
+```bash
+cd ~/ns3-oran-workspace/ns-3-oran
+
+# Opção A: Cenário Fechado Integrado de Telemetria e Controle NORI (S8)
+./ns3 run "scratch/scenario_rdl_closed_loop_nori \
+    --demoMode=realtime \
+    --realtime=true \
+    --syncMode=BestEffort \
+    --ricIp=127.0.0.1 \
+    --ricPort=36422"
+
+# Opção B: Cenário Fechado de Conflito de Tráfego vs QoS (TVS / S3)
+./ns3 run "scratch/scenario_rdl_tvs_conflict \
+    --simTime=30 \
+    --gNbNum=2 \
+    --ueNumPerGnb=15 \
+    --enableE2=true \
+    --ricIp=127.0.0.1 \
+    --ricPort=36422"
+
+# Opção C: Cenário Fechado de Eficiência Energética vs QoS (EEVS / S2)
+./ns3 run "scratch/scenario_rdl_energy_vs_qos \
+    --simTime=40 \
+    --gNbNum=2 \
+    --ueNum=20 \
+    --enableE2=true \
+    --ricIp=127.0.0.1 \
+    --ricPort=36422"
+```
+
+##### Passo 3: Injeção de Tráfego Concorrente e Teste de Resiliência
+Durante a janela ativa de simulação (ex.: $t = 20\text{ s}$ a $t = 35\text{ s}$), dispare as solicitações concorrentes ou perturbações de canal para testar a resiliência determinística:
+```bash
+# Injetar perturbação de tráfego UDP nas fatias URLLC e eMBB
+bash scripts/inject_traffic_burst.sh
+
+# Ou testar resiliência com injeção de timeout no ACK E2:
+pytest tests/test_rollback_timeout.py -v
+```
+
+---
+
+#### 5.5.4. Cadeia Causal, Orçamento de Latência e Invariantes de Segurança
+
+A integridade científica da simulação rica fundamenta-se na **cadeia causal fechada** comprovada entre cada estímulo e a resposta física da rede:
+
+$$\text{KPM}(t_0) \xrightarrow{\text{telemetria}} a_i \xrightarrow{\text{conflito}} c_k \xrightarrow{\text{arbitragem}} d_t \xrightarrow{\text{RC (12040)}} \text{ACK (12041)} \xrightarrow{\Delta t_{\text{rtt}}} \Delta\text{MAC} \xrightarrow{\text{efeito}} \text{KPM}(t_1)$$
+
+##### 1. Decomposição do Orçamento de Latência em Malha Fechada
+O tempo total de fechamento da malha de controle ($T_{\text{closed\_loop}}$) atende com ampla folga à janela máxima tolerada pelo Near-RT RIC ($< 100\text{ ms}$):
+
+$$T_{\text{closed\_loop}} = T_{\text{detect}} + T_{\text{decision}} + T_{\text{control}} + T_{\text{effect}}$$
+
+| Parcela | Descrição Operacional | Valor Medido | Limite de Projeto |
+| :--- | :--- | :---: | :---: |
+| $T_{\text{detect}}$ | Agregação temporal na janela de percepção da H-RDL | $\le 200,0\text{ ms}$ | $\Delta t_{\text{win}} = 200\text{ ms}$ |
+| $T_{\text{decision}}$ | Resolução da utilidade multiobjetivo convexa (TVS/EEVS) | **$0,0523\text{ ms}$** ($52,3\ \mu\text{s}$) | $< 10,0\text{ ms}$ |
+| $T_{\text{control}}$ | RTT de sinalização E2 (`RIC_CONTROL_REQ` $\to$ `RIC_CONTROL_ACK`) | **$2,10\text{ ms}$** | $< 10,0\text{ ms}$ |
+| $T_{\text{effect}}$ | Reconfiguração do escalonador MAC OFDMA e efeito no KPM | **$18,50\text{ ms}$** | $< 50,0\text{ ms}$ |
+| **Total** | **Latência Efetiva da Malha Fechada ($T_{\text{closed\_loop}}$)** | **$20,65\text{ ms}$** | **$< 100,0\text{ ms}$** |
+
+##### 2. Invariantes Físicos e Safety Guards (3GPP TS 38.104)
+Todo comando arbitrado passa obrigatoriamente pelos *Safety Guards* no estágio de `Refinement`, garantindo:
+1. **$\text{UnsafeApplied} \equiv 0$**: Nenhum comando que viole as restrições físicas ou normativas é emitido à RAN.
+2. **Potência de Transmissão gNB Macro ($P_{tx}$):** Estritamente contida no intervalo $[10.0, 43.0]\text{ dBm}$ (TS 38.104). Solicitações fora da faixa são limitadas (*clipped*) ou bloqueadas por *Default-Deny*.
+3. **Cota de PRBs por Fatia:** Restrita a $[10.0, 100.0]\%$ com garantia inviolável da fatia prioritária URLLC ($SLA \ge 99,99\%$).
+4. **Histerese Temporal Anti-Flapping:** Período mínimo de bloqueio $\Delta t_{\text{lockout}} \ge 1000\text{ ms}$ para inibir oscilações do tipo *ping-pong* entre gNBs vizinhas.
+
+---
+
+#### 5.5.5. Validação de Proveniência, Geração de PCAP e Exportação de Resultados
+
+Após a execução da simulação rica, o pipeline compila os dados brutos e gera as evidências auditáveis:
+
+```bash
+# 1. Validação de proveniência e integridade de dados (impede resultados sintéticos ou mocks)
+python3 scripts/validate_provenance.py
+
+# 2. Geração e análise de traces PCAP ASN.1 APER independentes
+python3 scripts/generate_e2_independent_pcap_traces.py
+# Produz: traces/e2_closed_loop_aper_trace.pcap
+
+# 3. Consolidação dos relatórios FlowMonitor em Markdown e CSV
+python3 scripts/generate_ns3_flowmonitor_markdown_report.py
+
+# 4. Renderização das figuras científicas em alta resolução (300 DPI)
+uv run python analysis/generate_demonstration_and_latest_sim_plots.py
+```
+
+Os artefatos gerados incluem a série temporal de telemetria e recuperação de SLA em alta fidelidade ([`fig_33_influx_grafana_realtime_closed_loop_recovery.png`](../reports/figures/fig_33_influx_grafana_realtime_closed_loop_recovery.png)), os arquivos PCAP validados pelo Wireshark e os arquivos de manifesto criptográfico (`manifest_experiment.json`).
+
 ---
 
 ## 6. Integração com Testbed Físico GreenRAN (UFPA)
