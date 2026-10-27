@@ -86,12 +86,12 @@ class RDLxApp:
     def __init__(self):
         self.running = True
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
-        
+
         # Modos de Operação (O_RAN_INTEROP / ORAN-STRICT | SIMULATION / OFFLINE_SIMULATION | STANDALONE)
         raw_mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
         self.mode = "O_RAN_INTEROP" if raw_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") else raw_mode
         self.oran_strict = (self.mode == "O_RAN_INTEROP")
-        
+
         if self.mode == "O_RAN_INTEROP":
             if not _HAS_RICXAPPFRAME:
                 raise RuntimeError(
@@ -103,7 +103,7 @@ class RDLxApp:
         else:
             use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
             rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
-        
+
         if use_fake_sdl:
             self.memory = MemoryModule()
         else:
@@ -114,7 +114,7 @@ class RDLxApp:
                     raise RuntimeError("SDL/DBaaS obrigatório no modo O_RAN_INTEROP; fallback local proibido.") from exc
                 logger.warning("SDL indisponível no ambiente local. Utilizando MemoryModule.")
                 self.memory = MemoryModule()
-            
+
         self.perception = Perception()
         self.reasoning = Reasoning(self.memory, config={})
         self.refinement = Refinement(self.memory, strict_capabilities=self.oran_strict)
@@ -128,7 +128,7 @@ class RDLxApp:
         self.rc_mapper = RCMapper(ran_function_id=3)
         self.backend = get_ran_backend_adapter(os.getenv("RAN_BACKEND"))
         self.allocator = get_ric_request_id_allocator()
-        
+
         # Decision Window properties (Feature 1)
         self.proposal_buffer: List[XAppAction] = []
         self.buffer_lock = threading.Lock()
@@ -140,7 +140,7 @@ class RDLxApp:
         self.pending_actions_by_id: Dict[str, XAppAction] = {}
         self.active_subscriptions: Dict[str, bool] = {}
         self.decision_loop_started = False
-        
+
         if self.mode == "O_RAN_INTEROP":
             self.xapp = _RealRMRXapp(
                 default_handler=self._default_handler,
@@ -167,7 +167,7 @@ class RDLxApp:
                 logger.warning("SDL indisponível; utilizando armazenamento local não persistente.", error=str(exc))
                 self.memory = MemoryModule()
                 self.reasoning.memory = self.memory
-        
+
         from src.e2.control_dispatcher import ControlDispatcher
         self.dispatcher = ControlDispatcher(
             rmr_client=self.xapp,
@@ -175,7 +175,7 @@ class RDLxApp:
             backend=self.backend,
             default_timeout_s=5.0
         )
-        
+
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
@@ -206,7 +206,7 @@ class RDLxApp:
         self.running = False
         self.health.set_state(AppState.STOPPED)
         self.xapp.stop()
-        
+
     def _default_handler(self, xapp_instance, summary, sbuf):
         logger.debug("Mensagem RMR nao mapeada recebida", mtype=summary.get("mtype"))
         self._safe_rmr_free(xapp_instance, sbuf)
@@ -467,12 +467,12 @@ class RDLxApp:
             return
         for act in actions:
             self.memory.add_action(act)
-            
+
         conflicts = self.perception.detect_action_group(actions)
         self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
         from src.observability.causal_tracker import causal_tracker
         causal_tracker.register_proposals([action.action_id for action in actions])
-        
+
         # Mapeia acoes em conflito para isolar as acoes limpas
         conflicting_action_keys = set()
         for conflict in conflicts:
@@ -493,14 +493,14 @@ class RDLxApp:
                 len(conflict.involved_xapps),
                 [action.action_id for action in conflict.involved_xapps],
             )
-            
+
             resolution = self.reasoning.resolve(conflict)
             is_valid, level, reason = self.refinement.validate(resolution, conflict)
             latency = now_ts() - t0
-            
+
             self.memory.add_resolution(resolution)
             self.metrics.record_resolution(resolution, latency)
-            
+
             if is_valid and resolution.winning_actions:
                 for act in resolution.winning_actions:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
@@ -515,10 +515,10 @@ class RDLxApp:
 
         # 2. Seleção de Ações Limpas (Conflict-Free Pass-Through Pipeline)
         clean_actions = [
-            act for act in actions 
+            act for act in actions
             if (act.node_id, act.parameter, act.xapp_id) not in conflicting_action_keys
         ]
-        
+
         selected_clean_actions = []
         for clean_act in clean_actions:
             is_safe, level, reason = self.refinement.validate_single_action(clean_act)
@@ -588,7 +588,7 @@ class RDLxApp:
         last_cleanup = now_ts()
         while self.running:
             time.sleep(0.05) # Verifica a cada 50ms
-            
+
             # Anti-leak cleanup e timeout de controle a cada 1 segundo
             now = now_ts()
             if (now - last_cleanup) >= 1.0:
