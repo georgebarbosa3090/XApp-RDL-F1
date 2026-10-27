@@ -225,6 +225,13 @@ class CausalTracker:
         matches[0].ack_status = "TIMEOUT"
         return True
 
+    def record_send_failure(self, ric_request_id: Union[int, str]) -> bool:
+        matches = [record for record in self.records if record.ric_request_id == ric_request_id]
+        if len(matches) != 1 or matches[0].ack_status != "PENDING":
+            return False
+        matches[0].ack_status = "SEND_FAILED"
+        return True
+
     def record_telemetry_effect(
         self,
         action_id: str,

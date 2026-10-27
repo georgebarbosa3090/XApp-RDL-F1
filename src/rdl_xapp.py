@@ -141,6 +141,7 @@ class RDLxApp:
 
         # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
         self.pending_transactions: Dict[Any, float] = {}
+        self.pending_actions_by_id: Dict[str, XAppAction] = {}
         self.active_subscriptions: Dict[str, bool] = {}
         self.decision_loop_started = False
         
@@ -397,38 +398,20 @@ class RDLxApp:
         """Trata confirmacoes de execucao de controle emitidas pelo E2 Node / E2Term."""
         payload = summary.get("payload")
         if payload:
-            try:
-                # 1) Dispatcher trata APER e aciona causal_tracker
-                self.dispatcher.handle_ack(payload, node_id=summary.get("meid"))
-
-                # 2) Correlaciona via backend e limpa pending_transactions locais
-                ack_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
-                req_id = ack_info.get("requestor_id")
-                inst_id = ack_info.get("instance_id")
-                node_id = ack_info.get("node_id", "gnb_01")
-                from src.e2.rc.capability_registry import rc_capability_registry
-                ran_fn_id = ack_info.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
-                
-                tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
-                if not tx_key or tx_key not in self.pending_transactions:
-                    data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
-                    tx_key = data.get("transaction_id")
-                
-                if tx_key and tx_key in self.pending_transactions:
-                    rtt_ms = (now_ts() - self.pending_transactions.pop(tx_key)) * 1000.0
-                    if req_id is not None and ran_fn_id is not None:
-                        self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
-                    from src.observability.causal_tracker import causal_tracker
-                    if req_id is not None and ran_fn_id is not None:
-                        correlation_id = causal_tracker.correlation_id(
-                            node_id, ran_fn_id, req_id, inst_id
-                        )
-                        causal_tracker.record_ack(correlation_id, rtt_ms=rtt_ms)
-                    logger.info("RIC_CONTROL_ACK recebido e confirmado", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
-                else:
-                    logger.info("RIC_CONTROL_ACK recebido sem transacao pendente", status=ack_info.get("status"))
-            except Exception as err:
-                logger.warning("Falha ao processar RIC_CONTROL_ACK", error=str(err))
+            ack_info = self.dispatcher.handle_ack(payload, node_id=summary.get("meid"))
+            if ack_info:
+                action_id = ack_info.get("action_id")
+                action = self.pending_actions_by_id.pop(action_id, None)
+                if action is not None:
+                    self.perception.commit_actions([action])
+                self.metrics.ctrl_ack.inc()
+                logger.info(
+                    "RIC_CONTROL_ACK correlacionado",
+                    control_request_id=ack_info.get("control_request_id"),
+                    status=ack_info.get("status"),
+                )
+            else:
+                logger.warning("RIC_CONTROL_ACK recebido sem transação ativa correlacionada.")
         logger.info("Recebido RIC_CONTROL_ACK", summary=summary)
         self._safe_rmr_free(xapp_instance, sbuf)
 
@@ -436,36 +419,12 @@ class RDLxApp:
         logger.warning("Recebido RIC_CONTROL_FAILURE", summary=summary)
         payload = summary.get("payload")
         if payload:
-            try:
-                # 1) Dispatcher trata APER e aciona rollback
-                self.dispatcher.handle_failure(payload, node_id=summary.get("meid"))
-
-                # 2) Correlaciona via backend e limpa pending_transactions locais
-                fail_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
-                req_id = fail_info.get("requestor_id")
-                inst_id = fail_info.get("instance_id")
-                node_id = fail_info.get("node_id", "gnb_01")
-                cause = fail_info.get("cause", 1)
-                from src.e2.rc.capability_registry import rc_capability_registry
-                ran_fn_id = fail_info.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
-                
-                tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
-                if not tx_key or tx_key not in self.pending_transactions:
-                    data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
-                    tx_key = data.get("transaction_id")
-                    
-                if tx_key and tx_key in self.pending_transactions:
-                    del self.pending_transactions[tx_key]
-                    if req_id is not None:
-                        self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
-                    from src.observability.causal_tracker import causal_tracker
-                    if req_id is not None and ran_fn_id is not None:
-                        correlation_id = causal_tracker.correlation_id(
-                            node_id, ran_fn_id, req_id, inst_id
-                        )
-                        causal_tracker.record_failure(correlation_id, cause_code=cause)
-            except Exception as e:
-                logger.debug(f"Falha ao correlacionar failure payload: {e}")
+            fail_info = self.dispatcher.handle_failure(payload, node_id=summary.get("meid"))
+            if fail_info:
+                self.metrics.ctrl_fail.inc()
+                self.pending_actions_by_id.pop(fail_info.get("action_id"), None)
+            else:
+                logger.warning("RIC_CONTROL_FAILURE recebido sem transação ativa correlacionada.")
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def inject_xapp_action(self, action: XAppAction):
@@ -501,10 +460,18 @@ class RDLxApp:
         # 1. Resolver conflitos do grupo
         selected_winning_actions = []
         strategy_names = []
+        action_conflicts: Dict[str, List[str]] = {}
+        from src.observability.causal_tracker import causal_tracker
         for conflict in conflicts:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
             self.memory.add_conflict(conflict)
             self.metrics.record_conflict(conflict)
+            causal_tracker.register_conflict_event(
+                conflict.conflict_id,
+                conflict.conflict_type.name,
+                len(conflict.involved_xapps),
+                [action.action_id for action in conflict.involved_xapps],
+            )
             
             resolution = self.reasoning.resolve(conflict)
             is_valid, level, reason = self.refinement.validate(resolution, conflict)
@@ -517,9 +484,11 @@ class RDLxApp:
                 for act in resolution.winning_actions:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
                     selected_winning_actions.append(act)
+                    action_conflicts.setdefault(act.action_id, []).append(conflict.conflict_id)
                 strategy_names.append(resolution.strategy_used.name)
             else:
                 logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
+                causal_tracker.record_safety_validation(intervention=True)
 
         # 2. Seleção de Ações Limpas (Conflict-Free Pass-Through Pipeline)
         clean_actions = [
@@ -535,6 +504,7 @@ class RDLxApp:
                 selected_clean_actions.append(clean_act)
             else:
                 logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
+                causal_tracker.record_safety_validation(intervention=True)
 
         # 3. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
         all_selected = selected_winning_actions + selected_clean_actions
@@ -554,43 +524,35 @@ class RDLxApp:
 
         # 4. Despacho de Controle para Ações Admitidas via ControlDispatcher
         dispatched_actions = []
-        from src.observability.causal_tracker import causal_tracker
         for act in all_selected:
+            previous_action = self.perception.get_committed_action(act.node_id, act.parameter)
+            kpm = self.perception.latest_kpm
             per_action_decision = RDLDecision(
                 decision_id=f"{decision.decision_id}-{act.action_id[:6]}",
+                state={
+                    "kpm_before": {
+                        "drb_thp_dl": kpm.drb_thp_dl,
+                        "drb_thp_ul": kpm.drb_thp_ul,
+                        "drb_delay_dl": kpm.drb_delay_dl,
+                        "prb_used_dl": kpm.prb_used_dl,
+                    } if kpm is not None else {},
+                },
                 selected_actions=[act],
                 safety_result={"is_safe": True},
                 affected_node=act.node_id,
                 affected_cell=getattr(act, "cell_id", "cell_01"),
-                previous_safe_value=None,
+                previous_safe_value=previous_action.value if previous_action else None,
                 strategy_used=decision.strategy_used,
+                conflict_id=action_conflicts.get(act.action_id, [None])[0],
             )
+            self.pending_actions_by_id[act.action_id] = act
             control_request_id = self.dispatcher.dispatch_control(per_action_decision)
             if control_request_id is None:
+                self.pending_actions_by_id.pop(act.action_id, None)
                 continue
             dispatched_actions.append(act)
-            request_info = self.dispatcher.pending_requests.get(control_request_id, {})
-            causal_tracker.record_decision(
-                action_id=act.action_id,
-                decision_id=per_action_decision.decision_id,
-                ric_request_id=causal_tracker.correlation_id(
-                    request_info.get("meid", act.node_id),
-                    request_info.get("ran_function_id", 0),
-                    request_info.get("requestor_id", 0),
-                    request_info.get("instance_id", 0),
-                ),
-                node_id=act.node_id,
-                parameter=act.parameter,
-                old_val=None,
-                new_val=act.value,
-                kpm_before=(
-                    self.perception.latest_kpm.__dict__
-                    if self.perception.latest_kpm is not None
-                    else {}
-                ),
-                strategy=decision.strategy_used,
-            )
-        self.perception.commit_actions(dispatched_actions)
+            for conflict_id in action_conflicts.get(act.action_id, []):
+                causal_tracker.record_conflict_resolution(conflict_id)
 
     def cleanup_expired_transactions(self, timeout_s: float = 5.0) -> int:
         """Limpa transações pendentes expiradas para evitar vazamento de memória (Anti-Leak)."""

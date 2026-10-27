@@ -95,6 +95,10 @@ class Perception:
                 self._action_registry[action.node_id] = {}
             self._action_registry[action.node_id][action.parameter] = action
 
+    def get_committed_action(self, node_id: str, parameter: str) -> Optional[XAppAction]:
+        """Return the last control acknowledged by the RAN, if known."""
+        return self._action_registry.get(node_id, {}).get(parameter)
+
     def remove_action(self, node_id: str, parameter: str) -> bool:
         """Remove a persisted action when its owner or control state is withdrawn."""
         node_actions = self._action_registry.get(node_id)

@@ -160,6 +160,8 @@ class ControlDispatcher:
             "action_id": action_id,
             "parameter": param,
             "target_value": val,
+            "strategy_used": getattr(decision, "strategy_used", "DETERMINISTIC_H_RDL"),
+            "conflict_id": getattr(decision, "conflict_id", None),
             "previous_safe_value": getattr(decision, "previous_safe_value", None),
             "style_type": style_type,
             "control_action_id": ctrl_action_id,
@@ -177,6 +179,22 @@ class ControlDispatcher:
                 return None
             self.pending_requests[control_request_id] = tracking_info
             self.req_key_to_id[key] = control_request_id
+
+        correlation_id = causal_tracker.correlation_id(
+            target_node, ran_fn_id, requestor_id, instance_id
+        )
+        causal_tracker.record_decision(
+            action_id=action_id,
+            decision_id=tracking_info["decision_id"],
+            ric_request_id=correlation_id,
+            node_id=target_node,
+            parameter=param,
+            old_val=tracking_info["previous_safe_value"],
+            new_val=val,
+            kpm_before=getattr(decision, "state", {}).get("kpm_before"),
+            strategy=tracking_info.get("strategy_used", "DETERMINISTIC_H_RDL"),
+            conflict_id=tracking_info["conflict_id"],
+        )
         
         try:
             self.sdl.save_control_request(control_request_id, tracking_info)
@@ -196,6 +214,7 @@ class ControlDispatcher:
                 self.pending_requests.pop(control_request_id, None)
                 self.req_key_to_id.pop(key, None)
             self.allocator.pop_correlation(target_node, ran_fn_id, requestor_id, instance_id)
+            causal_tracker.record_send_failure(correlation_id)
             logger.error(f"RMR rejeitou RIC_CONTROL_REQUEST {control_request_id}; despacho cancelado.")
             return None
         return control_request_id
@@ -327,6 +346,14 @@ class ControlDispatcher:
         for ctrl_id, info in timed_out:
             logger.warning(f"Timeout de controle E2 detectado para {ctrl_id} (ultrapassou {info['timeout_at']})")
             timed_out_ids.append(ctrl_id)
+            causal_tracker.record_timeout(
+                causal_tracker.correlation_id(
+                    info["meid"],
+                    info["ran_function_id"],
+                    info["requestor_id"],
+                    info["instance_id"],
+                )
+            )
             self.allocator.pop_correlation(info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
             self.trigger_rollback(ctrl_id)
                 

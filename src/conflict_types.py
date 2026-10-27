@@ -125,3 +125,4 @@ class RDLDecision:
     affected_node: str = "gnb_01"
     affected_cell: str = "cell_01"
     previous_safe_value: Optional[float] = None
+    conflict_id: Optional[str] = None
