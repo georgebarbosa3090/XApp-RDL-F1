@@ -5,6 +5,7 @@ declarados pelos E2 Nodes / NORI em tempo de execução via RANFunctionDefinitio
 """
 
 import os
+import math
 from typing import Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from src.e2.rc.control_parameter import RANParameterDefinition, RAN_PARAMETERS
@@ -104,6 +105,33 @@ class RanFunctionCapabilityRegistry:
         Em modo estrito, novos nós iniciam estritamente vazios sem herdar defaults não anunciados.
         """
         strict = self.is_strict_mode(strict_mode)
+        if not node_id or not isinstance(node_id, str):
+            raise ValueError("node_id must be a non-empty string")
+        for field_name, field_value in (
+            ("style_type", style_type),
+            ("action_id", action_id),
+            ("param_id", param_id),
+        ):
+            if isinstance(field_value, bool) or not isinstance(field_value, int) or field_value <= 0:
+                raise ValueError(f"{field_name} must be a positive integer")
+        if (
+            isinstance(min_val, bool)
+            or not isinstance(min_val, (int, float))
+            or isinstance(max_val, bool)
+            or not isinstance(max_val, (int, float))
+        ):
+            raise ValueError("Capability bounds must be numeric")
+        try:
+            min_bound = float(min_val)
+            max_bound = float(max_val)
+        except (OverflowError, TypeError, ValueError):
+            raise ValueError("Capability bounds must be finite numbers") from None
+        if (
+            not math.isfinite(min_bound)
+            or not math.isfinite(max_bound)
+            or min_bound > max_bound
+        ):
+            raise ValueError("Capability bounds must be finite numbers with min_val <= max_val")
         if node_id not in self._node_capabilities:
             self._node_capabilities[node_id] = {}
 
@@ -113,8 +141,8 @@ class RanFunctionCapabilityRegistry:
             action_name=f"CustomAction_{param_name}",
             param_id=param_id,
             param_name=param_name,
-            min_value=min_val,
-            max_value=max_val,
+            min_value=min_bound,
+            max_value=max_bound,
             unit=unit
         )
         logger.info(
