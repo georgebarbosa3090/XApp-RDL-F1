@@ -228,7 +228,7 @@ A camada contém builders/decoders locais e uma codificação APER de pesquisa. 
 
 - O encoder disponível nesta fase aceita somente os parâmetros do catálogo canônico: `PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER` e `HANDOVER`. Outros parâmetros experimentais não são despacháveis via E2SM-RC nesta implementação e devem ser rejeitados pelo Safety Guard.
 - Em `O_RAN_INTEROP`, os IDs e capacidades de RAN Function precisam ser carregados pela integração E2 antes de iniciar subscrições/controles. O runtime atual não decodifica `RANFunctionDefinition`; portanto, se a descoberta não estiver disponível, a xApp fica fora de `READY` e não usa IDs estáticos.
-- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado; o status `ROLLBACK_SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
+- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado; `rollback_status=SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
 - O endpoint `/ready` só retorna sucesso no estado `READY`, após resposta bem-sucedida de subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
 - Os runners Phase 1 estão limitados aos cenários S2/S3 ns-3 + 5G-LENA; falhas de build/execução interrompem a campanha. O benchmark offline de processamento de propostas não modela UEs, rádio, E2 ou Near-RT e não é evidência de simulação de rede.
 

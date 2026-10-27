@@ -107,7 +107,8 @@ def test_failure_triggers_rollback():
 
     fail_res = dispatcher.handle_failure(wrapped_fail)
     assert fail_res is not None
-    assert fail_res["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert fail_res["status"] == "FAILED"
+    assert fail_res["rollback_status"] == "SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 23.0
 
@@ -137,7 +138,8 @@ def test_check_timeouts_triggers_rollback():
     future_time = time.time() + 5.0
     timed_out = dispatcher.check_timeouts(now=future_time)
     assert ctrl_id in timed_out
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "TIMEOUT"
+    assert dispatcher.pending_requests[ctrl_id]["rollback_status"] == "SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 50.0
 

@@ -329,7 +329,7 @@ class ControlDispatcher:
         param = info["parameter"]
         safe_val = info.get("previous_safe_value")
         if safe_val is None:
-            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_status"] = "UNAVAILABLE"
             info["rollback_error"] = "No verified pre-control value is available."
             self._persist_rollback_status(control_request_id, info)
             logger.error(
@@ -340,13 +340,13 @@ class ControlDispatcher:
         try:
             safe_val = float(safe_val)
         except (TypeError, ValueError):
-            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_status"] = "UNAVAILABLE"
             info["rollback_error"] = "Pre-control value is not numeric."
             self._persist_rollback_status(control_request_id, info)
             logger.error("Rollback rejeitado: valor anterior inválido", control_request_id=control_request_id)
             return False
         if not isfinite(safe_val):
-            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_status"] = "UNAVAILABLE"
             info["rollback_error"] = "Pre-control value is not finite."
             self._persist_rollback_status(control_request_id, info)
             logger.error("Rollback rejeitado: valor anterior não finito", control_request_id=control_request_id)
@@ -381,12 +381,12 @@ class ControlDispatcher:
                 raise RuntimeError("RMR rejected the rollback request.")
         except Exception as e:
             logger.error(f"Erro ao emitir comando de rollback via RMR: {e}")
-            info["status"] = "ROLLBACK_SEND_FAILED"
+            info["rollback_status"] = "SEND_FAILED"
             info["rollback_error"] = str(e)
             self._persist_rollback_status(control_request_id, info)
             return False
 
-        info["status"] = "ROLLBACK_SENT_UNCONFIRMED"
+        info["rollback_status"] = "SENT_UNCONFIRMED"
         info["rollback_sent_at"] = time.time()
         self._persist_rollback_status(control_request_id, info)
         self.rollback_history.append({
@@ -394,7 +394,7 @@ class ControlDispatcher:
             "node_id": target_node,
             "parameter": param,
             "requested_value": safe_val,
-            "status": "SENT_UNCONFIRMED",
+            "status": info["rollback_status"],
             "timestamp": info["rollback_sent_at"]
         })
         return True
@@ -403,7 +403,7 @@ class ControlDispatcher:
         try:
             self.sdl.record_rollback(
                 control_request_id,
-                status=info["status"],
+                status=info["rollback_status"],
                 details={
                     "node_id": info.get("meid"),
                     "parameter": info.get("parameter"),

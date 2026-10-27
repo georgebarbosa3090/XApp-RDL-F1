@@ -242,6 +242,8 @@ class RDLxApp:
         from src.e2.rc.capability_registry import rc_capability_registry
         try:
             kpm_fn_id = rc_capability_registry.get_kpm_function_id("gnb_01")
+            if self.oran_strict:
+                rc_capability_registry.get_rc_function_id("gnb_01")
             subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
             if not subscribed:
                 self.health.set_state(AppState.DEGRADED)
@@ -253,7 +255,7 @@ class RDLxApp:
                 self.health.set_state(AppState.ERROR)
                 logger.error(
                     "Modo O_RAN_INTEROP bloqueado: descoberta E2 não forneceu KPM Function ID "
-                    "ao runtime; não será usado ID estático nem retry success-shaped.",
+                    "e/ou RC Function ID ao runtime; não será usado ID estático nem retry success-shaped.",
                     error=str(e),
                 )
             else:

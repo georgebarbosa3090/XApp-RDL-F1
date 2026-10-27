@@ -106,15 +106,15 @@ def test_control_dispatcher_failure_triggers_rollback():
 
     fail_res = dispatcher.handle_failure(fail_pdu)
     assert fail_res is not None
-    assert fail_res["status"] == "ROLLBACK_SENT_UNCONFIRMED"
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert fail_res["status"] == "FAILED"
+    assert fail_res["rollback_status"] == "SENT_UNCONFIRMED"
 
     # Verifica se comando de restauração (rollback) foi emitido via RMR
     assert len(rmr.sent_messages) == 2
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 43.0
     assert dispatcher.rollback_history[0]["status"] == "SENT_UNCONFIRMED"
-    assert sdl.rollbacks[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert sdl.rollbacks[ctrl_id]["status"] == "SENT_UNCONFIRMED"
 
 def test_control_dispatcher_timeout_triggers_rollback():
     rmr = MockRMR()
@@ -140,7 +140,8 @@ def test_control_dispatcher_timeout_triggers_rollback():
     timed_out = dispatcher.check_timeouts(now=time.time() + 2.0)
     assert len(timed_out) == 1
     assert timed_out[0] == ctrl_id
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "TIMEOUT"
+    assert dispatcher.pending_requests[ctrl_id]["rollback_status"] == "SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 50.0
 
@@ -158,7 +159,8 @@ def test_rollback_is_not_claimed_without_verified_previous_value():
     assert ctrl_id is not None
 
     assert dispatcher.trigger_rollback(ctrl_id) is False
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_UNAVAILABLE"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "SENT"
+    assert dispatcher.pending_requests[ctrl_id]["rollback_status"] == "UNAVAILABLE"
     assert len(rmr.sent_messages) == 1
     assert dispatcher.rollback_history == []
 

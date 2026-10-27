@@ -74,7 +74,8 @@ def test_rollback_uses_ric_control_req_mtype():
     assert sent["mtype"] == 12040
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 50.0
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "SENT"
+    assert dispatcher.pending_requests[ctrl_id]["rollback_status"] == "SENT_UNCONFIRMED"
 
 def test_dispatch_stores_pending_request():
     rmr = MockRMRClient()

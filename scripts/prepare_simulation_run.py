@@ -7,7 +7,12 @@ utility ran a disabled Python simulator and assigned one artifact hash to every
 claim, so it must not be used to create or authenticate evidence.
 """
 
-raise SystemExit(
-    "Evidence preparation is disabled. Use an eligible ns-3/5G-LENA run and "
-    "a reviewed per-claim evidence manifest."
-)
+def main():
+    raise SystemExit(
+        "Evidence preparation is disabled. Use an eligible ns-3/5G-LENA run and "
+        "a reviewed per-claim evidence manifest."
+    )
+
+
+if __name__ == "__main__":
+    main()
