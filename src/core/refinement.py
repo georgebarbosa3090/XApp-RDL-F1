@@ -63,8 +63,18 @@ class Refinement:
 
         if action.parameter not in RAN_PARAMETERS:
             return False, f"Unsupported action parameter (Default-Deny): {action.parameter}"
-        if not math.isfinite(float(action.value)):
+        try:
+            value = float(action.value)
+        except (TypeError, ValueError):
+            return False, f"{action.parameter} value must be numeric"
+        if not math.isfinite(value):
             return False, f"{action.parameter} value must be finite"
+        if isinstance(action.priority, bool) or not isinstance(action.priority, int) or not 0 <= action.priority <= 100:
+            return False, "Action priority must be an integer in [0, 100]"
+        if action.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER") and not value.is_integer():
+            return False, f"{action.parameter} value must be an integer"
+        if action.parameter == "TX_POWER" and not (value * 10).is_integer():
+            return False, "TX_POWER supports at most one decimal place"
 
         try:
             capability = rc_capability_registry.get_action_capability(
@@ -87,7 +97,9 @@ class Refinement:
             if configured_max is None:
                 return False, f"TX_POWER capability not discovered for node {action.node_id}"
             max_value = min(max_value, configured_max)
-        if action.value < min_value or action.value > max_value:
+        if value < min_value or value > max_value:
+            if action.parameter == "TX_POWER":
+                return False, f"TX Power out of bounds ({min_value}-{max_value} dBm)"
             return False, f"{action.parameter} out of bounds ({min_value}-{max_value})"
         return True, ""
 

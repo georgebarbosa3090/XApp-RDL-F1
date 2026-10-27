@@ -267,18 +267,19 @@ def test_refinement_all_parameters():
     refinement.config["minimum_control_interval_ms"] = 0
 
     params = [
+        ("PRB_QUOTA", 100.0, True),
+        ("PRB_QUOTA", 101.0, False),
+        ("TX_POWER", 30.0, True),
+        ("TX_POWER", 30.05, False),
         ("HANDOVER", 1.0, True),
         ("HANDOVER", 2.5, False),
-        ("VERTICAL_DOWNTILT", 6.0, True),
-        ("VERTICAL_DOWNTILT", 25.0, False),
-        ("SENSING_RATIO", 0.30, True),
-        ("SENSING_RATIO", 0.90, False),
-        ("LOAD_THRESHOLD", 0.70, True),
-        ("LOAD_THRESHOLD", 1.5, False),
-        ("PING_INTERVAL", 100.0, True),
-        ("PING_INTERVAL", 9000.0, False),
+        ("HANDOVER", 65536.0, False),
         ("SCHEDULER_WEIGHT", 50.0, True),
-        ("SCHEDULER_WEIGHT", 150.0, False),
+        ("SCHEDULER_WEIGHT", 0.0, False),
+        ("VERTICAL_DOWNTILT", 6.0, False),
+        ("SENSING_RATIO", 0.30, False),
+        ("LOAD_THRESHOLD", 0.70, False),
+        ("PING_INTERVAL", 100.0, False),
     ]
     for param, val, expected_safe in params:
         act = XAppAction(xapp_id="xapp_test", node_id=f"gnb_{param}_{val}", parameter=param, value=val, priority=50)
@@ -378,7 +379,7 @@ def test_refinement_validate_resolution_all_branches():
     invalid_cases = [
         ("PRB_QUOTA", -5.0),
         ("TX_POWER", 50.0),
-        ("HANDOVER", 5.0),
+        ("HANDOVER", 65536.0),
         ("VERTICAL_DOWNTILT", 20.0),
         ("SENSING_RATIO", 0.90),
         ("LOAD_THRESHOLD", 2.0),

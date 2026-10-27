@@ -39,10 +39,6 @@ def test_safety_guard_stochastic_fuzzing_10000_iterations():
         "PRB_QUOTA",
         "TX_POWER",
         "HANDOVER",
-        "VERTICAL_DOWNTILT",
-        "SENSING_RATIO",
-        "LOAD_THRESHOLD",
-        "PING_INTERVAL",
         "SCHEDULER_WEIGHT",
         "UNKNOWN_PARAM_XYZ",
     ]
@@ -55,7 +51,7 @@ def test_safety_guard_stochastic_fuzzing_10000_iterations():
 
     for i in range(total_tested):
         param = random.choice(parameters)
-        val = random.uniform(-200.0, 500.0)
+        val = random.randint(0, 65535) if param == "HANDOVER" else random.uniform(-200.0, 500.0)
         prio = random.randint(-50, 200)
         node = f"gnb_{random.randint(1, 10):02d}"
         xapp = random.choice(xapp_names)
@@ -78,17 +74,10 @@ def test_safety_guard_stochastic_fuzzing_10000_iterations():
             elif param == "TX_POWER":
                 assert -10.0 <= action.value <= 43.0, f"Violação Potência: {action.value}"
             elif param == "HANDOVER":
-                assert 0.0 <= action.value <= 1.0, f"Violação Handover: {action.value}"
-            elif param == "VERTICAL_DOWNTILT":
-                assert 0.0 <= action.value <= 15.0, f"Violação Downtilt: {action.value}"
-            elif param == "SENSING_RATIO":
-                assert 0.0 <= action.value <= 0.60, f"Violação Sensing Ratio: {action.value}"
-            elif param == "LOAD_THRESHOLD":
-                assert 0.0 <= action.value <= 1.0, f"Violação Load Threshold: {action.value}"
-            elif param == "PING_INTERVAL":
-                assert 1.0 <= action.value <= 5000.0, f"Violação Ping Interval: {action.value}"
+                assert 0.0 <= action.value <= 65535.0, f"Cell ID de handover inválido: {action.value}"
             elif param == "SCHEDULER_WEIGHT":
-                assert 0.0 <= action.value <= 100.0, f"Violação Scheduler Weight: {action.value}"
+                assert 1.0 <= action.value <= 100.0, f"Violação Scheduler Weight: {action.value}"
+            assert 0 <= action.priority <= 100
         else:
             rejected_count += 1
             assert reason is not None

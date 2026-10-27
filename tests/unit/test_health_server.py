@@ -48,8 +48,9 @@ def test_health_server_endpoints():
     for state in (AppState.DISCOVERING_E2_NODES, AppState.SUBSCRIBING):
         server.set_state(state)
         assert client.get("/ready").status_code == 503
-    
+
     # 5. /status
+    server.set_state(AppState.DEGRADED)
     r = client.get("/status")
     assert r.status_code == 200
     sdata = r.json()
