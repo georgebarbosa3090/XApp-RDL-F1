@@ -403,7 +403,11 @@ class RDLxApp:
                     if req_id is not None and ran_fn_id is not None:
                         self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
                     from src.observability.causal_tracker import causal_tracker
-                    causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
+                    if req_id is not None and ran_fn_id is not None:
+                        correlation_id = causal_tracker.correlation_id(
+                            node_id, ran_fn_id, req_id, inst_id
+                        )
+                        causal_tracker.record_ack(correlation_id, rtt_ms=rtt_ms)
                     logger.info("RIC_CONTROL_ACK recebido e confirmado", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
                 else:
                     logger.info("RIC_CONTROL_ACK recebido sem transacao pendente", status=ack_info.get("status"))
@@ -439,7 +443,11 @@ class RDLxApp:
                     if req_id is not None:
                         self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
                     from src.observability.causal_tracker import causal_tracker
-                    causal_tracker.record_failure(req_id, cause_code=cause)
+                    if req_id is not None and ran_fn_id is not None:
+                        correlation_id = causal_tracker.correlation_id(
+                            node_id, ran_fn_id, req_id, inst_id
+                        )
+                        causal_tracker.record_failure(correlation_id, cause_code=cause)
             except Exception as e:
                 logger.debug(f"Falha ao correlacionar failure payload: {e}")
         self._safe_rmr_free(xapp_instance, sbuf)
@@ -552,7 +560,12 @@ class RDLxApp:
             causal_tracker.record_decision(
                 action_id=act.action_id,
                 decision_id=per_action_decision.decision_id,
-                ric_request_id=request_info.get("requestor_id", -1),
+                ric_request_id=causal_tracker.correlation_id(
+                    request_info.get("meid", act.node_id),
+                    request_info.get("ran_function_id", 0),
+                    request_info.get("requestor_id", 0),
+                    request_info.get("instance_id", 0),
+                ),
                 node_id=act.node_id,
                 parameter=act.parameter,
                 old_val=self._get_last_value(act),

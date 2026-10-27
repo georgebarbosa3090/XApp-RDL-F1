@@ -30,21 +30,22 @@ def test_dispatch_and_ack_integration():
         previous_safe_value=50.0
     )
 
+    ctrl_id = dispatcher.dispatch_control(decision)
+    assert ctrl_id in dispatcher.pending_requests
+    req_info = dispatcher.pending_requests[ctrl_id]
+    req_id = req_info["requestor_id"]
     causal_tracker.record_decision(
         action_id=action.action_id,
         decision_id=decision.decision_id,
-        ric_request_id=-1,
+        ric_request_id=causal_tracker.correlation_id(
+            req_info["meid"], req_info["ran_function_id"], req_id, req_info["instance_id"]
+        ),
         node_id="gnb_01",
         parameter="PRB_QUOTA",
         old_val=50.0,
         new_val=80.0,
         strategy="PASS_THROUGH"
     )
-
-    ctrl_id = dispatcher.dispatch_control(decision)
-    assert ctrl_id in dispatcher.pending_requests
-    req_info = dispatcher.pending_requests[ctrl_id]
-    req_id = req_info["requestor_id"]
 
     # Injetar ACK correspondente
     ack = RICcontrolAcknowledge()
@@ -79,20 +80,21 @@ def test_failure_triggers_rollback():
         previous_safe_value=23.0
     )
 
+    ctrl_id = dispatcher.dispatch_control(decision)
+    req_info = dispatcher.pending_requests[ctrl_id]
+    req_id = req_info["requestor_id"]
     causal_tracker.record_decision(
         action_id=action.action_id,
         decision_id=decision.decision_id,
-        ric_request_id=-1,
+        ric_request_id=causal_tracker.correlation_id(
+            req_info["meid"], req_info["ran_function_id"], req_id, req_info["instance_id"]
+        ),
         node_id="gnb_01",
         parameter="TX_POWER",
         old_val=23.0,
         new_val=40.0,
         strategy="PASS_THROUGH"
     )
-
-    ctrl_id = dispatcher.dispatch_control(decision)
-    req_info = dispatcher.pending_requests[ctrl_id]
-    req_id = req_info["requestor_id"]
 
     # Injetar Failure
     fail = RICcontrolFailure()
