@@ -34,7 +34,7 @@ class MockRMRXapp:
         return True
     def deregister(self):
         return True
-    def rmr_send(self, payload, mtype, **kwargs):
+    def rmr_send(self, payload, mtype, *args, **kwargs):
         return True
     def rmr_free(self, sbuf):
         pass
