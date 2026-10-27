@@ -66,7 +66,7 @@ class ScientificSummary:
     mean_control_to_effect_latency_ms: float
     energy_efficiency_gain_pct: float
 
-class RecordList(list[CausalRecord]):
+class RecordList(List[CausalRecord]):
     def __getitem__(self, item):
         if isinstance(item, str):
             for r in reversed(self):
