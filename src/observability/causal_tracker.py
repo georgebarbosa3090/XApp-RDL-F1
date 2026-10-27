@@ -17,7 +17,7 @@ logger = setup_logger("CausalTracker")
 class CausalRecord:
     action_id: str
     decision_id: str
-    ric_request_id: int
+    ric_request_id: int | str
     timestamp: float
     node_id: str
     parameter: str
@@ -108,7 +108,7 @@ class CausalTracker:
         self,
         action_id: str,
         decision_id: str,
-        ric_request_id: int,
+        ric_request_id: int | str,
         node_id: str,
         parameter: str,
         old_val: Optional[float],
@@ -135,34 +135,26 @@ class CausalTracker:
         self.conflicts_resolved_count += 1
         return rec
 
-    def record_ack(self, ric_request_id: int, rtt_ms: float = 0.0) -> bool:
-        self.ack_latency_ms.append(rtt_ms)
-        for r in reversed(self.records):
-            if r.ric_request_id == ric_request_id or str(r.ric_request_id) == str(ric_request_id):
-                r.ack_status = "ACKNOWLEDGED"
-                r.control_to_effect_latency_ms = rtt_ms
-                return True
-        for r in reversed(self.records):
-            if r.ack_status == "PENDING":
-                r.ric_request_id = ric_request_id
-                r.ack_status = "ACKNOWLEDGED"
-                r.control_to_effect_latency_ms = rtt_ms
-                return True
-        return False
+    @staticmethod
+    def correlation_id(node_id: str, ran_function_id: int, requestor_id: int, instance_id: int) -> str:
+        return f"{node_id}:{ran_function_id}:{requestor_id}:{instance_id}"
 
-    def record_failure(self, ric_request_id: int, cause_code: int = 1) -> bool:
-        for r in reversed(self.records):
-            if r.ric_request_id == ric_request_id or str(r.ric_request_id) == str(ric_request_id):
-                r.ack_status = "FAILED"
-                r.cause_code = cause_code
-                return True
-        for r in reversed(self.records):
-            if r.ack_status == "PENDING":
-                r.ric_request_id = ric_request_id
-                r.ack_status = "FAILED"
-                r.cause_code = cause_code
-                return True
-        return False
+    def record_ack(self, ric_request_id: int | str, rtt_ms: float = 0.0) -> bool:
+        self.ack_latency_ms.append(rtt_ms)
+        matches = [record for record in self.records if record.ric_request_id == ric_request_id]
+        if len(matches) != 1:
+            return False
+        matches[0].ack_status = "ACKNOWLEDGED"
+        matches[0].control_to_effect_latency_ms = rtt_ms
+        return True
+
+    def record_failure(self, ric_request_id: int | str, cause_code: int = 1) -> bool:
+        matches = [record for record in self.records if record.ric_request_id == ric_request_id]
+        if len(matches) != 1:
+            return False
+        matches[0].ack_status = "FAILED"
+        matches[0].cause_code = cause_code
+        return True
 
     def record_telemetry_effect(
         self,

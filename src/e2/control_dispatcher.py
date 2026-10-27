@@ -239,7 +239,10 @@ class ControlDispatcher:
                     self.sdl.update_control_result(ctrl_id, "ACKNOWLEDGED")
                 except Exception as exc:
                     logger.warning("Falha ao persistir ACK no SDL", control_request_id=ctrl_id, error=str(exc))
-                causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
+                correlation_id = causal_tracker.correlation_id(
+                    info["meid"], info["ran_function_id"], req_id, inst_id
+                )
+                causal_tracker.record_ack(correlation_id, rtt_ms=rtt_ms)
                 with self._lock:
                     self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
@@ -275,7 +278,10 @@ class ControlDispatcher:
                     self.sdl.update_control_result(ctrl_id, "FAILED")
                 except Exception as exc:
                     logger.warning("Falha ao persistir falha de controle no SDL", control_request_id=ctrl_id, error=str(exc))
-                causal_tracker.record_failure(req_id, cause_code=cause)
+                correlation_id = causal_tracker.correlation_id(
+                    info["meid"], info["ran_function_id"], req_id, inst_id
+                )
+                causal_tracker.record_failure(correlation_id, cause_code=cause)
                 logger.error(f"Recebido RIC_CONTROL_FAILURE para req {ctrl_id} (ReqID {req_id}, Cause {cause})")
                 with self._lock:
                     self.req_key_to_id.pop(key, None)
