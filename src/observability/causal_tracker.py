@@ -168,6 +168,12 @@ class CausalTracker:
         conflict_id: Optional[str] = None,
         conflict_ids: Optional[List[str]] = None,
     ) -> CausalRecord:
+        for existing in reversed(self.records):
+            if (
+                existing.action_id == action_id
+                and existing.ric_request_id == ric_request_id
+            ):
+                return existing
         if decision_latency_ms is not None:
             self.decision_latencies_ms.append(float(decision_latency_ms))
         rec = CausalRecord(
