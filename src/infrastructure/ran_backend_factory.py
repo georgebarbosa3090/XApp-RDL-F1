@@ -18,6 +18,7 @@ SUPPORTED_BACKENDS = {
     "NS3": NoriBackendAdapter,
     "SRSRAN_OPEN5GS": SrsRanBackendAdapter,
     "SRSRAN": SrsRanBackendAdapter,
+    "SRSRAN_E2": SrsRanBackendAdapter,
     "OPEN5GS": SrsRanBackendAdapter,
     "OPENRANBR": SrsRanBackendAdapter,
     "OPENRANBR_PHYSICAL": SrsRanBackendAdapter,

@@ -28,7 +28,7 @@ def sample_kpm_payload():
         'ranFunctionID': 2,
         'ricActionID': 1,
         'ricIndicationSN': 5,
-        'ricIndicationType': 0,
+        'ricIndicationType': 'report',
         'ricIndicationHeader': b'\x01\x02\x03',
         'ricIndicationMessage': msg_bytes
     })
