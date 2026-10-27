@@ -69,9 +69,15 @@ class ControlDispatcher:
         )
 
         # Alocar IDs
+        req_id_obj = self.allocator.allocate(
+            node_id=target_node,
+            ran_function_id=ran_fn_id,
+            decision_id=getattr(decision, "decision_id", None),
+            action_id=action_id
+        )
         control_request_id = str(uuid.uuid4())
-        requestor_id = int(str(uuid.uuid4().int)[:4]) % 65535 + 1
-        instance_id = 1
+        requestor_id = req_id_obj.requestor_id
+        instance_id = req_id_obj.instance_id
 
         # Usa backend como fonte única de encoding, quando disponível
         if self.backend is not None:
@@ -128,6 +134,7 @@ class ControlDispatcher:
             tracking_info["status"] = "SEND_FAILED"
             self.pending_requests.pop(control_request_id, None)
             self.req_key_to_id.pop(key, None)
+            self.allocator.pop_correlation(target_node, ran_fn_id, requestor_id, instance_id)
             logger.error(f"RMR rejeitou RIC_CONTROL_REQUEST {control_request_id}; despacho cancelado.")
             return None
         return control_request_id
@@ -157,6 +164,7 @@ class ControlDispatcher:
                     pass
                 causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
                 self.req_key_to_id.pop(key, None)
+                self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 logger.info(f"Recebido RIC_CONTROL_ACK para req {ctrl_id} (ReqID {req_id}) - RTT: {rtt_ms:.2f} ms")
                 return info
             else:
@@ -193,6 +201,7 @@ class ControlDispatcher:
                 causal_tracker.record_failure(req_id, cause_code=cause)
                 logger.error(f"Recebido RIC_CONTROL_FAILURE para req {ctrl_id} (ReqID {req_id}, Cause {cause})")
                 self.req_key_to_id.pop(key, None)
+                self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 self.trigger_rollback(ctrl_id)
                 return info
             else:
@@ -216,6 +225,7 @@ class ControlDispatcher:
                 timed_out_ids.append(ctrl_id)
                 key = f"{info['requestor_id']}_{info['instance_id']}"
                 self.req_key_to_id.pop(key, None)
+                self.allocator.pop_correlation(info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
                 self.trigger_rollback(ctrl_id)
                 
         return timed_out_ids
