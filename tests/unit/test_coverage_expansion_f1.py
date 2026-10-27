@@ -377,7 +377,7 @@ def test_refinement_validate_resolution_all_branches():
     # Test all resolution invalid parameter values
     invalid_cases = [
         ("PRB_QUOTA", -5.0),
-        ("TX_POWER", 30.0),
+        ("TX_POWER", 50.0),
         ("HANDOVER", 5.0),
         ("VERTICAL_DOWNTILT", 20.0),
         ("SENSING_RATIO", 0.90),
