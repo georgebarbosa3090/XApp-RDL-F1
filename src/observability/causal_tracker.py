@@ -7,7 +7,7 @@ Calcula a métrica Conflict Resolution Effectiveness (CRE) e indicadores de alta
 import time
 import json
 import numpy as np
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass, field, asdict
 from src.observability.logging import setup_logger
 
@@ -17,7 +17,7 @@ logger = setup_logger("CausalTracker")
 class CausalRecord:
     action_id: str
     decision_id: str
-    ric_request_id: int | str
+    ric_request_id: Union[int, str]
     timestamp: float
     node_id: str
     parameter: str
