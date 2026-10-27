@@ -66,7 +66,7 @@ class ScientificSummary:
     mean_control_to_effect_latency_ms: float
     energy_efficiency_gain_pct: float
 
-class RecordList(list):
+class RecordList(list[CausalRecord]):
     def __getitem__(self, item):
         if isinstance(item, str):
             for r in reversed(self):
@@ -81,7 +81,7 @@ class CausalTracker:
     Garante rastreabilidade estrita entre intervenção de controle e melhoria objetiva de KPIs.
     """
     def __init__(self):
-        self.records: RecordList[CausalRecord] = RecordList()
+        self.records: RecordList = RecordList()
         self.conflicts_detected_count: int = 0
         self.conflicts_resolved_count: int = 0
         self.safety_interventions_count: int = 0
@@ -306,4 +306,3 @@ class CausalTracker:
 
 # Instância Singleton
 causal_tracker = CausalTracker()
-

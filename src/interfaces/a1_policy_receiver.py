@@ -11,11 +11,16 @@ Descrição: Implementa o servidor de gerenciamento de políticas A1-P do Non-RT
 
 import json
 import logging
+import math
+import ipaddress
 from typing import Dict, Any, Optional, Tuple, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 
 logger = logging.getLogger("A1PolicyReceiver")
+
+def _reject_json_constant(value: str):
+    raise ValueError(f"Invalid JSON numeric constant: {value}")
 
 
 class A1PolicyManager:
@@ -44,12 +49,22 @@ class A1PolicyManager:
         """Adiciona ou atualiza uma política A1-P."""
         if policy_type_id not in self.policy_types:
             return False, f"Policy type {policy_type_id} not supported"
+        if not isinstance(policy_data, dict):
+            return False, "Policy body must be a JSON object"
 
-        # Validação básica de esquema
-        if "max_cell_prb_limit" in policy_data:
-            val = policy_data["max_cell_prb_limit"]
-            if not (10 <= val <= 100):
-                return False, f"max_cell_prb_limit {val} out of bounds [10, 100]"
+        schema = self.policy_types[policy_type_id]["schema"]["properties"]
+        for key, value in policy_data.items():
+            if key not in schema:
+                return False, f"Unsupported policy property: {key}"
+            definition = schema[key]
+            if definition["type"] == "boolean":
+                if not isinstance(value, bool):
+                    return False, f"{key} must be a boolean"
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                return False, f"{key} must be a finite number"
+            if value < definition["minimum"] or value > definition["maximum"]:
+                return False, f"{key} {value} out of bounds [{definition['minimum']}, {definition['maximum']}]"
 
         self.active_policies[f"{policy_type_id}:{policy_id}"] = policy_data
         logger.info(f"[A1-P] Política {policy_type_id}:{policy_id} registrada com sucesso: {policy_data}")
@@ -103,16 +118,23 @@ class A1PolicyHttpHandler(BaseHTTPRequestHandler):
             parts = self.path.strip("/").split("/")
             if len(parts) == 6 and parts[4] == "policies":
                 ptype, pid = parts[3], parts[5]
-                content_len = int(self.headers.get("Content-Length", 0))
+                try:
+                    content_len = int(self.headers.get("Content-Length", 0))
+                except (TypeError, ValueError):
+                    self._send_json_response(400, {"error": "Invalid Content-Length"})
+                    return
+                if content_len <= 0 or content_len > 65536:
+                    self._send_json_response(413, {"error": "Policy body must be between 1 and 65536 bytes"})
+                    return
                 body = self.rfile.read(content_len)
                 try:
-                    policy_json = json.loads(body.decode("utf-8"))
+                    policy_json = json.loads(body.decode("utf-8"), parse_constant=_reject_json_constant)
                     ok, msg = self.policy_manager.put_policy(ptype, pid, policy_json)
                     if ok:
                         self._send_json_response(201, {"status": "CREATED", "message": msg})
                     else:
                         self._send_json_response(400, {"error": msg})
-                except Exception as e:
+                except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as e:
                     self._send_json_response(400, {"error": f"Malformed JSON: {str(e)}"})
             else:
                 self._send_json_response(400, {"error": "Invalid PUT URI"})
@@ -148,7 +170,15 @@ class A1PolicyHttpHandler(BaseHTTPRequestHandler):
 
 class A1PolicyReceiverServer:
     """Servidor A1-P em segundo plano."""
-    def __init__(self, host: str = "0.0.0.0", port: int = 8080):
+    def __init__(self, host: str = "127.0.0.1", port: int = 8080):
+        if host != "localhost":
+            try:
+                if not ipaddress.ip_address(host).is_loopback:
+                    raise ValueError("A1 Policy Receiver has no authentication; bind it to loopback only.")
+            except ValueError as exc:
+                if "has no authentication" in str(exc):
+                    raise
+                raise ValueError("A1 Policy Receiver host must be a loopback address.") from exc
         self.host = host
         self.port = port
         self.server: Optional[HTTPServer] = None
