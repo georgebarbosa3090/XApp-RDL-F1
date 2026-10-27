@@ -6,8 +6,22 @@ BASE_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 RESULTS_DIR="${BASE_DIR}/experiments/results/ns3_runs"
 
 declare -A SCENARIO_MAP=(
+    ["s0"]="scenario_rdl_no_conflict"
+    ["s1"]="scenario_rdl_direct_prb_conflict"
     ["s2"]="scenario_rdl_energy_vs_qos"
     ["s3"]="scenario_rdl_tvs_conflict"
+    ["s4"]="scenario_rdl_ts_vs_energy"
+    ["s5"]="scenario_rdl_temporal_pingpong"
+    ["s6"]="scenario_rdl_conflict_storm"
+    ["s7"]="scenario_rdl_fault_injection"
+    ["s8"]="scenario_rdl_closed_loop_nori"
+    ["s9"]="scenario_rdl_s9_ntn_orbital_handover"
+    ["s10"]="scenario_rdl_s10_uav_swarm_battery"
+    ["s11"]="scenario_rdl_s11_v2x_highway_platooning"
+    ["s12"]="scenario_rdl_s12_iiot_zero_jitter_slicing"
+    ["s13"]="scenario_rdl_s13_sagin_disaster_rescue"
+    ["s14"]="scenario_rdl_s14_isac_radar_comm"
+    ["s15"]="scenario_rdl_s15_rogue_ntn_feeder_hijacking"
 )
 
 FORCE="${FORCE:-false}"
@@ -26,14 +40,19 @@ SCENARIOS=()
 
 case "${TARGET_LOWER}" in
     all)
-        SCENARIOS+=("${SCENARIO_MAP[s2]}" "${SCENARIO_MAP[s3]}")
+        for s in $(seq 0 15); do
+            SCENARIOS+=("${SCENARIO_MAP[s$s]}")
+        done
         ;;
     5g)
-        SCENARIOS+=("${SCENARIO_MAP[s2]}" "${SCENARIO_MAP[s3]}")
+        for s in $(seq 0 8); do
+            SCENARIOS+=("${SCENARIO_MAP[s$s]}")
+        done
         ;;
-    6g)
-        echo "[ERROR] Esta suíte não declara cenários 6G validados; use somente ns-3 + 5G-LENA." >&2
-        exit 2
+    6g|ntn|sagin)
+        for s in $(seq 9 15); do
+            SCENARIOS+=("${SCENARIO_MAP[s$s]}")
+        done
         ;;
     s[0-9]|s1[0-5])
         if [[ -z "${SCENARIO_MAP[$TARGET_LOWER]:-}" ]]; then
@@ -43,7 +62,7 @@ case "${TARGET_LOWER}" in
         SCENARIOS+=("${SCENARIO_MAP[$TARGET_LOWER]}")
         ;;
     *)
-        echo "[ERROR] Cenário não autorizado pela suíte Phase 1: ${TARGET}. Use s2, s3, 5g ou all." >&2
+        echo "[ERROR] Cenário não autorizado: ${TARGET}. Use s0..s15, 5g, 6g ou all." >&2
         exit 2
         ;;
 esac
