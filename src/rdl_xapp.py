@@ -517,7 +517,6 @@ class RDLxApp:
 
         # 3. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
         all_selected = selected_winning_actions + selected_clean_actions
-        self.perception.commit_actions(all_selected)
         decision = RDLDecision(
             state={"active_xapps": len(self.perception.get_active_xapps())},
             proposals=actions,
@@ -532,22 +531,9 @@ class RDLxApp:
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
 
-        # Registrar decisão no causal_tracker
-        from src.observability.causal_tracker import causal_tracker
-        if all_selected:
-            causal_tracker.record_decision(
-                action_id=all_selected[0].action_id,
-                decision_id=decision.decision_id,
-                ric_request_id=-1,
-                node_id=all_selected[0].node_id,
-                parameter=all_selected[0].parameter,
-                old_val=self._get_last_value(all_selected[0]),
-                new_val=all_selected[0].value,
-                kpm_before=self.perception.latest_kpm.__dict__ if hasattr(self.perception, "latest_kpm") and self.perception.latest_kpm else {},
-                strategy=decision.strategy_used,
-            )
-
         # 4. Despacho de Controle para Ações Admitidas via ControlDispatcher
+        dispatched_actions = []
+        from src.observability.causal_tracker import causal_tracker
         for act in all_selected:
             per_action_decision = RDLDecision(
                 decision_id=f"{decision.decision_id}-{act.action_id[:6]}",
@@ -558,7 +544,27 @@ class RDLxApp:
                 previous_safe_value=self._get_last_value(act),
                 strategy_used=decision.strategy_used,
             )
-            self.dispatcher.dispatch_control(per_action_decision)
+            control_request_id = self.dispatcher.dispatch_control(per_action_decision)
+            if control_request_id is None:
+                continue
+            dispatched_actions.append(act)
+            request_info = self.dispatcher.pending_requests.get(control_request_id, {})
+            causal_tracker.record_decision(
+                action_id=act.action_id,
+                decision_id=per_action_decision.decision_id,
+                ric_request_id=request_info.get("requestor_id", -1),
+                node_id=act.node_id,
+                parameter=act.parameter,
+                old_val=self._get_last_value(act),
+                new_val=act.value,
+                kpm_before=(
+                    self.perception.latest_kpm.__dict__
+                    if self.perception.latest_kpm is not None
+                    else {}
+                ),
+                strategy=decision.strategy_used,
+            )
+        self.perception.commit_actions(dispatched_actions)
 
     def cleanup_expired_transactions(self, timeout_s: float = 5.0) -> int:
         """Limpa transações pendentes expiradas para evitar vazamento de memória (Anti-Leak)."""

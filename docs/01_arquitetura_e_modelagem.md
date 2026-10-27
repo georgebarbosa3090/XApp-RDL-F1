@@ -123,7 +123,7 @@ src/
 
 ### 4.3. Refinement & Safety Guards (Segurança Invariante)
 Aplica restrições físicas invioláveis antes de qualquer emissão para a interface E2:
-1. **Limites de Potência ($P_{tx}$):** aplicar os limites anunciados pelo nó; o perfil offline usa $-10$ a $23\text{ dBm}$. Em modo estrito, uma capacidade `TX_POWER` não descoberta bloqueia a ação.
+1. **Limites de Potência ($P_{tx}$):** aplicar os limites anunciados pelo nó; o perfil canônico offline atual aceita $-10$ a $43\text{ dBm}$. Em modo estrito, uma capacidade `TX_POWER` não descoberta bloqueia a ação.
 2. **Orçamento de Recursos ($PRB$):** cada comando `PRB_QUOTA` é validado no intervalo de $0$ a $100\%$. A soma de cotas por fatia ainda requer estado agregado de alocação e não deve ser descrita como invariante já aplicada.
 3. **Intervalo mínimo de controle:** o Safety Guard aplica $\Delta t_{min} = 1000\text{ ms}$ por par (nó, parâmetro), independentemente da direção da alteração.
 
@@ -221,7 +221,15 @@ A camada contém builders/decoders locais e uma codificação APER de pesquisa. 
 ### Tabela Canônica de Parâmetros RAN Controlados
 - `PRB_QUOTA` (Parameter ID: 1, Faixa: 0–100%);
 - `SCHEDULER_WEIGHT` (Parameter ID: 2, Faixa: 1–100);
-- `TX_POWER` (Parameter ID: 3, faixa conforme capacidade anunciada; perfil offline: -10 a 23 dBm);
+- `TX_POWER` (Parameter ID: 3, faixa conforme capacidade anunciada; perfil offline canônico: -10 a 43 dBm);
 - `HANDOVER_TARGET` (Parameter ID: 4, Cell ID de destino).
+
+### Limites operacionais verificados no código
+
+- O encoder disponível nesta fase aceita somente os parâmetros do catálogo canônico: `PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER` e `HANDOVER`. Outros parâmetros experimentais não são despacháveis via E2SM-RC nesta implementação e devem ser rejeitados pelo Safety Guard.
+- Em `O_RAN_INTEROP`, os IDs e capacidades de RAN Function precisam ser carregados pela integração E2 antes de iniciar subscrições/controles. O runtime atual não decodifica `RANFunctionDefinition`; portanto, se a descoberta não estiver disponível, a xApp fica fora de `READY` e não usa IDs estáticos.
+- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado; o status `ROLLBACK_SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
+- O endpoint `/ready` só retorna sucesso no estado `READY`, após resposta bem-sucedida de subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
+- Os runners Phase 1 estão limitados aos cenários S2/S3 ns-3 + 5G-LENA; falhas de build/execução interrompem a campanha. O benchmark offline de processamento de propostas não modela UEs, rádio, E2 ou Near-RT e não é evidência de simulação de rede.
 
 ![Conformidade com os Padrões O-RAN Alliance](figures/01_arquitetura_e_governanca/diagram_05_conformidade_oran_standards.png)
