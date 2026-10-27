@@ -33,6 +33,8 @@ class BackendMetadata:
     prb_control_style: int
     prb_control_action: int
     required_raw_evidence: List[str]
+    max_tx_power_dbm: float = 43.0
+    cell_class: str = "MACRO"
 
 class RANBackendAdapter(ABC):
     """Interface abstrata base para adaptadores de backend RAN no H-RDL."""
@@ -136,9 +138,9 @@ class NoriBackendAdapter(RANBackendAdapter):
                 return {
                     "status": "ACK_RECEIVED",
                     "backend": "NORI_NS3",
-                    "requestor_id": ack_res.requestor_id,
-                    "instance_id": ack_res.instance_id,
-                    "ran_function_id": ack_res.ran_function_id,
+                    "requestor_id": ack_res["requestor_id"],
+                    "instance_id": ack_res["instance_id"],
+                    "ran_function_id": ack_res["ran_function_id"],
                     "raw_decoded": True
                 }
         except Exception:
@@ -151,10 +153,10 @@ class NoriBackendAdapter(RANBackendAdapter):
                 return {
                     "status": "FAILURE_RECEIVED",
                     "backend": "NORI_NS3",
-                    "requestor_id": fail_res.requestor_id,
-                    "instance_id": fail_res.instance_id,
-                    "ran_function_id": fail_res.ran_function_id,
-                    "cause": fail_res.cause,
+                    "requestor_id": fail_res["requestor_id"],
+                    "instance_id": fail_res["instance_id"],
+                    "ran_function_id": fail_res["ran_function_id"],
+                    "cause": fail_res["cause"],
                     "raw_decoded": True
                 }
         except Exception:
@@ -241,9 +243,9 @@ class SrsRanBackendAdapter(RANBackendAdapter):
                 return {
                     "status": "ACK_RECEIVED",
                     "backend": "SRSRAN_OPEN5GS",
-                    "requestor_id": ack_res.requestor_id,
-                    "instance_id": ack_res.instance_id,
-                    "ran_function_id": ack_res.ran_function_id,
+                    "requestor_id": ack_res["requestor_id"],
+                    "instance_id": ack_res["instance_id"],
+                    "ran_function_id": ack_res["ran_function_id"],
                     "raw_decoded": True
                 }
         except Exception:
@@ -256,10 +258,10 @@ class SrsRanBackendAdapter(RANBackendAdapter):
                 return {
                     "status": "FAILURE_RECEIVED",
                     "backend": "SRSRAN_OPEN5GS",
-                    "requestor_id": fail_res.requestor_id,
-                    "instance_id": fail_res.instance_id,
-                    "ran_function_id": fail_res.ran_function_id,
-                    "cause": fail_res.cause,
+                    "requestor_id": fail_res["requestor_id"],
+                    "instance_id": fail_res["instance_id"],
+                    "ran_function_id": fail_res["ran_function_id"],
+                    "cause": fail_res["cause"],
                     "raw_decoded": True
                 }
         except Exception:
