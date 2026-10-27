@@ -42,3 +42,21 @@ def test_rc_parameter_validation():
     # Inválido (fora de faixa)
     is_inv, _, reason_inv = validate_ran_parameter("TX_POWER", 50.0)
     assert is_inv is False
+
+
+@pytest.mark.parametrize(
+    ("parameter", "value"),
+    [
+        ("PRB_QUOTA", 50.5),
+        ("SCHEDULER_WEIGHT", 10.25),
+        ("HANDOVER", 12.5),
+        ("TX_POWER", 20.15),
+        ("TX_POWER", float("inf")),
+        ([], 1.0),
+    ],
+)
+def test_rc_parameter_validation_rejects_unencodable_values(parameter, value):
+    is_valid, _, reason = validate_ran_parameter(parameter, value)
+
+    assert is_valid is False
+    assert reason

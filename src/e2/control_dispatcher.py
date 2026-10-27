@@ -70,6 +70,16 @@ class ControlDispatcher:
         if not isinstance(target_node, str) or not target_node.strip() or not isfinite(val):
             logger.error("Ação de controle rejeitada: nó ou valor inválido.")
             return None
+        from src.e2.rc.control_parameter import validate_ran_parameter
+        is_valid, _, validation_error = validate_ran_parameter(param, val)
+        if not is_valid:
+            logger.error(
+                "Ação de controle rejeitada pela validação do parâmetro RC",
+                parameter=param,
+                value=val,
+                reason=validation_error,
+            )
+            return None
 
         target_cell = getattr(decision, "affected_cell", "cell_01")
         action_id = getattr(selected_act, "action_id", str(uuid.uuid4())[:8])
@@ -229,11 +239,15 @@ class ControlDispatcher:
             ctrl_id, key = match
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
+            accepted = False
             with self._lock:
                 info = self.pending_requests.get(ctrl_id)
-            if info is not None:
-                info["status"] = "ACKNOWLEDGED"
-                info["ack_received_at"] = time.time()
+                if info is not None and info["status"] == "SENT":
+                    info["status"] = "ACKNOWLEDGED"
+                    info["ack_received_at"] = time.time()
+                    self.req_key_to_id.pop(key, None)
+                    accepted = True
+            if accepted and info is not None:
                 rtt_ms = (info["ack_received_at"] - info["sent_at"]) * 1000.0
                 try:
                     self.sdl.update_control_result(ctrl_id, "ACKNOWLEDGED")
@@ -243,8 +257,6 @@ class ControlDispatcher:
                     info["meid"], info["ran_function_id"], req_id, inst_id
                 )
                 causal_tracker.record_ack(correlation_id, rtt_ms=rtt_ms)
-                with self._lock:
-                    self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 logger.info(f"Recebido RIC_CONTROL_ACK para req {ctrl_id} (ReqID {req_id}) - RTT: {rtt_ms:.2f} ms")
                 return info
@@ -269,11 +281,15 @@ class ControlDispatcher:
                 logger.warning("CORRELATION_ERROR: RIC_CONTROL_FAILURE sem requisição pendente correspondente.")
                 return None
             ctrl_id, key = match
+            accepted = False
             with self._lock:
                 info = self.pending_requests.get(ctrl_id)
-            if info is not None:
-                info["status"] = "FAILED"
-                info["cause"] = cause
+                if info is not None and info["status"] == "SENT":
+                    info["status"] = "FAILED"
+                    info["cause"] = cause
+                    self.req_key_to_id.pop(key, None)
+                    accepted = True
+            if accepted and info is not None:
                 try:
                     self.sdl.update_control_result(ctrl_id, "FAILED")
                 except Exception as exc:
@@ -283,8 +299,6 @@ class ControlDispatcher:
                 )
                 causal_tracker.record_failure(correlation_id, cause_code=cause)
                 logger.error(f"Recebido RIC_CONTROL_FAILURE para req {ctrl_id} (ReqID {req_id}, Cause {cause})")
-                with self._lock:
-                    self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 self.trigger_rollback(ctrl_id)
                 return info
@@ -301,17 +315,20 @@ class ControlDispatcher:
         """
         current_time = now if now is not None else time.time()
         timed_out_ids: List[str] = []
-        
-        for ctrl_id, info in list(self.pending_requests.items()):
-            if info["status"] == "SENT" and current_time >= info["timeout_at"]:
-                logger.warning(f"Timeout de controle E2 detectado para {ctrl_id} (ultrapassou {info['timeout_at']})")
-                info["status"] = "TIMEOUT"
-                timed_out_ids.append(ctrl_id)
-                key = (info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
-                with self._lock:
+        timed_out: List[Tuple[str, Dict[str, Any]]] = []
+        with self._lock:
+            for ctrl_id, info in self.pending_requests.items():
+                if info["status"] == "SENT" and current_time >= info["timeout_at"]:
+                    info["status"] = "TIMEOUT"
+                    key = (info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
                     self.req_key_to_id.pop(key, None)
-                self.allocator.pop_correlation(info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
-                self.trigger_rollback(ctrl_id)
+                    timed_out.append((ctrl_id, info))
+
+        for ctrl_id, info in timed_out:
+            logger.warning(f"Timeout de controle E2 detectado para {ctrl_id} (ultrapassou {info['timeout_at']})")
+            timed_out_ids.append(ctrl_id)
+            self.allocator.pop_correlation(info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
+            self.trigger_rollback(ctrl_id)
                 
         return timed_out_ids
 

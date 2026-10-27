@@ -65,7 +65,7 @@ def validate_ran_parameter(param_name: str, value: float) -> Tuple[bool, int, st
     """
     Valida se o parâmetro pertence ao modelo E2SM-RC e respeita os limites operacionais.
     """
-    if param_name not in RAN_PARAMETERS:
+    if not isinstance(param_name, str) or param_name not in RAN_PARAMETERS:
         return False, 99, f"Parâmetro desconhecido no modelo E2SM-RC: {param_name}"
 
     try:

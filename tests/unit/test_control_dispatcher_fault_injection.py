@@ -74,6 +74,27 @@ def test_control_dispatcher_successful_dispatch_and_ack():
     assert ack_res["status"] == "ACKNOWLEDGED"
     assert dispatcher.pending_requests[ctrl_id]["status"] == "ACKNOWLEDGED"
 
+
+def test_dispatcher_rejects_fractional_handover_before_encoding():
+    rmr = MockRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
+    action = XAppAction(
+        xapp_id="steering",
+        node_id="gnb_fractional_handover",
+        parameter="HANDOVER",
+        value=12.5,
+        priority=50,
+    )
+    decision = RDLDecision(
+        decision_id="decision_fractional_handover",
+        selected_actions=[action],
+        safety_result={"is_safe": True},
+    )
+
+    assert dispatcher.dispatch_control(decision) is None
+    assert rmr.sent_messages == []
+    assert dispatcher.pending_requests == {}
+
 def test_control_dispatcher_failure_triggers_rollback():
     rmr = MockRMR()
     sdl = MockSDL()
