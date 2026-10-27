@@ -356,6 +356,10 @@ class RDLxApp:
         payload = summary.get("payload")
         if payload:
             try:
+                # 1) Dispatcher trata APER e aciona causal_tracker
+                self.dispatcher.handle_ack(payload)
+
+                # 2) Correlaciona via backend e limpa pending_transactions locais
                 ack_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
                 req_id = ack_info.get("requestor_id")
                 inst_id = ack_info.get("instance_id")
@@ -372,6 +376,8 @@ class RDLxApp:
                     rtt_ms = (now_ts() - self.pending_transactions.pop(tx_key)) * 1000.0
                     if req_id is not None and ran_fn_id is not None:
                         self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
+                    from src.observability.causal_tracker import causal_tracker
+                    causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
                     logger.info("RIC_CONTROL_ACK recebido e confirmado", key=str(tx_key), rtt_ms=f"{rtt_ms:.2f}ms", status=ack_info.get("status"))
                 else:
                     logger.info("RIC_CONTROL_ACK recebido sem transacao pendente", status=ack_info.get("status"))
@@ -385,22 +391,29 @@ class RDLxApp:
         payload = summary.get("payload")
         if payload:
             try:
-                if isinstance(payload, bytes) and payload.startswith(b'{'):
-                    data = json.loads(payload.decode('utf-8'))
-                    req_id = data.get("requestor_id")
-                    inst_id = data.get("instance_id")
-                    node_id = data.get("node_id", "gnb_01")
-                    from src.e2.rc.capability_registry import rc_capability_registry
-                    ran_fn_id = data.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
-                    tx_id = data.get("transaction_id")
+                # 1) Dispatcher trata APER e aciona rollback
+                self.dispatcher.handle_failure(payload)
+
+                # 2) Correlaciona via backend e limpa pending_transactions locais
+                fail_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
+                req_id = fail_info.get("requestor_id")
+                inst_id = fail_info.get("instance_id")
+                node_id = fail_info.get("node_id", "gnb_01")
+                cause = fail_info.get("cause", 1)
+                from src.e2.rc.capability_registry import rc_capability_registry
+                ran_fn_id = fail_info.get("ran_function_id") or rc_capability_registry.get_rc_function_id(node_id)
+                
+                tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
+                if not tx_key or tx_key not in self.pending_transactions:
+                    data = json.loads(payload.decode('utf-8')) if isinstance(payload, bytes) and payload.startswith(b'{') else {}
+                    tx_key = data.get("transaction_id")
                     
-                    tx_key = (node_id, ran_fn_id, req_id, inst_id) if req_id is not None else None
-                    if tx_key and tx_key in self.pending_transactions:
-                        del self.pending_transactions[tx_key]
-                        if req_id is not None:
-                            self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
-                    if tx_id and tx_id in self.pending_transactions:
-                        del self.pending_transactions[tx_id]
+                if tx_key and tx_key in self.pending_transactions:
+                    del self.pending_transactions[tx_key]
+                    if req_id is not None:
+                        self.allocator.pop_correlation(node_id, ran_fn_id, req_id, inst_id)
+                    from src.observability.causal_tracker import causal_tracker
+                    causal_tracker.record_failure(req_id, cause_code=cause)
             except Exception as e:
                 logger.debug(f"Falha ao correlacionar failure payload: {e}")
         self._safe_rmr_free(xapp_instance, sbuf)
