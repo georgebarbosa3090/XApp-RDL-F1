@@ -14,7 +14,7 @@ def test_tx_power_bounds_canonical_alignment():
 
 def test_safety_accepts_valid_macro_tx_power():
     memory = MemoryModule()
-    refinement = Refinement(memory=memory, strict_capabilities=False)
+    refinement = Refinement(memory=memory, config={"minimum_control_interval_ms": 0}, strict_capabilities=False)
     
     # 40 dBm (antes era rejeitado com teto de 23 dBm)
     action_40 = XAppAction(xapp_id="power_xapp", node_id="gnb_01", parameter="TX_POWER", value=40.0, priority=1)
@@ -29,7 +29,7 @@ def test_safety_accepts_valid_macro_tx_power():
 
 def test_safety_rejects_out_of_bounds_tx_power():
     memory = MemoryModule()
-    refinement = Refinement(memory=memory, strict_capabilities=False)
+    refinement = Refinement(memory=memory, config={"minimum_control_interval_ms": 0}, strict_capabilities=False)
 
     # 50 dBm (acima de 43 dBm)
     action_50 = XAppAction(xapp_id="power_xapp", node_id="gnb_01", parameter="TX_POWER", value=50.0, priority=1)
