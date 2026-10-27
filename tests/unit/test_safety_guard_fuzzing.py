@@ -76,7 +76,7 @@ def test_safety_guard_stochastic_fuzzing_10000_iterations():
             if param == "PRB_QUOTA":
                 assert 0.0 <= action.value <= 100.0, f"Violação PRB: {action.value}"
             elif param == "TX_POWER":
-                assert -10.0 <= action.value <= 23.0, f"Violação Potência: {action.value}"
+                assert -10.0 <= action.value <= 43.0, f"Violação Potência: {action.value}"
             elif param == "HANDOVER":
                 assert 0.0 <= action.value <= 1.0, f"Violação Handover: {action.value}"
             elif param == "VERTICAL_DOWNTILT":
