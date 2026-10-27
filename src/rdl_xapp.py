@@ -329,6 +329,7 @@ class RDLxApp:
                         prb_used_dl=data.get("prb_used_dl")
                     )
                     self.perception.update_kpm_report(report)
+                    self.reasoning.update_kpm_report(report)
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):

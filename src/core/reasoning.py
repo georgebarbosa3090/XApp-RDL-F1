@@ -40,6 +40,11 @@ class Reasoning:
         self.P0_W = 130.0                  # Consumo estático de circuito (Earth Model)
         self.DELTA_P = 4.7                 # Inclinação do amplificador de potência RF
         self.P_SLEEP_W = 4.3               # Consumo em modo hibernação (Cell Sleep)
+        self.sla_latency_limit_ms = float(self.config.get("sla_latency_limit_ms", 5.0))
+        self.latest_kpm: Optional[KPMReport] = None
+
+    def update_kpm_report(self, report: KPMReport) -> None:
+        self.latest_kpm = report
 
     def resolve(self, conflict: ConflictEvent) -> ResolutionAction:
         # 1. Consultar histórico na Shared Data Layer
@@ -224,6 +229,16 @@ class Reasoning:
 
         # 5. Priority Score Normalizado (0.0 a 1.0)
         priority_score = max(0.1, min(1.0, prio / 100.0))
+
+        report = self.latest_kpm
+        if (
+            report is not None
+            and report.node_id == act.node_id
+            and report.drb_delay_dl is not None
+            and report.drb_delay_dl > self.sla_latency_limit_ms
+            and act.xapp_id.casefold().startswith("energy")
+        ):
+            sla_score = 0.0
 
         return {
             "sla": sla_score,
