@@ -5,6 +5,7 @@ Conforme O-RAN.WG3.E2SM-RC.
 
 from typing import Dict, Any, Tuple
 from dataclasses import dataclass
+import math
 
 @dataclass(frozen=True)
 class RANParameterDefinition:
@@ -66,9 +67,20 @@ def validate_ran_parameter(param_name: str, value: float) -> Tuple[bool, int, st
     """
     if param_name not in RAN_PARAMETERS:
         return False, 99, f"Parâmetro desconhecido no modelo E2SM-RC: {param_name}"
-    
+
+    try:
+        numeric_value = float(value)
+    except (OverflowError, TypeError, ValueError):
+        return False, 99, f"Valor inválido para o parâmetro E2SM-RC: {param_name}"
+    if not math.isfinite(numeric_value):
+        return False, 99, f"Valor não finito para o parâmetro E2SM-RC: {param_name}"
+
     defn = RAN_PARAMETERS[param_name]
-    if value < defn.min_value or value > defn.max_value:
-        return False, defn.param_id, f"Valor {value} fora dos limites [{defn.min_value}, {defn.max_value}] {defn.unit}"
+    if param_name in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER") and not numeric_value.is_integer():
+        return False, defn.param_id, f"Valor {numeric_value} deve ser inteiro para {param_name}"
+    if param_name == "TX_POWER" and not (numeric_value * 10).is_integer():
+        return False, defn.param_id, "TX_POWER aceita no máximo uma casa decimal"
+    if numeric_value < defn.min_value or numeric_value > defn.max_value:
+        return False, defn.param_id, f"Valor {numeric_value} fora dos limites [{defn.min_value}, {defn.max_value}] {defn.unit}"
         
     return True, defn.param_id, "OK"
