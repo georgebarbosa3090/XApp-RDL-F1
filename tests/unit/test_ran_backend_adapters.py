@@ -15,12 +15,14 @@ def test_nori_backend_adapter_metadata_and_capabilities():
     assert adapter.metadata.backend_id == "NORI_NS3"
     assert adapter.metadata.e2ap_version == "v02.03"
     assert adapter.metadata.default_kpm_period_ms == 200
+    assert adapter.metadata.protocol_interoperability_verified is False
 
     # Registra e resolve capacidade NORI
     adapter.discover_capabilities("gnb_nori_01")
     style, action, param_id = rc_capability_registry.resolve_action("PRB_QUOTA", "gnb_nori_01", strict_mode=True)
     assert style == 1
     assert action == 1
+    assert adapter.discover_capabilities("gnb_nori_strict", oran_strict=True) is False
 
 def test_srsran_backend_adapter_metadata_and_style2_mapping():
     adapter = SrsRanBackendAdapter()
@@ -104,6 +106,5 @@ def test_capability_registry_function_ids_and_actions():
     # 4. is_action_supported
     assert reg.is_action_supported("gnb_01", "UNKNOWN_PARAM") is False
     assert reg.is_action_supported("gnb_default", "PRB_QUOTA") is True
-
 
 

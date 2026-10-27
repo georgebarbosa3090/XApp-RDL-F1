@@ -46,6 +46,17 @@ def test_strict_mode_rejects_proposals_without_authenticated_sender():
     xapp.stop()
 
 
+def test_strict_entrypoint_fails_closed_without_verified_protocol_adapter():
+    xapp = RDLxApp()
+    xapp.oran_strict = True
+
+    xapp._entrypoint(xapp.xapp)
+
+    assert xapp.health.state.name == "ERROR"
+    assert not xapp.active_subscriptions
+    xapp.stop()
+
+
 def test_proposal_validation_rejects_non_finite_priority_and_overflow():
     xapp = RDLxApp()
     payloads = [

@@ -21,7 +21,7 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 │                          SMO & NEAR-RT RIC (OSC)                            │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
 │  │                            xApp-RDL CORE                              │  │
-│  │  - Perception Agent (Decodificador ASN.1 APER E2SM-KPM / Telemetria) │  │
+│  │  - Perception Agent (modelo local KPM; APER ainda não interoperável)│  │
 │  │  - Conflict Detector (Direto/Indireto) + Cooldown Guard                │  │
 │  │  - Knowledge Graph & Context Engine (Neo4j / Matriz de Associação)    │  │
 │  │  - Reasoning Engine: Nível 1 (H-RDL) | Nível 2 (NDT) | Nível 3 (MAPPO)│  │
@@ -55,6 +55,10 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 ![Arquitetura Global de Co-Simulação ns-3 e Near-RT RIC](figures/01_arquitetura_e_governanca/diagram_01_global_pipeline_architecture.png)
 
 **Arquitetura-alvo, não descrição de uma integração validada.** O cenário C++ disponível configura NR/FlowMonitor e pode instalar um E2 Agent, mas não aplica ações RC à RAN; a xApp ainda não integra descoberta de RAN Functions/capacidades de E2 Setup no runtime. O diagrama não comprova a presença de cada bloco ou ligação. Testes locais, fixtures e o cenário sem atuação RC não demonstram conexão E2 live. G1, G3, G4 e G5 permanecem pendentes.
+
+**Bloqueio explícito de interoperabilidade:** os codecs APER do repositório são modelos de pesquisa e não foram validados contra schemas ASN.1 normativos nem vetores independentes. Por isso, `O_RAN_INTEROP` agora permanece em `ERROR` e não inicia subscrições/controles enquanto o backend não declarar interoperabilidade validada. O runtime também não interpreta `RANFunctionDefinition`; capacidades pré-carregadas não equivalem a descoberta E2. O servidor A1-P local continua isolado e suas políticas não são aplicadas ao Reasoning/Safety Guard. Esses componentes não devem ser apresentados como funções integradas.
+
+Medições KPM não reportadas são preservadas como ausentes; não são convertidas em zero ou associadas a um nó/UE inventado. A decisão determinística usa a latência reportada para bloquear pontuação de política de economia de energia quando a latência excede o limite configurado (`sla_latency_limit_ms`, padrão 5 ms). A interpretação dessa medida como milissegundos depende do adaptador/medição de origem e não certifica uma unidade normativa do codec local.
 
 ---
 
@@ -229,7 +233,7 @@ A camada contém builders/decoders locais e uma codificação APER de pesquisa. 
 - O encoder disponível nesta fase aceita somente os parâmetros do catálogo canônico: `PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER` e `HANDOVER`. Outros parâmetros experimentais não são despacháveis via E2SM-RC nesta implementação e devem ser rejeitados pelo Safety Guard.
 - Em `O_RAN_INTEROP`, os IDs e capacidades de RAN Function precisam ser carregados pela integração E2 antes de iniciar subscrições/controles. O runtime atual não decodifica `RANFunctionDefinition`; portanto, se a descoberta não estiver disponível, a xApp fica fora de `READY` e não usa IDs estáticos.
 - Propostas externas são rejeitadas em `O_RAN_INTEROP` enquanto o transporte não fornecer identidade autenticada da xApp emissora. O campo `xapp_id` do JSON é metadado declarado pelo cliente, não credencial.
-- O transporte RMR mock do modo local nunca reporta sucesso de envio. O endpoint A1-P local escuta somente em loopback; ainda não há autenticação para exposição remota.
+- O transporte RMR mock do modo local nunca reporta sucesso de envio. O endpoint A1-P local escuta somente em loopback, não está conectado ao pipeline de decisão e ainda não possui autenticação para exposição remota.
 - O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado; `rollback_status=SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
 - O endpoint `/ready` só retorna sucesso no estado `READY`, após resposta bem-sucedida de subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
 - Os runners Phase 1 estão limitados aos cenários S2/S3 ns-3 + 5G-LENA; falhas de build/execução interrompem a campanha. O benchmark offline de processamento de propostas não modela UEs, rádio, E2 ou Near-RT e não é evidência de simulação de rede.

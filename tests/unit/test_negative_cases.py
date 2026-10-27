@@ -137,3 +137,25 @@ def test_negative_causal_tracker_failure_response():
     assert metrics.total_failures_received == 1
     assert metrics.total_acks_received == 0
     assert metrics.conflict_resolution_effectiveness == 0.0
+
+
+def test_causal_tracker_defers_ack_and_does_not_invent_zero_metrics():
+    tracker = CausalTracker()
+    assert tracker.record_ack("node:3:7:1", rtt_ms=2.0)
+    record = tracker.record_decision(
+        action_id="fast_ack_action",
+        decision_id="fast_ack_decision",
+        ric_request_id="node:3:7:1",
+        node_id="node",
+        parameter="PRB_QUOTA",
+        old_val=None,
+        new_val=50.0,
+    )
+
+    assert record.ack_status == "ACKNOWLEDGED"
+    assert tracker.record_ack("node:3:7:1", rtt_ms=2.0) is False
+
+    empty_metrics = CausalTracker().compute_metrics()
+    assert empty_metrics.conflict_resolution_rate != empty_metrics.conflict_resolution_rate
+    assert empty_metrics.unsafe_action_rate != empty_metrics.unsafe_action_rate
+    assert empty_metrics.ping_pong_rate_before_epm != empty_metrics.ping_pong_rate_before_epm

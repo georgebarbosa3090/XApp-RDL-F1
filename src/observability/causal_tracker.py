@@ -252,7 +252,7 @@ class CausalTracker:
             if r.action_id == action_id:
                 r.kpm_after = dict(kpm_after)
                 
-                improved: Optional[bool] = False
+                outcomes: List[bool] = []
                 lat_before = r.kpm_before.get("latency_ms")
                 lat_after = kpm_after.get("latency_ms")
                 thp_before = r.kpm_before.get("throughput_mbps")
@@ -261,31 +261,34 @@ class CausalTracker:
                 pdr_after = kpm_after.get("pdr_percent")
 
                 if r.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT"):
-                    # Espera-se redução de latência ou aumento de PDR/Vazão
-                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
-                       (pdr_before is not None and pdr_after is not None and pdr_after > pdr_before) or \
-                       (thp_before is not None and thp_after is not None and thp_after > thp_before):
-                        improved = True
+                    if lat_before is not None and lat_after is not None:
+                        outcomes.append(lat_after < lat_before)
+                    if pdr_before is not None and pdr_after is not None:
+                        outcomes.append(pdr_after > pdr_before)
+                    if thp_before is not None and thp_after is not None:
+                        outcomes.append(thp_after > thp_before)
                 elif r.parameter == "TX_POWER":
-                    # Espera-se preservação de SLA com redução de consumo/interferência
-                    if lat_before is not None and lat_after is not None and pdr_after is not None:
-                        if lat_after <= lat_before * 1.05 and pdr_after >= 99.0:
-                            improved = True
+                    if lat_before is not None and lat_after is not None:
+                        outcomes.append(lat_after <= lat_before * 1.05)
+                    if pdr_before is not None and pdr_after is not None:
+                        outcomes.append(pdr_after >= pdr_before)
                 elif r.parameter == "HANDOVER":
-                    # Mitigação de ping-pong e sobrecarga de célula
-                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
-                       (pdr_before is not None and pdr_after is not None and pdr_after >= pdr_before):
-                        improved = True
+                    if lat_before is not None and lat_after is not None:
+                        outcomes.append(lat_after < lat_before)
+                    if pdr_before is not None and pdr_after is not None:
+                        outcomes.append(pdr_after >= pdr_before)
                 else:
-                    if (lat_before is not None and lat_after is not None and lat_after < lat_before) or \
-                       (thp_before is not None and thp_after is not None and thp_after > thp_before):
-                        improved = True
+                    if lat_before is not None and lat_after is not None:
+                        outcomes.append(lat_after < lat_before)
+                    if thp_before is not None and thp_after is not None:
+                        outcomes.append(thp_after > thp_before)
 
-                r.kpi_improved = (
-                    improved
-                    if r.ack_status == "ACKNOWLEDGED"
-                    else None
-                )
+                if r.ack_status != "ACKNOWLEDGED" or not outcomes:
+                    r.kpi_improved = None
+                elif r.parameter == "TX_POWER":
+                    r.kpi_improved = all(outcomes)
+                else:
+                    r.kpi_improved = any(outcomes)
                 return True
         return False
 
@@ -411,7 +414,4 @@ class CausalTracker:
         )
 
     def export_causal_log_json(self) -> str:
-        return json.dumps([asdict(r) for r in self.records], indent=2)
-
-# Instância Singleton
-causal_tracker = CausalTracker()
+        return json.dumps([asdi
