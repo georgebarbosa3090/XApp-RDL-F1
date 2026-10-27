@@ -64,7 +64,7 @@ class RanFunctionCapabilityRegistry:
                 param_id=3,
                 param_name="TX_POWER",
                 min_value=-10.0,
-                max_value=23.0,
+                max_value=43.0,
                 unit="dBm"
             ),
             "HANDOVER": ControlActionCapability(
