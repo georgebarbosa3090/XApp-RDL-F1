@@ -189,7 +189,6 @@ scripts/resolve_phase1_rebase.*
 scripts/generate_advanced_spatial_topology_figures.*
 scripts/generate_architecture_flow_diagram.*
 scripts/generate_before_after_comparison_figure.*
-scripts/generate_ns3_flowmonitor_markdown_report.*
 scripts/generate_publication_report_figures.*
 scripts/generate_s0_s15_architecture_figures.*
 scripts/generate_scenario_figures.*
