@@ -567,6 +567,7 @@ def test_main_roles_import(monkeypatch):
     import src.main
     class FakeApp:
         started = False
+        running = False
 
         def start(self):
             self.started = True
