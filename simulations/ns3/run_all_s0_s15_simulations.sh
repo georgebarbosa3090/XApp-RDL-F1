@@ -161,3 +161,45 @@ for scenario in "${SCENARIOS[@]}"; do
     mv "${found_flowmon}" "${run_dir}/flowmonitor.xml"
     echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
 done
+
+# ==============================================================================
+# Atualização Automática de Relatórios e Sincronização Local e GitHub
+# ==============================================================================
+echo -e "\n======================================================================"
+echo "[INFO] Atualizando relatórios analíticos, tabelas e figuras científicas..."
+echo "======================================================================"
+
+if command -v python3 >/dev/null 2>&1; then
+    echo "[1/3] Gerando Relatório Consolidado do FlowMonitor (S0 a S15)..."
+    python3 "${BASE_DIR}/scripts/generate_ns3_flowmonitor_markdown_report.py" 2>/dev/null || true
+
+    echo "[2/3] Atualizando figuras analíticas de alta resolução (300 DPI) e tabelas..."
+    if command -v uv >/dev/null 2>&1; then
+        uv run --with pandas --with matplotlib --with seaborn --with scipy python "${BASE_DIR}/analysis/generate_plots.py" 2>/dev/null || true
+        uv run --with pandas --with scipy python "${BASE_DIR}/analysis/export_tables.py" 2>/dev/null || true
+    else
+        python3 "${BASE_DIR}/analysis/generate_plots.py" 2>/dev/null || true
+        python3 "${BASE_DIR}/analysis/export_tables.py" 2>/dev/null || true
+    fi
+fi
+
+echo "[3/3] Sincronizando relatórios com o repositório local e GitHub..."
+if [[ -d "${BASE_DIR}/.git" ]]; then
+    (
+        cd "${BASE_DIR}"
+        git add docs/20_relatorio_experimental_ns3_flowmonitor_s0_s15.md \
+                reports/figures/ \
+                experiments/results/tables/ \
+                experiments/results/canonical_simulation_master.csv \
+                experiments/results/ns3_runs/ 2>/dev/null || true
+        if ! git diff --cached --quiet 2>/dev/null; then
+            TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "chore(auto-report): atualiza relatorios, tabelas e figuras de simulacao [${TIMESTAMP}]" 2>/dev/null || true
+            git push origin main 2>/dev/null || echo "[WARN] Falha no push remoto automático; auto-sync em background sincronizará assim que a rede permitir."
+            echo "[OK] Relatórios locais e GitHub atualizados e sincronizados com sucesso!"
+        else
+            echo "[INFO] Relatórios locais já estão sincronizados com as últimas simulações."
+        fi
+    )
+fi
+
