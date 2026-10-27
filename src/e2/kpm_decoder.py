@@ -82,49 +82,7 @@ class KpmDecoder:
         self.successful_decodes = 0
         self.last_decode_path: str = "raw_kpm"
 
-    def decode_indication(self, payload: bytes) -> List[Dict]:
-        """
-        Aceita três formatos, na ordem:
-          1. E2AP-PDU (InitiatingMessage -> RICindication -> E2SM-KPM)
-          2. RICindication isolado (sem envelope E2AP)
-          3. E2SM-KPM Indication Message crua (legado/fallback)
-        """
-        header_bytes = b""
-        message_bytes = payload
-        node_hint = "gnb_01"
-        self.last_decode_path = "raw_kpm"
-
-        # Caminho 1: E2AP-PDU completo
-        try:
-            from src.e2.e2ap.pdu import unwrap_e2ap_pdu
-            from src.e2.e2ap_decoder import decode_e2ap_ric_indication
-            pdu_type, proc_code, crit, inner_bytes = unwrap_e2ap_pdu(payload)
-            if proc_code == 5:  # ID_RIC_INDICATION
-                indication = decode_e2ap_ric_indication(inner_bytes)
-                header_bytes = indication.indication_header
-                message_bytes = indication.indication_message
-                self.last_decode_path = "e2ap_pdu"
-        except Exception:
-            pass
-
-        # Caminho 2: RICindication isolado (sem PDU wrapper)
-        if self.last_decode_path != "e2ap_pdu":
-            try:
-                from src.e2.e2ap_decoder import decode_e2ap_ric_indication
-                indication = decode_e2ap_ric_indication(payload)
-                header_bytes = indication.indication_header
-                message_bytes = indication.indication_message
-                self.last_decode_path = "ric_indication"
-            except Exception:
-                self.last_decode_path = "raw_kpm"
-
-        try:
-            measurements = self.decode(header_bytes, message_bytes, default_node_id=node_hint)
-        except Exception as e:
-            self.decode_errors += 1
-            logger.error(f"Falha na decodificação KPM: {e}")
-            return []
-        
+    def _aggregate(self, measurements: List[KpmMeasurement]) -> List[Dict]:
         aggregated: Dict[Tuple[str, str], Dict[str, Any]] = {}
         for m in measurements:
             key = (m.node_id, m.ue_id)
@@ -147,6 +105,48 @@ class KpmDecoder:
                 aggregated[key]["prb_used_dl"] = int(m.value)
                 
         return list(aggregated.values())
+
+    def decode_indication(self, payload: bytes) -> List[Dict]:
+        """
+        Aceita três formatos, na ordem:
+          1. E2AP-PDU (InitiatingMessage -> RICindication -> E2SM-KPM)
+          2. RICindication isolado (sem envelope E2AP)
+          3. E2SM-KPM Indication Message crua (legado/fallback)
+        """
+        node_hint = "gnb_01"
+
+        # Caminho 1: E2AP-PDU completo
+        try:
+            from src.e2.e2ap.pdu import unwrap_e2ap_pdu
+            from src.e2.e2ap_decoder import decode_e2ap_ric_indication
+            pdu_type, proc_code, crit, inner_bytes = unwrap_e2ap_pdu(payload)
+            if proc_code == 5:  # ID_RIC_INDICATION
+                indication = decode_e2ap_ric_indication(inner_bytes)
+                measurements = self.decode(indication.indication_header, indication.indication_message, default_node_id=node_hint)
+                self.last_decode_path = "e2ap_pdu"
+                return self._aggregate(measurements)
+        except Exception:
+            pass
+
+        # Caminho 2: RICindication isolado (sem PDU wrapper)
+        try:
+            from src.e2.e2ap_decoder import decode_e2ap_ric_indication
+            indication = decode_e2ap_ric_indication(payload)
+            measurements = self.decode(indication.indication_header, indication.indication_message, default_node_id=node_hint)
+            self.last_decode_path = "ric_indication"
+            return self._aggregate(measurements)
+        except Exception:
+            pass
+
+        # Caminho 3: E2SM-KPM Indication Message crua
+        try:
+            measurements = self.decode(b"", payload, default_node_id=node_hint)
+            self.last_decode_path = "raw_kpm"
+            return self._aggregate(measurements)
+        except Exception as e:
+            self.decode_errors += 1
+            logger.error(f"Falha na decodificação KPM: {e}")
+            return []
 
 
     def decode(self, indication_header: bytes, indication_message: bytes, default_node_id: str = "gnb_01") -> List[KpmMeasurement]:
