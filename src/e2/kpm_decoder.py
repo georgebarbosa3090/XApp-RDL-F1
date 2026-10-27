@@ -80,15 +80,49 @@ class KpmDecoder:
         }
         self.decode_errors = 0
         self.successful_decodes = 0
+        self.last_decode_path: str = "raw_kpm"
 
     def decode_indication(self, payload: bytes) -> List[Dict]:
         """
-        Wrapper exigido pelo rdl_xapp.py para extrair os reports KPM reais do payload.
-        Em caso de payload corrompido, retorna lista vazia sem sintetizar dados artificiais.
+        Aceita três formatos, na ordem:
+          1. E2AP-PDU (InitiatingMessage -> RICindication -> E2SM-KPM)
+          2. RICindication isolado (sem envelope E2AP)
+          3. E2SM-KPM Indication Message crua (legado/fallback)
         """
+        header_bytes = b""
+        message_bytes = payload
+        node_hint = "gnb_01"
+        self.last_decode_path = "raw_kpm"
+
+        # Caminho 1: E2AP-PDU completo
         try:
-            measurements = self.decode(payload, payload)
+            from src.e2.e2ap.pdu import unwrap_e2ap_pdu
+            from src.e2.e2ap_decoder import decode_e2ap_ric_indication
+            pdu_type, proc_code, crit, inner_bytes = unwrap_e2ap_pdu(payload)
+            if proc_code == 5:  # ID_RIC_INDICATION
+                indication = decode_e2ap_ric_indication(inner_bytes)
+                header_bytes = indication.indication_header
+                message_bytes = indication.indication_message
+                self.last_decode_path = "e2ap_pdu"
         except Exception:
+            pass
+
+        # Caminho 2: RICindication isolado (sem PDU wrapper)
+        if self.last_decode_path != "e2ap_pdu":
+            try:
+                from src.e2.e2ap_decoder import decode_e2ap_ric_indication
+                indication = decode_e2ap_ric_indication(payload)
+                header_bytes = indication.indication_header
+                message_bytes = indication.indication_message
+                self.last_decode_path = "ric_indication"
+            except Exception:
+                self.last_decode_path = "raw_kpm"
+
+        try:
+            measurements = self.decode(header_bytes, message_bytes, default_node_id=node_hint)
+        except Exception as e:
+            self.decode_errors += 1
+            logger.error(f"Falha na decodificação KPM: {e}")
             return []
         
         aggregated: Dict[Tuple[str, str], Dict[str, Any]] = {}
