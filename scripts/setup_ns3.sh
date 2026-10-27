@@ -14,22 +14,22 @@ NC='\033[0m' # No Color
 
 WORKSPACE_DIR="${WORKSPACE_DIR:-${HOME}/ns3-oran-workspace}"
 NS3_DIR="${NS3_DIR:-${WORKSPACE_DIR}/ns-3-oran}"
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo -e "${BLUE}======================================================================${NC}"
 echo -e "${BLUE}  Instalação e Configuração do Ambiente ns-3 NORI / 5G-LENA           ${NC}"
 echo -e "${BLUE}======================================================================${NC}"
 
-# 1. ns-3 launcher recusa execução como root; exigir usuário comum.
+# 1. Detecção de privilégios e comando sudo
 SUDO_CMD=""
-if [ "$(id -u)" -eq 0 ]; then
-    echo -e "${RED}[ERRO] Execute este script como usuário comum; o launcher ns-3 bloqueia execução como root.${NC}"
-    exit 1
-fi
-if command -v sudo >/dev/null 2>&1; then
-    SUDO_CMD="sudo"
-else
-    echo -e "${RED}[ERRO] Instale sudo ou instale manualmente as dependências antes de executar o script.${NC}"
-    exit 1
+if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+        SUDO_CMD="sudo"
+    else
+        echo -e "${RED}[ERRO] Este script requer privilégios de root para instalar dependências do sistema.${NC}"
+        echo -e "Por favor, execute como root ou instale o sudo."
+        exit 1
+    fi
 fi
 
 # 2. Instalação de dependências do sistema
