@@ -61,7 +61,13 @@ class A1PolicyManager:
                 if not isinstance(value, bool):
                     return False, f"{key} must be a boolean"
                 continue
-            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                return False, f"{key} must be a finite number"
+            try:
+                value = float(value)
+            except (OverflowError, TypeError, ValueError):
+                return False, f"{key} must be a finite number"
+            if not math.isfinite(value):
                 return False, f"{key} must be a finite number"
             if value < definition["minimum"] or value > definition["maximum"]:
                 return False, f"{key} {value} out of bounds [{definition['minimum']}, {definition['maximum']}]"

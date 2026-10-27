@@ -65,7 +65,7 @@ class Refinement:
             return False, f"Unsupported action parameter (Default-Deny): {action.parameter}"
         try:
             value = float(action.value)
-        except (TypeError, ValueError):
+        except (OverflowError, TypeError, ValueError):
             return False, f"{action.parameter} value must be numeric"
         if not math.isfinite(value):
             return False, f"{action.parameter} value must be finite"

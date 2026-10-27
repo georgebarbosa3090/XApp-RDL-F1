@@ -64,7 +64,7 @@ class ControlDispatcher:
 
         try:
             val = float(val)
-        except (TypeError, ValueError):
+        except (OverflowError, TypeError, ValueError):
             logger.error("Ação de controle rejeitada: valor não numérico.")
             return None
         if not isinstance(target_node, str) or not target_node.strip() or not isfinite(val):

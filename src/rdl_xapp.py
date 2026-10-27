@@ -359,7 +359,13 @@ class RDLxApp:
                     raise ValueError("node_id must be a non-empty string of at most 128 characters")
                 if not isinstance(parameter, str) or not parameter.strip():
                     raise ValueError("parameter must be a non-empty string")
-                if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise ValueError("value must be a finite number")
+                try:
+                    value = float(value)
+                except (OverflowError, TypeError, ValueError) as exc:
+                    raise ValueError("value must be a finite number") from exc
+                if not math.isfinite(value):
                     raise ValueError("value must be a finite number")
                 if isinstance(priority, bool) or not isinstance(priority, int) or not 0 <= priority <= 100:
                     raise ValueError("priority must be an integer in [0, 100]")
@@ -367,7 +373,7 @@ class RDLxApp:
                     xapp_id=xapp_id,
                     node_id=node_id,
                     parameter=parameter,
-                    value=float(value),
+                    value=value,
                     priority=priority
                 )
                 with self.buffer_lock:
