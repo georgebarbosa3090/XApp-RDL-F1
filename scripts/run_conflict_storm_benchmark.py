@@ -1,7 +1,7 @@
-"""
-Benchmark de Estresse e Escalabilidade: Conflict Storm (Cenário S6)
-Avalia a capacidade de processamento do H-RDL sob os 5 níveis progressivos de carga (L0 a L4),
-medindo T_HRDL(N), Throughput de Decisões (decisions/s), latências P95/P99 e identificando o joelho da curva Near-RT.
+"""Offline decision-processing microbenchmark; this is not a RAN simulation.
+
+The generated action batches are synthetic software workload only. No UEs,
+radio channel, ns-3, 5G-LENA, E2, or Near-RT behavior is modeled here.
 """
 
 import os
@@ -21,11 +21,11 @@ from src.core.refinement import Refinement
 from src.conflict_types import XAppAction
 
 LEVEL_CONFIGS = {
-    "L0": {"name": "Baixo",     "ues": 30,  "xapps": 3,  "actions_per_sec": 5,   "kpm_interval_ms": 1000, "duration_s": 10},
-    "L1": {"name": "Moderado",  "ues": 60,  "xapps": 3,  "actions_per_sec": 10,  "kpm_interval_ms": 500,  "duration_s": 10},
-    "L2": {"name": "Alto",      "ues": 120, "xapps": 5,  "actions_per_sec": 25,  "kpm_interval_ms": 200,  "duration_s": 10},
-    "L3": {"name": "Severo",    "ues": 240, "xapps": 8,  "actions_per_sec": 50,  "kpm_interval_ms": 100,  "duration_s": 10},
-    "L4": {"name": "Extremo",   "ues": 500, "xapps": 10, "actions_per_sec": 100, "kpm_interval_ms": 50,   "duration_s": 10},
+    "L0": {"name": "Baixo",     "xapps": 3,  "actions_per_sec": 5,   "duration_s": 10},
+    "L1": {"name": "Moderado",  "xapps": 3,  "actions_per_sec": 10,  "duration_s": 10},
+    "L2": {"name": "Alto",      "xapps": 5,  "actions_per_sec": 25,  "duration_s": 10},
+    "L3": {"name": "Severo",    "xapps": 8,  "actions_per_sec": 50,  "duration_s": 10},
+    "L4": {"name": "Extremo",   "xapps": 10, "actions_per_sec": 100, "duration_s": 10},
 }
 
 def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm"):
@@ -33,7 +33,7 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
     results = []
 
     print("================================================================================")
-    print(" [BENCHMARK S6] Executando Conflict Storm & Stress Test de Escalabilidade")
+    print(" [OFFLINE MICROBENCHMARK] Decision-processing workload; not a RAN experiment.")
     print(f" Destino: {output_dir}")
     print("================================================================================")
 
@@ -91,13 +91,9 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
         p99_lat = float(np.percentile(latencies_ms, 99))
         max_lat = float(np.max(latencies_ms))
 
-        # Status Near-RT: True se latência máxima < 50ms
-        near_rt_compliant = (p95_lat < 50.0)
-
         record = {
             "Level": lvl_key,
             "Name": cfg["name"],
-            "UEs": cfg["ues"],
             "xApps": cfg["xapps"],
             "Actions_Per_Sec": cfg["actions_per_sec"],
             "Total_Actions": total_actions_to_inject,
@@ -107,8 +103,7 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
             "Latency_Mean_ms": round(mean_lat, 2),
             "Latency_P95_ms": round(p95_lat, 2),
             "Latency_P99_ms": round(p99_lat, 2),
-            "Latency_Max_ms": round(max_lat, 2),
-            "Near_RT_Compliant": near_rt_compliant
+            "Latency_Max_ms": round(max_lat, 2)
         }
         results.append(record)
 
@@ -121,7 +116,7 @@ def run_conflict_storm_benchmark(output_dir: str = "results/campaign_s0_s8/storm
         json.dump(results, f, indent=2)
 
     print("\n[RESULTADOS S6] Tabela de Escalabilidade Conflict Storm:")
-    print(df_storm[["Level", "Name", "UEs", "xApps", "Throughput_Actions_Sec", "Latency_Mean_ms", "Latency_P95_ms", "Near_RT_Compliant"]].to_string(index=False))
+    print(df_storm[["Level", "Name", "xApps", "Throughput_Actions_Sec", "Latency_Mean_ms", "Latency_P95_ms"]].to_string(index=False))
     print(f"\nSalvo em: {csv_path}")
 
 if __name__ == "__main__":
