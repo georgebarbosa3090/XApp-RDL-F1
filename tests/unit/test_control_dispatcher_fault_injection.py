@@ -164,6 +164,30 @@ def test_rollback_is_not_claimed_without_verified_previous_value():
     assert len(rmr.sent_messages) == 1
     assert dispatcher.rollback_history == []
 
+def test_rollback_send_failure_is_not_reported_as_sent():
+    class RejectingRollbackRMR(MockRMR):
+        def rmr_send(self, payload, mtype, target):
+            if self.sent_messages:
+                return False
+            return super().rmr_send(payload, mtype, target)
+
+    rmr = RejectingRollbackRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
+    action = XAppAction("xslice", "gnb_rollback_reject", "PRB_QUOTA", 75.0, 80)
+    decision = RDLDecision(
+        decision_id="dec_rollback_reject",
+        selected_actions=[action],
+        safety_result={"is_safe": True},
+        previous_safe_value=50.0,
+    )
+    ctrl_id = dispatcher.dispatch_control(decision)
+    assert ctrl_id is not None
+
+    assert dispatcher.trigger_rollback(ctrl_id) is False
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "SENT"
+    assert dispatcher.pending_requests[ctrl_id]["rollback_status"] == "SEND_FAILED"
+    assert dispatcher.rollback_history == []
+
 
 def test_ack_correlation_includes_node_and_ran_function():
     rmr = MockRMR()

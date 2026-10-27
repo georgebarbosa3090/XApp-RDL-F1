@@ -70,13 +70,13 @@ def test_safety_guard_stochastic_fuzzing_10000_iterations():
             safe_admitted += 1
             # O valor admitido DEVE estar estritamente dentro da faixa segura Omega_safe
             if param == "PRB_QUOTA":
-                assert 0.0 <= action.value <= 100.0, f"Violação PRB: {action.value}"
+                assert 0.0 <= action.value <= 100.0 and action.value.is_integer(), f"Violação PRB: {action.value}"
             elif param == "TX_POWER":
-                assert -10.0 <= action.value <= 43.0, f"Violação Potência: {action.value}"
+                assert -10.0 <= action.value <= 43.0 and (action.value * 10).is_integer(), f"Violação Potência: {action.value}"
             elif param == "HANDOVER":
                 assert 0.0 <= action.value <= 65535.0, f"Cell ID de handover inválido: {action.value}"
             elif param == "SCHEDULER_WEIGHT":
-                assert 1.0 <= action.value <= 100.0, f"Violação Scheduler Weight: {action.value}"
+                assert 1.0 <= action.value <= 100.0 and action.value.is_integer(), f"Violação Scheduler Weight: {action.value}"
             assert 0 <= action.priority <= 100
         else:
             rejected_count += 1
