@@ -36,7 +36,7 @@ class RICindication(SEQ):
         ('ranFunctionID', INT()),
         ('ricActionID', INT()),
         ('ricIndicationSN', INT()),
-        ('ricIndicationType', ENUM(val={0: 'report', 1: 'insert'})),
+        ('ricIndicationType', INT()),
         ('ricIndicationHeader', OCT_STR()),
         ('ricIndicationMessage', OCT_STR()),
         ('ricCallProcessID', OCT_STR(opt=True))
