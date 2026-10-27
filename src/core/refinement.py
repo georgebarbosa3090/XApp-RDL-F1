@@ -44,7 +44,8 @@ class Refinement:
 
         if self.strict_capabilities:
             return None
-        return float(self.config.get("max_tx_power_dbm", 23.0))
+        from src.e2.rc.control_parameter import RAN_PARAMETERS
+        return float(self.config.get("max_tx_power_dbm", RAN_PARAMETERS["TX_POWER"].max_value))
 
     def _validate_parameter_bounds(self, action: XAppAction) -> Tuple[bool, str]:
         """
