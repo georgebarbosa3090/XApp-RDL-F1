@@ -172,6 +172,14 @@ class RDLxApp:
                 self.memory = MemoryModule()
                 self.reasoning.memory = self.memory
         
+        from src.e2.control_dispatcher import ControlDispatcher
+        self.dispatcher = ControlDispatcher(
+            rmr_client=self.xapp,
+            sdl_repo=self.memory,
+            backend=self.backend,
+            default_timeout_s=5.0
+        )
+        
         self.xapp.register_callback(self._kpm_indication_handler, RIC_INDICATION)
         self.xapp.register_callback(self._action_proposal_handler, RDL_ACTION_PROPOSAL)
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
