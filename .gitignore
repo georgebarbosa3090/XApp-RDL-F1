@@ -4,6 +4,17 @@
 # =============================================================================
 
 # 1. Snapshots, Arquivos Compactados e Dumps (PERMANENTEMENTE PROIBIDO NO GITHUB)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
 .snapshots/
 snapshots/
 *snapshot*
@@ -213,4 +224,3 @@ scripts/validate_ml_provenance.*
 !scripts/stop_auto_sync.ps1
 auto_git_sync.log
 auto_git_sync.err.log
-

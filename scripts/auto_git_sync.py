@@ -4,7 +4,8 @@ Auto Git Sync Daemon - XApp-RDL-F1
 Sincroniza automaticamente qualquer alteração local no repositório para o GitHub.
 
 Monitora o workspace em intervalos configuráveis, realiza git add, commit e push
-quando detecta modificações, criações ou remoções de arquivos.
+para arquivos rastreados. Novos arquivos exigem staging explícito para evitar
+a publicação acidental de credenciais ou arquivos locais.
 """
 
 import os
@@ -33,14 +34,14 @@ def run_git(args: list[str], check: bool = False) -> subprocess.CompletedProcess
 
 
 def has_local_changes() -> bool:
-    """Verifica se existem alterações unstaged, staged ou untracked."""
-    result = run_git(["status", "--porcelain"])
+    """Verifica alterações staged/unstaged em arquivos rastreados."""
+    result = run_git(["status", "--porcelain", "--untracked-files=no"])
     return bool(result.stdout.strip())
 
 
 def get_changed_files_summary() -> str:
     """Retorna lista resumida de arquivos alterados."""
-    result = run_git(["status", "--short"])
+    result = run_git(["status", "--short", "--untracked-files=no"])
     lines = [line.strip() for line in result.stdout.strip().splitlines() if line.strip()]
     if not lines:
         return "modificações gerais"
@@ -65,8 +66,8 @@ def sync_cycle() -> bool:
     commit_msg = f"chore(auto-sync): {summary} [{now_str}]"
 
     print(f"[{now_str}] Alterações detectadas: {summary}")
-    print(" -> Executando 'git add -A'...")
-    add_res = run_git(["add", "-A"])
+    print(" -> Staging somente arquivos já rastreados ('git add -u')...")
+    add_res = run_git(["add", "-u"])
     if add_res.returncode != 0:
         print(f" [ERRO] Falha no git add: {add_res.stderr.strip()}", file=sys.stderr)
         return False
