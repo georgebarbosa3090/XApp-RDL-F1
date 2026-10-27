@@ -105,7 +105,7 @@ class CausalTracker:
         parameter: str,
         old_val: float,
         new_val: float,
-        kpm_before: Dict[str, float],
+        kpm_before: Optional[Dict[str, float]] = None,
         strategy: str = "SHANNON_OPTIMAL",
         decision_latency_ms: Optional[float] = None
     ) -> CausalRecord:
@@ -120,7 +120,7 @@ class CausalTracker:
             parameter=parameter,
             old_value=old_val,
             new_value=new_val,
-            kpm_before=dict(kpm_before),
+            kpm_before=dict(kpm_before) if kpm_before else {},
             resolution_strategy=strategy
         )
         self.records.append(rec)
