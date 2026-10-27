@@ -108,7 +108,7 @@ class CausalTracker:
         self,
         action_id: str,
         decision_id: str,
-        ric_request_id: int | str,
+        ric_request_id: Union[int, str],
         node_id: str,
         parameter: str,
         old_val: Optional[float],
@@ -139,7 +139,7 @@ class CausalTracker:
     def correlation_id(node_id: str, ran_function_id: int, requestor_id: int, instance_id: int) -> str:
         return f"{node_id}:{ran_function_id}:{requestor_id}:{instance_id}"
 
-    def record_ack(self, ric_request_id: int | str, rtt_ms: float = 0.0) -> bool:
+    def record_ack(self, ric_request_id: Union[int, str], rtt_ms: float = 0.0) -> bool:
         self.ack_latency_ms.append(rtt_ms)
         matches = [record for record in self.records if record.ric_request_id == ric_request_id]
         if len(matches) != 1:
@@ -148,7 +148,7 @@ class CausalTracker:
         matches[0].control_to_effect_latency_ms = rtt_ms
         return True
 
-    def record_failure(self, ric_request_id: int | str, cause_code: int = 1) -> bool:
+    def record_failure(self, ric_request_id: Union[int, str], cause_code: int = 1) -> bool:
         matches = [record for record in self.records if record.ric_request_id == ric_request_id]
         if len(matches) != 1:
             return False
