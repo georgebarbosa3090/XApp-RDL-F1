@@ -283,10 +283,10 @@ deploy-rdl: helm-deploy
 deploy-baseline: helm-deploy-baseline
 
 run-baseline:
-	bash scripts/run_baseline_experiment.sh
+	$(MAKE) run-scenario1-baseline
 
 run-rdl:
-	bash scripts/run_rdl_experiment.sh
+	$(MAKE) run-scenario1
 
 run-scenario1:
 	@echo "Executando Cenário 1: Energy Saving vs QoS (EEVS) com logs em tempo real..."
@@ -299,9 +299,9 @@ run-scenario1:
 		echo ""; \
 		exit 1; \
 	fi
-	@mkdir -p $(NS3_DIR)/scratch
-	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
+	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
+	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_energy_vs_qos --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
 
 run-scenario1-baseline:
 	@echo "Executando Baseline Cenário 1: Energy Saving vs QoS (EEVS) [enableE2=false]..."
@@ -312,9 +312,9 @@ run-scenario1-baseline:
 		echo ""; \
 		exit 1; \
 	fi
-	@mkdir -p $(NS3_DIR)/scratch
-	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/scenario_rdl_energy_vs_qos --enableE2=false --simTime=30"
+	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
+	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_energy_vs_qos --enableE2=false --simTime=30"
 
 run-scenario2:
 	@echo "Executando Cenário 2: Traffic Steering vs QoS (TVS) com logs em tempo real..."
@@ -327,9 +327,9 @@ run-scenario2:
 		echo ""; \
 		exit 1; \
 	fi
-	@mkdir -p $(NS3_DIR)/scratch
-	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
+	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
+	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_tvs_conflict --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
 
 run-scenario2-baseline:
 	@echo "Executando Baseline Cenário 2: Traffic Steering vs QoS (TVS) [enableE2=false]..."
@@ -340,9 +340,9 @@ run-scenario2-baseline:
 		echo ""; \
 		exit 1; \
 	fi
-	@mkdir -p $(NS3_DIR)/scratch
-	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
+	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
+	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
+	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
 
 sync-cross:
 	@echo "Executando sincronização cruzada bidirecional F1 <-> F2..."

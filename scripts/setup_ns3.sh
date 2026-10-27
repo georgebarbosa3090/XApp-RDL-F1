@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Script de Instalação e Compilação Automatizada do ns-3 NORI / 5G-LENA
-# Suporta ambientes WSL2, Ubuntu, Docker e execução como root ou usuário comum.
+# Instala dependências e valida versões sem alterar checkouts existentes.
 # ==============================================================================
 set -e
 
@@ -12,24 +12,24 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-WORKSPACE_DIR="${HOME}/ns3-oran-workspace"
-NS3_DIR="${WORKSPACE_DIR}/ns-3-oran"
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WORKSPACE_DIR="${WORKSPACE_DIR:-${HOME}/ns3-oran-workspace}"
+NS3_DIR="${NS3_DIR:-${WORKSPACE_DIR}/ns-3-oran}"
 
 echo -e "${BLUE}======================================================================${NC}"
 echo -e "${BLUE}  Instalação e Configuração do Ambiente ns-3 NORI / 5G-LENA           ${NC}"
 echo -e "${BLUE}======================================================================${NC}"
 
-# 1. Detecção de privilégios e comando sudo
+# 1. ns-3 launcher recusa execução como root; exigir usuário comum.
 SUDO_CMD=""
-if [ "$(id -u)" -ne 0 ]; then
-    if command -v sudo >/dev/null 2>&1; then
-        SUDO_CMD="sudo"
-    else
-        echo -e "${RED}[ERRO] Este script requer privilégios de root para instalar pacotes apt, mas 'sudo' não foi encontrado.${NC}"
-        echo -e "Por favor, execute como root ou instale o sudo."
-        exit 1
-    fi
+if [ "$(id -u)" -eq 0 ]; then
+    echo -e "${RED}[ERRO] Execute este script como usuário comum; o launcher ns-3 bloqueia execução como root.${NC}"
+    exit 1
+fi
+if command -v sudo >/dev/null 2>&1; then
+    SUDO_CMD="sudo"
+else
+    echo -e "${RED}[ERRO] Instale sudo ou instale manualmente as dependências antes de executar o script.${NC}"
+    exit 1
 fi
 
 # 2. Instalação de dependências do sistema
@@ -160,10 +160,17 @@ mkdir -p "${WORKSPACE_DIR}"
 if [ ! -d "${NS3_DIR}" ]; then
     echo -e "Clonando ns-3-dev em ${NS3_DIR} (versão congelada ns-3.48)..."
     git clone https://gitlab.com/nsnam/ns-3-dev.git "${NS3_DIR}" --branch ns-3.48 || git clone https://gitlab.com/nsnam/ns-3-dev.git "${NS3_DIR}"
-    cd "${NS3_DIR}" && git checkout ns-3.48 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do ns-3.48${NC}"; exit 1; }
 else
-    echo -e "${GREEN}[OK] Diretório ${NS3_DIR} já existe.${NC}"
-    cd "${NS3_DIR}" && git checkout ns-3.48 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do ns-3.48${NC}"; exit 1; }
+    echo -e "${GREEN}[OK] Diretório ${NS3_DIR} já existe; não será alterado automaticamente.${NC}"
+    if [ ! -d "${NS3_DIR}/.git" ] || [ "$(git -C "${NS3_DIR}" describe --tags --exact-match 2>/dev/null || true)" != "ns-3.48" ]; then
+        echo -e "${RED}[ERRO] O checkout existente não está exatamente na tag ns-3.48.${NC}"
+        echo -e "Use um diretório novo via NS3_DIR/WORKSPACE_DIR ou faça o checkout manualmente após preservar suas alterações."
+        exit 1
+    fi
+fi
+if [ "$(git -C "${NS3_DIR}" describe --tags --exact-match 2>/dev/null || true)" != "ns-3.48" ]; then
+    echo -e "${RED}[ERRO] ns-3 deve estar exatamente na tag ns-3.48; nenhuma alteração automática será feita.${NC}"
+    exit 1
 fi
 
 cd "${NS3_DIR}"
@@ -173,49 +180,44 @@ if [ ! -d "${NS3_DIR}/contrib/nr" ] && [ ! -d "${NS3_DIR}/src/nr" ]; then
     echo -e "Clonando módulo 5G-LENA (nr v5.1) em ${NS3_DIR}/contrib/nr..."
     mkdir -p "${NS3_DIR}/contrib"
     git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr" --branch v5.1 || git clone https://gitlab.com/cttc-lena/nr.git "${NS3_DIR}/contrib/nr"
-    cd "${NS3_DIR}/contrib/nr" && git checkout v5.1 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do 5G-LENA v5.1${NC}"; exit 1; }
-    cd "${NS3_DIR}"
 else
     echo -e "${GREEN}[OK] Módulo 5G-LENA (nr) detectado em ${NS3_DIR}.${NC}"
-    if [ -d "${NS3_DIR}/contrib/nr/.git" ]; then
-        cd "${NS3_DIR}/contrib/nr" && git checkout v5.1 || { echo -e "${RED}[ERRO] Falha ao realizar checkout do 5G-LENA v5.1${NC}"; exit 1; }
-        cd "${NS3_DIR}"
+    NR_DIR="${NS3_DIR}/contrib/nr"
+    if [ ! -d "${NR_DIR}/.git" ] || [ "$(git -C "${NR_DIR}" describe --tags --exact-match 2>/dev/null || true)" != "v5.1" ]; then
+        echo -e "${RED}[ERRO] O checkout existente do 5G-LENA não está exatamente na tag v5.1.${NC}"
+        echo -e "Preserve suas alterações e configure a versão desejada manualmente."
+        exit 1
     fi
+fi
+NR_DIR="${NS3_DIR}/contrib/nr"
+if [ -d "${NR_DIR}/.git" ] && [ "$(git -C "${NR_DIR}" describe --tags --exact-match 2>/dev/null || true)" != "v5.1" ]; then
+    echo -e "${RED}[ERRO] 5G-LENA deve estar exatamente na tag v5.1; nenhuma alteração automática será feita.${NC}"
+    exit 1
 fi
 
 # 3.2 Clonar módulo NORI (e2-agent / oran) em contrib/oran se ausente
 if [ ! -d "${NS3_DIR}/contrib/oran" ] && [ ! -d "${NS3_DIR}/src/oran" ]; then
     echo -e "Clonando módulo NORI E2SIM em ${NS3_DIR}/contrib/oran..."
     mkdir -p "${NS3_DIR}/contrib"
-    git clone https://github.com/lasseufpa/nori.git "${NS3_DIR}/contrib/oran" || git clone https://gitlab.com/oran-nori/nori.git "${NS3_DIR}/contrib/oran" 2>/dev/null || true
+    git clone https://github.com/lasseufpa/nori.git "${NS3_DIR}/contrib/oran" || git clone https://gitlab.com/oran-nori/nori.git "${NS3_DIR}/contrib/oran" || {
+        echo -e "${RED}[ERRO] Não foi possível obter NORI; instalação interrompida.${NC}"
+        exit 1
+    }
     if [ -d "${NS3_DIR}/contrib/oran/.git" ]; then
-        cd "${NS3_DIR}/contrib/oran" && git checkout 9b64c12 2>/dev/null || echo -e "${YELLOW}[INFO] Branch padrão NORI utilizada.${NC}"
-        cd "${NS3_DIR}"
+        git -C "${NS3_DIR}/contrib/oran" checkout 9b64c12 || {
+            echo -e "${RED}[ERRO] Não foi possível fixar o commit NORI esperado.${NC}"
+            exit 1
+        }
     fi
 fi
-
-# 3.2 Copiar cenários de simulação do projeto para o diretório scratch do ns-3
-if [ -d "${BASE_DIR}/simulations/ns3" ]; then
-    mkdir -p "${NS3_DIR}/scratch"
-    rm -f "${NS3_DIR}/scratch/scenario_rdl_"*.cc 2>/dev/null || true
-    cp -f "${BASE_DIR}/simulations/ns3/"*.cc "${NS3_DIR}/scratch/" 2>/dev/null || true
-    echo -e "${GREEN}[OK] Cenários C++ sincronizados com ${NS3_DIR}/scratch/.${NC}"
-fi
-
-# 4. Tratar trava de segurança para execução como root
-echo -e "\n${YELLOW}[ETAPA 3/4] Ajustando permissões e compatibilidade do script ns3...${NC}"
-if [ -f "./ns3" ]; then
-    git checkout ./ns3 2>/dev/null || true
-    if grep -q "def refuse_run_as_root():" "./ns3"; then
-        echo -e "Ajustando 'refuse_run_as_root' para permitir compilação segura como root..."
-        sed -i 's/def refuse_run_as_root():/def refuse_run_as_root():\n    return/g' ./ns3
-    fi
+if [ -d "${NS3_DIR}/contrib/oran/.git" ] && [[ "$(git -C "${NS3_DIR}/contrib/oran" rev-parse HEAD)" != 9b64c12* ]]; then
+    echo -e "${RED}[ERRO] NORI não está no commit fixado 9b64c12; preserve o checkout e configure a versão manualmente.${NC}"
+    exit 1
 fi
 
 # 5. Configuração CMake e Compilação
 echo -e "\n${YELLOW}[ETAPA 4/4] Configurando e compilando ns-3 com CMake...${NC}"
-# Limpar cache de compilações antigas/incompletas
-rm -rf cmake-cache build .lock-waf*
+# Reutiliza o cache/build existentes para não apagar artefatos do workspace externo.
 
 if command -v g++-11 >/dev/null 2>&1; then
     export CC=gcc-11
