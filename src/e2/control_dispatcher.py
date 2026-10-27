@@ -317,8 +317,8 @@ class ControlDispatcher:
 
     def trigger_rollback(self, control_request_id: str):
         """
-        Executa rollback determinístico restaurando o parâmetro ao valor seguro anterior.
-        Garante a invariante de que nenhuma ação insegura ou pendente permanece na RAN.
+        Solicita rollback somente com valor anterior verificado.
+        O envio não é considerado restauração confirmada sem um ACK próprio.
         """
         info = self.pending_requests.get(control_request_id)
         if not info:
@@ -331,6 +331,7 @@ class ControlDispatcher:
         if safe_val is None:
             info["status"] = "ROLLBACK_UNAVAILABLE"
             info["rollback_error"] = "No verified pre-control value is available."
+            self._persist_rollback_status(control_request_id, info)
             logger.error(
                 "Rollback não enviado: estado anterior real da RAN não está disponível",
                 control_request_id=control_request_id,
@@ -341,11 +342,13 @@ class ControlDispatcher:
         except (TypeError, ValueError):
             info["status"] = "ROLLBACK_UNAVAILABLE"
             info["rollback_error"] = "Pre-control value is not numeric."
+            self._persist_rollback_status(control_request_id, info)
             logger.error("Rollback rejeitado: valor anterior inválido", control_request_id=control_request_id)
             return False
         if not isfinite(safe_val):
             info["status"] = "ROLLBACK_UNAVAILABLE"
             info["rollback_error"] = "Pre-control value is not finite."
+            self._persist_rollback_status(control_request_id, info)
             logger.error("Rollback rejeitado: valor anterior não finito", control_request_id=control_request_id)
             return False
         
@@ -356,7 +359,6 @@ class ControlDispatcher:
         
         # Codifica e envia comando de restauração segura
         try:
-            from src.e2.rc.capability_registry import rc_capability_registry
             ran_fn_id = info["ran_function_id"]
             encoded = self.encoder.encode_control_parts(
                 node_id=target_node,
@@ -381,10 +383,12 @@ class ControlDispatcher:
             logger.error(f"Erro ao emitir comando de rollback via RMR: {e}")
             info["status"] = "ROLLBACK_SEND_FAILED"
             info["rollback_error"] = str(e)
+            self._persist_rollback_status(control_request_id, info)
             return False
 
         info["status"] = "ROLLBACK_SENT_UNCONFIRMED"
         info["rollback_sent_at"] = time.time()
+        self._persist_rollback_status(control_request_id, info)
         self.rollback_history.append({
             "control_request_id": control_request_id,
             "node_id": target_node,
@@ -394,3 +398,22 @@ class ControlDispatcher:
             "timestamp": info["rollback_sent_at"]
         })
         return True
+
+    def _persist_rollback_status(self, control_request_id: str, info: Dict[str, Any]) -> None:
+        try:
+            self.sdl.record_rollback(
+                control_request_id,
+                status=info["status"],
+                details={
+                    "node_id": info.get("meid"),
+                    "parameter": info.get("parameter"),
+                    "requested_value": info.get("previous_safe_value"),
+                    "error": info.get("rollback_error"),
+                },
+            )
+        except Exception as exc:
+            logger.error(
+                "Falha ao persistir status do rollback",
+                control_request_id=control_request_id,
+                error=str(exc),
+            )

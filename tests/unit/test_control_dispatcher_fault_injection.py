@@ -27,11 +27,14 @@ class MockRMR:
 class MockSDL:
     def __init__(self):
         self.db = {}
+        self.rollbacks = {}
     def save_control_request(self, req_id, info):
         self.db[req_id] = info
     def update_control_result(self, req_id, status):
         if req_id in self.db:
             self.db[req_id]["status"] = status
+    def record_rollback(self, control_id, status="ROLLBACK_SENT_UNCONFIRMED", details=None):
+        self.rollbacks[control_id] = {"status": status, "details": details or {}}
 
 def test_control_dispatcher_successful_dispatch_and_ack():
     rmr = MockRMR()
@@ -111,6 +114,7 @@ def test_control_dispatcher_failure_triggers_rollback():
     assert len(dispatcher.rollback_history) == 1
     assert dispatcher.rollback_history[0]["requested_value"] == 43.0
     assert dispatcher.rollback_history[0]["status"] == "SENT_UNCONFIRMED"
+    assert sdl.rollbacks[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
 
 def test_control_dispatcher_timeout_triggers_rollback():
     rmr = MockRMR()

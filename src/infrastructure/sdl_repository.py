@@ -93,7 +93,12 @@ class SdlRepository:
             data["result"] = result
             self._set(f"control_results:{control_id}", data)
 
-    def record_rollback(self, control_id: str, status: str, details: Optional[dict] = None):
+    def record_rollback(
+        self,
+        control_id: str,
+        status: str = "ROLLBACK_SENT_UNCONFIRMED",
+        details: Optional[dict] = None,
+    ):
         self._set(
             f"control_rollbacks:{control_id}",
             {"timestamp": time.time(), "status": status, "details": details or {}},

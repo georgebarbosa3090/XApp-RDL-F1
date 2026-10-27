@@ -1,5 +1,5 @@
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from src.observability.logging import setup_logger
 
 logger = setup_logger("MemoryModule")
@@ -41,6 +41,15 @@ class MemoryModule:
     def update_control_result(self, control_id: str, result: str):
         logger.debug(f"[MEMORY] Atualizando Control Result {control_id} -> {result}")
 
-    def record_rollback(self, control_id: str):
-        logger.warning(f"[MEMORY] Registrando Rollback para {control_id}")
-
+    def record_rollback(
+        self,
+        control_id: str,
+        status: str = "ROLLBACK_SENT_UNCONFIRMED",
+        details: Optional[dict] = None,
+    ):
+        logger.warning(
+            "[MEMORY] Registrando status de rollback",
+            control_request_id=control_id,
+            status=status,
+            details=details or {},
+        )

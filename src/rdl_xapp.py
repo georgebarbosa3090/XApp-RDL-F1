@@ -461,9 +461,6 @@ class RDLxApp:
                 self.window_start = now_ts()
             self.proposal_buffer.append(action)
 
-    def _get_last_value(self, action: XAppAction) -> Optional[float]:
-        return None
-
     def _process_action_group(self, actions: List[XAppAction]):
         """
         Processa todas as acoes acumuladas na Decision Window (Feature 2):
@@ -535,7 +532,7 @@ class RDLxApp:
             strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH",
             affected_node=all_selected[0].node_id if all_selected else "gnb_01",
             affected_cell=getattr(all_selected[0], "cell_id", "cell_01") if all_selected else "cell_01",
-            previous_safe_value=self._get_last_value(all_selected[0]) if all_selected else 50.0,
+            previous_safe_value=None,
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
 
@@ -549,7 +546,7 @@ class RDLxApp:
                 safety_result={"is_safe": True},
                 affected_node=act.node_id,
                 affected_cell=getattr(act, "cell_id", "cell_01"),
-                previous_safe_value=self._get_last_value(act),
+                previous_safe_value=None,
                 strategy_used=decision.strategy_used,
             )
             control_request_id = self.dispatcher.dispatch_control(per_action_decision)
@@ -568,7 +565,7 @@ class RDLxApp:
                 ),
                 node_id=act.node_id,
                 parameter=act.parameter,
-                old_val=self._get_last_value(act),
+                old_val=None,
                 new_val=act.value,
                 kpm_before=(
                     self.perception.latest_kpm.__dict__

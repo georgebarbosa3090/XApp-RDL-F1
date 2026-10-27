@@ -222,7 +222,7 @@ A camada contém builders/decoders locais e uma codificação APER de pesquisa. 
 - `PRB_QUOTA` (Parameter ID: 1, Faixa: 0–100%);
 - `SCHEDULER_WEIGHT` (Parameter ID: 2, Faixa: 1–100);
 - `TX_POWER` (Parameter ID: 3, faixa conforme capacidade anunciada; perfil offline canônico: -10 a 43 dBm);
-- `HANDOVER_TARGET` (Parameter ID: 4, Cell ID de destino).
+- `HANDOVER` (Parameter ID: 4, Cell ID de destino, faixa 0–65535).
 
 ### Limites operacionais verificados no código
 
