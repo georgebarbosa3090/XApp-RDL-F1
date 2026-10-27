@@ -205,6 +205,7 @@ scripts/validate_ml_provenance.*
 !scripts/reproduce_paper_artifacts.py
 !scripts/run_full_campaign_s0_s8.py
 !scripts/run_3_consecutive_simulations.py
+!scripts/generate_ns3_flowmonitor_markdown_report.py
 
 # Auto Git Sync
 !scripts/auto_git_sync.py
