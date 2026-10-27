@@ -62,7 +62,12 @@ class ControlDispatcher:
             val = float(getattr(selected_act, "value", 50.0))
             target_node = getattr(selected_act, "node_id", getattr(decision, "affected_node", "gnb_01"))
 
-        if not isinstance(target_node, str) or not target_node.strip() or not isfinite(float(val)):
+        try:
+            val = float(val)
+        except (TypeError, ValueError):
+            logger.error("Ação de controle rejeitada: valor não numérico.")
+            return None
+        if not isinstance(target_node, str) or not target_node.strip() or not isfinite(val):
             logger.error("Ação de controle rejeitada: nó ou valor inválido.")
             return None
 
@@ -70,10 +75,27 @@ class ControlDispatcher:
         action_id = getattr(selected_act, "action_id", str(uuid.uuid4())[:8])
         
         from src.e2.rc.capability_registry import rc_capability_registry
-        ran_fn_id = rc_capability_registry.get_rc_function_id(target_node)
-        style_type, ctrl_action_id, param_id = rc_capability_registry.resolve_action(
-            param_name=param, node_id=target_node
-        )
+        try:
+            capability = rc_capability_registry.get_action_capability(
+                param, target_node, strict_mode=None
+            )
+            if not capability.min_value <= val <= capability.max_value:
+                logger.error(
+                    "Ação de controle fora da capacidade anunciada",
+                    node_id=target_node,
+                    parameter=param,
+                    value=val,
+                    min_value=capability.min_value,
+                    max_value=capability.max_value,
+                )
+                return None
+            ran_fn_id = rc_capability_registry.get_rc_function_id(target_node)
+            style_type, ctrl_action_id, param_id = rc_capability_registry.resolve_action(
+                param_name=param, node_id=target_node
+            )
+        except (KeyError, ValueError) as exc:
+            logger.error("Ação de controle sem capacidade RC válida", error=str(exc))
+            return None
 
         # Alocar IDs
         req_id_obj = self.allocator.allocate(
@@ -194,8 +216,9 @@ class ControlDispatcher:
             ctrl_id, key = match
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
-            if ctrl_id and ctrl_id in self.pending_requests:
-                info = self.pending_requests[ctrl_id]
+            with self._lock:
+                info = self.pending_requests.get(ctrl_id)
+            if info is not None:
                 info["status"] = "ACKNOWLEDGED"
                 info["ack_received_at"] = time.time()
                 rtt_ms = (info["ack_received_at"] - info["sent_at"]) * 1000.0
@@ -230,8 +253,9 @@ class ControlDispatcher:
                 logger.warning("CORRELATION_ERROR: RIC_CONTROL_FAILURE sem requisição pendente correspondente.")
                 return None
             ctrl_id, key = match
-            if ctrl_id and ctrl_id in self.pending_requests:
-                info = self.pending_requests[ctrl_id]
+            with self._lock:
+                info = self.pending_requests.get(ctrl_id)
+            if info is not None:
                 info["status"] = "FAILED"
                 info["cause"] = cause
                 try:

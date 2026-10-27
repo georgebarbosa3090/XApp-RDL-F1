@@ -103,13 +103,14 @@ def test_control_dispatcher_failure_triggers_rollback():
 
     fail_res = dispatcher.handle_failure(fail_pdu)
     assert fail_res is not None
-    assert fail_res["status"] == "ROLLED_BACK"
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLED_BACK"
+    assert fail_res["status"] == "ROLLBACK_SENT_UNCONFIRMED"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
 
     # Verifica se comando de restauração (rollback) foi emitido via RMR
     assert len(rmr.sent_messages) == 2
     assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["restored_value"] == 43.0
+    assert dispatcher.rollback_history[0]["requested_value"] == 43.0
+    assert dispatcher.rollback_history[0]["status"] == "SENT_UNCONFIRMED"
 
 def test_control_dispatcher_timeout_triggers_rollback():
     rmr = MockRMR()
@@ -135,9 +136,62 @@ def test_control_dispatcher_timeout_triggers_rollback():
     timed_out = dispatcher.check_timeouts(now=time.time() + 2.0)
     assert len(timed_out) == 1
     assert timed_out[0] == ctrl_id
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLED_BACK"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["restored_value"] == 50.0
+    assert dispatcher.rollback_history[0]["requested_value"] == 50.0
+
+
+def test_rollback_is_not_claimed_without_verified_previous_value():
+    rmr = MockRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
+    action = XAppAction("xslice", "gnb_rollback_unknown", "PRB_QUOTA", 75.0, 80)
+    decision = RDLDecision(
+        decision_id="dec_rollback_unknown",
+        selected_actions=[action],
+        safety_result={"is_safe": True},
+    )
+    ctrl_id = dispatcher.dispatch_control(decision)
+    assert ctrl_id is not None
+
+    assert dispatcher.trigger_rollback(ctrl_id) is False
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_UNAVAILABLE"
+    assert len(rmr.sent_messages) == 1
+    assert dispatcher.rollback_history == []
+
+
+def test_ack_correlation_includes_node_and_ran_function():
+    rmr = MockRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
+    control_ids = []
+    for node in ("gnb_correlation_a", "gnb_correlation_b"):
+        action = XAppAction("xslice", node, "PRB_QUOTA", 60.0, 50)
+        decision = RDLDecision(
+            decision_id=f"decision_{node}",
+            selected_actions=[action],
+            safety_result={"is_safe": True},
+        )
+        control_ids.append(dispatcher.dispatch_control(decision))
+
+    first, second = [dispatcher.pending_requests[control_id] for control_id in control_ids]
+    assert first["requestor_id"] == second["requestor_id"]
+    assert first["instance_id"] == second["instance_id"]
+    assert len(dispatcher.req_key_to_id) == 2
+
+    ack = RICcontrolAcknowledge()
+    ack.set_val({
+        "ricRequestID": {
+            "ricRequestorID": second["requestor_id"],
+            "ricInstanceID": second["instance_id"],
+        },
+        "ranFunctionID": second["ran_function_id"],
+        "ricControlOutcome": b"OK",
+    })
+    payload = wrap_successful_outcome(PROC_RIC_CONTROL, ack.to_aper(), criticality=CRITICALITY_IGNORE)
+
+    assert dispatcher.handle_ack(payload) is None
+    result = dispatcher.handle_ack(payload, node_id="gnb_correlation_b")
+    assert result is not None
+    assert result["control_request_id"] == control_ids[1]
 
 def test_control_dispatcher_safety_guard_blocks_dispatch():
     rmr = MockRMR()

@@ -39,6 +39,9 @@ def test_a1_policy_manager_crud():
     ok_inv, msg_inv = manager.put_policy("20000", "policy_s02", invalid_policy)
     assert ok_inv is False
     assert "out of bounds" in msg_inv
+    assert manager.put_policy("20000", "policy_nan", {"max_cell_prb_limit": float("nan")})[0] is False
+    assert manager.put_policy("20000", "policy_extra", {"unrecognized": True})[0] is False
+    assert manager.put_policy("20000", "policy_boolean", {"energy_saving_allowed": 1})[0] is False
 
     # 5. Remoção de política
     assert manager.delete_policy("20000", "policy_s01") is True
@@ -98,6 +101,11 @@ def test_a1_policy_http_handler():
     handler.rfile = BytesIO(b"bad_json")
     handler.do_PUT()
 
+    handler.path = "/a1-p/v3/policytypes/20000/policies/p_nan"
+    handler.headers = {"Content-Length": "14"}
+    handler.rfile = BytesIO(b'{"max": NaN }')
+    handler.do_PUT()
+
     # 9. PUT with invalid schema / parameter
     bad_body = json.dumps({"max_cell_prb_limit": 999.0}).encode("utf-8")
     handler.headers = {"Content-Length": str(len(bad_body))}
@@ -125,4 +133,3 @@ def test_a1_policy_http_handler():
     server = A1PolicyReceiverServer(host="127.0.0.1", port=18089)
     server.start()
     server.stop()
-

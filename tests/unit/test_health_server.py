@@ -39,11 +39,15 @@ def test_health_server_endpoints():
     assert r.status_code == 200
     assert r.json()["status"] == "READY"
     
-    # 4. /ready in DEGRADED (must return 200)
+    # 4. /ready is successful only after the E2 subscription is active.
     server.set_state(AppState.DEGRADED)
     r = client.get("/ready")
-    assert r.status_code == 200
-    assert r.json()["status"] == "READY"
+    assert r.status_code == 503
+    assert r.json()["status"] == "NOT_READY"
+
+    for state in (AppState.DISCOVERING_E2_NODES, AppState.SUBSCRIBING):
+        server.set_state(state)
+        assert client.get("/ready").status_code == 503
     
     # 5. /status
     r = client.get("/status")
@@ -61,4 +65,3 @@ def test_health_server_fallback_and_run():
     assert resp.status_code == 503
     assert status.HTTP_200_OK == 200
     assert status.HTTP_503_SERVICE_UNAVAILABLE == 503
-

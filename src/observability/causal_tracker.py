@@ -21,7 +21,7 @@ class CausalRecord:
     timestamp: float
     node_id: str
     parameter: str
-    old_value: float
+    old_value: Optional[float]
     new_value: float
     kpm_before: Dict[str, float]
     kpm_after: Optional[Dict[str, float]] = None
@@ -111,7 +111,7 @@ class CausalTracker:
         ric_request_id: int,
         node_id: str,
         parameter: str,
-        old_val: float,
+        old_val: Optional[float],
         new_val: float,
         kpm_before: Optional[Dict[str, float]] = None,
         strategy: str = "SHANNON_OPTIMAL",
@@ -270,7 +270,7 @@ class CausalTracker:
         # Ganho de eficiência energética calculado a partir de reduções de TX_POWER reais
         tx_power_reductions = []
         for r in self.records:
-            if r.parameter == "TX_POWER" and r.old_value > 0 and r.new_value < r.old_value:
+            if r.parameter == "TX_POWER" and r.old_value is not None and r.old_value > 0 and r.new_value < r.old_value:
                 tx_power_reductions.append((r.old_value - r.new_value) / r.old_value * 100.0)
         energy_gain = float(np.mean(tx_power_reductions)) if tx_power_reductions else float("nan")
 

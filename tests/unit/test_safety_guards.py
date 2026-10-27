@@ -42,6 +42,23 @@ def test_safety_guard_default_deny():
     assert is_safe is False
     assert "default-deny" in reason.lower() or "unsupported" in reason.lower()
 
+def test_safety_guard_uses_encoder_parameter_bounds_and_rejects_non_finite_values():
+    refinement = Refinement(MemoryModule())
+
+    handover = XAppAction("mobility", "gnb_handover", "HANDOVER", 2048.0, 50)
+    is_safe, _, reason = refinement.validate_single_action(handover)
+    assert is_safe is True
+
+    non_finite = XAppAction("energy_saving", "gnb_nan", "PRB_QUOTA", float("nan"), 50)
+    is_safe, _, reason = refinement.validate_single_action(non_finite)
+    assert is_safe is False
+    assert "finite" in reason.lower()
+
+    unsupported = XAppAction("mobility", "gnb_unsupported", "VERTICAL_DOWNTILT", 5.0, 50)
+    is_safe, _, reason = refinement.validate_single_action(unsupported)
+    assert is_safe is False
+    assert "unsupported" in reason.lower()
+
 
 def test_safety_guard_transactional_atomic_rollback():
     from src.conflict_types import ConflictEvent, ConflictType, ConflictSeverity, ResolutionAction, ResolutionStrategy
