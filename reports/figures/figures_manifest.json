@@ -30,15 +30,15 @@
     },
     {
       "filename": "fig_04_throughput_boxplot.png",
-      "sha256": "48342d8c2ab76eb762c037bb320d78b44de6188a474611a7af8da11753a3df32",
-      "size_bytes": 106590,
+      "sha256": "f5985131db23ec5481c63325e964082e16035f18b60ac857c391f2c6d10ba4b2",
+      "size_bytes": 106564,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_05_sla_violation_violin.png",
-      "sha256": "0fdb4ffd3bd335d5369c74f1a4fe4c321f05d71499bcfd7d2df20917cfd8b2fb",
-      "size_bytes": 90864,
+      "sha256": "af7c8192904d68d2d7c686dc7682f840b0465075f9f4bdcb135a335bbc69932f",
+      "size_bytes": 90894,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -142,8 +142,8 @@
     },
     {
       "filename": "fig_19_crosslayer_pairplot.png",
-      "sha256": "19470f944f8fff2ed98887b4f2301e20d3969a356b09ca43aa7081cc8e76a5ef",
-      "size_bytes": 942940,
+      "sha256": "9d004c28eef2fba2d802e947ab4ced611162d2b5cbb7dc1fc887e1f20bd1ccf4",
+      "size_bytes": 643987,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
