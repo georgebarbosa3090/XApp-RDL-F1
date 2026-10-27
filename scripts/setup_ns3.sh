@@ -175,17 +175,30 @@ else
     echo -e "${GREEN}[OK] Módulo 5G-LENA (nr) detectado em ${NS3_DIR}.${NC}"
 fi
 
-# 3.2 Clonar módulo NORI (e2-agent / oran) em contrib/oran se ausente
-if [ ! -d "${NS3_DIR}/contrib/oran" ] && [ ! -d "${NS3_DIR}/src/oran" ]; then
-    echo -e "Clonando módulo NORI E2SIM em ${NS3_DIR}/contrib/oran..."
-    mkdir -p "${NS3_DIR}/contrib"
-    git clone https://github.com/lasseufpa/nori.git "${NS3_DIR}/contrib/oran" || git clone https://gitlab.com/oran-nori/nori.git "${NS3_DIR}/contrib/oran" 2>/dev/null || true
-    if [ -d "${NS3_DIR}/contrib/oran/.git" ]; then
-        cd "${NS3_DIR}/contrib/oran" && git checkout 9b64c12 2>/dev/null || echo -e "${YELLOW}[INFO] Branch padrão NORI utilizada.${NC}"
-        cd "${NS3_DIR}"
+# 3.2 Clonar módulo NORI (e2-agent / oran) em contrib/oran se ausente e libe2sim.a estiver presente
+if [ -f "/usr/local/lib/libe2sim.a" ]; then
+    if [ ! -d "${NS3_DIR}/contrib/oran" ] && [ ! -d "${NS3_DIR}/src/oran" ]; then
+        echo -e "Clonando módulo NORI E2SIM em ${NS3_DIR}/contrib/oran..."
+        mkdir -p "${NS3_DIR}/contrib"
+        git clone https://github.com/lasseufpa/nori.git "${NS3_DIR}/contrib/oran" || git clone https://gitlab.com/oran-nori/nori.git "${NS3_DIR}/contrib/oran" 2>/dev/null || true
+        if [ -d "${NS3_DIR}/contrib/oran/.git" ]; then
+            cd "${NS3_DIR}/contrib/oran" && git checkout 9b64c12 2>/dev/null || echo -e "${YELLOW}[INFO] Branch padrão NORI utilizada.${NC}"
+            cd "${NS3_DIR}"
+        fi
+    else
+        echo -e "${GREEN}[OK] Módulo NORI detectado em ${NS3_DIR}.${NC}"
     fi
 else
-    echo -e "${GREEN}[OK] Módulo NORI detectado em ${NS3_DIR}.${NC}"
+    echo -e "${YELLOW}[INFO] /usr/local/lib/libe2sim.a não instalado.${NC}"
+    echo -e "${YELLOW}[INFO] Prosseguindo com suporte 5G-LENA (nr) para compilação nativa dos cenários scratch (S0-S15).${NC}"
+    if [ -d "${NS3_DIR}/contrib/oran" ]; then
+        rm -rf "${NS3_DIR}/contrib/oran"
+    fi
+    for f in "${NS3_DIR}/build/include/ns3"/*; do
+        if [ -f "$f" ] && grep -q "contrib/oran" "$f" 2>/dev/null; then
+            rm -f "$f"
+        fi
+    done
 fi
 
 # 3.3 Sincronizar cenários de simulação do projeto para o diretório scratch do ns-3
