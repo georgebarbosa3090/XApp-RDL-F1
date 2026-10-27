@@ -31,6 +31,14 @@ class CausalRecord:
     resolution_strategy: str = "SHANNON_OPTIMAL"
     control_to_effect_latency_ms: float = 0.0
 
+    @property
+    def rtt_ms(self) -> float:
+        return self.control_to_effect_latency_ms
+
+    @rtt_ms.setter
+    def rtt_ms(self, val: float):
+        self.control_to_effect_latency_ms = val
+
 @dataclass
 class ScientificSummary:
     total_conflicts_detected: int

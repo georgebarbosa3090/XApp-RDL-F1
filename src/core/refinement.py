@@ -10,13 +10,15 @@ class Refinement:
     Componente de Refinamento e Guardiões de Segurança (Safety Guards / Núcleo / Core).
     Aplica validação invariante, limites físicos de rádio (Boundary Clipping) e histerese temporal.
     """
-    def __init__(self, memory, strict_capabilities: bool = False):
+    def __init__(self, memory, strict_capabilities: bool = False, config: Optional[Dict[str, Any]] = None):
         self.memory = memory
         self.strict_capabilities = strict_capabilities
         self.config = {
             "enabled": True,
             "minimum_control_interval_ms": 1000,
         }
+        if config:
+            self.config.update(config)
         self.last_control_time: Dict[str, float] = {}
         self.node_capabilities: Dict[str, Dict[str, Any]] = {}
 
