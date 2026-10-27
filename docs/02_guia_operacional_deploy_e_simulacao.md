@@ -25,9 +25,9 @@ Para clonar ou restaurar o ambiente limpo do repositório oficial da Fase 1:
 
 ```bash
 cd ~
-rm -rf ~/XApp-RDL-F1
-
-git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git
+if [ ! -d ~/XApp-RDL-F1/.git ]; then
+  git clone https://github.com/georgebarbosa3090/XApp-RDL-F1.git ~/XApp-RDL-F1
+fi
 cd ~/XApp-RDL-F1
 ```
 
@@ -137,6 +137,13 @@ bash scripts/install_kiali.sh
 ## 5. Pipeline de Co-Simulação ns-3.48 / 5G-LENA / NORI
 
 ### 5.1. Compilação dos Cenários ns-3
+Para provisionar as dependências e o workspace dedicado, execute como usuário comum:
+```bash
+make setup-ns3
+```
+
+O setup usa somente ns-3.48, 5G-LENA v5.1 e o commit NORI configurado; ele não limpa caches, não altera o launcher `ns3` nem remove conteúdo existente de `scratch`. Checkouts existentes fora das versões fixadas causam erro explícito, sem troca automática de branch. O launcher ns-3 recusa execução como root.
+
 Navegue até a raiz do workspace do simulador ns-3 (onde reside o script `./ns3`):
 ```bash
 cd ~/ns3-oran-workspace/ns-3-oran
@@ -219,14 +226,15 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 Para manter qualquer alteração local sincronizada automaticamente no GitHub em tempo real:
 
 ```bash
-# Execução do daemon de sincronização contínua (auto add, commit e push)
+# O daemon commita e envia somente arquivos já rastreados.
+# Arquivos novos exigem staging explícito para evitar publicação acidental.
 uv run python scripts/auto_git_sync.py
 
 # Ou via Make:
 make auto-sync
 ```
 
-O repositório também inclui hook nativo `.git/hooks/post-commit` para envio automático imediato ao realizar commits manuais. Para sincronização entre repositórios F1 e F2:
+O hook local `.git/hooks/post-commit` pode enviar commits manuais imediatamente; ele não é versionado pelo repositório. Para sincronização entre repositórios F1 e F2:
 
 ```bash
 make sync-cross

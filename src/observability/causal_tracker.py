@@ -414,4 +414,7 @@ class CausalTracker:
         )
 
     def export_causal_log_json(self) -> str:
-        return json.dumps([asdi
+        return json.dumps([asdict(r) for r in self.records], indent=2)
+
+# Instância Singleton
+causal_tracker = CausalTracker()
