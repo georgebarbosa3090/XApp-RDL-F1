@@ -42,9 +42,11 @@ class Reasoning:
         self.P_SLEEP_W = 4.3               # Consumo em modo hibernação (Cell Sleep)
         self.sla_latency_limit_ms = float(self.config.get("sla_latency_limit_ms", 5.0))
         self.latest_kpm: Optional[KPMReport] = None
+        self.kpm_by_node: Dict[str, KPMReport] = {}
 
     def update_kpm_report(self, report: KPMReport) -> None:
         self.latest_kpm = report
+        self.kpm_by_node[report.node_id] = report
 
     def resolve(self, conflict: ConflictEvent) -> ResolutionAction:
         # 1. Consultar histórico na Shared Data Layer
@@ -230,7 +232,7 @@ class Reasoning:
         # 5. Priority Score Normalizado (0.0 a 1.0)
         priority_score = max(0.1, min(1.0, prio / 100.0))
 
-        report = self.latest_kpm
+        report = self.kpm_by_node.get(act.node_id, self.latest_kpm)
         if (
             report is not None
             and report.node_id == act.node_id

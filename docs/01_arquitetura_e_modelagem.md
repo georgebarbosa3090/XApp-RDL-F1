@@ -26,7 +26,7 @@ A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atua
 │  │  - Knowledge Graph & Context Engine (Neo4j / Matriz de Associação)    │  │
 │  │  - Reasoning Engine: Nível 1 (H-RDL) | Nível 2 (NDT) | Nível 3 (MAPPO)│  │
 │  │  - Refinement Agent & Safety Guard (Action Masking / Boundary Clip)   │  │
-│  │  - RCMapper & Dispatcher (E2SM-RC Format 1 Header / Format 2 Message) │  │
+│  │  - RCMapper & Dispatcher (modelo E2SM-RC local, APER não validado)    │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
 │                                      │ RMR (%meid gnb_01)                   │
 │  ┌───────────────────────────────────▼───────────────────────────────────┐  │

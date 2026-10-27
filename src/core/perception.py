@@ -23,9 +23,14 @@ class Perception:
         # Registro das últimas ações: node_id -> parameter -> XAppAction
         self._action_registry: Dict[str, Dict[str, XAppAction]] = {}
         self.latest_kpm: Optional[KPMReport] = None
+        self._kpm_by_node: Dict[str, KPMReport] = {}
 
     def update_kpm_report(self, report: KPMReport):
         self.latest_kpm = report
+        self._kpm_by_node[report.node_id] = report
+
+    def get_latest_kpm(self, node_id: str) -> Optional[KPMReport]:
+        return self._kpm_by_node.get(node_id)
 
     def get_active_xapps(self) -> Dict[str, List[XAppAction]]:
         active = {}

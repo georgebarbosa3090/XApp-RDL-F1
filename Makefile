@@ -286,10 +286,12 @@ run-baseline:
 	$(MAKE) run-scenario1-baseline
 
 run-rdl:
-	$(MAKE) run-scenario1
+	@echo " [BLOQUEADO] Não há runner que demonstre E2SM-RC aplicado à RAN; não será reportado como closed-loop."
+	@echo " Execute somente cenários ns-3/5G-LENA disponíveis e mantenha G1/G3/G4 pendentes até validar a integração."
+	@exit 2
 
 run-scenario1:
-	@echo "Executando Cenário 1: Energy Saving vs QoS (EEVS) com logs em tempo real..."
+	@echo "Executando cenário ns-3/5G-LENA com E2 habilitado; isto não comprova controle RDL closed-loop."
 	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
 		echo ""; \
 		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
@@ -317,7 +319,7 @@ run-scenario1-baseline:
 	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_energy_vs_qos --enableE2=false --simTime=30"
 
 run-scenario2:
-	@echo "Executando Cenário 2: Traffic Steering vs QoS (TVS) com logs em tempo real..."
+	@echo "Executando cenário ns-3/5G-LENA com E2 habilitado; isto não comprova controle RDL closed-loop."
 	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
 		echo ""; \
 		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \

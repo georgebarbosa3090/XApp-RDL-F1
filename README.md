@@ -56,11 +56,11 @@ flowchart TD
         direction TB
         subgraph RDL_CORE["xApp-RDL CORE (H-RDL Determinística)"]
             direction TB
-            PA["Perception Agent<br/>(Decodificador ASN.1 APER E2SM-KPM)"]
+            PA["Perception Agent<br/>(modelo KPM local; APER não validado)"]
             CD["Conflict Detector<br/>(Matriz Determinística de Conflitos)"]
             RE["Reasoning Engine<br/>(Heurísticas TVS / EEVS & Utilidade)"]
             SG["Safety Guard<br/>(Limites Físicos 3GPP TS 38.104)"]
-            AE["Actuation Engine<br/>(Codificador ASN.1 E2SM-RC Format 1)"]
+            AE["Actuation Engine<br/>(modelo RC local; APER não validado)"]
             
             PA --> CD
             CD --> RE

@@ -210,7 +210,15 @@ if [ ! -d "${NS3_DIR}/contrib/oran" ] && [ ! -d "${NS3_DIR}/src/oran" ]; then
         }
     fi
 fi
-if [ -d "${NS3_DIR}/contrib/oran/.git" ] && [[ "$(git -C "${NS3_DIR}/contrib/oran" rev-parse HEAD)" != 9b64c12* ]]; then
+NORI_DIR="${NS3_DIR}/contrib/oran"
+if [ ! -d "${NORI_DIR}/.git" ] && [ -d "${NS3_DIR}/src/oran/.git" ]; then
+    NORI_DIR="${NS3_DIR}/src/oran"
+fi
+if [ ! -d "${NORI_DIR}/.git" ]; then
+    echo -e "${RED}[ERRO] Não foi possível verificar o checkout Git do NORI; pin de versão obrigatório.${NC}"
+    exit 1
+fi
+if [[ "$(git -C "${NORI_DIR}" rev-parse HEAD)" != 9b64c12* ]]; then
     echo -e "${RED}[ERRO] NORI não está no commit fixado 9b64c12; preserve o checkout e configure a versão manualmente.${NC}"
     exit 1
 fi

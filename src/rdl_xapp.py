@@ -549,7 +549,7 @@ class RDLxApp:
         dispatched_actions = []
         for act in all_selected:
             previous_action = self.perception.get_committed_action(act.node_id, act.parameter)
-            kpm = self.perception.latest_kpm
+            kpm = self.perception.get_latest_kpm(act.node_id)
             per_action_decision = RDLDecision(
                 decision_id=f"{decision.decision_id}-{act.action_id[:6]}",
                 state={
