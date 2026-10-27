@@ -334,6 +334,13 @@ class RDLxApp:
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Recebe acoes propostas por outras xApps via RMR e enfileira na janela temporal."""
         payload = summary.get("payload")
+        if self.oran_strict:
+            logger.error(
+                "Proposta externa rejeitada: o transporte atual não fornece identidade de xApp "
+                "autenticada para autorização."
+            )
+            self._safe_rmr_free(xapp_instance, sbuf)
+            return
         if payload:
             try:
                 if not isinstance(payload, bytes) or len(payload) > 65536:

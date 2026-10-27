@@ -83,6 +83,13 @@ class HealthServer:
                         logging.getLogger(__name__).exception(
                             "Health server failed to bind on %s:%s", self.host, self.port
                         )
+                    except SystemExit as exc:
+                        logging.getLogger(__name__).error(
+                            "Health server stopped during startup on %s:%s (exit code %s)",
+                            self.host,
+                            self.port,
+                            exc.code,
+                        )
 
                 self.server_thread = threading.Thread(target=serve, daemon=True)
                 self.server_thread.start()

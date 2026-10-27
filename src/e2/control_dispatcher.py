@@ -59,7 +59,7 @@ class ControlDispatcher:
             target_node = getattr(decision, "affected_node", "gnb_01")
         else:
             param = getattr(selected_act, "parameter", "PRB_QUOTA")
-            val = float(getattr(selected_act, "value", 50.0))
+            val = getattr(selected_act, "value", 50.0)
             target_node = getattr(selected_act, "node_id", getattr(decision, "affected_node", "gnb_01"))
 
         try:

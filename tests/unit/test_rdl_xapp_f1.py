@@ -27,3 +27,20 @@ def test_rdl_xapp_f1_lifecycle():
     xapp._control_failure_handler(xapp.xapp, summary_ack, None)
     xapp.stop()
 
+
+def test_strict_mode_rejects_proposals_without_authenticated_sender():
+    xapp = RDLxApp()
+    xapp.oran_strict = True
+    before = len(xapp.proposal_buffer)
+    payload = json.dumps({
+        "xapp_id": "claimed_identity",
+        "node_id": "gnb_01",
+        "parameter": "PRB_QUOTA",
+        "value": 50,
+        "priority": 50,
+    }).encode("utf-8")
+
+    xapp._action_proposal_handler(xapp.xapp, {"payload": payload}, None)
+
+    assert len(xapp.proposal_buffer) == before
+    xapp.stop()
