@@ -102,6 +102,6 @@ class MetricsServer:
             self._server, _ = start_http_server(self.port, registry=self.registry or REGISTRY)
             logger.info("Endpoint Prometheus iniciado", port=self.port)
             return True
-        except OSError as exc:
+        except (OSError, ValueError) as exc:
             logger.error("Falha ao iniciar endpoint Prometheus", port=self.port, error=str(exc))
             return False

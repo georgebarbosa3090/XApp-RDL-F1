@@ -4,6 +4,7 @@ from src.e2.control_dispatcher import ControlDispatcher
 from src.e2.e2ap.constants import RIC_CONTROL_REQ, RIC_SUBSCRIPTION_REQ
 from src.conflict_types import RDLDecision, XAppAction
 from src.infrastructure.memory_module import MemoryModule
+from src.observability.causal_tracker import causal_tracker
 
 class MockRMRClient:
     def __init__(self):
@@ -104,3 +105,30 @@ def test_dispatch_stores_pending_request():
     assert info["status"] == "SENT"
     assert info["target_value"] == 30.0
     assert info["previous_safe_value"] == 23.0
+
+
+def test_causal_record_exists_before_transport_can_deliver_fast_ack():
+    causal_tracker.reset()
+
+    class InspectingRMR(MockRMRClient):
+        def rmr_send(self, payload, mtype, target=None):
+            assert any(record.action_id == action.action_id for record in causal_tracker.records)
+            return super().rmr_send(payload, mtype, target)
+
+    rmr = InspectingRMR()
+    dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MemoryModule())
+    action = XAppAction(
+        xapp_id="test_xapp",
+        node_id="gnb_01",
+        parameter="PRB_QUOTA",
+        value=60.0,
+        priority=10,
+    )
+    decision = RDLDecision(
+        selected_actions=[action],
+        safety_result={"is_safe": True},
+        affected_node="gnb_01",
+    )
+
+    assert dispatcher.dispatch_control(decision) is not None
+    causal_tracker.reset()

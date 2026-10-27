@@ -215,6 +215,7 @@ class RDLxApp:
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
         if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
             self.health.set_state(AppState.ERROR)
+            self.metrics.ready_state.set(0)
             logger.error(
                 "Modo O_RAN_INTEROP bloqueado: codecs APER e descoberta E2 não foram "
                 "validados contra schemas e implementação NORI/RIC independentes."
@@ -309,6 +310,8 @@ class RDLxApp:
             return
         self.health.set_state(AppState.READY)
         self.metrics.ready_state.set(1)
+        self.metrics.active_e2_nodes.set(len(self.active_subscriptions))
+        self.metrics.active_subs.set(sum(self.active_subscriptions.values()))
         if not self.decision_loop_started:
             self.decision_loop_started = True
             threading.Thread(target=self._decision_loop, daemon=True).start()
@@ -319,6 +322,8 @@ class RDLxApp:
         self.active_subscriptions.clear()
         self.health.set_state(AppState.DEGRADED)
         self.metrics.ready_state.set(0)
+        self.metrics.active_e2_nodes.set(0)
+        self.metrics.active_subs.set(0)
         self.metrics.subs_failures.inc()
         self._safe_rmr_free(xapp_instance, sbuf)
 
