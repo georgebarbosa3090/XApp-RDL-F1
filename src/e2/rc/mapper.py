@@ -42,7 +42,8 @@ class RCMapper:
             parameter=action.parameter,
             value=action.value,
             style_type=style_type,
-            action_id=action_id
+            action_id=action_id,
+            param_id=resolved_param_id
         )
 
         # Resolve dinamicamente o RAN Function ID registrado para o nó
