@@ -92,7 +92,8 @@ def test_perception_and_resolution_with_new_parameters():
     resolution = reasoning.resolve(conflicts[0])
     assert resolution is not None
     is_valid, level, reason = refinement.validate(resolution, conflicts[0])
-    assert is_valid
+    assert not is_valid
+    assert "unsupported" in reason.lower()
 
 def test_retired_discrete_event_simulator_is_disabled():
     """Ensures the former local simulator cannot be run as experimental evidence."""
