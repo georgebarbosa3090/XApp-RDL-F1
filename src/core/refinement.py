@@ -1,5 +1,6 @@
 from typing import Tuple, Dict, Any, List, Optional
 import time
+import math
 from src.conflict_types import ConflictEvent, ResolutionAction, XAppAction
 from src.observability.logging import setup_logger
 
@@ -54,37 +55,40 @@ class Refinement:
         Valida se o parâmetro é reconhecido e se seu valor está dentro dos limites físicos.
         Aplica princípio Default-Deny estrito (Fail-Closed).
         """
-        max_tx = self._get_max_tx_power(action.node_id)
+        from src.e2.rc.capability_registry import (
+            CapabilityNotDiscoveredError,
+            rc_capability_registry,
+        )
+        from src.e2.rc.control_parameter import RAN_PARAMETERS
 
-        if action.parameter == "PRB_QUOTA":
-            if action.value < 0 or action.value > 100:
-                return False, "PRB value out of bounds (0-100)"
-        elif action.parameter == "TX_POWER":
-            if max_tx is None:
-                return False, f"TX_POWER capability not discovered for node {action.node_id}"
-            if action.value < -10 or action.value > max_tx:
-                return False, f"TX Power out of bounds (-10 to {max_tx} dBm)"
-        elif action.parameter == "HANDOVER":
-            if action.value < 0 or action.value > 1:
-                return False, "Handover flag out of bounds (0-1)"
-        elif action.parameter == "VERTICAL_DOWNTILT":
-            if action.value < 0.0 or action.value > 15.0:
-                return False, "Vertical Downtilt out of bounds (0-15 degrees)"
-        elif action.parameter == "SENSING_RATIO":
-            if action.value < 0.0 or action.value > 0.60:
-                return False, "Sensing Ratio out of bounds (0.0-0.60)"
-        elif action.parameter == "LOAD_THRESHOLD":
-            if action.value < 0.0 or action.value > 1.0:
-                return False, "Load threshold out of bounds (0.0-1.0)"
-        elif action.parameter == "PING_INTERVAL":
-            if action.value < 1.0 or action.value > 5000.0:
-                return False, "Ping interval out of bounds (1-5000 ms)"
-        elif action.parameter in ("SCHEDULER_WEIGHT", "BEAM_WEIGHTS"):
-            if action.value < 0.0 or action.value > 100.0:
-                return False, f"{action.parameter} out of bounds (0-100)"
-        else:
+        if action.parameter not in RAN_PARAMETERS:
             return False, f"Unsupported action parameter (Default-Deny): {action.parameter}"
+        if not math.isfinite(float(action.value)):
+            return False, f"{action.parameter} value must be finite"
 
+        try:
+            capability = rc_capability_registry.get_action_capability(
+                action.parameter,
+                action.node_id,
+                strict_mode=self.strict_capabilities,
+            )
+        except CapabilityNotDiscoveredError:
+            return False, f"{action.parameter} capability not discovered for node {action.node_id}"
+        except KeyError:
+            if self.strict_capabilities:
+                return False, f"{action.parameter} capability not discovered for node {action.node_id}"
+            definition = RAN_PARAMETERS[action.parameter]
+            min_value, max_value = definition.min_value, definition.max_value
+        else:
+            min_value, max_value = capability.min_value, capability.max_value
+
+        if action.parameter == "TX_POWER":
+            configured_max = self._get_max_tx_power(action.node_id)
+            if configured_max is None:
+                return False, f"TX_POWER capability not discovered for node {action.node_id}"
+            max_value = min(max_value, configured_max)
+        if action.value < min_value or action.value > max_value:
+            return False, f"{action.parameter} out of bounds ({min_value}-{max_value})"
         return True, ""
 
     def validate_single_action(self, action: XAppAction) -> Tuple[bool, int, str]:

@@ -1,6 +1,8 @@
 import time
 import uuid
-from typing import Dict, Optional, List, Any
+import threading
+from math import isfinite
+from typing import Dict, Optional, List, Any, Tuple
 from src.e2.rc_encoder import E2SMRCEncoder, ControlAction
 from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure, build_ric_control_request
 from src.e2.e2ap.constants import (
@@ -28,8 +30,9 @@ class ControlDispatcher:
         self.encoder = E2SMRCEncoder()
         self.default_timeout_s = default_timeout_s
         self.pending_requests: Dict[str, Dict[str, Any]] = {}
-        self.req_key_to_id: Dict[str, str] = {}
+        self.req_key_to_id: Dict[Tuple[str, int, int, int], str] = {}
         self.rollback_history: List[Dict[str, Any]] = []
+        self._lock = threading.RLock()
 
     def dispatch_control(self, decision: Decision) -> Optional[str]:
         # Suporta tanto safety_result dict quanto safety_validation booleano
@@ -58,6 +61,10 @@ class ControlDispatcher:
             param = getattr(selected_act, "parameter", "PRB_QUOTA")
             val = float(getattr(selected_act, "value", 50.0))
             target_node = getattr(selected_act, "node_id", getattr(decision, "affected_node", "gnb_01"))
+
+        if not isinstance(target_node, str) or not target_node.strip() or not isfinite(float(val)):
+            logger.error("Ação de controle rejeitada: nó ou valor inválido.")
+            return None
 
         target_cell = getattr(decision, "affected_cell", "cell_01")
         action_id = getattr(selected_act, "action_id", str(uuid.uuid4())[:8])
@@ -113,15 +120,23 @@ class ControlDispatcher:
             "action_id": action_id,
             "parameter": param,
             "target_value": val,
-            "previous_safe_value": getattr(decision, "previous_safe_value", 50.0),
+            "previous_safe_value": getattr(decision, "previous_safe_value", None),
+            "style_type": style_type,
+            "control_action_id": ctrl_action_id,
+            "parameter_id": param_id,
             "sent_at": now,
             "timeout_at": now + self.default_timeout_s,
             "status": "SENT"
         }
         
-        self.pending_requests[control_request_id] = tracking_info
-        key = f"{requestor_id}_{instance_id}"
-        self.req_key_to_id[key] = control_request_id
+        key = (target_node, ran_fn_id, requestor_id, instance_id)
+        with self._lock:
+            if key in self.req_key_to_id:
+                self.allocator.pop_correlation(target_node, ran_fn_id, requestor_id, instance_id)
+                logger.error("RICrequestID duplicado enquanto ainda estava pendente", key=key)
+                return None
+            self.pending_requests[control_request_id] = tracking_info
+            self.req_key_to_id[key] = control_request_id
         
         try:
             self.sdl.save_control_request(control_request_id, tracking_info)
@@ -132,27 +147,53 @@ class ControlDispatcher:
         logger.info(f"Enviando RIC_CONTROL_REQUEST {control_request_id} (ReqID {requestor_id}) para MEID {target_node}")
         if not self.rmr.rmr_send(payload, RIC_CONTROL_REQ, target_node):
             tracking_info["status"] = "SEND_FAILED"
-            self.pending_requests.pop(control_request_id, None)
-            self.req_key_to_id.pop(key, None)
+            with self._lock:
+                self.pending_requests.pop(control_request_id, None)
+                self.req_key_to_id.pop(key, None)
             self.allocator.pop_correlation(target_node, ran_fn_id, requestor_id, instance_id)
             logger.error(f"RMR rejeitou RIC_CONTROL_REQUEST {control_request_id}; despacho cancelado.")
             return None
         return control_request_id
 
-    def handle_ack(self, payload: bytes) -> Optional[Dict[str, Any]]:
+    def _find_request(self, parsed: Dict[str, Any], node_id: Optional[str]) -> Optional[Tuple[str, Tuple[str, int, int, int]]]:
+        requestor_id = parsed["requestor_id"]
+        instance_id = parsed["instance_id"]
+        ran_function_id = parsed["ran_function_id"]
+        with self._lock:
+            if node_id:
+                key = (node_id, ran_function_id, requestor_id, instance_id)
+                control_id = self.req_key_to_id.get(key)
+                return (control_id, key) if control_id else None
+            matches = [
+                (key, control_id)
+                for key, control_id in self.req_key_to_id.items()
+                if key[1:] == (ran_function_id, requestor_id, instance_id)
+            ]
+            if len(matches) != 1:
+                logger.error(
+                    "Resposta E2 sem nó de origem ou com correlação ambígua",
+                    ran_function_id=ran_function_id,
+                    requestor_id=requestor_id,
+                    instance_id=instance_id,
+                    matches=len(matches),
+                )
+                return None
+            key, control_id = matches[0]
+            return control_id, key
+
+    def handle_ack(self, payload: bytes, node_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Trata o RIC_CONTROL_ACK decodificando a PDU E2AP canônica.
         """
         try:
             parsed = parse_ric_control_ack(payload)
+            match = self._find_request(parsed, node_id)
+            if not match:
+                logger.warning("CORRELATION_ERROR: RIC_CONTROL_ACK sem requisição pendente correspondente.")
+                return None
+            ctrl_id, key = match
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
-            key = f"{req_id}_{inst_id}"
-            ctrl_id = self.req_key_to_id.get(key)
-            if not ctrl_id:
-                logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_ACK recebido para req não rastreado: {key}")
-                return None
-                
             if ctrl_id and ctrl_id in self.pending_requests:
                 info = self.pending_requests[ctrl_id]
                 info["status"] = "ACKNOWLEDGED"
@@ -160,10 +201,11 @@ class ControlDispatcher:
                 rtt_ms = (info["ack_received_at"] - info["sent_at"]) * 1000.0
                 try:
                     self.sdl.update_control_result(ctrl_id, "ACKNOWLEDGED")
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Falha ao persistir ACK no SDL", control_request_id=ctrl_id, error=str(exc))
                 causal_tracker.record_ack(req_id, rtt_ms=rtt_ms)
-                self.req_key_to_id.pop(key, None)
+                with self._lock:
+                    self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 logger.info(f"Recebido RIC_CONTROL_ACK para req {ctrl_id} (ReqID {req_id}) - RTT: {rtt_ms:.2f} ms")
                 return info
@@ -174,7 +216,7 @@ class ControlDispatcher:
             logger.error(f"Erro ao decodificar RIC_CONTROL_ACK: {e}")
             return None
 
-    def handle_failure(self, payload: bytes) -> Optional[Dict[str, Any]]:
+    def handle_failure(self, payload: bytes, node_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         Trata o RIC_CONTROL_FAILURE e aciona rollback seguro.
         """
@@ -183,24 +225,23 @@ class ControlDispatcher:
             req_id = parsed["requestor_id"]
             inst_id = parsed["instance_id"]
             cause = parsed.get("cause", 1)
-            key = f"{req_id}_{inst_id}"
-            
-            ctrl_id = self.req_key_to_id.get(key)
-            if not ctrl_id:
-                logger.warning(f"CORRELATION_ERROR: RIC_CONTROL_FAILURE recebido para req não rastreado: {key}")
+            match = self._find_request(parsed, node_id)
+            if not match:
+                logger.warning("CORRELATION_ERROR: RIC_CONTROL_FAILURE sem requisição pendente correspondente.")
                 return None
-                
+            ctrl_id, key = match
             if ctrl_id and ctrl_id in self.pending_requests:
                 info = self.pending_requests[ctrl_id]
                 info["status"] = "FAILED"
                 info["cause"] = cause
                 try:
                     self.sdl.update_control_result(ctrl_id, "FAILED")
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Falha ao persistir falha de controle no SDL", control_request_id=ctrl_id, error=str(exc))
                 causal_tracker.record_failure(req_id, cause_code=cause)
                 logger.error(f"Recebido RIC_CONTROL_FAILURE para req {ctrl_id} (ReqID {req_id}, Cause {cause})")
-                self.req_key_to_id.pop(key, None)
+                with self._lock:
+                    self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], req_id, inst_id)
                 self.trigger_rollback(ctrl_id)
                 return info
@@ -223,8 +264,9 @@ class ControlDispatcher:
                 logger.warning(f"Timeout de controle E2 detectado para {ctrl_id} (ultrapassou {info['timeout_at']})")
                 info["status"] = "TIMEOUT"
                 timed_out_ids.append(ctrl_id)
-                key = f"{info['requestor_id']}_{info['instance_id']}"
-                self.req_key_to_id.pop(key, None)
+                key = (info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
+                with self._lock:
+                    self.req_key_to_id.pop(key, None)
                 self.allocator.pop_correlation(info["meid"], info["ran_function_id"], info["requestor_id"], info["instance_id"])
                 self.trigger_rollback(ctrl_id)
                 
@@ -242,7 +284,27 @@ class ControlDispatcher:
 
         target_node = info["meid"]
         param = info["parameter"]
-        safe_val = info.get("previous_safe_value", 50.0)
+        safe_val = info.get("previous_safe_value")
+        if safe_val is None:
+            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_error"] = "No verified pre-control value is available."
+            logger.error(
+                "Rollback não enviado: estado anterior real da RAN não está disponível",
+                control_request_id=control_request_id,
+            )
+            return False
+        try:
+            safe_val = float(safe_val)
+        except (TypeError, ValueError):
+            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_error"] = "Pre-control value is not numeric."
+            logger.error("Rollback rejeitado: valor anterior inválido", control_request_id=control_request_id)
+            return False
+        if not isfinite(safe_val):
+            info["status"] = "ROLLBACK_UNAVAILABLE"
+            info["rollback_error"] = "Pre-control value is not finite."
+            logger.error("Rollback rejeitado: valor anterior não finito", control_request_id=control_request_id)
+            return False
         
         logger.warning(
             f"Executando Rollback de Segurança para controle {control_request_id}: "
@@ -252,27 +314,40 @@ class ControlDispatcher:
         # Codifica e envia comando de restauração segura
         try:
             from src.e2.rc.capability_registry import rc_capability_registry
-            ran_fn_id = rc_capability_registry.get_rc_function_id(target_node)
-            encoded = self.encoder.encode_control_parts(node_id=target_node, parameter=param, value=safe_val)
+            ran_fn_id = info["ran_function_id"]
+            encoded = self.encoder.encode_control_parts(
+                node_id=target_node,
+                parameter=param,
+                value=safe_val,
+                style_type=info["style_type"],
+                action_id=info["control_action_id"],
+                param_id=info["parameter_id"],
+            )
             ctrl_ctx = build_ric_control_request(
                 node_id=target_node,
                 ran_function_id=ran_fn_id,
                 header_bytes=encoded.header_aper,
                 message_bytes=encoded.message_aper,
-                requestor_id=9999,
-                instance_id=1,
+                requestor_id=info["requestor_id"],
+                instance_id=info["instance_id"],
                 ack_request=0 # Fallback não exige novo ACK para evitar loop de timeout
             )
-            self.rmr.rmr_send(ctrl_ctx.pdu_aper, RIC_CONTROL_REQ, target_node)
+            if not self.rmr.rmr_send(ctrl_ctx.pdu_aper, RIC_CONTROL_REQ, target_node):
+                raise RuntimeError("RMR rejected the rollback request.")
         except Exception as e:
             logger.error(f"Erro ao emitir comando de rollback via RMR: {e}")
-            
-        info["status"] = "ROLLED_BACK"
-        info["rolled_back_at"] = time.time()
+            info["status"] = "ROLLBACK_SEND_FAILED"
+            info["rollback_error"] = str(e)
+            return False
+
+        info["status"] = "ROLLBACK_SENT_UNCONFIRMED"
+        info["rollback_sent_at"] = time.time()
         self.rollback_history.append({
             "control_request_id": control_request_id,
             "node_id": target_node,
             "parameter": param,
-            "restored_value": safe_val,
-            "timestamp": info["rolled_back_at"]
+            "requested_value": safe_val,
+            "status": "SENT_UNCONFIRMED",
+            "timestamp": info["rollback_sent_at"]
         })
+        return True

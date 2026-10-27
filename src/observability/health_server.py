@@ -1,5 +1,6 @@
 import time
 import threading
+import logging
 from enum import Enum
 from pydantic import BaseModel
 
@@ -49,7 +50,7 @@ class HealthServer:
                 
             @self.app.get("/ready")
             def ready(response: Response):
-                if self.state in [AppState.READY, AppState.DEGRADED, AppState.DISCOVERING_E2_NODES, AppState.SUBSCRIBING]:
+                if self.state is AppState.READY:
                     return {"status": "READY"}
                 else:
                     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -75,7 +76,16 @@ class HealthServer:
             try:
                 config = uvicorn.Config(self.app, host=self.host, port=self.port, log_level="error")
                 server = uvicorn.Server(config)
-                self.server_thread = threading.Thread(target=server.run, daemon=True)
+                def serve():
+                    try:
+                        server.run()
+                    except OSError:
+                        logging.getLogger(__name__).exception(
+                            "Health server failed to bind on %s:%s", self.host, self.port
+                        )
+
+                self.server_thread = threading.Thread(target=serve, daemon=True)
                 self.server_thread.start()
-            except Exception:
-                pass
+            except (OSError, RuntimeError):
+                self.server_thread = None
+                logging.getLogger(__name__).exception("Unable to start health server")
