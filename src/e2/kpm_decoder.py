@@ -90,10 +90,6 @@ class KpmDecoder:
                 aggregated[key] = {
                     "node_id": m.node_id,
                     "ue_id": m.ue_id,
-                    "drb_thp_dl": 0.0,
-                    "drb_thp_ul": 0.0,
-                    "drb_delay_dl": 0.0,
-                    "prb_used_dl": 0
                 }
             if m.metric_name == "DRB.UEThpDl":
                 aggregated[key]["drb_thp_dl"] = m.value
@@ -161,8 +157,12 @@ class KpmDecoder:
             msg = E2SM_KPM_IndicationMessage()
             msg.from_aper(indication_message)
             msg_val = msg()
-            node = msg_val.get('nodeID', default_node_id)
-            ue = msg_val.get('ueID', "ue_01")
+            node = msg_val.get('nodeID')
+            ue = msg_val.get('ueID')
+            if not isinstance(node, str) or not node.strip():
+                raise ValueError("KPM message is missing a valid nodeID")
+            if not isinstance(ue, str) or not ue.strip():
+                raise ValueError("KPM message is missing a valid ueID")
             
             for item in msg_val.get('measData', []):
                 results.append(KpmMeasurement(
@@ -180,6 +180,5 @@ class KpmDecoder:
             raise aper_err
 
 KPMDecoder = KpmDecoder
-
 
 

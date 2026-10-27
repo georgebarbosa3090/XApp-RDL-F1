@@ -99,10 +99,10 @@ class ResolutionAction:
 class KPMReport:
     node_id: str
     ue_id: str
-    drb_thp_dl: float
-    drb_thp_ul: float
-    drb_delay_dl: float
-    prb_used_dl: int
+    drb_thp_dl: Optional[float]
+    drb_thp_ul: Optional[float]
+    drb_delay_dl: Optional[float]
+    prb_used_dl: Optional[int]
     timestamp: float = field(default_factory=time.time)
 
 @dataclass
@@ -125,4 +125,3 @@ class RDLDecision:
     affected_node: str = "gnb_01"
     affected_cell: str = "cell_01"
     previous_safe_value: Optional[float] = None
-

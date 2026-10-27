@@ -321,12 +321,12 @@ class RDLxApp:
             if reports_data:
                 for data in reports_data:
                     report = KPMReport(
-                        node_id=data.get("node_id", "gnb_01"),
-                        ue_id=data.get("ue_id", "unknown"),
-                        drb_thp_dl=data.get("drb_thp_dl", 0.0),
-                        drb_thp_ul=data.get("drb_thp_ul", 0.0),
-                        drb_delay_dl=data.get("drb_delay_dl", 0.0),
-                        prb_used_dl=data.get("prb_used_dl", 0)
+                        node_id=data["node_id"],
+                        ue_id=data["ue_id"],
+                        drb_thp_dl=data.get("drb_thp_dl"),
+                        drb_thp_ul=data.get("drb_thp_ul"),
+                        drb_delay_dl=data.get("drb_delay_dl"),
+                        prb_used_dl=data.get("prb_used_dl")
                     )
                     self.perception.update_kpm_report(report)
         self._safe_rmr_free(xapp_instance, sbuf)
