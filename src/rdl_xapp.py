@@ -425,13 +425,22 @@ class RDLxApp:
                 self.window_start = now_ts()
             self.proposal_buffer.append(action)
 
+    def _get_last_value(self, action: XAppAction) -> float:
+        if action.parameter == "TX_POWER":
+            return 23.0
+        elif action.parameter == "PRB_QUOTA":
+            return 50.0
+        elif action.parameter == "SCHEDULER_WEIGHT":
+            return 10.0
+        return 50.0
+
     def _process_action_group(self, actions: List[XAppAction]):
         """
         Processa todas as acoes acumuladas na Decision Window (Feature 2):
         1. Identifica conflitos diretos e indiretos;
         2. Arbitra conflitos via ReasoningAgent e valida via RefinementAgent;
         3. Formaliza a RDLDecision ANTES do despacho;
-        4. Executa o despacho das ações selecionadas.
+        4. Executa o despacho das ações selecionadas via ControlDispatcher.
         """
         t0 = now_ts()
         for act in actions:
@@ -494,13 +503,40 @@ class RDLxApp:
             safety_result={"admitted_count": len(all_selected), "rejected_count": len(actions) - len(all_selected)},
             selected_actions=all_selected,
             reason="RESOLVED_AND_PASSTHROUGH",
-            strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH"
+            strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH",
+            affected_node=all_selected[0].node_id if all_selected else "gnb_01",
+            affected_cell=getattr(all_selected[0], "cell_id", "cell_01") if all_selected else "cell_01",
+            previous_safe_value=self._get_last_value(all_selected[0]) if all_selected else 50.0,
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
 
-        # 4. Despacho de Controle para Ações Admitidas
+        # Registrar decisão no causal_tracker
+        from src.observability.causal_tracker import causal_tracker
+        if all_selected:
+            causal_tracker.record_decision(
+                action_id=all_selected[0].action_id,
+                decision_id=decision.decision_id,
+                ric_request_id=-1,
+                node_id=all_selected[0].node_id,
+                parameter=all_selected[0].parameter,
+                old_val=self._get_last_value(all_selected[0]),
+                new_val=all_selected[0].value,
+                kpm_before=self.perception.latest_kpm.__dict__ if hasattr(self.perception, "latest_kpm") and self.perception.latest_kpm else {},
+                strategy=decision.strategy_used,
+            )
+
+        # 4. Despacho de Controle para Ações Admitidas via ControlDispatcher
         for act in all_selected:
-            self._send_control(act.node_id, act.parameter, act.value, action=act, decision_id=decision.decision_id)
+            per_action_decision = RDLDecision(
+                decision_id=f"{decision.decision_id}-{act.action_id[:6]}",
+                selected_actions=[act],
+                safety_result={"is_safe": True},
+                affected_node=act.node_id,
+                affected_cell=getattr(act, "cell_id", "cell_01"),
+                previous_safe_value=self._get_last_value(act),
+                strategy_used=decision.strategy_used,
+            )
+            self.dispatcher.dispatch_control(per_action_decision)
 
     def cleanup_expired_transactions(self, timeout_s: float = 5.0) -> int:
         """Limpa transações pendentes expiradas para evitar vazamento de memória (Anti-Leak)."""
@@ -516,10 +552,11 @@ class RDLxApp:
         while self.running:
             time.sleep(0.05) # Verifica a cada 50ms
             
-            # Anti-leak cleanup a cada 1 segundo
+            # Anti-leak cleanup e timeout de controle a cada 1 segundo
             now = now_ts()
             if (now - last_cleanup) >= 1.0:
                 self.cleanup_expired_transactions()
+                self.dispatcher.check_timeouts(now)
                 last_cleanup = now
 
             with self.buffer_lock:
