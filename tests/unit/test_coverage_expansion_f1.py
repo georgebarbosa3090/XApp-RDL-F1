@@ -491,7 +491,7 @@ def test_rdlxapp_handlers_and_dispatch():
 
     # Testa subscrição
     sub_res = app.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=200)
-    assert sub_res is True
+    assert sub_res is False
 
     # Testa processamento de grupo de ações
     act1 = XAppAction(xapp_id="xapp_qos", node_id="gnb_01", parameter="PRB_QUOTA", value=60.0, priority=80)

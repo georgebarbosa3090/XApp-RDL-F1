@@ -74,7 +74,10 @@ class ControlDispatcher:
         target_cell = getattr(decision, "affected_cell", "cell_01")
         action_id = getattr(selected_act, "action_id", str(uuid.uuid4())[:8])
         
-        from src.e2.rc.capability_registry import rc_capability_registry
+        from src.e2.rc.capability_registry import (
+            CapabilityNotDiscoveredError,
+            rc_capability_registry,
+        )
         try:
             capability = rc_capability_registry.get_action_capability(
                 param, target_node, strict_mode=None
@@ -93,7 +96,7 @@ class ControlDispatcher:
             style_type, ctrl_action_id, param_id = rc_capability_registry.resolve_action(
                 param_name=param, node_id=target_node
             )
-        except (KeyError, ValueError) as exc:
+        except (CapabilityNotDiscoveredError, KeyError, ValueError) as exc:
             logger.error("Ação de controle sem capacidade RC válida", error=str(exc))
             return None
 
@@ -109,25 +112,30 @@ class ControlDispatcher:
         instance_id = req_id_obj.instance_id
 
         # Usa backend como fonte única de encoding, quando disponível
-        if self.backend is not None:
-            pdu_aper = self.backend.map_action_to_control_pdu(
-                selected_act, requestor_id=requestor_id, instance_id=instance_id
-            )
-        else:
-            encoded = self.encoder.encode_control_parts(
-                node_id=target_node, parameter=param, value=val,
-                style_type=style_type, action_id=ctrl_action_id, param_id=param_id,
-            )
-            ctrl_ctx = build_ric_control_request(
-                node_id=target_node,
-                ran_function_id=ran_fn_id,
-                header_bytes=encoded.header_aper,
-                message_bytes=encoded.message_aper,
-                requestor_id=requestor_id,
-                instance_id=instance_id,
-                ack_request=1,
-            )
-            pdu_aper = ctrl_ctx.pdu_aper
+        try:
+            if self.backend is not None:
+                pdu_aper = self.backend.map_action_to_control_pdu(
+                    selected_act, requestor_id=requestor_id, instance_id=instance_id
+                )
+            else:
+                encoded = self.encoder.encode_control_parts(
+                    node_id=target_node, parameter=param, value=val,
+                    style_type=style_type, action_id=ctrl_action_id, param_id=param_id,
+                )
+                ctrl_ctx = build_ric_control_request(
+                    node_id=target_node,
+                    ran_function_id=ran_fn_id,
+                    header_bytes=encoded.header_aper,
+                    message_bytes=encoded.message_aper,
+                    requestor_id=requestor_id,
+                    instance_id=instance_id,
+                    ack_request=1,
+                )
+                pdu_aper = ctrl_ctx.pdu_aper
+        except Exception as exc:
+            self.allocator.pop_correlation(target_node, ran_fn_id, requestor_id, instance_id)
+            logger.error("Falha ao codificar RIC_CONTROL_REQUEST", error=str(exc))
+            return None
         payload = pdu_aper
         
         # Armazenar tracking
@@ -167,7 +175,12 @@ class ControlDispatcher:
             
         # Enviar via RMR (Message Type 12040 = RIC_CONTROL_REQUEST)
         logger.info(f"Enviando RIC_CONTROL_REQUEST {control_request_id} (ReqID {requestor_id}) para MEID {target_node}")
-        if not self.rmr.rmr_send(payload, RIC_CONTROL_REQ, target_node):
+        try:
+            sent = self.rmr.rmr_send(payload, RIC_CONTROL_REQ, target_node)
+        except Exception as exc:
+            sent = False
+            logger.error("Exceção ao enviar RIC_CONTROL_REQUEST via RMR", error=str(exc))
+        if not sent:
             tracking_info["status"] = "SEND_FAILED"
             with self._lock:
                 self.pending_requests.pop(control_request_id, None)

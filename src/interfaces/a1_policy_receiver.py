@@ -173,12 +173,11 @@ class A1PolicyReceiverServer:
     def __init__(self, host: str = "127.0.0.1", port: int = 8080):
         if host != "localhost":
             try:
-                if not ipaddress.ip_address(host).is_loopback:
-                    raise ValueError("A1 Policy Receiver has no authentication; bind it to loopback only.")
+                is_loopback = ipaddress.ip_address(host).is_loopback
             except ValueError as exc:
-                if "has no authentication" in str(exc):
-                    raise
                 raise ValueError("A1 Policy Receiver host must be a loopback address.") from exc
+            if not is_loopback:
+                raise ValueError("A1 Policy Receiver has no authentication; bind it to loopback only.")
         self.host = host
         self.port = port
         self.server: Optional[HTTPServer] = None

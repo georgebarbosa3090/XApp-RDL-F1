@@ -47,6 +47,12 @@ def test_a1_policy_manager_crud():
     assert manager.delete_policy("20000", "policy_s01") is True
     assert manager.get_policy("20000", "policy_s01") is None
 
+def test_a1_policy_receiver_refuses_non_loopback_bind():
+    from src.interfaces.a1_policy_receiver import A1PolicyReceiverServer
+
+    with pytest.raises(ValueError, match="no authentication"):
+        A1PolicyReceiverServer(host="0.0.0.0")
+
 
 def test_a1_policy_http_handler():
     from unittest.mock import MagicMock
