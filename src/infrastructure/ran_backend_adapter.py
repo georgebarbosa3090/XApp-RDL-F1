@@ -35,6 +35,7 @@ class BackendMetadata:
     required_raw_evidence: List[str]
     max_tx_power_dbm: float = 43.0
     cell_class: str = "MACRO"
+    protocol_interoperability_verified: bool = False
 
 class RANBackendAdapter(ABC):
     """Interface abstrata base para adaptadores de backend RAN no H-RDL."""
@@ -58,8 +59,11 @@ class RANBackendAdapter(ABC):
         As capacidades devem ser descobertas via RANFunctionDefinition (E2 Setup).
         """
         if oran_strict:
-            logger.info("Modo O_RAN_INTEROP estrito: Descoberta de capacidades vinculada a RANFunctionDefinition.", node_id=node_id)
-            return rc_capability_registry.is_action_supported(node_id, "PRB_QUOTA")
+            logger.error(
+                "Descoberta E2 não disponível: o backend não interpreta RANFunctionDefinition.",
+                node_id=node_id,
+            )
+            return False
         return self.register_static_profile_capabilities(node_id)
 
     @abstractmethod
@@ -291,5 +295,4 @@ class SrsRanBackendAdapter(RANBackendAdapter):
             "payload_len": len(ack_payload_bytes),
             "raw_decoded": False
         }
-
 

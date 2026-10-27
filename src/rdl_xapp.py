@@ -217,6 +217,13 @@ class RDLxApp:
 
     def _entrypoint(self, xapp_instance):
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
+        if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
+            self.health.set_state(AppState.ERROR)
+            logger.error(
+                "Modo O_RAN_INTEROP bloqueado: codecs APER e descoberta E2 não foram "
+                "validados contra schemas e implementação NORI/RIC independentes."
+            )
+            return
         if isinstance(self.memory, SdlRepository):
             try:
                 self.memory.bind_xapp(xapp_instance, required=self.oran_strict)
@@ -452,11 +459,18 @@ class RDLxApp:
         4. Executa o despacho das ações selecionadas via ControlDispatcher.
         """
         t0 = now_ts()
+        if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
+            logger.error(
+                "Despacho de controle bloqueado: interoperabilidade E2 não foi validada."
+            )
+            return
         for act in actions:
             self.memory.add_action(act)
             
         conflicts = self.perception.detect_action_group(actions)
         self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
+        from src.observability.causal_tracker import causal_tracker
+        causal_tracker.register_proposals([action.action_id for action in actions])
         
         # Mapeia acoes em conflito para isolar as acoes limpas
         conflicting_action_keys = set()
@@ -468,7 +482,6 @@ class RDLxApp:
         selected_winning_actions = []
         strategy_names = []
         action_conflicts: Dict[str, List[str]] = {}
-        from src.observability.causal_tracker import causal_tracker
         for conflict in conflicts:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
             self.memory.add_conflict(conflict)

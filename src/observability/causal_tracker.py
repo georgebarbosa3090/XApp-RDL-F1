@@ -129,6 +129,10 @@ class CausalTracker:
             self._proposal_ids.update(action_ids)
             self.total_proposals_count = len(self._proposal_ids)
 
+    def register_proposals(self, action_ids: List[str]) -> None:
+        self._proposal_ids.update(action_ids)
+        self.total_proposals_count = len(self._proposal_ids)
+
     def record_conflict_resolution(self, conflict_id: str) -> bool:
         if conflict_id not in self._conflict_ids or conflict_id in self._resolved_conflict_ids:
             return False
@@ -377,7 +381,9 @@ class CausalTracker:
         return ScientificSummary(
             total_conflicts_detected=self.conflicts_detected_count,
             total_conflicts_resolved=self.conflicts_resolved_count,
-            total_actions_dispatched=len(self.records),
+            total_actions_dispatched=sum(
+                1 for record in self.records if record.ack_status != "SEND_FAILED"
+            ),
             total_acks_received=acks,
             total_failures_received=fails,
             conflict_resolution_rate=crr,
