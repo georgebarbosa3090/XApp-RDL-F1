@@ -10,6 +10,7 @@ from src.e2.e2ap.constants import (
 )
 from src.infrastructure.sdl_repository import SdlRepository
 from src.infrastructure.ran_backend_adapter import RANBackendAdapter
+from src.infrastructure.ric_request_id_allocator import get_ric_request_id_allocator
 from src.conflict_types import RDLDecision as Decision
 from src.observability.logging import setup_logger
 from src.observability.causal_tracker import causal_tracker
@@ -23,6 +24,7 @@ class ControlDispatcher:
         self.rmr = rmr_client
         self.sdl = sdl_repo
         self.backend = backend
+        self.allocator = get_ric_request_id_allocator()
         self.encoder = E2SMRCEncoder()
         self.default_timeout_s = default_timeout_s
         self.pending_requests: Dict[str, Dict[str, Any]] = {}
