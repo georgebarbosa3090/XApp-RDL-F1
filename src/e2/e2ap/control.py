@@ -292,8 +292,12 @@ def parse_ric_control_ack(payload: bytes) -> Dict[str, Any]:
     target_bytes = payload
     try:
         pdu_type, proc_code, crit, inner = unwrap_e2ap_pdu(payload)
+        if pdu_type != "successfulOutcome":
+            raise ValueError(f"Esperado successfulOutcome para RICcontrolAcknowledge, recebido {pdu_type}")
         target_bytes = inner
-    except Exception:
+    except Exception as e:
+        if "Esperado successfulOutcome" in str(e):
+            raise
         target_bytes = payload
 
     ack = RICcontrolAcknowledge()
@@ -315,8 +319,12 @@ def parse_ric_control_failure(payload: bytes) -> Dict[str, Any]:
     target_bytes = payload
     try:
         pdu_type, proc_code, crit, inner = unwrap_e2ap_pdu(payload)
+        if pdu_type != "unsuccessfulOutcome":
+            raise ValueError(f"Esperado unsuccessfulOutcome para RICcontrolFailure, recebido {pdu_type}")
         target_bytes = inner
-    except Exception:
+    except Exception as e:
+        if "Esperado unsuccessfulOutcome" in str(e):
+            raise
         target_bytes = payload
 
     fail = RICcontrolFailure()
