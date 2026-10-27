@@ -1,4 +1,7 @@
 from typing import Any
+from src.observability.logging import setup_logger
+
+logger = setup_logger("MetricsServer")
 
 try:
     from prometheus_client import REGISTRY, CollectorRegistry, Counter, Histogram, Gauge, start_http_server
@@ -32,6 +35,7 @@ class MetricsServer:
     def __init__(self, port: int = 8081, registry=None):
         self.port = port
         self.registry = registry
+        self._server = None
         self._init_metrics()
 
     def _init_metrics(self):
@@ -89,9 +93,15 @@ class MetricsServer:
         self.decision_latency.observe(latency_s)
 
     def start(self):
-        if HAS_PROMETHEUS:
-            try:
-                start_http_server(self.port)
-            except Exception:
-                pass
-
+        if self._server is not None:
+            return True
+        if not HAS_PROMETHEUS:
+            logger.error("prometheus_client indisponível; endpoint de métricas não foi iniciado.")
+            return False
+        try:
+            self._server, _ = start_http_server(self.port, registry=self.registry or REGISTRY)
+            logger.info("Endpoint Prometheus iniciado", port=self.port)
+            return True
+        except OSError as exc:
+            logger.error("Falha ao iniciar endpoint Prometheus", port=self.port, error=str(exc))
+            return False

@@ -288,8 +288,10 @@ class RDLxApp:
             if success:
                 logger.info("RIC_SUB_REQ emitido com sucesso para Subscription Manager", target_node=node_id, period_ms=report_period_ms)
                 self.active_subscriptions[node_id] = True
+                self.metrics.subs_total.inc()
             else:
                 logger.warning("Falha ao enviar RIC_SUB_REQ via RMR")
+                self.metrics.subs_failures.inc()
             return bool(success)
         except Exception as e:
             logger.error(f"Erro ao construir e emitir RIC_SUB_REQ: {e}")
@@ -303,6 +305,7 @@ class RDLxApp:
             self._safe_rmr_free(xapp_instance, sbuf)
             return
         self.health.set_state(AppState.READY)
+        self.metrics.ready_state.set(1)
         if not self.decision_loop_started:
             self.decision_loop_started = True
             threading.Thread(target=self._decision_loop, daemon=True).start()
@@ -312,6 +315,8 @@ class RDLxApp:
         logger.error("RIC_SUBSCRIPTION_FAILURE recebido; xApp não está pronta", summary=summary)
         self.active_subscriptions.clear()
         self.health.set_state(AppState.DEGRADED)
+        self.metrics.ready_state.set(0)
+        self.metrics.subs_failures.inc()
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def _kpm_indication_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
@@ -331,6 +336,8 @@ class RDLxApp:
                     )
                     self.perception.update_kpm_report(report)
                     self.reasoning.update_kpm_report(report)
+            else:
+                self.metrics.kpm_decode_err.inc()
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
@@ -485,10 +492,12 @@ class RDLxApp:
                     logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
                     selected_winning_actions.append(act)
                     action_conflicts.setdefault(act.action_id, []).append(conflict.conflict_id)
+                    causal_tracker.record_safety_validation()
                 strategy_names.append(resolution.strategy_used.name)
             else:
                 logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
-                causal_tracker.record_safety_validation(intervention=True)
+                for _ in conflict.involved_xapps:
+                    causal_tracker.record_safety_validation(intervention=True)
 
         # 2. Seleção de Ações Limpas (Conflict-Free Pass-Through Pipeline)
         clean_actions = [
@@ -502,6 +511,7 @@ class RDLxApp:
             if is_safe:
                 logger.info("Acao Limpa Admitida (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
                 selected_clean_actions.append(clean_act)
+                causal_tracker.record_safety_validation()
             else:
                 logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
                 causal_tracker.record_safety_validation(intervention=True)
@@ -550,6 +560,7 @@ class RDLxApp:
             if control_request_id is None:
                 self.pending_actions_by_id.pop(act.action_id, None)
                 continue
+            self.metrics.ctrl_req.inc()
             dispatched_actions.append(act)
             for conflict_id in action_conflicts.get(act.action_id, []):
                 causal_tracker.record_conflict_resolution(conflict_id)
@@ -572,7 +583,9 @@ class RDLxApp:
             now = now_ts()
             if (now - last_cleanup) >= 1.0:
                 self.cleanup_expired_transactions()
-                self.dispatcher.check_timeouts(now)
+                expired = self.dispatcher.check_timeouts(now)
+                for _ in expired:
+                    self.metrics.ctrl_timeout.inc()
                 last_cleanup = now
 
             actions_to_process = []
