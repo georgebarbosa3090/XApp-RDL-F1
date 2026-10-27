@@ -58,19 +58,33 @@ class EncodedRCControl:
     message_aper: bytes
     pdu_aper: bytes
 
-# Dicionário Sistemático de Perfis de Parâmetros E2SM-RC (O-RAN.WG3.TS.E2SM-RC v01.00)
+from src.e2.rc.control_parameter import RAN_PARAMETERS, validate_ran_parameter
+
+# Dicionário Sistemático de Perfis de Parâmetros E2SM-RC derivado da fonte canônica
 PARAM_PROFILES = {
-    "PRB_QUOTA":          {"id": 1,  "scale": 1,    "unit": "PRB",         "min": 0,    "max": 100},
-    "TX_POWER":           {"id": 2,  "scale": 10,   "unit": "dBm_x10",     "min": -100, "max": 430},
-    "SCHEDULER_WEIGHT":   {"id": 3,  "scale": 1000, "unit": "milli_ratio", "min": 10,   "max": 10000},
+    name: {
+        "id": defn.param_id,
+        "scale": 1 if name in ("PRB_QUOTA", "HANDOVER") else (
+            10 if name == "TX_POWER" else (
+                1000 if name in ("SCHEDULER_WEIGHT", "BEAM_WEIGHTS") else 1
+            )
+        ),
+        "unit": defn.unit,
+        "min": int(defn.min_value * (10 if name == "TX_POWER" else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
+        "max": int(defn.max_value * (10 if name == "TX_POWER" else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
+    }
+    for name, defn in RAN_PARAMETERS.items()
+}
+
+_EXTRA_PROFILES = {
     "A3_OFFSET":          {"id": 4,  "scale": 100,  "unit": "centi_dB",    "min": -1000,"max": 1000},
-    "HANDOVER":           {"id": 5,  "scale": 1,    "unit": "cell_id",     "min": 0,    "max": 65535},
     "BEAM_DOWNTILT":      {"id": 10, "scale": 10,   "unit": "deg_x10",     "min": 0,    "max": 150},
     "ISAC_SENSING_RATIO": {"id": 11, "scale": 1000, "unit": "milli_ratio", "min": 0,    "max": 500},
     "CARRIER_AGG_RATIO":  {"id": 12, "scale": 1000, "unit": "milli_ratio", "min": 0,    "max": 1000}
 }
-
-RAN_PARAMETERS = PARAM_PROFILES
+for k, v in _EXTRA_PROFILES.items():
+    if k not in PARAM_PROFILES:
+        PARAM_PROFILES[k] = v
 
 class RCEncoder:
     """
@@ -79,10 +93,21 @@ class RCEncoder:
     def __init__(self):
         self.profiles = PARAM_PROFILES
 
-    def encode_control_parts(self, node_id: str, parameter: str, value: float, style_type: int = 1, action_id: int = 1) -> EncodedRCControl:
-        header_aper, msg_aper = self.encode_control_pdu(node_id, parameter, value, style_type, action_id)
+    def encode_control_parts(
+        self,
+        node_id: str,
+        parameter: str,
+        value: float,
+        style_type: int = 1,
+        action_id: int = 1,
+        param_id: Optional[int] = None
+    ) -> EncodedRCControl:
+        header_aper, msg_aper = self.encode_control_pdu(
+            node_id, parameter, value, style_type, action_id, param_id
+        )
         
         profile = self.profiles[parameter]
+        resolved_id = param_id if param_id is not None else profile["id"]
         scale = profile["scale"]
         encoded_val = int(round(float(value) * scale))
 
@@ -91,7 +116,7 @@ class RCEncoder:
             'ricControlHeader': {'ricControlStyleType': style_type, 'ricControlActionID': action_id},
             'ricControlMessage': {'ricControlActionParameters': [
                 {
-                    'ranParameterID': profile["id"],
+                    'ranParameterID': resolved_id,
                     'ranParameterName': parameter,
                     'ranParameterValue': encoded_val
                 }
@@ -100,12 +125,20 @@ class RCEncoder:
         pdu_aper = pdu.to_aper() or b""
         return EncodedRCControl(header_aper=header_aper, message_aper=msg_aper, pdu_aper=pdu_aper)
 
-    def encode_control_pdu(self, node_id: str, parameter: str, value: float, style_type: int = 1, action_id: int = 1) -> Tuple[bytes, bytes]:
+    def encode_control_pdu(
+        self,
+        node_id: str,
+        parameter: str,
+        value: float,
+        style_type: int = 1,
+        action_id: int = 1,
+        param_id: Optional[int] = None
+    ) -> Tuple[bytes, bytes]:
         if parameter not in self.profiles:
             raise ValueError(f"Parâmetro E2SM-RC não suportado ou desconhecido: '{parameter}'")
             
         profile = self.profiles[parameter]
-        param_id = profile["id"]
+        resolved_id = param_id if param_id is not None else profile["id"]
         scale = profile["scale"]
         encoded_val = int(round(float(value) * scale))
         
@@ -121,7 +154,7 @@ class RCEncoder:
         msg = E2SM_RC_ControlMessage()
         msg.set_val({'ricControlActionParameters': [
             {
-                'ranParameterID': param_id,
+                'ranParameterID': resolved_id,
                 'ranParameterName': parameter,
                 'ranParameterValue': encoded_val
             }
@@ -129,9 +162,13 @@ class RCEncoder:
         msg_aper = msg.to_aper()
         return (header_aper or b""), (msg_aper or b"")
 
-    def encode_control_request(self, node_id: str, parameter: str, value: float) -> bytes:
-        _, msg_aper = self.encode_control_pdu(node_id, parameter, value)
+    def encode_control_request(self, node_id: str, parameter: str, value: float, param_id: Optional[int] = None) -> bytes:
+        _, msg_aper = self.encode_control_pdu(node_id, parameter, value, param_id=param_id)
         return msg_aper
+
+    def decode_param_id(self, msg_aper: bytes) -> int:
+        val_dict = self.decode_control_message(msg_aper)
+        return val_dict['ricControlActionParameters'][0]['ranParameterID']
 
     def decode_control_header(self, header_aper: bytes) -> Dict[str, Any]:
         header = E2SM_RC_ControlHeader()
