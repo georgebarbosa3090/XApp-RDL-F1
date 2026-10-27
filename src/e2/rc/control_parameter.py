@@ -41,9 +41,9 @@ RAN_PARAMETERS: Dict[str, RANParameterDefinition] = {
         param_name="TX_POWER",
         param_type="INTEGER",
         min_value=-10.0,
-        max_value=23.0,
+        max_value=43.0,
         unit="dBm",
-        description="Potência máxima de transmissão do setor gNodeB"
+        description="Potência máxima de transmissão do setor gNodeB (macro 20 W)"
     ),
     "HANDOVER": RANParameterDefinition(
         param_id=4,
