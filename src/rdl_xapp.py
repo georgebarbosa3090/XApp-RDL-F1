@@ -3,15 +3,12 @@ import threading
 import json
 import os
 import uuid
+import math
 from typing import Dict, Any, List, Optional, Tuple
 
 try:
-    from ricxappframe.xapp_frame import RMRXapp as _RealRMRXapp, Xapp as _RealXapp, _BaseXapp
+    from ricxappframe.xapp_frame import RMRXapp as _RealRMRXapp, Xapp as _RealXapp
     _HAS_RICXAPPFRAME = True
-    # Desabilita registration loop em ambientes sem AppMgr REST endpoint
-    _BaseXapp.registerXapp = lambda self: None
-    _BaseXapp.register = lambda self: True
-    _BaseXapp.deregister = lambda self: True
 except (ImportError, OSError, Exception):
     _HAS_RICXAPPFRAME = False
     _RealRMRXapp = None
@@ -35,7 +32,10 @@ class MockRMRXapp:
     def deregister(self):
         return True
     def rmr_send(self, payload, mtype, *args, **kwargs):
-        return True
+        logger.warning(
+            "Mock RMR cannot transmit messages; configure a real RMR transport for control dispatch."
+        )
+        return False
     def rmr_free(self, sbuf):
         pass
 
@@ -137,6 +137,7 @@ class RDLxApp:
         self.buffer_lock = threading.Lock()
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
+        self.MAX_PROPOSALS = 4096
 
         # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
         self.pending_transactions: Dict[Any, float] = {}
@@ -151,8 +152,6 @@ class RDLxApp:
                 use_fake_sdl=use_fake_sdl,
                 post_init=self._entrypoint
             )
-            # Evita crash da thread de registro em background caso o AppMgr não esteja presente
-            self.xapp._keep_registration = False
         else:
             self.xapp = MockRMRXapp(
                 default_handler=self._default_handler,
@@ -185,6 +184,7 @@ class RDLxApp:
         self.xapp.register_callback(self._control_ack_handler, RIC_CONTROL_ACK)
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
         self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
+        self.xapp.register_callback(self._subscription_failure_handler, RIC_SUB_FAILURE)
 
     def _safe_rmr_free(self, xapp_instance: Any, sbuf: Any):
         """Libera buffer RMR com segurança, ignorando objetos mock ou inválidos."""
@@ -230,7 +230,10 @@ class RDLxApp:
                     return
 
         if self.oran_strict or self.mode == "O_RAN_INTEROP":
-            logger.info("Modo O_RAN_INTEROP/oran-strict: Descoberta estatica desabilitada. As capacidades de controle serao descobertas exclusivamente via RANFunctionDefinition (E2 Setup).")
+            logger.info(
+                "Modo O_RAN_INTEROP: capacidades devem estar previamente carregadas pela integração "
+                "de descoberta E2; este runtime não consome RAN Function Definition."
+            )
         else:
             # Registra capacidades estaticas pre-configuradas em modo DEV/UNIT/OFFLINE
             self.backend.register_static_profile_capabilities("gnb_01")
@@ -247,21 +250,12 @@ class RDLxApp:
                 self.health.set_state(AppState.SUBSCRIBING)
         except Exception as e:
             if self.oran_strict:
-                self.health.set_state(AppState.DISCOVERING_E2_NODES)
-                logger.info(f"[ORAN-STRICT] Aguardando conexão de nó E2 / E2 Setup no runtime ({e})")
-
-                def _await_e2_nodes_and_subscribe():
-                    while self.running and self.health.state == AppState.DISCOVERING_E2_NODES:
-                        try:
-                            kpm_id = rc_capability_registry.get_kpm_function_id("gnb_01")
-                            sub = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
-                            if sub:
-                                self.health.set_state(AppState.SUBSCRIBING)
-                                break
-                        except Exception:
-                            pass
-                        time.sleep(2.0)
-                threading.Thread(target=_await_e2_nodes_and_subscribe, daemon=True).start()
+                self.health.set_state(AppState.ERROR)
+                logger.error(
+                    "Modo O_RAN_INTEROP bloqueado: descoberta E2 não forneceu KPM Function ID "
+                    "ao runtime; não será usado ID estático nem retry success-shaped.",
+                    error=str(e),
+                )
             else:
                 subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
                 if subscribed:
@@ -311,6 +305,12 @@ class RDLxApp:
             threading.Thread(target=self._decision_loop, daemon=True).start()
         self._safe_rmr_free(xapp_instance, sbuf)
 
+    def _subscription_failure_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
+        logger.error("RIC_SUBSCRIPTION_FAILURE recebido; xApp não está pronta", summary=summary)
+        self.active_subscriptions.clear()
+        self.health.set_state(AppState.DEGRADED)
+        self._safe_rmr_free(xapp_instance, sbuf)
+
     def _kpm_indication_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         self.metrics.record_kpm()
         payload = summary.get("payload")
@@ -334,22 +334,48 @@ class RDLxApp:
         payload = summary.get("payload")
         if payload:
             try:
-                data = json.loads(payload.decode('utf-8'))
+                if not isinstance(payload, bytes) or len(payload) > 65536:
+                    raise ValueError("Proposal payload must be bytes with at most 65536 bytes")
+                data = json.loads(payload.decode("utf-8"), parse_constant=self._reject_json_constant)
+                if not isinstance(data, dict):
+                    raise ValueError("Proposal must be a JSON object")
+                xapp_id = data.get("xapp_id")
+                node_id = data.get("node_id")
+                parameter = data.get("parameter")
+                value = data.get("value")
+                priority = data.get("priority", 50)
+                if not isinstance(xapp_id, str) or not xapp_id.strip() or len(xapp_id) > 128:
+                    raise ValueError("xapp_id must be a non-empty string of at most 128 characters")
+                if not isinstance(node_id, str) or not node_id.strip() or len(node_id) > 128:
+                    raise ValueError("node_id must be a non-empty string of at most 128 characters")
+                if not isinstance(parameter, str) or not parameter.strip():
+                    raise ValueError("parameter must be a non-empty string")
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                    raise ValueError("value must be a finite number")
+                if isinstance(priority, bool) or not isinstance(priority, int) or not 0 <= priority <= 100:
+                    raise ValueError("priority must be an integer in [0, 100]")
                 action = XAppAction(
-                    xapp_id=data['xapp_id'],
-                    node_id=data['node_id'],
-                    parameter=data['parameter'],
-                    value=data['value'],
-                    priority=data.get('priority', 50)
+                    xapp_id=xapp_id,
+                    node_id=node_id,
+                    parameter=parameter,
+                    value=float(value),
+                    priority=priority
                 )
                 with self.buffer_lock:
-                    if not self.proposal_buffer:
-                        self.window_start = now_ts()
-                    self.proposal_buffer.append(action)
-                    logger.debug(f"Action buffered. Queue size: {len(self.proposal_buffer)}")
-            except Exception as e:
+                    if len(self.proposal_buffer) >= self.MAX_PROPOSALS:
+                        logger.error("Proposal buffer limit reached; incoming action rejected.")
+                    else:
+                        if not self.proposal_buffer:
+                            self.window_start = now_ts()
+                        self.proposal_buffer.append(action)
+                        logger.debug(f"Action buffered. Queue size: {len(self.proposal_buffer)}")
+            except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as e:
                 logger.error("Erro ao processar RDL_ACTION_PROPOSAL", error=str(e))
         self._safe_rmr_free(xapp_instance, sbuf)
+
+    @staticmethod
+    def _reject_json_constant(value: str):
+        raise ValueError(f"Invalid JSON numeric constant: {value}")
 
     def _control_ack_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata confirmacoes de execucao de controle emitidas pelo E2 Node / E2Term."""
@@ -357,7 +383,7 @@ class RDLxApp:
         if payload:
             try:
                 # 1) Dispatcher trata APER e aciona causal_tracker
-                self.dispatcher.handle_ack(payload)
+                self.dispatcher.handle_ack(payload, node_id=summary.get("meid"))
 
                 # 2) Correlaciona via backend e limpa pending_transactions locais
                 ack_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
@@ -392,7 +418,7 @@ class RDLxApp:
         if payload:
             try:
                 # 1) Dispatcher trata APER e aciona rollback
-                self.dispatcher.handle_failure(payload)
+                self.dispatcher.handle_failure(payload, node_id=summary.get("meid"))
 
                 # 2) Correlaciona via backend e limpa pending_transactions locais
                 fail_info = self.backend.correlate_ack(payload, allow_test_fallback=not self.oran_strict)
@@ -421,18 +447,14 @@ class RDLxApp:
     def inject_xapp_action(self, action: XAppAction):
         """API publica para injecao de acoes simuladas (usada em testes)"""
         with self.buffer_lock:
+            if len(self.proposal_buffer) >= self.MAX_PROPOSALS:
+                raise OverflowError("Proposal buffer limit reached")
             if not self.proposal_buffer:
                 self.window_start = now_ts()
             self.proposal_buffer.append(action)
 
-    def _get_last_value(self, action: XAppAction) -> float:
-        if action.parameter == "TX_POWER":
-            return 23.0
-        elif action.parameter == "PRB_QUOTA":
-            return 50.0
-        elif action.parameter == "SCHEDULER_WEIGHT":
-            return 10.0
-        return 50.0
+    def _get_last_value(self, action: XAppAction) -> Optional[float]:
+        return None
 
     def _process_action_group(self, actions: List[XAppAction]):
         """
@@ -559,6 +581,7 @@ class RDLxApp:
                 self.dispatcher.check_timeouts(now)
                 last_cleanup = now
 
+            actions_to_process = []
             with self.buffer_lock:
                 if self.proposal_buffer:
                     elapsed_ms = (now_ts() - self.window_start) * 1000
@@ -568,9 +591,8 @@ class RDLxApp:
                         self.proposal_buffer.clear()
                         self.window_start = 0.0
                         logger.info(f"Decision Window Expired. Processing batch of {len(actions_to_process)} actions.")
-                        
-                        # Processa fora do lock para nao travar RMR
-                        threading.Thread(target=self._process_action_group, args=(actions_to_process,), daemon=True).start()
+            if actions_to_process:
+                self._process_action_group(actions_to_process)
 
     def _send_control(self, node_id: str, parameter: str, value: float, action: Optional[XAppAction] = None, decision_id: Optional[str] = None):
         correlation_key = None

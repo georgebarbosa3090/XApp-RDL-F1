@@ -124,6 +124,5 @@ class RDLDecision:
     reward_estimate: Optional[float] = None
     affected_node: str = "gnb_01"
     affected_cell: str = "cell_01"
-    previous_safe_value: float = 50.0
-
+    previous_safe_value: Optional[float] = None
 
