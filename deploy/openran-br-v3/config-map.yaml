@@ -26,8 +26,7 @@ data:
       },
       "rdl": {
         "decision_window_ms": 200,
-        "use_fake_sdl": false,
-        "dispatch_raw_aper": true
+        "use_fake_sdl": false
       }
     }
   routes.rt: |

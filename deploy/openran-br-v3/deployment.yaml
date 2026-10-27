@@ -43,8 +43,6 @@ spec:
               value: "service-ricplt-dbaas-tcp.ricplt"
             - name: DBAAS_SERVICE_PORT
               value: "6379"
-            - name: DISPATCH_RAW_APER_CONTROL
-              value: "true"
           ports:
             - name: rmr-data
               containerPort: 4560

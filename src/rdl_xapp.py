@@ -62,7 +62,6 @@ from src.e2.e2ap.constants import (
     RIC_SUBSCRIPTION_DELETE_REQ,
     RIC_SUBSCRIPTION_DELETE_RESP,
     RIC_SUBSCRIPTION_DELETE_FAILURE,
-    RIC_CONTROL_REQ,
     RIC_CONTROL_ACK,
     RIC_CONTROL_FAILURE,
     RIC_INDICATION,
@@ -101,11 +100,9 @@ class RDLxApp:
                 )
             use_fake_sdl = False
             rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false").lower() in ("true", "1", "yes")
-            self.dispatch_raw_aper = True
         else:
             use_fake_sdl = os.getenv("USE_FAKE_SDL", "True").lower() in ("true", "1", "yes")
             rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false" if use_fake_sdl else "true").lower() in ("true", "1", "yes")
-            self.dispatch_raw_aper = os.getenv("DISPATCH_RAW_APER_CONTROL", "False").lower() in ("true", "1", "yes")
         
         if use_fake_sdl:
             self.memory = MemoryModule()
@@ -140,7 +137,6 @@ class RDLxApp:
         self.MAX_PROPOSALS = 4096
 
         # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
-        self.pending_transactions: Dict[Any, float] = {}
         self.pending_actions_by_id: Dict[str, XAppAction] = {}
         self.active_subscriptions: Dict[str, bool] = {}
         self.decision_loop_started = False
@@ -580,13 +576,8 @@ class RDLxApp:
                 causal_tracker.record_conflict_resolution(conflict_id)
 
     def cleanup_expired_transactions(self, timeout_s: float = 5.0) -> int:
-        """Limpa transações pendentes expiradas para evitar vazamento de memória (Anti-Leak)."""
-        now = now_ts()
-        expired_keys = [k for k, ts in list(self.pending_transactions.items()) if (now - ts) > timeout_s]
-        for k in expired_keys:
-            self.pending_transactions.pop(k, None)
-        self.allocator.cleanup_expired(timeout_s)
-        return len(expired_keys)
+        """Limpa correlações de request expiradas; status de controle é gerido pelo dispatcher."""
+        return self.allocator.cleanup_expired(timeout_s)
 
     def _decision_loop(self):
         last_cleanup = now_ts()

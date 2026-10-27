@@ -503,13 +503,8 @@ def test_rdlxapp_handlers_and_dispatch():
     app._process_action_group([act1, act2])
 
     # Testa ACK Handler com transação simulada
-    req_obj = app.allocator.allocate("gnb_01", 3, decision_id="dec_01", action_id="act_01")
-    app.pending_transactions[( "gnb_01", 3, req_obj.requestor_id, req_obj.instance_id )] = time.time()
-
     ack_payload = json.dumps({
         "transaction_id": "tx_mock_01",
-        "requestor_id": req_obj.requestor_id,
-        "instance_id": req_obj.instance_id,
         "status": "ACK_RECEIVED"
     }).encode("utf-8")
     app._control_ack_handler(app.xapp, {"payload": ack_payload}, MockSbuf())
