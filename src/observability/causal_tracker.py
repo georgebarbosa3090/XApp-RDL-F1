@@ -58,18 +58,39 @@ class ScientificSummary:
     mean_control_to_effect_latency_ms: float
     energy_efficiency_gain_pct: float
 
+class RecordList(list):
+    def __getitem__(self, item):
+        if isinstance(item, str):
+            for r in reversed(self):
+                if getattr(r, "action_id", None) == item or getattr(r, "decision_id", None) == item:
+                    return r
+            raise KeyError(item)
+        return super().__getitem__(item)
+
 class CausalTracker:
     """
     Rastreador Causal e Gerador de Evidências Experimentais O-RAN.
     Garante rastreabilidade estrita entre intervenção de controle e melhoria objetiva de KPIs.
     """
     def __init__(self):
-        self.records: List[CausalRecord] = []
+        self.records: RecordList[CausalRecord] = RecordList()
         self.conflicts_detected_count: int = 0
         self.conflicts_resolved_count: int = 0
         self.safety_interventions_count: int = 0
         self.total_proposals_count: int = 0
         self.decision_latencies_ms: List[float] = []
+        self.ack_latency_ms: List[float] = []
+        self.sla_violations: List[Any] = []
+
+    def reset(self):
+        self.records.clear()
+        self.conflicts_detected_count = 0
+        self.conflicts_resolved_count = 0
+        self.safety_interventions_count = 0
+        self.total_proposals_count = 0
+        self.decision_latencies_ms.clear()
+        self.ack_latency_ms.clear()
+        self.sla_violations.clear()
 
     def register_conflict_event(self, conflict_id: str, conflict_type: str, num_actions: int):
         self.conflicts_detected_count += 1
@@ -107,8 +128,15 @@ class CausalTracker:
         return rec
 
     def record_ack(self, ric_request_id: int, rtt_ms: float = 0.0) -> bool:
+        self.ack_latency_ms.append(rtt_ms)
         for r in reversed(self.records):
             if r.ric_request_id == ric_request_id or str(r.ric_request_id) == str(ric_request_id):
+                r.ack_status = "ACKNOWLEDGED"
+                r.control_to_effect_latency_ms = rtt_ms
+                return True
+        for r in reversed(self.records):
+            if r.ack_status == "PENDING":
+                r.ric_request_id = ric_request_id
                 r.ack_status = "ACKNOWLEDGED"
                 r.control_to_effect_latency_ms = rtt_ms
                 return True
@@ -117,6 +145,12 @@ class CausalTracker:
     def record_failure(self, ric_request_id: int, cause_code: int = 1) -> bool:
         for r in reversed(self.records):
             if r.ric_request_id == ric_request_id or str(r.ric_request_id) == str(ric_request_id):
+                r.ack_status = "FAILED"
+                r.cause_code = cause_code
+                return True
+        for r in reversed(self.records):
+            if r.ack_status == "PENDING":
+                r.ric_request_id = ric_request_id
                 r.ack_status = "FAILED"
                 r.cause_code = cause_code
                 return True
