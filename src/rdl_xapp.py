@@ -617,62 +617,39 @@ class RDLxApp:
             if actions_to_process:
                 self._process_action_group(actions_to_process)
 
-    def _send_control(self, node_id: str, parameter: str, value: float, action: Optional[XAppAction] = None, decision_id: Optional[str] = None):
-        correlation_key = None
-        ric_req_key = None
-        tx_id = None
-        try:
-            target_action = action or XAppAction(xapp_id="hrdl_core", node_id=node_id, parameter=parameter, value=value, priority=100)
-            from src.e2.rc.capability_registry import rc_capability_registry
-            ran_fn_id = rc_capability_registry.get_rc_function_id(node_id)
-            req_id_obj = self.allocator.allocate(
-                node_id=node_id,
-                ran_function_id=ran_fn_id,
-                decision_id=decision_id,
-                action_id=getattr(target_action, "action_id", None)
-            )
-            requestor_id = req_id_obj.requestor_id
-            instance_id = req_id_obj.instance_id
-            correlation_key = (node_id, ran_fn_id, requestor_id, instance_id)
-            aper_payload = self.backend.map_action_to_control_pdu(target_action, requestor_id=requestor_id, instance_id=instance_id)
-            
-            tx_id = str(uuid.uuid4())[:8]
-            ric_req_key = (node_id, ran_fn_id, requestor_id, instance_id)
-            self.pending_transactions[ric_req_key] = now_ts()
-            self.pending_transactions[tx_id] = now_ts()
-            
-            if self.dispatch_raw_aper:
-                # Envio direto do buffer binario APER para o E2Term / NORI
-                success = self.xapp.rmr_send(payload=aper_payload, mtype=RIC_CONTROL_REQ)
-            else:
-                # Formata para o dispatcher RMR com envelope estruturado e hex APER
-                payload_dict = {
-                    "transaction_id": tx_id,
-                    "decision_id": decision_id,
-                    "action_id": getattr(target_action, "action_id", ""),
-                    "node_id": node_id,
-                    "parameter": parameter,
-                    "value": value,
-                    "requestor_id": requestor_id,
-                    "instance_id": instance_id,
-                    "ran_function_id": ran_fn_id,
-                    "aper_bytes": aper_payload.hex() if isinstance(aper_payload, bytes) else str(aper_payload)
-                }
-                payload_bytes = json.dumps(payload_dict).encode('utf-8')
-                success = self.xapp.rmr_send(payload=payload_bytes, mtype=RIC_CONTROL_REQ)
-        except Exception as e:
-            logger.error(f"Falha ao gerar APER Control via backend {self.backend.metadata.backend_id}: {e}")
-            success = False
-        if success:
-            logger.info("RIC_CONTROL_REQUEST enviado com sucesso", node_id=node_id, param=parameter, val=value, backend=self.backend.metadata.backend_id, raw_aper=self.dispatch_raw_aper, decision_id=decision_id, action_id=getattr(action, "action_id", None))
-        else:
-            logger.error("Falha ao enviar RIC_CONTROL_REQUEST")
-            if correlation_key is not None:
-                self.allocator.pop_correlation(*correlation_key)
-            if ric_req_key is not None:
-                self.pending_transactions.pop(ric_req_key, None)
-            if tx_id is not None:
-                self.pending_transactions.pop(tx_id, None)
+    def _send_control(
+        self,
+        node_id: str,
+        parameter: str,
+        value: float,
+        action: Optional[XAppAction] = None,
+        decision_id: Optional[str] = None,
+    ) -> bool:
+        target_action = action or XAppAction(
+            xapp_id="hrdl_core",
+            node_id=node_id,
+            parameter=parameter,
+            value=value,
+            priority=100,
+        )
+        if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
+            logger.error("Controle rejeitado: interoperabilidade E2 não foi validada.")
+            return False
+        previous_action = self.perception.get_committed_action(node_id, parameter)
+        decision = RDLDecision(
+            decision_id=decision_id or str(uuid.uuid4())[:8],
+            selected_actions=[target_action],
+            safety_result={"is_safe": True},
+            affected_node=node_id,
+            previous_safe_value=previous_action.value if previous_action else None,
+        )
+        self.pending_actions_by_id[target_action.action_id] = target_action
+        request_id = self.dispatcher.dispatch_control(decision)
+        if request_id is None:
+            self.pending_actions_by_id.pop(target_action.action_id, None)
+            return False
+        self.metrics.ctrl_req.inc()
+        return True
 
 
 
