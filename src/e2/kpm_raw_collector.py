@@ -80,7 +80,9 @@ class KpmRawCollector:
             "index": index,
             "raw_sha256": hashlib.sha256(raw_bytes).hexdigest(),
             "byte_length": len(raw_bytes),
-            "reports": decoded_reports
+            "reports": decoded_reports,
+            "reports_count": len(decoded_reports),
+            "decode_ok": len(decoded_reports) > 0,
         }
 
         with open(json_path, "w", encoding="utf-8") as f:

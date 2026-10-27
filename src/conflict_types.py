@@ -122,5 +122,8 @@ class RDLDecision:
     timestamp: float = field(default_factory=time.time)
     marl_agent_id: Optional[str] = None
     reward_estimate: Optional[float] = None
+    affected_node: str = "gnb_01"
+    affected_cell: str = "cell_01"
+    previous_safe_value: float = 50.0
 
 
