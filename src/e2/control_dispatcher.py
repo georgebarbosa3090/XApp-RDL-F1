@@ -194,6 +194,7 @@ class ControlDispatcher:
             kpm_before=getattr(decision, "state", {}).get("kpm_before"),
             strategy=tracking_info.get("strategy_used", "DETERMINISTIC_H_RDL"),
             conflict_id=tracking_info["conflict_id"],
+            conflict_ids=getattr(decision, "conflict_ids", []),
         )
         
         try:

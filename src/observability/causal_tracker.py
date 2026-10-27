@@ -19,6 +19,7 @@ class CausalRecord:
     decision_id: str
     ric_request_id: Union[int, str]
     conflict_id: Optional[str]
+    conflict_ids: List[str]
     timestamp: float
     node_id: str
     parameter: str
@@ -165,6 +166,7 @@ class CausalTracker:
         strategy: str = "SHANNON_OPTIMAL",
         decision_latency_ms: Optional[float] = None,
         conflict_id: Optional[str] = None,
+        conflict_ids: Optional[List[str]] = None,
     ) -> CausalRecord:
         if decision_latency_ms is not None:
             self.decision_latencies_ms.append(float(decision_latency_ms))
@@ -173,6 +175,7 @@ class CausalTracker:
             decision_id=decision_id,
             ric_request_id=ric_request_id,
             conflict_id=conflict_id,
+            conflict_ids=list(conflict_ids or ([conflict_id] if conflict_id else [])),
             timestamp=time.time(),
             node_id=node_id,
             parameter=parameter,
@@ -308,10 +311,10 @@ class CausalTracker:
 
         # Conflitos com melhoria comprovada e ACK recebido
         improved_conflicts = {
-            r.conflict_id
+            conflict_id
             for r in self.records
-            if r.conflict_id is not None
-            and r.kpi_improved is True
+            for conflict_id in r.conflict_ids
+            if r.kpi_improved is True
             and r.ack_status == "ACKNOWLEDGED"
         }
         cre = (

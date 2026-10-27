@@ -567,6 +567,7 @@ class RDLxApp:
                 previous_safe_value=previous_action.value if previous_action else None,
                 strategy_used=decision.strategy_used,
                 conflict_id=action_conflicts.get(act.action_id, [None])[0],
+                conflict_ids=action_conflicts.get(act.action_id, []),
             )
             self.pending_actions_by_id[act.action_id] = act
             control_request_id = self.dispatcher.dispatch_control(per_action_decision)
