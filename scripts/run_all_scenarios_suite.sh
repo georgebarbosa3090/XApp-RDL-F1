@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Script: run_all_scenarios_suite.sh
-# Projeto: xApp RDL - Suíte Automatizada de Execução de Todos os Cenários (5G, 5GA, 6G)
-# Finalidade: Compila e executa sequencialmente todos os 5 cenários no ns-3/NORI,
-#             conectando com a xApp RDL e consolidando os relatórios estatísticos.
+# Executa somente os cenários ns-3 que exigem o módulo 5G-LENA NR.
 # ==============================================================================
 set -euo pipefail
 
@@ -13,33 +11,37 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SEEDS=(42 101 2026)
 
 echo "=============================================================================="
-echo " [*] Iniciando Suíte Completa de Simulação e Benchmark RDL (5G, 5GA e 6G)"
+echo " [*] Iniciando suíte ns-3 + 5G-LENA (cenários S2)"
 echo " [*] Diretório do ns-3: $NS3_DIR"
 echo "=============================================================================="
 
-# 1. Copiar todos os cenários .cc para o scratch do ns-3
-echo "[+] Sincronizando cenários .cc com o scratch do ns-3..."
+# Sincroniza somente cenários Phase 1 e nunca sobrescreve arquivos locais diferentes.
 mkdir -p "$SCRATCH_DIR"
-cp -v "$PROJECT_DIR/simulations/ns3/"scenario_rdl_*.cc "$SCRATCH_DIR/"
-
-# 2. Compilação via Ninja/CMake
-echo "[+] Compilando todos os cenários com perfil otimizado via Ninja..."
-cd "$NS3_DIR"
-./ns3 build scratch/scenario_rdl_energy_vs_qos \
-            scratch/scenario_rdl_tvs_conflict \
-            scratch/scenario_rdl_5ga_multicarrier_mimo \
-            scratch/scenario_rdl_6g_isac_sensing_coexistence \
-            scratch/scenario_rdl_6g_cross_tier_governance
-
-# 3. Matriz de Execução Automatizada
 SCENARIOS=(
     "scenario_rdl_energy_vs_qos:Cenário 1 (5G EEVS - Energy vs QoS):--enableE2=true --simTime=30"
     "scenario_rdl_tvs_conflict:Cenário 2 (5G TVS - Handover vs Slicing):--enableE2=true --simTime=30"
-    "scenario_rdl_5ga_multicarrier_mimo:Cenário 3 (5GA - Multi-Carrier FR1/FR3 & Massive MIMO):--enableE2=true --simTime=40"
-    "scenario_rdl_6g_isac_sensing_coexistence:Cenário 4 (6G - ISAC Radar vs Comunicação 28 GHz):--sensingRatio=0.35 --simTime=30"
-    "scenario_rdl_6g_cross_tier_governance:Cenário 5 (6G - Governança Cross-Tier & Anti-Rogue):--lockout=true --simTime=35"
 )
 
+for ENTRY in "${SCENARIOS[@]}"; do
+    IFS=":" read -r SCENARIO_BIN SCENARIO_DESC SCENARIO_FLAGS <<< "$ENTRY"
+    SOURCE="$PROJECT_DIR/simulations/ns3/$SCENARIO_BIN.cc"
+    DESTINATION="$SCRATCH_DIR/$SCENARIO_BIN.cc"
+    if [[ -e "$DESTINATION" ]]; then
+        if ! cmp -s "$SOURCE" "$DESTINATION"; then
+            echo "[ERROR] $DESTINATION existe e difere da fonte; não será sobrescrito." >&2
+            exit 1
+        fi
+    else
+        cp "$SOURCE" "$DESTINATION"
+    fi
+done
+
+# Compile fails at source level if the 5G-LENA module is absent.
+echo "[+] Compilando cenários ns-3 + 5G-LENA..."
+cd "$NS3_DIR"
+./ns3 build scratch/scenario_rdl_energy_vs_qos scratch/scenario_rdl_tvs_conflict
+
+# Stop immediately on any failed scenario/seed; never create success-shaped reports.
 mkdir -p "$PROJECT_DIR/data/results_suite"
 
 for ENTRY in "${SCENARIOS[@]}"; do
@@ -52,28 +54,12 @@ for ENTRY in "${SCENARIOS[@]}"; do
     for SEED in "${SEEDS[@]}"; do
         echo "  [>] Executando com RNG Seed=$SEED..."
         ./ns3 run "scratch/$SCENARIO_BIN $SCENARIO_FLAGS --seed=$SEED" \
-            > "$PROJECT_DIR/data/results_suite/${SCENARIO_BIN}_seed_${SEED}.log" 2>&1 || {
-            echo "  [!] Aviso: Execução concluída com código de retorno específico no log."
-        }
+            > "$PROJECT_DIR/data/results_suite/${SCENARIO_BIN}_seed_${SEED}.log" 2>&1
     done
-    echo "  [[OK]] $SCENARIO_DESC finalizado com sucesso para todas as seeds."
+    echo "  [OK] $SCENARIO_DESC finalizado para todas as seeds."
 done
 
 echo "=============================================================================="
-echo " [*] Suíte de Simulação 5G/5GA/6G Concluída com Sucesso!"
+echo " [*] Suíte ns-3 + 5G-LENA concluída com sucesso."
 echo " [*] Logs e métricas salvos em: $PROJECT_DIR/data/results_suite/"
 echo "=============================================================================="
-
-# Atualização de relatórios analíticos, gráficos e push automático para o GitHub
-echo ""
-echo "[+] Consolidando relatórios analíticos e sincronizando com o GitHub..."
-if [ -f "$PROJECT_DIR/.venv/bin/python" ]; then
-    PYTHON_CMD="$PROJECT_DIR/.venv/bin/python"
-elif [ -f "$PROJECT_DIR/.venv/Scripts/python.exe" ]; then
-    PYTHON_CMD="$PROJECT_DIR/.venv/Scripts/python.exe"
-else
-    PYTHON_CMD="python3"
-fi
-
-$PYTHON_CMD "$PROJECT_DIR/scripts/run_experiment_suite.py" --push
-

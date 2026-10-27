@@ -38,6 +38,10 @@
 #define HAS_ORAN_MODULE 0                // Flag indicando operacao sem conexao com Near-RT RIC
 #endif
 
+#if !HAS_NR_MODULE
+#error "scenario_rdl_tvs_conflict requires ns-3 built with 5G-LENA NR; fallback RAN is not supported."
+#endif
+
 // Importacao do namespace global do ns-3
 using namespace ns3;
 

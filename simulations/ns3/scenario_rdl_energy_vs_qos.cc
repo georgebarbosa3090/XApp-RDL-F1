@@ -38,6 +38,10 @@
 #define HAS_ORAN_MODULE 0                // Flag indicando operacao sem conexao externa E2
 #endif
 
+#if !HAS_NR_MODULE
+#error "scenario_rdl_energy_vs_qos requires ns-3 built with 5G-LENA NR; fallback RAN is not supported."
+#endif
+
 // Utilizacao do namespace padrao do ns-3
 using namespace ns3;
 
