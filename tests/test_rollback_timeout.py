@@ -105,9 +105,9 @@ def test_failure_triggers_rollback():
 
     fail_res = dispatcher.handle_failure(wrapped_fail)
     assert fail_res is not None
-    assert fail_res["status"] in ("FAILED", "ROLLED_BACK")
+    assert fail_res["status"] == "ROLLBACK_SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["restored_value"] == 23.0
+    assert dispatcher.rollback_history[0]["requested_value"] == 23.0
 
     record = causal_tracker.records[action.action_id]
     assert record.ack_status == "FAILED"
@@ -135,9 +135,9 @@ def test_check_timeouts_triggers_rollback():
     future_time = time.time() + 5.0
     timed_out = dispatcher.check_timeouts(now=future_time)
     assert ctrl_id in timed_out
-    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLED_BACK"
+    assert dispatcher.pending_requests[ctrl_id]["status"] == "ROLLBACK_SENT_UNCONFIRMED"
     assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["restored_value"] == 50.0
+    assert dispatcher.rollback_history[0]["requested_value"] == 50.0
 
 def test_anti_leak_cleanup():
     rmr = MockRMR()
