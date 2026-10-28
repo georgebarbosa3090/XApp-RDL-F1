@@ -408,7 +408,7 @@ Os artefatos gerados incluem a série temporal de telemetria e recuperação de 
 
 ---
 
-### 5.6. Monitoramento Live no Terminal WSL Ubuntu: 2 Terminais com 3 Janelas Cada (100% Dados Reais)
+### 5.6. Monitoramento Live no Terminal WSL Ubuntu: 6 Janelas na Mesma Tela (100% Dados Reais)
 
 > [!IMPORTANT]
 > **Diretriz de Zero Dados Sintéticos:** Em conformidade estrita com a política de governança e proveniência científica (`provenance_policy.yaml` e `scripts/check_no_synthetic_results.py`), é **permanentemente proibido** o uso de mocks ou geradores aleatórios. Todas as métricas, registros de UEs, fluxos, quadros ASN.1 APER e ações de controle apresentadas são extraídas exclusivamente de fontes empíricas reais:
@@ -417,87 +417,47 @@ Os artefatos gerados incluem a série temporal de telemetria e recuperação de 
 > 3. Cadeia Causal Certificada com não-repúdio SHA-256 (`chain_manifest.json`);
 > 4. Execução real dos módulos de Percepção, Raciocínio (TVS/EEVS) e Refinamento do core RDL.
 
-O subsistema organiza a visualização em **2 terminais abertos simultaneamente**, com **3 janelas/painéis em cada um** (totalizando os 6 blocos do ecossistema O-RAN em malha fechada):
+O subsistema organiza a visualização no terminal do **WSL Ubuntu** em exatamente **6 janelas/painéis sincronizados no mesmo layout de tela**:
 
 ```
-====================================================================================================
- TERMINAL 1: REDE & TELEMETRIA E2 (Sessão tmux: oran-terminal-1)
-====================================================================================================
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ [JANELA 1 - Topo] REGISTRO & ESTADO DOS UES NOS GNBS (ns-3 FlowMonitor / 5G-LENA)                │
-│ • UEs conectados: 14 | Nó: gnb_srsran_01 | PRB Médio: 89.5% | Estado: RRC_CONNECTED             │
-│ • Métricas reais por fluxo: Throughput (Mbps), Atraso (ms), Perda de Pacotes, Status de SLA     │
-├─────────────────────────────────────────────────┬────────────────────────────────────────────────┤
-│ [JANELA 2 - Inferior Esq] SINALIZAÇÃO E2        │ [JANELA 3 - Inferior Dir] MÓDULO DE PERCEPÇÃO  │
-│ • E2AP RIC_INDICATION (Code 202)                │ • Ingestão de Telemetria KPM real (PRB: 89.5%) │
-│ • Dissector ASN.1 APER real (Wireshark PCAP)    │ • Detecção de Violação de SLA URLLC (>10 ms)   │
-│ • RMR Bus Mensagens (12050 / 12010 / 12011)     │ • Conflito Direto: xapp_embb vs xapp_urllc     │
-└─────────────────────────────────────────────────┴────────────────────────────────────────────────┘
-
-====================================================================================================
- TERMINAL 2: COGNIÇÃO & AÇÃO EM MALHA FECHADA (Sessão tmux: oran-terminal-2)
-====================================================================================================
-┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ [JANELA 4 - Topo] GRAFO DE CONHECIMENTO COGNITIVO (Knowledge Graph & Topologia SDL)               │
-│ • Nós Ativos: 7 | Arestas de Topologia: 6 | Densidade de Conectividade: 0.286                    │
-│ • Grafo Causal: [gNB] --(hosts)--> [Fatias] --(serves)--> [xApps] --(contends)--> [PRB_QUOTA]   │
-├─────────────────────────────────────────────────┬────────────────────────────────────────────────┤
-│ [JANELA 5 - Inferior Esq] REFINAMENTO & SAFETY  │ [JANELA 6 - Inferior Dir] AÇÃO E2SM-RC & MALHA │
-│ • Motor de Arbitragem: H-RDL NASH_BARGAINING    │ • Despacho E2SM-RC Control Request (TxID: 5001)│
-│ • Quotas Arbitradas: URLLC=50.0%, eMBB=50.0%    │ • Confirmação: E2SM-RC CONTROL_ACCEPTED        │
-│ • Safety Guard: ZERO_UNSAFE_ACTIONS (Clipped=0) │ • Latência Causal Total: 1.904 ms (< 10 ms)   │
-└─────────────────────────────────────────────────┴────────────────────────────────────────────────┘
+┌──────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
+│ [JANELA 1] REGISTRO UE & GNBS        │ [JANELA 2] SINALIZAÇÃO & PROTOCOLO E2│ [JANELA 3] MÓDULO DE PERCEPÇÃO       │
+│ • UEs conectados (ns-3 FlowMonitor)  │ • E2AP RIC_INDICATION (Code 202)     │ • Ingestão KPM real (89.5% PRB)      │
+│ • Nó de rádio: gnb_srsran_01         │ • E2SM-KPM v2.0 / Dissector PCAP     │ • Alerta de SLA Crítico (>10 ms)     │
+│ • Vazão (Mbps), Atraso real por UE   │ • E2SM-RC ControlReq (ActionID=6)    │ • Conflito Direto: xapp_embb vs urllc│
+│ • Fatias Reais: eMBB & URLLC         │ • RMR Bus (mtypes 12050/12010/12011) │ • Parâmetro Contendido: PRB_QUOTA    │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ [JANELA 4] GRAFO DE CONHECIMENTO     │ [JANELA 5] MÓDULO DE REFINAMENTO     │ [JANELA 6] AÇÃO E2SM-RC & MALHA FECH.│
+│ • Topologia Real (7 Nós, 6 Arestas)  │ • Motor: H-RDL_NASH_BARGAINING       │ • Comando Despachado: TxID 5001      │
+│ • Entidades: gNB, Slices, xApps, RCP │ • Quotas Refinadas: URLLC=50%, eMBB=5│ • Retorno: CONTROL_ACCEPTED (1.82 ms)│
+│ • Arestas de Alocação e Conflito     │ • Overhead de Decisão: 0.084 ms      │ • Latência Causal: 1.904 ms (< 10 ms)│
+│ • Ciclos de Interferência Detectados │ • Safety Guard: ZERO_UNSAFE_ACTIONS  │ • Recuperação: 18.2 ms ➔ 4.1 ms (-77%│
+└──────────────────────────────────────┴──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
-#### 5.6.1. Como Abrir os 2 Terminais Automaticamente no Windows Desktop
+#### 5.6.1. Opção A: Layout Nativo via `tmux` no WSL Ubuntu (Recomendado)
 
-Se estiver utilizando o Windows com WSL Ubuntu instalado:
-
-```cmd
-REM Opção 1: Executar o arquivo batch no Windows (CMD ou PowerShell na raiz do repo):
-.\abrir_2_terminais.bat
-
-REM Opção 2: Ou dentro do WSL Ubuntu (abre as 2 janelas independentes no desktop):
-2terminais
-# (ou: launch_2terminals_3panes.sh)
-```
-
-O script detecta automaticamente o **Windows Terminal (`wt.exe`)** ou o console padrão e abre duas janelas separadas, cada uma configurada com seus 3 painéis dinâmicos.
-
-#### 5.6.2. Como Abrir Cada Terminal Individualmente no WSL Ubuntu
-
-Você também pode abrir duas abas ou janelas do seu terminal WSL Ubuntu e iniciar cada um individualmente:
+O script `launch_wsl_tmux_6panes.sh` divide a tela do seu terminal WSL Ubuntu em uma **grade 2x3 de 6 painéis ativos e sincronizados** (cada painel rodando seu próprio monitor em tempo real):
 
 ```bash
-# Na Janela/Aba 1 (Rede & Telemetria E2):
-terminal1
-# (ou: launch_terminal1_ran_telemetry.sh)
-
-# Na Janela/Aba 2 (Cognição & Ação E2SM-RC):
-terminal2
-# (ou: launch_terminal2_cognitive_action.sh)
+# Executar dentro do WSL Ubuntu:
+bash scripts/launch_wsl_tmux_6panes.sh
 ```
 
 Para reconectar a qualquer momento a uma sessão existente:
 ```bash
-tmux attach -t oran-terminal-1   # Terminal 1
-tmux attach -t oran-terminal-2   # Terminal 2
+tmux attach -t oran-closed-loop-6panes
 ```
 
-*Navegação no tmux em cada terminal:*
-- Alternar entre as 3 janelas/painéis: `Ctrl+B` seguido das setas direcionais (`←`, `↑`, `→`, `↓`).
-- Maximizar/restaurar uma janela: `Ctrl+B` seguido de `Z`.
-- Sair mantendo o monitor em background: `Ctrl+B` seguido de `D`.
+*Comandos úteis do tmux:*
+- Alternar entre painéis: `Ctrl+B` seguido das setas direcionais (`←`, `↑`, `→`, `↓`).
+- Maximizar temporariamente um painel específico: `Ctrl+B` seguido de `Z` (pressione novamente para restaurar os 6 painéis).
+- Desconectar da sessão mantendo-a rodando em background: `Ctrl+B` seguido de `D`.
+- Encerrar todos os painéis e a sessão: `tmux kill-session -t oran-closed-loop-6panes`.
 
-#### 5.6.3. Opção Alternativa: Painel Único de 6 Telas ou TUI
+#### 5.6.2. Opção B: Dashboard TUI Único em Console ANSI
 
-Caso deseje ver todos os 6 painéis juntos em um único terminal:
-```bash
-# Grade 2x3 com 6 painéis via tmux:
-launch_wsl_tmux_6panes.sh
-
-# Painel TUI direto no console ANSI (sem tmux):
-python3 scripts/run_wsl_6pane_real_tui.py
+Caso prefira executar sem criar uma sessão `tmux`, o script `run_wsl_6pane_real_tui.py` renderiza o quadro ANSI completo com as 6 caixas atualizadas a cada segundo:
 
 ```bash
 # Executar no WSL Ubuntu ou Windows:

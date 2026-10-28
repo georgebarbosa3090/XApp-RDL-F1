@@ -1,0 +1,96 @@
+% ==============================================================================
+% Diagrama de Sequência Compacto para Dissertação de Mestrado (LaTeX / TikZ Puro)
+% Obra: H-RDL: Governança Determinística e Mitigação de Conflitos no Near-RT RIC
+% Autor: George Alexandro Ferreira Barbosa | PPGC / UFPA
+% Compilável diretamente em qualquer distribuição TeX (TeXLive, MikTeX, Overleaf)
+% ==============================================================================
+
+\documentclass[tikz,border=5mm]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric}
+
+\begin{document}
+\begin{tikzpicture}[
+    font=\sffamily\small,
+    >=Stealth,
+    node distance=1.5cm,
+    entity/.style={draw=black!70, fill=white, rounded corners=3pt, thick, minimum width=2.8cm, minimum height=0.9cm, align=center},
+    lifeline/.style={draw=black!30, dashed, thick},
+    msg/.style={->, thick, >=Latex},
+    retmsg/.style={<-, dashed, thick, >=Latex},
+    note/.style={draw=orange!80!black, fill=yellow!10, rounded corners=2pt, font=\sffamily\footnotesize, align=left},
+    phasebox/.style={draw=gray!40, fill=black!2, rounded corners=4pt, dashed}
+]
+
+    % Coordenadas horizontais dos participantes (4 Lifelines)
+    \def\xSMO{0}
+    \def\xXAPP{4.2}
+    \def\xRDL{8.4}
+    \def\xRAN{12.6}
+
+    % Altura total do diagrama
+    \def\yTop{0}
+    \def\yBottom{-16.2}
+
+    % Entidades Superiores
+    \node[entity, fill=blue!8] (smoTop) at (\xSMO, \yTop) {\textbf{SMO / Non-RT RIC}\\\scriptsize Governança A1-P};
+    \node[entity, fill=teal!8] (xappTop) at (\xXAPP, \yTop) {\textbf{xApps Concorrentes}\\\scriptsize xSlice / ES / TS};
+    \node[entity, fill=green!8] (rdlTop) at (\xRDL, \yTop) {\textbf{Near-RT RIC (xApp-RDL)}\\\scriptsize Motor Heurístico \& Safety};
+    \node[entity, fill=amber!8] (ranTop) at (\xRAN, \yTop) {\textbf{E2 Node (gNodeB / ns-3)}\\\scriptsize 5G-LENA / NORI Agent};
+
+    % Entidades Inferiores
+    \node[entity, fill=blue!8] (smoBot) at (\xSMO, \yBottom) {\textbf{SMO / Non-RT RIC}};
+    \node[entity, fill=teal!8] (xappBot) at (\xXAPP, \yBottom) {\textbf{xApps Concorrentes}};
+    \node[entity, fill=green!8] (rdlBot) at (\xRDL, \yBottom) {\textbf{Near-RT RIC (xApp-RDL)}};
+    \node[entity, fill=amber!8] (ranBot) at (\xRAN, \yBottom) {\textbf{E2 Node (gNodeB)}};
+
+    % Linhas de Vida (Lifelines)
+    \draw[lifeline] (smoTop.south) -- (smoBot.north);
+    \draw[lifeline] (xappTop.south) -- (xappBot.north);
+    \draw[lifeline] (rdlTop.south) -- (rdlBot.north);
+    \draw[lifeline] (ranTop.south) -- (ranBot.north);
+
+    % FASE I: Inicialização, Handshake E2AP e Políticas A1-P (y = -1.2 a -3.0)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=gray!15, inner sep=2pt, rounded corners=2pt] at (-0.5, -1.2) {Fase I: Inicialização, Handshake E2AP e Políticas A1-P ($t < t_0$)};
+    \draw[msg] (\xRAN, -1.6) -- node[above, font=\scriptsize] {1. E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)} (\xRDL, -1.6);
+    \draw[msg, dashed] (\xRDL, -2.0) -- node[above, font=\scriptsize] {2. E2 Setup Response (OK)} (\xRAN, -2.0);
+    \draw[msg] (\xSMO, -2.5) -- node[above, font=\scriptsize] {3. A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100\%)} (\xRDL, -2.5);
+    \draw[msg] (\xRDL, -3.0) -- node[above, font=\scriptsize] {4. RIC Subscription Request (mtype 12010, KPM Período = 200ms)} (\xRAN, -3.0);
+    \draw[msg, dashed] (\xRAN, -3.4) -- node[above, font=\scriptsize] {5. RIC Subscription Response (Subscribed OK)} (\xRDL, -3.4);
+
+    % FASE II: Ingestão de Telemetria e Submissão Concorrente (y = -4.0 a -6.5)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=blue!10, inner sep=2pt, rounded corners=2pt] at (-0.5, -4.0) {Fase II: Telemetria KPM [t0] e Submissão Concorrente via RMR};
+    \draw[msg] (\xRAN, -4.5) -- node[above, font=\scriptsize] {6. RIC Indication [t0] (ASN.1 APER: Throughput, Delay, PRB)} (\xRDL, -4.5);
+    \draw[msg, color=red!70!black] (\xXAPP, -5.1) -- node[above, font=\scriptsize] {7a. Action Proposal (xSlice: PRB\_QUOTA = 80\%, Prio = 90)} (\xRDL, -5.1);
+    \draw[msg, color=red!70!black] (\xXAPP, -5.6) -- node[above, font=\scriptsize] {7b. Action Proposal (Energy Saving: TX\_POWER = 20 dBm, Prio = 65)} (\xRDL, -5.6);
+    \draw[msg, color=red!70!black] (\xXAPP, -6.1) -- node[above, font=\scriptsize] {7c. Action Proposal (Traffic Steering: HANDOVER = 1, Prio = 80)} (\xRDL, -6.1);
+    \node[note, anchor=west] at (\xRDL + 0.3, -6.6) {Acúmulo em Fila Concorrente durante a Janela ($\Delta t_{win} = 200\text{ ms}$)};
+
+    % FASE III: Expiração da Janela e Arbitragem Heurística (y = -7.4 a -10.0)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=green!15, inner sep=2pt, rounded corners=2pt] at (-0.5, -7.4) {Fase III: Expiração da Janela (200ms), Arbitragem Heurística e Safety Guards};
+    % Barra de ativação RDL
+    \draw[fill=green!25, draw=green!60!black] (\xRDL - 0.15, -7.8) rectangle (\xRDL + 0.15, -10.6);
+    \draw[msg] (\xRDL + 0.15, -8.1) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize, align=left] {8. Construção do Grafo de Conflitos $G_t = (\mathcal{A}_t, \mathcal{E}_t)$} (\xRDL + 0.15, -8.5);
+    \draw[msg] (\xRDL + 0.15, -8.8) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize, align=left] {9. Arbitragem TVS/EEVS ($T_{dec} = 0,12\text{ ms}$, Utilidade Multiobjetivo)} (\xRDL + 0.15, -9.2);
+    \draw[msg] (\xRDL + 0.15, -9.5) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize, align=left] {10. Safety Guards: 3GPP 38.104 Clipping + Cooldown 1000ms} (\xRDL + 0.15, -9.9);
+    \draw[msg] (\xRDL + 0.15, -10.2) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize, align=left] {11. Formalização RDLDecision + Codificação ASN.1 APER (RC)} (\xRDL + 0.15, -10.6);
+
+    % FASE IV: Despacho E2SM-RC e Execução (y = -11.2 a -13.5)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=orange!15, inner sep=2pt, rounded corners=2pt] at (-0.5, -11.2) {Fase IV: Despacho de Controle E2SM-RC e Confirmação Causal};
+    \draw[msg, color=blue!80!black] (\xRDL, -11.7) -- node[above, font=\scriptsize] {12. RIC Control Request (mtype 12040, ASN.1 APER E2SM-RC Format 1 Header/Msg)} (\xRAN, -11.7);
+    % Barra de ativação RAN
+    \draw[fill=amber!25, draw=amber!60!black] (\xRAN - 0.15, -11.7) rectangle (\xRAN + 0.15, -13.0);
+    \draw[msg] (\xRAN + 0.15, -12.0) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize, align=left] {13. Reconfiguração Física no Scheduler OFDMA PF} (\xRAN + 0.15, -12.4);
+    \draw[msg, dashed, color=blue!80!black] (\xRAN, -12.9) -- node[above, font=\scriptsize] {14. RIC Control Acknowledge (mtype 12041, $RTT \approx 2,10\text{ ms}$, Status: Success)} (\xRDL, -12.9);
+    \node[note, anchor=west] at (\xRDL + 0.3, -13.4) {Fechamento de Transação Causal e Registro Causal SHA-256};
+
+    % FASE V: Fechamento Closed-Loop (y = -14.1 a -15.5)
+    \node[anchor=west, font=\sffamily\bfseries\footnotesize, fill=red!10, inner sep=2pt, rounded corners=2pt] at (-0.5, -14.1) {Fase V: Observabilidade Causal e Fechamento Closed-Loop [t1]};
+    \draw[msg, color=green!60!black, thick] (\xRAN, -14.6) -- node[above, font=\scriptsize] {15. RIC Indication [t1] (Violação SLA = 0,0\%, Vazão +19,4\%, $\text{UnsafeApplied} \equiv 0$)} (\xRDL, -14.6);
+    \node[note, anchor=center] at (6.3, -15.4) {\textbf{Cadeia Causal Fechada:} Telemetria $KPM(t_0) \implies \text{Arbitragem Heurística} \implies \text{Controle RC}(\Delta t) \implies \text{Garantia de SLA } KPM(t_1)$};
+
+\end{tikzpicture}
+\end{document}
