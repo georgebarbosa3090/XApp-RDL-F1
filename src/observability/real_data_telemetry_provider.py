@@ -138,9 +138,15 @@ class RealDataTelemetryProvider:
         target_xml = None
         for cdir in candidate_dirs:
             xml_p = os.path.join(self.ns3_runs_dir, cdir, "flowmonitor.xml")
-            if os.path.exists(xml_p) and os.path.getsize(xml_p) > 1000:
-                target_xml = xml_p
-                break
+            if os.path.exists(xml_p) and os.path.getsize(xml_p) > 5000:
+                try:
+                    with open(xml_p, "r", encoding="utf-8", errors="ignore") as ftest:
+                        head_sample = ftest.read(2048)
+                        if "<Flow flowId=" in head_sample:
+                            target_xml = xml_p
+                            break
+                except Exception:
+                    continue
 
         if not target_xml:
             # Fallback para flowmonitor_results.xml
