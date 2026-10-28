@@ -476,13 +476,6 @@ python3 scripts/wsl_pane_monitors.py pane4   # Janela 4: Grafo de Conhecimento C
 python3 scripts/wsl_pane_monitors.py pane5   # Janela 5: Módulo de Refinamento & Safety
 python3 scripts/wsl_pane_monitors.py pane6   # Janela 6: Ação E2SM-RC & Malha Fechada
 ```
-
-O servidor expõe endpoints REST e streaming para automação de testes e pipelines CI/CD:
-- `GET /api/state`: Retorna o snapshot JSON consolidado com os estados dos 6 blocos.
-- `GET /api/stream`: Stream contínuo SSE (*Server-Sent Events*) com eventos a cada 800 ms.
-- `POST /api/scenario`: Injeta dinamicamente cenários (`tvs_conflict`, `eevs_conflict`, `urllc_surge`, `normal`).
-- `POST /api/pause`: Alterna estado de pausa da simulação.
-
 ---
 
 ## 6. Integração com Testbed Físico GreenRAN (UFPA)
