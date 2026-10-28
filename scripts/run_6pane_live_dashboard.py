@@ -10,6 +10,19 @@ import webbrowser
 import threading
 import time
 
+import sys
+import os
+import webbrowser
+import threading
+import time
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 workspace_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if workspace_dir not in sys.path:
     sys.path.insert(0, workspace_dir)
@@ -27,15 +40,15 @@ def open_browser():
     try:
         webbrowser.open(url)
     except Exception as e:
-        print(f"[WARN] Não foi possível abrir o navegador automaticamente: {e}")
+        print(f"[WARN] Nao foi possivel abrir o navegador automaticamente: {e}")
 
 
 if __name__ == "__main__":
     print("=" * 75)
-    print("  🌐 O-RAN COGNITIVE TWIN — DASHBOARD LIVE 6-JANELAS NA MESMA TELA")
+    print("  [*] O-RAN COGNITIVE TWIN - DASHBOARD LIVE 6-JANELAS NA MESMA TELA")
     print("=" * 75)
-    print(f"  • Servidor HTTP & SSE: http://{HOST}:{PORT}")
-    print("  • Pressione Ctrl+C para encerrar o servidor.")
+    print(f"  * Servidor HTTP & SSE: http://{HOST}:{PORT}")
+    print("  * Pressione Ctrl+C para encerrar o servidor.")
     print("=" * 75)
 
     if "--no-browser" not in sys.argv:
