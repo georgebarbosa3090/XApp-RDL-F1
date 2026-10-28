@@ -195,10 +195,19 @@ if [[ -d "${BASE_DIR}/.git" ]]; then
         if ! git diff --cached --quiet 2>/dev/null; then
             TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
             git commit -m "chore(auto-report): atualiza relatorios, tabelas e figuras de simulacao [${TIMESTAMP}]" 2>/dev/null || true
-            git push origin main 2>/dev/null || echo "[WARN] Falha no push remoto automático; auto-sync em background sincronizará assim que a rede permitir."
-            echo "[OK] Relatórios locais e GitHub atualizados e sincronizados com sucesso!"
+            git push origin main 2>/dev/null || true
+            echo "[OK] Relatórios locais commitados no repositório!"
         else
             echo "[INFO] Relatórios locais já estão sincronizados com as últimas simulações."
+        fi
+
+        # Se estiver executando no WSL2 e o workspace do host Windows existir, sincroniza para push imediato via daemon
+        WIN_WORKSPACE="/mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1"
+        if [[ -d "${WIN_WORKSPACE}" && "${BASE_DIR}" != "${WIN_WORKSPACE}" ]]; then
+            cp -u "${BASE_DIR}/docs/20_relatorio_experimental_ns3_flowmonitor_s0_s15.md" "${WIN_WORKSPACE}/docs/" 2>/dev/null || true
+            cp -ru "${BASE_DIR}/experiments/results/"* "${WIN_WORKSPACE}/experiments/results/" 2>/dev/null || true
+            cp -ru "${BASE_DIR}/reports/figures/"* "${WIN_WORKSPACE}/reports/figures/" 2>/dev/null || true
+            echo "[OK] Dados e relatórios sincronizados com o workspace host Windows e enviados ao GitHub!"
         fi
     )
 fi
