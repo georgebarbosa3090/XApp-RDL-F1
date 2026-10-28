@@ -408,6 +408,65 @@ Os artefatos gerados incluem a série temporal de telemetria e recuperação de 
 
 ---
 
+### 5.6. Simulação Rica Ao Vivo em 6 Janelas na Mesma Tela (Live Cognitive Dashboard & TUI)
+
+Para visualização, validação e demonstração "ao vivo" do ciclo completo de controle autônomo (*Perception-Cognition-Action Loop*), o ambiente dispõe de um subsistema de co-simulação integrada dividido exatamente em **6 blocos/janelas sincronizadas no mesmo layout de tela**:
+
+```
+┌──────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
+│ [JANELA 1] REGISTRO UE NOS GNBS      │ [JANELA 2] BARRAMENTO PROTOCOLO E2   │ [JANELA 3] MÓDULO DE PERCEPÇÃO       │
+│ • UEs conectados (RNTI/IMSI)         │ • E2AP RICindication (Code 202)      │ • Ingestão de KPM & Anomalias        │
+│ • gNB_001 Macro vs gNB_002 SmallCell │ • E2SM-KPM v2.0 / ASN.1 APER Traces  │ • Detecção de Conflitos Diretos      │
+│ • SINR (dB), Throughput, Delay       │ • E2SM-RC v1.0 ControlReq (Code 203) │ • Detecção Indireta (KPI Cross-Drift)│
+│ • Garantia de SLA (URLLC / eMBB)     │ • RMR Bus: MsgType 12050 / 12010     │ • Grafo de Dependência de Parâmetros │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ [JANELA 4] GRAFO DE CONHECIMENTO     │ [JANELA 5] MÓDULO DE REFINAMENTO     │ [JANELA 6] AÇÃO E2SM-RC & RAN EFFECT │
+│ • Ontologia Semântica de Rede        │ • Arbitragem H-RDL (TVS / EEVS)      │ • Despacho E2SM-RC para os gNBs      │
+│ • Nós: gNBs, Slices, UEs, xApps      │ • Utilidade Shannon / Earth Model    │ • RICcontrolAcknowledge (Status=EXEC)│
+│ • Arestas: alocações e conflitos     │ • Safety Guard Fail-Closed (D-Deny)  │ • Latência Causal Medida (< 10 ms)   │
+│ • Detecção de Ciclos no Grafo        │ • Boundary Clipping 3GPP & Histerese │ • Loopback Físico na Próxima Telemet.│
+└──────────────────────────────────────┴──────────────────────────────────────┴──────────────────────────────────────┘
+```
+
+#### 5.6.1. Como Executar o Dashboard Web (6 Janelas na Mesma Tela)
+
+O Dashboard Web renderiza uma interface moderna, escura (*dark glassmorphism*) em grade 2x3 ajustada dinamicamente à resolução da tela, conectada ao backend via *Server-Sent Events* (SSE) a 1 Hz:
+
+```bash
+# Iniciar o servidor HTTP & SSE na porta 8888 e abrir o navegador automaticamente
+uv run python scripts/run_6pane_live_dashboard.py
+
+# Ou sem abrir o navegador automaticamente (útil para headless/WSL2):
+uv run python scripts/run_6pane_live_dashboard.py --no-browser
+```
+
+Acesse em seu navegador: **`http://localhost:8888`** ou **`http://127.0.0.1:8888`**.
+
+**Recursos Interativos Disponíveis na Barra Superior:**
+- **`⚡ Conflito Direto (TVS)`**: Injeta conflito de parâmetro concorrente entre `xApp-QoS` ($P_{\text{tx}}=43\text{ dBm}$) e `xApp-Energy` ($P_{\text{tx}}=33\text{ dBm}$).
+- **`🔀 Conflito Indireto (EEVS)`**: Injeta conflito cruzado entre `xApp-TrafficSteering` (Handover para célula vizinha) e `xApp-Slicing` (redução de PRB Quota para 35%).
+- **`🔥 Surto URLLC`**: Dispara jitter de tráfego crítico violando o limiar de SLA ($5\text{ ms}$), ativando priorização máxima imediata na RDL.
+- **`✔️ Normal`**: Restaura regime estacionário com fluxo *Pass-Through* seguro validado pelos *Safety Guards*.
+- **`⏸️ Pausar / Retomar`**: Congela o tempo da simulação para inspeção minuciosa dos pacotes ASN.1 e do Grafo de Conhecimento.
+
+#### 5.6.2. Como Executar o Console TUI no Terminal
+
+Para ambientes puramente baseados em terminal (SSH, consoles de produção ou sessões de demonstração rápidas), execute o dashboard TUI em ANSI com as 6 caixas integradas no mesmo terminal:
+
+```bash
+uv run python scripts/run_6pane_terminal_tui.py
+```
+
+#### 5.6.3. API Programática dos 6 Blocos
+
+O servidor expõe endpoints REST e streaming para automação de testes e pipelines CI/CD:
+- `GET /api/state`: Retorna o snapshot JSON consolidado com os estados dos 6 blocos.
+- `GET /api/stream`: Stream contínuo SSE (*Server-Sent Events*) com eventos a cada 800 ms.
+- `POST /api/scenario`: Injeta dinamicamente cenários (`tvs_conflict`, `eevs_conflict`, `urllc_surge`, `normal`).
+- `POST /api/pause`: Alterna estado de pausa da simulação.
+
+---
+
 ## 6. Integração com Testbed Físico GreenRAN (UFPA)
 
 Para validação em hardware de rádio real e ambiente O-RAN desagregado:
