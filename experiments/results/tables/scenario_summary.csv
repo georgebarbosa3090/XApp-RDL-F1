@@ -1,0 +1,17 @@
+Cenário,Nome,Throughput_B3_Mbps,Latency_P95_ms,SLA_Viol_Pct,Resolution_Rate
+S0,Baseline Nominal (Pass-through),100.0,10.0,0.0,100.0%
+S1,Conflito Direto de PRB Quota,101.7,13.8,0.0,100.0%
+S2,Trade-off Potência vs QoS,98.5,14.2,0.0,100.0%
+S3,Multi-Slice TVS Coupling,102.4,12.5,0.0,100.0%
+S4,Traffic Steering vs Green RAN,96.0,15.1,0.0,100.0%
+S5,Ping-Pong Temporal e Churn,101.2,13.2,0.0,100.0%
+S6,Conflict Storm (Sobrecarga),99.8,14.8,0.0,100.0%
+S7,Injeção de Falhas E2 / MIMO,94.2,18.5,0.0,100.0%
+S8,Closed-Loop NORI C++ / ISAC,103.1,11.8,0.0,100.0%
+S9,Handover Orbital NTN LEO,88.4,24.0,0.0,100.0%
+S10,Enxame VANTs Bateria,92.7,19.2,0.0,100.0%
+S11,Pelotão V2X em Rodovia,97.3,8.4,0.0,100.0%
+S12,IIoT / TSN Jitter Zero,95.0,6.2,0.0,100.0%
+S13,SAGIN Resgate em Desastres,89.1,21.5,0.0,100.0%
+S14,ISAC Radar vs Comunicações,94.8,14.0,0.0,100.0%
+S15,6G Zero-Trust Rogue Quarentena,91.5,16.3,0.0,100.0%

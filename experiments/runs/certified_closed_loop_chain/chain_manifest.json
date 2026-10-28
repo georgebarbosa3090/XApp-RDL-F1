@@ -1,6 +1,11 @@
 {
-  "manifest_version": "1.0.0-certified-causal",
-  "chain_id": "CERTIFIED_CLOSED_LOOP_S1_B3_5001",
+  "manifest_version": "1.0.0-causal-test-fixture",
+  "chain_id": "CAUSAL_TEST_FIXTURE_S1_B3_5001",
+  "provenance_category": "CAUSAL_FIXTURE",
+  "status": "LOCAL_INTEGRATION_FIXTURE",
+  "publication_eligible": false,
+  "external_evidence": false,
+  "note": "Harness de valida\u00e7\u00e3o local de decodifica\u00e7\u00e3o e integridade de pipeline (L3). Valida\u00e7\u00e3o externa G4 requer captura em testbed.",
   "created_at_iso": "2026-09-18T11:40:00Z",
   "causal_links": [
     {

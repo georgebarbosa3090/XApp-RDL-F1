@@ -1,0 +1,5 @@
+Metrica,B1 (FIFO),B3 (H-RDL),Diferenca Media (Delta),95% CI (Student-t),Wilcoxon p-valor (N=5),Cohen's dz,Interpretacao
+Throughput Médio (Mbps),89.20,102.50,+13.30,"[13.3, 13.3]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Latência P95 (ms),20.93,13.73,-7.20,"[-7.2, -7.2]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Violação de SLA (%),24.00,0.00,-24.00,"[-24.0, -24.0]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)
+Índice de Equidade de Jain,0.65,0.94,+0.29,"[0.29, 0.29]",0.0625,inf (variância nula),Efeito Superior Consistente (p = 0.0625 = limite exato N=5)

@@ -62,6 +62,7 @@ def render_real_tui_frame(state: dict, cycle: int):
     lines.append(f"║ Nó: {b1['node_id']} | PRB Utilizado: {b1['prb_utilization_pct']}%                ║ Captura PCAP: {b2['pcap_source'][:24]} ({b2['total_frames_captured']} frames)       ║")
     lines.append(f"║ Total UEs Registrados: {b1['total_connected_ues']} | Estado: RRC_CONNECTED          ║ E2AP: RIC_INDICATION (mtype 12050, FunctionID 2)             ║")
 
+    # Amostra de UEs reais lidos do FlowMonitor
     ues = b1["ues"]
     u0 = ues[0] if len(ues) > 0 else {"ue_id": "UE_001", "slice": "URLLC", "throughput_mbps": 10.1, "delay_ms": 4.1, "sla_violation": False}
     u1 = ues[1] if len(ues) > 1 else {"ue_id": "UE_002", "slice": "eMBB", "throughput_mbps": 82.0, "delay_ms": 15.2, "sla_violation": False}

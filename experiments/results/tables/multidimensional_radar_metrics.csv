@@ -1,0 +1,9 @@
+Dimensao,B0_NaoCoordenado,B1_FIFO,B2_Estatico,B3_HRDL,B6_SafeMAPPO
+Throughput Normalizado,0.65,0.72,0.82,0.96,1.0
+Redução Latência,0.4,0.52,0.68,0.86,0.95
+Conformidade SLA,0.63,0.7,0.85,1.0,1.0
+Jain Fairness,0.52,0.68,0.78,0.94,0.97
+Supressão Churn,0.05,0.2,0.6,0.95,0.9
+Garantia Safety,0.1,0.4,0.75,1.0,1.0
+Eficiência Energética,0.55,0.62,0.7,0.92,0.96
+Baixo Overhead,1.0,0.99,0.98,0.99,0.82

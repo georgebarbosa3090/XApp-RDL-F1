@@ -1,0 +1,7 @@
+{"timestamp_s": 100.05, "event": "KPM_TELEMETRY_INGESTION", "kpm_throughput_mbps": 85.2, "kpm_latency_ms": 17.8}
+{"timestamp_s": 100.06, "event": "CONFLICT_DETECTED", "conflict_type": "DIRECT_COLLISION_PRB", "severity": 0.78}
+{"timestamp_s": 100.063, "event": "RDL_DECISION_EMITTED", "strategy": "FIFO_QUEUE", "allocated_quota_pct": 70.0}
+{"timestamp_s": 100.065, "event": "RIC_CONTROL_REQUEST_DISPATCHED", "format": "E2SM_RC_FORMAT_2", "ric_control_id": 101}
+{"timestamp_s": 100.067, "event": "RIC_CONTROL_ACK_RECEIVED", "ack_rtt_ms": 1.82, "status": "SUCCESS"}
+{"timestamp_s": 100.07, "event": "RAN_MAC_APPLIED", "scheduler": "NrMacSchedulerOfdmaPF", "quota_prb": 60.0}
+{"timestamp_s": 100.25, "event": "KPM_STABILIZATION_OBSERVED", "kpm_throughput_mbps": 88.4, "kpm_latency_ms": 15.2}

@@ -1,0 +1,7 @@
+Categoria_Conflito,Precisao_Pct,Recall_Pct,F1_Score_Pct,ROC_AUC,Suporte_Amostras
+Direct PRB Conflict,99.5,99.8,99.6,0.999,1250
+TxPower vs QoS,98.8,99.1,98.9,0.998,840
+Multi-Slice TVS,98.2,97.9,98.0,0.994,920
+Mobility vs Energy,99.0,98.5,98.7,0.997,610
+Ping-Pong / Temporal,99.7,100.0,99.8,1.0,380
+Média Ponderada (Macro),99.04,99.06,99.0,0.9976,4000

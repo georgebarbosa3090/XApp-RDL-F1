@@ -1,0 +1,7 @@
+Variant,Description,Throughput_Mbps,Latency_P95_ms,SLA_Violation_pct,Jain_Fairness,Action_Churn_per_s,Decision_Latency_ms,Unsafe_Applied_Total,Max_Queue_Depth
+A0_Full_HRDL,H-RDL Completa (Todos os módulos),101.86 ± 2.14,3.82 ± 0.30,0.00%,0.9348,0.050,0.116,0,5
+A1_wo_Memory,w/o Memory Module (Sem cooling window),96.46 ± 2.71,7.58 ± 0.92,4.51%,0.8648,0.878,0.081,0,7
+A2_wo_Indirect_Detection,w/o Indirect Detection (Apenas colisão direta),92.09 ± 2.97,12.51 ± 1.52,17.81%,0.8118,0.237,0.064,0,5
+A3_wo_TVS_EEVS,w/o TVS/EEVS Utility (Arbitragem ingênua FIFO),92.67 ± 2.79,9.77 ± 1.25,10.72%,0.7147,0.178,0.054,0,6
+A4_wo_Safety_Guard,w/o Safety Guard (Sem projeção Pi_A_safe),98.42 ± 3.32,7.08 ± 1.30,8.07%,0.8798,0.118,0.044,140,11
+A5_wo_Windowing,w/o Windowing (Orientado a eventos imediato),94.78 ± 2.88,8.24 ± 1.03,6.05%,0.8918,0.544,0.142,0,44

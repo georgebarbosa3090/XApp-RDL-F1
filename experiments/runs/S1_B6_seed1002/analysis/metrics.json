@@ -1,0 +1,76 @@
+{
+  "run_id": "S1_B6_seed1002",
+  "seed": 1002,
+  "scenario": "S1",
+  "baseline": "B6",
+  "strategy": "SAFE_MAPPO",
+  "layer1_config": {
+    "node_id": "gnb_01",
+    "carrier_freq_ghz": 3.5,
+    "bandwidth_mhz": 100.0,
+    "numerology": 1,
+    "tx_power_dbm": 43.0,
+    "channel_model": "3GPP_38.901_UMi",
+    "scheduler": "NrMacSchedulerOfdmaPF",
+    "app_stop_time_s": 58.0,
+    "sim_stop_time_s": 60.0
+  },
+  "layer2_phy_mac": {
+    "sinr_db": 16.2,
+    "prb_usage_pct": 78.0,
+    "mcs_table": "3GPP_Table_2_256QAM",
+    "selected_mcs": 24,
+    "bler_pct": 0.6,
+    "harq_mode": "IncrementalRedundancy_IR",
+    "rlc_mode": "RLC_AM_eMBB_RLC_UM_URLLC"
+  },
+  "layer3_network_qos_sla": {
+    "throughput_before_mbps": 85.28,
+    "throughput_after_mbps": 106.2,
+    "throughput_gain_pct": 24.53,
+    "latency_before_ms": 17.4,
+    "latency_after_ms": 9.5,
+    "latency_reduction_pct": 45.4,
+    "p95_latency_ms": 11.0,
+    "sla_violations_before_pct": 36.7,
+    "sla_violations_after_pct": 0.0,
+    "slad_throughput": 0.0,
+    "slad_latency": 0.9,
+    "jain_fairness_before": 0.52,
+    "jain_fairness_after": 0.97,
+    "spectral_efficiency_bps_hz": 1.062
+  },
+  "layer4_oran_e2": {
+    "ran_function_id_rc": 3,
+    "ran_function_id_kpm": 2,
+    "ack_rtt_ms": 1.82,
+    "control_failure_rate_pct": 0.0,
+    "decode_failure_rate_pct": 0.0,
+    "closed_loop_latency_breakdown_ms": {
+      "t_detect_ms": 2.0,
+      "t_decision_ms": 1.84,
+      "t_encode_ms": 0.15,
+      "t_dispatch_ms": 0.2,
+      "t_e2_rtt_ms": 1.82,
+      "t_apply_ms": 0.5,
+      "t_observe_ms": 193.49,
+      "t_total_loop_ms": 200.0
+    }
+  },
+  "layer5_rdl_governance": {
+    "strategy": "SAFE_MAPPO",
+    "decision_latency_ms": 1.84,
+    "action_churn_rate_per_sec": 0.1,
+    "ping_pong_reversals": 0,
+    "settling_time_ms": 240.0,
+    "unsafe_actions_detected": 0,
+    "unsafe_actions_applied": 0,
+    "safety_guard_status": "ZERO_VIOLATION_VERIFIED"
+  },
+  "layer6_reproducibility": {
+    "seed": 1002,
+    "git_sha": "f99483a",
+    "timestamp": "2026-09-15T12:54:00Z",
+    "gate4_closed_loop_verified": true
+  }
+}

@@ -1,0 +1,12 @@
+Estagio_ID,Operacao,Latencia_HRDL_ms,Latencia_MAPPO_ms,Entidade
+1,Ingestão Telemetria ASN.1 APER,0.45,0.45,Perception Agent (RIC)
+2,Percepção & Extração de KPIs,0.38,0.38,Perception Agent (RIC)
+3,Atualização do Grafo de Conhecimento,0.62,0.62,Context Engine (RIC)
+4,Raciocínio & Decisão (Heurística vs Actor-Critic),0.12,1.84,Reasoning Engine (RIC)
+5,Refinamento & Safety Guard (Action Masking),0.28,0.28,Refinement Agent (RIC)
+6,Codificação ASN.1 APER E2SM-RC,0.52,0.52,RCMapper (RIC)
+7,Despacho RMR & Enfileiramento SCTP,0.31,0.31,E2 Termination (RIC)
+8,E2 Node ACK (Transporte E2AP + gNB),1.82,1.82,NORI E2 Agent (gNB)
+9,Aplicação Física MAC Scheduler,0.5,0.5,Pilha 5G-LENA (gNB)
+10,Janela de Observação KPM Subsequente,194.98,193.26,Simulador ns-3
+11,TOTAL DO CIRCUITO FECHADO (T_loop),200.0,200.0,Closed-Loop O-RAN

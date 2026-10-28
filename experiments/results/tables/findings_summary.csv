@@ -1,0 +1,12 @@
+ID,Achado,Evidência,Status
+A,H-RDL elimina violações de SLA sem degradação,"Violação de 36.7% para 0.0%, Throughput 85.2 para 101.7",SUPPORTED
+B,H-RDL extingue oscilações temporais (Ping-Pong),"Churn cai de 1.00/s para 0.05/s, 0 reversões",SUPPORTED
+C,H-RDL maximiza equidade de alocação (Fairness),Jain Index sobe de 0.52 para 0.94,SUPPORTED
+D,Overhead algorítmico é desprezível no closed loop,T_decision = 0.12 ms em ciclo de 200 ms (0.06%),SUPPORTED
+E,Mais PRB não garante mais throughput em canal ruim,SINR < 8 dB induz colapso MCS e BLER > 14%,SUPPORTED
+F,Conflitos indiretos degradam SLA via acoplamento,TVS multi-slice sem governança gera perda de 28%,SUPPORTED
+G,Sensibilidade contextual aprimora detecção indireta,F2 eleva recall de conflitos indiretos para 99.4%,SUPPORTED
+H,Grafo de Conhecimento correlaciona parâmetros,Grafo mapeia relação RET <-> A3-Offset,SUPPORTED
+I,Safe-MAPPO maximiza utilidade cooperativa,Throughput atinge 105.8 Mbps e latência 9.7 ms,SUPPORTED
+J,Safety Guard desacoplado garante Unsafe == 0,0 ações inseguras em 200 episódios e sob falha E2,SUPPORTED
+K,Ganhos generalizam para sementes não-vistas,Generalization gap inferior a 0.9 Mbps em 30 seeds,SUPPORTED

@@ -2,6 +2,10 @@
 # ==============================================================================
 # Orquestrador tmux no WSL Ubuntu — 6 Janelas na Mesma Tela (100% Dados Reais)
 # Skill: 09-cognitive-conflict-orchestrator & 08-ns3-oran-simulation-specialist
+#
+# Divide a tela do terminal WSL em uma grade 2x3 (6 janelas/painéis sincronizados):
+#   [Painel 0: Reg. UEs/gNBs] [Painel 1: Sinalização E2] [Painel 2: Percepção]
+#   [Painel 3: Grafo Conhec.] [Painel 4: Refinamento]    [Painel 5: Ação E2SM-RC]
 # ==============================================================================
 
 set -euo pipefail
@@ -28,10 +32,12 @@ tmux new-session -d -s "${SESSION_NAME}" -x 160 -y 50
 tmux split-window -v -t "${SESSION_NAME}:0.0"
 
 # 2. Divide a Linha Superior (Painel 0) em 3 colunas
+#    Primeiro split na metade (Painel 0 vira 0 e 1)
 tmux split-window -h -t "${SESSION_NAME}:0.0"
+#    Segundo split no primeiro terço (Painel 0 vira 0 e 2)
 tmux split-window -h -t "${SESSION_NAME}:0.0"
 
-# 3. Divide a Linha Inferior (Painel 3) em 3 colunas
+# 3. Divide a Linha Inferior (antigo Painel 1, agora Painel 3) em 3 colunas
 tmux split-window -h -t "${SESSION_NAME}:0.3"
 tmux split-window -h -t "${SESSION_NAME}:0.3"
 
@@ -63,7 +69,7 @@ tmux send-keys -t "${SESSION_NAME}:0.4" "cd '${BASE_DIR}' && python3 -u scripts/
 tmux select-pane -t "${SESSION_NAME}:0.5" -T "6. AÇÃO E2SM-RC & MALHA FECHADA"
 tmux send-keys -t "${SESSION_NAME}:0.5" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane6" C-m
 
-# Seleciona o primeiro painel
+# Seleciona o primeiro painel e anexa
 tmux select-pane -t "${SESSION_NAME}:0.0"
 
 echo "[OK] Sessão tmux configurada com 6 painéis!"

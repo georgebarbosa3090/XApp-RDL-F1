@@ -1,0 +1,24 @@
+{
+  "run_id": "S1_B1_seed1003",
+  "git_sha": "f99483a",
+  "timestamp_utc": "2026-09-15T12:54:00Z",
+  "scenario": "S1",
+  "baseline": "B1",
+  "strategy": "FIFO_QUEUE",
+  "seed": 1003,
+  "backend": "NORI_NS3_5GLENA",
+  "ns3_version": "3.48",
+  "fiveg_lena_version": "5.1",
+  "nori_commit": "9b64c12",
+  "e2ap": "02.03",
+  "e2sm_kpm": "03.00",
+  "e2sm_rc": "01.03",
+  "ran_function_id_kpm": 2,
+  "ran_function_id_rc": 3,
+  "decision_window_ms": 200,
+  "environment": {
+    "os": "Ubuntu 22.04 LTS (WSL2 / Linux 5.15.167.4)",
+    "compiler": "GCC 11.4.0 / CMake 3.22.1 / Ninja 1.10.1",
+    "python": "3.10.12 / uv 0.4.15"
+  }
+}
