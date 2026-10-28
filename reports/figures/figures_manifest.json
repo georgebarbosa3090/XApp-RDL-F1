@@ -3,133 +3,133 @@
   "timestamp_iso": "2026-09-18T11:45:00Z",
   "ssot_source": {
     "path": "experiments/results/canonical_simulation_master.csv",
-    "sha256": "b7c1dd9efa48140ef1d5266522dab88919600a544c49af564419f598ea058322",
+    "sha256": "4567afc628406f44feaf520b225fa4f04cf83042e80a82d536d1f8171a68d518",
     "records": 35
   },
   "figures": [
     {
       "filename": "fig_01_causal_timeline.png",
-      "sha256": "d9a2b7e09324047df96bf41348384c620743c34f07bd1ba3375fb6b3986d9d9d",
-      "size_bytes": 349216,
+      "sha256": "80c0d1bd6ae1b93f78fe1797cb4b95ff2d85994d861ddab2c581ad58c34e8805",
+      "size_bytes": 374128,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_02_throughput_timeseries.png",
-      "sha256": "ceea9284c0612dcf96c3a475cfc1f73876f6413a9065a2f662eef37cfe498b88",
-      "size_bytes": 144145,
+      "sha256": "8ca463ee071662e7606744067da6e3bba54a3d1d9a04b8c6fa6e2232879cae81",
+      "size_bytes": 166583,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_03_latency_ecdf.png",
-      "sha256": "17c5f5f1472dbad20121a8430c00467472c9e1d1c004e503c3343a8fbddb0f41",
-      "size_bytes": 130748,
+      "sha256": "8aa0199cb9aed9f95657dfdf1f3897f05b88e217549c2e638340e9609cbb67b7",
+      "size_bytes": 149896,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_04_throughput_boxplot.png",
-      "sha256": "f5985131db23ec5481c63325e964082e16035f18b60ac857c391f2c6d10ba4b2",
-      "size_bytes": 106564,
+      "sha256": "c589e21e6239e4ea8054ff9e15494db95df52321d4577da6fe97fd73c653134e",
+      "size_bytes": 121410,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_05_sla_violation_violin.png",
-      "sha256": "af7c8192904d68d2d7c686dc7682f840b0465075f9f4bdcb135a335bbc69932f",
-      "size_bytes": 90894,
+      "sha256": "ea13c76eeab895c96869675eff43685786c279003135cffb50132127a9149668",
+      "size_bytes": 102785,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_06_paired_seed_plot.png",
-      "sha256": "484d046cfc10be0d5cecdea77c46802f1e6ffdbdc6ff9ef6f2f989773899075f",
-      "size_bytes": 248718,
+      "sha256": "b2f81b1ac78bf05d0ecd5b0718238032f85f69ee41b9629a029370055c6fb7db",
+      "size_bytes": 266402,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_07_effect_forest.png",
-      "sha256": "be71b73f59107a0ce393274f45eb53e33ec6a2433d4445d5e23da1b47c5b7c4b",
-      "size_bytes": 151532,
+      "sha256": "fdf483a9e85c3a5eb86f754d484fb89e62ffc45f47481d9079f8083f45317c67",
+      "size_bytes": 179358,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_08_scenario_baseline_heatmap.png",
-      "sha256": "550750a077e3825276b660cd17138c05e0b1bcca339fd35ab7a120b15cdd1e99",
-      "size_bytes": 252438,
+      "sha256": "67d2a38ca36294320cc76650af9d0f875bfe05e6a509d21a944e7583a5b2fafe",
+      "size_bytes": 269745,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_09_prb_slice_area.png",
-      "sha256": "1e4b32ac271b706220430bf9ecfccbc0b78f7a174c1f02de5a33210a322c28aa",
-      "size_bytes": 116696,
+      "sha256": "adcef1a80ab95d3ea5e465b4e9b89f02d07ea898b3c00bde7aa0ebed1ce7de40",
+      "size_bytes": 133047,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_10_sinr_throughput_hexbin.png",
-      "sha256": "461cc0d50ef23b5d5e600e23f8f68dedf501dc7d95c415130ae8abbb5ad189c0",
-      "size_bytes": 156376,
+      "sha256": "e550e1c4b6376830ac607228dbfc1d8f0025b8e291600af6438bb6a6f51612c0",
+      "size_bytes": 173383,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_11_mcs_bler.png",
-      "sha256": "fd67dac707ed61f0e9d2d275f9dddcd0c92bdba4007e95044ed6996f64182b6b",
-      "size_bytes": 99635,
+      "sha256": "1c85b92782df500992fb6e2f5b2b71a98b5286680af22f16a3391b17373ab80a",
+      "size_bytes": 114400,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_12_latency_breakdown.png",
-      "sha256": "543dbaf20b594f1e748f477af60730fc9acb1b93174919c3583f14d634951b23",
-      "size_bytes": 182799,
+      "sha256": "532ba289b788fbd9291f62219c9a7467da096fc26ccc7087e653edf515a240b5",
+      "size_bytes": 222060,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_13_pareto.png",
-      "sha256": "8db1dd3b5f5f295542e9f8afcce9e2010914de4c7179e187ee99f3de8baf3a3d",
-      "size_bytes": 122698,
+      "sha256": "3ceadbedc68a42558171d0aea8d921b62342c8dab9edf058ee4df4939e6b85bd",
+      "size_bytes": 138681,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_14_conflict_timeline.png",
-      "sha256": "224691521e12c85fe6bbdc97b2ef91f3c5f69e26ea366a52ce65ec686e08adc6",
-      "size_bytes": 115415,
+      "sha256": "87c96c0ad527139e094bb50f556a8af783dd61f4bab391aa97f7255a4fb7fefd",
+      "size_bytes": 133775,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_15_action_churn.png",
-      "sha256": "510411c06711ed8a7e02a1aaee4e9c02fe9e0e5309de6b44fb9f22f42d7a0b6c",
-      "size_bytes": 118192,
+      "sha256": "79f316527c806c25a632f4b464c091a887dfb12942e5035d973a47f088c7ef85",
+      "size_bytes": 136860,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_16_mappo_convergence.png",
-      "sha256": "ca899f470aaa1c25069051ee45f9a38da943ab8397e616e69f7f8814d1a1c53b",
-      "size_bytes": 190308,
+      "sha256": "e7b5d8a90c41d738d265521a27771f99b8349cde01ae3295fb17ee124023f74a",
+      "size_bytes": 209908,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_17_safety_cost.png",
-      "sha256": "aee9ff10173091e8f1c2e66759036ee309d4723d62ed871daaf2096e0dc0ec5d",
-      "size_bytes": 79921,
+      "sha256": "0362d094b310e6b961db3ac7a4d7686635379da852e8c111b8ff453ec3bc702f",
+      "size_bytes": 89134,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_18_generalization_gap.png",
-      "sha256": "a73ec54a2e0297155c00608a2a542e66a1873dca73c0f162b87088af37f12604",
-      "size_bytes": 106147,
+      "sha256": "03dc3f459b805099bfd9a58309fb786a0a30a23cb1d7606c3369ce33dbc4dce8",
+      "size_bytes": 123094,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -142,8 +142,8 @@
     },
     {
       "filename": "fig_19_crosslayer_pairplot.png",
-      "sha256": "9d004c28eef2fba2d802e947ab4ced611162d2b5cbb7dc1fc887e1f20bd1ccf4",
-      "size_bytes": 643987,
+      "sha256": "68892ff164ab992e1aa52f5a9df952fe8328e974a978efd1931b454a16ea5a53",
+      "size_bytes": 682210,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -184,43 +184,43 @@
     },
     {
       "filename": "fig_20_3d_pareto_surface.png",
-      "sha256": "c2ab1b3f9ac04ceeaf7ac94fe693f0b4f4c6b057f69472e204f7ce23bf65c313",
-      "size_bytes": 405229,
+      "sha256": "a61063f56be5103387f76e3684cdcd12ac641723a2b89e677b6eec3c3719076f",
+      "size_bytes": 433576,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_21_3d_gradient_scatter_latency_recovery.png",
-      "sha256": "b625ff6314436cfb31bb4cdbd72a2e363bbd5ff40ebf0024c30c90c6ee405d42",
-      "size_bytes": 480497,
+      "sha256": "d40a10b26b6da6bbe077b00df6c0b1a2baad227fba17b1c46e97c623617bfd4e",
+      "size_bytes": 514280,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_22_cognitive_stages_waterfall.png",
-      "sha256": "f30ff847cc73e279e818ff3e7eae5f0ed520e560b3517724382ea8b4eb53d0f2",
-      "size_bytes": 94310,
+      "sha256": "d4ca345dbefa2bc914fa97a110b2c951aedbd8cff194a6a7535d706b6be1537e",
+      "size_bytes": 104762,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_23_decision_windows_tradeoff.png",
-      "sha256": "135afa986958b37806105af62df25362995560e4c9104e0b46eed27714c9142a",
-      "size_bytes": 184683,
+      "sha256": "c664f7cfb337bba57c5f7d8dab71c99bfc4c919923640f984669a1f2e5bfac71",
+      "size_bytes": 198619,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_24_implicit_explicit_conflict_confusion.png",
-      "sha256": "e41e0a2f405843686e794ccb096d9d1d8af1e58050514412de27bddca78a6bb6",
-      "size_bytes": 169461,
+      "sha256": "588878bde1086e2ada4255ab0b67574219f7f7b192b995ece3602cd400494d74",
+      "size_bytes": 190880,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_25_ue_registration_breakdown.png",
-      "sha256": "d454cb07fbf0cec3eebf206347733b482f2c2e9bbce6923d81fff7d703b041b5",
-      "size_bytes": 164287,
+      "sha256": "189d4a73bb2a867ae9fbdf54598ac7cf0941ed85948056426d6087ac399a5023",
+      "size_bytes": 200189,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -312,13 +312,6 @@
       "filename": "fig_38_rich_demo_5slice_prb_radar_comparison.png",
       "sha256": "fe116699ee2bdd7b5e2209e26c27159db415a60ef33a73d50e85dea75a7470f0",
       "size_bytes": 731312,
-      "provenance": "EMPIRICAL_DATA_SSOT",
-      "statistical_bounds": "95% Student-t CI / Empirical Traces"
-    },
-    {
-      "filename": "fig_39_rich_demo_e2_fault_resilience_rollback.png",
-      "sha256": "718183001f5a726cf12b209758ec1ff9054f460bd1a7e84c0391294485e9fa9a",
-      "size_bytes": 380939,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
