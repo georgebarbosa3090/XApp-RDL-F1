@@ -17,6 +17,13 @@ import os
 import time
 import shutil
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # Adiciona o workspace ao sys.path
 workspace_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if workspace_dir not in sys.path:
