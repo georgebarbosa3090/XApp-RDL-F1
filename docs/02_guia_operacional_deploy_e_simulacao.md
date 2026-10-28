@@ -123,14 +123,20 @@ bash scripts/verify_3_xapps.sh
   - `rdl_safety_blocks_total`: Total de comandos inseguros barrados pelos Safety Guards.
 
 ### 4.2. Dashboard Rancher e Kiali Service Mesh
-Para habilitar observabilidade gráfica do fluxo de microsserviços:
+Para habilitar observabilidade gráfica do fluxo de microsserviços e gerenciamento visual do cluster:
 ```bash
-# Instalação do Rancher Manager no k3d
+# Instalação/inicialização do Rancher Manager no k3d (se já não estiver em execução)
 docker run -d --restart=unless-stopped -p 8443:443 --privileged --name rancher-server rancher/rancher:latest
 
 # Instalação do Kiali (após provisionamento Istio)
 bash scripts/install_kiali.sh
+
+# Abertura do Kiali Dashboard via port-forward
+make kiali-dashboard
 ```
+
+- **Rancher Manager:** Fica acessível diretamente no seu navegador em: **`https://localhost:8443`** (para administração do cluster `rancher-lab`, inspeção gráfica de pods, nós, logs e monitoramento de namespaces `ricplt` e `ricxapp`).
+- **Kiali Dashboard (Istio Service Mesh):** Fica acessível em: **`http://localhost:20001/kiali`** (para visualização topológica da malha de serviços, rastreamento de tráfego e telemetria de comunicação entre as xApps).
 
 ---
 
