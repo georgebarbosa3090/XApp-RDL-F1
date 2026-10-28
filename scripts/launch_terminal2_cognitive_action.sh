@@ -54,6 +54,6 @@ tmux select-pane -t "${SESSION_NAME}:0.0"
 echo "[OK] Terminal 2 pronto com 3 janelas!"
 echo "Para anexar execute: tmux attach -t ${SESSION_NAME}"
 
-if [ -t 0 ] || [ -t 1 ]; then
+if [ -t 0 ] && [ -t 1 ]; then
     tmux attach-session -t "${SESSION_NAME}"
 fi
