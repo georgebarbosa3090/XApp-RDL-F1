@@ -76,13 +76,16 @@ class RealDataTelemetryProvider:
         }
         for key, fname in files.items():
             fpath = os.path.join(self.chain_dir, fname)
-            if os.path.exists(fpath):
-                if fname.endswith(".json"):
-                    with open(fpath, "r", encoding="utf-8") as fh:
-                        chain[key] = json.load(fh)
-                else:
-                    with open(fpath, "r", encoding="utf-8") as fh:
-                        chain[key] = fh.read().strip()
+            if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
+                try:
+                    if fname.endswith(".json"):
+                        with open(fpath, "r", encoding="utf-8") as fh:
+                            chain[key] = json.load(fh)
+                    else:
+                        with open(fpath, "r", encoding="utf-8") as fh:
+                            chain[key] = fh.read().strip()
+                except Exception:
+                    chain[key] = {}
             else:
                 chain[key] = {}
         return chain
