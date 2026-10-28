@@ -1,0 +1,11 @@
+{
+  "step": 4,
+  "event": "RIC_CONTROL_ACKNOWLEDGE",
+  "timestamp_iso": "2026-09-18T11:40:00.10347Z",
+  "timestamp_ns": 1789741200103470000,
+  "transaction_id": 5001,
+  "paired_request_step": 3,
+  "status": "CONTROL_ACCEPTED_AND_SCHEDULED",
+  "rtt_latency_ms": 1.82,
+  "raw_payload_sha256": "d29c137c02bb841a5c16d970101dbd02e53cefc7231a11e6c1609f5a00281fa1"
+}

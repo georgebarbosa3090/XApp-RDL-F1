@@ -1,0 +1,31 @@
+{
+  "step": 2,
+  "event": "RDL_ARBITRATED_DECISION",
+  "timestamp_iso": "2026-09-18T11:40:00.1012Z",
+  "timestamp_ns": 1789741200101200000,
+  "decision_engine": "H-RDL_NASH_BARGAINING",
+  "contending_xapps": [
+    "xapp_embb_optimizer",
+    "xapp_urllc_guard"
+  ],
+  "input_conflict": {
+    "conflict_type": "DIRECT_RESOURCE_CONTENTION",
+    "contending_parameter": "PRB_QUOTA",
+    "requested_sum_prb": 1.25,
+    "capacity_limit": 1.0
+  },
+  "arbitration_result": {
+    "nash_equilibrium_weights": {
+      "URLLC": 0.5,
+      "eMBB": 0.5
+    },
+    "allocated_prb_quotas": {
+      "URLLC": 0.5,
+      "eMBB": 0.5
+    },
+    "tx_power_dbm": 40.0,
+    "reason": "PREEMPTION_FOR_URLLC_SLA_RESTORATION"
+  },
+  "decision_overhead_ms": 0.084,
+  "safety_guard_check": "PASSED_ZERO_UNSAFE_ACTIONS"
+}

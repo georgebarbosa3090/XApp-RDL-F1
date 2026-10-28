@@ -1,0 +1,48 @@
+{
+  "manifest_version": "1.0.0-certified-causal",
+  "chain_id": "CERTIFIED_CLOSED_LOOP_S1_B3_5001",
+  "created_at_iso": "2026-09-18T11:40:00Z",
+  "causal_links": [
+    {
+      "link": 1,
+      "name": "01_indication_t0",
+      "raw_sha256": "2b45ba5d481804163cf45c1022b50e7d68fb2421c18aa662f846e8ec2d29490f",
+      "chained_sha256": "2b45ba5d481804163cf45c1022b50e7d68fb2421c18aa662f846e8ec2d29490f"
+    },
+    {
+      "link": 2,
+      "name": "02_rdl_decision",
+      "chained_sha256": "a53ff8944fbf38c33634de81d84b13563a535ea3a48f499f001eec9dc9ff61bc"
+    },
+    {
+      "link": 3,
+      "name": "03_control_request",
+      "raw_sha256": "e58455c2f117109c33adb213acf3a7a64d95e650545c129f785d71dd32d0dcaa",
+      "chained_sha256": "792bcc98a11449eac418c572e3eb0a43ca3f51d14e6cd51c3ee2e74649bbab90"
+    },
+    {
+      "link": 4,
+      "name": "04_control_ack",
+      "raw_sha256": "d29c137c02bb841a5c16d970101dbd02e53cefc7231a11e6c1609f5a00281fa1",
+      "chained_sha256": "8dceda51a9abb65761276c714f54a22910f73224cebab95ca2853c0b77f48782"
+    },
+    {
+      "link": 5,
+      "name": "05_ran_mac_transition",
+      "chained_sha256": "615bab250ab4e93f8d83dda68f4503ed87963a0e96efdb39d9beb27e493d9c35"
+    },
+    {
+      "link": 6,
+      "name": "06_indication_t1",
+      "raw_sha256": "cbd408c7713ea3cfcb729659b475aeb35fccf442072fddfc50c64a70573e52f0",
+      "chained_sha256": "3fe3bd7b96fc6ba494fc6f7156cf794515944fc4474ad86118449f5cec7ab20f"
+    }
+  ],
+  "non_repudiation_root_hash": "3fe3bd7b96fc6ba494fc6f7156cf794515944fc4474ad86118449f5cec7ab20f",
+  "causal_effect": {
+    "initial_latency_ms": 18.2,
+    "final_latency_ms": 4.1,
+    "delta_ms": -14.1,
+    "recovery_verified": true
+  }
+}
