@@ -161,17 +161,63 @@ cd ~/ns3-oran-workspace/ns-3-oran
 ./ns3 build
 ```
 
-### 5.2. Execução Automatizada da Suíte de Cenários (S0 a S15)
-A partir do repositório principal `~/XApp-RDL-F1`:
+### 5.2. Execução dos Cenários ns-3 (S0 a S15)
+
+O ambiente oferece duas formas complementares de execução: manual direta dentro do workspace do ns-3 ou automatizada com rastreamento científico de métricas FlowMonitor.
+
+#### 5.2.1. Opção A: Execução Manual Direta no Workspace do ns-3
+Indicada para depuração pontual, testes interativos ou verificação direta de logs de simulação:
+
+1. **Sincronização dos cenários para o diretório `scratch/`:**
+   ```bash
+   cp ~/XApp-RDL-F1/simulations/ns3/*.cc ~/ns3-oran-workspace/ns-3-oran/scratch/
+   ```
+
+2. **Navegação até o workspace do simulador:**
+   ```bash
+   cd ~/ns3-oran-workspace/ns-3-oran
+   ```
+
+3. **Execução dos cenários individuais:**
+   > **Atenção:** No comando `./ns3 run "..."`, passe o nome do alvo **sem o prefixo `scratch/`** (ex.: `scenario_rdl_no_conflict` em vez de `scratch/scenario_rdl_no_conflict`):
+
+   ```bash
+   # S0: Baseline Sem Conflito (Pass-Through Limpo de Controle)
+   ./ns3 run "scenario_rdl_no_conflict --simTime=30.0 --gNbNum=2 --ueNum=30 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S1: Conflito Direto de PRB (xSlice vs Energy Saving com Disputa de Capacidade)
+   ./ns3 run "scenario_rdl_direct_prb_conflict --simTime=30.0 --gNbNum=1 --ueNum=6 --conflictStart=10.0 --conflictEnd=20.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S2: Trade-off EEVS (Energy Saving vs SLA URLLC Multi-Métrica)
+   ./ns3 run "scenario_rdl_energy_vs_qos --simTime=40.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S3: Conflito TVS (Traffic Steering vs Fatiamento QoS com Handover A3)
+   ./ns3 run "scenario_rdl_tvs_conflict --simTime=30.0 --gNbNum=2 --ueNumPerGnb=15 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+   ```
+
+#### 5.2.2. Opção B: Execução Automatizada com FlowMonitor e Geração de Relatórios (Recomendado)
+A automação oficial do repositório compila o cenário, executa a simulação com preservação de traces FlowMonitor, atualiza os relatórios consolidados em Markdown e regera as 25 figuras analíticas (300 DPI) e 16 tabelas CSV:
+
 ```bash
 cd ~/XApp-RDL-F1
 
-# Executa todos os cenários com rastreamento FlowMonitor:
+# Executa todos os cenários (S0 a S15) em lote:
 bash simulations/ns3/run_all_s0_s15_simulations.sh all --force
 
-# Ou execute um cenário específico como S0 baseline sem conflito:
+# Ou execute cenários individuais:
 bash simulations/ns3/run_all_s0_s15_simulations.sh s0 --force
+bash simulations/ns3/run_all_s0_s15_simulations.sh s1 --force
+bash simulations/ns3/run_all_s0_s15_simulations.sh s2 --force
+bash simulations/ns3/run_all_s0_s15_simulations.sh s3 --force
 ```
+
+#### 5.2.3. Boas Práticas Operacionais e Cuidados no Terminal (Zsh & ns-3)
+- **Localização do executável `./ns3`:** O script `./ns3` reside exclusivamente na raiz de `~/ns3-oran-workspace/ns-3-oran`. Se executado a partir de outros diretórios, a shell retornará `zsh: no such file or directory: ./ns3`.
+- **Suporte a comentários no Zsh:** Para colar múltiplos comandos contendo linhas com comentários (`#`) sem erros de parsing (`zsh: missing end of string`, `zsh: number expected`), certifique-se de que a opção de comentários interativos está habilitada no seu `~/.zshrc`:
+  ```bash
+  echo 'setopt INTERACTIVE_COMMENTS' >> ~/.zshrc
+  source ~/.zshrc
+  ```
 
 ### 5.3. Processamento de Traces FlowMonitor e Geração de Relatórios
 ```bash
@@ -522,6 +568,9 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 | **RMR Routing Failure (`RMR_ERR_NOENDPT`)** | Tabela de rotas RMR desatualizada | Verificar `configs/routes.rt` e reiniciar pod da RDL |
 | **Conflitos de portas locais (8080)** | Outro serviço ocupando a porta | Modificar mapeamento no `k3d cluster create` para `8090:8080` |
 | **Falha de memória no ns-3** | Múltiplas instâncias simultâneas | Executar com limitador de processos simultâneos |
+| **`zsh: no such file or directory: ./ns3`** | Comando executado fora do workspace do simulador | Executar `cd ~/ns3-oran-workspace/ns-3-oran` antes de `./ns3` |
+| **`zsh: missing end of string / number expected`** | Colagem de múltiplos comandos com `#` no zsh | Adicionar `setopt INTERACTIVE_COMMENTS` em `~/.zshrc` |
+| **`Couldn't find the specified program: scratch/...`** | Prefixo `scratch/` incluído no `./ns3 run` | Passar apenas o nome do alvo (ex: `./ns3 run "scenario_rdl_no_conflict ..."`) |
 
 ### 7.2. Backup e Sincronização Automática com GitHub
 Para manter qualquer alteração local sincronizada automaticamente no GitHub em tempo real:
