@@ -30,11 +30,15 @@ int main (int argc, char *argv[])
     double simTime = 30.0;
     std::string ricIp = "127.0.0.1";
     uint16_t ricPort = 36422;
+    bool enableE2 = true;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("robotUeNum", "Quantidade de robos industriais URLLC", robotUeNum);
     cmd.AddValue ("videoUeNum", "Quantidade de cameras de monitoramento eMBB", videoUeNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2);
+    cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
+    cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.Parse (argc, argv);
 
     NS_LOG_INFO ("Iniciando Cenario S12: IIoT Ultra-Deterministic Zero-Jitter Slicing");

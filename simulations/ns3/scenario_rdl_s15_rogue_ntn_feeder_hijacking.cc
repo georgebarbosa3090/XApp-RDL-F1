@@ -27,10 +27,16 @@ int main (int argc, char *argv[])
 {
     double simTime = 30.0;
     double injectedTxPowerDbm = 55.0;
+    std::string ricIp = "127.0.0.1";
+    uint16_t ricPort = 36422;
+    bool enableE2 = true;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("injectedPower", "Potencia hostil injetada no enlace feeder em dBm", injectedTxPowerDbm);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2);
+    cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
+    cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.Parse (argc, argv);
 
     NS_LOG_INFO ("Iniciando Cenario S15: Rogue NTN Feeder Hijacking Security Test");

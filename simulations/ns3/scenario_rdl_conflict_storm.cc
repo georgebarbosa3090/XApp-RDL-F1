@@ -38,6 +38,8 @@ int main (int argc, char *argv[])
     double bandwidth = 100e6;
     uint32_t loadLevel = 2; // 0=L0, 1=L1, 2=L2, 3=L3, 4=L4
     bool enableE2Agent = true;
+    std::string ricIp = "127.0.0.1";
+    uint16_t ricPort = 36422;
     bool realtime = false;
     std::string syncMode = "BestEffort";
     std::string demoMode = "experiment";
@@ -51,7 +53,11 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("loadLevel", "Nivel de Carga (0=L0..4=L4)", loadLevel);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("centralFreq", "Frequencia central em Hz", centralFreq);
+    cmd.AddValue ("bandwidth", "Largura de banda em Hz", bandwidth);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
+    cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
+    cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.AddValue ("realtime", "Ativar execucao em tempo real via ns3::RealtimeSimulatorImpl", realtime);
     cmd.AddValue ("syncMode", "Modo de sincronizacao (BestEffort | HardLimit)", syncMode);
     cmd.AddValue ("demoMode", "Modo de apresentacao (fast | realtime | experiment)", demoMode);

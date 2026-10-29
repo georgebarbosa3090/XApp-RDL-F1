@@ -178,12 +178,13 @@ Indicada para depuração pontual, testes interativos ou verificação direta de
    cd ~/ns3-oran-workspace/ns-3-oran
    ```
 
-3. **Execução dos cenários individuais:**
-   > **Atenção:** No comando `./ns3 run "..."`, passe o nome do alvo **sem o prefixo `scratch/`** (ex.: `scenario_rdl_no_conflict` em vez de `scratch/scenario_rdl_no_conflict`):
+3. **Execução dos cenários individuais (S0 a S15):**
+   > **Atenção:** No comando `./ns3 run "..."`, passe o nome do alvo **sem o prefixo `scratch/`** (ex.: `scenario_rdl_no_conflict` em vez de `scratch/scenario_rdl_no_conflict`), e execute a partir do diretório raiz do simulador `~/ns3-oran-workspace/ns-3-oran`.
 
+   **Grupo 1: Cenários 5G Sub-6 GHz (S0 a S8)**
    ```bash
    # S0: Baseline Sem Conflito (Pass-Through Limpo de Controle)
-   ./ns3 run "scenario_rdl_no_conflict --simTime=30.0 --gNbNum=2 --ueNum=30 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+   ./ns3 run "scenario_rdl_no_conflict --simTime=30.0 --gNbNum=2 --ueNum=30 --bandwidth=100e6 --centralFreq=3.5e9 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
    # S1: Conflito Direto de PRB (xSlice vs Energy Saving com Disputa de Capacidade)
    ./ns3 run "scenario_rdl_direct_prb_conflict --simTime=30.0 --gNbNum=1 --ueNum=6 --conflictStart=10.0 --conflictEnd=20.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
@@ -193,6 +194,45 @@ Indicada para depuração pontual, testes interativos ou verificação direta de
 
    # S3: Conflito TVS (Traffic Steering vs Fatiamento QoS com Handover A3)
    ./ns3 run "scenario_rdl_tvs_conflict --simTime=30.0 --gNbNum=2 --ueNumPerGnb=15 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S4: Conflito Indireto Mobilidade vs Modo Sleep (TS vs ES)
+   ./ns3 run "scenario_rdl_ts_vs_energy --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S5: Conflito Temporal Ping-Pong (Mitigação de Flapping via Lockout Hysteresis)
+   ./ns3 run "scenario_rdl_temporal_pingpong --simTime=30.0 --gNbNum=2 --ueNum=10 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S6: Tempestade de Conflitos Multi-xApp Concorrente (Carga Alta L0-L4)
+   ./ns3 run "scenario_rdl_conflict_storm --simTime=30.0 --gNbNum=2 --ueNum=30 --loadLevel=3 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S7: Injeção de Falhas SCTP e Rollback Determinístico (Partição de Rede E2)
+   ./ns3 run "scenario_rdl_fault_injection --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S8: Malha Fechada Canônica Integrada E2AP/E2SM com Agente NORI (Tempo Real)
+   ./ns3 run "scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
+   ```
+
+   **Grupo 2: Cenários Avançados NTN, SAGIN, V2X, IIoT, ISAC e Zero-Trust 6G (S9 a S15)**
+   ```bash
+   # S9: Handover Orbital NTN LEO Satellite (Compensação Doppler e RTT de 40ms)
+   ./ns3 run "scenario_rdl_s9_ntn_orbital_handover --simTime=30.0 --ueNum=20 --orbitAltitudeKm=600.0 --satVelocityKmH=27000.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S10: Enxame Aéreo UAV e Alocação de Bateria com Fatiamento Dinâmico
+   ./ns3 run "scenario_rdl_s10_uav_swarm_battery --simTime=30.0 --uavNum=4 --ueNum=40 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S11: Pelotão de Veículos Conectados V2X em Rodovia (Ultra-Baixa Latência)
+   ./ns3 run "scenario_rdl_s11_v2x_highway_platooning --simTime=30.0 --vehicleNum=10 --vehicleSpeedKmh=120 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S12: Fatiamento IIoT de Jitter Zero (TSN e Coexistência em Fábricas Inteligentes)
+   ./ns3 run "scenario_rdl_s12_iiot_zero_jitter_slicing --simTime=30.0 --robotUeNum=20 --videoUeNum=30 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S13: Resgate em Desastres em Redes SAGIN (Espaço-Ar-Terra Integrado)
+   ./ns3 run "scenario_rdl_s13_sagin_disaster_rescue --simTime=30.0 --rescueUeNum=20 --civilianUeNum=30 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S14: Coexistência Comunicação e Sensoriamento ISAC Radar (FMCW Chirp)
+   ./ns3 run "scenario_rdl_s14_isac_radar_comm --simTime=30.0 --commUeNum=20 --radarTargetNum=5 --sensingRatio=0.3 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+
+   # S15: Segurança e Mitigação de Rogue NTN Feeder Hijacking (Zero-Trust)
+   ./ns3 run "scenario_rdl_s15_rogue_ntn_feeder_hijacking --simTime=30.0 --injectedPower=55.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
    ```
 
 #### 5.2.2. Opção B: Execução Automatizada com FlowMonitor e Geração de Relatórios (Recomendado)
@@ -204,20 +244,28 @@ cd ~/XApp-RDL-F1
 # Executa todos os cenários (S0 a S15) em lote:
 bash simulations/ns3/run_all_s0_s15_simulations.sh all --force
 
+# Ou execute grupos específicos:
+bash simulations/ns3/run_all_s0_s15_simulations.sh 5g --force   # Cenários S0 a S8
+bash simulations/ns3/run_all_s0_s15_simulations.sh 6g --force   # Cenários S9 a S15
+
 # Ou execute cenários individuais:
 bash simulations/ns3/run_all_s0_s15_simulations.sh s0 --force
 bash simulations/ns3/run_all_s0_s15_simulations.sh s1 --force
-bash simulations/ns3/run_all_s0_s15_simulations.sh s2 --force
-bash simulations/ns3/run_all_s0_s15_simulations.sh s3 --force
+bash simulations/ns3/run_all_s0_s15_simulations.sh s9 --force
 ```
 
-#### 5.2.3. Boas Práticas Operacionais e Cuidados no Terminal (Zsh & ns-3)
-- **Localização do executável `./ns3`:** O script `./ns3` reside exclusivamente na raiz de `~/ns3-oran-workspace/ns-3-oran`. Se executado a partir de outros diretórios, a shell retornará `zsh: no such file or directory: ./ns3`.
-- **Suporte a comentários no Zsh:** Para colar múltiplos comandos contendo linhas com comentários (`#`) sem erros de parsing (`zsh: missing end of string`, `zsh: number expected`), certifique-se de que a opção de comentários interativos está habilitada no seu `~/.zshrc`:
-  ```bash
-  echo 'setopt INTERACTIVE_COMMENTS' >> ~/.zshrc
-  source ~/.zshrc
-  ```
+#### 5.2.3. Diagnóstico e Resolução de Erros de Terminal (Zsh & ns-3)
+
+Ao executar simulações ns-3 via terminal interativo (especialmente com **Zsh** no Ubuntu/WSL2), erros comuns de parsing de argumentos ou caracteres especiais podem ocorrer. Abaixo está o catálogo completo de diagnóstico e correção:
+
+| Erro Observado no Terminal | Causa Raiz Técnica | Solução Definitiva |
+| :--- | :--- | :--- |
+| `zsh: command not found: #` | No Zsh interativo, o caractere `#` não inicia comentários por padrão. Colar comandos com `# Comentário` faz o Zsh tentar executar um executável chamado `#`. | Executar: `echo 'setopt INTERACTIVE_COMMENTS' >> ~/.zshrc && source ~/.zshrc` |
+| `zsh: missing end of string` | Quebra de linha acidental ou aspas desbalanceadas durante colagem em bloco no buffer do emulador de terminal. | Colar comandos linha a linha ou executar via script bash (`run_all_s0_s15_simulations.sh`). |
+| `zsh: number expected` / `zsh: unknown file attribute: ...` | O Zsh com `EXTENDED_GLOB` interpreta parênteses não aspeados em comentários (ex.: `(Pass-Through...)`, `(Mitigação...)`) como qualificadores glob de arquivos (ex.: `(i)`, `(a)`) ou expressões matemáticas. | Habilitar `setopt INTERACTIVE_COMMENTS` ou copiar apenas as linhas executáveis `./ns3 run "..."`. |
+| `zsh: no such file or directory: ./ns3` | O comando foi executado fora de `~/ns3-oran-workspace/ns-3-oran` (onde reside o launcher Python `./ns3`). | Navegar até a raiz do ns-3: `cd ~/ns3-oran-workspace/ns-3-oran`. |
+| `Invalid command-line argument: --ricIp=...` ou `--enableE2=...` | O analisador `ns3::CommandLine` valida estritamente os parâmetros passados. Se um cenário C++ não declarar `cmd.AddValue(...)`, a execução é abortada. | Todos os cenários S0–S15 em `simulations/ns3/*.cc` foram padronizados para aceitar `--enableE2`, `--ricIp`, `--ricPort` e `--simTime`. Basta sincronizar e recompilar: `cp ~/XApp-RDL-F1/simulations/ns3/*.cc scratch/ && ./ns3 build`. |
+| Erro com prefixo `scratch/` no `./ns3 run` | Passar `./ns3 run "scratch/scenario_rdl_..."` causa falha porque o CMake registra o alvo sem o prefixo de diretório. | Usar sempre `./ns3 run "scenario_rdl_..."` (sem o prefixo `scratch/`). |
 
 ### 5.3. Processamento de Traces FlowMonitor e Geração de Relatórios
 ```bash

@@ -62,6 +62,8 @@ int main (int argc, char *argv[])
     cmd.AddValue ("gNbNum", "Quantidade total de gNBs", gNbNum);
     cmd.AddValue ("ueNum", "Quantidade total de UEs", ueNum);
     cmd.AddValue ("simTime", "Tempo total de simulacao em segundos", simTime);
+    cmd.AddValue ("centralFreq", "Frequencia central em Hz", centralFreq);
+    cmd.AddValue ("bandwidth", "Largura de banda em Hz", bandwidth);
     cmd.AddValue ("ricIp", "Endereco IP do Near-RT RIC", ricIp);
     cmd.AddValue ("ricPort", "Porta SCTP do servico E2Term", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2 / NORI", enableE2Agent);
