@@ -30,15 +30,15 @@
     },
     {
       "filename": "fig_04_throughput_boxplot.png",
-      "sha256": "30fb9b7735c9042996bbdfa1c065ae0601f742d9f85bf6e446d761e7f28e2d21",
-      "size_bytes": 121666,
+      "sha256": "72e6b8e0f6bd8a382b5972a4aef0ef884227e11e6fda0431cd44d9e7ef46ce56",
+      "size_bytes": 121843,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_05_sla_violation_violin.png",
-      "sha256": "a354d1ca81073a8fbc2916e66a49d6b2e117b219e5bb9318cd628a2f1047b322",
-      "size_bytes": 102308,
+      "sha256": "71fbfdf06dfffd3cddf3a83eb5a6b6b6d2d99eb8af721699851dd1fea420eef9",
+      "size_bytes": 102221,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
