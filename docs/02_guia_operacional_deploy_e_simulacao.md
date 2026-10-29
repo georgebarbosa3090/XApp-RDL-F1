@@ -267,13 +267,62 @@ Ao executar simulações ns-3 via terminal interativo (especialmente com **Zsh**
 | `Invalid command-line argument: --ricIp=...` ou `--enableE2=...` | O analisador `ns3::CommandLine` valida estritamente os parâmetros passados. Se um cenário C++ não declarar `cmd.AddValue(...)`, a execução é abortada. | Todos os cenários S0–S15 em `simulations/ns3/*.cc` foram padronizados para aceitar `--enableE2`, `--ricIp`, `--ricPort` e `--simTime`. Basta sincronizar e recompilar: `cp ~/XApp-RDL-F1/simulations/ns3/*.cc scratch/ && ./ns3 build`. |
 | Erro com prefixo `scratch/` no `./ns3 run` | Passar `./ns3 run "scratch/scenario_rdl_..."` causa falha porque o CMake registra o alvo sem o prefixo de diretório. | Usar sempre `./ns3 run "scenario_rdl_..."` (sem o prefixo `scratch/`). |
 
-### 5.3. Processamento de Traces FlowMonitor e Geração de Relatórios
+### 5.3. Monitoramento em Tempo Real das Simulações ns-3 / NORI 5G-LENA (6 Painéis tmux / TUI)
+
+O repositório disponibiliza um painel terminal interativo de alta densidade dividido em **6 blocos cognitivos sincronizados** (`scripts/wsl_pane_monitors.py` e `scripts/launch_wsl_tmux_6panes.sh`). 
+
+Os painéis operam sobre evidências empíricas reais:
+1. **Varredura Dinâmica em Tempo Real:** Escaneiam automaticamente `experiments/results/ns3_runs/` para identificar a simulação mais recente e atualizam as métricas a cada segundo (`1.0s`).
+2. **Telemetria Direta do FlowMonitor:** Extraem vazão real por fluxo (Mbps), atraso de ida e volta (ms), perda de pacotes e violação estrita de SLA para UEs conectados aos gNodeBs 5G-LENA (`7.0.0.x`).
+3. **Sinalização E2 / ASN.1 APER:** Exibem traces binários Little-Endian reais de frames capturados (`e2_closed_loop_live.pcap`) e hashes criptográficos SHA-256 de não-repúdio.
+4. **Governança Cognitiva H-RDL:** Exibem o grafo semântico (SDL), detecção de conflitos, resolução Nash Bargaining e despacho de controle E2SM-RC (< 10 ms).
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ [PAINEL 1: UEs & gNBs 5G-LENA]   [PAINEL 2: SINALIZAÇÃO E2]   [PAINEL 3: PERCEPÇÃO]    │
+│ Nó: gnb_nori_01 (Band n78)       PCAP: e2_live (79B, 77B)     Conflito: TVS / EEVS     │
+│ 36 UEs | 160 MB | SLA Violations E2AP ASN.1 APER SHA-256      Parâmetro: PRB / CELL_HO │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ [PAINEL 4: GRAFO SDL COGNITIVO]  [PAINEL 5: REFINAMENTO H-RDL][PAINEL 6: AÇÃO E2SM-RC] │
+│ 7 Nós | 6 Arestas (CONFLICT)     Motor: Nash Bargaining       ActionID=6 | TxID=5001   │
+│ Densidade: 0.143 | Ciclos: 1     Quotas: URLLC 50% / eMBB 50% Latência: 1.9 ms (<10ms)│
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Como Executar os Monitores:
+
+```bash
+cd ~/XApp-RDL-F1
+
+# 1. Abrir os 6 painéis simultâneos na mesma tela via tmux (auto-detecta última simulação com dados):
+bash scripts/launch_wsl_tmux_6panes.sh
+
+# 2. Abrir os 6 painéis focando especificamente em um cenário (ex: S3 - TVS Handover ou S8 - Closed Loop):
+bash scripts/launch_wsl_tmux_6panes.sh S3
+bash scripts/launch_wsl_tmux_6panes.sh S8
+bash scripts/launch_wsl_tmux_6panes.sh S1
+
+# 3. Execução individual de painéis em terminais separados:
+python3 scripts/wsl_pane_monitors.py pane1        # Janela 1: UEs, IPs 7.0.0.x e Vazão/Atraso
+python3 scripts/wsl_pane_monitors.py pane2        # Janela 2: Sinalização E2 e Traces PCAP
+python3 scripts/wsl_pane_monitors.py pane3        # Janela 3: Módulo de Percepção & Violação SLA
+python3 scripts/wsl_pane_monitors.py pane4        # Janela 4: Grafo de Conhecimento Cognitivo
+python3 scripts/wsl_pane_monitors.py pane5        # Janela 5: Refinamento & Safety Guards H-RDL
+python3 scripts/wsl_pane_monitors.py pane6        # Janela 6: Despacho E2SM-RC e Malha Fechada
+
+# 4. Monitorar um cenário específico individualmente:
+python3 scripts/wsl_pane_monitors.py pane1 S8     # Monitora Closed-Loop NORI
+python3 scripts/wsl_pane_monitors.py pane1 S10    # Monitora Enxame UAV 3D 6G
+python3 scripts/wsl_pane_monitors.py pane1 S13    # Monitora SAGIN Desastre Multi-Camada
+```
+
+### 5.4. Processamento de Traces FlowMonitor e Geração de Relatórios
 ```bash
 # Parser e consolidação de métricas em Markdown e CSV
 python3 scripts/generate_ns3_flowmonitor_markdown_report.py
 ```
 
-### 5.4. Geração de Gráficos e Tabelas Analíticas
+### 5.5. Geração de Gráficos e Tabelas Analíticas
 Para atualizar os gráficos e as tabelas analíticas a partir dos dados experimentais:
 ```bash
 # Execução direta com uv:
@@ -281,7 +330,7 @@ uv run --with matplotlib --with seaborn --with pandas --with scipy python analys
 uv run --with matplotlib --with seaborn --with pandas --with scipy python analysis/export_tables.py
 ```
 
-### 5.5. Co-Simulação Rica Integrada em Malha Fechada (Closed-Loop E2 Live)
+### 5.6. Co-Simulação Rica Integrada em Malha Fechada (Closed-Loop E2 Live)
 
 A **Co-Simulação Rica Integrada** constitui o ápice do pipeline experimental da Fase 1, unindo em malha fechada (*closed loop*) o simulador físico de eventos discretos da RAN (**ns-3.48** com módulo **5G-LENA NR v5.1** e **E2 Agent/NORI**), a plataforma oficial **Near-RT RIC (O-RAN SC Release J)** instanciada no cluster Kubernetes (`k3d`), as **três xApps de referência abertas concorrentes** (`qos-xslice`, `energy-saving` e `traffic-steering`) e o módulo de governança cognitiva determinística **xApp H-RDL**.
 
@@ -508,36 +557,32 @@ Os artefatos gerados incluem a série temporal de telemetria e recuperação de 
 
 ---
 
-### 5.6. Monitoramento Live no Terminal WSL Ubuntu: 6 Janelas na Mesma Tela (100% Dados Reais)
+### 5.6. Acompanhamento das Execuções ns-3 no Terminal WSL: 6 Painéis
 
 > [!IMPORTANT]
-> **Diretriz de Zero Dados Sintéticos:** Em conformidade estrita com a política de governança e proveniência científica (`provenance_policy.yaml` e `scripts/check_no_synthetic_results.py`), é **permanentemente proibido** o uso de mocks ou geradores aleatórios. Todas as métricas, registros de UEs, fluxos, quadros ASN.1 APER e ações de controle apresentadas são extraídas exclusivamente de fontes empíricas reais:
-> 1. Telemetria física ns-3 / 5G-LENA (`experiments/results/ns3_runs/*/flowmonitor.xml`);
-> 2. Capturas de rede E2 reais (`experiments/runs/certified_closed_loop_chain/e2_closed_loop_live.pcap`);
-> 3. Cadeia Causal Certificada com não-repúdio SHA-256 (`chain_manifest.json`);
-> 4. Execução real dos módulos de Percepção, Raciocínio (TVS/EEVS) e Refinamento do core RDL.
+> Os painéis acompanham o diretório de execução mais recente em `experiments/results/ns3_runs/`.
+> O lançador grava `run_status.json` e atualiza `execution.log` durante a compilação/execução.
+> O XML do FlowMonitor só fica disponível depois que o cenário termina; antes disso, os painéis
+> mostram o estado e o log, sem inventar métricas parciais. O FlowMonitor não fornece por si só
+> PRB, classificação de slice, decisão RDL, mensagens KPM ou ACK E2SM-RC.
 
-O subsistema organiza a visualização no terminal do **WSL Ubuntu** em exatamente **6 janelas/painéis sincronizados no mesmo layout de tela**:
+Os seis painéis exibem:
 
 ```
 ┌──────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
-│ [JANELA 1] REGISTRO UE & GNBS        │ [JANELA 2] SINALIZAÇÃO & PROTOCOLO E2│ [JANELA 3] MÓDULO DE PERCEPÇÃO       │
-│ • UEs conectados (ns-3 FlowMonitor)  │ • E2AP RIC_INDICATION (Code 202)     │ • Ingestão KPM real (89.5% PRB)      │
-│ • Nó de rádio: gnb_srsran_01         │ • E2SM-KPM v2.0 / Dissector PCAP     │ • Alerta de SLA Crítico (>10 ms)     │
-│ • Vazão (Mbps), Atraso real por UE   │ • E2SM-RC ControlReq (ActionID=6)    │ • Conflito Direto: xapp_embb vs urllc│
-│ • Fatias Reais: eMBB & URLLC         │ • RMR Bus (mtypes 12050/12010/12011) │ • Parâmetro Contendido: PRB_QUOTA    │
+│ 1. Execução e FlowMonitor           │ 2. Log e evidências E2               │ 3. KPIs do FlowMonitor               │
+│ Status, fluxos e bytes              │ PCAP/KPM por execução                 │ Vazão, atraso e perdas               │
 ├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
-│ [JANELA 4] GRAFO DE CONHECIMENTO     │ [JANELA 5] MÓDULO DE REFINAMENTO     │ [JANELA 6] AÇÃO E2SM-RC & MALHA FECH.│
-│ • Topologia Real (7 Nós, 6 Arestas)  │ • Motor: H-RDL_NASH_BARGAINING       │ • Comando Despachado: TxID 5001      │
-│ • Entidades: gNB, Slices, xApps, RCP │ • Quotas Refinadas: URLLC=50%, eMBB=5│ • Retorno: CONTROL_ACCEPTED (1.82 ms)│
-│ • Arestas de Alocação e Conflito     │ • Overhead de Decisão: 0.084 ms      │ • Latência Causal: 1.904 ms (< 10 ms)│
-│ • Ciclos de Interferência Detectados │ • Safety Guard: ZERO_UNSAFE_ACTIONS  │ • Recuperação: 18.2 ms ➔ 4.1 ms (-77%│
+│ 4. Endpoints IP observados          │ 5. Artefato de decisão RDL           │ 6. Request/ACK E2SM-RC               │
+│ Topologia extraída do XML           │ Disponibilidade por run              │ Disponibilidade por run              │
 └──────────────────────────────────────┴──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
 #### 5.6.1. Opção A: Layout Nativo via `tmux` no WSL Ubuntu (Recomendado)
 
-O script `launch_wsl_tmux_6panes.sh` divide a tela do seu terminal WSL Ubuntu em uma **grade 2x3 de 6 painéis ativos e sincronizados** (cada painel rodando seu próprio monitor em tempo real):
+O script `launch_wsl_tmux_6panes.sh` divide a tela do WSL Ubuntu em uma grade 2x3. Os
+renderers consultam o estado da execução a cada segundo; a frequência dos KPIs depende dos
+artefatos que o simulador produz.
 
 ```bash
 # Executar dentro do WSL Ubuntu:
@@ -566,15 +611,13 @@ python3 scripts/run_wsl_6pane_real_tui.py
 
 #### 5.6.3. Execução Individual de Qualquer um dos 6 Painéis
 
-Você também pode inspecionar isoladamente qualquer um dos 6 blocos executando seu renderer dedicado:
+Sem filtro, o painel acompanha o diretório de execução mais recente. Também é possível
+selecionar um cenário ou parte do nome do diretório:
 
 ```bash
-python3 scripts/wsl_pane_monitors.py pane1   # Janela 1: Registro UEs e gNBs
-python3 scripts/wsl_pane_monitors.py pane2   # Janela 2: Sinalização & Protocolo E2
-python3 scripts/wsl_pane_monitors.py pane3   # Janela 3: Módulo de Percepção & Conflitos
-python3 scripts/wsl_pane_monitors.py pane4   # Janela 4: Grafo de Conhecimento Cognitivo
-python3 scripts/wsl_pane_monitors.py pane5   # Janela 5: Módulo de Refinamento & Safety
-python3 scripts/wsl_pane_monitors.py pane6   # Janela 6: Ação E2SM-RC & Malha Fechada
+python3 scripts/wsl_pane_monitors.py pane1
+python3 scripts/wsl_pane_monitors.py pane1 S8
+python3 scripts/wsl_pane_monitors.py pane2 --run 20261029T161800Z_scenario_rdl_s15
 ```
 ---
 
