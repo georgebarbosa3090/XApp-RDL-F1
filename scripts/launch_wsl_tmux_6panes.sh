@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Orquestrador tmux no WSL Ubuntu — 6 Janelas na Mesma Tela (100% Dados Reais)
+# Orquestrador tmux no WSL Ubuntu — 6 painéis para resultados ns-3
 # Skill: 09-cognitive-conflict-orchestrator & 08-ns3-oran-simulation-specialist
 #
-# Divide a tela do terminal WSL em uma grade 2x3 (6 janelas/painéis sincronizados):
-#   [Painel 0: Reg. UEs/gNBs] [Painel 1: Sinalização E2] [Painel 2: Percepção]
-#   [Painel 3: Grafo Conhec.] [Painel 4: Refinamento]    [Painel 5: Ação E2SM-RC]
+# Divide a tela do terminal WSL em uma grade 2x3:
+#   [Execução/FlowMonitor] [Log/E2] [KPIs]
+#   [Endpoints IP] [Decisão RDL] [Controle E2SM-RC]
 # ==============================================================================
 
 set -euo pipefail
@@ -50,24 +50,26 @@ tmux set-option -t "${SESSION_NAME}" -g pane-border-format " #{pane_index}: #{pa
 tmux set-option -t "${SESSION_NAME}" -g pane-border-style fg=colour240
 tmux set-option -t "${SESSION_NAME}" -g pane-active-border-style fg=colour51
 
+TARGET_SCENARIO="${1:-}"
+
 # Executa cada monitor dedicado em seu respectivo painel
-tmux select-pane -t "${SESSION_NAME}:0.0" -T "1. REGISTRO UE & GNBS (ns-3)"
-tmux send-keys -t "${SESSION_NAME}:0.0" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane1" C-m
+tmux select-pane -t "${SESSION_NAME}:0.0" -T "1. REGISTRO UE & GNBS (5G-LENA)"
+tmux send-keys -t "${SESSION_NAME}:0.0" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane1 ${TARGET_SCENARIO}" C-m
 
-tmux select-pane -t "${SESSION_NAME}:0.1" -T "2. SINALIZAÇÃO E2 (PCAP/APER)"
-tmux send-keys -t "${SESSION_NAME}:0.1" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane2" C-m
+tmux select-pane -t "${SESSION_NAME}:0.1" -T "2. SINALIZAÇÃO & PROTOCOLO E2"
+tmux send-keys -t "${SESSION_NAME}:0.1" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane2 ${TARGET_SCENARIO}" C-m
 
-tmux select-pane -t "${SESSION_NAME}:0.2" -T "3. PERCEPÇÃO & CONFLITOS"
-tmux send-keys -t "${SESSION_NAME}:0.2" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane3" C-m
+tmux select-pane -t "${SESSION_NAME}:0.2" -T "3. PERCEPÇÃO DE CONFLITOS"
+tmux send-keys -t "${SESSION_NAME}:0.2" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane3 ${TARGET_SCENARIO}" C-m
 
-tmux select-pane -t "${SESSION_NAME}:0.3" -T "4. GRAFO DE CONHECIMENTO"
-tmux send-keys -t "${SESSION_NAME}:0.3" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane4" C-m
+tmux select-pane -t "${SESSION_NAME}:0.3" -T "4. GRAFO COGNITIVO (SDL)"
+tmux send-keys -t "${SESSION_NAME}:0.3" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane4 ${TARGET_SCENARIO}" C-m
 
 tmux select-pane -t "${SESSION_NAME}:0.4" -T "5. REFINAMENTO & SAFETY (H-RDL)"
-tmux send-keys -t "${SESSION_NAME}:0.4" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane5" C-m
+tmux send-keys -t "${SESSION_NAME}:0.4" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane5 ${TARGET_SCENARIO}" C-m
 
-tmux select-pane -t "${SESSION_NAME}:0.5" -T "6. AÇÃO E2SM-RC & MALHA FECHADA"
-tmux send-keys -t "${SESSION_NAME}:0.5" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane6" C-m
+tmux select-pane -t "${SESSION_NAME}:0.5" -T "6. CONTROLE E2SM-RC & MALHA FECHADA"
+tmux send-keys -t "${SESSION_NAME}:0.5" "cd '${BASE_DIR}' && python3 -u scripts/wsl_pane_monitors.py pane6 ${TARGET_SCENARIO}" C-m
 
 # Seleciona o primeiro painel e anexa
 tmux select-pane -t "${SESSION_NAME}:0.0"
