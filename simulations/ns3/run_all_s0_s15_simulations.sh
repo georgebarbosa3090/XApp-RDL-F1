@@ -38,6 +38,15 @@ TARGET="${ARGS[0]:-all}"
 TARGET_LOWER="$(echo "${TARGET}" | tr '[:upper:]' '[:lower:]')"
 SCENARIOS=()
 
+write_run_status() {
+    local status="$1"
+    local status_file="${run_dir}/run_status.json"
+    local temp_file="${status_file}.tmp.$$"
+    printf '{"status":"%s","updated_at_utc":"%s"}\n' \
+        "${status}" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" >"${temp_file}"
+    mv -f -- "${temp_file}" "${status_file}"
+}
+
 case "${TARGET_LOWER}" in
     all)
         for s in $(seq 0 15); do
@@ -105,6 +114,7 @@ for scenario in "${SCENARIOS[@]}"; do
         echo "[ERROR] Diretório de execução já existe: ${run_dir}" >&2
         exit 1
     fi
+    write_run_status "running"
 
     scratch_file="${ACTIVE_NS3_DIR}/scratch/${scenario}.cc"
     if [[ -e "${scratch_file}" ]]; then
@@ -116,7 +126,7 @@ for scenario in "${SCENARIOS[@]}"; do
         fi
     fi
     cp "${source_file}" "${scratch_file}"
-    trap 'rm -f -- "${scratch_file}"' EXIT
+    trap 'rm -f -- "${scratch_file}"; write_run_status "failed"' EXIT
 
     possible_flowmon=(
         "${ACTIVE_NS3_DIR}/flowmonitor_${scenario}.xml"
@@ -143,8 +153,8 @@ for scenario in "${SCENARIOS[@]}"; do
         echo "[ERROR] Build/execução de ${scenario} falhou. Consulte ${run_dir}/execution.log." >&2
         exit 1
     }
+    write_run_status "collecting_flowmonitor"
     rm -f -- "${scratch_file}"
-    trap - EXIT
 
     found_flowmon=""
     for f in "${possible_flowmon[@]}"; do
@@ -159,6 +169,8 @@ for scenario in "${SCENARIOS[@]}"; do
         exit 1
     fi
     mv "${found_flowmon}" "${run_dir}/flowmonitor.xml"
+    write_run_status "completed"
+    trap - EXIT
     echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
 done
 
@@ -211,4 +223,3 @@ if [[ -d "${BASE_DIR}/.git" ]]; then
         fi
     )
 fi
-
