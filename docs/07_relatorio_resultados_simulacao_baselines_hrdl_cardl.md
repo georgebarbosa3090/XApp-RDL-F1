@@ -63,7 +63,7 @@ flowchart LR
 
 ## 2. Tabela Mestra Consolidada dos 7 Baselines de Governança (Cenário S1)
 
-A tabela a seguir consolida as métricas empíricas extraídas das 35 rodadas multi-semente pareadas (sementes 1001 a 1005) arquivadas na matriz SSOT (`experiments/results/tables/baseline_summary.csv` e `canonical_simulation_master.csv`):
+A tabela a seguir consolida as métricas empíricas extraídas das **210 rodadas multi-semente pareadas (sementes 1001 a 1030, $N=30$)** arquivadas na matriz SSOT (`experiments/results/tables/baseline_summary.csv` e `canonical_simulation_master.csv`):
 
 | Baseline | Estratégia de Governança | Vazão Média (Mbps) | Latência Média (ms) | Latência P95 (ms) | Violação SLA (%) | Índice de Jain ($J$) | Tempo Decisão ($t_{\text{dec}}$) | Taxa Churn (ações/s) | Potência gNB (W) | Eficiência (Mbit/J) | Ações Inseguras |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
