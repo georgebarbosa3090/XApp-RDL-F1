@@ -2,7 +2,7 @@
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva (Cronológica S0 a S15)  
 > **Projeto:** xApp RDL (Resource and Decision Layer) — Fases 1 (H-RDL) e 2 (CA-RDL)  
-> **Data de Consolidação:** 2026-11-03 13:42:52 UTC  
+> **Data de Consolidação:** 2026-11-03 14:05:25 UTC  
 > **Ambiente:** ns-3.48 / 5G-LENA v5.1 / NORI E2Sim / GCC 11 / CMake 3.28 / Linux x86_64  
 > **Diretriz de Conformidade:** *Zero Dados Sintéticos — 100% dos Dados Derivados do Módulo Físico FlowMonitor e SSOT*
 
@@ -17,7 +17,7 @@ Este relatório constitui o registro oficial e exaustivo de desempenho físico d
 3. **Rastreabilidade Criptográfica:** Todos os arquivos de entrada brutos possuem seus hashes SHA-256 documentados na Seção de Proveniência deste documento para garantir reprodutibilidade auditável.
 4. **Ordenação Cronológica Sequencial:** Apresentação sequencial das avaliações do Cenário S0 ao Cenário S15.
 
-* **Diretório de Traces Brutos:** `C:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase1\experiments\results\s0_s15_simulations`
+* **Diretório de Traces Brutos:** `/root/XApp-RDL-F1/experiments/results/s0_s15_simulations`
 * **Total de Arquivos XML do FlowMonitor:** 10
 * **Total de Arquivos CSV / Logs Identificados:** 0
 
@@ -161,7 +161,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S2: Energy Saving vs SLA URLLC Multi-Metric Trade-off
 
 * **Arquivo XML:** `flowmonitor_results.xml`
-* **Hash SHA-256:** `6f2f16156c3c96b53d88b7662fcd512fd6be3f74cdd04f6352b049ad99170f49`
+* **Hash SHA-256:** `0c7eab2062fd78133fa99a74f3017a078637526e1e4d483ec19063ab73b24c95`
 * **Volume Total Transferido:** 152.73 MB (160151236 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **40.1%**
 * **Vazão Agregada Pós-RDL:** **98.5 Mbps**
@@ -400,7 +400,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S9: NTN LEO Satellite Orbital Handover & Doppler Mitigation
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml`
-* **Hash SHA-256:** `82a77fc9a327ceb9ddb72e01fe916a88b84e3eb42820772e6bc5dee1fd65fd7b`
+* **Hash SHA-256:** `55e1e34c5a8cbc68c0713b7f7192d5201cd2be4490081308d5778dd1c432911f`
 * **Volume Total Transferido:** 0.44 MB (459000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **88.4 Mbps**
@@ -435,7 +435,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S10: UAV Flying gNodeB Swarm & Battery Depletion Handover
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml`
-* **Hash SHA-256:** `e2d5b59b8ef3c18a8b68e80a8724d8910d1c1b29b970baeb680a6af4b804f878`
+* **Hash SHA-256:** `32ce8aa086016bcf714ceca5b6682d1fc4225298f790fa60a1f9c8c41cc2d239`
 * **Volume Total Transferido:** 1.17 MB (1224720 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **92.7 Mbps**
@@ -470,7 +470,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S11: High-Speed V2X Highway Platooning & Multi-Cell Ping-Pong
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml`
-* **Hash SHA-256:** `2c0a9886bd99bbd57a4a2cfcba60288465af3418f1d0f78146a0dcbed5274190`
+* **Hash SHA-256:** `b73a2acb567bed2b8ccc91df58c3dbd24ed32180f2ea13f18500af9066ce5c24`
 * **Volume Total Transferido:** 0.92 MB (965600 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **40.0%**
 * **Vazão Agregada Pós-RDL:** **97.3 Mbps**
@@ -502,7 +502,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S12: IIoT Ultra-Deterministic Zero-Jitter Robotic Slicing
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml`
-* **Hash SHA-256:** `bac1fd14717f3fd30fc89024db88e5a5b807653ccf18685294745dba540c049b`
+* **Hash SHA-256:** `644492c0f6032b83dae7bffbca01cbd4d65af158e352a665068b11975c707669`
 * **Volume Total Transferido:** 0.63 MB (663000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **5.0%**
 * **Vazão Agregada Pós-RDL:** **95.0 Mbps**
@@ -537,7 +537,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S13: SAGIN Multi-Domain Disaster Rescue Emergency Mesh
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml`
-* **Hash SHA-256:** `f4443177469516acb4f8e0d4fd3f5c96151ad4cffd97e3102b75c81a4f363f48`
+* **Hash SHA-256:** `d780e2bfe85ac567b37f938b085a417e25a5e3fdaa084cb843d114258d6aab04`
 * **Volume Total Transferido:** 0.88 MB (918000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **89.1 Mbps**
@@ -572,7 +572,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S14: ISAC Aerial Radar-Communication Beamforming Trade-off
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml`
-* **Hash SHA-256:** `418208c839782b5ac232dd380f0292f24cbfc1fa2747ebb96a4eff5984f840d5`
+* **Hash SHA-256:** `1edbb52b21313c951ebf6ae452667337fd918cb8efcdee4c213de789eefa08be`
 * **Volume Total Transferido:** 0.44 MB (459000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **5.0%**
 * **Vazão Agregada Pós-RDL:** **94.8 Mbps**
@@ -607,7 +607,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S15: Rogue xApp NTN Feeder Hijacking Cross-Tier Shield
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml`
-* **Hash SHA-256:** `095bfb7c7c3c26974881e04d8f4ab331ae24bf79ee6ea3d69321aea86e0fc9e6`
+* **Hash SHA-256:** `14e749aa038fe0c8fd3df56ccf352851d2baac410ef3a64ddd9671a59083b8eb`
 * **Volume Total Transferido:** 1.71 MB (1788400 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **100.0%**
 * **Vazão Agregada Pós-RDL:** **91.5 Mbps**
@@ -658,16 +658,16 @@ Auditoria de integridade dos arquivos gerados pelo ns-3 FlowMonitor (em ordem al
 
 | Artefato de Dados | Tipo de Arquivo | Tamanho (Bytes) | Hash SHA-256 |
 | :--- | :---: | :---: | :--- |
-| `flowmonitor_results.xml` | `.xml` | 244,874 | `6f2f16156c3c96b53d88b7662fcd512fd6be3f74cdd04f6352b049ad99170f49` |
-| `flowmonitor_scenario_rdl_direct_prb_conflict.xml` | `.xml` | 2,415 | `45dbd85f478353cafa2ea965e6158e2a747606f56f96eb7716b0735b777fcca2` |
-| `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml` | `.xml` | 62,667 | `e2d5b59b8ef3c18a8b68e80a8724d8910d1c1b29b970baeb680a6af4b804f878` |
-| `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml` | `.xml` | 15,487 | `2c0a9886bd99bbd57a4a2cfcba60288465af3418f1d0f78146a0dcbed5274190` |
-| `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml` | `.xml` | 34,465 | `bac1fd14717f3fd30fc89024db88e5a5b807653ccf18685294745dba540c049b` |
-| `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml` | `.xml` | 46,817 | `f4443177469516acb4f8e0d4fd3f5c96151ad4cffd97e3102b75c81a4f363f48` |
-| `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml` | `.xml` | 44,193 | `418208c839782b5ac232dd380f0292f24cbfc1fa2747ebb96a4eff5984f840d5` |
-| `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml` | `.xml` | 1,689 | `095bfb7c7c3c26974881e04d8f4ab331ae24bf79ee6ea3d69321aea86e0fc9e6` |
-| `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml` | `.xml` | 31,363 | `82a77fc9a327ceb9ddb72e01fe916a88b84e3eb42820772e6bc5dee1fd65fd7b` |
-| `flowmonitor_scenario_rdl_ts_vs_energy.xml` | `.xml` | 4,347 | `06c3ce05523ed54e21ccafbf5544b7c3f8bbd65ccfab2fa37a27384311069f4b` |
+| `flowmonitor_results.xml` | `.xml` | 241,078 | `0c7eab2062fd78133fa99a74f3017a078637526e1e4d483ec19063ab73b24c95` |
+| `flowmonitor_scenario_rdl_direct_prb_conflict.xml` | `.xml` | 2,308 | `7afac2965c77adacd95980016087f6eb21cfeffab2a819b6af045bf688b56b3a` |
+| `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml` | `.xml` | 61,500 | `32ce8aa086016bcf714ceca5b6682d1fc4225298f790fa60a1f9c8c41cc2d239` |
+| `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml` | `.xml` | 15,190 | `b73a2acb567bed2b8ccc91df58c3dbd24ed32180f2ea13f18500af9066ce5c24` |
+| `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml` | `.xml` | 33,755 | `644492c0f6032b83dae7bffbca01cbd4d65af158e352a665068b11975c707669` |
+| `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml` | `.xml` | 45,870 | `d780e2bfe85ac567b37f938b085a417e25a5e3fdaa084cb843d114258d6aab04` |
+| `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml` | `.xml` | 43,351 | `1edbb52b21313c951ebf6ae452667337fd918cb8efcdee4c213de789eefa08be` |
+| `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml` | `.xml` | 1,650 | `14e749aa038fe0c8fd3df56ccf352851d2baac410ef3a64ddd9671a59083b8eb` |
+| `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml` | `.xml` | 30,774 | `55e1e34c5a8cbc68c0713b7f7192d5201cd2be4490081308d5778dd1c432911f` |
+| `flowmonitor_scenario_rdl_ts_vs_energy.xml` | `.xml` | 4,156 | `66062c159255bfeb317300e40c9aa662637ed78567a2fb9303ac467da987b54b` |
 
 ---
 
