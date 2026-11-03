@@ -435,58 +435,58 @@ Acesse o diretório do simulador (`cd ~/ns3-oran-workspace/ns-3-oran`) e inicie 
 ###### Grupo 1: Baselines e Conflitos Canônicos O-RAN (Fase 1)
 ```bash
 # S0: Baseline Sem Conflito (Pass-Through Limpo de Controle)
-./ns3 run "scratch/scenario_rdl_no_conflict --simTime=30.0 --gNbNum=2 --ueNum=30 --bandwidth=100e6 --centralFreq=3.5e9 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_no_conflict --simTime=30.0 --gNbNum=2 --ueNum=30 --bandwidth=100e6 --centralFreq=3.5e9 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S1: Conflito Direto de PRB (xSlice vs Energy Saving com Disputa de Capacidade)
-./ns3 run "scratch/scenario_rdl_direct_prb_conflict --simTime=30.0 --gNbNum=1 --ueNum=6 --conflictStart=10.0 --conflictEnd=20.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_direct_prb_conflict --simTime=30.0 --gNbNum=1 --ueNum=6 --conflictStart=10.0 --conflictEnd=20.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S2: Trade-off EEVS (Energy Saving vs SLA URLLC Multi-Métrica)
-./ns3 run "scratch/scenario_rdl_energy_vs_qos --simTime=40.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_energy_vs_qos --simTime=40.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S3: Conflito TVS (Traffic Steering vs Fatiamento QoS com Handover A3)
-./ns3 run "scratch/scenario_rdl_tvs_conflict --simTime=30.0 --gNbNum=2 --ueNumPerGnb=15 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_tvs_conflict --simTime=30.0 --gNbNum=2 --ueNumPerGnb=15 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 ```
 
 ###### Grupo 2: Dinâmica Temporal, Estresse, Resiliência e Malha Fechada Live
 ```bash
 # S4: Conflito Indireto Mobilidade vs Modo Sleep (TS vs ES)
-./ns3 run "scratch/scenario_rdl_ts_vs_energy --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_ts_vs_energy --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S5: Conflito Temporal Ping-Pong (Mitigação de Flapping via Lockout Hysteresis)
-./ns3 run "scratch/scenario_rdl_temporal_pingpong --simTime=30.0 --gNbNum=2 --ueNum=10 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_temporal_pingpong --simTime=30.0 --gNbNum=2 --ueNum=10 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S6: Tempestade de Conflitos Multi-xApp Concorrente (Carga Alta L0-L4)
-./ns3 run "scratch/scenario_rdl_conflict_storm --simTime=30.0 --gNbNum=2 --ueNum=30 --loadLevel=3 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_conflict_storm --simTime=30.0 --gNbNum=2 --ueNum=30 --loadLevel=3 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S7: Injeção de Falhas SCTP e Rollback Determinístico (Partição de Rede E2)
-./ns3 run "scratch/scenario_rdl_fault_injection --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_fault_injection --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S8: Tráfego 5G-LENA em tempo real (sem atuação E2SM-RC/RDL)
-./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
 ```
 
 ###### Grupo 3: Redes Não-Terrestres (NTN), Aéreo (UAV), V2X, Indústria 4.0 e ISAC
 ```bash
 # S9: Handover Orbital NTN LEO Satellite (Compensação Doppler e RTT de 40ms)
-./ns3 run "scratch/scenario_rdl_s9_ntn_orbital_handover --simTime=30.0 --ueNum=20 --orbitAltitudeKm=600.0 --satVelocityKmH=27000.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s9_ntn_orbital_handover --simTime=30.0 --ueNum=20 --orbitAltitudeKm=600.0 --satVelocityKmH=27000.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S10: Enxame Aéreo UAV e Alocação de Bateria com Fatiamento Dinâmico
-./ns3 run "scratch/scenario_rdl_s10_uav_swarm_battery --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s10_uav_swarm_battery --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S11: Pelotão de Veículos Conectados V2X em Rodovia (Ultra-Baixa Latência)
-./ns3 run "scratch/scenario_rdl_s11_v2x_highway_platooning --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s11_v2x_highway_platooning --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S12: Fatiamento IIoT de Jitter Zero (TSN e Coexistência em Fábricas Inteligentes)
-./ns3 run "scratch/scenario_rdl_s12_iiot_zero_jitter_slicing --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s12_iiot_zero_jitter_slicing --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S13: Resgate em Desastres em Redes SAGIN (Espaço-Ar-Terra Integrado)
-./ns3 run "scratch/scenario_rdl_s13_sagin_disaster_rescue --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s13_sagin_disaster_rescue --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S14: Coexistência Comunicação e Sensoriamento ISAC Radar (FMCW Chirp)
-./ns3 run "scratch/scenario_rdl_s14_isac_radar_comm --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s14_isac_radar_comm --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
 # S15: Segurança e Mitigação de Rogue NTN Feeder Hijacking (Zero-Trust)
-./ns3 run "scratch/scenario_rdl_s15_rogue_ntn_feeder_hijacking --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
+./ns3 run "scenario_rdl_s15_rogue_ntn_feeder_hijacking --simTime=30.0 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 ```
 
 ##### Passo 3: Injeção de Tráfego Concorrente e Teste de Resiliência

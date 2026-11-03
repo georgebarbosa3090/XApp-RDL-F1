@@ -30,7 +30,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: RDL_MODE
-              value: {{ .Values.env.rdlMode | default "oran-strict" | quote }}
+              value: {{ .Values.env.rdlMode | default "governance" | quote }}
             - name: RAN_BACKEND
               value: {{ .Values.env.ranBackend | default "NORI_NS3" | quote }}
             - name: USE_FAKE_SDL
@@ -43,6 +43,18 @@ spec:
               value: {{ .Values.env.rmrWaitForReady | quote }}
             - name: LOG_LEVEL
               value: {{ .Values.env.logLevel | quote }}
+            - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_HTTP_SERVICE_HOST
+              value: "ricxapp-iqos-xapp-rdl-http.ricxapp"
+            - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_HTTP_SERVICE_PORT
+              value: "8080"
+            - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_RMR_SERVICE_HOST
+              value: "ricxapp-iqos-xapp-rdl-rmr.ricxapp"
+            - name: SERVICE_RICXAPP_IQOS_XAPP_RDL_RMR_SERVICE_PORT
+              value: "4560"
+            - name: SERVICE_RICPLT_APPMGR_HTTP_SERVICE_HOST
+              value: "127.0.0.1"
+            - name: SERVICE_RICPLT_APPMGR_HTTP_SERVICE_PORT
+              value: "8080"
           ports:
             - name: rmr-data
               containerPort: {{ .Values.service.rmr.dataPort }}

@@ -29,12 +29,12 @@ securityContext:
       - ALL
 
 env:
-  rdlMode: "oran-strict"
+  rdlMode: "governance"
   ranBackend: "NORI_NS3"
   useFakeSdl: "false"
   rmrSeedRt: "/app/configs/routes.rt"
   configFile: "/app/configs/config-file.json"
-  rmrWaitForReady: "true"
+  rmrWaitForReady: "false"
   logLevel: "INFO"
 
 service:

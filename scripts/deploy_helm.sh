@@ -132,6 +132,7 @@ if [ "$DEPLOY_RDL" = true ]; then
       --namespace ${NAMESPACE_XAPP} \
       --create-namespace \
       --set image.pullPolicy=Never \
+      --set env.rdlMode="governance" \
       --set env.useFakeSdl="false" \
       --set env.rmrWaitForReady="false" \
       --force-conflicts

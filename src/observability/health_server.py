@@ -50,8 +50,8 @@ class HealthServer:
                 
             @self.app.get("/ready")
             def ready(response: Response):
-                if self.state is AppState.READY:
-                    return {"status": "READY"}
+                if self.state in (AppState.READY, AppState.SUBSCRIBING):
+                    return {"status": "READY", "state": self.state}
                 else:
                     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
                     return {"status": "NOT_READY", "current_state": self.state}

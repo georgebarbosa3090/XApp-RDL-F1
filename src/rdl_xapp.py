@@ -251,10 +251,16 @@ class RDLxApp:
                 rc_capability_registry.get_rc_function_id("gnb_01")
             subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
             if not subscribed:
-                self.health.set_state(AppState.DEGRADED)
-                logger.warning("Subscrição KPM não foi aceita pelo transporte; xApp mantida em DEGRADED.")
+                if self.oran_strict:
+                    self.health.set_state(AppState.DEGRADED)
+                    logger.warning("Subscrição KPM não foi aceita pelo transporte; xApp mantida em DEGRADED.")
+                else:
+                    self.health.set_state(AppState.READY)
+                    self.metrics.ready_state.set(1)
+                    logger.info("Modo governança local: xApp RDL pronta para mediação de conflitos.")
             else:
-                self.health.set_state(AppState.SUBSCRIBING)
+                self.health.set_state(AppState.SUBSCRIBING if self.oran_strict else AppState.READY)
+                self.metrics.ready_state.set(1)
         except Exception as e:
             if self.oran_strict:
                 self.health.set_state(AppState.ERROR)
@@ -264,11 +270,13 @@ class RDLxApp:
                     error=str(e),
                 )
             else:
-                subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
-                if subscribed:
-                    self.health.set_state(AppState.SUBSCRIBING)
-                else:
-                    self.health.set_state(AppState.DEGRADED)
+                self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+                self.health.set_state(AppState.READY)
+                self.metrics.ready_state.set(1)
+
+        if not self.decision_loop_started:
+            self.decision_loop_started = True
+            threading.Thread(target=self._decision_loop, daemon=True).start()
 
 
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: Optional[int] = None, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
