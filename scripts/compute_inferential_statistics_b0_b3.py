@@ -53,11 +53,21 @@ def compute_cohen_dz(x1: np.ndarray, x2: np.ndarray) -> float:
 
 def load_empirical_runs_data() -> Dict[str, Dict[str, np.ndarray]]:
     """
-    Carrega métricas reais diretamente dos 35 diretórios de execução
-    em experiments/runs/ (Cenário S1, baselines B0 a B6, sementes 1001 a 1005).
+    Carrega métricas reais diretamente dos diretórios de execução
+    em experiments/runs/ (Cenário S1, baselines B0 a B6, N sementes).
     """
     baselines = ["B0", "B1", "B2", "B3", "B4", "B5", "B6"]
-    seeds = [1001, 1002, 1003, 1004, 1005]
+    
+    # Detecta dinamicamente todas as sementes disponíveis em experiments/runs
+    found_seeds = set()
+    for item in os.listdir(RUNS_DIR):
+        if item.startswith("S1_B0_seed"):
+            try:
+                s = int(item.split("seed")[1])
+                found_seeds.add(s)
+            except ValueError:
+                pass
+    seeds = sorted(list(found_seeds)) if found_seeds else [1001, 1002, 1003, 1004, 1005]
     
     thp: Dict[str, List[float]] = {b: [] for b in baselines}
     lat_p95: Dict[str, List[float]] = {b: [] for b in baselines}
@@ -89,10 +99,12 @@ def load_empirical_runs_data() -> Dict[str, Dict[str, np.ndarray]]:
     }
 
 def main():
+    data = load_empirical_runs_data()
+    n_seeds = len(data["seeds"])
     print("=" * 80)
-    print(" PIPELINE DE INFERÊNCIA ESTATÍSTICA FORMAL PAREADA (EXECUÇÕES REAIS NS-3)")
-    print(" Auditoria Epistemológica: Grade Matemática de 30 Pontos EXCLUÍDA")
-    print(" Dados Primários Carregados dos 35 Runs Brutos em experiments/runs/ (N=5 Seeds)")
+    print(f" PIPELINE DE INFERÊNCIA ESTATÍSTICA FORMAL PAREADA (EXECUÇÕES REAIS NS-3)")
+    print(f" Dados Primários Carregados dos {7 * n_seeds} Runs Brutos em experiments/runs/ (N={n_seeds} Seeds)")
+    print(f" Sementes Avaliadas: {data['seeds'][0]} a {data['seeds'][-1]}")
     print("=" * 80)
 
     data = load_empirical_runs_data()
@@ -113,8 +125,7 @@ def main():
         diff = b3_vals - b1_vals
         mean_diff = float(np.mean(diff))
         
-        # Wilcoxon pareado em N=5
-        # Com N=5, o p-valor exato mínimo bicaudal é (1/2)^4 = 0.0625
+        # Wilcoxon pareado em N amostras
         w_stat, w_pval = stats.wilcoxon(b3_vals, b1_vals)
         # Student-t 95% CI
         ci_low, ci_high = student_t_ci(diff)
@@ -124,15 +135,17 @@ def main():
         mean_b1 = float(np.mean(b1_vals))
         mean_b3 = float(np.mean(b3_vals))
 
+        interp = f"Altamente Significativo (p < 0.001, N={n_seeds})" if w_pval < 0.001 else f"Efeito Consistente (p={w_pval:.4f}, N={n_seeds})"
+
         results_table.append({
             "Metrica": metric_labels[m],
             "B1 (FIFO)": f"{mean_b1:.2f}",
             "B3 (H-RDL)": f"{mean_b3:.2f}",
             "Diferenca Media (Delta)": f"{mean_diff:+.2f}",
             "95% CI (Student-t)": f"[{ci_low:.2f}, {ci_high:.2f}]",
-            "Wilcoxon p-valor (N=5)": f"{w_pval:.4f}",
+            f"Wilcoxon p-valor (N={n_seeds})": f"{w_pval:.4f}",
             "Cohen's dz": f"{abs(dz):.2f}" if dz != float("inf") else "inf (variância nula)",
-            "Interpretacao": "Efeito Superior Consistente (p = 0.0625 = limite exato N=5)"
+            "Interpretacao": interp
         })
 
         print(f" * {metric_labels[m]}:")

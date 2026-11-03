@@ -1,0 +1,1 @@
+{"event": "COGNITIVE_CYCLE", "t0_ms": 10000.0, "t1_ms": 10200.0, "kpm_metrics": {"throughput_mbps": 85.21, "latency_ms": 17.47}, "detected_conflicts": ["CONFLICT_DIRECT_PRB_COLLISION"], "resolution": "FIFO_QUEUE", "rc_action": {"parameter": "PRB_QUOTA", "node": "gnb_01", "val": 50.0}, "ack_status": "SUCCESS", "kpm_post": {"throughput_mbps": 90.35, "latency_ms": 14.96}}

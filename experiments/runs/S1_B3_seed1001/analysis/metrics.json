@@ -12,33 +12,33 @@
     "tx_power_dbm": 43.0,
     "channel_model": "3GPP_38.901_UMi",
     "scheduler": "NrMacSchedulerOfdmaPF",
-    "app_stop_time_s": 58.0,
-    "sim_stop_time_s": 60.0
+    "app_stop_time_s": 28.0,
+    "sim_stop_time_s": 30.0
   },
   "layer2_phy_mac": {
-    "sinr_db": 15.6,
+    "sinr_db": 15.1,
     "prb_usage_pct": 80.0,
     "mcs_table": "3GPP_Table_2_256QAM",
-    "selected_mcs": 22,
-    "bler_pct": 1.1,
+    "selected_mcs": 16,
+    "bler_pct": 2.1,
     "harq_mode": "IncrementalRedundancy_IR",
     "rlc_mode": "RLC_AM_eMBB_RLC_UM_URLLC"
   },
   "layer3_network_qos_sla": {
-    "throughput_before_mbps": 85.2,
-    "throughput_after_mbps": 101.7,
-    "throughput_gain_pct": 19.37,
-    "latency_before_ms": 17.8,
-    "latency_after_ms": 11.3,
-    "latency_reduction_pct": 36.52,
-    "p95_latency_ms": 13.8,
+    "throughput_before_mbps": 85.19,
+    "throughput_after_mbps": 102.31,
+    "throughput_gain_pct": 20.1,
+    "latency_before_ms": 17.69,
+    "latency_after_ms": 11.26,
+    "latency_reduction_pct": 36.35,
+    "p95_latency_ms": 13.91,
     "sla_violations_before_pct": 36.7,
     "sla_violations_after_pct": 0.0,
     "slad_throughput": 0.0,
-    "slad_latency": 1.26,
+    "slad_latency": 0.0,
     "jain_fairness_before": 0.52,
-    "jain_fairness_after": 0.94,
-    "spectral_efficiency_bps_hz": 1.017
+    "jain_fairness_after": 0.934,
+    "spectral_efficiency_bps_hz": 1.023
   },
   "layer4_oran_e2": {
     "ran_function_id_rc": 3,
@@ -48,20 +48,20 @@
     "decode_failure_rate_pct": 0.0,
     "closed_loop_latency_breakdown_ms": {
       "t_detect_ms": 2.0,
-      "t_decision_ms": 0.12,
+      "t_decision_ms": 0.1312,
       "t_encode_ms": 0.15,
       "t_dispatch_ms": 0.2,
       "t_e2_rtt_ms": 1.82,
       "t_apply_ms": 0.5,
-      "t_observe_ms": 195.21,
+      "t_observe_ms": 195.33,
       "t_total_loop_ms": 200.0
     }
   },
   "layer5_rdl_governance": {
     "strategy": "H_RDL_DETERMINISTIC",
-    "decision_latency_ms": 0.12,
-    "action_churn_rate_per_sec": 0.05,
-    "ping_pong_reversals": 0,
+    "decision_latency_ms": 0.1312,
+    "action_churn_rate_per_sec": 0.04,
+    "ping_pong_reversals": 1,
     "settling_time_ms": 190.0,
     "unsafe_actions_detected": 0,
     "unsafe_actions_applied": 0,
@@ -69,8 +69,8 @@
   },
   "layer6_reproducibility": {
     "seed": 1001,
-    "git_sha": "f99483a",
-    "timestamp": "2026-09-15T12:54:00Z",
+    "git_sha": "8df5b3c",
+    "timestamp": "2026-11-03T16:46:57Z",
     "gate4_closed_loop_verified": true
   }
 }

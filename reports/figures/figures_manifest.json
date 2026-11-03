@@ -3,7 +3,7 @@
   "timestamp_iso": "2026-09-18T11:45:00Z",
   "ssot_source": {
     "path": "experiments/results/canonical_simulation_master.csv",
-    "sha256": "4567afc628406f44feaf520b225fa4f04cf83042e80a82d536d1f8171a68d518",
+    "sha256": "38bc173da03f6a9fdf832215aabd3a93df9552a5c7932032d877fd891001d8c4",
     "records": 35
   },
   "figures": [
@@ -23,36 +23,36 @@
     },
     {
       "filename": "fig_03_latency_ecdf.png",
-      "sha256": "8aa0199cb9aed9f95657dfdf1f3897f05b88e217549c2e638340e9609cbb67b7",
-      "size_bytes": 149896,
+      "sha256": "1fdddc718dd6c0d17bc73e983b90cf30371ee125ac80365e75ff1337320fa4e5",
+      "size_bytes": 155385,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_04_throughput_boxplot.png",
-      "sha256": "1a9758b085f54d3cf12d2b0f8d58a3344f88a7294ca4e554eccfe393e38a6a90",
-      "size_bytes": 121671,
+      "sha256": "8a34a9f4513db35f5c8d2dbc74a43933b05281a5493de611ed33a63461454161",
+      "size_bytes": 180031,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_05_sla_violation_violin.png",
-      "sha256": "dd14ac5d02ce12459660cadbc3057a21a6c0c653f8937fd7fb55f56d7d7e9498",
-      "size_bytes": 102225,
+      "sha256": "d146e27029a493f0ddae7372e249bfb2e3c7308b8a2aa73f63ca3756761e3544",
+      "size_bytes": 116227,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_06_paired_seed_plot.png",
-      "sha256": "b2f81b1ac78bf05d0ecd5b0718238032f85f69ee41b9629a029370055c6fb7db",
-      "size_bytes": 266402,
+      "sha256": "4764afcb29e7f20f66476486692dc0cacaef4e57f3d3469db948cfccf6a9498b",
+      "size_bytes": 452570,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_07_effect_forest.png",
-      "sha256": "fdf483a9e85c3a5eb86f754d484fb89e62ffc45f47481d9079f8083f45317c67",
-      "size_bytes": 179358,
+      "sha256": "7a9250baaf165d8e652b34c12591e532c6040306e7dde96c64f58c41e4333889",
+      "size_bytes": 179560,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -72,15 +72,15 @@
     },
     {
       "filename": "fig_10_sinr_throughput_hexbin.png",
-      "sha256": "e550e1c4b6376830ac607228dbfc1d8f0025b8e291600af6438bb6a6f51612c0",
-      "size_bytes": 173383,
+      "sha256": "bb348828e48d158a0fd835dd5e02a75d58a368382f2b698c40258b0122c41370",
+      "size_bytes": 191624,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
     {
       "filename": "fig_11_mcs_bler.png",
-      "sha256": "1c85b92782df500992fb6e2f5b2b71a98b5286680af22f16a3391b17373ab80a",
-      "size_bytes": 114400,
+      "sha256": "013d50d1441a0de76c89023d5f37abdbd2112087eccb2a8828e09ebcd60d1015",
+      "size_bytes": 114136,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -93,8 +93,8 @@
     },
     {
       "filename": "fig_13_pareto.png",
-      "sha256": "3ceadbedc68a42558171d0aea8d921b62342c8dab9edf058ee4df4939e6b85bd",
-      "size_bytes": 138681,
+      "sha256": "4521dd8d5324e6402b66e212c74bb76779005793a3cccc50066148bbbab65595",
+      "size_bytes": 137428,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -142,8 +142,8 @@
     },
     {
       "filename": "fig_19_crosslayer_pairplot.png",
-      "sha256": "68892ff164ab992e1aa52f5a9df952fe8328e974a978efd1931b454a16ea5a53",
-      "size_bytes": 682210,
+      "sha256": "6319add77b5cae0513f0e6e4139950c1c060657c1f0758e2b4bc621bf6877b97",
+      "size_bytes": 1121406,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },
@@ -184,8 +184,8 @@
     },
     {
       "filename": "fig_20_3d_pareto_surface.png",
-      "sha256": "a61063f56be5103387f76e3684cdcd12ac641723a2b89e677b6eec3c3719076f",
-      "size_bytes": 433576,
+      "sha256": "ce72f31a8ba9f3f8558db049b14d9fe6b2be8f98f277e767737fb599fa824b61",
+      "size_bytes": 434061,
       "provenance": "EMPIRICAL_DATA_SSOT",
       "statistical_bounds": "95% Student-t CI / Empirical Traces"
     },

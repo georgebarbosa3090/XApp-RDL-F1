@@ -1,7 +1,7 @@
 {
   "run_id": "S1_B6_seed1001",
-  "git_sha": "f99483a",
-  "timestamp_utc": "2026-09-15T12:54:00Z",
+  "git_sha": "8df5b3c",
+  "timestamp_utc": "2026-11-03T16:46:57Z",
   "scenario": "S1",
   "baseline": "B6",
   "strategy": "SAFE_MAPPO",
@@ -17,8 +17,8 @@
   "ran_function_id_rc": 3,
   "decision_window_ms": 200,
   "environment": {
-    "os": "Ubuntu 22.04 LTS (WSL2 / Linux 5.15.167.4)",
-    "compiler": "GCC 11.4.0 / CMake 3.22.1 / Ninja 1.10.1",
-    "python": "3.10.12 / uv 0.4.15"
+    "os": "Ubuntu 20.04 LTS (WSL2 / Linux 5.15.167.4)",
+    "compiler": "GCC 9.4.0 / CMake 3.22.1 / Ninja 1.10.0",
+    "python": "3.8.10 / uv 0.4.15"
   }
 }

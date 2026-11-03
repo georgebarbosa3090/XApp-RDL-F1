@@ -12,12 +12,12 @@
     "tx_power_dbm": 43.0,
     "channel_model": "3GPP_38.901_UMi",
     "scheduler": "NrMacSchedulerOfdmaPF",
-    "app_stop_time_s": 58.0,
-    "sim_stop_time_s": 60.0
+    "app_stop_time_s": 28.0,
+    "sim_stop_time_s": 30.0
   },
   "layer2_phy_mac": {
-    "sinr_db": 15.0,
-    "prb_usage_pct": 94.0,
+    "sinr_db": 14.4,
+    "prb_usage_pct": 93.3,
     "mcs_table": "3GPP_Table_2_256QAM",
     "selected_mcs": 16,
     "bler_pct": 14.2,
@@ -26,19 +26,19 @@
   },
   "layer3_network_qos_sla": {
     "throughput_before_mbps": 85.28,
-    "throughput_after_mbps": 85.6,
-    "throughput_gain_pct": 0.38,
-    "latency_before_ms": 17.4,
-    "latency_after_ms": 17.6,
-    "latency_reduction_pct": -1.15,
-    "p95_latency_ms": 24.3,
+    "throughput_after_mbps": 85.34,
+    "throughput_gain_pct": 0.07,
+    "latency_before_ms": 17.59,
+    "latency_after_ms": 17.66,
+    "latency_reduction_pct": -0.4,
+    "p95_latency_ms": 24.59,
     "sla_violations_before_pct": 36.7,
     "sla_violations_after_pct": 36.7,
-    "slad_throughput": 0.144,
-    "slad_latency": 2.52,
+    "slad_throughput": 0.148,
+    "slad_latency": 2.56,
     "jain_fairness_before": 0.52,
-    "jain_fairness_after": 0.52,
-    "spectral_efficiency_bps_hz": 0.856
+    "jain_fairness_after": 0.518,
+    "spectral_efficiency_bps_hz": 0.853
   },
   "layer4_oran_e2": {
     "ran_function_id_rc": 3,
@@ -60,7 +60,7 @@
   "layer5_rdl_governance": {
     "strategy": "NO_COORDINATION",
     "decision_latency_ms": 0.0,
-    "action_churn_rate_per_sec": 1.0,
+    "action_churn_rate_per_sec": 1.01,
     "ping_pong_reversals": 30,
     "settling_time_ms": 3200.0,
     "unsafe_actions_detected": 0,
@@ -69,8 +69,8 @@
   },
   "layer6_reproducibility": {
     "seed": 1002,
-    "git_sha": "f99483a",
-    "timestamp": "2026-09-15T12:54:00Z",
+    "git_sha": "8df5b3c",
+    "timestamp": "2026-11-03T16:46:57Z",
     "gate4_closed_loop_verified": true
   }
 }
