@@ -125,11 +125,12 @@ for scenario in "${SCENARIOS[@]}"; do
             exit 2
         fi
     fi
-    cp "${source_file}" "${scratch_file}"
     trap 'rm -f -- "${scratch_file}"; write_run_status "failed"' EXIT
+    cp "${source_file}" "${scratch_file}"
 
     possible_flowmon=(
         "${ACTIVE_NS3_DIR}/flowmonitor_${scenario}.xml"
+        "${ACTIVE_NS3_DIR}/flowmonitor_s8_traffic.xml"
         "${ACTIVE_NS3_DIR}/flowmonitor_closed_loop_results.xml"
         "${ACTIVE_NS3_DIR}/flowmonitor_results.xml"
     )
@@ -148,7 +149,11 @@ for scenario in "${SCENARIOS[@]}"; do
     (
         cd "${ACTIVE_NS3_DIR}"
         ./ns3 build "${scenario}"
-        ./ns3 run "${scenario} --simTime=10.0"
+        if [[ "${scenario}" == "scenario_rdl_closed_loop_nori" ]]; then
+            ./ns3 run "${scenario} --simTime=10.0 --demoMode=traffic-only --enableE2=false"
+        else
+            ./ns3 run "${scenario} --simTime=10.0"
+        fi
     ) >"${run_dir}/execution.log" 2>&1 || {
         echo "[ERROR] Build/execução de ${scenario} falhou. Consulte ${run_dir}/execution.log." >&2
         exit 1
@@ -171,7 +176,11 @@ for scenario in "${SCENARIOS[@]}"; do
     mv "${found_flowmon}" "${run_dir}/flowmonitor.xml"
     write_run_status "completed"
     trap - EXIT
-    echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
+    if [[ "${scenario}" == "scenario_rdl_closed_loop_nori" ]]; then
+        echo "[PASS] S8 executado como tráfego NR; FlowMonitor preservado. Este cenário não comprova closed loop E2SM-RC/RDL."
+    else
+        echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
+    fi
 done
 
 # ==============================================================================

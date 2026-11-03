@@ -207,8 +207,8 @@ Indicada para depuração pontual, testes interativos ou verificação direta de
    # S7: Injeção de Falhas SCTP e Rollback Determinístico (Partição de Rede E2)
    ./ns3 run "scenario_rdl_fault_injection --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
-   # S8: Malha Fechada Canônica Integrada E2AP/E2SM com Agente NORI (Tempo Real)
-   ./ns3 run "scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
+   # S8: Tráfego 5G-LENA em tempo real; o cenário não implementa closed loop E2SM-RC/RDL.
+   ./ns3 run "scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
    ```
 
    **Grupo 2: Cenários Avançados NTN, SAGIN, V2X, IIoT, ISAC e Zero-Trust 6G (S9 a S15)**
@@ -379,7 +379,9 @@ Diferente de avaliações sintéticas isoladas ou testes de unidade com mocks, a
 
 Em simulações convencionais, o ns-3 avança através de uma fila de eventos discretos em **tempo virtual** dependente da capacidade da CPU ($t_{\text{sim}} \neq t_{\text{wall}}$). Em um ambiente de co-simulação com pods externos em Kubernetes (Near-RT RIC e xApps), se o ns-3 processar eventos mais rápido que o tempo real, a RAN "atropela" os containers de controle antes que as mensagens E2AP completem seu ciclo de roteamento RMR.
 
-Para garantir sincronização estrita de malha fechada, os cenários closed-loop utilizam a implementação em tempo real:
+O modo em tempo real sincroniza os eventos do ns-3 com o relógio de parede. No cenário S8,
+isso não cria uma malha fechada: o código atual não aplica decisões RDL nem atua via E2SM-RC.
+O agente E2 é opcional e sua instalação, isoladamente, não comprova relatórios KPM recebidos.
 
 ```cpp
 // Ativação do RealtimeSimulatorImpl no cenário C++ (scenario_rdl_closed_loop_nori.cc)
@@ -391,7 +393,9 @@ GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSim
 Config::SetDefault ("ns3::RealtimeSimulatorImpl::SynchronizationMode", StringValue ("BestEffort"));
 ```
 
-Com o `RealtimeSimulatorImpl`, **1 segundo de simulação corresponde exatamente a 1 segundo de relógio de parede (*wall-clock*)**, assegurando que os períodos de telemetria E2SM-KPM ($\Delta t = 200\text{ ms}$) casem com a janela de agregação temporal ($\Delta t_{\text{win}} = 200\text{ ms}$) da xApp H-RDL.
+Com `RealtimeSimulatorImpl`, o simulador tenta acompanhar o relógio de parede; atrasos de CPU
+podem impedir correspondência exata. A existência de telemetria KPM depende de evidência
+produzida pelo agente e associada à execução.
 
 ---
 
@@ -401,10 +405,10 @@ Para demonstrações técnicas, aulas laboratoriais e auditorias experimentais, 
 
 | Terminal | Papel / Módulo | Comando de Execução / Monitoramento | Finalidade Operacional |
 | :---: | :--- | :--- | :--- |
-| **T1** | **ns-3 / 5G-LENA (RAN)** | `./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"` | Executa a RAN física simulada, emite telemetria KPM e recebe E2SM-RC. |
+| **T1** | **ns-3 / 5G-LENA (RAN)** | `./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"` | Executa tráfego NR; não implementa atuação E2SM-RC/RDL. |
 | **T2** | **Near-RT RIC Platform** | `kubectl logs -n ricplt -l app=ricplt-e2term -f` | Monitora a terminação SCTP e a conversão de pacotes E2AP em mensagens RMR. |
 | **T3** | **3 xApps de Referência** | `kubectl logs -n ricxapp -l app=ricxapp-qos-xslice -f` | Evidencia o comportamento competitivo autônomo das xApps (solicitações conflitantes). |
-| **T4** | **xApp H-RDL (Decisão)** | `kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl -f` | Exibe a ingestão KPM, construção do grafo de conflito, arbitragem TVS/EEVS e despacho RC. |
+| **T4** | **xApp H-RDL (Decisão)** | `kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl -f` | Permite inspecionar logs; este cenário não conecta decisões RDL à RAN. |
 | **T5** | **Observabilidade Live** | `curl -s http://localhost:8081/metrics \| grep -E "^rdl_"` ou Grafana (`:3000`) | Acompanha taxas de resolução (CRR/CRE), latência de decisão e invariant checks em tempo real. |
 
 ---
@@ -457,8 +461,8 @@ Acesse o diretório do simulador (`cd ~/ns3-oran-workspace/ns-3-oran`) e inicie 
 # S7: Injeção de Falhas SCTP e Rollback Determinístico (Partição de Rede E2)
 ./ns3 run "scratch/scenario_rdl_fault_injection --simTime=30.0 --gNbNum=2 --ueNum=20 --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 
-# S8: Malha Fechada Canônica Integrada E2AP/E2SM com Agente NORI (Tempo Real)
-./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
+# S8: Tráfego 5G-LENA em tempo real (sem atuação E2SM-RC/RDL)
+./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"
 ```
 
 ###### Grupo 3: Redes Não-Terrestres (NTN), Aéreo (UAV), V2X, Indústria 4.0 e ISAC

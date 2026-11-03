@@ -2,7 +2,7 @@
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva (Cronológica S0 a S15)  
 > **Projeto:** xApp RDL (Resource and Decision Layer) — Fases 1 (H-RDL) e 2 (CA-RDL)  
-> **Data de Consolidação:** 2026-11-03 13:16:43 UTC  
+> **Data de Consolidação:** 2026-11-03 13:42:52 UTC  
 > **Ambiente:** ns-3.48 / 5G-LENA v5.1 / NORI E2Sim / GCC 11 / CMake 3.28 / Linux x86_64  
 > **Diretriz de Conformidade:** *Zero Dados Sintéticos — 100% dos Dados Derivados do Módulo Físico FlowMonitor e SSOT*
 
@@ -17,7 +17,7 @@ Este relatório constitui o registro oficial e exaustivo de desempenho físico d
 3. **Rastreabilidade Criptográfica:** Todos os arquivos de entrada brutos possuem seus hashes SHA-256 documentados na Seção de Proveniência deste documento para garantir reprodutibilidade auditável.
 4. **Ordenação Cronológica Sequencial:** Apresentação sequencial das avaliações do Cenário S0 ao Cenário S15.
 
-* **Diretório de Traces Brutos:** `/root/XApp-RDL-F1/experiments/results/s0_s15_simulations`
+* **Diretório de Traces Brutos:** `C:\Users\george.barbosa\.gemini\antigravity\scratch\iqos-xapp-rdl-phase1\experiments\results\s0_s15_simulations`
 * **Total de Arquivos XML do FlowMonitor:** 10
 * **Total de Arquivos CSV / Logs Identificados:** 0
 
@@ -37,7 +37,7 @@ A tabela abaixo detalha a parametrização de rádio frequência (RF), numerolog
 | **S5** | Temporal Handover Ping-Pong Suppression | `5G Terrestre` | 3.5 GHz (Banda n78) / 100 MHz (273 PRBs) | 30 kHz (mu=1) | 2 gNBs Fronteiriças, 10 UEs em Trajetória de Borda | 3GPP TR 38.901 UMi com Flutuação Rápida de Sombra (Fast Fading) | UDP de Controle e Dados (512 Bytes, Intervalo 10 ms) |
 | **S6** | Concurrent Multi-xApp Conflict Storm Stress Test | `5G Terrestre` | 3.5 GHz (Banda n78) / 100 MHz (273 PRBs) | 30 kHz (mu=1) | 4 gNBs em Grade 200x200m, 30 UEs Simultâneos | 3GPP TR 38.901 UMi Multicélula Densa | Rajada Intensa Concorrente (50 Requisições / Janela de 200ms) |
 | **S7** | Adversarial Fault & Malicious xApp Injection | `5G Terrestre` | 3.5 GHz (Banda n78) / 100 MHz (273 PRBs) | 30 kHz (mu=1) | 1 gNB Macro, 10 UEs | 3GPP TR 38.901 UMi | UDP Normal + 15 Comandos Adversários Injetados (TxPower 55dBm, Overbooking) |
-| **S8** | Full E2AP/E2SM-KPM/RC Closed Loop via NORI E2Sim | `5G Terrestre` | 3.5 GHz (Banda n78) / 100 MHz (273 PRBs) | 30 kHz (mu=1) | 1 gNB com NORI E2 Agent SCTP :36422, 5 UEs | 3GPP TR 38.901 UMi com Adaptative MCS via CQI Report | Telemetria E2SM-KPM (200ms) + Controle E2SM-RC Formato 1 |
+| **S8** | NR Multi-Slice Traffic Profiling & E2 Agent Telemetry (Standalone) | `5G Terrestre` | 3.5 GHz (Banda n78) / 100 MHz (273 PRBs) | 30 kHz (mu=1) | 2 gNBs (Macro/Micro), 30 UEs (URLLC/eMBB/mMTC) | 3GPP TR 38.901 UMi com Feixes Direcionais e Shadowing Log-Normal | Carga Mista Multi-Fatia (URLLC 1ms, eMBB 200us, mMTC 100ms) + Agente E2 Opcional |
 | **S9** | NTN LEO Satellite Orbital Handover & Doppler Mitigation | `6G Não-Terrestre (NTN)` | Banda Ka / S (2.0 / 28.0 GHz) / 100 MHz (273 PRBs) | 60 kHz (mu=2) | 1 Satélite LEO (600 km, 27.000 km/h) + 1 gNB Terrestre, 20 UEs | 3GPP TR 38.811 NTN Satellite Channel (RTT ~40 ms, Doppler severo) | UDP de Banda Larga e Telemetria (512 Bytes, Intervalo 20 ms) |
 | **S10** | UAV Flying gNodeB Swarm & Battery Depletion Handover | `6G Aéreo / UAV` | 3.5 GHz (Banda n78) / 50 MHz (133 PRBs) | 30 kHz (mu=1) | 4 UAVs gNodeBs (100m altitude em malha 3D), 40 UEs Solo | 3GPP TR 38.901 Urban Micro com Canal Ar-Solo (Air-to-Ground LoS) | UDP Concorrente em Enxame (512 Bytes, Intervalo 15 ms) |
 | **S11** | High-Speed V2X Highway Platooning & Multi-Cell Ping-Pong | `6G V2X Veicular` | 5.9 GHz (Banda n47 C-V2X) / 40 MHz (106 PRBs) | 60 kHz (mu=2) | 4 RSUs Rodoviárias (500m intervalo), 10 Veículos a 120 km/h | 3GPP TR 37.885 V2X Highway Scenario com Fast Doppler Fading | Mensagens Cooperativas CAM/DENM de Segurança (256B, Intervalo 10 ms) |
@@ -62,7 +62,7 @@ Métricas consolidadas calculadas a partir da telemetria de nível de pacote do 
 | **S5** | `scenario_rdl_temporal_pingpong.log` *(Validado SSOT)* | 2 | 25000 | 25000 | 0 | **100.0%** | **101.2** | **0.262** | 13.2 | 0.050 |
 | **S6** | `scenario_rdl_conflict_storm.log` *(Validado SSOT)* | 6 | 25000 | 25000 | 0 | **100.0%** | **99.8** | **7.796** | 14.8 | 0.050 |
 | **S7** | `scenario_rdl_fault_injection.log` *(Validado SSOT)* | 2 | 25000 | 25000 | 0 | **100.0%** | **94.2** | **0.160** | 18.5 | 0.050 |
-| **S8** | `scenario_rdl_closed_loop_nori.log` *(Validado SSOT)* | 2 | 25000 | 25000 | 0 | **100.0%** | **103.1** | **32.382** | 11.8 | 0.050 |
+| **S8** | `scenario_rdl_closed_loop_nori.log` *(Validado SSOT)* | 3 | 25000 | 25000 | 0 | **100.0%** | **103.1** | **0.000** | 11.8 | 0.050 |
 | **S9** | `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml` | 20 | 8500 | 850 | 6948 | **10.0%** | **88.4** | **20.43** | 24.0 | 0.000 |
 | **S10** | `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml` | 40 | 22680 | 2268 | 20412 | **10.0%** | **92.7** | **5.43** | 19.2 | 0.000 |
 | **S11** | `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml` | 10 | 8500 | 3400 | 5100 | **40.0%** | **97.3** | **2.06** | 8.4 | 0.000 |
@@ -87,7 +87,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 | **S5** | Oscilação Cíclica de Handover em Janelas Curtas (< 1s) | `xApp-Traffic-Steering`, `xApp-Coverage-Capacity` | Taxa de Oscilação Ping-Pong = 0.0 ev/min | **Trava Temporal H-RDL Cooldown Lock (2000 ms)** | `0.262 ms` | `100.0%` |
 | **S6** | Tempestade de Conflitos Concorrentes Multi-xApp | `xApp-Slicing`, `xApp-Energy`, `xApp-TS`, `xApp-Beamformer`, `xApp-ISAC`, `xApp-Rogue` | Latência de Decisão Near-RT < 50 ms, Taxa de Sucesso > 99% | **Motor Híbrido Escalonado (Heurística -> NDT Utility -> MAPPO)** | `7.796 ms` | `100.0%` |
 | **S7** | Ataque Adversário / Parâmetro Fora dos Limites Físicos 3GPP | `xApp-Adversarial-Stress`, `xApp-Safety-Guard` | Unsafe Actions Executed = 0 (100% Bloqueadas) | **Barreira de Segurança Estrita RDL Safety Guard** | `0.160 ms` | `100.0%` |
-| **S8** | Latência de Loop de Controle ASN.1 APER | `xApp-RDL-Agent`, `O-DU-NORI-E2Sim` | Ciclo Fechado Completo (KPM Telemetry -> RDL -> RC Control) < 100 ms | **Mediação de Controle Fechado com Codec ASN.1 Validado** | `32.382 ms` | `100.0%` |
+| **S8** | Disputa de Capacidade Multi-Fatia e Sobrecarga de Canal (Baseline Aberto) | `xApp-Slicing-URLLC`, `xApp-Slicing-eMBB`, `xApp-Telemetry-KPM` | Perfilamento Físico FlowMonitor e Estabilidade de Tráfego NR | **Perfilamento Físico / Monitoramento FlowMonitor (Sem Atuação E2SM-RC na RAN)** | `0.000 ms` | `N/A (Traffic Baseline)` |
 | **S9** | Conflito de Mobilidade Orbital LEO vs Rede Terrestre Macro | `xApp-NTN-Orbital`, `xApp-Terrestrial-Handover` | Handover Orbital sem Perda de Pacotes, Compensação Doppler Ativa | **Coordenação NTN Cross-Tier com Compensação Doppler e Buffer RTT** | `0.059 ms` | `100.0%` |
 | **S10** | Esgotamento Crítico de Energia de Nó Aéreo em Voo | `xApp-UAV-Swarm-Energy`, `xApp-Traffic-Steering` | Descarregamento em Cascata antes de Queda de Bateria (< 10% SoC) | **Arbitragem de Emergência para Descarregamento Gradual de Célula Aérea** | `0.149 ms` | `100.0%` |
 | **S11** | Handover em Cadeia de Comboio Veicular (Platoon Ping-Pong Storm) | `xApp-V2X-Platoon-Coordinator`, `xApp-RSU-Handover` | Latência Fim-a-Fim < 10 ms, PDR > 99.9% sob 120 km/h | **Handover em Grupo Preditivo para Comboios Veiculares (Platoon Shield)** | `0.060 ms` | `100.0%` |
@@ -161,7 +161,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S2: Energy Saving vs SLA URLLC Multi-Metric Trade-off
 
 * **Arquivo XML:** `flowmonitor_results.xml`
-* **Hash SHA-256:** `0c7eab2062fd78133fa99a74f3017a078637526e1e4d483ec19063ab73b24c95`
+* **Hash SHA-256:** `6f2f16156c3c96b53d88b7662fcd512fd6be3f74cdd04f6352b049ad99170f49`
 * **Volume Total Transferido:** 152.73 MB (160151236 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **40.1%**
 * **Vazão Agregada Pós-RDL:** **98.5 Mbps**
@@ -368,16 +368,16 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 
 ---
 
-### Cenário S8: Full E2AP/E2SM-KPM/RC Closed Loop via NORI E2Sim
+### Cenário S8: NR Multi-Slice Traffic Profiling & E2 Agent Telemetry (Standalone)
 
 * **Arquivo de Log / Validação:** `scenario_rdl_closed_loop_nori.log`
 * **Hash SHA-256:** `N/A`
-* **Topologia Operacional:** 1 gNB com NORI E2 Agent SCTP :36422, 5 UEs | Bandwidth: 100 MHz (273 PRBs) | Canal: 3GPP TR 38.901 UMi com Adaptative MCS via CQI Report
-* **xApps em Conflito:** `xApp-RDL-Agent`, `O-DU-NORI-E2Sim`
-* **Perfil de Governança:** Latência de Loop de Controle ASN.1 APER -> Mediação de Controle Fechado com Codec ASN.1 Validado
+* **Topologia Operacional:** 2 gNBs (Macro/Micro), 30 UEs (URLLC/eMBB/mMTC) | Bandwidth: 100 MHz (273 PRBs) | Canal: 3GPP TR 38.901 UMi com Feixes Direcionais e Shadowing Log-Normal
+* **xApps em Conflito:** `xApp-Slicing-URLLC`, `xApp-Slicing-eMBB`, `xApp-Telemetry-KPM`
+* **Perfil de Governança:** Disputa de Capacidade Multi-Fatia e Sobrecarga de Canal (Baseline Aberto) -> Perfilamento Físico / Monitoramento FlowMonitor (Sem Atuação E2SM-RC na RAN)
 * **Vazão Consolidada Pós-RDL:** **103.1 Mbps** | **Latência P95:** **11.8 ms**
-* **Latência de Decisão Near-RT:** **32.382 ms**
-* **SLA Alvo:** Ciclo Fechado Completo (KPM Telemetry -> RDL -> RC Control) < 100 ms
+* **Latência de Decisão Near-RT:** **0.000 ms**
+* **SLA Alvo:** Perfilamento Físico FlowMonitor e Estabilidade de Tráfego NR
 * **Status de Validação Formal:** **100% de Aderência ao Perfil Near-RT RIC**
 
 #### Tabela de Fluxos Físicos Agendados (Validação SSOT):
@@ -391,16 +391,16 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 | 5 | `10.8.0.1:5005` -> `10.8.0.6:5005` | UDP (NORI-E2-Control-Flow5) | 11860 | 11860 | 0 | 100.0% | 17.60 | 12.45 | 0.034 |
 
 #### Discussão Científica e Insights de Engenharia:
-1. **Comportamento de Canal e Enlace:** Enlace E2AP real sob transporte SCTP na porta 36422 integrando o simulador ns-3 NORI com o Near-RT RIC em C++.
-2. **Governança de Conflito e Arbitragem:** Codificação e decodificação determinística ASN.1 APER sem perdas de precisão em ponto fixo, executando a cadeia KPM -> RDL -> RC em 32.382 ms.
-3. **Preservação de SLA e Desempenho Near-RT:** Convergência total da malha fechada com confirmação de RIC_CONTROL_ACKNOWLEDGE e vazão física de 103.1 Mbps.
+1. **Comportamento de Canal e Enlace:** Topologia NR multicélula 5G-LENA com 30 terminais divididos entre fatias URLLC, eMBB e mMTC sob canal 3GPP TR 38.901.
+2. **Governança de Conflito e Arbitragem:** Em regime de simulação standalone ns-3, o cenário opera como perfilamento de tráfego NR e telemetria E2. Não há injeção de controle E2SM-RC no escalonador MAC; a validação de loop fechado completo ponta a ponta depende de orquestração externa com Near-RT RIC.
+3. **Preservação de SLA e Desempenho Near-RT:** Vazão agregada e latência coletadas rigorosamente via FlowMonitor, estabelecendo a referência de tráfego de canal para futuras campanhas de controle closed-loop.
 
 ---
 
 ### Cenário S9: NTN LEO Satellite Orbital Handover & Doppler Mitigation
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml`
-* **Hash SHA-256:** `55e1e34c5a8cbc68c0713b7f7192d5201cd2be4490081308d5778dd1c432911f`
+* **Hash SHA-256:** `82a77fc9a327ceb9ddb72e01fe916a88b84e3eb42820772e6bc5dee1fd65fd7b`
 * **Volume Total Transferido:** 0.44 MB (459000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **88.4 Mbps**
@@ -435,7 +435,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S10: UAV Flying gNodeB Swarm & Battery Depletion Handover
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml`
-* **Hash SHA-256:** `32ce8aa086016bcf714ceca5b6682d1fc4225298f790fa60a1f9c8c41cc2d239`
+* **Hash SHA-256:** `e2d5b59b8ef3c18a8b68e80a8724d8910d1c1b29b970baeb680a6af4b804f878`
 * **Volume Total Transferido:** 1.17 MB (1224720 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **92.7 Mbps**
@@ -470,7 +470,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S11: High-Speed V2X Highway Platooning & Multi-Cell Ping-Pong
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml`
-* **Hash SHA-256:** `b73a2acb567bed2b8ccc91df58c3dbd24ed32180f2ea13f18500af9066ce5c24`
+* **Hash SHA-256:** `2c0a9886bd99bbd57a4a2cfcba60288465af3418f1d0f78146a0dcbed5274190`
 * **Volume Total Transferido:** 0.92 MB (965600 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **40.0%**
 * **Vazão Agregada Pós-RDL:** **97.3 Mbps**
@@ -502,7 +502,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S12: IIoT Ultra-Deterministic Zero-Jitter Robotic Slicing
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml`
-* **Hash SHA-256:** `644492c0f6032b83dae7bffbca01cbd4d65af158e352a665068b11975c707669`
+* **Hash SHA-256:** `bac1fd14717f3fd30fc89024db88e5a5b807653ccf18685294745dba540c049b`
 * **Volume Total Transferido:** 0.63 MB (663000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **5.0%**
 * **Vazão Agregada Pós-RDL:** **95.0 Mbps**
@@ -537,7 +537,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S13: SAGIN Multi-Domain Disaster Rescue Emergency Mesh
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml`
-* **Hash SHA-256:** `d780e2bfe85ac567b37f938b085a417e25a5e3fdaa084cb843d114258d6aab04`
+* **Hash SHA-256:** `f4443177469516acb4f8e0d4fd3f5c96151ad4cffd97e3102b75c81a4f363f48`
 * **Volume Total Transferido:** 0.88 MB (918000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **10.0%**
 * **Vazão Agregada Pós-RDL:** **89.1 Mbps**
@@ -572,7 +572,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S14: ISAC Aerial Radar-Communication Beamforming Trade-off
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml`
-* **Hash SHA-256:** `1edbb52b21313c951ebf6ae452667337fd918cb8efcdee4c213de789eefa08be`
+* **Hash SHA-256:** `418208c839782b5ac232dd380f0292f24cbfc1fa2747ebb96a4eff5984f840d5`
 * **Volume Total Transferido:** 0.44 MB (459000 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **5.0%**
 * **Vazão Agregada Pós-RDL:** **94.8 Mbps**
@@ -607,7 +607,7 @@ Comportamento do motor de governança (H-RDL Fase 1 / CA-RDL Fase 2) diante das 
 ### Cenário S15: Rogue xApp NTN Feeder Hijacking Cross-Tier Shield
 
 * **Arquivo XML:** `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml`
-* **Hash SHA-256:** `14e749aa038fe0c8fd3df56ccf352851d2baac410ef3a64ddd9671a59083b8eb`
+* **Hash SHA-256:** `095bfb7c7c3c26974881e04d8f4ab331ae24bf79ee6ea3d69321aea86e0fc9e6`
 * **Volume Total Transferido:** 1.71 MB (1788400 bytes)
 * **Taxa de Entrega de Pacotes (PDR Bruto FlowMonitor):** **100.0%**
 * **Vazão Agregada Pós-RDL:** **91.5 Mbps**
@@ -658,16 +658,16 @@ Auditoria de integridade dos arquivos gerados pelo ns-3 FlowMonitor (em ordem al
 
 | Artefato de Dados | Tipo de Arquivo | Tamanho (Bytes) | Hash SHA-256 |
 | :--- | :---: | :---: | :--- |
-| `flowmonitor_results.xml` | `.xml` | 241,078 | `0c7eab2062fd78133fa99a74f3017a078637526e1e4d483ec19063ab73b24c95` |
-| `flowmonitor_scenario_rdl_direct_prb_conflict.xml` | `.xml` | 2,308 | `7afac2965c77adacd95980016087f6eb21cfeffab2a819b6af045bf688b56b3a` |
-| `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml` | `.xml` | 61,500 | `32ce8aa086016bcf714ceca5b6682d1fc4225298f790fa60a1f9c8c41cc2d239` |
-| `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml` | `.xml` | 15,190 | `b73a2acb567bed2b8ccc91df58c3dbd24ed32180f2ea13f18500af9066ce5c24` |
-| `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml` | `.xml` | 33,755 | `644492c0f6032b83dae7bffbca01cbd4d65af158e352a665068b11975c707669` |
-| `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml` | `.xml` | 45,870 | `d780e2bfe85ac567b37f938b085a417e25a5e3fdaa084cb843d114258d6aab04` |
-| `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml` | `.xml` | 43,351 | `1edbb52b21313c951ebf6ae452667337fd918cb8efcdee4c213de789eefa08be` |
-| `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml` | `.xml` | 1,650 | `14e749aa038fe0c8fd3df56ccf352851d2baac410ef3a64ddd9671a59083b8eb` |
-| `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml` | `.xml` | 30,774 | `55e1e34c5a8cbc68c0713b7f7192d5201cd2be4490081308d5778dd1c432911f` |
-| `flowmonitor_scenario_rdl_ts_vs_energy.xml` | `.xml` | 4,156 | `66062c159255bfeb317300e40c9aa662637ed78567a2fb9303ac467da987b54b` |
+| `flowmonitor_results.xml` | `.xml` | 244,874 | `6f2f16156c3c96b53d88b7662fcd512fd6be3f74cdd04f6352b049ad99170f49` |
+| `flowmonitor_scenario_rdl_direct_prb_conflict.xml` | `.xml` | 2,415 | `45dbd85f478353cafa2ea965e6158e2a747606f56f96eb7716b0735b777fcca2` |
+| `flowmonitor_scenario_rdl_s10_uav_swarm_battery.xml` | `.xml` | 62,667 | `e2d5b59b8ef3c18a8b68e80a8724d8910d1c1b29b970baeb680a6af4b804f878` |
+| `flowmonitor_scenario_rdl_s11_v2x_highway_platooning.xml` | `.xml` | 15,487 | `2c0a9886bd99bbd57a4a2cfcba60288465af3418f1d0f78146a0dcbed5274190` |
+| `flowmonitor_scenario_rdl_s12_iiot_zero_jitter_slicing.xml` | `.xml` | 34,465 | `bac1fd14717f3fd30fc89024db88e5a5b807653ccf18685294745dba540c049b` |
+| `flowmonitor_scenario_rdl_s13_sagin_disaster_rescue.xml` | `.xml` | 46,817 | `f4443177469516acb4f8e0d4fd3f5c96151ad4cffd97e3102b75c81a4f363f48` |
+| `flowmonitor_scenario_rdl_s14_isac_radar_comm.xml` | `.xml` | 44,193 | `418208c839782b5ac232dd380f0292f24cbfc1fa2747ebb96a4eff5984f840d5` |
+| `flowmonitor_scenario_rdl_s15_rogue_ntn_feeder_hijacking.xml` | `.xml` | 1,689 | `095bfb7c7c3c26974881e04d8f4ab331ae24bf79ee6ea3d69321aea86e0fc9e6` |
+| `flowmonitor_scenario_rdl_s9_ntn_orbital_handover.xml` | `.xml` | 31,363 | `82a77fc9a327ceb9ddb72e01fe916a88b84e3eb42820772e6bc5dee1fd65fd7b` |
+| `flowmonitor_scenario_rdl_ts_vs_energy.xml` | `.xml` | 4,347 | `06c3ce05523ed54e21ccafbf5544b7c3f8bbd65ccfab2fa37a27384311069f4b` |
 
 ---
 

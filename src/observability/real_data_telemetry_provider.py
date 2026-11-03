@@ -1,35 +1,16 @@
-"""
-Provedor de Telemetria e Evidências Reais dos 6 Blocos Cognitivos O-RAN.
-Skill: 09-cognitive-conflict-orchestrator & 08-ns3-oran-simulation-specialist
+"""Expose run-scoped ns-3/5G-LENA artifacts to the terminal monitors.
 
-DIRETRIZ ESTRITA: ZERO DADOS SINTÉTICOS. ZERO MOCKS.
-Todas as métricas, registros de UEs, sinalizações ASN.1 APER, grafos e
-ações de controle são extraídos estritamente de:
-  1. Artefatos de Simulação ns-3 / 5G-LENA (FlowMonitor XMLs);
-  2. Traces de Captura de Pacotes PCAP E2 (e2_closed_loop_live.pcap);
-  3. Cadeia Causal Certificada (experiments/runs/certified_closed_loop_chain/);
-  4. Execução real dos módulos de Percepção, Raciocínio e Refinamento do core RDL.
+FlowMonitor metrics and execution logs are read from the selected run. KPM,
+RDL, and E2SM-RC evidence is reported only when artifacts exist in that run.
 """
 
-import os
-import sys
-import json
-import struct
+from __future__ import annotations
+
 import datetime
+import json
+import os
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Any, Optional
-
-from src.conflict_types import (
-    XAppAction,
-    ConflictEvent,
-    ConflictType,
-    ConflictSeverity,
-    KPMReport,
-)
-from src.core.perception import Perception
-from src.core.reasoning import Reasoning
-from src.core.refinement import Refinement
-from src.infrastructure.sdl_repository import SdlRepository
+from typing import Any
 
 SCENARIOS_CATALOG = {
     "S0": {
@@ -106,12 +87,12 @@ SCENARIOS_CATALOG = {
     },
     "S8": {
         "key": "closed_loop_nori",
-        "title": "S8: Closed-Loop NORI E2SM-KPM / RC em Malha Fechada",
+        "title": "S8: Tráfego 5G-LENA com agente E2 opcional",
         "gnbs": ["gnb_nori_01 (5G-LENA NR CTTC)", "gnb_02 (Handover Cell)"],
-        "conflict_type": "CLOSED_LOOP_MULTI_TIER",
-        "desc": "Arbitragem em malha fechada E2SM-KPM -> H-RDL -> E2SM-RC < 10ms comprovada",
-        "involved_xapps": ["xapp_embb_optimizer", "xapp_urllc_guard"],
-        "target_kpi": "DRB.RlcSduDelayDl",
+        "conflict_type": "TRAFFIC_ONLY",
+        "desc": "Métricas de tráfego FlowMonitor; sem atuação E2SM-RC/RDL implementada",
+        "involved_xapps": [],
+        "target_kpi": "FlowMonitor.FlowStats",
     },
     "S9": {
         "key": "s9_ntn",
@@ -181,154 +162,77 @@ SCENARIOS_CATALOG = {
 
 class RealDataTelemetryProvider:
     """
-    Consolidador de dados 100% empíricos e rastreáveis para os 6 blocos cognitivos O-RAN.
-    Alimenta os Monitores de Painel no terminal WSL Ubuntu sem qualquer gerador estocástico.
+    Consolidate artifacts from a selected ns-3 run for the six WSL panels.
     """
 
     def __init__(
         self,
-        workspace_dir: Optional[str] = None,
-        target_scenario: Optional[str] = None,
-        target_run: Optional[str] = None,
+        workspace_dir: str | None = None,
+        target_scenario: str | None = None,
+        target_run: str | None = None,
     ):
         if workspace_dir is None:
             self.base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         else:
             self.base_dir = workspace_dir
 
-        self.chain_dir = os.path.join(self.base_dir, "experiments", "runs", "certified_closed_loop_chain")
-        self.pcap_path = os.path.join(self.chain_dir, "e2_closed_loop_live.pcap")
         self.ns3_runs_dir = os.path.join(self.base_dir, "experiments", "results", "ns3_runs")
 
         # Filtro de cenário / run
         self.target_scenario = target_scenario
         self.target_run = target_run
 
-        # Core RDL real
-        self.sdl = SdlRepository()
-        self.perception = Perception()
-        self.reasoning = Reasoning(memory=self.sdl)
-        self.refinement = Refinement(memory=self.sdl, strict_capabilities=False)
-
-        # Cache dos dados certificados L3
-        self.chain_data = self._load_certified_chain()
-        self.pcap_frames = self._load_pcap_frames()
-
-        # Cache dinâmico da simulação ns-3
+        # Cache only artifacts belonging to the selected simulation run.
         self._cached_run_dir = None
-        self._cached_run_mtime = 0
+        self._cached_run_signature = None
         self._cached_run_data = {}
 
-        # Step index para reprodução sequencial da cadeia causal real
+        # Retained for compatibility with callers that advance the provider.
         self.current_step = 0
 
-    def set_target_scenario(self, scenario_id: Optional[str]):
+    def set_target_scenario(self, scenario_id: str | None):
         """Configura o cenário a ser monitorado dinamicamente (ex: 'S3', 'S8', etc.)."""
         self.target_scenario = scenario_id
         self._cached_run_dir = None
-        self._cached_run_mtime = 0
+        self._cached_run_signature = None
 
-    def set_target_run(self, run_dir_name: Optional[str]):
+    def set_target_run(self, run_dir_name: str | None):
         """Configura uma pasta de execução específica em ns3_runs/."""
         self.target_run = run_dir_name
         self._cached_run_dir = None
-        self._cached_run_mtime = 0
+        self._cached_run_signature = None
 
-    def _load_certified_chain(self) -> Dict[str, Any]:
-        """Carrega os arquivos JSON certificados da cadeia causal (L3)."""
-        chain = {}
-        files = {
-            "indication_t0": "01_indication_t0.json",
-            "rdl_decision": "02_rdl_decision.json",
-            "control_request": "03_control_request.json",
-            "control_ack": "04_control_ack.json",
-            "mac_transition": "05_ran_mac_transition.log",
-            "indication_t1": "06_indication_t1.json",
-            "manifest": "chain_manifest.json",
-        }
-        for key, fname in files.items():
-            fpath = os.path.join(self.chain_dir, fname)
-            if os.path.exists(fpath) and os.path.getsize(fpath) > 0:
-                try:
-                    if fname.endswith(".json"):
-                        with open(fpath, "r", encoding="utf-8") as fh:
-                            chain[key] = json.load(fh)
-                    else:
-                        with open(fpath, "r", encoding="utf-8") as fh:
-                            chain[key] = fh.read().strip()
-                except Exception:
-                    chain[key] = {}
-            else:
-                chain[key] = {}
-        return chain
-
-    def _load_pcap_frames(self) -> List[Dict[str, Any]]:
-        """Lê frames binários reais do PCAP E2 capturado com endianness Little-Endian exato."""
-        frames = []
-        if not os.path.exists(self.pcap_path):
-            alt_pcap = os.path.join(self.base_dir, "experiments", "runs", "S1_B0_seed1001", "pcap", "e2.pcap")
-            if os.path.exists(alt_pcap):
-                self.pcap_path = alt_pcap
-            else:
-                return frames
-
-        try:
-            with open(self.pcap_path, "rb") as fh:
-                global_hdr = fh.read(24)
-                if len(global_hdr) < 24:
-                    return frames
-
-                magic = global_hdr[:4]
-                is_nanosec = (magic == b'\x4d\x3c\xb2\xa1' or magic == b'\xa1\xb2\x3c\x4d')
-                is_swapped = (magic == b'\xd4\xc3\xb2\xa1' or magic == b'\x4d\x3c\xb2\xa1')
-                endian = "<" if (is_swapped or sys.byteorder == "little") else ">"
-
-                pkt_idx = 0
-                while True:
-                    pkt_hdr = fh.read(16)
-                    if not pkt_hdr or len(pkt_hdr) < 16:
-                        break
-                    pkt_idx += 1
-                    sec, subsec, incl_len, orig_len = struct.unpack(endian + "IIII", pkt_hdr)
-                    frame_bytes = fh.read(incl_len)
-                    divisor = 1e9 if is_nanosec else 1e6
-                    dt = datetime.datetime.fromtimestamp(sec + subsec / divisor, tz=datetime.timezone.utc)
-                    hex_dump = frame_bytes.hex()
-
-                    frames.append({
-                        "frame_idx": pkt_idx,
-                        "timestamp_utc": dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
-                        "length_bytes": incl_len,
-                        "hex_preview": hex_dump[:48] + ("..." if len(hex_dump) > 48 else ""),
-                        "raw_bytes": frame_bytes,
-                    })
-        except Exception:
-            pass
-        return frames
-
-    def _empty_run_data(self) -> Dict[str, Any]:
-        """Retorna estrutura segura quando nenhum arquivo foi encontrado."""
+    def _empty_run_data(self) -> dict[str, Any]:
+        """Return an explicit unavailable state when no matching run exists."""
         return {
-            "scenario_id": "S0",
-            "scenario_meta": SCENARIOS_CATALOG["S0"],
-            "run_dir": "sem_execucao_ativa",
+            "scenario_id": "SX",
+            "scenario_meta": {
+                "key": "none",
+                "title": "No simulation run found",
+                "gnbs": [],
+                "conflict_type": "UNKNOWN",
+                "desc": "",
+                "involved_xapps": [],
+                "target_kpi": "",
+            },
+            "run_dir": "sem_execucao",
             "full_run_dir": "",
             "run_status": "not_found",
             "run_status_updated_at": None,
-            "status_message": "Nenhum diretório de execução encontrado.",
+            "status_message": "No matching simulation run was found.",
             "execution_log_tail": [],
             "xml_exists": False,
             "flowmonitor_error": None,
-            "ues": [],
+            "flows": [],
             "total_rx_bytes": 0,
             "total_tx_pkts": 0,
             "total_rx_pkts": 0,
             "total_lost_pkts": 0,
             "flow_count": 0,
-            "mean_delay_ms": 0.0,
-            "throughput_mbps": 0.0,
-            "loss_ratio_pct": 0.0,
-            "prb_utilization_pct": 18.0,
+            "mean_delay_ms": None,
+            "throughput_mbps": None,
+            "loss_ratio_pct": None,
+            "prb_utilization_pct": None,
             "evidence": {
                 "flowmonitor": False,
                 "execution_log": False,
@@ -338,73 +242,52 @@ class RealDataTelemetryProvider:
                 "control_request": False,
                 "control_ack": False,
             },
-            "simulation_engine": "ns-3.48 + 5G-LENA v5.1 (CTTC NR) + NORI E2 Agent",
+            "simulation_engine": "ns-3 + 5G-LENA",
         }
 
-    def _scan_and_load_run(self) -> Dict[str, Any]:
-        """
-        Escaneia dinamicamente os artefatos de simulação em experiments/results/ns3_runs/.
-        Prioriza execuções com FlowMonitor válido e tráfego real.
-        """
-        if not os.path.exists(self.ns3_runs_dir):
+    @staticmethod
+    def _read_log_tail(path: str, max_bytes: int = 8192, max_lines: int = 8) -> list[str]:
+        if not os.path.isfile(path):
+            return []
+        with open(path, "rb") as stream:
+            stream.seek(max(0, os.path.getsize(path) - max_bytes))
+            return stream.read().decode("utf-8", errors="replace").splitlines()[-max_lines:]
+
+    def _scan_and_load_run(self) -> dict[str, Any]:
+        """Load only artifacts belonging to the newest matching simulation run."""
+        if not os.path.isdir(self.ns3_runs_dir):
             return self._empty_run_data()
 
-        candidate_dirs = sorted(
-            [d for d in os.listdir(self.ns3_runs_dir) if os.path.isdir(os.path.join(self.ns3_runs_dir, d))],
-            key=lambda d: os.path.getmtime(os.path.join(self.ns3_runs_dir, d)),
-            reverse=True,
-        )
-        if not candidate_dirs:
-            return self._empty_run_data()
-
-        def run_has_flows(d: str) -> bool:
-            xp = os.path.join(self.ns3_runs_dir, d, "flowmonitor.xml")
-            if not os.path.isfile(xp) or os.path.getsize(xp) < 1000:
-                return False
-            try:
-                tree = ET.parse(xp)
-                for f in tree.getroot().iter("Flow"):
-                    if int(f.get("rxPackets", 0)) > 0 and int(f.get("rxBytes", 0)) > 500:
-                        return True
-            except Exception:
-                return False
-            return False
-
-        selected_dir = None
-
-        # 1. Filtro explícito de run
+        candidates = [name for name in os.listdir(self.ns3_runs_dir) if os.path.isdir(os.path.join(self.ns3_runs_dir, name))]
+        candidates.sort(key=lambda name: (os.stat(os.path.join(self.ns3_runs_dir, name)).st_mtime_ns, name), reverse=True)
         if self.target_run:
-            for d in candidate_dirs:
-                if self.target_run in d:
-                    selected_dir = d
-                    break
-
-        # 2. Filtro de cenário (ex: 'S3', 'S8', 'tvs_conflict')
+            candidates = [name for name in candidates if self.target_run in name]
         elif self.target_scenario:
-            scen_key = self.target_scenario.upper()
-            scen_info = SCENARIOS_CATALOG.get(scen_key)
-            lookup_pattern = scen_info["key"] if scen_info else self.target_scenario.lower()
-            matching = [d for d in candidate_dirs if lookup_pattern in d]
-            for d in matching:
-                if run_has_flows(d):
-                    selected_dir = d
-                    break
-            if not selected_dir and matching:
-                selected_dir = matching[0]
+            scenario = SCENARIOS_CATALOG.get(self.target_scenario.upper())
+            pattern = scenario["key"] if scenario else self.target_scenario.lower()
+            candidates = [name for name in candidates if pattern in name.lower()]
+        if not candidates:
+            data = self._empty_run_data()
+            requested = self.target_run or self.target_scenario
+            if requested:
+                data["status_message"] = f"No run matches: {requested}"
+            return data
 
-        # 3. Default: seleciona a execução mais recente que possua FlowMonitor válido com fluxos
-        if not selected_dir:
-            for d in candidate_dirs:
-                if run_has_flows(d):
-                    selected_dir = d
-                    break
-            if not selected_dir:
-                selected_dir = candidate_dirs[0]
-
+        selected_dir = candidates[0]
         full_run_dir = os.path.join(self.ns3_runs_dir, selected_dir)
         xml_path = os.path.join(full_run_dir, "flowmonitor.xml")
         status_path = os.path.join(full_run_dir, "run_status.json")
         log_path = os.path.join(full_run_dir, "execution.log")
+        artifact_names = (
+            "e2.pcap",
+            "kpm.jsonl",
+            "kpm.csv",
+            "indications.jsonl",
+            "rdl_decision.json",
+            "decisions.jsonl",
+            "control_request.json",
+            "control_ack.json",
+        )
 
         def file_signature(path: str):
             try:
@@ -413,421 +296,156 @@ class RealDataTelemetryProvider:
             except OSError:
                 return None
 
-        signature = (
-            file_signature(status_path),
-            file_signature(log_path),
-            file_signature(xml_path),
+        signature = tuple(
+            file_signature(path)
+            for path in (status_path, log_path, xml_path)
+            + tuple(os.path.join(full_run_dir, name) for name in artifact_names)
         )
-
-        # Cache check
-        if (
-            self._cached_run_dir == selected_dir
-            and self._cached_run_signature == signature
-            and self._cached_run_data
-        ):
+        if self._cached_run_dir == selected_dir and self._cached_run_signature == signature and self._cached_run_data:
             return self._cached_run_data
 
-        # Identificação semântica do cenário
-        sid = "SX"
-        scen_meta = {
-            "key": "generic",
-            "title": f"Cenário ns-3: {selected_dir}",
-            "gnbs": ["gnb_nori_01 (5G-LENA NR CTTC Band n78)", "gnb_02 (Handover Cell)"],
-            "conflict_type": "MULTI_AGENT_CONTENTION",
-            "desc": "Simulação O-RAN 5G-LENA / NORI",
-            "involved_xapps": ["xapp_embb_optimizer", "xapp_urllc_guard"],
-            "target_kpi": "RRU.PrbUsedDl",
-        }
-        for k, v in SCENARIOS_CATALOG.items():
-            if v["key"] in selected_dir:
-                sid = k
-                scen_meta = v
+        scenario_id = "SX"
+        scenario_meta = {"key": "generic", "title": f"ns-3 run: {selected_dir}", "gnbs": [], "conflict_type": "UNKNOWN", "desc": "", "involved_xapps": [], "target_kpi": ""}
+        for key, metadata in SCENARIOS_CATALOG.items():
+            if metadata["key"].lower() in selected_dir.lower():
+                scenario_id, scenario_meta = key, metadata
                 break
 
-        run_status = "completed" if os.path.isfile(xml_path) else "running"
-        run_status_updated_at = None
-        status_message = "Execução ns-3 / 5G-LENA concluída com FlowMonitor rastreável."
+        xml_exists = os.path.isfile(xml_path)
+        status = "completed_inferred" if xml_exists else "running"
+        status_updated_at = None
+        status_message = "FlowMonitor present; status inferred (no run marker)." if xml_exists else "Waiting for run artifacts."
         if os.path.isfile(status_path):
             try:
                 with open(status_path, "r", encoding="utf-8") as stream:
                     status_data = json.load(stream)
-                run_status = str(status_data.get("status", run_status)).lower()
-                run_status_updated_at = status_data.get("updated_at_utc")
-                status_message = run_status.replace("_", " ")
-            except Exception:
-                pass
+                status = str(status_data.get("status", "unknown")).lower()
+                status_updated_at = status_data.get("updated_at_utc")
+                status_message = status.replace("_", " ")
+            except (OSError, json.JSONDecodeError, AttributeError) as exc:
+                status, status_message = "invalid_status", f"Invalid run marker: {exc}"
 
-        execution_log_tail = []
-        if os.path.isfile(log_path):
-            try:
-                with open(log_path, "rb") as stream:
-                    stream.seek(max(0, os.path.getsize(log_path) - 4096))
-                    execution_log_tail = stream.read().decode("utf-8", errors="replace").splitlines()[-6:]
-            except Exception:
-                pass
-
-        ues = []
-        total_rx_bytes = 0
-        total_rx_pkts = 0
-        total_lost_pkts = 0
-        total_tx_pkts = 0
+        flows = []
+        total_rx_bytes = total_rx_pkts = total_lost_pkts = total_tx_pkts = 0
         weighted_delay_ns = 0.0
         flowmonitor_error = None
-        xml_exists = os.path.isfile(xml_path)
-
         if xml_exists:
             try:
-                tree = ET.parse(xml_path)
-                root = tree.getroot()
+                root = ET.parse(xml_path).getroot()
                 classifiers = {}
-                for cl in root.iter("Ipv4FlowClassifier"):
-                    for f in cl:
-                        classifiers[f.get("flowId")] = {
-                            "src": f.get("sourceAddress"),
-                            "dst": f.get("destinationAddress"),
-                            "port": f.get("destinationPort"),
-                        }
-
-                for flow in root.iter("Flow"):
-                    fid = flow.get("flowId")
-                    rx_bytes = int(flow.get("rxBytes", 0))
-                    rx_pkts = int(flow.get("rxPackets", 0))
-                    tx_pkts = int(flow.get("txPackets", 0))
-                    lost_pkts = int(flow.get("lostPackets", 0))
-
+                for group in root.iter("Ipv4FlowClassifier"):
+                    for item in group:
+                        classifiers[item.get("flowId")] = {"src": item.get("sourceAddress"), "dst": item.get("destinationAddress"), "port": item.get("destinationPort")}
+                for item in root.iter("Flow"):
+                    flow_id = item.get("flowId")
+                    rx_bytes = int(item.get("rxBytes", 0))
+                    rx_packets = int(item.get("rxPackets", 0))
+                    tx_packets = int(item.get("txPackets", 0))
+                    lost_packets = int(item.get("lostPackets", 0))
                     total_rx_bytes += rx_bytes
-                    total_tx_pkts += tx_pkts
-                    total_rx_pkts += rx_pkts
-                    total_lost_pkts += lost_pkts
-
-                    if rx_pkts > 0 and rx_bytes > 500:
-                        t_first = float(flow.get("timeFirstRxPacket", "+0ns").replace("ns", "").replace("+", ""))
-                        t_last = float(flow.get("timeLastRxPacket", "+0ns").replace("ns", "").replace("+", ""))
-                        dur_s = max(0.001, (t_last - t_first) / 1e9)
-                        thp_mbps = (rx_bytes * 8.0) / (dur_s * 1e6)
-                        delay_sum = float(flow.get("delaySum", "+0ns").replace("ns", "").replace("+", ""))
-                        avg_delay_ms = delay_sum / rx_pkts / 1e6
-
-                        classifier = classifiers.get(fid, {})
-                        dst_ip = classifier.get("dst", f"7.0.0.{len(ues)+2}")
-                        src_ip = classifier.get("src", "1.0.0.2")
-                        flow_int = int(fid)
-                        is_urllc = (flow_int % 2 == 1 and flow_int <= 20) or (thp_mbps < 5.0 and avg_delay_ms > 0)
-                        slice_name = "URLLC" if is_urllc else "eMBB"
-                        sla_budget = 10.0 if is_urllc else 50.0
-                        sla_violation = avg_delay_ms > sla_budget
-
-                        ues.append({
-                            "flow_id": flow_int,
-                            "ue_id": f"UE_{len(ues)+1:03d}",
-                            "ip": dst_ip,
-                            "src_ip": src_ip,
-                            "dst_ip": dst_ip,
-                            "destination_port": classifier.get("port", "1234"),
-                            "slice": slice_name,
-                            "throughput_mbps": round(thp_mbps, 2),
-                            "delay_ms": round(avg_delay_ms, 2),
-                            "sla_delay_ms": sla_budget,
-                            "sla_violation": sla_violation,
-                            "rx_bytes": rx_bytes,
-                            "rx_pkts": rx_pkts,
-                            "tx_pkts": tx_pkts,
-                            "lost_pkts": lost_pkts,
-                        })
-                        weighted_delay_ns += delay_sum
-            except Exception as exc:
+                    total_rx_pkts += rx_packets
+                    total_tx_pkts += tx_packets
+                    total_lost_pkts += lost_packets
+                    if rx_packets <= 0:
+                        continue
+                    first_rx = float(item.get("timeFirstRxPacket", "+0ns").replace("ns", "").replace("+", ""))
+                    last_rx = float(item.get("timeLastRxPacket", "+0ns").replace("ns", "").replace("+", ""))
+                    duration_s = max(0.001, (last_rx - first_rx) / 1e9)
+                    delay_sum_ns = float(item.get("delaySum", "+0ns").replace("ns", "").replace("+", ""))
+                    classifier = classifiers.get(flow_id, {})
+                    flows.append({"flow_id": int(flow_id), "src_ip": classifier.get("src"), "dst_ip": classifier.get("dst"), "destination_port": classifier.get("port"), "throughput_mbps": round(rx_bytes * 8.0 / (duration_s * 1e6), 2), "delay_ms": round(delay_sum_ns / rx_packets / 1e6, 2), "rx_bytes": rx_bytes, "rx_pkts": rx_packets, "tx_pkts": tx_packets, "lost_pkts": lost_packets})
+                    weighted_delay_ns += delay_sum_ns
+            except (ET.ParseError, OSError, ValueError, TypeError) as exc:
                 flowmonitor_error = str(exc)
 
-        # Ordena pelos fluxos com maior volume efetivamente recebido.
-        ues.sort(key=lambda u: -u["rx_bytes"])
-
-        mean_delay_ms = (weighted_delay_ns / total_rx_pkts / 1e6) if total_rx_pkts > 0 else 0.0
-        total_thp = sum(u["throughput_mbps"] for u in ues)
-        loss_ratio_pct = (total_lost_pkts / total_tx_pkts * 100.0) if total_tx_pkts > 0 else 0.0
-        prb_utilization_pct = min(98.5, max(18.0, round((total_thp / 120.0) * 100, 1))) if ues else 20.0
-
+        flows.sort(key=lambda flow: -flow["rx_bytes"])
+        mean_delay = weighted_delay_ns / total_rx_pkts / 1e6 if total_rx_pkts else None
+        throughput = sum(flow["throughput_mbps"] for flow in flows) if flows else None
+        loss_ratio = total_lost_pkts / total_tx_pkts * 100 if total_tx_pkts else None
         evidence = {
             "flowmonitor": xml_exists and flowmonitor_error is None,
             "execution_log": os.path.isfile(log_path),
-            "e2_pcap": os.path.isfile(os.path.join(full_run_dir, "e2.pcap")),
-            "kpm": True,
-            "rdl_decision": True,
-            "control_request": True,
-            "control_ack": True,
+            "e2_pcap": file_signature(os.path.join(full_run_dir, "e2.pcap")) is not None,
+            "kpm": any(file_signature(os.path.join(full_run_dir, name)) is not None for name in ("kpm.jsonl", "kpm.csv", "indications.jsonl")),
+            "rdl_decision": any(file_signature(os.path.join(full_run_dir, name)) is not None for name in ("rdl_decision.json", "decisions.jsonl")),
+            "control_request": file_signature(os.path.join(full_run_dir, "control_request.json")) is not None,
+            "control_ack": file_signature(os.path.join(full_run_dir, "control_ack.json")) is not None,
         }
-
-        run_data = {
-            "scenario_id": sid,
-            "scenario_meta": scen_meta,
-            "run_dir": selected_dir,
-            "full_run_dir": full_run_dir,
-            "run_status": run_status,
-            "run_status_updated_at": run_status_updated_at,
-            "status_message": status_message,
-            "execution_log_tail": execution_log_tail,
-            "xml_exists": xml_exists,
-            "flowmonitor_error": flowmonitor_error,
-            "ues": ues,
-            "total_rx_bytes": total_rx_bytes,
-            "total_tx_pkts": total_tx_pkts,
-            "total_rx_pkts": total_rx_pkts,
-            "total_lost_pkts": total_lost_pkts,
-            "flow_count": len(ues),
-            "mean_delay_ms": round(mean_delay_ms, 3),
-            "throughput_mbps": round(total_thp, 2),
-            "loss_ratio_pct": round(loss_ratio_pct, 2),
-            "prb_utilization_pct": prb_utilization_pct,
-            "evidence": evidence,
-            "simulation_engine": "ns-3.48 + 5G-LENA v5.1 (CTTC NR) + NORI E2 Agent",
+        if flowmonitor_error:
+            status_message = f"FlowMonitor inv?lido: {flowmonitor_error}"
+        run = {
+            "scenario_id": scenario_id, "scenario_meta": scenario_meta, "run_dir": selected_dir,
+            "full_run_dir": full_run_dir, "run_status": status, "run_status_updated_at": status_updated_at,
+            "status_message": status_message, "execution_log_tail": self._read_log_tail(log_path),
+            "xml_exists": xml_exists, "flowmonitor_error": flowmonitor_error, "flows": flows,
+            "total_rx_bytes": total_rx_bytes, "total_tx_pkts": total_tx_pkts, "total_rx_pkts": total_rx_pkts,
+            "total_lost_pkts": total_lost_pkts, "flow_count": len(flows),
+            "mean_delay_ms": round(mean_delay, 3) if mean_delay is not None else None,
+            "throughput_mbps": round(throughput, 3) if throughput is not None else None,
+            "loss_ratio_pct": round(loss_ratio, 3) if loss_ratio is not None else None,
+            "prb_utilization_pct": None, "evidence": evidence, "simulation_engine": "ns-3 + 5G-LENA",
         }
+        self._cached_run_dir, self._cached_run_signature, self._cached_run_data = selected_dir, signature, run
+        return run
 
-        self._cached_run_dir = selected_dir
-        self._cached_run_signature = signature
-        self._cached_run_data = run_data
-        return run_data
-
-    def step(self) -> Dict[str, Any]:
+    def step(self) -> dict[str, Any]:
         """Avança o ciclo de observação sobre os dados reais da cadeia."""
         self.current_step = (self.current_step + 1) % 6
         return self.get_full_real_state()
 
-    def get_full_real_state(self) -> Dict[str, Any]:
-        """
-        Retorna o estado consolidado dos 6 blocos utilizando exclusivamente
-        evidências experimentais reais rastreáveis da simulação ns-3 ativa.
-        """
-        run_data = self._scan_and_load_run()
-        scen_meta = run_data["scenario_meta"]
-        primary_gnb = scen_meta["gnbs"][0] if scen_meta["gnbs"] else "gnb_nori_01"
-        ues = run_data["ues"]
-        evidence = run_data["evidence"]
-
-        ind_t0 = self.chain_data.get("indication_t0", {})
-        ind_t1 = self.chain_data.get("indication_t1", {})
-        decision = self.chain_data.get("rdl_decision", {})
-        ctrl_req = self.chain_data.get("control_request", {})
-        ctrl_ack = self.chain_data.get("control_ack", {})
-        manifest = self.chain_data.get("manifest", {})
-
-        # -------------------------------------------------------------
-        # BLOCO 1: Registro e Estado dos UEs nos gNodeBs (ns-3 / 5G-LENA)
-        # -------------------------------------------------------------
+    def get_full_real_state(self) -> dict[str, Any]:
+        """Build all monitor panels from artifacts belonging to one simulation run."""
+        run = self._scan_and_load_run()
+        metadata, evidence, flows = run["scenario_meta"], run["evidence"], run["flows"]
+        common = {"scenario_id": run["scenario_id"], "scenario_title": metadata["title"], "run_dir": run["run_dir"]}
         block1 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "engine": run_data["simulation_engine"],
-            "run_status": run_data["run_status"],
-            "status_message": run_data["status_message"],
-            "node_id": primary_gnb,
-            "all_nodes": scen_meta["gnbs"],
-            "prb_utilization_pct": run_data["prb_utilization_pct"],
-            "total_connected_ues": len(ues) if ues else (14 if run_data["scenario_id"] != "S0" else 0),
-            "active_data_flows": run_data["flow_count"],
-            "total_traffic_mb": round(run_data["total_rx_bytes"] / 1e6, 2),
-            "total_packets_rx": run_data["total_rx_pkts"],
-            "total_packets_tx": run_data["total_tx_pkts"],
-            "total_packets_lost": run_data["total_lost_pkts"],
-            "ues": ues[:12],
-            "flowmonitor_available": evidence.get("flowmonitor", False),
-            "flowmonitor_error": run_data["flowmonitor_error"],
+            **common, "engine": run["simulation_engine"], "run_status": run["run_status"],
+            "status_message": run["status_message"], "node_id": None, "all_nodes": [],
+            "prb_utilization_pct": None, "total_connected_ues": None,
+            "active_data_flows": run["flow_count"], "total_traffic_mb": round(run["total_rx_bytes"] / 1e6, 2),
+            "total_packets_rx": run["total_rx_pkts"], "total_packets_tx": run["total_tx_pkts"],
+            "total_packets_lost": run["total_lost_pkts"], "flows": flows[:12],
+            "flowmonitor_available": evidence["flowmonitor"], "flowmonitor_error": run["flowmonitor_error"],
         }
-
-        # -------------------------------------------------------------
-        # BLOCO 2: Sinalizações e Mensagens de Protocolo (E2AP / E2SM / PCAP)
-        # -------------------------------------------------------------
-        pcap_traces = []
-        for f in self.pcap_frames[:4]:
-            pcap_traces.append({
-                "frame_idx": f["frame_idx"],
-                "timestamp_utc": f["timestamp_utc"],
-                "length_bytes": f["length_bytes"],
-                "hex_preview": f["hex_preview"],
-            })
-
-        block2 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "pcap_source": os.path.basename(self.pcap_path),
-            "total_frames_captured": len(self.pcap_frames),
-            "pdu_sequence": [
-                {
-                    "step": 1,
-                    "event": ind_t0.get("event", "RIC_INDICATION_KPM_T0"),
-                    "mtype": 12050,
-                    "ran_function_id": 2,
-                    "raw_sha256": ind_t0.get("raw_payload_sha256", "2b45ba5d481804163cf45c1022b50e7d68fb2421c18aa662f846e8ec2d29490f"),
-                },
-                {
-                    "step": 3,
-                    "event": ctrl_req.get("event", "RIC_CONTROL_REQUEST_DISPATCH"),
-                    "mtype": 12010,
-                    "transaction_id": ctrl_req.get("transaction_id", 5001),
-                    "control_action_id": ctrl_req.get("control_action_id", 6),
-                    "raw_sha256": ctrl_req.get("raw_payload_sha256", "e58455c2f117109c33adb213acf3a7a6713919e8cf16514bc5659779df5e9757"),
-                },
-                {
-                    "step": 4,
-                    "event": ctrl_ack.get("event", "RIC_CONTROL_ACKNOWLEDGE"),
-                    "mtype": 12011,
-                    "transaction_id": ctrl_ack.get("transaction_id", 5001),
-                    "status": ctrl_ack.get("status", "CONTROL_ACCEPTED_AND_SCHEDULED"),
-                    "raw_sha256": ctrl_ack.get("raw_payload_sha256", "d29c137c02bb841a5c16d970101dbd02b936a282f6e9f50e93ca914b40ee73a6"),
-                },
-                {
-                    "step": 6,
-                    "event": ind_t1.get("event", "RIC_INDICATION_KPM_T1"),
-                    "mtype": 12050,
-                    "ran_function_id": 2,
-                    "raw_sha256": ind_t1.get("raw_payload_sha256", "cbd408c7713ea3cfcb729659b475aeb3e45dcbb64d85834927b5093046757b85"),
-                },
-            ],
-            "pcap_traces": pcap_traces,
-        }
-
-        # -------------------------------------------------------------
-        # BLOCO 3: Módulo de Percepção (Perception Engine Real)
-        # -------------------------------------------------------------
-        violating_ues = [u for u in ues if u["sla_violation"]]
-        max_delay = max([u["delay_ms"] for u in violating_ues]) if violating_ues else (ues[0]["delay_ms"] if ues else 18.2)
-        sla_violation = len(violating_ues) > 0 or run_data["scenario_id"] not in ("S0",)
-
-        conflicts = []
-        if run_data["scenario_id"] == "S0":
-            conflicts_count = 0
-            contending_param = "NONE (PASS_THROUGH)"
-            req_sum = 0.5
-            cap_limit = 1.0
-        else:
-            conflicts_count = 1
-            contending_param = "PRB_QUOTA" if "prb" in scen_meta["key"] or "closed_loop" in scen_meta["key"] else "CELL_HANDOVER_OFFSET"
-            req_sum = 1.30
-            cap_limit = 1.0
-            conflicts.append({
-                "type": scen_meta["conflict_type"],
-                "severity": "CRITICAL" if sla_violation else "WARNING",
-                "involved_xapps": scen_meta["involved_xapps"],
-                "affected_kpis": [scen_meta["target_kpi"], "RRU.PrbUsedDl"],
-                "description": scen_meta["desc"],
-            })
-
+        block2 = {**common, "e2_pcap_available": evidence["e2_pcap"], "kpm_artifact_available": evidence["kpm"], "recent_execution_log": run["execution_log_tail"]}
         block3 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "prb_used_pct": run_data["prb_utilization_pct"],
-            "sla_state": {
-                "urllc_delay_budget_ms": 10.0,
-                "urllc_observed_ms": round(max_delay, 2),
-                "sla_violation": sla_violation,
-                "severity": "CRITICAL" if sla_violation else "NORMAL",
-                "violating_ues_count": len(violating_ues),
-            },
-            "detected_conflicts_count": conflicts_count,
-            "conflicts": conflicts,
-            "contending_parameter": contending_param,
-            "requested_sum_prb": req_sum,
-            "capacity_limit": cap_limit,
+            **common, "flowmonitor_available": evidence["flowmonitor"], "throughput_mbps": run["throughput_mbps"],
+            "mean_delay_ms": run["mean_delay_ms"], "loss_ratio_pct": run["loss_ratio_pct"],
+            "total_packets_tx": run["total_tx_pkts"], "total_packets_rx": run["total_rx_pkts"],
+            "total_packets_lost": run["total_lost_pkts"], "prb_utilization_pct": None,
+            "sla_evaluation": "unavailable_without_per_flow_qos_configuration",
+            "conflict_detection": "unavailable_without_rdl_decision_artifact",
         }
-
-        # -------------------------------------------------------------
-        # BLOCO 4: Grafo de Conhecimento Cognitivo (Knowledge Graph Real)
-        # -------------------------------------------------------------
-        nodes = [
-            {"id": "gnb_primary", "label": f"gNB: {primary_gnb.split(' ')[0]}", "type": "gNB"},
-            {"id": "slice_urllc", "label": "Slice URLLC (5QI 1)", "type": "Slice"},
-            {"id": "slice_embb", "label": "Slice eMBB (5QI 9)", "type": "Slice"},
-            {"id": "xapp_1", "label": f"xApp: {scen_meta['involved_xapps'][0]}", "type": "xApp"},
-            {"id": "rcp_param", "label": f"RCP: {contending_param}", "type": "Parameter"},
-            {"id": "target_kpi", "label": f"KPI: {scen_meta['target_kpi']}", "type": "KPI"},
-        ]
-        if len(scen_meta["involved_xapps"]) > 1:
-            nodes.append({"id": "xapp_2", "label": f"xApp: {scen_meta['involved_xapps'][1]}", "type": "xApp"})
-
-        edges = [
-            {"source": "gnb_primary", "target": "slice_urllc", "rel": "hosts_slice"},
-            {"source": "gnb_primary", "target": "slice_embb", "rel": "hosts_slice"},
-            {"source": "xapp_1", "target": "rcp_param", "rel": "demands_control"},
-            {"source": "rcp_param", "target": "target_kpi", "rel": "impacts_metric"},
-        ]
-        if len(scen_meta["involved_xapps"]) > 1:
-            edges.append({"source": "xapp_2", "target": "rcp_param", "rel": "demands_control"})
-            edges.append({"source": "xapp_1", "target": "xapp_2", "rel": scen_meta["conflict_type"]})
-
+        nodes_by_ip, edges = {}, []
+        for flow in flows:
+            for address in (flow["src_ip"], flow["dst_ip"]):
+                if address:
+                    nodes_by_ip[address] = {"id": address, "label": address, "type": "IP endpoint"}
+            if flow["src_ip"] and flow["dst_ip"]:
+                edges.append({"source": flow["src_ip"], "target": flow["dst_ip"], "rel": f"FLOW_{flow['flow_id']}"})
+        nodes = list(nodes_by_ip.values())
         block4 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "nodes_count": len(nodes),
-            "edges_count": len(edges),
-            "active_conflict_cycles": 1 if conflicts_count > 0 else 0,
-            "density": round(len(edges) / (len(nodes) * (len(nodes) - 1)), 3),
-            "nodes": nodes,
-            "edges": edges,
+            **common, "topology_source": "FlowMonitor IPv4FlowClassifier", "nodes_count": len(nodes),
+            "edges_count": len(edges), "active_conflict_cycles": None,
+            "density": round(len(edges) / (len(nodes) * (len(nodes) - 1)), 3) if len(nodes) > 1 else 0.0,
+            "nodes": nodes, "edges": edges,
         }
-
-        # -------------------------------------------------------------
-        # BLOCO 5: Módulo de Refinamento & Segurança (H-RDL Safety Guards)
-        # -------------------------------------------------------------
-        arb_result = decision.get("arbitration_result", {})
-        safety_check = decision.get("safety_guard_check", "PASSED_ZERO_UNSAFE_ACTIONS")
-
-        block5 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "decision_engine": "H-RDL_NASH_BARGAINING" if run_data["scenario_id"] != "S0" else "PASS_THROUGH",
-            "decision_overhead_ms": 0.084,
-            "allocated_quotas": arb_result.get("allocated_prb_quotas", {"URLLC": 0.5, "eMBB": 0.5}),
-            "tx_power_dbm": 40.0,
-            "arbitration_reason": f"PREEMPTION_FOR_{run_data['scenario_id']}_STABILITY" if run_data["scenario_id"] != "S0" else "NO_CONFLICT_ADMITTED",
-            "safety_guard_check": safety_check,
-            "default_deny_invariant": "VERIFIED_ZERO_UNSAFE_ACTIONS",
-            "physical_bounds_enforced": "CLIPPED_SUM_TO_100_PCT_PRB",
-        }
-
-        # -------------------------------------------------------------
-        # BLOCO 6: Ação E2SM-RC & Efeito em Malha Fechada na RAN
-        # -------------------------------------------------------------
-        causal_val = ind_t1.get("causal_effect_validation", {})
-        rtt_ack = ctrl_ack.get("rtt_latency_ms", 1.82)
-        total_closed_loop = rtt_ack + 0.084
-
+        block5 = {**common, "decision_artifact_available": evidence["rdl_decision"], "decision_status": "artifact available in this run" if evidence["rdl_decision"] else "not emitted by this run"}
         block6 = {
-            "scenario_id": run_data["scenario_id"],
-            "scenario_title": scen_meta["title"],
-            "run_dir": run_data["run_dir"],
-            "dispatched_action_id": ctrl_req.get("control_action_id", 6),
-            "transaction_id": ctrl_req.get("transaction_id", 5001),
-            "ack_status": ctrl_ack.get("status", "CONTROL_ACCEPTED_AND_SCHEDULED"),
-            "rtt_ack_ms": rtt_ack,
-            "closed_loop_latency_ms": round(total_closed_loop, 3),
-            "budget_limit_ms": 10.0,
-            "budget_pass": total_closed_loop < 10.0,
-            "before_latency_ms": round(max_delay, 2),
-            "after_latency_ms": 4.10,
-            "latency_reduction_pct": round(max(0.0, (max_delay - 4.10) / max(0.01, max_delay) * 100), 2) if max_delay > 4.10 else 77.47,
-            "causal_attribution": f"PROVEN_LINKED_TO_TXID_{ctrl_req.get('transaction_id', 5001)}",
-            "root_sha256": manifest.get("non_repudiation_root_hash", "3fe3bd7b96fc6ba494fc6f7156cf794515944fc4474ad86118449f5cec7ab20f"),
+            **common, "control_request_available": evidence["control_request"],
+            "control_ack_available": evidence["control_ack"],
+            "closed_loop_evidence_available": evidence["control_request"] and evidence["control_ack"],
         }
-
         return {
             "timestamp_iso": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            "active_scenario_id": run_data["scenario_id"],
-            "active_scenario_title": scen_meta["title"],
-            "active_run_dir": run_data["run_dir"],
-            "run_status": run_data["run_status"],
-            "run_status_message": run_data["status_message"],
-            "run_status_updated_at": run_data["run_status_updated_at"],
-            "evidence": evidence,
-            "block1_ran_registration": block1,
-            "block2_protocol_signaling": block2,
-            "block3_perception_module": block3,
-            "block4_knowledge_graph": block4,
-            "block5_refinement_module": block5,
-            "block6_ran_control_action": block6,
+            "active_scenario_id": run["scenario_id"], "active_scenario_title": metadata["title"],
+            "active_run_dir": run["run_dir"], "run_status": run["run_status"],
+            "run_status_message": run["status_message"], "run_status_updated_at": run["run_status_updated_at"],
+            "evidence": evidence, "block1_ran_registration": block1, "block2_protocol_signaling": block2,
+            "block3_perception_module": block3, "block4_knowledge_graph": block4,
+            "block5_refinement_module": block5, "block6_ran_control_action": block6,
         }
+
 
 
 # Instância global compartilhada

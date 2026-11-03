@@ -15,7 +15,10 @@ def test_health_server_endpoints():
     if not HAS_FASTAPI:
         pytest.skip("FastAPI not installed in environment")
         
-    from fastapi.testclient import TestClient
+    try:
+        from fastapi.testclient import TestClient
+    except (ImportError, RuntimeError):
+        pytest.skip("fastapi.testclient requires httpx which is not installed")
     
     server = HealthServer(host="127.0.0.1", port=9099)
     client = TestClient(server.app)

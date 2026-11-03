@@ -29,6 +29,8 @@ spec:
         env:
         - name: RDL_MODE
           value: "oran-strict"
+        - name: RAN_BACKEND
+          value: "NORI_NS3"
         - name: USE_FAKE_SDL
           value: "false"
         - name: RMR_SEED_RT

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suite de Demonstração em Tempo Real: Governança Cognitiva xApp-RDL (5G/O-RAN)</title>
+    <title>Demonstração Interativa Ilustrativa: Governança Cognitiva xApp-RDL (5G/O-RAN)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -150,6 +150,16 @@
             font-weight: 600;
             outline: none;
             cursor: pointer;
+        }
+
+        .demo-notice {
+            padding: 0.6rem 1.5rem;
+            background: rgba(251, 191, 36, 0.12);
+            border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+            color: #fbbf24;
+            text-align: center;
+            font-size: 0.75rem;
+            font-family: 'Fira Code', monospace;
         }
 
         /* 7-Phase Stepper Pipeline Bar */
@@ -407,7 +417,7 @@
         <div class="header-brand">
             <span class="brand-badge">xApp-RDL DEMO</span>
             <div class="header-title">
-                <h1>Suite de Demonstração em Tempo Real: Governança Cognitiva O-RAN</h1>
+                <h1>Demonstração Interativa: Governança Cognitiva O-RAN</h1>
                 <p>Pipeline Ponta a Ponta: Acesso UE &rarr; Telemetria KPM &rarr; Propostas &rarr; Grafo de Conhecimento &rarr; Raciocínio &rarr; Despacho RC &rarr; RAN</p>
             </div>
         </div>
@@ -430,6 +440,10 @@
             </button>
         </div>
     </header>
+
+    <div class="demo-notice" role="note">
+        DEMONSTRAÇÃO ILUSTRATIVA — NÃO CONECTADA À EXECUÇÃO ns-3 / 5G-LENA / NORI; KPIs exibidos não são telemetria da simulação.
+    </div>
 
     <!-- 7-Phase Stepper Pipeline Bar -->
     <div class="stepper-bar-container">
@@ -610,7 +624,7 @@
 
     <!-- Footer -->
     <footer>
-        <p><strong>Projeto xApp-RDL</strong> &bull; Suite de Demonstração Interativa da Governança Cognitiva para O-RAN 5G-Adv/6G &bull; Padrão O-RAN WG3 & 3GPP Rel. 18</p>
+        <p><strong>Projeto xApp-RDL</strong> &bull; Protótipo visual ilustrativo, sem conexão com a simulação ou com a RAN.</p>
     </footer>
 
     <!-- Interactive Simulator & Knowledge Graph Engine -->

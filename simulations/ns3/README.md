@@ -16,7 +16,7 @@ Este diretório contém fontes e instruções para cenários de co-simulação *
 | **S5** | Histerese Temporal e Trava de Ping-Pong | [`scenario_rdl_temporal_pingpong.cc`](scenario_rdl_temporal_pingpong.cc) | Cooldown Lock e Supressão de Oscilação Temporal |
 | **S6** | Conflict Storm (50 req/janela) | [`scenario_rdl_conflict_storm.cc`](scenario_rdl_conflict_storm.cc) | Meta do projeto: avaliar tempo de resolução abaixo de 50 ms |
 | **S7** | Injeção de Falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | Testar bloqueio de ações inseguras; não é taxa de sucesso empírica de RAN |
-| **S8** | Caminho de co-simulação E2AP/E2SM com NORI | [`scenario_rdl_closed_loop_nori.cc`](scenario_rdl_closed_loop_nori.cc) | Validar a integração live após executar e coletar evidência externa |
+| **S8** | Tráfego 5G-LENA com agente E2 opcional | [`scenario_rdl_closed_loop_nori.cc`](scenario_rdl_closed_loop_nori.cc) | Coletar métricas NR/FlowMonitor; o código atual não implementa atuação E2SM-RC/RDL nem comprova closed loop |
 
 ---
 

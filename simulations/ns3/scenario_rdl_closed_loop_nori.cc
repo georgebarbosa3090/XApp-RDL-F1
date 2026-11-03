@@ -60,13 +60,13 @@ int main (int argc, char *argv[])
     double kpmPeriod = 0.2;
     bool realtime = false;
     std::string syncMode = "BestEffort";
-    std::string demoMode = "experiment";
+    std::string demoMode = "traffic-only";
     double centralFrequencyBand1 = 3.5e9;
     double bandwidthBand1 = 100e6;
     uint16_t numerologyBwp1 = 1;
     std::string ricIpAddress = "172.18.0.4";
     uint16_t ricPort = 36422;
-    bool enableE2Agent = true;
+    bool enableE2Agent = false;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Numero de gNodeBs", gNbNum);
@@ -78,7 +78,7 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo dos relatorios E2SM-KPM em segundos", kpmPeriod);
     cmd.AddValue ("realtime", "Ativar execucao em tempo real (ns3::RealtimeSimulatorImpl)", realtime);
     cmd.AddValue ("syncMode", "Modo de sincronizacao em tempo real: BestEffort ou HardLimit", syncMode);
-    cmd.AddValue ("demoMode", "Modo predefinido: fast, realtime, experiment", demoMode);
+    cmd.AddValue ("demoMode", "Modo predefinido: traffic-only, fast, realtime, experiment", demoMode);
     cmd.AddValue ("ricIp", "IP do Near-RT RIC E2Term", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP E2", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
@@ -89,29 +89,7 @@ int main (int argc, char *argv[])
         NS_FATAL_ERROR ("S8 closed-loop experimental indisponível: este cenário não implementa atuação E2SM-RC/RDL na RAN. Use um cenário ns-3 identificado apenas para métricas de tráfego, sem alegar closed loop.");
     }
 
-    /**
-     * =========================================================================================
-     * NOTA DIDÁTICA SOBRE CO-SIMULAÇÃO CLOSED-LOOP E SINCRONIZAÇÃO EM TEMPO REAL:
-     * -----------------------------------------------------------------------------------------
-     * 1. Relevância Crítica do RealtimeSimulatorImpl em S8 (Co-Simulação Fechada):
-     *    O cenário S8 estabelece uma malha fechada real entre o simulador ns-3/5G-LENA e
-     *    processos/containers externos (NORI E2SIM, Near-RT RIC e H-RDL).
-     *    Por padrão, o ns-3 utiliza TEMPO VIRTUAL (avançando eventos o mais rápido possível).
-     *    Em co-simulações com entidades externas via sockets SCTP/RMR, o tempo virtual faz
-     *    com que o simulador "atropele" o tempo real dos containers RIC.
-     *
-     * 2. ns3::RealtimeSimulatorImpl:
-     *    Sincroniza o relógio da simulação com o relógio real do sistema operacional (wall-clock):
-     *    1 segundo simulado ≈ 1 segundo real. Isso permite que as mensagens E2AP/E2SM (KPM e RC)
-     *    sejam processadas pelo Near-RT RIC e retornadas ao ns-3 no tempo exato de malha.
-     *
-     * 3. Arranjo Didático para Apresentações (4 Terminais Lado a Lado):
-     *    - Terminal 1 : ns-3 / 5G-LENA (Emite KPM e recebe E2SM-RC)
-     *    - Terminal 2 : NORI / E2SIM (Encapsulamento APER ASN.1)
-     *    - Terminal 3 : Near-RT RIC (RMR Router & Subscription Manager)
-     *    - Terminal 4 : H-RDL Dashboard (Percepção, Raciocínio TVS e Refinamento de Segurança)
-     * =========================================================================================
-     */
+    // This scenario measures NR traffic; it does not implement an RDL/E2SM-RC loop.
     if (demoMode == "fast")
     {
         simTime = 30.0;
@@ -125,6 +103,13 @@ int main (int argc, char *argv[])
         conflictStart = 20.0;
         conflictEnd = 35.0;
         realtime = true;
+    }
+    else if (simTime <= 15.0)
+    {
+        // Escala automaticamente a janela de conflito para execuções curtas/rápidas
+        conflictStart = simTime * 0.25;
+        conflictEnd = simTime * 0.65;
+        recoveryWindow = simTime * 0.25;
     }
 
     if (realtime)
@@ -143,7 +128,8 @@ int main (int argc, char *argv[])
         }
     }
 
-    NS_LOG_INFO ("Iniciando Cenario Closed-Loop RDL + NORI (Fase 1) - Mode: " << demoMode << " Realtime: " << (realtime ? "YES" : "NO"));
+    NS_LOG_UNCOND ("S8 traffic-only: FlowMonitor metrics only; no RDL/E2SM-RC closed loop is implemented.");
+    NS_LOG_INFO ("Iniciando cenário de tráfego NR - Mode: " << demoMode << " Realtime: " << (realtime ? "YES" : "NO"));
 
 #if HAS_NR_MODULE
     GridScenarioHelper gridScenario;
@@ -202,7 +188,7 @@ int main (int argc, char *argv[])
 #if HAS_ORAN_MODULE
     if (enableE2Agent)
     {
-        NS_LOG_INFO ("Instalando NORI E2 Agent com acoplamento E2SM-KPM e E2SM-RC");
+        NS_LOG_INFO ("Instalando agente E2 NORI opcional; este cenário não executa controle E2SM-RC/RDL.");
         Ptr<E2AgentHelper> e2AgentHelper = CreateObject<E2AgentHelper> ();
         e2AgentHelper->SetAttribute ("RicIpAddress", Ipv4AddressValue (ricIpAddress.c_str ()));
         e2AgentHelper->SetAttribute ("RicPort", UintegerValue (ricPort));
@@ -316,13 +302,13 @@ int main (int argc, char *argv[])
     Simulator::Schedule (Seconds (conflictStart), &TraceConflictWindowStart);
     Simulator::Schedule (Seconds (conflictEnd), &TraceConflictWindowEnd);
 
-    NS_LOG_INFO ("Executando simulacao closed-loop por " << simTime << " segundos...");
+    NS_LOG_INFO ("Executando simulacao de tráfego por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
 
-    flowMonitor->SerializeToXmlFile ("flowmonitor_closed_loop_results.xml", true, true);
+    flowMonitor->SerializeToXmlFile ("flowmonitor_s8_traffic.xml", true, true);
     Simulator::Destroy ();
 
-    NS_LOG_INFO ("Simulacao Closed-Loop concluida com sucesso.");
+    NS_LOG_INFO ("Simulação de tráfego concluída; nenhum resultado de closed-loop foi produzido.");
     return 0;
 }

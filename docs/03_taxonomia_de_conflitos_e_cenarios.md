@@ -144,10 +144,10 @@ A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-L
 
 ---
 
-### 3.9. Cenário S8: Closed-Loop NORI e Coexistência 6G ISAC
-- **Descrição:** Validação do circuito fechado integral com o agente E2 NORI em C++ operando sob telemetria de sensoriamento ambiental e radar ISAC.
-- **Dinâmica:** Coexistência espectral entre sinais de comunicação 5G NR e feixes de radar de sensoriamento urbano.
-- **Resolução H-RDL:** Otimização conjunta de subportadoras e alocação dinâmica de potência entre feixes de comunicação e sensoriamento.
+### 3.9. Cenário S8: Tráfego 5G-LENA com agente E2 opcional
+- **Descrição:** Cenário de tráfego NR que exporta métricas do FlowMonitor; um agente E2 NORI pode ser habilitado separadamente.
+- **Limitação:** O código atual não conecta decisões RDL à RAN nem implementa atuação E2SM-RC. A presença do agente não comprova KPM recebido ou malha fechada.
+- **Evidência necessária:** Artefatos KPM, decisão RDL, request/ACK E2SM-RC e efeito na RAN devem ser coletados e associados à mesma execução antes de alegar integração closed-loop.
 
 ![Topologia do Cenário S8 - Malha Fechada NORI e Coexistência ISAC 6G](figures/02_cenarios_e_topologias/s8_6g_isac_sensing_dark.png)
 

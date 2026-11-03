@@ -11,7 +11,6 @@ Valida as propriedades centrais de cada cenário:
 
 import pytest
 import time
-import coverage
 from src.infrastructure.memory_module import MemoryModule
 from src.core.perception import Perception
 from src.core.reasoning import Reasoning
@@ -131,7 +130,14 @@ def test_scenario_s6_conflict_storm_near_rt_bounds():
     t_elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
     # A instrumentação de cobertura altera o tempo de parede; medir sem ela.
-    if coverage.Coverage.current() is None:
+    has_coverage = False
+    try:
+        import coverage
+        has_coverage = coverage.Coverage.current() is not None
+    except Exception:
+        pass
+
+    if not has_coverage:
         assert t_elapsed_ms < 50.0, f"Tempo de decisão no storm excedeu 50ms: {t_elapsed_ms:.2f}ms"
 
 def test_scenario_s7_adversarial_fault_safety_zero_violation():
