@@ -405,7 +405,7 @@ Para demonstrações técnicas, aulas laboratoriais e auditorias experimentais, 
 
 | Terminal | Papel / Módulo | Comando de Execução / Monitoramento | Finalidade Operacional |
 | :---: | :--- | :--- | :--- |
-| **T1** | **ns-3 / 5G-LENA (RAN)** | `./ns3 run "scratch/scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"` | Executa tráfego NR; não implementa atuação E2SM-RC/RDL. |
+| **T1** | **ns-3 / 5G-LENA (RAN)** | `./ns3 run "scenario_rdl_closed_loop_nori --demoMode=realtime --realtime=true --enableE2=true --syncMode=BestEffort --ricIp=127.0.0.1 --ricPort=36422"` | Executa tráfego NR; não implementa atuação E2SM-RC/RDL. |
 | **T2** | **Near-RT RIC Platform** | `kubectl logs -n ricplt -l app=ricplt-e2term -f` | Monitora a terminação SCTP e a conversão de pacotes E2AP em mensagens RMR. |
 | **T3** | **3 xApps de Referência** | `kubectl logs -n ricxapp -l app=ricxapp-qos-xslice -f` | Evidencia o comportamento competitivo autônomo das xApps (solicitações conflitantes). |
 | **T4** | **xApp H-RDL (Decisão)** | `kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl -f` | Permite inspecionar logs; este cenário não conecta decisões RDL à RAN. |
