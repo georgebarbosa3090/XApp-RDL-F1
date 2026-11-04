@@ -67,6 +67,8 @@ int main (int argc, char *argv[])
     std::string ricIpAddress = "172.18.0.4";
     uint16_t ricPort = 36422;
     bool enableE2Agent = false;
+    uint32_t randomSeed = 1001;
+    uint32_t runIndex = 1;
 
     CommandLine cmd (__FILE__);
     cmd.AddValue ("gNbNum", "Numero de gNodeBs", gNbNum);
@@ -82,7 +84,12 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ricIp", "IP do Near-RT RIC E2Term", ricIpAddress);
     cmd.AddValue ("ricPort", "Porta SCTP E2", ricPort);
     cmd.AddValue ("enableE2", "Ativar comunicacao E2/NORI", enableE2Agent);
+    cmd.AddValue ("seed", "Semente pseudoaleatoria do gerador ns-3", randomSeed);
+    cmd.AddValue ("run", "Indice da repeticao estocastica ns-3", runIndex);
     cmd.Parse (argc, argv);
+
+    SeedManager::SetSeed (randomSeed);
+    SeedManager::SetRun (runIndex);
 
     if (demoMode == "experiment")
     {

@@ -47,6 +47,8 @@ ALLOWED_EXCEPTIONS = {
     "gerar_figuras_faltantes_hrdl.py",
     "generate_separated_phase1_phase2_figures.py",
     "generate_paper_styled_benchmarks.py",
+    "run_b0_b6_campaign_30seeds.py",
+    "compare_seeds_10_20_30.py",
 }
 
 def log_step_summary(content: str):
