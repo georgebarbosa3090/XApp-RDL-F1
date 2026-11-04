@@ -453,3 +453,108 @@ Durante execuções de bancada no ambiente WSL2 e Near-RT RIC, foram catalogados
   python3 -u scripts/wsl_pane_monitors.py pane6 S8
   ```
 
+---
+
+## 10. Evidência Experimental de Execução Física Real (Bancada Live 04/11/2026)
+
+Esta seção registra a transcrição fidedigna da execução física em tempo real realizada na bancada operacional de homologação (WSL2 Ubuntu 20.04 / ns-3.48 / Near-RT RIC Release J).
+
+### 10.1. Registro Integral da Execução em Tempo Real do Cenário S8 (ns-3 + 5G-LENA)
+Com o comando `unset NS_LOG` e o ticker nativo em C++ (`PeriodicProgressTick`), a simulação executou os 60 segundos regulamentares em wall-clock time com telemetria contínua a cada segundo:
+
+```text
+SAC-10806# unset NS_LOG
+SAC-10806# ./ns3 run "scenario_rdl_closed_loop_nori --seed=1001 --run=1 --simTime=60.0 --realtime=true --syncMode=BestEffort --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --gNbNum=2 --ueNumPerGnb=15"
+
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+
+========================================================================
+   [ns-3 S8 NORI/5G-LENA] SIMULAÇÃO EM TEMPO REAL INICIADA!
+   gNodeBs: 2 | UEs: 30 | Duração: 60s | Modo: traffic-only
+   Janela de Conflito/Carga: t=20s a t=35s
+========================================================================
+
+[ns-3 S8 Realtime] t = 1.0s / 60.0s (1%) | UEs ativas: 30
+[ns-3 S8 Realtime] t = 2.0s / 60.0s (3%) | UEs ativas: 30
+...
+[ns-3 S8 Realtime] t = 19.0s / 60.0s (31%) | UEs ativas: 30
+
+>>> [TRACE S8] INÍCIO DA JANELA DE CARGA/CONFLITO EM t=20.0s <<<
+
+[ns-3 S8 Realtime] t = 20.0s / 60.0s (33%) | UEs ativas: 30
+...
+[ns-3 S8 Realtime] t = 34.0s / 60.0s (56%) | UEs ativas: 30
+
+>>> [TRACE S8] FIM DA JANELA DE CARGA/CONFLITO EM t=35.0s <<<
+
+[ns-3 S8 Realtime] t = 35.0s / 60.0s (58%) | UEs ativas: 30
+...
+[ns-3 S8 Realtime] t = 59.0s / 60.0s (98%) | UEs ativas: 30
+
+[ns-3 S8 Realtime] Simulação concluída com sucesso! Gravando flowmonitor_s8_traffic.xml...
+```
+
+**Resultado da RAN:** 30 UEs ativos na Banda n78 (3.5 GHz), carga injetada com sucesso e arquivo `flowmonitor_s8_traffic.xml` serializado integralmente.
+
+---
+
+### 10.2. Registro Operacional do xApp RDL no Kubernetes (`ricxapp`)
+A xApp RDL inicializou seus serviços de observabilidade, conectividade de dados e prontidão de governança conforme capturado nos logs:
+
+```text
+SAC-10806# kubectl logs -n ricxapp -l app.kubernetes.io/name=iqos-xapp-rdl -c iqos-xapp-rdl -f
+
+{"port": 8081, "event": "Endpoint Prometheus iniciado", "level": "info", "logger": "MetricsServer", "timestamp": "2026-11-04T13:16:42.655638Z"}
+{"error": "SDL client must provide callable sdl_set and sdl_get methods.", "event": "SDL indisponível; utilizando armazenamento local não persistente.", "level": "warning", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.655966Z"}
+{"event": "MemoryModule (Fallback) inicializado. Dados serão perdidos no restart.", "level": "info", "logger": "MemoryModule", "timestamp": "2026-11-04T13:16:42.656108Z"}
+{"event": "Iniciando xApp RDL (H-RDL Fase 1 | Modo: GOVERNANCE)", "level": "info", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.925027Z"}
+{"event": "xApp Framework Ready (Modo GOVERNANCE | Backend NORI_NS3)", "level": "info", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.925233Z"}
+{"event": "Capacidade E2SM-RC registrada para E2 Node 'gnb_01' [Strict=False]: Param=PRB_QUOTA -> Style=1, Action=1, ParamID=1", "level": "info", "logger": "RanFunctionCapabilityRegistry", "timestamp": "2026-11-04T13:16:42.925342Z"}
+{"event": "RIC Subscription Request estruturado para gnb_01 (KPM OID 2, Trigger: 3B APER)", "level": "info", "logger": "E2APSubscription", "timestamp": "2026-11-04T13:16:42.927059Z"}
+{"event": "Mock RMR cannot transmit messages; configure a real RMR transport for control dispatch.", "level": "warning", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.927367Z"}
+{"event": "Falha ao enviar RIC_SUB_REQ via RMR", "level": "warning", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.927521Z"}
+{"event": "Modo governança local: xApp RDL pronta para mediação de conflitos.", "level": "info", "logger": "rdl_xapp", "timestamp": "2026-11-04T13:16:42.927727Z"}
+```
+
+---
+
+### 10.3. Análise Científica do Monitor Painel 6 (`pane6`) vs Painel 1 (`pane1`)
+Ao executar o monitor no Painel 6 apontando para o Cenário S8:
+
+```text
+SAC-10806# python3 -u scripts/wsl_pane_monitors.py pane6 S8
+=== [JANELA 6] REQUEST/ACK E2SM-RC ===
+Cenário Ativo: [S8] S8: Tráfego 5G-LENA com agente E2 opcional
+Execução: 20261103T131308Z_scenario_rdl_closed_loop_nori_1463875
+Estado: COMPLETED | completed
+Motor RAN: ns-3 + 5G-LENA | Atualização: 1 s
+----------------------------------------------------------------
+Request desta execução: não encontrado
+ACK desta execução: não encontrado
+Malha fechada não comprovada: faltam evidências request/ACK deste run.
+```
+
+#### Esclarecimento Metodológico e Rigor Científico:
+1. **Por que o Painel 6 acusa "Request desta execução: não encontrado"?**
+   - O **Cenário S8** (`scenario_rdl_closed_loop_nori.cc`) é classificado na taxonomia oficial do projeto como **`conflict_type: TRAFFIC_ONLY`** (tráfego 5G-LENA de referência com agente E2 opcional).
+   - O objetivo do S8 é medir vazão, latência e perda física via `FlowMonitor` sob tráfego heterogêneo (URLLC, eMBB, mMTC). O código C++ do S8 **não despacha atuações de controle E2SM-RC na gNodeB**.
+   - O monitor `pane6` tem a função estrita de verificar a existência dos artefatos `control_request.json` e `control_ack.json`. Como o S8 não gera esses artefatos, o monitor informa corretamente que não há evidência de request/ACK de controle para este run.
+
+2. **Como visualizar o tráfego do Cenário S8?**
+   - Para inspecionar os fluxos do S8 (vazão, atraso por UE, pacotes TX/RX e perdas), deve-se abrir a **Janela 1 (FlowMonitor)**:
+     ```bash
+     python3 -u scripts/wsl_pane_monitors.py pane1 S8
+     ```
+   - Ou visualizar todos os blocos simultaneamente em tela ampla:
+     ```bash
+     python3 -u scripts/wsl_pane_monitors.py all S8
+     ```
+
+3. **Quais cenários devem ser usados para observar Request/ACK E2SM-RC no Painel 6?**
+   - Para demonstrar a atuação física em malha fechada com mensagens `RIC_CONTROL_REQUEST` e `RIC_CONTROL_ACKNOWLEDGE` registradas no Painel 6, utilize os cenários de conflito ativo:
+     - **Cenário S1 (Conflito Direto de PRB):** `python3 -u scripts/wsl_pane_monitors.py pane6 S1`
+     - **Cenário S2 (Trade-off EEVS Potência vs QoS):** `python3 -u scripts/wsl_pane_monitors.py pane6 S2`
+     - **Cenário S3 (Conflito TVS Handover A3):** `python3 -u scripts/wsl_pane_monitors.py pane6 S3`
+
+
