@@ -64,7 +64,14 @@ int main (int argc, char *argv[])
     cmd.AddValue ("conflictEnd", "Tempo de fim do conflito (s)", conflictEnd);
     cmd.AddValue ("recoveryWindow", "Janela de observacao de recuperacao (s)", recoveryWindow);
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
+    uint32_t randomSeed = 1001;
+    uint32_t runIndex = 1;
+    cmd.AddValue ("seed", "Semente pseudoaleatoria do gerador ns-3", randomSeed);
+    cmd.AddValue ("run", "Indice da repeticao estocastica ns-3", runIndex);
     cmd.Parse (argc, argv);
+
+    SeedManager::SetSeed (randomSeed);
+    SeedManager::SetRun (runIndex);
 
     /**
      * =========================================================================================
