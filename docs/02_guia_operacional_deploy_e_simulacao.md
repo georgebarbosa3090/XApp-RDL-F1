@@ -666,6 +666,10 @@ Para validação em hardware de rádio real e ambiente O-RAN desagregado:
 | **`zsh: no such file or directory: ./ns3`** | Comando executado fora do workspace do simulador | Executar `cd ~/ns3-oran-workspace/ns-3-oran` antes de `./ns3` |
 | **`zsh: missing end of string / number expected`** | Colagem de múltiplos comandos com `#` no zsh | Adicionar `setopt INTERACTIVE_COMMENTS` em `~/.zshrc` |
 | **`Couldn't find the specified program: scratch/...`** | Prefixo `scratch/` incluído no `./ns3 run` | Passar apenas o nome do alvo (ex: `./ns3 run "scenario_rdl_no_conflict ..."`) |
+| **`Invalid or unregistered component name in env variable NS_LOG`** | Componente C++ inexistente no `NS_LOG` (`NS_FATAL` / SIGABRT) | Executar `unset NS_LOG` (o cenário S8 já emite ticker nativo em C++) |
+| **`failed to create fsnotify watcher: too many open files`** | Limite de inotify watchers atingido no WSL2 | Executar `sudo sysctl -w fs.inotify.max_user_watches=524288` |
+| **Pods em CrashLoopBackOff (`ricxapp-iqos-xapp-rdl-f2`)** | Deployments antigos em conflito | `kubectl delete deployment -n ricxapp ricxapp-iqos-xapp-rdl-f1 ricxapp-iqos-xapp-rdl-f2` |
+| **`inject_traffic.sh` retornando `RDL (000---)`** | Pod RDL reiniciando durante o deploy | Aguardar `kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ricxapp` |
 
 ### 7.2. Backup e Sincronização Automática com GitHub
 Para manter qualquer alteração local sincronizada automaticamente no GitHub em tempo real:

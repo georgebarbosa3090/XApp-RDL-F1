@@ -141,10 +141,35 @@ O binário compilado aceita parâmetros de controle temporal, topológico e esto
 - `--ueNumPerGnb=15`: Quantidade de UEs por gNodeB (total = 30 UEs).
 
 ### Execução da Semente 1001 (Primeira Rodada):
+> **Atenção Operacional:** O cenário S8 já possui ticker nativo periódico em C++ via `std::cout`. Sempre execute `unset NS_LOG` antes de iniciar para evitar que o ns-3 aborte com erro de componente inexistente (`NS_FATAL`).
+
 ```bash
 cd /root/ns3-oran-workspace/ns-3-oran
 
+# 1. Garante que nenhuma variável NS_LOG incorreta cause abort no ns-3
+unset NS_LOG
+
+# 2. Executa a simulação física em tempo real
 ./ns3 run "scenario_rdl_closed_loop_nori --seed=1001 --run=1 --simTime=60.0 --realtime=true --syncMode=BestEffort --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --gNbNum=2 --ueNumPerGnb=15"
+```
+
+**Saída interativa impressa no terminal:**
+```text
+========================================================================
+   [ns-3 S8 NORI/5G-LENA] SIMULAÇÃO EM TEMPO REAL INICIADA!
+   gNodeBs: 2 | UEs: 30 | Duração: 60s | Modo: traffic-only
+   Janela de Conflito/Carga: t=20s a t=35s
+========================================================================
+
+[ns-3 S8 Realtime] t = 1.0s / 60.0s (1%) | UEs ativas: 30
+[ns-3 S8 Realtime] t = 2.0s / 60.0s (3%) | UEs ativas: 30
+...
+>>> [TRACE S8] INÍCIO DA JANELA DE CARGA/CONFLITO EM t=20.0s <<<
+...
+>>> [TRACE S8] FIM DA JANELA DE CARGA/CONFLITO EM t=35.0s <<<
+...
+[ns-3 S8 Realtime] t = 60.0s / 60.0s (100%) | UEs ativas: 30
+[ns-3 S8 Realtime] Simulação concluída com sucesso! Gravando flowmonitor_s8_traffic.xml...
 ```
 
 ### Execução com Nova Semente (Exemplo: Semente 1002 para Observar Variação Física):
@@ -179,6 +204,7 @@ Assim que o ns-3 inicia, o módulo 5G-LENA instancia a grade de UEs e estabelece
 **Comando de execução (Terminal A):**
 ```bash
 cd /root/ns3-oran-workspace/ns-3-oran
+unset NS_LOG
 ./ns3 run "scenario_rdl_closed_loop_nori --seed=1001 --run=1 --simTime=60.0 --realtime=true --syncMode=BestEffort --enableE2=true --ricIp=127.0.0.1 --ricPort=36422"
 ```
 
@@ -363,3 +389,67 @@ Com este procedimento:
 1. **Fim de simulações com números idênticos:** O pesquisador pode variar `--seed=1001`, `--seed=1002`, ..., `--seed=1030`, observando oscilações realistas de canal e tráfego físico;
 2. **Execução transparente e passo a passo:** Não há processos ocultos; cada terminal exibe uma etapa canônica do framework O-RAN;
 3. **Validação Causal Comprovada:** O ciclo de vida fecha-se com evidência observável desde a chegada da requisição até a reconfiguração do escalonador MAC e o ACK de controle.
+
+---
+
+## 9. Caderno de Troubleshooting Operacional e Erros Conhecidos (WSL2 / k3d / ns-3)
+
+Durante execuções de bancada no ambiente WSL2 e Near-RT RIC, foram catalogados os seguintes cenários de falha e seus respectivos procedimentos de correção:
+
+### 9.1. Erro de Componente Inválido no ns-3 (`NS_FATAL` / `SIGABRT: 6`)
+- **Sintoma:** Ao executar `./ns3 run ...`, o terminal exibe a lista completa de componentes de log e encerra com:
+  ```text
+  msg="Invalid or unregistered component name 'E2Agent' in env variable NS_LOG"
+  NS_FATAL, terminating
+  died with <Signals.SIGABRT: 6>.
+  ```
+- **Causa:** O ns-3 possui checagem estrita para variáveis exportadas em `NS_LOG`. Se qualquer string fornecida não corresponder a uma macro `NS_LOG_COMPONENT_DEFINE` compilada no binário, o simulador aborta imediatamente por segurança.
+- **Resolução:**
+  ```bash
+  # Desabilita a variável de ambiente para usar o ticker nativo em C++:
+  unset NS_LOG
+  
+  # Caso queira logs específicos apenas do cenário:
+  export NS_LOG="ScenarioRdlClosedLoopNori=level_info"
+  ```
+
+### 9.2. Esgotamento de File Watchers no WSL2 (`too many open files`)
+- **Sintoma:** Ao executar `kubectl logs -f ...`, o stream é interrompido com o erro:
+  ```text
+  failed to create fsnotify watcher: too many open files
+  ```
+- **Causa:** A quantidade de pods e contêineres ativos no k3d esgotou os limites padrão de monitoramento do subsistema inotify do kernel Linux no WSL2.
+- **Resolução:** Aumente os limites do kernel executando no terminal WSL:
+  ```bash
+  sudo sysctl -w fs.inotify.max_user_watches=524288
+  sudo sysctl -w fs.inotify.max_user_instances=8192
+  ```
+
+### 9.3. Pods Zumbis em CrashLoopBackOff e Sintaxe de Remoção
+- **Sintoma:** O comando `kubectl get pods -n ricxapp` exibe pods legados (ex: `ricxapp-iqos-xapp-rdl-f2-*`) com mais de 2.000 restarts. Ao tentar remover com `kubectl delete -p ...`, o CLI retorna:
+  ```text
+  error: unknown shorthand flag: 'p' in -p
+  ```
+- **Causa:** No `kubectl`, a flag `-p` é reservada para `patch`. Para pods, o comando correto é `kubectl delete pod`. Ademais, deletar o pod isolado faz o Deployment do Kubernetes recriar um novo pod imediatamente.
+- **Resolução:** Exclua diretamente os Deployments órfãos:
+  ```bash
+  kubectl delete deployment -n ricxapp ricxapp-iqos-xapp-rdl-f1 ricxapp-iqos-xapp-rdl-f2 2>/dev/null || true
+  ```
+
+### 9.4. Injetor de Tráfego com Retorno `RDL (000---)`
+- **Sintoma:** Ao rodar `bash scripts/inject_traffic.sh`, as xApps de QoS, Energia e Tráfego retornam `(200)`, mas a RDL exibe `(000---)`.
+- **Causa:** O script foi executado durante uma janela de rollout onde o pod antigo estava terminando (`Terminating`) e o novo ainda inicializando seus endpoints HTTP/Prometheus.
+- **Resolução:** Aguarde o status `Running (2/2)` do pod principal do RDL:
+  ```bash
+  kubectl rollout status deployment/ricxapp-iqos-xapp-rdl -n ricxapp --timeout=60s
+  ```
+  Assim que concluído, o `inject_traffic.sh` responderá `RDL (200)`.
+
+### 9.5. Monitor do Painel 6 Apontando para Cenário Antigo
+- **Sintoma:** O script `python3 -u scripts/wsl_pane_monitors.py pane6` monitora o cenário S3 em vez do S8 e reporta `Request/ACK desta execução: não encontrado`.
+- **Causa:** Quando executado sem argumentos adicionais, o monitor seleciona o cenário padrão configurado anteriormente (S3).
+- **Resolução:** Especifique o identificador do cenário explicitamente na chamada:
+  ```bash
+  python3 -u scripts/wsl_pane_monitors.py pane6 S8
+  ```
+
