@@ -35,18 +35,33 @@
 #define HAS_ORAN_MODULE 0
 #endif
 
+#include <iomanip>
+#include <iostream>
+
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("ScenarioRdlClosedLoopNori");
 
 static void TraceConflictWindowStart ()
 {
-    NS_LOG_UNCOND (">>> [TRACE] Início da janela de carga/conflito em t=" << Simulator::Now ().GetSeconds () << "s");
+    std::cout << "\n>>> [TRACE S8] INÍCIO DA JANELA DE CARGA/CONFLITO EM t=" << Simulator::Now ().GetSeconds () << "s <<<\n" << std::endl;
 }
 
 static void TraceConflictWindowEnd ()
 {
-    NS_LOG_UNCOND (">>> [TRACE] Fim da janela de carga/conflito em t=" << Simulator::Now ().GetSeconds () << "s");
+    std::cout << "\n>>> [TRACE S8] FIM DA JANELA DE CARGA/CONFLITO EM t=" << Simulator::Now ().GetSeconds () << "s <<<\n" << std::endl;
+}
+
+static void PeriodicProgressTick (double totalTime, uint16_t totalUes)
+{
+    double now = Simulator::Now ().GetSeconds ();
+    int pct = static_cast<int>((now / totalTime) * 100.0);
+    std::cout << "[ns-3 S8 Realtime] t = " << std::fixed << std::setprecision(1) << now 
+              << "s / " << totalTime << "s (" << pct << "%) | UEs ativas: " << totalUes << std::endl;
+    if (now + 1.0 <= totalTime)
+    {
+        Simulator::Schedule (Seconds (1.0), &PeriodicProgressTick, totalTime, totalUes);
+    }
 }
 
 int main (int argc, char *argv[])
@@ -308,11 +323,19 @@ int main (int argc, char *argv[])
     NS_LOG_INFO ("Agendando evento de inicio de conflito para t=" << conflictStart << "s e fim para t=" << conflictEnd << "s");
     Simulator::Schedule (Seconds (conflictStart), &TraceConflictWindowStart);
     Simulator::Schedule (Seconds (conflictEnd), &TraceConflictWindowEnd);
+    Simulator::Schedule (Seconds (1.0), &PeriodicProgressTick, simTime, static_cast<uint16_t>(gNbNum * ueNumPerGnb));
+
+    std::cout << "\n========================================================================\n"
+              << "   [ns-3 S8 NORI/5G-LENA] SIMULAÇÃO EM TEMPO REAL INICIADA!\n"
+              << "   gNodeBs: " << gNbNum << " | UEs: " << (gNbNum * ueNumPerGnb) << " | Duração: " << simTime << "s | Modo: " << demoMode << "\n"
+              << "   Janela de Conflito/Carga: t=" << conflictStart << "s a t=" << conflictEnd << "s\n"
+              << "========================================================================\n" << std::endl;
 
     NS_LOG_INFO ("Executando simulacao de tráfego por " << simTime << " segundos...");
     Simulator::Stop (Seconds (simTime));
     Simulator::Run ();
 
+    std::cout << "\n[ns-3 S8 Realtime] Simulação concluída com sucesso! Gravando flowmonitor_s8_traffic.xml..." << std::endl;
     flowMonitor->SerializeToXmlFile ("flowmonitor_s8_traffic.xml", true, true);
     Simulator::Destroy ();
 
