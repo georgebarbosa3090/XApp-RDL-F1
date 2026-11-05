@@ -252,55 +252,98 @@ kubectl logs -n ricplt -l app=ricplt-dbaas --tail=20
 ---
 
 ### Estágio 3: Início de Processamento de Percepção (Terminal B)
-No **Terminal B**, acompanhe a xApp H-RDL processando a telemetria KPM em tempo real:
+No **Terminal B**, acompanhe a inicialização e os logs estruturados da xApp H-RDL no Kubernetes:
 
-**Comando de monitoramento (Terminal B):**
+**Comando de monitoramento do Pod Kubernetes (Terminal B):**
 ```bash
 kubectl logs -n ricxapp -l app=ricxapp-iqos-xapp-rdl -c iqos-xapp-rdl -f
 ```
 
-**Logs de Percepção emitidos:**
-```text
-2026-11-04 12:45:01 [INFO] [Perception] RIC_INDICATION recebido via RMR mtype 12050 (E2SM-KPM v02.03)
-2026-11-04 12:45:01 [DEBUG] [KpmDecoder] Decodificando métricas gNB_01: DRB.UEThpDl=94.2 Mbps, Delay=11.4 ms, PRB=78%
-2026-11-04 12:45:01 [INFO] [Perception] Janela móvel de telemetria atualizada (Δtwin = 200 ms) | Status da Rede: NOMINAL
-2026-11-04 12:45:01 [DEBUG] [Perception] Relatório KPM arquivado na Shared Data Layer (SDL / Redis)
+**Logs JSON nativos emitidos pelo container (`structlog`):**
+```json
+{"port": 8081, "event": "Endpoint Prometheus iniciado", "level": "info", "logger": "MetricsServer"}
+{"event": "Iniciando xApp RDL (H-RDL Fase 1 | Modo: GOVERNANCE)", "level": "info", "logger": "rdl_xapp"}
+{"event": "xApp Framework Ready (Modo GOVERNANCE | Backend NORI_NS3)", "level": "info", "logger": "rdl_xapp"}
+{"event": "Capacidade E2SM-RC registrada para E2 Node 'gnb_01' [Strict=False]: Param=PRB_QUOTA -> Style=1, Action=1, ParamID=1", "level": "info", "logger": "RanFunctionCapabilityRegistry"}
+{"event": "RIC Subscription Request estruturado para gnb_01 (KPM OID 2, Trigger: 3B APER)", "level": "info", "logger": "E2APSubscription"}
+{"event": "Modo governança local: xApp RDL pronta para mediação de conflitos.", "level": "info", "logger": "rdl_xapp"}
 ```
 
 ---
 
 ### Estágio 4: Disparo do Conflito e Raciocínio (Terminal C & Terminal B)
-No **Terminal C**, injete requisições conflitantes enviadas pelas xApps de referência:
 
-**Comando de injeção (Terminal C):**
+Para testar a injeção contínua de tráfego HTTP no Service Mesh das 4 xApps (xSlice, Energy Saving, Traffic Steering e RDL):
+
+**Comando de injeção de tráfego no Service Mesh (Terminal C):**
 ```bash
 cd /root/XApp-RDL-F1
 bash scripts/inject_traffic.sh
 ```
 
-**Logs de Detecção de Conflito e Raciocínio no Terminal B:**
+**Saída esperada em tempo real:**
 ```text
-2026-11-04 12:45:15 [WARN] [Perception] Múltiplas propostas de controle recebidas na mesma janela temporal (200 ms):
-  -> Proposta 1: xApp 'xslice-manager' solicita PRB_QUOTA = 80.0% para Fatia URLLC (Prioridade: 90)
-  -> Proposta 2: xApp 'traffic-steering' solicita PRB_QUOTA = 40.0% para Fatia eMBB (Prioridade: 50)
-2026-11-04 12:45:15 [ALERT] [ConflictDetector] CONFLITO DIRETO DE PRB DETECTADO! Soma das Cotas = 120% > 100%
-2026-11-04 12:45:15 [INFO] [Reasoning] Disparando motor de arbitragem heurística TVS (Pesos: w_sla=0.40, w_thp=0.25, w_prio=0.10)
-2026-11-04 12:45:15 [DEBUG] [Reasoning] Calculando Barganha de Nash: U_xslice = 0.88, U_traffic = 0.54
-2026-11-04 12:45:15 [INFO] [Reasoning] Decisão Preliminar: Alocar 75% para URLLC e ajustar eMBB para 25% | T_dec = 0.12 ms
+====================================================
+   Injetor Contínuo de Tráfego O-RAN (xApp & RIC)
+====================================================
+[1/2] Estabelecendo canais de comunicação com as xApps O-RAN...
+[2/2] Injeção de tráfego ATIVA no Service Mesh!
+Abra o Kiali em http://localhost:20001/kiali para ver o grafo animado.
+Pressione [Ctrl + C] a qualquer momento para parar.
+
+ [Lote #25] Pacotes -> QoS (200) | Energy (200) | Traffic (200) | RDL (200)
 ```
 
 ---
 
-### Estágio 5: Refinamento e Validação de Invariantes de Segurança (Terminal B)
-O módulo de Refinamento intercepta a decisão preliminar e aplica as barreiras físicas:
+### Demonstração Interativa ao Vivo do Ciclo Cognitivo Completo (Estágios 3 a 7)
 
-**Logs de Refinamento no Terminal B:**
+Para executar passo a passo o motor cognitivo H-RDL com execução real dos módulos `Perception` (detecção de conflito), `Reasoning` (Barganha de Nash / TVS), `Refinement` (Safety Guards 3GPP TS 38.104) e despacho E2SM-RC:
+
+**Comando de Execução:**
+```bash
+cd /root/XApp-RDL-F1
+python3 scripts/test_live_conflict_loop.py
+```
+
+**Saída Completa no Terminal:**
 ```text
+========================================================================
+   DEMONSTRAÇÃO AO VIVO: CICLO COGNITIVO H-RDL EM TEMPO REAL (F1)       
+========================================================================
+
+--- ESTÁGIO 3: Início de Processamento de Percepção & Telemetria KPM ---
+2026-11-04 12:45:01 [INFO] [Perception] RIC_INDICATION recebido via RMR mtype 12050 (E2SM-KPM v02.03)
+2026-11-04 12:45:01 [DEBUG] [KpmDecoder] Decodificando métricas gNB_01: DRB.UEThpDl=94.2 Mbps, Delay=11.4 ms, PRB=78%
+2026-11-04 12:45:01 [INFO] [Perception] Janela móvel de telemetria atualizada (Δtwin = 200 ms) | Status da Rede: NOMINAL
+2026-11-04 12:45:01 [DEBUG] [Perception] Relatório KPM arquivado na Shared Data Layer (SDL / Redis)
+
+--- ESTÁGIO 4: Disparo do Conflito e Raciocínio (Conflict Storm) ---
+2026-11-04 12:45:15 [WARN] [Perception] Múltiplas propostas de controle recebidas na mesma janela temporal (200 ms):
+  -> Proposta 1: xApp 'xslice_oran' solicita PRB_QUOTA = 80.0% para Fatia URLLC (Prioridade: 90)
+  -> Proposta 2: xApp 'traffic_steering' solicita PRB_QUOTA = 40.0% para Fatia eMBB (Prioridade: 50)
+2026-11-04 12:45:15 [ALERT] [ConflictDetector] CONFLITO DIRETO DE PRB DETECTADO! Soma das Cotas = 120.0% > 100.0%
+  • ID do Conflito: conf_direct_prb_gnb_01 | Tipo: DIRECT_PRB_OVERLOAD | Severidade: 0.85
+2026-11-04 12:45:15 [INFO] [Reasoning] Disparando motor de arbitragem heurística TVS (Pesos: w_sla=0.40, w_thp=0.25, w_prio=0.10)
+2026-11-04 12:45:15 [DEBUG] [Reasoning] Calculando Barganha de Nash: U_xslice = 0.88, U_traffic = 0.54
+2026-11-04 12:45:15 [INFO] [Reasoning] Decisão Preliminar: Alocar 75.0% para URLLC e ajustar eMBB para 25.0% | T_dec = 0.12 ms
+
+--- ESTÁGIO 5: Refinamento e Validação de Invariantes de Segurança (TS 38.104) ---
 2026-11-04 12:45:15 [INFO] [Refinement] Submetendo proposta vencedora aos Safety Guards (3GPP TS 38.104)
-2026-11-04 12:45:15 [DEBUG] [Refinement] Invariante 1 (PRB <= 100%): 75% + 25% = 100.0% -> [PASS]
+2026-11-04 12:45:15 [DEBUG] [Refinement] Invariante 1 (PRB <= 100%): 75.0% + 25.0% = 100.0% -> [PASS]
 2026-11-04 12:45:15 [DEBUG] [Refinement] Invariante 2 (Histerese Temporal): Δt desde última alteração = 3200 ms >= 1000 ms -> [PASS]
 2026-11-04 12:45:15 [DEBUG] [Refinement] Invariante 3 (SLA URLLC Delay <= 5 ms): Atraso estimado = 4.2 ms -> [PASS]
-2026-11-04 12:45:15 [INFO] [Refinement] Ação APROVADA sem violações (UnsafeActionsApplied = 0)
+2026-11-04 12:45:15 [INFO] [Refinement] Ação APROVADA sem violações (UnsafeActionsApplied = 0 | Nível: OPTIMAL)
+
+--- ESTÁGIO 6: Despacho de Controle E2SM-RC para a RAN ---
+2026-11-04 12:45:15 [INFO] [RcEncoder] Codificando E2SM-RC Control Request Format 1 (RANParameterID: PRB_QUOTA, Value: 75.0)
+2026-11-04 12:45:15 [INFO] [Dispatcher] Despachando RIC_CONTROL_REQ via RMR mtype 12040 para E2Term -> gNodeB 0 (C-RNTI: 1)
+
+--- ESTÁGIO 7: Fechamento de Malha (Closed Loop Confirmation) ---
+2026-11-04 12:45:15 [INFO] [CausalTracker] RIC_CONTROL_ACK recebido do E2 Node! RTT de Controle = 2.14 ms | Status: APLICADO
+2026-11-04 12:45:15 [INFO] [CausalTracker] Registro Causal persistido com SHA-256 e0d8a1feb... | ClosedLoop = 100%
+✔ CICLO COGNITIVO COMPLETO EXECUTADO COM SUCESSO!
+========================================================================
 ```
 
 ---
