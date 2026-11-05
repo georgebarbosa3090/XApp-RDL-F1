@@ -266,18 +266,47 @@ class RealDataTelemetryProvider:
             scenario = SCENARIOS_CATALOG.get(self.target_scenario.upper())
             pattern = scenario["key"] if scenario else self.target_scenario.lower()
             candidates = [name for name in candidates if pattern in name.lower()]
-        if not candidates:
+        # Verifica se há arquivo de execução manual ao vivo do ns-3
+        live_xml_candidates = [
+            "/root/ns3-oran-workspace/ns-3-oran/flowmonitor_s8_traffic.xml",
+            "/root/ns3-oran-workspace/ns-3-oran/flowmonitor.xml",
+            os.path.abspath(os.path.join(self.base_dir, "..", "..", "ns3-oran-workspace", "ns-3-oran", "flowmonitor_s8_traffic.xml")),
+            os.path.abspath(os.path.join(self.base_dir, "..", "ns3-oran-workspace", "ns-3-oran", "flowmonitor_s8_traffic.xml")),
+            os.path.join(self.base_dir, "flowmonitor_s8_traffic.xml"),
+            os.path.join(os.getcwd(), "flowmonitor_s8_traffic.xml"),
+        ]
+        live_xml = None
+        for p in live_xml_candidates:
+            if os.path.isfile(p):
+                if live_xml is None or os.stat(p).st_mtime_ns > os.stat(live_xml).st_mtime_ns:
+                    live_xml = p
+
+        newest_hist_mtime = os.stat(os.path.join(self.ns3_runs_dir, candidates[0])).st_mtime_ns if candidates else 0
+        use_live_run = live_xml is not None and (
+            not candidates or os.stat(live_xml).st_mtime_ns >= newest_hist_mtime
+            or (self.target_scenario and "S8" in self.target_scenario.upper())
+        )
+
+        if use_live_run and live_xml:
+            mtime_dt = datetime.datetime.fromtimestamp(os.stat(live_xml).st_mtime)
+            selected_dir = f"live_ns3_session_{mtime_dt.strftime('%Y%m%dT%H%M%SZ')}"
+            full_run_dir = os.path.dirname(live_xml)
+            xml_path = live_xml
+            status_path = ""
+            log_path = os.path.join(full_run_dir, "execution.log")
+        elif not candidates:
             data = self._empty_run_data()
             requested = self.target_run or self.target_scenario
             if requested:
                 data["status_message"] = f"No run matches: {requested}"
             return data
+        else:
+            selected_dir = candidates[0]
+            full_run_dir = os.path.join(self.ns3_runs_dir, selected_dir)
+            xml_path = os.path.join(full_run_dir, "flowmonitor.xml")
+            status_path = os.path.join(full_run_dir, "run_status.json")
+            log_path = os.path.join(full_run_dir, "execution.log")
 
-        selected_dir = candidates[0]
-        full_run_dir = os.path.join(self.ns3_runs_dir, selected_dir)
-        xml_path = os.path.join(full_run_dir, "flowmonitor.xml")
-        status_path = os.path.join(full_run_dir, "run_status.json")
-        log_path = os.path.join(full_run_dir, "execution.log")
         artifact_names = (
             "e2.pcap",
             "kpm.jsonl",

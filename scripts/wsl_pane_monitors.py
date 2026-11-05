@@ -152,11 +152,56 @@ def render_pane5(state):
 
 def render_pane6(state):
     b6 = state["block6_ran_control_action"]
-    lines = _render_header("[JANELA 6] REQUEST/ACK E2SM-RC", BLUE, state)
-    lines.append(f"Request desta execução: {'presente' if b6['control_request_available'] else 'não encontrado'}")
-    lines.append(f"ACK desta execução: {'presente' if b6['control_ack_available'] else 'não encontrado'}")
-    if not b6["closed_loop_evidence_available"]:
-        lines.append("Malha fechada não comprovada: faltam evidências request/ACK deste run.")
+    b1 = state.get("block1_ran_registration", {})
+    b3 = state.get("block3_perception_module", {})
+    lines = _render_header("[JANELA 6] FECHAMENTO DE MALHA & ATUAÇÃO O-RAN", BLUE, state)
+
+    # 1. Status de Sinalização E2SM-RC
+    lines.append(f"{BOLD}1. Controle E2SM-RC (Interface E2):{RESET}")
+    lines.append(f"  • RIC Control Request: {'presente' if b6['control_request_available'] else 'não emitido / não encontrado'}")
+    lines.append(f"  • RIC Control ACK:     {'presente' if b6['control_ack_available'] else 'não emitido / não encontrado'}")
+
+    sid = state.get("active_scenario_id", "SX")
+    if sid == "S8":
+        lines.append(f"\n{YELLOW}[Diagnóstico Metodológico S8 - 5G-LENA NR]:{RESET}")
+        lines.append("  O Cenário S8 mede métricas físicas da RAN (URLLC, eMBB, mMTC) via FlowMonitor.")
+        lines.append("  Operação nominal de tráfego (sem comandos E2SM-RC na O-DU).")
+        lines.append("  Para fechamento de malha com Request/ACK E2SM-RC ativos, execute os cenários S1 (PRB) ou S3 (Handover).")
+    elif not b6["closed_loop_evidence_available"]:
+        lines.append(f"\n{YELLOW}Malha fechada E2SM-RC não comprovada para este run (faltam evidências request/ACK).{RESET}")
+    else:
+        lines.append(f"\n{GREEN}✔ Malha fechada E2SM-RC comprovada com sucesso!{RESET}")
+
+    lines.append("\n----------------------------------------------------------------")
+    lines.append(f"{BOLD}2. Telemetria da Camada Física / MAC (FlowMonitor ns-3):{RESET}")
+    if b1.get("flowmonitor_available") and b1.get("flows"):
+        lines.append(
+            f"  • Fluxos com Dados: {BOLD}{b1['active_data_flows']}{RESET} | "
+            f"Volume RX: {BOLD}{b1['total_traffic_mb']} MB{RESET} | "
+            f"Vazão Agregada: {BOLD}{b3.get('throughput_mbps') or 0.0} Mbps{RESET}"
+        )
+        lines.append(
+            f"  • Pacotes na RAN:   TX={b1['total_packets_tx']} | RX={b1['total_packets_rx']} | "
+            f"Perdas={b1['total_packets_lost']} (Taxa: {b3.get('loss_ratio_pct') or 0.0}%)"
+        )
+        if b3.get("mean_delay_ms") is not None:
+            lines.append(f"  • Atraso Médio:     {BOLD}{b3['mean_delay_ms']} ms{RESET}")
+
+        lines.append("----------------------------------------------------------------")
+        lines.append(f"{'Flow':<6} {'Origem':<15} {'Destino':<15} {'Vazão':<12} {'Atraso':<9}")
+        lines.append("----------------------------------------------------------------")
+        for f in b1.get("flows", [])[:5]:
+            lines.append(
+                f"{f['flow_id']:<6} {f['src_ip'] or 'N/D':<15} "
+                f"{f['dst_ip'] or 'N/D':<15} {f['throughput_mbps']:>6.2f} Mbps  "
+                f"{f['delay_ms']:>6.2f} ms"
+            )
+    else:
+        if b1.get("flowmonitor_error"):
+            lines.append(f"  {RED}FlowMonitor: {b1['flowmonitor_error']}{RESET}")
+        else:
+            lines.append(f"  {YELLOW}Aguardando FlowMonitor da simulação...{RESET}")
+
     return "\n".join(lines)
 
 
