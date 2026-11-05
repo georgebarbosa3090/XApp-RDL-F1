@@ -235,10 +235,19 @@ O agente E2 NORI abre o socket SCTP na porta 36422 e negocia com o pod `ricplt-e
 [0.955s] [E2Agent] Enviando RIC_SUBSCRIPTION_RESPONSE (SubId: 1, Status: ACTIVE)
 ```
 
-Para verificar o handshake pelo lado do Near-RT RIC em outro terminal:
+Para verificar os componentes de plataforma do Near-RT RIC no namespace `ricplt`:
 ```bash
+# 1. Listar os pods ativos da plataforma Near-RT RIC:
+kubectl get pods -n ricplt
+
+# 2. Se utilizando stack OSC completa com terminação E2Term:
 kubectl logs -n ricplt -l app=ricplt-e2term-alpha --tail=20
+
+# 3. Se utilizando a stack Near-RT RIC local (deploy/kubernetes/near-rt-ric.yaml):
+kubectl logs -n ricplt -l app=ricplt-dbaas --tail=20
 ```
+> [!NOTE]
+> Se o cluster estiver executando o perfil de infraestrutura leve local (k3s + Redis DBAAS + serviços RMR roteados), o namespace `ricplt` conterá o pod `deployment-ricplt-dbaas-redis`. Caso execute `kubectl logs -n ricplt -l app=ricplt-e2term-alpha` em um cluster local sem a imagem OSC compilada, o kubectl retornará `No resources found`, o que é o comportamento esperado.
 
 ---
 

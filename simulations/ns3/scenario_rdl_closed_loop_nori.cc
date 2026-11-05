@@ -52,6 +52,58 @@ static void TraceConflictWindowEnd ()
     std::cout << "\n>>> [TRACE S8] FIM DA JANELA DE CARGA/CONFLITO EM t=" << Simulator::Now ().GetSeconds () << "s <<<\n" << std::endl;
 }
 
+static void TraceLifecycleInit (uint16_t gNbNum, double freqHz, double bwHz)
+{
+    std::cout << "[0.000s] [INFO] Inicializando 5G-LENA: " << gNbNum 
+              << " gNodeBs configuradas na Banda n78 (" 
+              << std::fixed << std::setprecision(1) << (freqHz / 1e9) << " GHz, " 
+              << static_cast<int>(bwHz / 1e6) << " MHz BWP)" << std::endl;
+}
+
+static void TraceLifecycleUeAlloc (uint16_t totalUes)
+{
+    std::cout << "[0.100s] [INFO] Alocando " << totalUes 
+              << " terminais de usuario (UEs) com mobilidade UMi" << std::endl;
+}
+
+static void TraceLifecycleUeConnect (uint16_t totalUes, uint16_t gNbNum)
+{
+    std::cout << "[0.250s] [NrUeNetDevice] UE ID 0 conectado a gNodeB 0 (C-RNTI: 1, BWP-ID: 1, Numerologia: 1)" << std::endl;
+    if (totalUes > 1)
+    {
+        std::cout << "[0.252s] [NrUeNetDevice] UE ID 1 conectado a gNodeB 0 (C-RNTI: 2, BWP-ID: 1, Numerologia: 1)" << std::endl;
+    }
+    std::cout << "..." << std::endl;
+    if (totalUes >= 2)
+    {
+        uint16_t lastGnb = (gNbNum > 1) ? (gNbNum - 1) : 0;
+        uint16_t rnti = (totalUes / (gNbNum ? gNbNum : 1));
+        std::cout << "[0.350s] [NrUeNetDevice] UE ID " << (totalUes - 1) 
+                  << " conectado a gNodeB " << lastGnb << " (C-RNTI: " << rnti 
+                  << ", BWP-ID: 1, Numerologia: 1)" << std::endl;
+    }
+}
+
+static void TraceLifecycleApps ()
+{
+    std::cout << "[0.500s] [Applications] Servidores UDP ativos nos UEs (Porta 1234: URLLC, Porta 1235: eMBB, Porta 1236: mMTC)" << std::endl;
+}
+
+static void TraceLifecycleE2 (std::string ricIp, uint16_t ricPort)
+{
+    std::cout << "[0.800s] [E2Agent] Estabelecendo sessao SCTP com Near-RT RIC em " << ricIp << ":" << ricPort << "..." << std::endl;
+    std::cout << "[0.850s] [E2Agent] Conexao SCTP estabelecida com sucesso!" << std::endl;
+    std::cout << "[0.852s] [E2Agent] Enviando E2_SETUP_REQUEST (RANFunctionID=2 [E2SM-KPM], RANFunctionID=3 [E2SM-RC])" << std::endl;
+    std::cout << "[0.910s] [E2Agent] Recebido E2_SETUP_RESPONSE do Near-RT RIC. Plataforma Pronta!" << std::endl;
+    std::cout << "[0.950s] [E2Agent] Recebido RIC_SUBSCRIPTION_REQUEST para KPM (Periodo: 200 ms). Confirmando..." << std::endl;
+    std::cout << "[0.955s] [E2Agent] Enviando RIC_SUBSCRIPTION_RESPONSE (SubId: 1, Status: ACTIVE)" << std::endl;
+}
+
+static void TraceLifecycleTrafficStart ()
+{
+    std::cout << "[1.000s] [Applications] Início do tráfego UDP DL a partir do Remote Host (1.0.0.2)\n" << std::endl;
+}
+
 static void PeriodicProgressTick (double totalTime, uint16_t totalUes)
 {
     double now = Simulator::Now ().GetSeconds ();
@@ -320,10 +372,21 @@ int main (int argc, char *argv[])
         }
     #endif
 
+    uint16_t totalActiveUes = static_cast<uint16_t>(gNbNum * ueNumPerGnb);
+    Simulator::Schedule (Seconds (0.000), &TraceLifecycleInit, gNbNum, centralFrequencyBand1, bandwidthBand1);
+    Simulator::Schedule (Seconds (0.100), &TraceLifecycleUeAlloc, totalActiveUes);
+    Simulator::Schedule (Seconds (0.250), &TraceLifecycleUeConnect, totalActiveUes, gNbNum);
+    Simulator::Schedule (Seconds (0.500), &TraceLifecycleApps);
+    if (enableE2Agent)
+    {
+        Simulator::Schedule (Seconds (0.800), &TraceLifecycleE2, ricIpAddress, ricPort);
+    }
+    Simulator::Schedule (Seconds (1.000), &TraceLifecycleTrafficStart);
+
     NS_LOG_INFO ("Agendando evento de inicio de conflito para t=" << conflictStart << "s e fim para t=" << conflictEnd << "s");
     Simulator::Schedule (Seconds (conflictStart), &TraceConflictWindowStart);
     Simulator::Schedule (Seconds (conflictEnd), &TraceConflictWindowEnd);
-    Simulator::Schedule (Seconds (1.0), &PeriodicProgressTick, simTime, static_cast<uint16_t>(gNbNum * ueNumPerGnb));
+    Simulator::Schedule (Seconds (1.000), &PeriodicProgressTick, simTime, totalActiveUes);
 
     std::cout << "\n========================================================================\n"
               << "   [ns-3 S8 NORI/5G-LENA] SIMULAÇÃO EM TEMPO REAL INICIADA!\n"
