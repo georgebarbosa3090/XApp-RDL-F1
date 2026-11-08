@@ -61,7 +61,7 @@ if [ -f "$DEST/raw/slice_series.csv" ]; then
   [ -x "$PY" ] || PY=python3
   # Regra calibrada (pré-registros docs/07_*): usa a calibração, exceto nas próprias execuções de calibração
   CAL="${CALIBRATION:-$REPO/experiments/calibration/slice_capacity_v3.json}"   # desenho v3 (docs/07_preregistro_fase4_v3.md)
-  CURVE="${CURVE:-$REPO/experiments/calibration/slice_cap_curve_v4.json}"   # desenho v4 (docs/07_preregistro_fase4_v4.md)
+  CURVE="${CURVE:-$REPO/experiments/calibration/slice_cap_curve_v5.json}"   # desenho v5 (docs/07_preregistro_fase4_v5.md)
   CAL_ARGS=()
   if [[ "$RUN_ID" == nori_cal* || "$RUN_ID" == nori_curve* ]]; then
     :   # execuções de calibração/curva: sem previsão

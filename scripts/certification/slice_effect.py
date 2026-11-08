@@ -83,6 +83,20 @@ def wall_to_sim(series: Dict[int, List[Tuple[float, float, float]]], wall: float
     return None
 
 
+def apply_time(series: Dict[int, List[Tuple[float, float, float]]], wall: float) -> Optional[float]:
+    """Instante simulado em que o NORI aplica o Control (desenho v5).
+
+    O NORI agenda o Control a partir da thread do E2 com ``ScheduleWithContext(MicroSeconds(0))``; no
+    ``RealtimeSimulatorImpl`` o evento cai no tempo de relógio decorrido desde o início da simulação,
+    à frente do tempo simulado atrasado. O início da simulação no relógio de parede vem da primeira
+    amostra da série (quando a simulação ainda não atrasou): t_aplic = parede_Control − (parede_0 − t_0).
+    """
+    first = min((r for rows in series.values() for r in rows), key=lambda r: r[0], default=None)
+    if first is None:
+        return None
+    return wall - (first[1] - first[0])
+
+
 def throughput_mbps(rows: List[Tuple[float, float, float]], start: float, end: float) -> Optional[float]:
     """Vazão média (Mb/s) entre as amostras mais próximas dentro de [start, end]."""
     inside = [r for r in rows if start - 1e-9 <= r[0] <= end + 1e-9]
@@ -249,6 +263,7 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": "scripts/certification/slice_effect.py",
         "rule": "v4-curve" if curve else ("v2-calibrated" if calibration else "v1-throughput-share"),
+        "anchor": "control",
         "constants": {"window_s": WINDOW_S, "settle_s": SETTLE_S, "margin_pp": MARGIN_PP, "min_drop": MIN_DROP,
                       **({"tolerance": TOLERANCE} if (calibration or curve) else {})},
         "source_csv": f"raw/slice_series.csv",
@@ -270,6 +285,10 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                 out.update(verdict="NOT_TESTABLE", reason="instante do Control fora da série (relógio de parede)")
             elif curve:
                 cv = json.loads(Path(curve).read_text(encoding="utf-8"))
+                if cv.get("anchor") == "apply":
+                    # v5: janelas ancoradas no instante de aplicação do Control (docs/07_preregistro_fase4_v5.md)
+                    t_c = apply_time(series, float(ctrl["time_epoch"]))
+                    out.update(rule="v5-curve-apply", anchor="apply", control_apply_time_s=t_c)
                 try:
                     cv_rel = Path(curve).resolve().relative_to(ROOT).as_posix()
                 except ValueError:

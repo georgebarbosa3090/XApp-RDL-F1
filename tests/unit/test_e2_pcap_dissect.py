@@ -696,3 +696,62 @@ def test_curve_build_validity(tmp_path, lock):
     bad = curve_mod.build_curve(["nori_curve10", "nori_curve15", "nori_curve20"], tmp_path / "curve2.json",
                                 tmp_path / "runs", tmp_path / "e2_dissection")
     assert bad["valid"] is False and "monotônica" in bad["reason"]
+
+
+# ---------------------------------------------------------------------------
+# Desenho v5: janela ancorada no instante de aplicação do Control
+# ---------------------------------------------------------------------------
+
+def _lagged_series_csv(t_change, embb_after, urllc_after, wall0=1794146159.0, lag=3.0):
+    """Simulação 'lag' vezes mais lenta que o relógio: parede = wall0 + lag·t (t_sim 0 a 30 s)."""
+    rows = ["sim_time_s,wall_epoch_s,ue_index,sst,tx_packets,rx_packets,rx_bytes,delay_sum_s"]
+    acc = {1: 0.0, 2: 0.0}
+    for k in range(0, 61):
+        t = k * 0.5
+        if k:
+            for sst, after in ((1, embb_after), (2, urllc_after)):
+                acc[sst] += (150.0 if t <= t_change else after) * 1e6 / 8 * 0.5
+        wall = wall0 + t if t <= 0.5 else wall0 + 0.5 + lag * (t - 0.5)   # sem atraso na 1.ª amostra
+        for ue, sst in ((0, 1), (1, 2)):
+            rows.append(f"{t:.6f},{wall:.6f},{ue},{sst},0,0,{int(acc[sst])},0")
+    return "\n".join(rows) + "\n"
+
+
+def test_apply_time_uses_wall_clock_elapsed():
+    # primeira amostra sem atraso (parede no início = 1000); depois a simulação atrasa
+    series = {1: [(0.5, 1000.5, 0.0), (1.0, 1003.0, 0.0)]}
+    # Control chega com 15 s de relógio decorrido -> aplicado em t_sim 15
+    assert abs(effect_mod.apply_time(series, 1015.0) - 15.0) < 1e-9
+
+
+def test_v5_anchor_finds_the_delayed_effect(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    # Control no fio em parede wall0+5 s (quadro 6); com atraso 3x, t_sim ~1,7, mas aplicado em t_sim 5
+    # (relógio decorrido). Para cair no meio da série, o PCAP usa wall0 + 15 s: aplicado em t_sim 15.
+    run_dir, droot, _ = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=100.0,
+                                              urllc_after=150.0, calibration_k=None)
+    frames_shift = 10.0
+    raw = (run_dir / "raw" / "e2_sctp.pcap").read_bytes()
+    out, off = bytearray(raw[:24]), 24
+    while off < len(raw):
+        sec, us, cl, ol = struct.unpack("<IIII", raw[off:off + 16])
+        out += struct.pack("<IIII", sec + int(frames_shift), us, cl, ol) + raw[off + 16:off + 16 + cl]
+        off += 16 + cl
+    (run_dir / "raw" / "e2_sctp.pcap").write_bytes(bytes(out))
+    (run_dir / "raw" / "slice_series.csv").write_text(_lagged_series_csv(15.0, 100.0, 150.0), encoding="utf-8")
+    dis.dissect(run_dir / "raw" / "e2_sctp.pcap", droot / run_dir.name, run_dir.name, use_tshark=False)
+    curve = {"valid": True, "anchor": "apply", "curve": {
+        "1": [{"cap_max_prb_pct": 30.0, "throughput_after_mbps": 80.0, "binding": True},
+              {"cap_max_prb_pct": 50.0, "throughput_after_mbps": 120.0, "binding": True},
+              {"cap_max_prb_pct": 70.0, "throughput_after_mbps": 150.0, "binding": False}],
+        "2": [{"cap_max_prb_pct": 30.0, "throughput_after_mbps": 150.0, "binding": False}]}}
+    cpath = tmp_path / "curve_v5.json"
+    cpath.write_text(json.dumps(curve), encoding="utf-8")
+    v5 = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot, curve=cpath)
+    assert v5["rule"] == "v5-curve-apply" and abs(v5["control_apply_time_s"] - 15.0) < 1e-6
+    assert v5["verdict"] == "CONSISTENT", v5
+    # a mesma curva ancorada no instante do Control (regra v4) não vê o efeito
+    curve["anchor"] = "control"
+    cpath.write_text(json.dumps(curve), encoding="utf-8")
+    v4 = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot, curve=cpath)
+    assert v4["rule"] == "v4-curve" and v4["verdict"] == "INCONSISTENT"

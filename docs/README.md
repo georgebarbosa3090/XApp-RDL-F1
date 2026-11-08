@@ -12,6 +12,7 @@
 | [07 — Pré-registro da fase 4, desenho v2](07_preregistro_fase4_v2.md) | Hipóteses, calibração, critérios e regras de relato do efeito causal da decisão H-RDL, registrados antes das execuções, e o resultado (calibração inválida) |
 | [07 — Pré-registro da fase 4, desenho v3](07_preregistro_fase4_v3.md) | Calibração por cotas complementares (soma 100 %), hipóteses H4.0–H4.3 e regras de relato, registrados antes das execuções, e o resultado (H4.0 refutada, calibração inválida) |
 | [07 — Pré-registro da fase 4, desenho v4](07_preregistro_fase4_v4.md) | Curva teto → vazão (10–30 %) e previsão por interpolação deixa-um-fora, registrados antes das execuções; resultado (curva inválida pela janela) e o achado do atraso de aplicação do Control |
+| [07 — Pré-registro da fase 4, desenho v5](07_preregistro_fase4_v5.md) | Janela de efeito ancorada no instante de aplicação do Control, curva v4 como calibração e três avaliações prospectivas, registrados antes das avaliações |
 | [23 — Fluxo de mensagens](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) | Diagrama de sequência do ciclo subscrição → decisão → controle → ACK |
 
 ## Referência

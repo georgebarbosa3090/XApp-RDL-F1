@@ -37,7 +37,7 @@ sys.modules["slice_effect"] = fx
 _spec.loader.exec_module(fx)
 
 
-def run_points(run_id: str, runs_dir: Path, dissection_root: Path) -> Dict[str, Any]:
+def run_points(run_id: str, runs_dir: Path, dissection_root: Path, anchor: str = "control") -> Dict[str, Any]:
     run_dir, ddir = runs_dir / run_id, dissection_root / run_id
     csv_path, diss_path = run_dir / "raw" / "slice_series.csv", ddir / "e2_messages.json"
     entry: Dict[str, Any] = {"run_id": run_id, "source_csv": f"experiments/runs/{run_id}/raw/slice_series.csv",
@@ -49,17 +49,18 @@ def run_points(run_id: str, runs_dir: Path, dissection_root: Path) -> Dict[str, 
         entry["error"] = "sem RIC Control na cadeia do PCAP"
         return entry
     series = fx.load_series(csv_path)
-    t_c = fx.wall_to_sim(series, float(ctrl["time_epoch"]))
+    t_c = (fx.apply_time if anchor == "apply" else fx.wall_to_sim)(series, float(ctrl["time_epoch"]))
     if t_c is None:
         entry["error"] = "instante do Control fora da série"
         return entry
     caps = {int(q["sst"]): float(q["max_prb_ratio"]) for q in quotas}
     before_w = (t_c - fx.WINDOW_S, t_c)
     after_w = (t_c + fx.SETTLE_S, t_c + fx.SETTLE_S + fx.WINDOW_S)
-    entry.update(quotas_from_pcap=quotas, control_sim_time_s=t_c, window_before=before_w, window_after=after_w)
+    entry.update(quotas_from_pcap=quotas, anchor=anchor, anchor_time_s=t_c, window_before=before_w, window_after=after_w)
     for sst, rows in sorted(series.items()):
         b, a = fx.throughput_mbps(rows, *before_w), fx.throughput_mbps(rows, *after_w)
         if b is None or a is None or sst not in caps:
+            entry.setdefault("uncovered", []).append(sst)   # janelas fora da série: ponto não entra
             continue
         entry["points"][str(sst)] = {"cap_max_prb_pct": caps[sst], "throughput_before_mbps": round(b, 3),
                                      "throughput_after_mbps": round(a, 3), "relative_change": round((a - b) / b, 4),
@@ -68,8 +69,8 @@ def run_points(run_id: str, runs_dir: Path, dissection_root: Path) -> Dict[str, 
 
 
 def build_curve(run_ids: List[str], out: Path, runs_dir: Path = ROOT / "experiments" / "runs",
-                dissection_root: Path = ROOT / "experiments" / "e2_dissection") -> Dict[str, Any]:
-    runs = [run_points(r, runs_dir, dissection_root) for r in run_ids]
+                dissection_root: Path = ROOT / "experiments" / "e2_dissection", anchor: str = "control") -> Dict[str, Any]:
+    runs = [run_points(r, runs_dir, dissection_root, anchor) for r in run_ids]
     curve: Dict[str, List[Dict[str, Any]]] = {}
     problems: List[str] = [f"{r['run_id']}: {r['error']}" for r in runs if r.get("error")]
     for r in runs:
@@ -87,7 +88,7 @@ def build_curve(run_ids: List[str], out: Path, runs_dir: Path = ROOT / "experime
     if not any(p["binding"] for pts in curve.values() for p in pts):
         problems.append("nenhum nível restringe nenhuma fatia")
     result: Dict[str, Any] = {
-        "schema": "xapp-rdl/slice-cap-curve/v1",
+        "schema": "xapp-rdl/slice-cap-curve/v1", "anchor": anchor,
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": "scripts/certification/slice_cap_curve.py",
         "constants": {"window_s": fx.WINDOW_S, "settle_s": fx.SETTLE_S, "min_drop": fx.MIN_DROP},
@@ -104,8 +105,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", required=True, action="append")
     parser.add_argument("--out", default=str(ROOT / "experiments" / "calibration" / "slice_cap_curve_v4.json"))
+    parser.add_argument("--anchor", choices=("control", "apply"), default="control",
+                        help="apply: janelas no instante de aplicação do Control (desenho v5)")
     args = parser.parse_args(argv)
-    r = build_curve(args.run, Path(args.out))
+    r = build_curve(args.run, Path(args.out), anchor=args.anchor)
     print(f"Curva teto -> vazão: {'VÁLIDA' if r['valid'] else 'INVÁLIDA'}" + (f" — {r['reason']}" if r.get("reason") else ""))
     for sst, pts in sorted(r["curve"].items()):
         print(f"  SST {sst}: " + "; ".join(f"{p['cap_max_prb_pct']:.0f} % -> {p['throughput_after_mbps']:.2f} Mb/s"

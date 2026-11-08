@@ -616,7 +616,7 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
     # curva teto -> vazão com interpolação deixa-um-fora, docs/07_preregistro_fase4_v4.md). A regra v1
     # tomava a parte da vazão como parte dos PRBs e foi superada (docs/07_preregistro_fase4_v2.md).
     g4 = [r for r in decided if (r.facts.get("slice_effect") or {}).get("verdict") == "CONSISTENT"
-          and (r.facts.get("slice_effect") or {}).get("rule") in ("v2-calibrated", "v4-curve")]
+          and (r.facts.get("slice_effect") or {}).get("rule") in ("v2-calibrated", "v4-curve", "v5-curve-apply")]
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
     if g4_ok:
