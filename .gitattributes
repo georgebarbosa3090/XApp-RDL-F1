@@ -1,2 +1,4 @@
 # Scripts executados no WSL/Linux precisam de finais de linha LF
 *.sh text eol=lf
+# Evidência experimental: bytes preservados (hashes SHA-256 dependem disso)
+experiments/runs/** -text

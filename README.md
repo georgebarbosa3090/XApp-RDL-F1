@@ -30,7 +30,7 @@ Em conformidade rigorosa com a política de proveniência (`reproducibility/prov
 
 | Gate | Descrição Normativa | Status Atual | Evidência & Diagnóstico Técnico |
 | :---: | :--- | :---: | :--- |
-| **G0** | Ambiente Normativo Reproduzível | 🟡 **PARCIAL** | `uv.lock` fixa o ambiente Python; dependências transitivas do testbed ns-3/NORI precisam de registro de versão/commit por execução. |
+| **G0** | Ambiente Normativo Reproduzível | 🟡 **PARCIAL** | Certificado para a pilha nativa ns-3.48 + 5G-LENA v5.1 (execuções `S1_native_traffic_seed1001/1002`, commits registrados por execução); a pilha NORI ainda não foi implantada. |
 | **G1** | E2SM-KPM Real (Telemetria Externa) | 🔴 **NÃO VALIDADO** | Não há evidência elegível de Setup/descoberta E2, subscrição e Indications de uma execução ns-3/5G-LENA + NORI. |
 | **G2** | H-RDL Funcional (Decisão Determinística) | 🟢 **APROVADO LOCAL** | Testes locais de detecção, Safety default-deny, limites de potência e rollback; não certifica interoperabilidade E2 externa. |
 | **G3** | E2SM-RC Real (Controle + ACK Externo) | 🔴 **NÃO VALIDADO** | Não há evidência de ação E2SM-RC aplicada à RAN nem ACK externo correlacionado. |

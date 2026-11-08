@@ -57,6 +57,8 @@ NORI_DIR=""
 for d in "${NS3_DIR}/contrib/nori" "${NS3_DIR}/contrib/oran"; do [ -d "$d" ] && NORI_DIR="$d" && break; done
 LENA_VERSION="$(git_desc "${LENA_DIR}")"
 NORI_COMMIT="$([ -n "$NORI_DIR" ] && git_rev "$NORI_DIR" || echo "")"
+NS3_COMMIT="$(git -C "${NS3_DIR}" rev-parse HEAD 2>/dev/null || echo "")"
+LENA_COMMIT="$(git -C "${LENA_DIR}" rev-parse HEAD 2>/dev/null || echo "")"
 # Sem módulo NORI a pilha é ns-3 + 5G-LENA pura: nunca rotular como NORI.
 BACKEND=$([ -n "$NORI_DIR" ] && echo NORI_NS3 || echo NS3_5GLENA)
 SCENARIO_SRC="${REPO_DIR}/simulations/ns3/${SCENARIO}.cc"
@@ -66,7 +68,16 @@ SCRATCH_SRC="${NS3_DIR}/scratch/${SCENARIO}.cc"
 
 WORK_DIR="$(mktemp -d)"
 STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-CMD=(./ns3 run "scratch/${SCENARIO} --RngRun=${SEED} ${SCENARIO_ARGS[*]:-}" --cwd "${WORK_DIR}")
+# Os cenários do projeto chamam SeedManager::SetSeed/SetRun com os próprios argumentos
+# (--seed/--run) depois de ler a linha de comando, o que anula --RngRun. Quando o cenário
+# expõe --seed, a semente é passada por ele; caso contrário, por --RngRun.
+if grep -qE 'AddValue *\( *"seed"' "$SCRATCH_SRC"; then
+  RNG_ARGS="--seed=${SEED}"
+else
+  RNG_ARGS="--RngRun=${SEED}"
+fi
+SIM_ARGS="${RNG_ARGS} ${SCENARIO_ARGS[*]:-}"
+CMD=(./ns3 run "scratch/${SCENARIO} ${SIM_ARGS}" --cwd "${WORK_DIR}")
 echo "=== [${STARTED}] ${SCENARIO} seed=${SEED} backend=${BACKEND} (saída ao vivo) ==="
 # Saída ao vivo no terminal e, ao mesmo tempo, gravada como evidência.
 ( cd "${NS3_DIR}" && "${CMD[@]}" )   > >(tee "${RUN_DIR}/logs/stdout.log")   2> >(tee "${RUN_DIR}/logs/stderr.log" >&2)
@@ -104,13 +115,16 @@ manifest = {
     "scenario": "${SCENARIO}",
     "baseline": "${BASELINE}" or None,
     "seed": int("${SEED}"),
-    "command": "cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} --RngRun=${SEED} ${SCENARIO_ARGS[*]:-}'",
+    "command": "cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} ${SIM_ARGS}'",
+    "rng_args": "${RNG_ARGS}",
     "run_status": "${RUN_STATUS}",
     "exit_code": int("${EXIT_CODE}"),
     "started_at_utc": "${STARTED}",
     "finished_at_utc": "${FINISHED}",
     "ns3_version": "${NS3_VERSION}",
+    "ns3_commit": "${NS3_COMMIT}" or None,
     "fiveg_lena_version": "${LENA_VERSION}",
+    "nr_commit": "${LENA_COMMIT}" or None,
     "nori_commit": "${NORI_COMMIT}" or None,
     "repo_git_sha": out(["git", "-C", "${REPO_DIR}", "rev-parse", "--short=7", "HEAD"]),
     "scenario_sha256": out(["sha256sum", "${SCRATCH_SRC}"]).split(" ")[0],

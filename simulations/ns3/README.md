@@ -73,6 +73,10 @@ python scripts/certification/certify_chain.py --run scenario_rdl_direct_prb_conf
 ```
 O executor mostra a saída do simulador em tempo real e grava em `experiments/runs/<run_id>/` o manifesto (versões lidas dos checkouts, comando, horários, código de saída), `logs/`, as saídas em `raw/` e `hashes.sha256`. Ele nunca sobrescreve uma execução existente.
 
+> **Limitação dos cenários S0–S8 (verificada em 2026-11-08):** nenhum cenário altera parâmetros da RAN durante a simulação. `conflictStart`/`conflictEnd` são lidos da linha de comando, mas não agendam nenhum evento; não há mudança de cota de PRB, potência ou handover (no S5 o cronograma de ping-pong existe só em comentário; no S8 os eventos agendados apenas imprimem mensagens). Os cenários medem o tráfego NR de base e **não exercitam conflitos nem a H-RDL**. Na análise do FlowMonitor, exclua os fluxos internos do EPC (GTP-C, porta 2123).
+>
+> **Semente:** os cenários chamam `SeedManager::SetSeed(--seed)` e `SetRun(--run)` depois de ler a linha de comando, o que anula `--RngRun`. O executor certificado passa a semente por `--seed` quando o cenário expõe essa opção e registra o argumento em `rng_args` no manifesto.
+
 > **Atenção:** `scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc` gravam o mesmo `flowmonitor_results.xml`, e os FlowMonitor de S8 em `experiments/results/ns3_runs/` são byte-idênticos aos de S3. Confira o hash de cada saída antes de atribuí-la a um cenário. O `scenario_rdl_closed_loop_nori.cc` imprime mensagens E2 fixas por `std::cout` (`TraceLifecycleE2`), que não são evidência de protocolo.
 
 ### 4.4. Suíte legada (sem proveniência)

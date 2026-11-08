@@ -167,3 +167,13 @@ Validadores complementares:
 | `PYTHONIOENCODING=utf-8 uv run --no-sync python scripts/check_no_synthetic_results.py` | 0 |
 | `uv run --no-sync pytest -q -p no:cacheprovider` | 0 (195 passed) |
 | `git status --short` (antes e depois) | 0 (nenhum arquivo versionado alterado; nada a reverter) |
+
+---
+
+## Errata e atualização (2026-11-08, 02:22 UTC)
+
+1. **Hashes "divergentes" das execuções `S1_B*`:** a divergência era um artefato da conversão de fim de linha do Git no Windows (`core.autocrlf=true`), não alteração dos arquivos. Os bytes originais armazenados no Git conferem com `hashes.sha256` (por exemplo, `S1_B3_seed1001`: 3/3 arquivos OK com `sha256sum -c`). O repositório passou a marcar `experiments/runs/** -text` em `.gitattributes`. As 210 execuções **continuam** classificadas como `SYNTHETIC_SUSPECT` (geradas por `scripts/run_b0_b6_campaign_30seeds.py` com RNG estatístico); 35 delas têm arquivos fora do manifesto de hashes. As menções a "hash divergente" na seção 3 e no elo 1 da seção 5 devem ser lidas com esta correção.
+2. **Pilha nativa instalada:** ns-3.48 (`d2add90`) + 5G-LENA v5.1 (`cedcead`) compilados no WSL; os cenários S0–S8 compilam.
+3. **Primeiras execuções reais com proveniência:** `S1_native_traffic_seed1001` e `S1_native_traffic_seed1002` (S1, 10 s, backend `NS3_5GLENA`): 20 fluxos de usuário, perda de 0,025 % e atraso médio de 4,99 ms em ambas, com saídas distintas por semente. **G0: CERTIFIED** para a pilha nativa (certificado `certificate_20261108T022204Z`).
+4. **Limitação dos cenários:** nenhum cenário S0–S8 altera parâmetros da RAN (`conflictStart`/`conflictEnd` não agendam eventos). Os resultados são de tráfego NR de base e não medem conflitos nem a H-RDL. Além disso, os cenários anulam `--RngRun` com `SetSeed(--seed)`; o executor passou a usar `--seed`.
+5. Os demais vereditos não mudaram: G1 NOT_CERTIFIED, G2 LOCAL_ONLY, G3–G6 BLOCKED. **Cadeia closed-loop validada: NÃO.**
