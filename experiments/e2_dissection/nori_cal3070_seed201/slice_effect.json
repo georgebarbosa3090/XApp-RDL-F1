@@ -1,0 +1,62 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_cal3070_seed201",
+  "generated_at_utc": "2026-11-08T19:29:38Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v1-throughput-share",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "37c5e68342429869c703dc01ae0bb7cdff2284a286d67333bfa63646e0e9b839",
+  "source_dissection_sha256": "b84615505c04888133bad304f8f180af9c4d566f02aac325eefe3b7be90be8cd",
+  "control_frame": 34,
+  "control_wall_epoch": 1794166054.149445,
+  "control_sim_time_s": 5.427581412481385,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 30,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 70,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "verdict": "INCONSISTENT",
+  "window_before": [
+    1.427581412481385,
+    5.427581412481385
+  ],
+  "window_after": [
+    7.427581412481385,
+    11.427581412481384
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 30.0,
+      "share_before_pct": 50.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "expectation": "decrease",
+      "met": false
+    },
+    "2": {
+      "cap_max_prb_pct": 70.0,
+      "share_before_pct": 50.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "expectation": "no_decrease",
+      "met": true
+    }
+  }
+}

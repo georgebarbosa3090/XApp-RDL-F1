@@ -52,3 +52,28 @@ Constantes da análise: janela de 4 s antes do Control e 4 s depois de 2 s de ac
 - **Limite por UE (~151,5 Mb/s):** pode mascarar ganhos da fatia não restrita; por isso só se exige que ela não perca.
 - **Sinal de congestionamento:** vem do `RRU.PrbUsedDl` do nó, que no NORI fica sempre acima dos PRBs disponíveis.
 - **Tempo real:** a simulação atrasa em relação ao relógio. A conversão do instante do Control usa a série com os dois relógios.
+
+## 7. Resultado (registrado depois das execuções, 2026-11-08)
+
+O pré-registro foi publicado no commit `7ded3b2`; a xApp rodou o `src/` desse commit.
+
+**H4.0 refutada; calibração inválida; avaliações não executadas.** Nas duas calibrações o Control saiu e foi confirmado (ACK correlacionado, tshark de acordo nas 66 mensagens, 60/60 Indications casadas com a xApp). Mesmo assim, a fatia com teto de 30 % não perdeu vazão em nenhuma das duas, com as cotas somando 100 %:
+
+| Execução | Cotas eMBB / URLLC | Fatia de teto 30 % | Vazão antes → depois |
+| :-- | :-- | :-- | :-- |
+| [`nori_cal3070_seed201`](../experiments/runs/nori_cal3070_seed201/execution_manifest.json) | 30 / 70 | eMBB | 151,49 → 151,49 Mb/s |
+| [`nori_cal7030_seed202`](../experiments/runs/nori_cal7030_seed202/execution_manifest.json) | 70 / 30 | URLLC | 151,49 → 151,49 Mb/s |
+
+[`slice_capacity_v3.json`](../experiments/calibration/slice_capacity_v3.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v3_seed1..3` **não foram rodadas**, e as análises exploratórias da seção 5 ficaram sem calibração.
+
+**Todas as configurações de cota observadas** (300 Mb/s por UE, mesma bancada):
+
+| Cotas eMBB / URLLC | Soma | eMBB | URLLC | Fonte |
+| :-- | --: | :-- | :-- | :-- |
+| 80 / 20 | 100 % | inalterada | 151 → ~76 Mb/s | exploratória (console do cenário) |
+| 40 / 60 | 100 % | inalterada | inalterada | v1 |
+| 30 / 30 | 60 % | inalterada | inalterada | calibração v2 |
+| 30 / 70 | 100 % | inalterada (teto 30 %) | inalterada | calibração v3 |
+| 70 / 30 | 100 % | inalterada | inalterada (teto 30 %) | calibração v3 |
+
+**Leitura (hipótese, não conclusão).** A soma das cotas não explica os dados: com soma 100 %, um teto de 30 % não restringe nenhuma das fatias. O único efeito observado é a URLLC com teto de 20 %, e ele foi grande (~50 %). A relação entre teto e vazão no escalonador do NORI é, portanto, não linear, com um limiar entre 20 % e 30 % para cada UE a 151,5 Mb/s, ou depende da granularidade de alocação (grupos de blocos de recurso). Nenhum modelo linear calibrado num ponto que não restringe pode prever o efeito. Um próximo desenho precisaria medir a curva teto → vazão em vários níveis abaixo de 30 % (por exemplo 10, 15, 20 e 25 %, por fatia) antes de qualquer previsão, com novo pré-registro.
