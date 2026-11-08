@@ -1,0 +1,73 @@
+# Receita mínima do Near-RT RIC O-RAN SC Release I para a cadeia E2 (KPM -> xApp -> RC).
+# Derivada de ric-dep (branch i-release, commit 0a6f18e) RECIPE_EXAMPLE/example_recipe_oran_i_release.yaml,
+# com as mesmas imagens e tags, mas só com os componentes usados pela cadeia E2:
+#   dbaas (R-NIB/SDL), appmgr (registro de xApps), rtmgr (rotas RMR), e2mgr, e2term (SCTP), submgr.
+# Fora: infrastructure (Kong, Prometheus, tiller do Helm 2), a1mediator, o1mediator, vespamgr,
+# alarmmanager, influxdb e jaegeradapter — não participam da cadeia e não cabem nos 4,5 GB do WSL.
+# Implantação: scripts/deploy_ric_i_release.sh
+common:
+  releasePrefix: r4
+extsvcplt:
+  ricip: "10.0.0.1"
+  auxip: "10.0.0.1"
+prometheus:
+  enabled: false
+appmgr:
+  image:
+   init:
+     registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+     name: it-dep-init
+     tag: 0.0.1
+   appmgr:
+     registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+     name: ric-plt-appmgr
+     tag: 0.5.7
+   chartmuseum:
+     registry: "docker.io"
+     name: chartmuseum/chartmuseum
+     tag: v0.8.2
+dbaas:
+  image:
+    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+    name: ric-plt-dbaas
+    tag: 0.6.4
+  enableHighAvailability: false
+  enablePodAntiAffinity: false
+e2mgr:
+  image:
+    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+    name: ric-plt-e2mgr
+    tag: 6.0.4
+  privilegedmode: false
+  globalRicId:
+    ricId: "AACCE"
+    mcc: "310"
+    mnc: "411"
+  rnibWriter:
+    stateChangeMessageChannel: RAN_CONNECTION_STATUS_CHANGE
+    ranManipulationMessageChannel: RAN_MANIPULATION
+e2term:
+  alpha:
+    image:
+      registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+      name: ric-plt-e2
+      tag: 6.0.4
+    privilegedmode: false
+    hostnetworkmode: false
+    env:
+      print: "1"
+      messagecollectorfile: "/data/outgoing/"
+    dataVolSize: 100Mi
+    storageClassName: local-storage
+    pizpub:
+      enabled: false
+rtmgr:
+  image:
+    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+    name: ric-plt-rtmgr
+    tag: 0.9.6
+submgr:
+  image:
+    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+    name: ric-plt-submgr
+    tag: 0.10.1

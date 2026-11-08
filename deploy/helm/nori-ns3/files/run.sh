@@ -22,9 +22,22 @@ OUT="$W/runs/$RUN_ID"
 mkdir -p "$OUT/raw" "$OUT/logs"
 chown -R developer: "$OUT"
 
-ARGS="--RngRun=${SEED} --ipE2TermRic=${E2TERM_ADDRESS}"
+# Os exemplos do NORI esperam um IP em --ipE2TermRic (não resolvem nomes): resolve o serviço
+# do E2Term (ClusterIP, estável entre reinícios do pod do E2Term).
+E2TERM_IP="$E2TERM_ADDRESS"
+if ! [[ "$E2TERM_ADDRESS" =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+  E2TERM_IP="$(getent hosts "$E2TERM_ADDRESS" | awk '{print $1; exit}')"
+  [ -n "$E2TERM_IP" ] || { echo "Não foi possível resolver o E2Term ${E2TERM_ADDRESS}" >&2; exit 68; }
+fi
+echo "E2Term: ${E2TERM_ADDRESS} -> ${E2TERM_IP}:${E2TERM_PORT}"
+
+# Só o IP: nem todo exemplo aceita --ipE2TermRicPort (a porta padrão dos exemplos já é 36422) e o
+# ns-3 aborta com opção desconhecida.
+ARGS="--RngRun=${SEED} --ipE2TermRic=${E2TERM_IP}"
 for a in "$@"; do ARGS+=" $(printf '%q' "$a")"; done
-CMD="cd '$NS3' && ./ns3 run '${EXAMPLE} ${ARGS}' --cwd '$OUT/raw'"
+# --no-build: a execução nunca compila (a compilação é feita pelo entrypoint com BUILD_JOBS
+# processos; ./ns3 run compilaria com todos os núcleos e estouraria a memória do pod).
+CMD="cd '$NS3' && ./ns3 run --no-build '${EXAMPLE} ${ARGS}' --cwd '$OUT/raw'"
 
 STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 tcpdump -i any -U -s 0 -w "$OUT/raw/e2_sctp.pcap" "sctp or port ${E2TERM_PORT}" 2>"$OUT/logs/tcpdump.log" &
@@ -69,6 +82,7 @@ manifest = {
     "e2sim_commit": info.get("e2sim_commit"),
     "e2ap": info.get("e2ap"), "e2sm_kpm": info.get("e2sm_kpm"), "e2sm_rc": info.get("e2sm_rc"),
     "e2term": "${E2TERM_ADDRESS}:${E2TERM_PORT}",
+    "e2term_ip": "${E2TERM_IP}",
     "pcap_has_packets": pcap_has_packets,
     "environment": {"os": info.get("os"), "compiler": info.get("compiler"), "runtime": "kubernetes (k3s) pod"},
     "publication_eligible": status == "SUCCESS" and bool(sources),

@@ -21,7 +21,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 | Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 217 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
-| Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **não verificada** | pilha NORI preparada em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md), ainda não implantada |
+| Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup verificado** (NORI ↔ Near-RT RIC Release I no k3s); KPM e RC **não verificados** (falta a xApp assinar e controlar) | [`experiments/runs/nori_rc_demo_seed1`](experiments/runs/nori_rc_demo_seed1/execution_manifest.json), [guia, seção 7](docs/02_guia_operacional_deploy_e_simulacao.md#7-pilha-nori-via-helm-e2-real) |
 | Closed loop causal KPM → decisão → RC → KPM | **não verificado** | — |
 
 | Gate | Exigência | Veredito |

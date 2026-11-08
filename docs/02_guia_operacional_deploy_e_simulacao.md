@@ -7,7 +7,7 @@ Como preparar o ambiente, executar cenários e experimentos, rodar campanhas, ce
 | Item | Valor usado |
 | :-- | :-- |
 | Sistema | Windows 11 + WSL2 Ubuntu 24.04 (GCC 13.3, CMake 3.28) |
-| Memória do WSL | 4,5 GB (`%UserProfile%\.wslconfig`: `[wsl2]` / `memory=4608MB`) |
+| Memória do WSL | 5 GB (`%UserProfile%\.wslconfig`: `[wsl2]` / `memory=5GB`; era 4,5 GB até 2026-11-08, quando a pilha RIC + NORI passou a rodar) |
 | Python | 3.10+ com [`uv`](https://docs.astral.sh/uv/) |
 | Git | Git para Windows (o Git Bash também é usado por ferramentas de automação) |
 | Espaço em disco | ≥ 5 GB livres no disco do repositório e do WSL |
@@ -31,7 +31,7 @@ git clone --branch ns-3.48 --depth 1 https://gitlab.com/nsnam/ns-3-dev.git ns-3-
 git clone --branch v5.1 --depth 1 https://gitlab.com/cttc-lena/nr.git ns-3-oran/contrib/nr
 cd ns-3-oran
 ./ns3 configure -d optimized --disable-examples --disable-tests --disable-werror
-./ns3 build -j3        # ~16 min com 4,5 GB; mais processos podem estourar a memória
+./ns3 build -j3        # ~16 min (medido com 4,5 GB); mais processos podem estourar a memória
 ```
 
 O 5G-LENA v5.1 declara compatibilidade com ns-3.48 (`contrib/nr/RELEASE_NOTES.md`). Commits usados: ns-3 `d2add90`, nr `cedcead`.
@@ -90,7 +90,7 @@ python scripts/certification/run_conflict_campaign.py --scenarios S1 S7 --baseli
 python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2 --retry-failed
 ```
 
-- Compila os cenários uma vez e roda as execuções com `--no-build`, em paralelo (`--jobs 2` é o máximo recomendado com 4,5 GB).
+- Compila os cenários uma vez e roda as execuções com `--no-build`, em paralelo (`--jobs 2` é o máximo recomendado; medido com 4,5 GB).
 - É retomável: execuções com `hashes.sha256` são puladas; execuções interrompidas (sem hashes) são removidas e refeitas; com `--retry-failed`, as que falharam são movidas para `experiments/runs_failed/<run_id>__<UTC>` e refeitas.
 - Ordena por semente, de modo que cada semente concluída forma um conjunto pareado completo.
 - Para sozinha se o disco ficar com menos de 1 GB livre.
@@ -136,17 +136,65 @@ Validadores mais antigos, complementares: `scripts/validate_provenance.py`, `scr
 
 ## 7. Pilha NORI via Helm (E2 real)
 
+### 7.1 k3s nativo
+
+O k3s v1.26.5 do WSL roda como serviço systemd permanente, instalado uma vez com [`install_k3s_service.sh`](../scripts/install_k3s_service.sh) (requer `systemd=true` em `/etc/wsl.conf`; kubeconfig legível sem sudo):
+
+```bash
+sudo bash scripts/install_k3s_service.sh
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+kubectl get nodes
+```
+
+**Mantenha uma sessão do Ubuntu aberta enquanto o cluster estiver em uso.** O WSL encerra a distribuição quando nenhuma sessão fica conectada, mesmo com serviços systemd ativos, e a religa no próximo `wsl`: o k3s reinicia a cada vez e o nó não chega a `Ready` (observado em 2026-11-08: `ActiveEnterTimestamp` do k3s sempre igual à hora do comando). Um terminal Ubuntu aberto basta, ou uma sessão dedicada:
+
+```bash
+wsl -d Ubuntu -- sleep infinity      # no PowerShell; feche para liberar o WSL
+```
+
+Clusters k3d e o Rancher (Docker) que existam no WSL disputam a memória com o RIC e o NORI; pare-os antes (`sudo k3d cluster stop --all`, `sudo docker stop <rancher>`; reversível). Não use `sudo k3s server ... &`: em segundo plano o `sudo` não consegue pedir a senha.
+
+### 7.2 Near-RT RIC O-RAN SC Release I
+
+[`deploy_ric_i_release.sh`](../scripts/deploy_ric_i_release.sh) implanta, sem sudo e em primeiro plano, só os componentes da cadeia E2 (DBaaS, AppMgr, RtMgr, E2Mgr, E2Term, SubMgr) a partir do `ric-dep` (branch `i-release`, commit `0a6f18e`), com a receita [`recipe_ric_i_release_e2.yaml`](../deploy/ric/recipe_ric_i_release_e2.yaml) (mesmas imagens e tags da receita oficial da Release I):
+
+```bash
+bash scripts/deploy_ric_i_release.sh            # implanta ou atualiza
+bash scripts/deploy_ric_i_release.sh --status   # pods, serviços e releases
+```
+
+- Os charts da Release I usam APIs removidas no Kubernetes 1.22 (RBAC e Ingress `v1beta1`). O plugin pós-renderizador do Helm 4 [`deploy/ric/helm-postrenderer`](../deploy/ric/helm-postrenderer/plugin.yaml) troca o RBAC para `v1` e remove os Ingress (usados só com o Kong, que não é implantado); os charts oficiais não são alterados.
+- O chart `ric-common` é servido por HTTP local (127.0.0.1:8879) em vez do `chartmuseum` do instalador oficial, que exige sudo.
+- Fora da receita: Kong, Prometheus, A1, O1, VES, alarmes, InfluxDB e Jaeger. O RtMgr registra erros de DNS para o `a1mediator`, esperados.
+- O E2Term SCTP fica em `service-ricplt-e2term-sctp-alpha.ricplt:36422` (NodePort 32222), o endereço padrão do chart do NORI. O kernel do WSL2 (6.6) tem o módulo `sctp`.
+- Verificado em 2026-11-08: 6 pods prontos, E2Term e E2Mgr trocando mensagens RMR, ~200 MB de memória para a plataforma.
+
+### 7.3 Bancada NORI
+
 O NORI oficial exige ns-3.42, 5G-LENA `78b7179`, e2sim `da6f82f` e E2AP/E2SM v3.01. O chart [`deploy/helm/nori-ns3`](../deploy/helm/nori-ns3/README.md) compila tudo dentro de um pod, sem Docker, reproduzindo o Dockerfile oficial do NORI com versões fixadas:
 
 ```bash
-sudo k3s server --write-kubeconfig-mode 644 >/tmp/k3s.log 2>&1 &     # requer sudo
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespace
 kubectl -n ricsim logs -f deploy/nori-ns3                               # preparo e compilação (horas na 1ª vez)
 kubectl -n ricsim exec -it deploy/nori-ns3 -- bash /scripts/run.sh nori-rc-slicing-demo nori_rc_demo_seed1 --seed 1 -- --simTime=10
 ```
 
-Para E2 real é preciso um Near-RT RIC O-RAN SC Release I acessível em `ric.e2termAddress`. Situação: chart validado com `helm lint`, **ainda não implantado** (o k3s não estava ativo).
+Trazer a evidência para o repositório e certificar:
+
+```bash
+POD=$(kubectl -n ricsim get pod -l app.kubernetes.io/name=nori-ns3 -o jsonpath='{.items[0].metadata.name}')
+kubectl -n ricsim cp "$POD:/workspace/runs/nori_rc_demo_seed1" experiments/runs/nori_rc_demo_seed1
+python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
+```
+
+### 7.4 Resultado da primeira execução E2 (2026-11-08)
+
+[`experiments/runs/nori_rc_demo_seed1`](../experiments/runs/nori_rc_demo_seed1/execution_manifest.json): `nori-rc-slicing-demo`, semente 1, 10 s em tempo real, contra o E2Term da Release I.
+
+- **E2 Setup real concluído.** O NORI enviou o E2-SETUP-REQUEST e recebeu SETUP-RESPONSE-SUCCESS do Near-RT RIC. O PCAP (`raw/e2_sctp.pcap`, 12 pacotes) tem o handshake SCTP (INIT, INIT ACK, COOKIE ECHO, COOKIE ACK), o DATA do gNB com o pedido, o DATA do RIC com PPID 70 (E2AP) e o encerramento SHUTDOWN.
+- O E2Mgr registrou o nó `gnb_268_341_00000001` na R-NIB com três funções RAN: 4 (CCC), 200 (KPM) e 300 (E2SM-RC v3.01, incluindo cota de PRB por fatia).
+- Não houve RIC Subscription, Indication KPM nem Control RC: nenhuma xApp assinou o nó. Esses são os passos dos gates G1 e G3.
+- Certificador: G0 `CERTIFIED` para a pilha NORI (commits conferem com `profile.nori`); a execução é `INCOMPLETE_EVIDENCE` porque os exemplos do NORI não geram FlowMonitor (R9/R10, exigido pela política para `NORI_NS3`) e a dissecação E2AP do PCAP ainda não existe (R11/R12/R14 `NOT_CHECKED`). R7 avisa que o SO do pod (Ubuntu 20.04, base do Dockerfile do NORI) difere da seção genérica `[infrastructure]` do lock.
 
 ## 8. Implantação da xApp no Kubernetes
 

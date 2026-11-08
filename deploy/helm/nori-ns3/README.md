@@ -28,14 +28,20 @@ Se algum commit não existir, a preparação falha (sem fallback). O NORI implem
 
 ## Pré-requisitos
 
-- k3s ativo e kubeconfig legível (o binário `k3s` v1.26.5 já está no WSL; iniciá-lo exige `sudo`):
+- k3s ativo e kubeconfig legível: serviço systemd permanente instalado uma vez com `sudo bash scripts/install_k3s_service.sh` (alternativa sem mudança permanente: `sudo systemd-run --unit=k3s k3s server --write-kubeconfig-mode 644`, a refazer a cada reinício do WSL). Não use `sudo k3s server ... &`: em segundo plano o `sudo` não consegue pedir a senha e o processo fica parado.
   ```bash
-  sudo k3s server --write-kubeconfig-mode 644 >/tmp/k3s.log 2>&1 &
   export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+  kubectl get nodes
   ```
-- WSL com 4,5 GB de memória (`%UserProfile%\.wslconfig`: `memory=4608MB`). O limite do pod é 3,5 GiB com `build.jobs: 2`; não aumente os processos de compilação.
+- Memória livre: clusters k3d e o Rancher (Docker) disputam a memória do WSL com o RIC e o NORI. Pare-os antes (reversível com `sudo k3d cluster start <nome>` e `sudo docker start <container>`):
+  ```bash
+  sudo k3d cluster stop --all
+  sudo docker ps --format '{{.Names}}\t{{.Image}}'   # localizar o container do Rancher
+  sudo docker stop <container-do-rancher>
+  ```
+- WSL com 5 GB de memória (`%UserProfile%\.wslconfig`: `memory=5GB`). O limite do pod é 3,5 GiB com `build.jobs: 2`; não aumente os processos de compilação.
 - ~25 GB livres no volume (`storage.size`).
-- Para E2 real: Near-RT RIC Release I implantado via Helm, com o E2Term SCTP acessível em `ric.e2termAddress:ric.e2termPort`.
+- Para E2 real: Near-RT RIC Release I implantado com `bash scripts/deploy_ric_i_release.sh` ([guia operacional, seção 7.2](../../../docs/02_guia_operacional_deploy_e_simulacao.md#72-near-rt-ric-o-ran-sc-release-i)), com o E2Term SCTP em `service-ricplt-e2term-sctp-alpha.ricplt:36422` (valor padrão de `ric.e2termAddress`).
 
 ## Uso
 
@@ -60,6 +66,9 @@ python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
 
 ## Limites
 
-- O chart ainda **não foi validado em cluster** neste repositório (o k3s não estava ativo quando foi escrito); trate a primeira implantação como verificação.
+- Primeira implantação em 2026-11-08 (k3s v1.26.5, WSL com 5 GB): preparo + compilação em ~32 min com `build.jobs: 2`; reinício do pod sem recompilar em ~6 min. Correções feitas nessa implantação:
+  - o git do root recusava os checkouts do usuário `developer` ("dubious ownership"): `ns3_commit` e `nr_commit` saíam vazios no `BUILD_INFO.json` e um reinício abortaria em `pin()`; o entrypoint marca os repositórios como seguros;
+  - um reinício refazia checkout e extração do NORI, mudando os horários dos fontes e levando o próximo `./ns3` a recompilar tudo com todos os núcleos; agora os fontes só são tocados quando a compilação vai acontecer, e `run.sh` usa `./ns3 run --no-build`;
+  - os exemplos do NORI esperam um IP em `--ipE2TermRic`; `run.sh` resolve o nome do serviço do E2Term para o ClusterIP e registra `e2term_ip` no manifesto.
 - O PCAP comprova tráfego SCTP real, mas a separação das mensagens E2 por tipo (Setup, Indication, Control, ACK) ainda depende de dissecação (`tshark`), sem a qual o certificador não aprova G1/G3.
 - Sem RIC acessível, o NORI não completa o E2 Setup: a execução só gera FlowMonitor.

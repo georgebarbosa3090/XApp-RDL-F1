@@ -1,0 +1,13 @@
+# Plugin pós-renderizador do Helm 4 (postrenderer/v1) para os charts ric-dep da Release I
+# em Kubernetes >= 1.22: RBAC v1beta1 -> v1 e remoção dos Ingress v1beta1 (usados só com o Kong).
+# Instalação (uma vez): helm plugin install deploy/ric/helm-postrenderer
+# Uso: helm upgrade --install ... --post-renderer ric-k8s122
+apiVersion: v1
+type: postrenderer/v1
+name: ric-k8s122
+version: 0.1.0
+runtime: subprocess
+runtimeConfig:
+  platformCommand:
+    - command: python3
+      args: ["${HELM_PLUGIN_DIR}/ric_helm_post_renderer.py"]

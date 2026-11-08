@@ -36,6 +36,10 @@ apt-get install -y -q gcc-11 g++-11 >/dev/null
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 20
 update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 20
 id developer >/dev/null 2>&1 || useradd -m -u 1000 -s /bin/bash developer
+# Os checkouts em /workspace pertencem ao usuário developer (chown abaixo); sem isto o git do root
+# recusa ler os repositórios ("dubious ownership"): os commits sairiam vazios no BUILD_INFO.json
+# e, num reinício do pod, pin() acusaria commit inexistente.
+git config --global --replace-all safe.directory '*'
 
 log "NORI ${NORI_COMMIT}"
 pin "$SRC/nori" "$NORI_REPO" "$NORI_COMMIT"
@@ -83,19 +87,27 @@ PY
 fi
 dpkg --install "$E2SIM/e2sim/build/e2sim-dev_1.0.0_amd64.deb" >/dev/null && ldconfig
 
-log "ns-3 ${NS3_COMMIT} + nr ${NR_COMMIT} + contrib/nori"
-pin "$NS3" "$NS3_REPO" "$NS3_COMMIT"
-pin "$NS3/contrib/nr" "$NR_REPO" "$NR_COMMIT"
-mkdir -p "$NS3/contrib/nori"
-( cd "$SRC/nori" && git archive "$NORI_COMMIT" ) | tar -x -C "$NS3/contrib/nori"
-chown -R developer: "$NS3" "$W/runs" "$W/logs"
 STAMP_NS3="$W/.stamp-ns3-${NS3_COMMIT}-${NR_COMMIT}-${NORI_COMMIT}-${BUILD_PROFILE}"
 if [ ! -f "$STAMP_NS3" ]; then
+  log "ns-3 ${NS3_COMMIT} + nr ${NR_COMMIT} + contrib/nori: preparo e compilação"
+  pin "$NS3" "$NS3_REPO" "$NS3_COMMIT"
+  pin "$NS3/contrib/nr" "$NR_REPO" "$NR_COMMIT"
+  rm -rf "$NS3/contrib/nori" && mkdir -p "$NS3/contrib/nori"
+  ( cd "$SRC/nori" && git archive "$NORI_COMMIT" ) | tar -x -C "$NS3/contrib/nori"
+  chown -R developer: "$NS3"
   EX_FLAG=$([ "${ENABLE_EXAMPLES}" = "true" ] && echo --enable-examples || echo --disable-examples)
+  set -o pipefail
   su developer -c "cd '$NS3' && ./ns3 configure -d '${BUILD_PROFILE}' ${EX_FLAG} && ./ns3 build -j${JOBS}" \
     2>&1 | tee "$W/logs/build_ns3_$(date -u +%Y%m%dT%H%M%SZ).log"
   touch "$STAMP_NS3"
+else
+  # Já compilado: não tocar nos fontes. Um checkout ou nova extração muda os horários dos
+  # arquivos e faz o próximo ./ns3 recompilar tudo (com todos os núcleos, estourando a memória).
+  log "ns-3 ${NS3_COMMIT} + nr ${NR_COMMIT} + contrib/nori: já compilado; conferindo commits"
+  [ "$(git -C "$NS3" rev-parse HEAD)" = "$NS3_COMMIT" ] || { log "ERRO: ns-3 fora do commit fixado"; exit 5; }
+  [ "$(git -C "$NS3/contrib/nr" rev-parse HEAD)" = "$NR_COMMIT" ] || { log "ERRO: nr fora do commit fixado"; exit 5; }
 fi
+chown -R developer: "$W/runs" "$W/logs"
 
 python3 - <<PY
 import json, subprocess
