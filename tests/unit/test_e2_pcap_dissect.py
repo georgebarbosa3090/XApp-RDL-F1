@@ -244,9 +244,9 @@ def lock():
     return cert.load_versions_lock()
 
 
-def _nori_run(base, lock, pcap_bytes, **extra):
+def _nori_run(base, lock, pcap_bytes, _run_id="nori_closed_loop_seed1", **extra):
     nori = lock["profile.nori"]
-    run_dir = base / "runs" / "nori_closed_loop_seed1"
+    run_dir = base / "runs" / _run_id
     (run_dir / "raw").mkdir(parents=True)
     (run_dir / "raw" / "flowmonitor.xml").write_text(FLOWMONITOR, encoding="utf-8")
     (run_dir / "raw" / "e2_sctp.pcap").write_bytes(pcap_bytes)
@@ -581,3 +581,51 @@ def test_calibration_requires_binding_caps(tmp_path, lock, monkeypatch, after, v
     assert out["valid"] is valid
     if valid:
         assert out["k_mbps_per_prb_pct"] == {"1": 3.0, "2": 3.0}
+
+
+
+def _calibration_run(tmp_path, lock, run_id, caps, after):
+    from src.e2.v3 import codec as c3
+    e2sm = c3.E2smCodec()
+    pdus = closed_loop_pdus()
+    pdus[5] = ("down", c3.build_slice_quota_control(e2sm, 1003, 1, 300,
+                                                    [c3.SlicePrbQuota(1, caps[0]), c3.SlicePrbQuota(2, caps[1])]))
+    pdus[6] = ("up", _pdu(1, 4, [_req(1003, 1), _fn(300)]))
+    frames = [_frame(*((NODE, RIC, 38470, 36422) if d == "up" else (RIC, NODE, 36422, 38470)),
+                     [_data_chunk(i + 1, p)]) for i, (d, p) in enumerate(pdus)]
+    run_dir = _nori_run(tmp_path, lock, _pcap(frames), _run_id=run_id)
+    (run_dir / "raw" / "slice_series.csv").write_text(_series_csv(5.0, after[0], after[1]), encoding="utf-8")
+    dis.dissect(run_dir / "raw" / "e2_sctp.pcap", tmp_path / "e2_dissection" / run_id, run_id, use_tshark=False)
+
+
+@pytest.mark.parametrize("afters,valid,k", [
+    (((90.0, 150.0), (150.0, 96.0)), True, {"1": 3.0, "2": 3.2}),     # cada fatia restrita cai
+    (((150.0, 150.0), (150.0, 96.0)), False, None),                   # a eMBB a 30 % não caiu
+])
+def test_complementary_calibration(tmp_path, lock, afters, valid, k):
+    try:
+        from src.e2.v3 import codec as c3
+        c3.E2smCodec()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"ASN.1 do NORI indisponível: {exc}")
+    _calibration_run(tmp_path, lock, "nori_cal3070", (30, 70), afters[0])
+    _calibration_run(tmp_path, lock, "nori_cal7030", (70, 30), afters[1])
+    out = cal_mod.calibrate_complementary(["nori_cal3070", "nori_cal7030"], tmp_path / "cal.json",
+                                          tmp_path / "runs", tmp_path / "e2_dissection")
+    assert out["valid"] is valid, out.get("reason")
+    assert [r["restricted_sst"] for r in out["runs"]] == [1, 2]
+    if valid:
+        assert out["k_mbps_per_prb_pct"] == k
+    assert not (tmp_path / "cal.part.json").exists()
+
+
+def test_complementary_calibration_rejects_caps_not_summing_100(tmp_path, lock):
+    try:
+        from src.e2.v3 import codec as c3
+        c3.E2smCodec()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"ASN.1 do NORI indisponível: {exc}")
+    _calibration_run(tmp_path, lock, "nori_cal30", (30, 30), (90.0, 90.0))
+    out = cal_mod.calibrate_complementary(["nori_cal30"], tmp_path / "cal.json", tmp_path / "runs",
+                                          tmp_path / "e2_dissection")
+    assert out["valid"] is False and "não somam 100" in out["reason"]

@@ -11,9 +11,16 @@ entre as janelas. Sem isso, k_s não mede a capacidade por PRB e a regra v2 não
 
 Saída: ``experiments/calibration/<nome>.json`` com hashes da série e da dissecação de origem.
 
+Modo de cotas complementares (desenho v3, docs/07_preregistro_fase4_v3.md): várias execuções, cada uma
+com cotas que somam 100 % (ex.: 30/70 e 70/30). Em cada execução só a fatia de MENOR teto é calibrada
+(k_s = vazão depois ÷ teto), e ela precisa ter caído ao menos QUEDA_MIN; a de teto maior não entra. A
+calibração é válida quando cada fatia recebe exatamente um k válido.
+
 Uso:
     python scripts/certification/calibrate_slice_capacity.py --run nori_cal30_seed101 \\
         --out experiments/calibration/slice_capacity_v2.json
+    python scripts/certification/calibrate_slice_capacity.py --complementary \\
+        --run nori_cal3070_seed201 --run nori_cal7030_seed202 --out experiments/calibration/slice_capacity_v3.json
 """
 
 from __future__ import annotations
@@ -88,11 +95,78 @@ def calibrate(run_id: str, out: Path, runs_dir: Path = ROOT / "experiments" / "r
     return result
 
 
+def calibrate_complementary(run_ids: List[str], out: Path, runs_dir: Path = ROOT / "experiments" / "runs",
+                            dissection_root: Path = ROOT / "experiments" / "e2_dissection") -> Dict[str, Any]:
+    """Uma execução por fatia, com cotas somando 100 %; calibra só a fatia de menor teto de cada uma."""
+    tmp = out.with_name(out.stem + ".part.json")
+    runs: List[Dict[str, Any]] = []
+    k: Dict[str, float] = {}
+    problems: List[str] = []
+    for run_id in run_ids:
+        single = calibrate(run_id, tmp, runs_dir, dissection_root)
+        caps = {int(q["sst"]): float(q["max_prb_ratio"]) for q in single.get("quotas_from_pcap") or []}
+        entry = {key: single.get(key) for key in ("run_id", "source_csv", "source_csv_sha256", "source_dissection_sha256",
+                                                  "quotas_from_pcap", "control_sim_time_s", "window_before",
+                                                  "window_after", "slices")}
+        if not caps or abs(sum(caps.values()) - 100.0) > 1e-6:
+            problems.append(f"{run_id}: cotas não somam 100 % ({caps})")
+            runs.append(entry)
+            continue
+        restricted = min(caps, key=lambda sst: (caps[sst], sst))
+        info = (single.get("slices") or {}).get(str(restricted), {})
+        entry["restricted_sst"] = restricted
+        if not info.get("binding"):
+            problems.append(f"{run_id}: a fatia SST {restricted} (teto {caps[restricted]:.0f} %) "
+                            f"não caiu {100 * fx.MIN_DROP:.0f} %")
+        elif str(restricted) in k:
+            problems.append(f"{run_id}: SST {restricted} já calibrada por outra execução")
+        else:
+            k[str(restricted)] = float(info["throughput_after_mbps"]) / caps[restricted]
+        runs.append(entry)
+    if tmp.exists():
+        tmp.unlink()
+    slices_seen = {str(int(q["sst"])) for r in runs for q in (r.get("quotas_from_pcap") or [])}
+    missing = sorted(slices_seen - set(k))
+    if missing:
+        problems.append(f"fatias sem k válido: {missing}")
+    result: Dict[str, Any] = {
+        "schema": "xapp-rdl/slice-capacity-calibration/v2-complementary",
+        "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "generator": "scripts/certification/calibrate_slice_capacity.py --complementary",
+        "constants": {"window_s": fx.WINDOW_S, "settle_s": fx.SETTLE_S, "min_drop": fx.MIN_DROP},
+        "runs": runs, "k_mbps_per_prb_pct": {s: round(v, 6) for s, v in sorted(k.items())},
+        "valid": not problems,
+    }
+    if problems:
+        result["reason"] = "; ".join(problems)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes((json.dumps(result, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+    return result
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--run", required=True)
+    parser.add_argument("--run", required=True, action="append")
+    parser.add_argument("--complementary", action="store_true", help="cotas somando 100 %%, uma execução por fatia")
     parser.add_argument("--out", default=str(ROOT / "experiments" / "calibration" / "slice_capacity_v2.json"))
     args = parser.parse_args(argv)
+    if args.complementary:
+        r = calibrate_complementary(args.run, Path(args.out))
+        print(f"Calibração complementar ({', '.join(args.run)}): {'VÁLIDA' if r['valid'] else 'INVÁLIDA'}"
+              + (f" — {r['reason']}" if r.get("reason") else ""))
+        for run in r["runs"]:
+            sst = run.get("restricted_sst")
+            s = (run.get("slices") or {}).get(str(sst), {})
+            if s.get("throughput_after_mbps") is not None:
+                print(f"  {run['run_id']}: SST {sst} teto {s['cap_max_prb_pct']:.0f} %; "
+                      f"{s['throughput_before_mbps']:.2f} -> {s['throughput_after_mbps']:.2f} Mb/s; "
+                      f"restringiu={s['binding']}")
+        print(f"  k = {r['k_mbps_per_prb_pct']} Mb/s por % de PRB")
+        print(f"Saída: {args.out}")
+        return 0 if r["valid"] else 1
+    if len(args.run) != 1:
+        parser.error("sem --complementary, informe uma única --run")
+    args.run = args.run[0]
     r = calibrate(args.run, Path(args.out))
     print(f"Calibração ({args.run}): {'VÁLIDA' if r['valid'] else 'INVÁLIDA'}" + (f" — {r['reason']}" if r.get("reason") else ""))
     for sst, s in (r.get("slices") or {}).items():

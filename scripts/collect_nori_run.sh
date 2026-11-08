@@ -59,8 +59,8 @@ python3 "$REPO/scripts/certification/e2_pcap_dissect.py" --run "$RUN_ID" "${TS_A
 if [ -f "$DEST/raw/slice_series.csv" ]; then
   PY="${PYTHON:-$HOME/.venvs/xapp-rdl/bin/python}"
   [ -x "$PY" ] || PY=python3
-  # Regra v2 (pré-registro docs/07): usa a calibração, exceto nas próprias execuções de calibração
-  CAL="${CALIBRATION:-$REPO/experiments/calibration/slice_capacity_v2.json}"
+  # Regra calibrada (pré-registros docs/07_*): usa a calibração, exceto nas próprias execuções de calibração
+  CAL="${CALIBRATION:-$REPO/experiments/calibration/slice_capacity_v3.json}"   # desenho v3 (docs/07_preregistro_fase4_v3.md)
   CAL_ARGS=()
   if [ -f "$CAL" ] && [[ "$RUN_ID" != nori_cal* ]]; then CAL_ARGS=(--calibration "$CAL"); fi
   ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" "${CAL_ARGS[@]}" ) || true
