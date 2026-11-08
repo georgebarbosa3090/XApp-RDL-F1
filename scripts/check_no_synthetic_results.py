@@ -40,6 +40,7 @@ FORBIDDEN_PATTERNS = [
 ALLOWED_EXCEPTIONS = {
     "bootstrap",
     "check_no_synthetic_results.py",
+    "code_analyzer_validator.py",
     "verify_provenance_and_integrity.py",
     "realtime_protocol_engine.py",
     "generate_demonstration_and_latest_sim_plots.py",

@@ -190,7 +190,7 @@ def test_control_dispatcher_full():
     class MockRmr:
         def __init__(self):
             self.sent = []
-        def rmr_send(self, payload, mtype, meid):
+        def rmr_send_with_meid(self, payload, mtype, meid):
             self.sent.append((payload, mtype, meid))
             return True
 
@@ -324,7 +324,7 @@ def test_rdlxapp_advanced_pipeline_and_decision_loop():
     class MockRmr:
         def __init__(self):
             self.sent = []
-        def rmr_send(self, payload, mtype, meid=None):
+        def rmr_send_with_meid(self, payload, mtype, meid):
             self.sent.append((payload, mtype, meid))
             return True
 

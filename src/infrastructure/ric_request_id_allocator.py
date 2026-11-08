@@ -3,20 +3,25 @@ import threading
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional, Any
 
+
 @dataclass
 class RicRequestId:
     requestor_id: int
     instance_id: int
 
+
 class RicRequestIdAllocator:
     """
     Gerenciador thread-safe e atômico de identificadores RICrequestID para mensagens E2AP Control Request.
     Chave primária de correlação: (node_id, ran_function_id, requestor_id, instance_id).
-    Permite correlação bidirecional com decision_id e action_id em cenários concorrentes multi-xApp/multi-gNB.
+    Garante rotação circular de 16 bits (1..65535) conforme norma E2AP v02.03.
     """
 
+    MIN_ID = 1
+    MAX_ID = 65535
+
     def __init__(self, base_requestor_id: int = 1001):
-        self._base_requestor_id = base_requestor_id
+        self._base_requestor_id = max(self.MIN_ID, min(self.MAX_ID, int(base_requestor_id)))
         self._lock = threading.Lock()
         self._instance_counters: Dict[Tuple[str, int], int] = {}
         self._correlation_map: Dict[Tuple[str, int, int, int], Dict[str, Any]] = {}
@@ -30,12 +35,13 @@ class RicRequestIdAllocator:
     ) -> RicRequestId:
         with self._lock:
             key = (node_id, ran_function_id)
-            current_counter = self._instance_counters.get(key, 0) + 1
+            current = self._instance_counters.get(key, 0)
+            current_counter = self.MIN_ID if current >= self.MAX_ID else current + 1
             self._instance_counters[key] = current_counter
-            
+
             requestor_id = self._base_requestor_id
             instance_id = current_counter
-            
+
             if decision_id or action_id:
                 corr_key = (node_id, ran_function_id, requestor_id, instance_id)
                 self._correlation_map[corr_key] = {
@@ -43,7 +49,7 @@ class RicRequestIdAllocator:
                     "action_id": action_id or "",
                     "allocated_at": time.time()
                 }
-                
+
             return RicRequestId(requestor_id=requestor_id, instance_id=instance_id)
 
     def lookup_correlation(
@@ -81,8 +87,9 @@ class RicRequestIdAllocator:
                 removed += 1
         return removed
 
+
 _global_allocator = RicRequestIdAllocator()
+
 
 def get_ric_request_id_allocator() -> RicRequestIdAllocator:
     return _global_allocator
-

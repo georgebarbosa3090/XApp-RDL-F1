@@ -58,10 +58,10 @@
       },
       "ran_parameters": {
         "PRB_QUOTA": {"id": 1, "scale": 1, "unit": "%", "bounds": [0, 100]},
-        "TX_POWER": {"id": 2, "scale": 10, "unit": "dBm_x10", "bounds": [-100, 430]},
-        "SCHEDULER_WEIGHT": {"id": 3, "scale": 1000, "unit": "milli_ratio", "bounds": [10, 10000]},
-        "A3_OFFSET": {"id": 4, "scale": 100, "unit": "centi_dB", "bounds": [-1000, 1000]},
-        "HANDOVER": {"id": 5, "scale": 1, "unit": "cell_id", "bounds": [0, 65535]}
+        "SCHEDULER_WEIGHT": {"id": 2, "scale": 1000, "unit": "milli_ratio", "bounds": [1000, 100000]},
+        "TX_POWER": {"id": 3, "scale": 10, "unit": "dBm_x10", "bounds": [-100, 430]},
+        "HANDOVER": {"id": 4, "scale": 1, "unit": "cell_id", "bounds": [0, 65535]},
+        "A3_OFFSET": {"id": 5, "scale": 100, "unit": "centi_dB", "bounds": [-1000, 1000]}
       }
     }
   },

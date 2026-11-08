@@ -20,7 +20,7 @@ from src.e2.e2ap.constants import CRITICALITY_IGNORE
 class MockRMR:
     def __init__(self):
         self.sent_messages = []
-    def rmr_send(self, payload, mtype, target):
+    def rmr_send_with_meid(self, payload, mtype, target):
         self.sent_messages.append({"payload": payload, "mtype": mtype, "target": target})
         return True
 
@@ -95,7 +95,7 @@ def test_dispatcher_rejects_fractional_handover_before_encoding():
     assert rmr.sent_messages == []
     assert dispatcher.pending_requests == {}
 
-def test_control_dispatcher_failure_triggers_rollback():
+def test_control_dispatcher_failure_does_not_trigger_rollback():
     rmr = MockRMR()
     sdl = MockSDL()
     dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=sdl, default_timeout_s=5.0)
@@ -128,14 +128,11 @@ def test_control_dispatcher_failure_triggers_rollback():
     fail_res = dispatcher.handle_failure(fail_pdu)
     assert fail_res is not None
     assert fail_res["status"] == "FAILED"
-    assert fail_res["rollback_status"] == "SENT_UNCONFIRMED"
-
-    # Verifica se comando de restauração (rollback) foi emitido via RMR
-    assert len(rmr.sent_messages) == 2
-    assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["requested_value"] == 43.0
-    assert dispatcher.rollback_history[0]["status"] == "SENT_UNCONFIRMED"
-    assert sdl.rollbacks[ctrl_id]["status"] == "SENT_UNCONFIRMED"
+    # A falha E2AP indica que o controle não foi aplicado: nenhum rollback é emitido.
+    assert fail_res["rollback_status"] == "NOT_REQUIRED"
+    assert len(rmr.sent_messages) == 1
+    assert dispatcher.rollback_history == []
+    assert sdl.rollbacks[ctrl_id]["status"] == "NOT_REQUIRED"
 
 def test_control_dispatcher_timeout_triggers_rollback():
     rmr = MockRMR()
@@ -187,10 +184,10 @@ def test_rollback_is_not_claimed_without_verified_previous_value():
 
 def test_rollback_send_failure_is_not_reported_as_sent():
     class RejectingRollbackRMR(MockRMR):
-        def rmr_send(self, payload, mtype, target):
+        def rmr_send_with_meid(self, payload, mtype, target):
             if self.sent_messages:
                 return False
-            return super().rmr_send(payload, mtype, target)
+            return super().rmr_send_with_meid(payload, mtype, target)
 
     rmr = RejectingRollbackRMR()
     dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MockSDL())
@@ -277,7 +274,7 @@ def test_control_dispatcher_rejects_missing_safety_result():
 
 def test_control_dispatcher_does_not_track_rejected_rmr_send():
     class RejectingRMR(MockRMR):
-        def rmr_send(self, payload, mtype, target):
+        def rmr_send_with_meid(self, payload, mtype, target):
             return False
 
     dispatcher = ControlDispatcher(rmr_client=RejectingRMR(), sdl_repo=MockSDL())

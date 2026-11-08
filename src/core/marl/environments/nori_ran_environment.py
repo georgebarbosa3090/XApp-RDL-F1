@@ -49,7 +49,7 @@ class NoriRanEnvironment:
 
         # Módulos de Governança e Blindagem Invariante
         self.memory = MemoryModule()
-        self.refinement_guard = Refinement(self.memory)
+        self.refinement_guard = Refinement(self.memory, config={"enabled": True, "minimum_control_interval_ms": 0})
         self.mapper = RCMapper(ran_function_id=3)
 
         # Estado da RAN

@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Environment variables
-ENV RMR_SEED_RT=/app/configs/routes.rt
+ENV RMR_SEED_RT=/app/configs/uta_rtg.rt
 ENV CONFIG_FILE=/app/configs/config-file.json
 ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
 ENV PYTHONPATH=/app

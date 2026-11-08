@@ -11,7 +11,7 @@ from src.e2.e2ap.constants import PROC_RIC_CONTROL
 class MockRMR:
     def __init__(self):
         self.sent = []
-    def rmr_send(self, payload, mtype, target=None):
+    def rmr_send_with_meid(self, payload, mtype, target):
         self.sent.append((payload, mtype, target))
         return True
 
@@ -65,7 +65,7 @@ def test_dispatch_and_ack_integration():
     assert record.ack_status == "ACKNOWLEDGED"
     assert record.rtt_ms > 0
 
-def test_failure_triggers_rollback():
+def test_failure_does_not_trigger_rollback():
     rmr = MockRMR()
     sdl = MemoryModule()
     dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=sdl)
@@ -108,9 +108,10 @@ def test_failure_triggers_rollback():
     fail_res = dispatcher.handle_failure(wrapped_fail)
     assert fail_res is not None
     assert fail_res["status"] == "FAILED"
-    assert fail_res["rollback_status"] == "SENT_UNCONFIRMED"
-    assert len(dispatcher.rollback_history) == 1
-    assert dispatcher.rollback_history[0]["requested_value"] == 23.0
+    # RIC_CONTROL_FAILURE: o E2 Node não executou o controle; nada a restaurar.
+    assert fail_res["rollback_status"] == "NOT_REQUIRED"
+    assert dispatcher.rollback_history == []
+    assert len(rmr.sent) == 1
 
     record = causal_tracker.records[action.action_id]
     assert record.ack_status == "FAILED"

@@ -17,8 +17,9 @@ class RanFunction(BaseModel):
     ranFunctionOid: str
 
 class E2NodeDiscoveryService:
-    def __init__(self, e2m_url: str = "http://service-ricplt-e2mgr-http.ricplt:3800"):
+    def __init__(self, e2m_url: str = "http://service-ricplt-e2mgr-http.ricplt:3800", strict_mode: bool = False):
         self.e2m_url = e2m_url
+        self.strict_mode = strict_mode
 
     def list_connected_nodes(self) -> List[E2Node]:
         """
@@ -57,8 +58,12 @@ class E2NodeDiscoveryService:
                             ranFunctionRevision=fn.get("ranFunctionRevision", 1),
                             ranFunctionOid=fn.get("ranFunctionOid", "1.3.6.1.4.1.53148.1.2.2.2")
                         )
+                if self.strict_mode:
+                    return None
         except Exception as e:
             logger.debug(f"Nao foi possivel consultar detalhes do no {node.inventoryName}: {e}")
+            if self.strict_mode:
+                return None
         return RanFunction(ranFunctionId=2, ranFunctionRevision=2, ranFunctionOid="1.3.6.1.4.1.53148.1.2.2.2")
 
     def find_control_function(self, node: E2Node) -> Optional[RanFunction]:
@@ -77,7 +82,10 @@ class E2NodeDiscoveryService:
                             ranFunctionRevision=fn.get("ranFunctionRevision", 1),
                             ranFunctionOid=fn.get("ranFunctionOid", "1.3.6.1.4.1.53148.1.2.2.3")
                         )
+                if self.strict_mode:
+                    return None
         except Exception as e:
             logger.debug(f"Nao foi possivel consultar detalhes do no {node.inventoryName}: {e}")
+            if self.strict_mode:
+                return None
         return RanFunction(ranFunctionId=3, ranFunctionRevision=1, ranFunctionOid="1.3.6.1.4.1.53148.1.2.2.3")
-

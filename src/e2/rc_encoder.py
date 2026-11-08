@@ -77,7 +77,7 @@ PARAM_PROFILES = {
 }
 
 _EXTRA_PROFILES = {
-    "A3_OFFSET":          {"id": 4,  "scale": 100,  "unit": "centi_dB",    "min": -1000,"max": 1000},
+    "A3_OFFSET":          {"id": 5,  "scale": 100,  "unit": "centi_dB",    "min": -1000,"max": 1000},
     "BEAM_DOWNTILT":      {"id": 10, "scale": 10,   "unit": "deg_x10",     "min": 0,    "max": 150},
     "ISAC_SENSING_RATIO": {"id": 11, "scale": 1000, "unit": "milli_ratio", "min": 0,    "max": 500},
     "CARRIER_AGG_RATIO":  {"id": 12, "scale": 1000, "unit": "milli_ratio", "min": 0,    "max": 1000}
@@ -89,6 +89,13 @@ for k, v in _EXTRA_PROFILES.items():
 class RCEncoder:
     """
     Construtor de payloads APER para a subcamada E2SM-RC (RAN Control).
+
+    ATENÇÃO: as estruturas acima são um perfil simplificado e NÃO seguem o ASN.1
+    oficial do E2SM-RC v1.03 (ex.: falta o CHOICE controlHeader-Format1 com UEID e
+    os RANParameter-ValueType; ``ranParameterName`` não existe na norma). Um E2 Node
+    conforme rejeitará estes bytes. O modo O_RAN_INTEROP permanece bloqueado
+    (``protocol_interoperability_verified = False``) até a substituição por um codec
+    gerado do ASN.1 oficial e validado contra implementação independente.
     """
     def __init__(self):
         self.profiles = PARAM_PROFILES

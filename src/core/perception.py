@@ -1,13 +1,23 @@
-from typing import Dict, List, Optional
+import time
+from typing import Dict, List, Optional, Tuple
 from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
+
 
 class Perception:
     """
     Componente de Percepção da H-RDL (Núcleo / Core).
-    Responsável pela ingestão de telemetria E2SM-KPM, manutenção do grafo de
-    dependência de KPIs e detecção determinística de colisões e conflitos multi-xApp.
+    Responsável pela ingestão de telemetria E2SM-KPM com verificação de TTL,
+    manutenção do grafo de dependência de KPIs e detecção determinística de
+    colisões e conflitos multi-xApp.
     """
-    def __init__(self):
+    def __init__(self, kpm_ttl_s: float = 1.0):
+        self.kpm_ttl_s = kpm_ttl_s
+        # Grafo de topologia multi-gNB padrão (Eixo 3)
+        self.topology_graph = {
+            "gnb_01": ["gnb_02"],
+            "gnb_02": ["gnb_01", "gnb_03"],
+            "gnb_03": ["gnb_02"],
+        }
         # Grafo de dependências KPI modelando as relações lógicas da rede
         self.kpi_dependency_graph = {
             "PRB_QUOTA": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
@@ -18,19 +28,34 @@ class Perception:
             "BEAM_WEIGHTS": ["L1M.DL-sinr", "DRB.UEThpDl"],
             "SENSING_RATIO": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
             "LOAD_THRESHOLD": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
-            "PING_INTERVAL": ["DRB.RlcSduDelayDl"]
+            "PING_INTERVAL": ["DRB.RlcSduDelayDl"],
         }
         # Registro das últimas ações: node_id -> parameter -> XAppAction
         self._action_registry: Dict[str, Dict[str, XAppAction]] = {}
         self.latest_kpm: Optional[KPMReport] = None
         self._kpm_by_node: Dict[str, KPMReport] = {}
+        self._kpm_timestamps: Dict[str, float] = {}
 
     def update_kpm_report(self, report: KPMReport):
         self.latest_kpm = report
         self._kpm_by_node[report.node_id] = report
+        report_ts = getattr(report, "timestamp", None)
+        self._kpm_timestamps[report.node_id] = float(report_ts) if isinstance(report_ts, (int, float)) and report_ts > 0 else time.time()
+
+    def get_kpm_report_with_ttl(self, node_id: str) -> Tuple[Optional[KPMReport], bool]:
+        """Retorna (report, is_valid) aplicando TTL de 1000 ms (kpm_ttl_s)."""
+        report = self._kpm_by_node.get(node_id)
+        if report is None:
+            return None, False
+        if self.kpm_ttl_s > 0:
+            ts = self._kpm_timestamps.get(node_id, getattr(report, "timestamp", 0.0))
+            if ts > 0 and (time.time() - ts) > self.kpm_ttl_s:
+                return None, False
+        return report, True
 
     def get_latest_kpm(self, node_id: str) -> Optional[KPMReport]:
-        return self._kpm_by_node.get(node_id)
+        report, is_valid = self.get_kpm_report_with_ttl(node_id)
+        return report if is_valid else None
 
     def get_active_xapps(self) -> Dict[str, List[XAppAction]]:
         active = {}
@@ -42,54 +67,74 @@ class Perception:
         return active
 
     def detect_action_group(self, actions: List[XAppAction]) -> List[ConflictEvent]:
-        """Detect conflicts without treating unselected proposals as active state."""
-        conflicts = []
-        
-        # Avalia combinações dentro do próprio grupo (Decision Window)
-        actions_by_node: Dict[str, List[XAppAction]] = {}
+        """
+        Detecta conflitos da Decision Window sem tratar propostas não selecionadas como estado ativo.
+
+        Os conflitos são agrupados por alvo, e não por par de ações, para que o custo
+        cresça linearmente com o número de propostas:
+
+        - propostas repetidas de uma mesma xApp para o mesmo (nó, parâmetro) são
+          deduplicadas, valendo a mais recente;
+        - DIRECT: um único evento por (nó, parâmetro) com todas as propostas concorrentes
+          e, como incumbente, a última ação confirmada pela RAN (quando de outra xApp);
+        - INDIRECT: um evento por par de parâmetros do mesmo nó que compartilham KPIs,
+          com os candidatos de ambos os parâmetros.
+
+        O número de eventos fica limitado por O(P²) por nó (P = parâmetros), independente
+        do volume de propostas.
+        """
+        conflicts: List[ConflictEvent] = []
+
+        latest: Dict[Tuple[str, str, str], XAppAction] = {}
         for action in actions:
-            actions_by_node.setdefault(action.node_id, []).append(action)
+            latest[(action.node_id, action.parameter, action.xapp_id)] = action
 
-        for node_actions in actions_by_node.values():
-            for i in range(len(node_actions)):
-                for j in range(i + 1, len(node_actions)):
-                    action_a = node_actions[i]
-                    action_b = node_actions[j]
-                    if action_a.xapp_id == action_b.xapp_id:
+        proposals_by_node: Dict[str, Dict[str, List[XAppAction]]] = {}
+        for (node_id, parameter, _), action in latest.items():
+            proposals_by_node.setdefault(node_id, {}).setdefault(parameter, []).append(action)
+
+        for node_id, proposals_by_param in proposals_by_node.items():
+            committed = self._action_registry.get(node_id, {})
+
+            candidates: Dict[str, List[XAppAction]] = {}
+            for parameter, proposals in proposals_by_param.items():
+                members = list(proposals)
+                incumbent = committed.get(parameter)
+                if incumbent is not None and all(p.xapp_id != incumbent.xapp_id for p in proposals):
+                    members.insert(0, incumbent)
+                candidates[parameter] = members
+
+            for parameter, members in candidates.items():
+                if len({m.xapp_id for m in members}) > 1 and len({m.value for m in members}) > 1:
+                    conflicts.append(ConflictEvent(
+                        conflict_type=ConflictType.DIRECT,
+                        severity=ConflictSeverity.HIGH,
+                        involved_xapps=members,
+                        affected_kpis=list(self.kpi_dependency_graph.get(parameter, [])),
+                        description=f"Direct conflict on parameter {parameter} ({len(members)} candidates)"
+                    ))
+
+            all_params = sorted(set(candidates) | set(committed))
+            for i, param_a in enumerate(all_params):
+                for param_b in all_params[i + 1:]:
+                    if param_a not in proposals_by_param and param_b not in proposals_by_param:
                         continue
-
-                    if action_a.parameter == action_b.parameter:
-                        conflicts.append(ConflictEvent(
-                            conflict_type=ConflictType.DIRECT,
-                            severity=ConflictSeverity.HIGH,
-                            involved_xapps=[action_a, action_b],
-                            affected_kpis=self.kpi_dependency_graph.get(action_a.parameter, []),
-                            description=f"Direct conflict on parameter {action_a.parameter}"
-                        ))
+                    common_kpis = set(self.kpi_dependency_graph.get(param_a, [])).intersection(
+                        self.kpi_dependency_graph.get(param_b, [])
+                    )
+                    if not common_kpis:
                         continue
-
-                    kpis_a = self.kpi_dependency_graph.get(action_a.parameter, [])
-                    kpis_b = self.kpi_dependency_graph.get(action_b.parameter, [])
-                    common_kpis = set(kpis_a).intersection(kpis_b)
-                    if common_kpis:
-                        conflicts.append(ConflictEvent(
-                            conflict_type=ConflictType.INDIRECT,
-                            severity=ConflictSeverity.MEDIUM,
-                            involved_xapps=[action_a, action_b],
-                            affected_kpis=list(common_kpis),
-                            description=f"Indirect conflict on KPIs {common_kpis}"
-                        ))
-
-        # Avalia cada ação contra o estado persistido de ações admitidas
-        for action in actions:
-            # Check Direct contra o histórico
-            direct = self._detect_direct_conflict(action)
-            if direct:
-                conflicts.append(direct)
-                
-            # Check Indirect contra o histórico
-            indirects = self._detect_indirect_conflict(action)
-            conflicts.extend(indirects)
+                    members_a = candidates.get(param_a) or [committed[param_a]]
+                    members_b = candidates.get(param_b) or [committed[param_b]]
+                    if not any(a.xapp_id != b.xapp_id for a in members_a for b in members_b):
+                        continue
+                    conflicts.append(ConflictEvent(
+                        conflict_type=ConflictType.INDIRECT,
+                        severity=ConflictSeverity.MEDIUM,
+                        involved_xapps=members_a + members_b,
+                        affected_kpis=sorted(common_kpis),
+                        description=f"Indirect conflict on KPIs {sorted(common_kpis)} via params {param_a} and {param_b}"
+                    ))
 
         return conflicts
 
@@ -120,43 +165,6 @@ class Perception:
         self.commit_actions(actions)
         return conflicts
 
-    def _detect_direct_conflict(self, new_action: XAppAction) -> Optional[ConflictEvent]:
-        if new_action.node_id in self._action_registry:
-            if new_action.parameter in self._action_registry[new_action.node_id]:
-                old_action = self._action_registry[new_action.node_id][new_action.parameter]
-                if old_action.xapp_id != new_action.xapp_id:
-                    return ConflictEvent(
-                        conflict_type=ConflictType.DIRECT,
-                        severity=ConflictSeverity.HIGH,
-                        involved_xapps=[old_action, new_action],
-                        affected_kpis=self.kpi_dependency_graph.get(new_action.parameter, []),
-                        description=f"Direct conflict on parameter {new_action.parameter} against history"
-                    )
-        return None
-
-    def _detect_indirect_conflict(self, new_action: XAppAction) -> List[ConflictEvent]:
-        conflicts = []
-        new_kpis = self.kpi_dependency_graph.get(new_action.parameter, [])
-        
-        if not new_kpis or new_action.node_id not in self._action_registry:
-            return conflicts
-            
-        for param, old_action in self._action_registry[new_action.node_id].items():
-            if param == new_action.parameter or old_action.xapp_id == new_action.xapp_id:
-                continue
-            
-            old_kpis = self.kpi_dependency_graph.get(param, [])
-            common_kpis = set(new_kpis).intersection(set(old_kpis))
-            
-            if common_kpis:
-                conflicts.append(ConflictEvent(
-                    conflict_type=ConflictType.INDIRECT,
-                    severity=ConflictSeverity.MEDIUM,
-                    involved_xapps=[old_action, new_action],
-                    affected_kpis=list(common_kpis),
-                    description=f"Indirect conflict on KPIs {common_kpis} via params {param} and {new_action.parameter} against history"
-                ))
-        return conflicts
 
 # Alias de compatibilidade retroativa
 PerceptionAgent = Perception

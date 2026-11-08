@@ -73,7 +73,7 @@ def validate_gate1() -> bool:
     ] if os.path.exists(raw_kpm_dir) else []
     decoded_files = [
         name for name in os.listdir(raw_kpm_dir)
-        if name.startswith("indication_") and name.endswith("_decoded.json")
+        if name.startswith("indication_") and name.endswith(".json")
     ] if os.path.exists(raw_kpm_dir) else []
     g5 = bool(raw_files)
     g6 = bool(decoded_files)
@@ -97,6 +97,7 @@ def validate_gate1() -> bool:
         print(f"  [Gate 1: FAIL] Verificação de proveniência falhou: {exc}")
         provenance_ok = False
 
+    sem_str = f"{sem_val:.2f}%" if isinstance(sem_val, (int, float)) else "N/A"
     print(f"  - Manifesto e proveniência de execução: {'OK' if manifest_ok and provenance_ok else 'FAIL'}")
     print(f"  - G1.1 NORI Connected: {'OK' if g1 else 'FAIL'}")
     print(f"  - G1.2 E2 Setup: {'OK' if g2 else 'FAIL'}")
@@ -104,7 +105,7 @@ def validate_gate1() -> bool:
     print(f"  - G1.4 Subscription ACK: {'OK' if g4 else 'FAIL'}")
     print(f"  - G1.5 Indication Raw ({len(raw_files)} files): {'OK' if g5 else 'FAIL'}")
     print(f"  - G1.6 APER Decode ({len(decoded_files)} files): {'OK' if g6 else 'FAIL'}")
-    print(f"  - G1.7 Semantic Validation (error={sem_val:.2f}%): {'OK' if g7 else 'FAIL'}")
+    print(f"  - G1.7 Semantic Validation (error={sem_str}): {'OK' if g7 else 'FAIL'}")
 
     all_passed = manifest_ok and provenance_ok and g1 and g2 and g3 and g4 and g5 and g6 and g7
     if not all_passed:

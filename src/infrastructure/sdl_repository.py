@@ -105,17 +105,24 @@ class SdlRepository:
         )
 
 
+    MAX_LOCAL_CACHE = 5000
+
+    def _cache(self, item: Any) -> None:
+        self._local_cache.append(item)
+        if len(self._local_cache) > self.MAX_LOCAL_CACHE:
+            del self._local_cache[:-self.MAX_LOCAL_CACHE]
+
     # Alias para compatibilidade com o MemoryModule legado
     def add_action(self, action):
-        self._local_cache.append(action)
+        self._cache(action)
         self.save_action_proposal(f"act_{time.time()}", {"parameter": action.parameter, "value": action.value})
 
     def add_conflict(self, conflict):
-        self._local_cache.append(conflict)
+        self._cache(conflict)
         self._set(f"conflict_{conflict.conflict_id}", {"type": conflict.conflict_type.name})
 
     def add_resolution(self, resolution):
-        self._local_cache.append(resolution)
+        self._cache(resolution)
         self.save_decision(f"res_{resolution.conflict_id}", {"strategy": resolution.strategy_used.name})
 
     def get_similar_resolutions(self, conflict) -> list:

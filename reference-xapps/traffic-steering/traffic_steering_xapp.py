@@ -121,6 +121,13 @@ class TrafficSteeringXApp:
                 target_ue=self.target_ue
             )
             logger.debug(f"[TrafficSteering Proposal] Emitida: {proposal}")
+            rdl_url = os.getenv("RDL_HTTP_URL", "")
+            if rdl_url:
+                try:
+                    import requests
+                    requests.post(rdl_url, json=proposal, timeout=1.5)
+                except Exception as exc:
+                    logger.debug(f"[TrafficSteering] Falha ao enviar proposta HTTP: {exc}")
             time.sleep(3.0)
 
     def start(self):

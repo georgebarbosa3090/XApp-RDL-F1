@@ -21,7 +21,8 @@ class RCMapper:
         self,
         action: XAppAction,
         requestor_id: int = 1,
-        instance_id: int = 1
+        instance_id: int = 1,
+        ack_request: int = 1
     ) -> ControlContext:
         """
         Converte uma XAppAction individual aprovada pelo Safety Guard em uma PDU E2AP RICcontrolRequest completa.
@@ -36,7 +37,8 @@ class RCMapper:
             node_id=action.node_id
         )
 
-        # Gera Header e Message APER normativos
+        # Gera Header e Message APER pelo codec E2SM-RC local (estrutura simplificada,
+        # ainda não conforme ao ASN.1 oficial E2SM-RC v1.03; ver RCEncoder)
         encoded_rc = self.encoder.encode_control_parts(
             node_id=action.node_id,
             parameter=action.parameter,
@@ -57,7 +59,7 @@ class RCMapper:
             message_bytes=encoded_rc.message_aper,
             requestor_id=requestor_id,
             instance_id=instance_id,
-            ack_request=1
+            ack_request=ack_request
         )
         return control_ctx
 

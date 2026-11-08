@@ -16,9 +16,11 @@ class AppState(str, Enum):
     STOPPED = "STOPPED"
     ERROR = "ERROR"
 
+SUBSCRIPTION_NOTIFICATION_PATH = "/ric/v1/subscriptions/response"
+
 try:
     import uvicorn
-    from fastapi import FastAPI, Response, status
+    from fastapi import FastAPI, Request, Response, status
     HAS_FASTAPI = True
 except ImportError:
     HAS_FASTAPI = False
@@ -37,7 +39,9 @@ class HealthServer:
         self.start_time = time.time()
         self.version = "1.1.0"
         self.server_thread = None
-        
+        # Callback(body) -> bool | None para notificações assíncronas do SubMgr.
+        self.subscription_callback = None
+
         if HAS_FASTAPI:
             self.app = FastAPI(title="RDL xApp Health Server")
             
@@ -50,12 +54,26 @@ class HealthServer:
                 
             @self.app.get("/ready")
             def ready(response: Response):
-                if self.state in (AppState.READY, AppState.SUBSCRIBING):
+                # Somente READY: em SUBSCRIBING a subscrição E2 ainda não foi confirmada.
+                if self.state == AppState.READY:
                     return {"status": "READY", "state": self.state}
                 else:
                     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
                     return {"status": "NOT_READY", "current_state": self.state}
-                    
+
+            @self.app.post(SUBSCRIPTION_NOTIFICATION_PATH)
+            async def subscription_notification(request: Request, response: Response):
+                try:
+                    body = await request.json()
+                except Exception:
+                    response.status_code = 400
+                    return {"error": "invalid JSON"}
+                callback = self.subscription_callback
+                if callback is None or callback(body) is None:
+                    response.status_code = 404
+                    return {"error": "unknown subscription"}
+                return {}
+
             @self.app.get("/status")
             def get_status():
                 return {

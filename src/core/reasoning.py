@@ -4,6 +4,7 @@ from src.infrastructure.sdl_repository import SdlRepository
 import math
 import itertools
 
+
 class Reasoning:
     """
     Componente de Raciocínio e Arbitragem da xApp RDL (Fase 1: H-RDL / Núcleo / Core).
@@ -17,7 +18,7 @@ class Reasoning:
     def __init__(self, memory: Any, config: Optional[dict] = None):
         self.memory = memory
         self.config = config or {}
-        
+
         # Pesos Multiobjetivo para Conflito DIRETO (TVS)
         self.w_sla = self.config.get("w_sla", 0.40)
         self.w_throughput = self.config.get("w_throughput", 0.25)
@@ -31,6 +32,8 @@ class Reasoning:
         self.w_fairness_ind = self.config.get("w_fairness_ind", 0.15)
         self.w_viol_ind = self.config.get("w_viol_ind", 0.35)
         self.max_exact_actions = min(16, max(1, int(self.config.get("max_exact_actions", 16))))
+        # Limite de subconjuntos compatíveis avaliados exatamente pelo EEVS antes do guloso.
+        self.max_exact_subsets = max(1, int(self.config.get("max_exact_subsets", 2 ** self.max_exact_actions - 1)))
 
         # Parâmetros Físicos Calibrados de Rádio 5G (Banda n78 3.5 GHz)
         self.BANDWIDTH_HZ = 100e6         # 100 MHz de BWP
@@ -48,6 +51,16 @@ class Reasoning:
         self.latest_kpm = report
         self.kpm_by_node[report.node_id] = report
 
+    def compute_complexity(self, conflict: ConflictEvent) -> float:
+        """
+        Calcula o índice de complexidade C(c, s) do conflito (Skill 09 / Skill 12).
+        """
+        num_actions = len(conflict.involved_xapps)
+        unique_params = len({a.parameter for a in conflict.involved_xapps})
+        is_direct = conflict.conflict_type.name == "DIRECT"
+        c_score = (1.0 if is_direct else 1.8) + 0.3 * max(0, num_actions - 2) + 0.4 * max(0, unique_params - 1)
+        return round(c_score, 2)
+
     def resolve(self, conflict: ConflictEvent) -> ResolutionAction:
         # 1. Consultar histórico na Shared Data Layer
         similar_resolutions = self.memory.get_similar_resolutions(conflict)
@@ -55,36 +68,43 @@ class Reasoning:
             best_res = similar_resolutions[0]
             if best_res.confidence >= 0.8:
                 return self._resolve_by_history(conflict, similar_resolutions)
-                
+
         # 2. Conflito DIRETO (mesmo parâmetro/alvo) -> Heurística TVS
         if conflict.conflict_type.name == "DIRECT":
             return self._resolve_direct_conflict(conflict)
-            
+
         # 3. Conflito INDIRETO (impacto cruzado em KPIs) -> Heurística EEVS
         return self._resolve_indirect_conflict(conflict)
 
     def _resolve_direct_conflict(self, conflict: ConflictEvent) -> ResolutionAction:
         actions = conflict.involved_xapps
-        best_score = -float("inf")
+        best_key = (-float("inf"), -float("inf"), -float("inf"), "")
         best_action = None
 
         for act in actions:
             scores = self._calculate_action_scores(act)
-            
+
             # Função de Utilidade Global TVS
             u_a = (self.w_sla * scores["sla"] +
                    self.w_throughput * scores["throughput"] +
                    self.w_energy * scores["energy"] +
                    self.w_stability * scores["stability"] +
                    self.w_priority * scores["priority"])
-            
-            if u_a > best_score:
-                best_score = u_a
+
+            # Tie-breaking determinístico canônico: (utilidade, prioridade, menor |valor|, action_id)
+            candidate_key = (
+                round(u_a, 9),
+                float(getattr(act, "priority", 50)),
+                -abs(float(act.value)),
+                str(getattr(act, "action_id", "")),
+            )
+            if candidate_key > best_key:
+                best_key = candidate_key
                 best_action = act
 
         return ResolutionAction(
             conflict_id=conflict.conflict_id,
-            strategy_used=ResolutionStrategy.TVS, 
+            strategy_used=ResolutionStrategy.TVS,
             winning_actions=[best_action] if best_action else [],
             modified_value=best_action.value if best_action else None,
             confidence=0.92,
@@ -95,19 +115,29 @@ class Reasoning:
         actions = conflict.involved_xapps
         max_prio_in_conflict = max(getattr(a, "priority", 50) for a in actions) if actions else 50
 
-        if len(actions) > self.max_exact_actions:
+        # Subconjuntos fisicamente compatíveis têm no máximo uma ação por (nó, parâmetro):
+        # enumera-se o produto das opções por alvo (incluindo "nenhuma"), não o powerset.
+        options_by_target: Dict[Tuple[str, str], List[XAppAction]] = {}
+        for act in actions:
+            options_by_target.setdefault((act.node_id, act.parameter), []).append(act)
+        n_subsets = 1
+        for options in options_by_target.values():
+            n_subsets *= len(options) + 1
+
+        if n_subsets - 1 > self.max_exact_subsets:
             best_subset = self._resolve_indirect_greedy(actions, max_prio_in_conflict)
             confidence = 0.70
         else:
             best_subset = []
             best_score = -float("inf")
-            for size in range(1, len(actions) + 1):
-                for subset in itertools.combinations(actions, size):
-                    subset_list = list(subset)
-                    score = self._score_indirect_subset(subset_list, max_prio_in_conflict)
-                    if score > best_score:
-                        best_score = score
-                        best_subset = subset_list
+            for choice in itertools.product(*[[None] + opts for opts in options_by_target.values()]):
+                subset_list = [act for act in choice if act is not None]
+                if not subset_list:
+                    continue
+                score = self._score_indirect_subset(subset_list, max_prio_in_conflict)
+                if score > best_score:
+                    best_score = score
+                    best_subset = subset_list
             confidence = 0.88
 
         modified_val = best_subset[0].value if len(best_subset) == 1 else None
@@ -167,6 +197,7 @@ class Reasoning:
             key = f"{act.node_id}_{act.parameter}"
             if key in param_targets and param_targets[key] != act.value:
                 return True
+            param_targets[key] = act.value
         return False
 
     def _get_max_tx_power(self, node_id: str) -> float:
@@ -178,7 +209,7 @@ class Reasoning:
                 return float(node_caps["TX_POWER"].max_value)
         except Exception:
             pass
-        return float(self.config.get("max_tx_power_dbm", 23.0))
+        return float(self.config.get("max_tx_power_dbm", 43.0))
 
     def _calculate_action_scores(self, act: XAppAction) -> Dict[str, float]:
         param = act.parameter
@@ -212,12 +243,15 @@ class Reasoning:
         else:  # mMTC
             sla_score = 0.65
 
-        # 3. Energy Score (Earth Model Linear)
+        # 3. Energy Score (Earth Model Linear com detecção dinâmica de teto Macro/Small Cell)
         if param == "TX_POWER":
-            p_watts = 10 ** ((val - 30) / 10)
+            max_pwr = self._get_max_tx_power(act.node_id)
+            p_watts = 10 ** ((val - 30.0) / 10.0)
+            p_max_watts = 10 ** ((max_pwr - 30.0) / 10.0)
             p_total = self.N_TRX * (self.P0_W + self.DELTA_P * p_watts)
-            p_max = self.N_TRX * (self.P0_W + self.DELTA_P * (10 ** ((23 - 30) / 10)))
-            energy_score = max(0.0, min(1.0, 1.0 - (p_total - (self.N_TRX * self.P0_W)) / (p_max - (self.N_TRX * self.P0_W) + 1e-6)))
+            p_max = self.N_TRX * (self.P0_W + self.DELTA_P * p_max_watts)
+            p_min = self.N_TRX * self.P0_W
+            energy_score = max(0.0, min(1.0, 1.0 - (p_total - p_min) / (p_max - p_min + 1e-6)))
         elif param == "PRB_QUOTA":
             energy_score = max(0.2, 1.0 - (val / 150.0))
         else:
@@ -255,7 +289,7 @@ class Reasoning:
             return {"qos": 0.0, "energy": 0.0, "fairness": 0.0, "violations": 1.0}
 
         individual_scores = [self._calculate_action_scores(act) for act in subset]
-        
+
         # QoS Ponderado pela prioridade
         total_prio = sum(s["priority"] for s in individual_scores)
         if total_prio > 0:
@@ -278,7 +312,7 @@ class Reasoning:
         # Violações e Penalidades:
         violations = 0.0
         subset_max_prio = max(getattr(a, "priority", 50) for a in subset)
-        
+
         # Penalidade pesada se descartar a ação de maior prioridade do conflito (ex: URLLC descartado em prol de ES)
         if subset_max_prio < max_prio_in_conflict:
             violations += ((max_prio_in_conflict - subset_max_prio) / 30.0)
@@ -305,6 +339,7 @@ class Reasoning:
             confidence=best_past_res.confidence,
             validation_level=0
         )
+
 
 # Alias de compatibilidade retroativa
 ReasoningAgent = Reasoning

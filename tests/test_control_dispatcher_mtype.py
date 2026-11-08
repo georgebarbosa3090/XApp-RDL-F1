@@ -9,7 +9,7 @@ from src.observability.causal_tracker import causal_tracker
 class MockRMRClient:
     def __init__(self):
         self.sent_messages = []
-    def rmr_send(self, payload, mtype, target=None):
+    def rmr_send_with_meid(self, payload, mtype, target):
         self.sent_messages.append({"payload": payload, "mtype": mtype, "target": target})
         return True
 
@@ -111,9 +111,9 @@ def test_causal_record_exists_before_transport_can_deliver_fast_ack():
     causal_tracker.reset()
 
     class InspectingRMR(MockRMRClient):
-        def rmr_send(self, payload, mtype, target=None):
+        def rmr_send_with_meid(self, payload, mtype, target):
             assert any(record.action_id == action.action_id for record in causal_tracker.records)
-            return super().rmr_send(payload, mtype, target)
+            return super().rmr_send_with_meid(payload, mtype, target)
 
     rmr = InspectingRMR()
     dispatcher = ControlDispatcher(rmr_client=rmr, sdl_repo=MemoryModule())

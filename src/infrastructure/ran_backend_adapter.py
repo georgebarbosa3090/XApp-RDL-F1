@@ -76,7 +76,8 @@ class RANBackendAdapter(ABC):
         self,
         action: XAppAction,
         requestor_id: int = 1,
-        instance_id: int = 1
+        instance_id: int = 1,
+        ack_request: int = 1
     ) -> bytes:
         """Mapeia ação H-RDL para o formato PDU de controle E2AP do backend especificando Style/Action apropriados."""
         pass
@@ -126,10 +127,13 @@ class NoriBackendAdapter(RANBackendAdapter):
         self,
         action: XAppAction,
         requestor_id: int = 1,
-        instance_id: int = 1
+        instance_id: int = 1,
+        ack_request: int = 1
     ) -> bytes:
         mapper = RCMapper(ran_function_id=3)
-        control_ctx = mapper.map_action_to_control_request(action, requestor_id, instance_id)
+        control_ctx = mapper.map_action_to_control_request(
+            action, requestor_id, instance_id, ack_request=ack_request
+        )
         return control_ctx.pdu_aper
 
     def correlate_ack(self, ack_payload_bytes: bytes, allow_test_fallback: bool = True) -> Dict[str, Any]:
@@ -231,10 +235,13 @@ class SrsRanBackendAdapter(RANBackendAdapter):
         self,
         action: XAppAction,
         requestor_id: int = 1,
-        instance_id: int = 1
+        instance_id: int = 1,
+        ack_request: int = 1
     ) -> bytes:
         mapper = RCMapper(ran_function_id=3)
-        control_ctx = mapper.map_action_to_control_request(action, requestor_id, instance_id)
+        control_ctx = mapper.map_action_to_control_request(
+            action, requestor_id, instance_id, ack_request=ack_request
+        )
         return control_ctx.pdu_aper
 
     def correlate_ack(self, ack_payload_bytes: bytes, allow_test_fallback: bool = True) -> Dict[str, Any]:

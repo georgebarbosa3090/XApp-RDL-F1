@@ -14,6 +14,7 @@ Nota de Prontidão Experimental:
   está planejada como etapa subsequente de consolidação experimental.
 """
 
+import json
 import time
 import struct
 import socket
@@ -107,20 +108,41 @@ class SrsranE2Adapter(RadioBackendAdapter):
             except (socket.timeout, BlockingIOError):
                 pass
 
-        # Telemetria normalizada
+        prb_utilization = 78.5
+        active_ues = 12
+        pdcp_throughput_mbps = 88.4
+        packet_loss_rate = 0.0012
+        cqi_mean = 12.4
+        sinr_db = 18.5
+        slice_metrics = {
+            "eMBB": {"prb_quota": 0.60, "thp_mbps": 72.0, "latency_ms": 14.5},
+            "URLLC": {"prb_quota": 0.40, "thp_mbps": 16.4, "latency_ms": 4.8}
+        }
+
+        if raw_bytes:
+            try:
+                parsed = json.loads(raw_bytes.decode("utf-8"))
+                prb_utilization = float(parsed.get("prb_utilization", prb_utilization))
+                active_ues = int(parsed.get("active_ues", active_ues))
+                pdcp_throughput_mbps = float(parsed.get("pdcp_throughput_mbps", pdcp_throughput_mbps))
+                packet_loss_rate = float(parsed.get("packet_loss_rate", packet_loss_rate))
+                cqi_mean = float(parsed.get("cqi_mean", cqi_mean))
+                sinr_db = float(parsed.get("sinr_db", sinr_db))
+                if isinstance(parsed.get("slice_metrics"), dict):
+                    slice_metrics = parsed["slice_metrics"]
+            except Exception:
+                pass
+
         return KpmMetrics(
             node_id=node_id,
             timestamp_ns=now_ns,
-            prb_utilization=78.5,
-            active_ues=12,
-            pdcp_throughput_mbps=88.4,
-            packet_loss_rate=0.0012,
-            cqi_mean=12.4,
-            sinr_db=18.5,
-            slice_metrics={
-                "eMBB": {"prb_quota": 0.60, "thp_mbps": 72.0, "latency_ms": 14.5},
-                "URLLC": {"prb_quota": 0.40, "thp_mbps": 16.4, "latency_ms": 4.8}
-            },
+            prb_utilization=prb_utilization,
+            active_ues=active_ues,
+            pdcp_throughput_mbps=pdcp_throughput_mbps,
+            packet_loss_rate=packet_loss_rate,
+            cqi_mean=cqi_mean,
+            sinr_db=sinr_db,
+            slice_metrics=slice_metrics,
             raw_payload_bytes=raw_bytes or b"\x00\x02\x40\x12\x80\x01\x10",
             is_valid=True
         )

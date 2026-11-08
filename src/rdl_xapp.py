@@ -14,6 +14,7 @@ except (ImportError, OSError, Exception):
     _RealRMRXapp = None
     _RealXapp = None
 
+
 class MockRMRXapp:
     """Fallback mock para execucao local/testes sem dependencia binaria C/RMR."""
     def __init__(self, default_handler=None, rmr_port=4560, rmr_wait_for_ready=False, use_fake_sdl=True, post_init=None):
@@ -31,13 +32,16 @@ class MockRMRXapp:
         return True
     def deregister(self):
         return True
-    def rmr_send(self, payload, mtype, *args, **kwargs):
+    def rmr_send(self, payload, mtype, retries=100):
         logger.warning(
             "Mock RMR cannot transmit messages; configure a real RMR transport for control dispatch."
         )
         return False
+    def rmr_send_with_meid(self, payload, mtype, meid):
+        return self.rmr_send(payload, mtype)
     def rmr_free(self, sbuf):
         pass
+
 
 Xapp = _RealXapp if _RealXapp is not None else MockRMRXapp
 RMRXapp = _RealRMRXapp if _RealRMRXapp is not None else MockRMRXapp
@@ -53,7 +57,7 @@ from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
 from src.e2.rc.mapper import RCMapper
-from src.e2.e2ap.subscription import build_ric_subscription_request_payload
+from src.infrastructure.subscription_manager import SubscriptionManager
 from src.e2.e2ap.control import parse_ric_control_ack, parse_ric_control_failure
 from src.e2.e2ap.constants import (
     RIC_SUBSCRIPTION_REQ,
@@ -68,9 +72,17 @@ from src.e2.e2ap.constants import (
     RDL_ACTION_PROPOSAL,
     ID_RIC_CONTROL,
     ID_RIC_SUBSCRIPTION,
-    ID_RIC_INDICATION
+    ID_RIC_INDICATION,
 )
-from src.conflict_types import XAppAction, KPMReport, ConflictSeverity, RDLDecision
+from src.conflict_types import (
+    XAppAction,
+    KPMReport,
+    ConflictEvent,
+    ConflictSeverity,
+    ConflictType,
+    RDLDecision,
+    ResolutionAction,
+)
 
 from src.infrastructure.ran_backend_factory import get_ran_backend_adapter
 from src.infrastructure.ric_request_id_allocator import get_ric_request_id_allocator
@@ -81,6 +93,7 @@ logger = setup_logger("rdl_xapp")
 RIC_SUB_REQ = RIC_SUBSCRIPTION_REQ
 RIC_SUB_RESP = RIC_SUBSCRIPTION_RESP
 RIC_SUB_FAILURE = RIC_SUBSCRIPTION_FAILURE
+
 
 class RDLxApp:
     def __init__(self):
@@ -117,7 +130,11 @@ class RDLxApp:
 
         self.perception = Perception()
         self.reasoning = Reasoning(self.memory, config={})
-        self.refinement = Refinement(self.memory, strict_capabilities=self.oran_strict)
+        self.refinement = Refinement(
+            self.memory,
+            strict_capabilities=self.oran_strict,
+            committed_action_lookup=self.perception.get_committed_action,
+        )
         self.health = HealthServer(port=8080)
         self.health.set_state(AppState.STARTING)
         self.health.run()
@@ -129,9 +146,20 @@ class RDLxApp:
         self.backend = get_ran_backend_adapter(os.getenv("RAN_BACKEND"))
         self.allocator = get_ric_request_id_allocator()
 
-        # Decision Window properties (Feature 1)
+        # Subscrição E2 via API REST do SubMgr (O-RAN SC). Em modo estrito usa o endereço
+        # padrão da plataforma; fora dele, só quando SUBMGR_URL é configurado.
+        submgr_url = os.getenv("SUBMGR_URL") or (
+            "http://service-ricplt-submgr-http.ricplt:8088" if self.oran_strict else None
+        )
+        self.subscription_manager: Optional[SubscriptionManager] = (
+            SubscriptionManager(submgr_url=submgr_url) if submgr_url else None
+        )
+        self.health.subscription_callback = self._subscription_notification_handler
+
+        # Decision Window properties (Feature 1 + Fast-Flush URLLC)
         self.proposal_buffer: List[XAppAction] = []
         self.buffer_lock = threading.Lock()
+        self.urgent_event = threading.Event()
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
         self.MAX_PROPOSALS = 4096
@@ -167,6 +195,7 @@ class RDLxApp:
                 logger.warning("SDL indisponível; utilizando armazenamento local não persistente.", error=str(exc))
                 self.memory = MemoryModule()
                 self.reasoning.memory = self.memory
+                self.refinement.memory = self.memory
 
         from src.e2.control_dispatcher import ControlDispatcher
         self.dispatcher = ControlDispatcher(
@@ -204,6 +233,7 @@ class RDLxApp:
 
     def stop(self):
         self.running = False
+        self.urgent_event.set()
         self.health.set_state(AppState.STOPPED)
         self.xapp.stop()
 
@@ -229,6 +259,7 @@ class RDLxApp:
                     logger.warning("SDL indisponível; xApp permanece em armazenamento local.", error=str(exc))
                     self.memory = MemoryModule()
                     self.reasoning.memory = self.memory
+                    self.refinement.memory = self.memory
                 else:
                     self.health.set_state(AppState.ERROR)
                     logger.error("SDL obrigatório indisponível; xApp mantida fora de READY.", error=str(exc))
@@ -253,14 +284,16 @@ class RDLxApp:
             if not subscribed:
                 if self.oran_strict:
                     self.health.set_state(AppState.DEGRADED)
-                    logger.warning("Subscrição KPM não foi aceita pelo transporte; xApp mantida em DEGRADED.")
+                    self.metrics.ready_state.set(0)
+                    logger.warning("Subscrição KPM não foi aceita pelo SubMgr; xApp mantida em DEGRADED.")
                 else:
                     self.health.set_state(AppState.READY)
                     self.metrics.ready_state.set(1)
                     logger.info("Modo governança local: xApp RDL pronta para mediação de conflitos.")
             else:
-                self.health.set_state(AppState.SUBSCRIBING if self.oran_strict else AppState.READY)
-                self.metrics.ready_state.set(1)
+                # READY somente após a notificação de sucesso do SubMgr.
+                self.health.set_state(AppState.SUBSCRIBING)
+                self.metrics.ready_state.set(0)
         except Exception as e:
             if self.oran_strict:
                 self.health.set_state(AppState.ERROR)
@@ -278,44 +311,76 @@ class RDLxApp:
             self.decision_loop_started = True
             threading.Thread(target=self._decision_loop, daemon=True).start()
 
-
     def send_subscription_request(self, node_id: str = "gnb_01", ran_function_id: Optional[int] = None, report_period_ms: int = 200, xapp_instance: Any = None) -> bool:
         """
-        Emite requisicao de subscricao E2 (RIC_SUB_REQ) com payloads APER normativos.
+        Solicita subscrição E2SM-KPM ao SubMgr pela API REST (``POST /ric/v1/subscriptions``).
+
+        Retorna True quando o SubMgr aceitou o pedido; a subscrição fica pendente
+        (``active_subscriptions[node_id] is False``) até a notificação assíncrona.
+        Sem SubMgr configurado, retorna False (modo de governança local).
         """
+        if self.subscription_manager is None:
+            logger.info("SubMgr não configurado (SUBMGR_URL); subscrição E2 não solicitada.", target_node=node_id)
+            return False
         try:
             from src.e2.rc.capability_registry import rc_capability_registry
             resolved_fn_id = ran_function_id if ran_function_id is not None else rc_capability_registry.get_kpm_function_id(node_id)
-            sub_req_payload = build_ric_subscription_request_payload(
-                target_node=node_id,
-                ran_function_id=resolved_fn_id,
-                report_period_ms=report_period_ms
+            ctx = self.subscription_manager.request_kpm_subscription(
+                meid=node_id, ran_function_id=resolved_fn_id, period_ms=report_period_ms
             )
-            payload_bytes = json.dumps(sub_req_payload).encode('utf-8')
-            target_xapp = xapp_instance or getattr(self, "xapp", None)
-            if target_xapp:
-                success = target_xapp.rmr_send(payload=payload_bytes, mtype=RIC_SUB_REQ)
-            else:
-                success = False
-            if success:
-                logger.info("RIC_SUB_REQ emitido com sucesso para Subscription Manager", target_node=node_id, period_ms=report_period_ms)
-                self.active_subscriptions[node_id] = True
-                self.metrics.subs_total.inc()
-            else:
-                logger.warning("Falha ao enviar RIC_SUB_REQ via RMR")
-                self.metrics.subs_failures.inc()
-            return bool(success)
         except Exception as e:
-            logger.error(f"Erro ao construir e emitir RIC_SUB_REQ: {e}")
+            logger.error(f"Erro ao solicitar subscrição E2: {e}")
+            ctx = None
+        if ctx is None:
+            logger.warning("SubMgr não aceitou a subscrição KPM", target_node=node_id)
+            self.metrics.subs_failures.inc()
             return False
+        logger.info(
+            "Subscrição KPM aceita pelo SubMgr; aguardando notificação",
+            target_node=node_id,
+            subscription_id=ctx.subscription_id,
+            period_ms=report_period_ms,
+        )
+        self.active_subscriptions[node_id] = False
+        self.metrics.subs_total.inc()
+        return True
+
+    def _subscription_notification_handler(self, body: Any) -> Optional[bool]:
+        """Trata o resultado assíncrono da subscrição entregue pelo SubMgr via HTTP."""
+        if self.subscription_manager is None:
+            return None
+        result = self.subscription_manager.handle_notification(body)
+        if result is None:
+            return None
+        ctx, success = result
+        if success:
+            self.active_subscriptions[ctx.meid] = True
+            self.health.set_state(AppState.READY)
+            self.metrics.ready_state.set(1)
+            logger.info("Subscrição E2 confirmada pelo SubMgr", meid=ctx.meid, subscription_id=ctx.subscription_id)
+            if not self.decision_loop_started:
+                self.decision_loop_started = True
+                threading.Thread(target=self._decision_loop, daemon=True).start()
+        else:
+            self.active_subscriptions.pop(ctx.meid, None)
+            self.metrics.subs_failures.inc()
+            logger.error("Subscrição E2 recusada", meid=ctx.meid, cause=ctx.error_cause)
+            if not any(self.active_subscriptions.values()):
+                self.health.set_state(AppState.DEGRADED)
+                self.metrics.ready_state.set(0)
+        self.metrics.active_e2_nodes.set(sum(self.active_subscriptions.values()))
+        self.metrics.active_subs.set(sum(self.active_subscriptions.values()))
+        return success
 
     def _subscription_response_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Trata resposta de subscricao E2 (RIC_SUB_RESP) emitida pelo SubMgr."""
         logger.info("RIC_SUB_RESP recebido com sucesso", summary=summary)
-        if not any(self.active_subscriptions.values()):
+        meid = summary.get("meid") if isinstance(summary, dict) else None
+        if not meid or meid not in self.active_subscriptions:
             logger.warning("RIC_SUB_RESP recebido sem subscrição local pendente; readiness não alterada.")
             self._safe_rmr_free(xapp_instance, sbuf)
             return
+        self.active_subscriptions[meid] = True
         self.health.set_state(AppState.READY)
         self.metrics.ready_state.set(1)
         self.metrics.active_e2_nodes.set(len(self.active_subscriptions))
@@ -327,11 +392,16 @@ class RDLxApp:
 
     def _subscription_failure_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         logger.error("RIC_SUBSCRIPTION_FAILURE recebido; xApp não está pronta", summary=summary)
-        self.active_subscriptions.clear()
-        self.health.set_state(AppState.DEGRADED)
-        self.metrics.ready_state.set(0)
-        self.metrics.active_e2_nodes.set(0)
-        self.metrics.active_subs.set(0)
+        failed_meid = summary.get("meid") if isinstance(summary, dict) else None
+        if failed_meid and failed_meid in self.active_subscriptions:
+            self.active_subscriptions.pop(failed_meid, None)
+        else:
+            self.active_subscriptions.clear()
+        if not self.active_subscriptions:
+            self.health.set_state(AppState.DEGRADED)
+            self.metrics.ready_state.set(0)
+        self.metrics.active_e2_nodes.set(len(self.active_subscriptions))
+        self.metrics.active_subs.set(sum(self.active_subscriptions.values()))
         self.metrics.subs_failures.inc()
         self._safe_rmr_free(xapp_instance, sbuf)
 
@@ -408,6 +478,8 @@ class RDLxApp:
                         if not self.proposal_buffer:
                             self.window_start = now_ts()
                         self.proposal_buffer.append(action)
+                        if action.priority >= 80:
+                            self.urgent_event.set()
                         logger.debug(f"Action buffered. Queue size: {len(self.proposal_buffer)}")
             except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as e:
                 logger.error("Erro ao processar RDL_ACTION_PROPOSAL", error=str(e))
@@ -426,6 +498,7 @@ class RDLxApp:
                 action_id = ack_info.get("action_id")
                 action = self.pending_actions_by_id.pop(action_id, None)
                 if action is not None:
+                    action.t_ack = now_ts()
                     self.perception.commit_actions([action])
                 self.metrics.ctrl_ack.inc()
                 logger.info(
@@ -458,14 +531,19 @@ class RDLxApp:
             if not self.proposal_buffer:
                 self.window_start = now_ts()
             self.proposal_buffer.append(action)
+            if getattr(action, "priority", 50) >= 80:
+                self.urgent_event.set()
 
     def _process_action_group(self, actions: List[XAppAction]):
         """
         Processa todas as acoes acumuladas na Decision Window (Feature 2):
-        1. Identifica conflitos diretos e indiretos;
-        2. Arbitra conflitos via ReasoningAgent e valida via RefinementAgent;
-        3. Formaliza a RDLDecision ANTES do despacho;
-        4. Executa o despacho das ações selecionadas via ControlDispatcher.
+        1. Identifica conflitos diretos (por alvo) e indiretos (por par de parâmetros);
+        2. Arbitra em dois estágios: TVS escolhe um vencedor por (nó, parâmetro); o EEVS
+           decide os conflitos indiretos apenas entre esses vencedores. Cada resolução é
+           validada pelo Refinement sem auto-bloqueio intra-lote;
+        3. Seleciona uma ação por alvo (a incumbente vencedora não é reenviada) e formaliza
+           a RDLDecision ANTES do despacho;
+        4. Executa o despacho das ações selecionadas via ControlDispatcher propagando a latência de decisão.
         """
         t0 = now_ts()
         if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
@@ -481,17 +559,14 @@ class RDLxApp:
         from src.observability.causal_tracker import causal_tracker
         causal_tracker.register_proposals([action.action_id for action in actions])
 
-        # Mapeia acoes em conflito para isolar as acoes limpas
-        conflicting_action_keys = set()
-        for conflict in conflicts:
-            for act in conflict.involved_xapps:
-                conflicting_action_keys.add((act.node_id, act.parameter, act.xapp_id))
+        def target_of(act: XAppAction) -> Tuple[str, str]:
+            return (act.node_id, act.parameter)
 
-        # 1. Resolver conflitos do grupo
-        selected_winning_actions = []
-        strategy_names = []
-        action_conflicts: Dict[str, List[str]] = {}
-        for conflict in conflicts:
+        def is_incumbent(act: XAppAction) -> bool:
+            """Ação já confirmada pela RAN: mantê-la não gera novo controle."""
+            return self.perception.get_committed_action(act.node_id, act.parameter) is act
+
+        def register(conflict: ConflictEvent) -> None:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
             self.memory.add_conflict(conflict)
             self.metrics.record_conflict(conflict)
@@ -502,49 +577,135 @@ class RDLxApp:
                 [action.action_id for action in conflict.involved_xapps],
             )
 
+        def arbitrate(conflict: ConflictEvent) -> Tuple[ResolutionAction, bool, str]:
+            t_conflict_start = now_ts()
             resolution = self.reasoning.resolve(conflict)
-            is_valid, level, reason = self.refinement.validate(resolution, conflict)
-            latency = now_ts() - t0
-
-            self.memory.add_resolution(resolution)
-            self.metrics.record_resolution(resolution, latency)
-
-            if is_valid and resolution.winning_actions:
-                for act in resolution.winning_actions:
-                    logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=act.parameter)
-                    selected_winning_actions.append(act)
-                    action_conflicts.setdefault(act.action_id, []).append(conflict.conflict_id)
-                    causal_tracker.record_safety_validation()
-                strategy_names.append(resolution.strategy_used.name)
+            # A incumbente não gera controle, logo não passa de novo pela histerese/limites.
+            to_validate = [act for act in resolution.winning_actions if not is_incumbent(act)]
+            if resolution.winning_actions and not to_validate:
+                is_valid, reason = True, "Incumbent kept"
             else:
-                logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason)
+                check = ResolutionAction(
+                    conflict_id=resolution.conflict_id,
+                    strategy_used=resolution.strategy_used,
+                    winning_actions=to_validate,
+                    modified_value=resolution.modified_value,
+                    confidence=resolution.confidence,
+                    validation_level=resolution.validation_level,
+                )
+                # Valida contra o histórico de lotes anteriores sem gravar timestamp no meio do lote
+                is_valid, _, reason = self.refinement.validate(check, conflict, record_timestamp=False)
+            self.memory.add_resolution(resolution)
+            self.metrics.record_resolution(resolution, now_ts() - t_conflict_start)
+            return resolution, is_valid, reason
+
+        representative: Dict[Tuple[str, str], XAppAction] = {}
+        blocked_targets: set = set()
+        validated_ids: set = set()
+        strategy_names: List[str] = []
+        action_conflicts: Dict[str, List[str]] = {}
+
+        def admit(target: Tuple[str, str], act: XAppAction, conflict_id: str) -> None:
+            representative[target] = act
+            validated_ids.add(act.action_id)
+            linked = action_conflicts.setdefault(act.action_id, [])
+            if conflict_id not in linked:
+                linked.append(conflict_id)
+            causal_tracker.record_safety_validation()
+
+        # 1. Estágio DIRETO: um vencedor (TVS sobre todos os candidatos) por (nó, parâmetro)
+        for conflict in (c for c in conflicts if c.conflict_type == ConflictType.DIRECT):
+            register(conflict)
+            target = target_of(conflict.involved_xapps[0])
+            resolution, is_valid, reason = arbitrate(conflict)
+            winner = resolution.winning_actions[0] if resolution.winning_actions else None
+            if is_valid and winner is not None:
+                admit(target, winner, conflict.conflict_id)
+                strategy_names.append(resolution.strategy_used.name)
+                logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=winner.parameter)
+            else:
+                blocked_targets.add(target)
+                logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason, conflict=conflict.conflict_id)
                 for _ in conflict.involved_xapps:
                     causal_tracker.record_safety_validation(intervention=True)
 
-        # 2. Seleção de Ações Limpas (Conflict-Free Pass-Through Pipeline)
-        clean_actions = [
-            act for act in actions
-            if (act.node_id, act.parameter, act.xapp_id) not in conflicting_action_keys
-        ]
-
-        selected_clean_actions = []
-        for clean_act in clean_actions:
-            is_safe, level, reason = self.refinement.validate_single_action(clean_act)
-            if is_safe:
-                logger.info("Acao Limpa Admitida (Pass-Through)", xapp=clean_act.xapp_id, param=clean_act.parameter, val=clean_act.value)
-                selected_clean_actions.append(clean_act)
-                causal_tracker.record_safety_validation()
+        # 2. Estágio INDIRETO: EEVS apenas entre os candidatos que sobreviveram ao estágio direto
+        for conflict in (c for c in conflicts if c.conflict_type == ConflictType.INDIRECT):
+            register(conflict)
+            reduced = [
+                act for act in conflict.involved_xapps
+                if target_of(act) not in blocked_targets
+                and representative.get(target_of(act), act) is act
+            ]
+            targets = {target_of(act) for act in reduced}
+            if (
+                len(targets) < 2
+                or len({act.xapp_id for act in reduced}) < 2
+                or all(is_incumbent(act) for act in reduced)
+            ):
+                continue  # a oposição foi eliminada no estágio direto
+            sub_conflict = ConflictEvent(
+                conflict_type=ConflictType.INDIRECT,
+                severity=conflict.severity,
+                involved_xapps=reduced,
+                affected_kpis=conflict.affected_kpis,
+                description=conflict.description,
+                conflict_id=conflict.conflict_id,
+                detected_at=conflict.detected_at,
+            )
+            resolution, is_valid, reason = arbitrate(sub_conflict)
+            winners_by_target: Dict[Tuple[str, str], XAppAction] = {}
+            if is_valid:
+                for act in resolution.winning_actions:
+                    winners_by_target.setdefault(target_of(act), act)
+                strategy_names.append(resolution.strategy_used.name)
             else:
-                logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=clean_act.parameter)
-                causal_tracker.record_safety_validation(intervention=True)
+                logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason, conflict=conflict.conflict_id)
+            for target in sorted(targets):
+                winner = winners_by_target.get(target)
+                if winner is None:
+                    blocked_targets.add(target)
+                    causal_tracker.record_safety_validation(intervention=True)
+                else:
+                    admit(target, winner, conflict.conflict_id)
 
-        # 3. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
-        all_selected = selected_winning_actions + selected_clean_actions
+        # 3. Seleção final por alvo: vencedor arbitrado ou proposta sem conflito (pass-through)
+        proposals_by_target: Dict[Tuple[str, str], List[XAppAction]] = {}
+        for act in actions:
+            proposals_by_target.setdefault(target_of(act), []).append(act)
+
+        all_selected: List[XAppAction] = []
+        for target, proposals in proposals_by_target.items():
+            if target in blocked_targets:
+                continue
+            act = representative.get(target)
+            if act is None:
+                # Propostas convergentes (mesmo valor) ou única: maior prioridade, depois a mais recente.
+                act = max(enumerate(proposals), key=lambda item: (item[1].priority, item[0]))[1]
+            if is_incumbent(act):
+                logger.info("Valor atual mantido: ação já aplicada venceu a arbitragem", node=act.node_id, param=act.parameter)
+                continue
+            if act.action_id not in validated_ids:
+                is_safe, _, reason = self.refinement.validate_single_action(act, record_timestamp=False)
+                if not is_safe:
+                    logger.warning("Acao Limpa Bloqueada pelo Safety Guard", reason=reason, param=act.parameter)
+                    causal_tracker.record_safety_validation(intervention=True)
+                    continue
+                logger.info("Acao Limpa Admitida (Pass-Through)", xapp=act.xapp_id, param=act.parameter, val=act.value)
+                causal_tracker.record_safety_validation()
+            act.t_selection = now_ts()
+            all_selected.append(act)
+
+        # Commit atômico dos timestamps de controle para o lote atual
+        self.refinement.commit_control_timestamps(all_selected)
+        decision_latency_ms = max(0.001, (now_ts() - t0) * 1000.0)
+
+        # 4. Formalização da RDLDecision ANTES do Despacho (Garantia de Rastreabilidade)
         decision = RDLDecision(
             state={"active_xapps": len(self.perception.get_active_xapps())},
             proposals=actions,
             conflicts=conflicts,
-            safety_result={"admitted_count": len(all_selected), "rejected_count": len(actions) - len(all_selected)},
+            safety_result={"admitted_count": len(all_selected), "rejected_count": max(0, len(actions) - len(all_selected))},
             selected_actions=all_selected,
             reason="RESOLVED_AND_PASSTHROUGH",
             strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH",
@@ -554,7 +715,7 @@ class RDLxApp:
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
 
-        # 4. Despacho de Controle para Ações Admitidas via ControlDispatcher
+        # 5. Despacho de Controle para Ações Admitidas via ControlDispatcher
         dispatched_actions = []
         for act in all_selected:
             previous_action = self.perception.get_committed_action(act.node_id, act.parameter)
@@ -579,7 +740,9 @@ class RDLxApp:
                 conflict_ids=action_conflicts.get(act.action_id, []),
             )
             self.pending_actions_by_id[act.action_id] = act
-            control_request_id = self.dispatcher.dispatch_control(per_action_decision)
+            control_request_id = self.dispatcher.dispatch_control(
+                per_action_decision, decision_latency_ms=decision_latency_ms
+            )
             if control_request_id is None:
                 self.pending_actions_by_id.pop(act.action_id, None)
                 continue
@@ -595,7 +758,9 @@ class RDLxApp:
     def _decision_loop(self):
         last_cleanup = now_ts()
         while self.running:
-            time.sleep(0.05) # Verifica a cada 50ms
+            triggered = self.urgent_event.wait(timeout=0.05)
+            if triggered:
+                self.urgent_event.clear()
 
             # Anti-leak cleanup e timeout de controle a cada 1 segundo
             now = now_ts()
@@ -606,18 +771,19 @@ class RDLxApp:
                     self.metrics.ctrl_timeout.inc()
                     request_info = self.dispatcher.pending_requests.get(request_id, {})
                     self.pending_actions_by_id.pop(request_info.get("action_id"), None)
+                self.dispatcher.prune_finalized(now=now)
                 last_cleanup = now
 
             actions_to_process = []
             with self.buffer_lock:
                 if self.proposal_buffer:
                     elapsed_ms = (now_ts() - self.window_start) * 1000
-                    if elapsed_ms >= self.WINDOW_DURATION_MS:
-                        # Flush Window
+                    if elapsed_ms >= self.WINDOW_DURATION_MS or triggered:
+                        # Flush Window (por expiração de 200ms ou Fast-Flush URLLC)
                         actions_to_process = list(self.proposal_buffer)
                         self.proposal_buffer.clear()
                         self.window_start = 0.0
-                        logger.info(f"Decision Window Expired. Processing batch of {len(actions_to_process)} actions.")
+                        logger.info(f"Decision Window Flushed. Processing batch of {len(actions_to_process)} actions.")
             if actions_to_process:
                 self._process_action_group(actions_to_process)
 
@@ -654,7 +820,6 @@ class RDLxApp:
             return False
         self.metrics.ctrl_req.inc()
         return True
-
 
 
 if __name__ == "__main__":

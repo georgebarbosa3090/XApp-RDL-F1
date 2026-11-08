@@ -1,4 +1,10 @@
 newrt|start
+rte|12050|localhost:4560
+mse|12040|200| %meid
+rte|12041|localhost:4560
+rte|12042|localhost:4560
 rte|12010|submgr:4560
-rte|12040|e2term:38000
+rte|12011|localhost:4560
+rte|12012|localhost:4560
+rte|30000|localhost:4560
 newrt|end

@@ -94,13 +94,13 @@ class XSliceXApp:
         if self.greenran_profile == "URLLC_AGRO_CRITICAL":
             # Maquinário autônomo demanda latência ultrabaixa com alocação elástica entre 40% e 75%
             base_quota = 50.0 + (self.traffic_load_factor * 25.0)
-            return min(85.0, max(30.0, base_quota))
+            return float(round(min(85.0, max(30.0, base_quota))))
         elif self.greenran_profile == "MMTC_SOIL_SENSORS":
             # Sensores de solo e clima transmitem em rajadas curtas: 10% a 25% de PRB bastam
-            return 15.0 + (self.traffic_load_factor * 10.0)
+            return float(round(15.0 + (self.traffic_load_factor * 10.0)))
         elif self.greenran_profile == "EMBB_CAMPUS":
             # Campus universitário segue perfil circadiano: alta demanda em aulas, baixa à noite
-            return 30.0 + (self.traffic_load_factor * 50.0)
+            return float(round(30.0 + (self.traffic_load_factor * 50.0)))
         
         return self.default_prb_quota
 

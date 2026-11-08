@@ -1,10 +1,11 @@
 newrt|start
-# Rotas oficiais O-RAN SC (Subscription, Control, Indication e RDL)
-rte|12010|${E2TERM_SERVICE}
+rte|12010|${SUBMGR_SERVICE}
 rte|12011|${RDL_SERVICE}
 rte|12012|${RDL_SERVICE}
 rte|12020|${SUBMGR_SERVICE}
-rte|12040|${E2TERM_SERVICE}
+rte|12021|${RDL_SERVICE}
+rte|12022|${RDL_SERVICE}
+mse|12040|200| %meid
 rte|12041|${RDL_SERVICE}
 rte|12042|${RDL_SERVICE}
 rte|12050|${RDL_SERVICE}
