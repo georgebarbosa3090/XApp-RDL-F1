@@ -137,6 +137,8 @@ echo "=== [${STARTED}] ${SCENARIO} seed=${SEED} backend=${BACKEND} (saída ao vi
 ( cd "${NS3_DIR}" && "${CMD[@]}" )   > >(tee "${RUN_DIR}/logs/stdout.log")   2> >(tee "${RUN_DIR}/logs/stderr.log" >&2)
 EXIT_CODE=$?
 sleep 0.2  # deixa os tee terminarem de gravar
+# A evidência não guarda caminhos locais: raiz do clone -> <repo>, HOME -> ~ (o terminal mostrou a saída original)
+python3 "${REPO_DIR}/scripts/certification/redact_local_paths.py" --in-place "${RUN_DIR}/logs/stdout.log" "${RUN_DIR}/logs/stderr.log" || true
 FINISHED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 # Coleta apenas o que a execução gerou
@@ -160,6 +162,8 @@ RUN_STATUS=$([ "$EXIT_CODE" -eq 0 ] && echo SUCCESS || echo FAILED)
 
 python3 - "$RUN_DIR" <<PY
 import json, sys, platform, subprocess
+sys.path.insert(0, "${REPO_DIR}/scripts/certification")
+from redact_local_paths import redact_text
 def out(cmd):
     try:
         return subprocess.run(cmd, capture_output=True, text=True, check=False).stdout.strip().splitlines()[0]
@@ -172,7 +176,7 @@ manifest = {
     "scenario": "${SCENARIO}",
     "baseline": "${BASELINE}" or None,
     "seed": int("${SEED}"),
-    "command": "cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} ${SIM_ARGS}'",
+    "command": redact_text("cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} ${SIM_ARGS}'"),
     "rng_args": "${RNG_ARGS}",
     "action_schedule_sha256": "${SCHEDULE_SHA}" or None,
     "run_status": "${RUN_STATUS}",

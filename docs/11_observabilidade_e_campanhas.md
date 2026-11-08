@@ -1,0 +1,313 @@
+# 11 — Observabilidade ao vivo e campanhas
+
+Este documento mostra como acompanhar uma execução ao vivo no terminal do Ubuntu (WSL), aba por aba. Ele cobre:
+
+- o cenário NORI;
+- o protocolo E2AP;
+- a xApp;
+- o RIC;
+- o Kubernetes;
+- o registro de UEs.
+
+Também explica como rodar as duas campanhas, a da bancada NORI (S0–S8 com E2 real e a cadeia certificável) e a nativa (S0–S7 sem E2), e como certificar o resultado.
+
+Todos os comandos rodam no Ubuntu do WSL, a partir da raiz do repositório:
+
+```bash
+cd <raiz-do-repositório>          # ex.: o caminho /mnt/c/... do clone no WSL
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+```
+
+Pré-requisitos:
+
+- RIC O-RAN SC Release I nos namespaces `ricplt`/`ricxapp`;
+- bancada NORI em `ricsim` (chart `deploy/helm/nori-ns3`);
+- tshark 4.2.2 local (ver docs/02);
+- `tmux`, só para o painel.
+
+## 1. Por que o porte para o NORI
+
+| Pilha | Cenários | E2 | Gates que o certificador pode avaliar |
+| :-- | :-- | :-- | :-- |
+| Nativa (ns-3.48 + 5G-LENA v5.1) | S0–S7 (`simulations/ns3/scenario_s*.cc`) | não | G0 |
+| NORI (ns-3.42 + 5G-LENA + E2 real) | S0–S8 (variante `nori-rc-slicing-flowmon`) | sim | G0–G4 |
+
+A pilha nativa aplica um cronograma de ações dentro do ns-3, sem E2. Por isso a cadeia KPM_t0 → H-RDL → E2SM-RC → ACK → KPM_t1 só pode ser certificada na bancada NORI, o único lugar onde o nó E2 fala com o RIC.
+
+Na bancada NORI, cada cenário do catálogo (`simulations/ns3/conflicts/catalog.json`) roda assim:
+
+1. O cenário é escrito em `/data/rdl_scenario`, no volume da xApp kpm-probe.
+2. A xApp, em modo `catalog`, assina o KPM do nó.
+3. Na 12.ª Indication, o H-RDL real (`src/closed_loop/catalog_loop.py`) arbitra as propostas das xApps do cenário. O estado de entrada é o KPM decodificado: PRBs do nó, UEs e fatias.
+4. Se houver o que atuar, a xApp envia o RIC Control E2SM-RC (função 300). O ACK e o efeito na vazão por fatia são medidos.
+
+O que o NORI consegue atuar:
+
+| Proposta do catálogo | Atuação no NORI |
+| :-- | :-- |
+| `PRB_QUOTA` no gNB 0 | RIC Control de cota de PRB por fatia: eMBB (SST 1) recebe o teto `v`, URLLC (SST 2) recebe `100 − v` |
+| `TX_POWER`, `HANDOVER` | Decidida e registrada como **não atuável**: potência de transmissão não existe no E2SM-RC do NORI, e o handover ele só registra em log (há um único gNB) |
+| Qualquer proposta nos gNBs 1–3 | Não atuável: o NORI tem um único gNB |
+
+As propostas não atuáveis aparecem na decisão (`not_actuated`, com o motivo). Nenhum Control é enviado por elas.
+
+Cada execução faz uma única decisão. Ela usa a primeira ocorrência de cada proposta (xApp, gNB, parâmetro) e mantém o gNB de origem no alvo (`<meid>#g<gnb>`). Assim, propostas para gNBs diferentes não viram conflito falso.
+
+| Cenário | Decisão do H-RDL (verificada em `tests/unit/test_catalog_loop.py`) | Control no NORI |
+| :-- | :-- | :-- |
+| S0 | xslice `PRB_QUOTA` 80; `TX_POWER` no gNB 1 não atuável | 80/20 |
+| S1 | conflito direto → TVS escolhe xslice 75 | 75/25 |
+| S2 | conflito indireto → EEVS escolhe xslice 80; `HANDOVER` não selecionado | 80/20 |
+| S3 | TVS escolhe `TX_POWER` (não atuável) | nenhum |
+| S4 | sem conflito (pass-through): `HANDOVER` no gNB 0 (só registrado em log pelo NORI) e `TX_POWER` no gNB 1 (inexistente no NORI) | nenhum |
+| S5 | sem conflito (pass-through): `HANDOVER` nos gNBs 0 e 1, nenhum atuável | nenhum |
+| S6 | xslice 85 | 85/15 |
+| S7 | Safety Guard bloqueia `rogue_xapp` (`TX_POWER` 60 e `PRB_QUOTA` 150); xslice 70 | 70/30 |
+| S8 | conflito direto xslice 25 × embb_throughput 80 → H-RDL escolhe embb_throughput 80 | 80/20 |
+
+### S8: o closed loop do NORI
+
+O S8 antigo (`scenario_rdl_closed_loop_nori.cc`) não alterava a RAN e só imprimia um handshake E2 fixo (achados 14 e 15 da auditoria). Ele foi removido.
+
+No catálogo, o S8 passou a ser o cenário de closed loop da bancada NORI:
+
+- `"ns3": null`;
+- `"backend": "NORI_NS3"`;
+- `"nori_scenario": "nori-rc-slicing-flowmon"`.
+
+Com isso, o S8 só roda pelo `scripts/run_nori_scenario.sh`. A campanha nativa recusa o S8 com a mensagem "cenário(s) só da bancada NORI".
+
+### Critério "disparado pelo KPM_t0"
+
+O NORI envia o KPM de cada período em par: formato 1 (nó) e formato 3 (UEs), com menos de 1 ms entre os dois. O E2Term pode entregar esse par à xApp em ordem trocada.
+
+A decisão usa as duas mensagens do par. Os sha256 de ambas ficam registrados em `decision.kpm_node_sha256` e `decision.kpm_ues_sha256`. Por isso, o dissector considera o Control disparado pelo KPM_t0 (o último KPM antes do Control, no PCAP) quando esse KPM é uma das entradas da decisão.
+
+Na execução `nori_S1_B3_seed1001`, o gatilho registrado era a mensagem de formato 1 do par. No fio, porém, a última mensagem antes do Control era a de formato 3, que também entrou na decisão.
+
+Além disso, a xApp aquece o H-RDL antes do primeiro KPM (evento `decision_warm_up`). Isso evita que a importação das bibliotecas atrase o Control na hora da decisão.
+
+## 2. Painel pronto (tmux)
+
+```bash
+bash scripts/observe/panel.sh          # sessão tmux "rdl"; Ctrl-b <número> troca de aba; Ctrl-b d sai sem parar
+```
+
+| Janela | Conteúdo |
+| :-- | :-- |
+| 0 campanha | terminal livre, com os comandos de campanha sugeridos |
+| 1 nori | execução NORI corrente |
+| 2 e2ap | E2AP decodificado ao vivo |
+| 3 xapp | eventos da xApp |
+| 4 ric | logs do RIC (em cima) e estado dos nós e subscrições (embaixo) |
+| 5 k8s | pods e deployments |
+| 6 ues | registro de UEs |
+
+Para encerrar o painel: `tmux kill-session -t rdl`.
+
+## 3. Comandos de cada aba (para subir manualmente)
+
+Abra um terminal Ubuntu por aba, entre na raiz do repositório e exporte o `KUBECONFIG` em cada um.
+
+### 3.1 Execução NORI: o cenário rodando ao vivo
+
+Para rodar um cenário com a saída ao vivo nesta mesma aba:
+
+```bash
+bash scripts/run_nori_scenario.sh S1 1001
+```
+
+Para só acompanhar (por exemplo, enquanto a campanha roda em outra aba):
+
+```bash
+bash scripts/observe/nori_live.sh
+```
+
+A aba mostra:
+
+- a vazão por fatia a cada 2 s simulados (`[t = …] Per-Slice Performance Monitoring`, `Slice 0 (eMBB…)`, `Slice 1 (URLLC…)`);
+- as linhas `[RDL-UE]`;
+- o E2 Setup e a Subscription (`E2SimMod`, `SETUP`, `ubscription`);
+- o recebimento do Control (`RICcontrol`);
+- os marcos `=== [...]` do `run.sh`.
+
+O `nori_live.sh` segue a execução mais recente até ela gravar `hashes.sha256` e então espera a próxima. Ele não reexibe uma execução já encerrada, a menos que você use `FOLLOW_LAST=1`. Para trocar o filtro, passe uma regex: `bash scripts/observe/nori_live.sh 'Slice|RICcontrol'`.
+
+O comando manual equivalente, para uma execução em andamento:
+
+```bash
+kubectl -n ricsim exec deploy/nori-ns3 -- sh -c 'tail -F /workspace/runs/$(ls -t /workspace/runs | head -1)/logs/stdout.log'
+```
+
+### 3.2 Protocolo E2AP: tcpdump do pod direto para o tshark local
+
+```bash
+bash scripts/observe/e2ap_live.sh
+```
+
+O script passa o `tcpdump -i any -U -s 0 -w - sctp` do pod do NORI direto para o tshark local. O tshark decodifica E2AP na porta SCTP 36422 (`-o sctp.reassembly:TRUE -d sctp.port==36422,e2ap`) e imprime uma linha por mensagem:
+
+- horário;
+- sentido;
+- procedimento (E2 Setup, RIC Subscription, Indication, RIC Control, ACK);
+- RICrequestID (requestor/instance);
+- RAN function (4 e 200 = KPM, 300 = RC).
+
+Para usar outro executável: `TSHARK=/caminho/tshark bash scripts/observe/e2ap_live.sh`.
+
+O comando manual equivalente:
+
+```bash
+kubectl -n ricsim exec -i deploy/nori-ns3 -- tcpdump -i any -U -s 0 -w - sctp 2>/dev/null \
+  | ~/.local/tshark-4.2.2/root/usr/bin/tshark -l -n -r - -o sctp.reassembly:TRUE -d sctp.port==36422,e2ap -Y e2ap \
+      -T fields -e frame.time -e sctp.dstport -e e2ap.procedureCode -e e2ap.ricRequestorID -e e2ap.ricInstanceID -e e2ap.ranFunctionID
+```
+
+A dissecação completa, com hashes, concordância com o tshark e papéis da cadeia, continua sendo feita depois, sobre o PCAP da execução (`scripts/certification/e2_pcap_dissect.py`). A aba ao vivo serve para acompanhar; não é evidência.
+
+### 3.3 xApp: subscrição, KPM por UE, decisão do H-RDL, Control e ACK
+
+```bash
+bash scripts/observe/xapp_live.sh                 # também cada Indication RMR: --indications
+```
+
+O script formata os eventos JSON da kpm-probe (`scripts/observe/format_xapp_events.py`) em linhas legíveis e coloridas:
+
+- início da xApp (modo, commit do `src/`), registro no AppMgr, RMR pronto;
+- RIC Subscription (HTTP do SubMgr e `SubscriptionId`) e Subscription Response do nó;
+- `KPM nó`: PRBs usados e disponíveis, UEs ativos, RRC conectados;
+- `KPM UEs`: UE, SST da fatia, PRBs, vazão e TBs;
+- a decisão do H-RDL: cenário, tipo de conflito → estratégia, propostas selecionadas, não atuáveis e não selecionadas;
+- `RIC Control -> nó` (RICrequestID, função 300, teto por SST) e `RIC Control ACK do nó`, com a latência.
+
+O comando manual equivalente:
+
+```bash
+kubectl -n ricxapp logs -f deploy/kpm-probe --since=1s | python3 -u scripts/observe/format_xapp_events.py
+```
+
+O arquivo completo de eventos fica no volume da xApp: `kubectl -n ricxapp exec deploy/kpm-probe -- tail -f /data/logs/kpm_probe_events.jsonl`.
+
+### 3.4 RIC: E2Term, E2Mgr, SubMgr, RtMgr e o estado dos nós
+
+```bash
+bash scripts/observe/ric_live.sh                  # ou só alguns: bash scripts/observe/ric_live.sh e2term submgr
+bash scripts/observe/ric_nodes.sh                 # estado: nós E2 no E2Mgr, subscrições no SubMgr, xApps no AppMgr
+```
+
+O `ric_live.sh` segue os logs dos quatro componentes, prefixa cada linha com o componente e filtra a mensageria RMR, as rotas e as subscrições. Ele descarta o polling REST da xApp ao E2Mgr, que de outra forma inundaria a aba a cada segundo.
+
+O comando manual de um componente:
+
+```bash
+kubectl -n ricplt logs -f deploy/deployment-ricplt-e2term-alpha --since=5s | grep -E 'RIC_INDICATION|RIC_CONTROL|RIC_SUB|SETUP'
+kubectl -n ricplt logs -f deploy/deployment-ricplt-submgr --since=5s | grep -E 'SubReq|SubResp|SubDel|REST'
+kubectl -n ricplt logs -f deploy/deployment-ricplt-rtmgr --since=5s | grep -E 'Update Routes|Push policy|Endpoint'
+```
+
+O `ric_nodes.sh` consulta, a cada 3 s e de dentro do pod da xApp:
+
+- o E2Mgr: nós, estado da conexão e RAN functions;
+- o SubMgr: subscrições ativas, na porta 8088;
+- o AppMgr: xApps registradas.
+
+### 3.5 Kubernetes: pods e deployments ao vivo
+
+```bash
+bash scripts/observe/k8s_live.sh
+```
+
+O comando manual equivalente:
+
+```bash
+watch -n 2 'kubectl get deploy,statefulset,pods -n ricplt; kubectl get deploy,pods -n ricxapp; kubectl get deploy,pods -n ricsim; free -m'
+```
+
+### 3.6 Registro de UEs
+
+```bash
+bash scripts/observe/ue_live.sh
+```
+
+No build otimizado do ns-3, os `NS_LOG` desaparecem, e o NORI não imprime a conexão dos UEs. Por isso, a variante `nori-rc-slicing-flowmon`, gerada pelo entrypoint do chart `deploy/helm/nori-ns3`, liga callbacks aos traces RRC do 5G-LENA. Cada callback imprime uma linha `[RDL-UE]`:
+
+| Trace | Linha |
+| :-- | :-- |
+| `NrGnbRrc/NewUeContext` | novo contexto no gNB (célula, RNTI) |
+| `NrUeRrc/InitialCellSelectionEndOk` | seleção de célula pelo UE (IMSI, célula) |
+| `NrGnbRrc/ConnectionEstablished` | conexão RRC confirmada no gNB (IMSI, célula, RNTI) |
+| `NrUeRrc/ConnectionEstablished` | conexão RRC no UE |
+| resumo a t = 0,3 s | UE i → IMSI, IP e fatia |
+
+No início da execução, cada trace aparece como "conectado" ou "indisponível". Para mudar a variante, basta recompilá-la (cerca de 20 s, no próprio `run.sh`); o resto do ns-3 não muda.
+
+## 4. Campanha NORI: S0–S8 × 5 sementes, com a cadeia certificada
+
+```bash
+bash scripts/run_nori_campaign.sh                                          # 45 execuções, ~3 min cada (~2,5 h)
+bash scripts/run_nori_campaign.sh --scenarios "S1 S7" --seeds "1001 1002"  # subconjunto
+bash scripts/run_nori_campaign.sh --no-deploy                              # reaproveita a xApp já implantada
+```
+
+O script:
+
+1. implanta a kpm-probe em modo `catalog`, com o `src/` e o catálogo do commit atual (`scripts/deploy_kpm_probe.sh` recusa alterações não commitadas);
+2. roda cada cenário × semente com `scripts/run_nori_scenario.sh`. Execuções que já existem são puladas, então a campanha é retomável;
+3. no fim, roda o certificador (`scripts/certification/certify_chain.py`) e o resumo (`scripts/certification/nori_campaign_summary.py`), que grava `reports/nori/resumo_campanha_nori_<UTC>.md`.
+
+O resumo tem uma linha por execução, com:
+
+- os papéis da cadeia no PCAP;
+- a concordância com o tshark;
+- as Indications casadas com a xApp;
+- as estratégias do H-RDL;
+- o que foi atuado e o que não foi atuável;
+- o veredito do efeito na RAN.
+
+Ele traz também uma tabela por cenário.
+
+Cada execução fica em três lugares:
+
+- `experiments/runs/nori_<S>_B3_seed<semente>/`: manifesto, PCAP, FlowMonitor, `slice_series.csv` e hashes;
+- `experiments/xapp_logs/<run>/`: eventos da xApp recortados;
+- `experiments/e2_dissection/<run>/`: dissecação E2 e `slice_effect.json`.
+
+Na bancada NORI, o baseline é sempre B3, porque quem decide é o H-RDL real. Os baselines B0–B2 só existem na pilha nativa.
+
+Para acompanhar a campanha ao vivo, abra o painel (seção 2) ou as abas da seção 3. Rode a campanha em primeiro plano em uma delas.
+
+## 5. Campanha nativa: S0–S7 × B0–B3 × 5 sementes, seguida de análise, certificação e relatório
+
+```bash
+bash scripts/run_native_campaign.sh                               # 160 execuções
+bash scripts/run_native_campaign.sh --seeds 1001-1002 --jobs 1
+```
+
+O script ativa o venv (`$VENV`, padrão `~/.venvs/xapp-rdl`, ver docs/02) e roda, em sequência:
+
+1. `scripts/certification/run_conflict_campaign.py`: as execuções, mostrando ao vivo as linhas `[RDL-ACT]` (cada ação aplicada na RAN) e `[RDL-KPI]` (vazão e atraso por segundo simulado), com o run_id;
+2. `scripts/certification/analyze_conflict_runs.py`: a análise de conflitos;
+3. `scripts/certification/certify_chain.py`: a certificação (só G0 é avaliável sem E2);
+4. `scripts/certification/generate_campaign_report.py`: o relatório.
+
+A campanha é retomável.
+
+## 6. Certificação
+
+```bash
+python3 scripts/certification/certify_chain.py          # certificado em reports/certification/certificate_<UTC>.{json,md}
+```
+
+| Gate | Fonte |
+| :-- | :-- |
+| G0 | execuções nativas e NORI com manifesto e hashes íntegros |
+| G1 | KPM_t0 e Subscription no PCAP de uma execução NORI |
+| G3 | RIC Control e ACK no PCAP, enviados e recebidos pela xApp |
+| G4 | cadeia completa, decisão `H_RDL` cujas entradas incluem o KPM_t0, e efeito na RAN `CONSISTENT` com a previsão da curva v5 |
+| G5 | não certificado (fora do escopo desta bancada) |
+
+## 7. Limites
+
+- O NORI tem um único gNB e só atua cota de PRB por fatia. Nos cenários que dependem de potência, handover ou de vários gNBs (S3, S4, S5), ou nas propostas desse tipo dos demais cenários, a decisão do H-RDL é registrada, mas não há efeito na RAN para medir.
+- A decisão é única por execução: não há rearbitragem periódica, como no cronograma da pilha nativa.
+- A previsão de efeito usa a curva v5 (teto → vazão, `experiments/calibration/slice_cap_curve_v5.json`), calibrada com 2 UEs e tráfego de 300 Mb/s. Fora dessa configuração, o veredito de efeito não vale.

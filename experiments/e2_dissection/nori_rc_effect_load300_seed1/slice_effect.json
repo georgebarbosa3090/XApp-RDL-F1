@@ -11,7 +11,7 @@
   },
   "source_csv": "raw/slice_series.csv",
   "source_csv_sha256": null,
-  "source_dissection_sha256": "484974e2031f5a90fa34b153524a8005c99df024c87cbd42d4c9c7f99ebea1ce",
+  "source_dissection_sha256": "15f478afa0a4321ffc80e14195060a6411ed309c847189f7ffc81386c0fdcb26",
   "verdict": "NOT_TESTABLE",
   "reason": "execução sem raw/slice_series.csv"
 }

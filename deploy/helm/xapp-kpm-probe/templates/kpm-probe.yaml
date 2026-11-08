@@ -109,6 +109,7 @@ spec:
             - { name: RC_AFTER_INDICATIONS, value: {{ .Values.rc.afterIndications | quote }} }
             - { name: RC_SLICE_QUOTAS, value: {{ .Values.rc.sliceQuotas | quote }} }
             - { name: RC_DECISION, value: {{ .Values.rc.decision | quote }} }
+            - { name: RC_SCENARIO, value: {{ .Values.rc.scenario | default "S8" | quote }} }
             - { name: XAPP_RDL_SRC_COMMIT, value: {{ required "srcCommit ausente" .Values.srcCommit | quote }} }
             - { name: PIP_HRDL_DEPS, value: {{ join " " .Values.pins.python.hrdl | quote }} }
           ports:

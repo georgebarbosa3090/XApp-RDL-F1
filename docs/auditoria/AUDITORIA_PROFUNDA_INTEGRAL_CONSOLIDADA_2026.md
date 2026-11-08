@@ -147,7 +147,7 @@ flowchart LR
 
 ## 4. Seção III: Auditoria da Cadeia de Custódia, Firewall e Proveniência de Dados
 
-Um dos marcos mais expressivos dos últimos 15 dias foi a instituição da **Política de Evidência Experimental e Proveniência** ([`docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md`](file:///c:/Users/georg/.antigravity-ide/iqos-xapp-rdl-phase1/docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)).
+Um dos marcos mais expressivos dos últimos 15 dias foi a instituição da **Política de Evidência Experimental e Proveniência** ([`docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md`](~/.antigravity-ide/iqos-xapp-rdl-phase1/docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)).
 
 ### 4.1 A Regra de Ouro de Proveniência Científica
 

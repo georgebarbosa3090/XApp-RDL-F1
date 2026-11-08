@@ -1,4 +1,4 @@
-msg="Not allowed state for starting SRS reception.", +18.281857136s 1 file=/home/george/ns3-oran-workspace/ns-3-oran/contrib/nr/model/nr-spectrum-phy.cc, line=1508
+msg="Not allowed state for starting SRS reception.", +18.281857136s 1 file=~/ns3-oran-workspace/ns-3-oran/contrib/nr/model/nr-spectrum-phy.cc, line=1508
 NS_FATAL, terminating
    0# ns3::NrSpectrumPhy::StartRxSrs(ns3::Ptr<ns3::NrSpectrumSignalParametersUlCtrlFrame> const&) at :0
    1# ns3::NrSpectrumPhy::StartRx(ns3::Ptr<ns3::SpectrumSignalParameters>) [clone .localalias] at :0

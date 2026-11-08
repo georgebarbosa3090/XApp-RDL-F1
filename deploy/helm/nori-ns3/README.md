@@ -81,6 +81,8 @@ monitor->SerializeToXmlFile("flowmonitor.xml", true, true);
 
 Desde a fase 4, a variante também grava `slice_series.csv` a cada 0,5 s simulado: contadores acumulados do FlowMonitor por UE/fatia (UE 0 = SST 1, UE 1 = SST 2), com o tempo simulado e o relógio de parede. É a medida de referência do efeito do Control, porque o KPM do NORI não mede vazão por UE.
 
+A variante também imprime o registro dos UEs, que o build otimizado do ns-3 não mostra (os `NS_LOG` somem): callbacks nos traces RRC do 5G-LENA (`NrGnbRrc/NewUeContext`, `NrGnbRrc/ConnectionEstablished`, `NrUeRrc/InitialCellSelectionEndOk`, `NrUeRrc/ConnectionEstablished`) escrevem uma linha `[RDL-UE]` por evento, e um resumo a t = 0,3 s liga cada UE a IMSI, IP e fatia. No início, cada trace aparece como "conectado" ou "indisponível". `run.sh` registra no manifesto o cenário de conflito (`conflict_scenario`, de `RDL_SCENARIO`) e o baseline (`baseline`, de `RDL_BASELINE`) quando a execução vem de `scripts/run_nori_scenario.sh` ([docs/11](../../../docs/11_observabilidade_e_campanhas.md)).
+
 Os fontes do NORI não são alterados. Se a variante mudar, o entrypoint reconfigura e compila só esse alvo (~20 s); se o ponto de inserção não for único, aborta (código 6). `run.sh` registra no manifesto o caminho e o sha256 do fonte compilado (`scenario_source`).
 
 ### Período dos relatórios KPM

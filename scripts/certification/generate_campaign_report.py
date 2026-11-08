@@ -29,6 +29,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact_local_paths import redact_text  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 RUNS_DIR = ROOT / "experiments" / "runs"
 FAILED_DIR = ROOT / "experiments" / "runs_failed"
@@ -195,14 +199,6 @@ def table(header: List[str], rows: List[List[str]], align: Optional[List[str]] =
 # Leitura
 # ---------------------------------------------------------------------------------------------
 
-def to_wsl(path: Path) -> str:
-    """Caminho como visto no WSL (C:\\x -> /mnt/c/x); caminhos POSIX ficam iguais."""
-    p = str(path.resolve()).replace("\\", "/")
-    if len(p) > 1 and p[1] == ":":
-        return f"/mnt/{p[0].lower()}{p[2:]}"
-    return p
-
-
 def latest(pattern: str, directory: Path) -> Optional[Path]:
     files = sorted(directory.glob(pattern))
     return files[-1] if files else None
@@ -368,7 +364,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
 
     # 4. Comandos
     seed_arg = f"{seeds[0]}-{seeds[-1]}" if seeds == list(range(seeds[0], seeds[-1] + 1)) else " ".join(map(str, seeds))
-    repo_wsl = to_wsl(ROOT)
+    repo_wsl = "<raiz-do-repositório>"   # o relatório não guarda o caminho local do clone
     L.append("## 4. Comandos de execução (terminal WSL/Ubuntu)")
     L.append("")
     L.append("Todos os comandos abaixo rodam direto no terminal do Ubuntu (WSL), sem passar pelo Windows. "
@@ -446,7 +442,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     example = manifests.get("nr_S1_B3_seed1001") or next(iter(manifests.values()), None)
     if example:
         L.append("```bash")
-        L.append(example["command"])
+        L.append(redact_text(example["command"]))
         L.append("```")
         L.append("")
 
@@ -620,7 +616,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     L.append("```bash")
     for rid in sorted(manifests, key=lambda r: (int(r.split("_")[1][1:]), r.split("_")[2], r)):
         L.append(f"# {rid}  ({manifests[rid].get('run_status')}, {manifests[rid].get('started_at_utc')})")
-        L.append(manifests[rid]["command"])
+        L.append(redact_text(manifests[rid]["command"]))
     L.append("```")
     L.append("")
     return "\n".join(L)

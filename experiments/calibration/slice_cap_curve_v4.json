@@ -12,7 +12,7 @@
       "run_id": "nori_curve10_seed301",
       "source_csv": "experiments/runs/nori_curve10_seed301/raw/slice_series.csv",
       "source_csv_sha256": "0306cb475e3fa98c3fff324152c76afaa0986d5f27b77bdf2d19b18fe82bf573",
-      "source_dissection_sha256": "a162c373d433de19e3ce0d6aae4aba9ab8bd2513c331d026a6e5a2dd920dd702",
+      "source_dissection_sha256": "bfb77a0ca24d3cec43e56380c5a101ddc5059f0377487c41b54504164fa74535",
       "points": {
         "1": {
           "cap_max_prb_pct": 10.0,
@@ -57,7 +57,7 @@
       "run_id": "nori_curve15_seed302",
       "source_csv": "experiments/runs/nori_curve15_seed302/raw/slice_series.csv",
       "source_csv_sha256": "8f03942d0406ae759128a647e4c5eceb871e70b43c73670a9b98e9f7ff7bf10f",
-      "source_dissection_sha256": "5d8628198da65091b4519e97536f1984314f0ad2428531784bf95304aa47fab3",
+      "source_dissection_sha256": "7a5d97385c5345966ef36150981aa9f381b85d6ecba78d3b739ccd4180dbb57f",
       "points": {
         "1": {
           "cap_max_prb_pct": 15.0,
@@ -102,7 +102,7 @@
       "run_id": "nori_curve20_seed303",
       "source_csv": "experiments/runs/nori_curve20_seed303/raw/slice_series.csv",
       "source_csv_sha256": "348e1bb2e8363889a08d0aed638d9c978120df78fc70e504f2e07102b9dd1bd4",
-      "source_dissection_sha256": "f10749842219f306cf23a2c72a5e4b2e3559531064f51be3666c7d5d5d235606",
+      "source_dissection_sha256": "229661a3514bb583da698f0364a1bd3a0735662ee2e66f3c05f33345511d1fd1",
       "points": {
         "1": {
           "cap_max_prb_pct": 20.0,
@@ -147,7 +147,7 @@
       "run_id": "nori_curve25_seed304",
       "source_csv": "experiments/runs/nori_curve25_seed304/raw/slice_series.csv",
       "source_csv_sha256": "87390699427935d6ed64b772553ea0d662eaed17dc2a96b26845f07be9a8f12a",
-      "source_dissection_sha256": "32530847e72a6a81de93922bd276bbbddaacd854c24fe4bcda5a9d2c65d08f62",
+      "source_dissection_sha256": "dfe2ec3fb1de45f464863e22f22ddf21fbf0ee39dcaab1dc5f8bfa8280caf0c4",
       "points": {
         "1": {
           "cap_max_prb_pct": 25.0,
@@ -192,7 +192,7 @@
       "run_id": "nori_cal3070_seed201",
       "source_csv": "experiments/runs/nori_cal3070_seed201/raw/slice_series.csv",
       "source_csv_sha256": "37c5e68342429869c703dc01ae0bb7cdff2284a286d67333bfa63646e0e9b839",
-      "source_dissection_sha256": "b84615505c04888133bad304f8f180af9c4d566f02aac325eefe3b7be90be8cd",
+      "source_dissection_sha256": "a86b5912de94a58333b0106488b395c96eb4b9d8990e72cd52e9266e67c5e28d",
       "points": {
         "1": {
           "cap_max_prb_pct": 30.0,
@@ -237,7 +237,7 @@
       "run_id": "nori_cal7030_seed202",
       "source_csv": "experiments/runs/nori_cal7030_seed202/raw/slice_series.csv",
       "source_csv_sha256": "ad0371e5c473b031f95162017954edb940d494d172babe9fd4fb346522717a3e",
-      "source_dissection_sha256": "275113ae8e60d80521ad18aa86bd45bbd03d6c866cee7753fdac2a5b4488ad5a",
+      "source_dissection_sha256": "fe16dae0e1a9136b9bbbe50452f631cd9f74d3da4e355d5941189338e10bae32",
       "points": {
         "1": {
           "cap_max_prb_pct": 70.0,

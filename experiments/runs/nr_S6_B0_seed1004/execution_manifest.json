@@ -7,7 +7,7 @@
   "scenario": "scenario_rdl_conflict_storm",
   "baseline": "B0",
   "seed": 1004,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'",
   "rng_args": "--seed=1004",
   "action_schedule_sha256": "f45a5d48ef13006a027911aa176d51d18fc90b7a9afa26c5f3a6583423b72de0",
   "run_status": "SUCCESS",

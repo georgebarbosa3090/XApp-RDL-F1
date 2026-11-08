@@ -21,7 +21,9 @@ test -f deploy/openran-br-v3/service.yaml
 test -f deploy/openran-br-v3/values.yaml
 
 echo "[4/4] Validando cenarios de co-simulacao ns-3 / NORI..."
-test -f simulations/ns3/scenario_rdl_closed_loop_nori.cc
+# S0–S7: binários da pilha nativa; S8: closed loop só na bancada NORI (scripts/run_nori_scenario.sh)
+python3 -c 'import json, pathlib; c = json.load(open("simulations/ns3/conflicts/catalog.json"))["scenarios"]; assert c["S8"]["backend"] == "NORI_NS3"; assert all(pathlib.Path("simulations/ns3/" + c["S%d" % i]["ns3"] + ".cc").exists() for i in range(8))'
+test -f scripts/run_nori_scenario.sh
 
 echo "========================================================================"
 echo "   REPRODUCAO CONCLUIDA COM 100% DE SUCESSO!"

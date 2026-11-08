@@ -41,6 +41,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact_local_paths import redact_text  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = "xapp-rdl/e2-dissection/v1"
 E2AP_PPID = 70
@@ -514,8 +517,9 @@ def run_tshark(pcap_path: Path, ric_ports: Tuple[int, ...], tshark: Optional[str
         cmd += ["-e", f]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     result: Dict[str, Any] = {"available": True, "version": version[0] if version else "",
-                              "command": " ".join(cmd), "exit_code": proc.returncode,
-                              "stderr": proc.stderr.strip()[-2000:], "tsv": proc.stdout}
+                              # sem caminhos locais na evidência (raiz do clone -> <repo>, HOME -> ~)
+                              "command": redact_text(" ".join(cmd)), "exit_code": proc.returncode,
+                              "stderr": redact_text(proc.stderr.strip()[-2000:]), "tsv": proc.stdout}
     if proc.returncode != 0:
         result["error"] = f"tshark terminou com código {proc.returncode}"
         return result
@@ -638,12 +642,19 @@ def _decision_crosscheck(messages: List[Dict[str, Any]], roles: Dict[str, Option
     t0 = by_index.get(roles.get("kpm_t0") or -1)
     ack = by_index.get(roles.get("control_ack") or -1)
     outcome = next((o for o in outcomes if ack and o.get("sha256") == ack["sha256"]), None)
+    # O KPM de cada período chega em par (formato 1 = nó, formato 3 = UEs) com < 1 ms entre si, e o
+    # E2Term pode entregá-los à xApp em ordem trocada. A decisão usa os dois (registrados em
+    # kpm_node_sha256/kpm_ues_sha256): o KPM_t0 do fio tem de ser uma das entradas da decisão.
+    decision = (sent or {}).get("decision") or {}
+    inputs = {x for x in ((sent or {}).get("trigger_kpm_sha256"), decision.get("kpm_node_sha256"),
+                          decision.get("kpm_ues_sha256")) if x}
     return {
         "xapp_control_requests": len(controls),
         "pcap_control_sent_by_xapp": bool(sent),
         "source": (sent or {}).get("decision_source"),
         "trigger_kpm_sha256": (sent or {}).get("trigger_kpm_sha256"),
-        "trigger_is_kpm_t0": bool(sent and t0 and sent.get("trigger_kpm_sha256") == t0["sha256"]),
+        "decision_kpm_inputs_sha256": sorted(inputs),
+        "trigger_is_kpm_t0": bool(sent and t0 and t0["sha256"] in inputs),
         "quotas": (sent or {}).get("quotas"),
         "ack_received_by_xapp": bool(outcome),
         "xapp_outcome": (outcome or {}).get("outcome"),
@@ -708,7 +719,7 @@ def dissect(pcap_path: Path, out_dir: Path, run_id: str, ric_ports: Tuple[int, .
     try:
         source = pcap_path.resolve().relative_to(ROOT).as_posix()
     except ValueError:
-        source = str(pcap_path)
+        source = redact_text(str(pcap_path))
     summary = {
         "schema": SCHEMA,
         "run_id": run_id,

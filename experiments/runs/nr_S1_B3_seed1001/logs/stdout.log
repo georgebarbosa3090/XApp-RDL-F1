@@ -1,7 +1,7 @@
 [0/2] Re-checking globbed directories...
 [1/2] Building CXX object scratch/CMakeFiles/scratch_scenario_rdl_direct_prb_conflict.dir/scenario_rdl_direct_prb_conflict.cc.o
-[2/2] Linking CXX executable /home/george/ns3-oran-workspace/ns-3-oran/build/scratch/ns3.48-scenario_rdl_direct_prb_conflict-optimized
-[RDL-ACT] 5 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv
+[2/2] Linking CXX executable ~/ns3-oran-workspace/ns-3-oran/build/scratch/ns3.48-scenario_rdl_direct_prb_conflict-optimized
+[RDL-ACT] 5 ações agendadas a partir de <repo>/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv
 [RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
 [RDL-KPI] t=2.0s vazao=365.69 Mbps atraso=7.69 ms
 [RDL-KPI] t=3.0s vazao=367.17 Mbps atraso=7.68 ms

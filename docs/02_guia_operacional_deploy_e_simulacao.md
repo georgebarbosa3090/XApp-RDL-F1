@@ -112,7 +112,7 @@ python3 -m pip --python ~/.venvs/xapp-rdl/bin/python install "pydantic>=2.0.0" "
 Em cada terminal novo:
 
 ```bash
-cd /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1
+cd <raiz-do-repositório>          # o caminho do clone visto pelo WSL, ex.: /mnt/c/.../XApp-RDL-F1
 source ~/.venvs/xapp-rdl/bin/activate
 python scripts/certification/run_conflict_campaign.py --scenarios S0 S1 S2 S3 S4 S5 S6 S7 --baselines B0 B1 B2 B3 --seeds 1001-1005 --jobs 2
 ```
@@ -131,6 +131,13 @@ python scripts/certification/generate_campaign_report.py   # reports/conflicts/r
 O relatório da campanha ([`generate_campaign_report.py`](../scripts/certification/generate_campaign_report.py)) é gerado só a partir da análise, dos manifestos, do catálogo e do certificado: hipóteses e critérios, comandos de execução, ambiente, resultados agregados, uma tabela por semente com todas as métricas, diferenças pareadas B3 − Bx, cronogramas idênticos entre baselines, avaliação das hipóteses, conclusões, ameaças à validade, falhas preservadas e o comando ns-3 de cada execução.
 
 O certificador avalia cada execução contra [`reproducibility/provenance_policy.yaml`](../reproducibility/provenance_policy.yaml) e [`reproducibility/versions.lock`](../reproducibility/versions.lock) e emite os vereditos G0–G6. A análise considera só execuções elegíveis no certificador. Critérios em [`05_auditoria_e_conformidade_oran.md`](05_auditoria_e_conformidade_oran.md).
+
+Evidências e relatórios não guardam caminhos locais. O executor ns-3, o dissecador e o relatório da campanha gravam a raiz do clone como `<repo>` e o HOME como `~`. Para conferir o repositório inteiro:
+
+```bash
+python scripts/certification/redact_local_paths.py --check    # código 1 se algum arquivo versionado tiver caminho local
+python scripts/certification/redact_local_paths.py --apply    # redige, recalcula hashes.sha256 e propaga os sha256; log em reports/redaction/
+```
 
 Validadores mais antigos, complementares: `scripts/validate_provenance.py`, `scripts/verify_provenance_and_integrity.py`, `scripts/validate_experiment_tree.py --check-gate1`, `scripts/check_no_synthetic_results.py`.
 
@@ -304,6 +311,10 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 - **Desenho v4** ([pré-registro](07_preregistro_fase4_v4.md), commit `d9e046c`): a curva com a janela pré-registrada saiu inválida, e as avaliações não foram rodadas. A análise exploratória da série inteira mostrou que **a cota funciona e é linear** (~3,8 Mb/s por ponto percentual de PRB: 10 % → 37,5; 15 % → 56,2; 20 % → 76,5; 30 % → 114,0 Mb/s). O efeito começa quando o tempo simulado alcança o relógio de parede do instante do Control (~12 s simulados depois), porque o NORI agenda o Control a partir da thread do E2 no simulador em tempo real. Os nulos da v1 a v3 vieram da janela de análise.
 - **Desenho v5** ([pré-registro](07_preregistro_fase4_v5.md), commit `6bb7773`): janela ancorada no instante de aplicação do Control. Nas três avaliações (`nori_hrdl_v5_seed1..3`, 40 s), o H-RDL decidiu 80/20 sobre o KPM_t0; a URLLC caiu de 151,49 para 76,44–76,45 Mb/s (previsão 75,49, erro de 1,3 %) e a eMBB não mudou. As três foram `CONSISTENT`, e o **G4 foi certificado**. Ressalvas na seção 7 do pré-registro.
 - Limitações do sensor KPM do NORI usadas na decisão: `RRU.PrbUsedDl` do nó passa dos PRBs disponíveis mesmo sem saturação (225 de 139 a 100 Mb/s), então o sinal de congestionamento é sempre verdadeiro nesse cenário; `RRU.PrbUsedDl` por UE é calculado por símbolos OFDM (119 para cada UE, antes e depois do Control); `DRB.UEThpDl` sai sempre 0; nomes de métrica com `_` fora do alfabeto de `PrintableString` (lidos com um tipo equivalente em APER).
+
+### 7.10 Cenários de conflito S0–S8 na bancada NORI e observabilidade ao vivo
+
+Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e a decisão do H-RDL sobre o KPM (só a cota de PRB no gNB 0 é atuável). Um cenário: `bash scripts/run_nori_scenario.sh S1 1001`; a campanha S0–S8 × 5 sementes, com certificação e resumo: `bash scripts/run_nori_campaign.sh`. Os comandos de cada aba ao vivo (execução NORI, E2AP pelo tshark, xApp, RIC, Kubernetes, registro de UEs), o painel tmux e a campanha nativa com análise, certificação e relatório estão em [docs/11](11_observabilidade_e_campanhas.md).
 
 ## 8. Implantação da xApp no Kubernetes
 

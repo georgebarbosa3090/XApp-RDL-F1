@@ -18,8 +18,9 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 264 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 288 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
+| Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Validado em S1 (Control 75/25, ACK, efeito `CONSISTENT`) e S3 (decisão sem Control); a campanha S0–S8 × 5 sementes ainda não foi rodada | [`nori_S1_B3_seed1001`](experiments/runs/nori_S1_B3_seed1001/execution_manifest.json), [`nori_S3_B3_seed1001`](experiments/runs/nori_S3_B3_seed1001/execution_manifest.json), [docs/11](docs/11_observabilidade_e_campanhas.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
 | Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup, E2SM-KPM e RIC Control E2SM-RC verificados** (NORI ↔ Near-RT RIC Release I no k3s). A xApp [`kpm-probe`](deploy/helm/xapp-kpm-probe/README.md) assina KPM v3.00 pelo SubMgr e envia um RIC Control E2SM-RC v3.01 (cotas de PRB por fatia) codificado por [`src/e2/v3/codec.py`](src/e2/v3/codec.py); o NORI devolve o ACK correlacionado. As mensagens E2AP são confirmadas pelo tshark 4.2.2 e casadas byte a byte com a xApp. O ACK do RC exige um [patch de 56 linhas no NORI](deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), registrado no lock | [`nori_rc_control_seed1`](experiments/runs/nori_rc_control_seed1/execution_manifest.json), [`nori_kpm_flowmon_seed1_p1s`](experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json), [`experiments/e2_dissection/`](experiments/e2_dissection/), [guia, seção 7](docs/02_guia_operacional_deploy_e_simulacao.md#7-pilha-nori-via-helm-e2-real) |
 | Closed loop causal KPM → decisão → RC → KPM | **verificado (G4), com ressalvas**. No desenho v5 ([pré-registro](docs/07_preregistro_fase4_v5.md)), o H-RDL decidiu cotas de PRB a partir do KPM_t0 em três execuções; o Control E2SM-RC foi confirmado por ACK e a URLLC caiu de 151,5 para 76,4 Mb/s, a 1,3 % da previsão feita antes das execuções. Ressalvas: decisão igual nas três (o sinal de congestionamento do NORI é sempre verdadeiro), efeito medido no FlowMonitor (o KPM do NORI não mede vazão por UE), NORI com patch do ACK, cenário único. Histórico: a v1 não viu efeito (teto de 40 %, INCONSISTENT). Os desenhos v2 a v4 ([v2](docs/07_preregistro_fase4_v2.md), [v3](docs/07_preregistro_fase4_v3.md), [v4](docs/07_preregistro_fase4_v4.md)) pararam na calibração e as avaliações não foram rodadas. A análise exploratória da v4 mostrou a causa: a cota funciona e é linear, mas o NORI a aplica ~12 s simulados depois do Control (agendamento pelo relógio de parede no simulador em tempo real), fora da janela de análise | [`nori_hrdl_v5_seed1..3`](experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json), [guia, seção 7.9](docs/02_guia_operacional_deploy_e_simulacao.md#79-resultado-da-fase-4-decisão-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-2026-11-08) | [`nori_hrdl_loop_seed1`](experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json), [guia, seção 7.9](docs/02_guia_operacional_deploy_e_simulacao.md#79-resultado-da-fase-4-decisão-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-2026-11-08) |
@@ -27,10 +28,10 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 | Gate | Exigência | Veredito |
 | :-: | :-- | :-: |
 | G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilhas nativa e NORI) |
-| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (15 execuções NORI) |
+| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (17 execuções NORI) |
 | G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
-| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (13 execuções; NORI com patch do lock) |
-| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (3 execuções v5) |
+| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (14 execuções; NORI com patch do lock) |
+| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (4 cadeias: 3 execuções v5 e o S1 portado, `nori_S1_B3_seed1001`) |
 | G5 | Campanha ≥ 30 sementes pareadas com E2 | NOT_CERTIFIED |
 | G6 | Artefato reproduzível por terceiros | BLOCKED |
 
@@ -77,7 +78,7 @@ Duas pilhas, porque o NORI oficial não compila sobre ns-3.48 / 5G-LENA v5.1 ([`
 | Pilha | Versões | Uso |
 | :-- | :-- | :-- |
 | Nativa (`NS3_5GLENA`) | ns-3.48 `d2add90` + 5G-LENA v5.1 `cedcead` | Cenários de conflito S0–S7, sem E2 |
-| NORI (`NORI_NS3`) | ns-3.42 `ab4cce0` + 5G-LENA `78b7179` + NORI `8a30867` (E2AP/E2SM v3.01) | E2 real e closed loop, via Helm |
+| NORI (`NORI_NS3`) | ns-3.42 `ab4cce0` + 5G-LENA `78b7179` + NORI `8a30867` (E2AP/E2SM v3.01) | E2 real e closed loop, via Helm; cenários S0–S8 portados (só a cota de PRB é atuável) |
 
 Nos cenários S0–S7, as ações decididas são aplicadas na RAN durante a simulação por [`simulations/ns3/rdl-nr-common.h`](simulations/ns3/rdl-nr-common.h): cota de PRB pela máscara de RBGs do escalonador, potência do gNB e handover X2. Quatro baselines são comparados com as mesmas propostas e sementes:
 
@@ -98,7 +99,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (264)
+uv run pytest -q                         # testes (288)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
@@ -114,6 +115,12 @@ python scripts/certification/generate_campaign_report.py   # relatório: hipóte
 # Pilha E2 (NORI + Near-RT RIC + xApp kpm-probe no k3s): trazer uma execução, dissecar o E2 e certificar
 bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
 python scripts/certification/certify_chain.py
+
+# Cenários de conflito na bancada NORI, ao vivo (Ubuntu do WSL): um cenário, ou a campanha S0–S8 × 5 sementes com certificação
+bash scripts/run_nori_scenario.sh S1 1001
+bash scripts/run_nori_campaign.sh
+bash scripts/run_native_campaign.sh        # campanha nativa S0–S7 × B0–B3 + análise, certificação e relatório
+bash scripts/observe/panel.sh              # painel tmux: NORI, E2AP, xApp, RIC, Kubernetes, UEs (docs/11)
 ```
 
 Executar a xApp (modo local, sem RIC):
@@ -151,6 +158,7 @@ Variáveis principais: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RA
 - [Taxonomia de conflitos e cenários](docs/03_taxonomia_de_conflitos_e_cenarios.md)
 - [Metodologia experimental e resultados](docs/04_metodologia_experimental_e_resultados.md)
 - [Conformidade O-RAN e achados de auditoria](docs/05_auditoria_e_conformidade_oran.md)
+- [Observabilidade ao vivo e campanhas (comandos por aba)](docs/11_observabilidade_e_campanhas.md)
 - [Fluxo de mensagens (diagrama de sequência)](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)
 
 ---

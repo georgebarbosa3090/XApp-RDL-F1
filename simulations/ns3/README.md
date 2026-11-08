@@ -23,9 +23,9 @@ O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separa
 | S5 | ping-pong temporal | [`scenario_rdl_temporal_pingpong.cc`](scenario_rdl_temporal_pingpong.cc) | handovers alternados entre duas células |
 | S6 | tempestade de conflitos | [`scenario_rdl_conflict_storm.cc`](scenario_rdl_conflict_storm.cc) | muitas propostas por janela |
 | S7 | injeção de falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | propostas fora dos limites físicos |
-| S8 | closed loop com NORI | [`scenario_rdl_closed_loop_nori.cc`](scenario_rdl_closed_loop_nori.cc) | tráfego NR; não implementa atuação RC nem closed loop, e as mensagens E2 que imprime são fixas |
+| S8 | closed loop com NORI | — (só na bancada NORI: variante `nori-rc-slicing-flowmon`, `bash scripts/run_nori_scenario.sh S8 <semente>`) | xslice × embb_throughput disputam a cota de PRB; o H-RDL decide sobre o KPM real e o RIC Control E2SM-RC altera a RAN |
 
-As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json).
+As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). Os cenários S0–S8 também rodam na bancada NORI com a cadeia E2 real (só a cota de PRB no gNB 0 é atuável lá); ver [docs/11](../../docs/11_observabilidade_e_campanhas.md).
 
 ## 3. Atuação na RAN
 

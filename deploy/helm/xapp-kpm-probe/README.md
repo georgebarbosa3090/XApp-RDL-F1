@@ -1,13 +1,13 @@
 # Chart `xapp-kpm-probe` — assinatura E2SM-KPM v3.00 e RIC Control E2SM-RC v3.01 no Near-RT RIC Release I
 
-xApp mínima, implantada via Helm sem Docker, que materializa os elos **Subscription**, **KPM**, **RIC Control** e **ACK** da cadeia closed-loop (gates G1 e G3). Ela não decide: a cota de PRB enviada é fixa, configurada no chart.
+xApp mínima, implantada via Helm sem Docker, que materializa os elos **Subscription**, **KPM**, **RIC Control** e **ACK** da cadeia closed-loop (gates G1 e G3). Quem decide as cotas é o H-RDL (modos `hrdl` e `catalog`); no modo `fixed`, a cota é configurada no chart.
 
 1. Registra-se no AppMgr (`/ric/v1/register`); o RtMgr passa a distribuir rotas RMR para ela.
 2. Acompanha os nós E2 no E2Mgr (`/v1/nodeb/states`). A cada nó que fica `CONNECTED`, envia ao SubMgr (`POST /ric/v1/subscriptions`, porta 8088) uma subscrição REPORT na RAN function KPM (200 no NORI). Quando o nó cai, apaga a subscrição.
 3. Recebe por RMR as RIC Indications (tipo 12050) e registra tipo, subscription id, MEID, tamanho e sha256 do payload.
 4. Depois da N-ésima Indication de cada conexão (`rc.afterIndications`), envia por RMR um RIC Control (12040, MEID do nó) com cotas de PRB por fatia (E2SM-RC v3.01, estilo 2, ação 6; `rc.sliceQuotas`) e registra o ACK ou Failure (12041/12042), conferindo a correlação por RICrequestID e RANfunctionID. O evento `control_request` guarda os bytes enviados, `decision_source: FIXED_PROBE` e o sha256 da Indication que disparou o envio: o certificador não aceita este Control como decisão do H-RDL (G4).
 
-O código vem do repositório: [`scripts/deploy_kpm_probe.sh`](../../../scripts/deploy_kpm_probe.sh) passa ao chart, em base64, o `git archive` do `src/` do commit atual (codec E2 v3, ponte H-RDL e o próprio H-RDL) e recusa um `src/` com alterações não commitadas. Com `rc.decision: hrdl` (padrão), as cotas são decididas pelo H-RDL sobre o KPM_t0 ([`src/closed_loop/hrdl_slice_loop.py`](../../../src/closed_loop/hrdl_slice_loop.py)) e o evento `control_request` traz o registro completo da decisão (estado, propostas, resoluções, ação selecionada, commit); com `rc.decision: fixed`, vêm de `rc.sliceQuotas`.
+O código vem do repositório: [`scripts/deploy_kpm_probe.sh`](../../../scripts/deploy_kpm_probe.sh) passa ao chart, em base64, o `git archive` do `src/` do commit atual (codec E2 v3, ponte H-RDL e o próprio H-RDL) e recusa um `src/` com alterações não commitadas. Com `rc.decision: hrdl` (padrão), as cotas são decididas pelo H-RDL sobre o KPM_t0 ([`src/closed_loop/hrdl_slice_loop.py`](../../../src/closed_loop/hrdl_slice_loop.py)) e o evento `control_request` traz o registro completo da decisão (estado, propostas, resoluções, ação selecionada, commit); com `rc.decision: catalog`, o H-RDL arbitra as propostas do cenário de conflito do catálogo ([`src/closed_loop/catalog_loop.py`](../../../src/closed_loop/catalog_loop.py); cenário lido de `/data/rdl_scenario`, padrão `rc.scenario` = S8) e só a cota de PRB no gNB 0 vira RIC Control (o resto fica em `not_actuated`, com o motivo; sem nada atuável, a xApp registra `control_decision` e não envia Control); com `rc.decision: fixed`, vêm de `rc.sliceQuotas`. Nos modos `hrdl` e `catalog`, a xApp aquece o H-RDL antes do primeiro KPM (evento `decision_warm_up`), para a importação das bibliotecas não atrasar o Control. A decisão registra o sha256 das duas Indications do relatório usado (`kpm_node_sha256`, formato 1, e `kpm_ues_sha256`, formato 3): o NORI as envia em par e o E2Term pode entregá-las em ordem trocada.
 
 O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* (estilo 1, Format 1, `granulPeriod` 1000 ms, métricas do estilo 1 anunciadas pelo NORI) são codificados em APER com `asn1tools`. A fonte é o ASN.1 do próprio NORI (`e2sm-v03.01.asn`, `e2sm-kpm-v03.00.asn`), baixado no commit fixado e conferido por sha256.
 
@@ -27,11 +27,13 @@ O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* 
 ```bash
 bash scripts/deploy_kpm_probe.sh            # args extras vão para o helm (ex.: -f valores.yaml)
 kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
+bash scripts/observe/xapp_live.sh           # os mesmos eventos formatados (subscrição, KPM por UE, decisão, Control, ACK)
+bash scripts/deploy_kpm_probe.sh --set rc.decision=catalog --set rc.afterIndications=12   # modo dos cenários S0–S8
 ```
 
 Os eventos ficam em `/data/logs/kpm_probe_events.jsonl` (volume persistente). [`scripts/collect_nori_run.sh`](../../../scripts/collect_nori_run.sh) recorta os eventos do intervalo de uma execução NORI para `experiments/xapp_logs/<run_id>/`. Lá a dissecação do PCAP casa cada Indication do fio com a recebida pela xApp.
 
-Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action definition, sha256 do ASN.1 e do codec), `appmgr_register`, `rmr_ready`, `e2_node_status`, `subscription_request` (status e resposta do SubMgr), `submgr_notification` (resultado da subscrição no nó), `rmr_message`, `control_request`, `control_outcome`, `control_error`, `e2_node_disconnected`, `subscription_delete`, `appmgr_deregister`, `stop`.
+Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action definition, sha256 do ASN.1 e do codec), `appmgr_register`, `rmr_ready`, `e2_node_status`, `subscription_request` (status e resposta do SubMgr), `submgr_notification` (resultado da subscrição no nó), `rmr_message`, `kpm` (KPM decodificado: formato 1 com as métricas do nó; formato 3 com UE, SST, PRBs, vazão e TBs), `decision_warm_up`, `control_decision` (decisão sem Control), `control_request`, `control_outcome`, `control_error`, `e2_node_disconnected`, `subscription_delete`, `appmgr_deregister`, `stop`.
 
 ## Detalhes de implantação
 

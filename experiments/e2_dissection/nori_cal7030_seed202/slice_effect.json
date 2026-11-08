@@ -12,7 +12,7 @@
   },
   "source_csv": "raw/slice_series.csv",
   "source_csv_sha256": "ad0371e5c473b031f95162017954edb940d494d172babe9fd4fb346522717a3e",
-  "source_dissection_sha256": "275113ae8e60d80521ad18aa86bd45bbd03d6c866cee7753fdac2a5b4488ad5a",
+  "source_dissection_sha256": "fe16dae0e1a9136b9bbbe50452f631cd9f74d3da4e355d5941189338e10bae32",
   "control_frame": 34,
   "control_wall_epoch": 1794166284.689694,
   "control_sim_time_s": 5.06283151092261,

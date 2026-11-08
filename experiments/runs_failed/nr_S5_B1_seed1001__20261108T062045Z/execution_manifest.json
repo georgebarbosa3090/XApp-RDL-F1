@@ -5,7 +5,7 @@
   "scenario": "scenario_rdl_temporal_pingpong",
   "baseline": "B1",
   "seed": 1001,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30'",
   "rng_args": "--seed=1001",
   "action_schedule_sha256": "25b43c4ed33b0f16aaff73fb4d693f9621d4f89024bc2a7f27abc26e7fe11849",
   "run_status": "FAILED",

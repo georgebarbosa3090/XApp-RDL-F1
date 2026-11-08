@@ -7,7 +7,7 @@
   "scenario": "scenario_rdl_energy_vs_qos",
   "baseline": "B1",
   "seed": 1005,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1005/raw/action_schedule.csv --simTime=20'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1005/raw/action_schedule.csv --simTime=20'",
   "rng_args": "--seed=1005",
   "action_schedule_sha256": "c3adce93236f17ff477854f8ab6c8eafe6471a87a14026396fab7c760310fba2",
   "run_status": "SUCCESS",

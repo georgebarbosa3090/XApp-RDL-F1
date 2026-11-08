@@ -36,9 +36,11 @@ Observações dos experimentos:
 - A rede de base do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
 - No S4 e no S5 os conflitos ocorrem entre células e não são detectados pela H-RDL.
 
-### 2.2 Cenário S8 — closed loop com NORI (`scenario_rdl_closed_loop_nori`)
+### 2.2 Cenário S8 — closed loop na bancada NORI, e o porte de S0–S7
 
-Tráfego 5G-LENA com instalação opcional de agente E2. **Não aplica E2SM-RC** e as mensagens de handshake E2 que imprime (`TraceLifecycleE2`) são texto fixo, não troca real. O closed loop E2 depende da pilha NORI (ns-3.42, via [`deploy/helm/nori-ns3`](../deploy/helm/nori-ns3/README.md)) e dos exemplos do próprio NORI.
+O S8 antigo (`scenario_rdl_closed_loop_nori.cc`) não alterava a RAN e só imprimia um handshake E2 fixo (achados 14 e 15 de docs/05). Ele foi removido. No catálogo, o S8 passou a ser o closed loop da bancada NORI (`"ns3": null`, `"backend": "NORI_NS3"`, `"nori_scenario": "nori-rc-slicing-flowmon"`): xslice pede cota de PRB 25 % (prioridade 90) e embb_throughput pede 80 % (prioridade 60) no mesmo alvo. O H-RDL decide sobre o KPM real do nó e a xApp envia o RIC Control E2SM-RC.
+
+Os cenários S0–S7 também foram portados para a bancada NORI (`src/closed_loop/catalog_loop.py`, xApp kpm-probe em modo `catalog`). Em cada execução, o H-RDL arbitra uma vez as propostas do cenário e só a cota de PRB no gNB 0 é atuada; potência, handover e propostas para outros gNBs são decididas e registradas como não atuáveis. A tabela de decisões por cenário, os comandos e os limites estão em [docs/11](11_observabilidade_e_campanhas.md).
 
 ### 2.3 Cenários de pesquisa futura (S9–S15)
 

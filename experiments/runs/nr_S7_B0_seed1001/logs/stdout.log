@@ -1,7 +1,7 @@
 [0/2] Re-checking globbed directories...
 [1/2] Building CXX object scratch/CMakeFiles/scratch_scenario_rdl_fault_injection.dir/scenario_rdl_fault_injection.cc.o
-[2/2] Linking CXX executable /home/george/ns3-oran-workspace/ns-3-oran/build/scratch/ns3.48-scenario_rdl_fault_injection-optimized
-[RDL-ACT] 15 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1001/raw/action_schedule.csv
+[2/2] Linking CXX executable ~/ns3-oran-workspace/ns-3-oran/build/scratch/ns3.48-scenario_rdl_fault_injection-optimized
+[RDL-ACT] 15 ações agendadas a partir de <repo>/experiments/runs/nr_S7_B0_seed1001/raw/action_schedule.csv
 [RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
 [RDL-KPI] t=2.0s vazao=3.85 Mbps atraso=98.14 ms
 [RDL-KPI] t=3.0s vazao=4.22 Mbps atraso=98.25 ms

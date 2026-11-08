@@ -156,7 +156,7 @@ def test_campaign_requeues_interrupted_and_failed_runs(tmp_path):
 
 
 def test_to_wsl_path_conversion():
-    assert driver.to_wsl(Path("C:/Users/x/file.csv")) == "/mnt/c/Users/x/file.csv"
+    assert driver.to_wsl(Path("C:/dados/x/file.csv")) == "/mnt/c/dados/x/file.csv"
 
 
 def test_rdl_xapp_drops_unsafe_proposal_before_arbitration():

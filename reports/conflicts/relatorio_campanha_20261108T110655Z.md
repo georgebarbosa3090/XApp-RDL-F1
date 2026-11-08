@@ -83,7 +83,7 @@ python3 -m pip --python ~/.venvs/xapp-rdl/bin/python install "pydantic>=2.0.0" "
 **Em cada terminal novo:**
 
 ```bash
-cd /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1
+cd <repo>
 source ~/.venvs/xapp-rdl/bin/activate
 ```
 
@@ -134,7 +134,7 @@ Na B3, as mensagens de porta 8080/8081 em uso vêm dos servidores de saúde e m�
 Por baixo, cada execução chama o executor com proveniência [`run_ns3_certified.sh`](../../scripts/certification/run_ns3_certified.sh), que roda o comando ns-3 registrado no manifesto (lista completa no apêndice A). Exemplo:
 
 ```bash
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 ```
 
 ## 5. Resultados agregados
@@ -557,324 +557,324 @@ Campo `command` do `execution_manifest.json`, executado no WSL. Os caminhos de `
 
 ```bash
 # nr_S0_B0_seed1001  (SUCCESS, 2026-11-08T03:24:40Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B0_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S0_B0_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S0_B0_seed1002  (SUCCESS, 2026-11-08T07:07:01Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B0_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S0_B0_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S0_B0_seed1003  (SUCCESS, 2026-11-08T08:16:23Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B0_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S0_B0_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S0_B0_seed1004  (SUCCESS, 2026-11-08T09:02:40Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B0_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S0_B0_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S0_B0_seed1005  (SUCCESS, 2026-11-08T09:48:56Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B0_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S0_B0_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S0_B1_seed1001  (SUCCESS, 2026-11-08T05:50:06Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S0_B1_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S0_B1_seed1002  (SUCCESS, 2026-11-08T07:07:56Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S0_B1_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S0_B1_seed1003  (SUCCESS, 2026-11-08T08:16:23Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S0_B1_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S0_B1_seed1004  (SUCCESS, 2026-11-08T09:03:00Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S0_B1_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S0_B1_seed1005  (SUCCESS, 2026-11-08T09:49:29Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S0_B1_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S0_B2_seed1001  (SUCCESS, 2026-11-08T05:50:06Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B2_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S0_B2_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S0_B2_seed1002  (SUCCESS, 2026-11-08T07:08:24Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B2_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S0_B2_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S0_B2_seed1003  (SUCCESS, 2026-11-08T08:18:20Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B2_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S0_B2_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S0_B2_seed1004  (SUCCESS, 2026-11-08T09:03:39Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B2_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S0_B2_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S0_B2_seed1005  (SUCCESS, 2026-11-08T09:49:54Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B2_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S0_B2_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S0_B3_seed1001  (SUCCESS, 2026-11-08T03:24:48Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S0_B3_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S0_B3_seed1002  (SUCCESS, 2026-11-08T07:08:53Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S0_B3_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S0_B3_seed1003  (SUCCESS, 2026-11-08T08:18:24Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S0_B3_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S0_B3_seed1004  (SUCCESS, 2026-11-08T09:04:00Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S0_B3_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S0_B3_seed1005  (SUCCESS, 2026-11-08T09:50:27Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S0_B3_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S1_B0_seed1001  (SUCCESS, 2026-11-08T02:47:45Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B0_seed1002  (SUCCESS, 2026-11-08T07:09:20Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B0_seed1003  (SUCCESS, 2026-11-08T08:19:41Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B0_seed1004  (SUCCESS, 2026-11-08T09:04:39Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B0_seed1005  (SUCCESS, 2026-11-08T09:50:52Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B1_seed1001  (SUCCESS, 2026-11-08T05:51:13Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S1_B1_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B1_seed1002  (SUCCESS, 2026-11-08T07:09:49Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S1_B1_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B1_seed1003  (SUCCESS, 2026-11-08T08:19:42Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S1_B1_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B1_seed1004  (SUCCESS, 2026-11-08T09:05:06Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S1_B1_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B1_seed1005  (SUCCESS, 2026-11-08T09:51:32Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S1_B1_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B2_seed1001  (SUCCESS, 2026-11-08T05:51:13Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B2_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S1_B2_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B2_seed1002  (SUCCESS, 2026-11-08T07:13:49Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B2_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S1_B2_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B2_seed1003  (SUCCESS, 2026-11-08T08:25:03Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B2_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S1_B2_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B2_seed1004  (SUCCESS, 2026-11-08T09:09:30Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B2_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S1_B2_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B2_seed1005  (SUCCESS, 2026-11-08T09:55:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B2_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S1_B2_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B3_seed1001  (SUCCESS, 2026-11-08T02:53:35Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1001/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B3_seed1002  (SUCCESS, 2026-11-08T07:14:26Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1002/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B3_seed1003  (SUCCESS, 2026-11-08T08:25:24Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1003/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B3_seed1004  (SUCCESS, 2026-11-08T09:10:05Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S1_B3_seed1005  (SUCCESS, 2026-11-08T09:56:42Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B3_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S1_B3_seed1005/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'
 # nr_S2_B0_seed1001  (SUCCESS, 2026-11-08T06:35:57Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B0_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S2_B0_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B0_seed1002  (SUCCESS, 2026-11-08T07:18:17Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B0_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S2_B0_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B0_seed1003  (SUCCESS, 2026-11-08T08:29:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B0_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S2_B0_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B0_seed1004  (SUCCESS, 2026-11-08T09:14:32Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B0_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S2_B0_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B0_seed1005  (SUCCESS, 2026-11-08T10:01:03Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B0_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S2_B0_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B1_seed1001  (SUCCESS, 2026-11-08T06:35:57Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B1_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S2_B1_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B1_seed1002  (SUCCESS, 2026-11-08T07:19:00Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B1_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S2_B1_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B1_seed1003  (SUCCESS, 2026-11-08T08:30:17Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B1_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S2_B1_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B1_seed1004  (SUCCESS, 2026-11-08T09:15:05Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B1_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S2_B1_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B1_seed1005  (SUCCESS, 2026-11-08T10:01:46Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B1_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S2_B1_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B2_seed1001  (SUCCESS, 2026-11-08T06:45:13Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B2_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S2_B2_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B2_seed1002  (SUCCESS, 2026-11-08T07:23:27Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B2_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S2_B2_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B2_seed1003  (SUCCESS, 2026-11-08T08:35:25Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B2_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S2_B2_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B2_seed1004  (SUCCESS, 2026-11-08T09:19:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B2_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S2_B2_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B2_seed1005  (SUCCESS, 2026-11-08T10:06:30Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B2_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S2_B2_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B3_seed1001  (SUCCESS, 2026-11-08T06:45:19Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B3_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S2_B3_seed1001/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B3_seed1002  (SUCCESS, 2026-11-08T07:24:14Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B3_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S2_B3_seed1002/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B3_seed1003  (SUCCESS, 2026-11-08T08:35:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B3_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S2_B3_seed1003/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B3_seed1004  (SUCCESS, 2026-11-08T09:20:38Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B3_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S2_B3_seed1004/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S2_B3_seed1005  (SUCCESS, 2026-11-08T10:07:33Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S2_B3_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_tvs_conflict --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S2_B3_seed1005/raw/action_schedule.csv --simTime=20 --disableSrs=true'
 # nr_S3_B0_seed1001  (SUCCESS, 2026-11-08T06:00:35Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B0_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S3_B0_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S3_B0_seed1002  (SUCCESS, 2026-11-08T07:28:48Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B0_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S3_B0_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S3_B0_seed1003  (SUCCESS, 2026-11-08T08:40:52Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B0_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S3_B0_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S3_B0_seed1004  (SUCCESS, 2026-11-08T09:25:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B0_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S3_B0_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S3_B0_seed1005  (SUCCESS, 2026-11-08T10:11:56Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B0_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S3_B0_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S3_B1_seed1001  (SUCCESS, 2026-11-08T06:00:36Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S3_B1_seed1002  (SUCCESS, 2026-11-08T07:29:28Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S3_B1_seed1003  (SUCCESS, 2026-11-08T08:41:26Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S3_B1_seed1004  (SUCCESS, 2026-11-08T09:26:22Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S3_B1_seed1005  (SUCCESS, 2026-11-08T10:12:49Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S3_B1_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S3_B2_seed1001  (SUCCESS, 2026-11-08T06:01:26Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B2_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S3_B2_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S3_B2_seed1002  (SUCCESS, 2026-11-08T07:29:42Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B2_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S3_B2_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S3_B2_seed1003  (SUCCESS, 2026-11-08T08:41:37Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B2_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S3_B2_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S3_B2_seed1004  (SUCCESS, 2026-11-08T09:26:29Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B2_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S3_B2_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S3_B2_seed1005  (SUCCESS, 2026-11-08T10:13:19Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B2_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S3_B2_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S3_B3_seed1001  (SUCCESS, 2026-11-08T06:01:32Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B3_seed1001/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S3_B3_seed1001/raw/action_schedule.csv --simTime=20'
 # nr_S3_B3_seed1002  (SUCCESS, 2026-11-08T07:30:11Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B3_seed1002/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S3_B3_seed1002/raw/action_schedule.csv --simTime=20'
 # nr_S3_B3_seed1003  (SUCCESS, 2026-11-08T08:42:07Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B3_seed1003/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S3_B3_seed1003/raw/action_schedule.csv --simTime=20'
 # nr_S3_B3_seed1004  (SUCCESS, 2026-11-08T09:27:23Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B3_seed1004/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S3_B3_seed1004/raw/action_schedule.csv --simTime=20'
 # nr_S3_B3_seed1005  (SUCCESS, 2026-11-08T10:13:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B3_seed1005/raw/action_schedule.csv --simTime=20'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S3_B3_seed1005/raw/action_schedule.csv --simTime=20'
 # nr_S4_B0_seed1001  (SUCCESS, 2026-11-08T06:52:25Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B0_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S4_B0_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B0_seed1002  (SUCCESS, 2026-11-08T07:30:22Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B0_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S4_B0_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B0_seed1003  (SUCCESS, 2026-11-08T08:42:17Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B0_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S4_B0_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B0_seed1004  (SUCCESS, 2026-11-08T09:27:22Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B0_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S4_B0_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B0_seed1005  (SUCCESS, 2026-11-08T10:14:09Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B0_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S4_B0_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B1_seed1001  (SUCCESS, 2026-11-08T06:52:28Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B1_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S4_B1_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B1_seed1002  (SUCCESS, 2026-11-08T07:30:52Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B1_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S4_B1_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B1_seed1003  (SUCCESS, 2026-11-08T08:42:49Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B1_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S4_B1_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B1_seed1004  (SUCCESS, 2026-11-08T09:28:29Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B1_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S4_B1_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B1_seed1005  (SUCCESS, 2026-11-08T10:14:32Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B1_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S4_B1_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B2_seed1001  (SUCCESS, 2026-11-08T06:55:53Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B2_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S4_B2_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B2_seed1002  (SUCCESS, 2026-11-08T07:33:48Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B2_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S4_B2_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B2_seed1003  (SUCCESS, 2026-11-08T08:46:06Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B2_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S4_B2_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B2_seed1004  (SUCCESS, 2026-11-08T09:31:30Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B2_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S4_B2_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B2_seed1005  (SUCCESS, 2026-11-08T10:17:42Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B2_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S4_B2_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B3_seed1001  (SUCCESS, 2026-11-08T06:56:03Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B3_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S4_B3_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B3_seed1002  (SUCCESS, 2026-11-08T07:34:18Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B3_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S4_B3_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B3_seed1003  (SUCCESS, 2026-11-08T08:46:39Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B3_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S4_B3_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B3_seed1004  (SUCCESS, 2026-11-08T09:32:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B3_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S4_B3_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S4_B3_seed1005  (SUCCESS, 2026-11-08T10:18:14Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S4_B3_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_ts_vs_energy --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S4_B3_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B0_seed1001  (SUCCESS, 2026-11-08T06:59:18Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B0_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B0_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B0_seed1002  (SUCCESS, 2026-11-08T07:37:15Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B0_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S5_B0_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B0_seed1003  (SUCCESS, 2026-11-08T08:49:42Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B0_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S5_B0_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B0_seed1004  (SUCCESS, 2026-11-08T09:35:57Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B0_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S5_B0_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B0_seed1005  (SUCCESS, 2026-11-08T10:21:31Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B0_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S5_B0_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B1_seed1001  (SUCCESS, 2026-11-08T06:21:48Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B1_seed1002  (SUCCESS, 2026-11-08T07:37:41Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B1_seed1003  (SUCCESS, 2026-11-08T08:50:09Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B1_seed1004  (SUCCESS, 2026-11-08T09:37:00Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B1_seed1005  (SUCCESS, 2026-11-08T10:22:01Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B2_seed1001  (SUCCESS, 2026-11-08T07:58:29Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B2_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B2_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B2_seed1002  (SUCCESS, 2026-11-08T07:39:09Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B2_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S5_B2_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B2_seed1003  (SUCCESS, 2026-11-08T08:51:19Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B2_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S5_B2_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B2_seed1004  (SUCCESS, 2026-11-08T09:38:11Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B2_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S5_B2_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B2_seed1005  (SUCCESS, 2026-11-08T10:23:32Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B2_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S5_B2_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B3_seed1001  (SUCCESS, 2026-11-08T06:59:29Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B3_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B3_seed1001/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B3_seed1002  (SUCCESS, 2026-11-08T07:39:35Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B3_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S5_B3_seed1002/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B3_seed1003  (SUCCESS, 2026-11-08T08:51:59Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B3_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S5_B3_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B3_seed1004  (SUCCESS, 2026-11-08T09:39:15Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B3_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S5_B3_seed1004/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S5_B3_seed1005  (SUCCESS, 2026-11-08T10:24:01Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B3_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S5_B3_seed1005/raw/action_schedule.csv --simTime=30 --disableSrs=true'
 # nr_S6_B0_seed1001  (SUCCESS, 2026-11-08T08:04:24Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B0_seed1002  (SUCCESS, 2026-11-08T08:04:24Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B0_seed1003  (SUCCESS, 2026-11-08T08:53:26Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B0_seed1004  (SUCCESS, 2026-11-08T09:40:20Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B0_seed1005  (SUCCESS, 2026-11-08T10:25:37Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S6_B0_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B1_seed1001  (SUCCESS, 2026-11-08T07:01:09Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B1_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S6_B1_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B1_seed1002  (SUCCESS, 2026-11-08T08:07:39Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B1_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S6_B1_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B1_seed1003  (SUCCESS, 2026-11-08T08:53:57Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B1_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S6_B1_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B1_seed1004  (SUCCESS, 2026-11-08T09:41:23Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B1_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S6_B1_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B1_seed1005  (SUCCESS, 2026-11-08T10:26:11Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B1_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S6_B1_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B2_seed1001  (SUCCESS, 2026-11-08T07:01:25Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B2_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S6_B2_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B2_seed1002  (SUCCESS, 2026-11-08T08:07:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B2_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S6_B2_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B2_seed1003  (SUCCESS, 2026-11-08T08:57:08Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B2_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S6_B2_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B2_seed1004  (SUCCESS, 2026-11-08T09:43:25Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B2_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S6_B2_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B2_seed1005  (SUCCESS, 2026-11-08T10:29:21Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B2_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S6_B2_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B3_seed1001  (SUCCESS, 2026-11-08T07:05:03Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B3_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S6_B3_seed1001/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B3_seed1002  (SUCCESS, 2026-11-08T08:11:10Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B3_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S6_B3_seed1002/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B3_seed1003  (SUCCESS, 2026-11-08T08:57:39Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B3_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S6_B3_seed1003/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B3_seed1004  (SUCCESS, 2026-11-08T09:44:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B3_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S6_B3_seed1004/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S6_B3_seed1005  (SUCCESS, 2026-11-08T10:29:48Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B3_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_conflict_storm --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S6_B3_seed1005/raw/action_schedule.csv --simTime=20 --loadLevel=0'
 # nr_S7_B0_seed1001  (SUCCESS, 2026-11-08T03:00:37Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1001/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S7_B0_seed1001/raw/action_schedule.csv --simTime=25'
 # nr_S7_B0_seed1002  (SUCCESS, 2026-11-08T08:11:25Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1002/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S7_B0_seed1002/raw/action_schedule.csv --simTime=25'
 # nr_S7_B0_seed1003  (SUCCESS, 2026-11-08T09:01:02Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1003/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S7_B0_seed1003/raw/action_schedule.csv --simTime=25'
 # nr_S7_B0_seed1004  (SUCCESS, 2026-11-08T09:46:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1004/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S7_B0_seed1004/raw/action_schedule.csv --simTime=25'
 # nr_S7_B0_seed1005  (SUCCESS, 2026-11-08T10:32:56Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1005/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S7_B0_seed1005/raw/action_schedule.csv --simTime=25'
 # nr_S7_B1_seed1001  (SUCCESS, 2026-11-08T07:05:21Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B1_seed1001/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S7_B1_seed1001/raw/action_schedule.csv --simTime=25'
 # nr_S7_B1_seed1002  (SUCCESS, 2026-11-08T08:12:11Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B1_seed1002/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S7_B1_seed1002/raw/action_schedule.csv --simTime=25'
 # nr_S7_B1_seed1003  (SUCCESS, 2026-11-08T09:01:20Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B1_seed1003/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S7_B1_seed1003/raw/action_schedule.csv --simTime=25'
 # nr_S7_B1_seed1004  (SUCCESS, 2026-11-08T09:47:49Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B1_seed1004/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S7_B1_seed1004/raw/action_schedule.csv --simTime=25'
 # nr_S7_B1_seed1005  (SUCCESS, 2026-11-08T10:33:16Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B1_seed1005/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S7_B1_seed1005/raw/action_schedule.csv --simTime=25'
 # nr_S7_B2_seed1001  (SUCCESS, 2026-11-08T07:06:12Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B2_seed1001/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S7_B2_seed1001/raw/action_schedule.csv --simTime=25'
 # nr_S7_B2_seed1002  (SUCCESS, 2026-11-08T08:12:58Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B2_seed1002/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S7_B2_seed1002/raw/action_schedule.csv --simTime=25'
 # nr_S7_B2_seed1003  (SUCCESS, 2026-11-08T09:01:50Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B2_seed1003/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S7_B2_seed1003/raw/action_schedule.csv --simTime=25'
 # nr_S7_B2_seed1004  (SUCCESS, 2026-11-08T09:48:07Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B2_seed1004/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S7_B2_seed1004/raw/action_schedule.csv --simTime=25'
 # nr_S7_B2_seed1005  (SUCCESS, 2026-11-08T10:33:53Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B2_seed1005/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S7_B2_seed1005/raw/action_schedule.csv --simTime=25'
 # nr_S7_B3_seed1001  (SUCCESS, 2026-11-08T03:02:17Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1001/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1001/raw/action_schedule.csv --simTime=25'
 # nr_S7_B3_seed1002  (SUCCESS, 2026-11-08T08:13:44Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1002/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1002 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1002/raw/action_schedule.csv --simTime=25'
 # nr_S7_B3_seed1003  (SUCCESS, 2026-11-08T09:02:10Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1003/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1003 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1003/raw/action_schedule.csv --simTime=25'
 # nr_S7_B3_seed1004  (SUCCESS, 2026-11-08T09:48:40Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1004/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1004/raw/action_schedule.csv --simTime=25'
 # nr_S7_B3_seed1005  (SUCCESS, 2026-11-08T10:34:18Z)
-cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1005/raw/action_schedule.csv --simTime=25'
+cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1005 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1005/raw/action_schedule.csv --simTime=25'
 ```
 

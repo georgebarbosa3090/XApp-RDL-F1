@@ -755,3 +755,17 @@ def test_v5_anchor_finds_the_delayed_effect(tmp_path, policy, lock, monkeypatch)
     cpath.write_text(json.dumps(curve), encoding="utf-8")
     v4 = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot, curve=cpath)
     assert v4["rule"] == "v4-curve" and v4["verdict"] == "INCONSISTENT"
+
+
+@pytest.mark.parametrize("trigger,node,ues,expected", [
+    ("t0", None, None, True),            # gatilho é o próprio KPM_t0
+    ("other", "other", "t0", True),      # par entregue em ordem trocada: KPM_t0 é a entrada de UEs da decisão
+    ("other", "other", "other", False),  # KPM_t0 não entrou na decisão
+])
+def test_kpm_t0_must_be_an_input_of_the_decision(trigger, node, ues, expected):
+    msgs = [{"index": 1, "sha256": "aa"}, {"index": 2, "sha256": "bb"}, {"index": 3, "sha256": "cc"}]
+    sha = {"t0": "aa", "other": "zz", None: None}
+    controls = [{"sha256": "bb", "decision_source": "H_RDL", "trigger_kpm_sha256": sha[trigger],
+                 "decision": {"kpm_node_sha256": sha[node], "kpm_ues_sha256": sha[ues]}}]
+    d = dis._decision_crosscheck(msgs, {"kpm_t0": 1, "control_request": 2, "control_ack": 3}, controls, [])
+    assert d["trigger_is_kpm_t0"] is expected

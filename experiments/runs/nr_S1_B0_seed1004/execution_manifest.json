@@ -7,7 +7,7 @@
   "scenario": "scenario_rdl_direct_prb_conflict",
   "baseline": "B0",
   "seed": 1004,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B0_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1004 --actionSchedule=<repo>/experiments/runs/nr_S1_B0_seed1004/raw/action_schedule.csv --simTime=20 --udpIntervalUs=200'",
   "rng_args": "--seed=1004",
   "action_schedule_sha256": "dd800fed3fd9f820f83239c71c1c992ad7f8e56f7a4c06025bc24549b16c0bdf",
   "run_status": "SUCCESS",

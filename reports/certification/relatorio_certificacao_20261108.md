@@ -16,7 +16,7 @@ Resumo: o simulador ns-3.48 / 5G-LENA v5.1 / NORI **não está instalado** no WS
 | Item | Esperado (`versions.lock`) | Encontrado | Situação |
 | :-- | :-- | :-- | :-- |
 | Distribuição WSL | Ubuntu 22.04 LTS | Ubuntu 24.04.1 LTS (kernel 6.6.87.2-microsoft-standard-WSL2) | Diverge do lock |
-| Usuário / HOME WSL | — | `george` / `/home/george` | — |
+| Usuário / HOME WSL | — | `<usuário>` / `~` | — |
 | `NS3_DIR` | `~/ns3-oran-workspace/ns-3-oran` | variável não definida; diretório **inexistente** | **Ausente** |
 | ns-3 | 3.48 | não encontrado (`ns3`, `VERSION` ausentes) | **Ausente** |
 | 5G-LENA (`contrib/nr`) | v5.1 | não encontrado | **Ausente** |
@@ -27,7 +27,7 @@ Resumo: o simulador ns-3.48 / 5G-LENA v5.1 / NORI **não está instalado** no WS
 | CMake | ≥ 3.25.2 | 3.28.3 | OK |
 | GCC | ≥ 11.4.0 | 13.3.0 | OK |
 
-Busca adicional: `find` em `/opt`, `/usr/local`, `/root`, `/home` e `/srv` (profundidade 7) não encontrou nenhum checkout `ns-3*`, executável `ns3`, `libns3*`, diretório `contrib`, 5G-LENA ou NORI. O único diretório relacionado é `/home/george/XApp-RDL-F2/simulations/ns3`, que contém fontes de cenário, não um simulador.
+Busca adicional: `find` em `/opt`, `/usr/local`, `/root`, `/home` e `/srv` (profundidade 7) não encontrou nenhum checkout `ns-3*`, executável `ns3`, `libns3*`, diretório `contrib`, 5G-LENA ou NORI. O único diretório relacionado é `~/XApp-RDL-F2/simulations/ns3`, que contém fontes de cenário, não um simulador.
 
 Consequência: conforme as regras de operação, **não rodei** `scripts/setup_ns3.sh` e **não executei** `scripts/certification/run_ns3_certified.sh` para `scenario_rdl_closed_loop_nori`, semente 1001 (o executor sairia com código 69, "ns-3 não encontrado").
 
@@ -147,7 +147,7 @@ Validadores complementares:
 2. **Instalar `tshark`** no WSL, para dissecar os PCAPs com `-d sctp.port==36422,e2ap` (critério R14).
 3. **Subir o Near-RT RIC O-RAN SC Release J** (E2Term 6.0.4, SubMgr 0.9.1, E2Mgr 5.4.9) e implantar a xApp RDL conforme `reproducibility/runbook.md` e `deploy/`, com captura de PCAP na porta SCTP 36422 em um diretório a ser passado em `--e2-trace-dir`.
 4. **Corrigir o cenário S8** (decisão do pesquisador): implementar no `scenario_rdl_closed_loop_nori.cc` a recepção e a aplicação real do RIC Control E2SM-RC no escalonador NR, e remover ou rotular as mensagens fixas de `TraceLifecycleE2`. Sem isso, os elos 3–5 continuam impossíveis de evidenciar.
-5. **Executar S8, semente 1001**, pelo executor com proveniência: `wsl -d Ubuntu -- bash /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_closed_loop_nori --seed 1001 --baseline B3 --e2-trace-dir <dir> -- --enableE2=true --simTime=10`, e depois rodar `certify_chain.py --run <run_id>`.
+5. **Executar S8, semente 1001**, pelo executor com proveniência: `wsl -d Ubuntu -- bash <repo>/scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_closed_loop_nori --seed 1001 --baseline B3 --e2-trace-dir <dir> -- --enableE2=true --simTime=10`, e depois rodar `certify_chain.py --run <run_id>`.
 6. **Cenários S0–S7**: revisar por que S0 e S4–S7 geram `FlowStats` vazio. Dar nomes únicos aos FlowMonitor de `energy_vs_qos.cc` e `tvs_conflict.cc` (hoje ambos gravam `flowmonitor_results.xml`). Rodar esses cenários **somente** pelo executor certificado. O `run_all_s0_s15_simulations.sh` não grava manifesto e faz commit e push automáticos em `main`.
 7. **Campanha G5**: no mínimo 30 sementes pareadas elegíveis por baseline B0–B3 (≥ 120 execuções), todas pelo executor certificado, com estatística pareada (IC95% t-Student, Wilcoxon, Cohen dz) somente depois de atingir N ≥ 30 pares.
 8. **Higiene de evidências**: segregar ou rotular as 210 execuções `S1_B*` como sintéticas e renomear `certified_closed_loop_chain`, cujo nome sugere uma certificação inexistente. Alinhar o `versions.lock` (Ubuntu 22.04) ao ambiente efetivo (Ubuntu 24.04.1, GCC 13.3.0, CMake 3.28.3) ou provisionar o ambiente do lock.

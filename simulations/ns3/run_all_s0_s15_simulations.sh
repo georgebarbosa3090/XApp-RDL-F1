@@ -14,7 +14,7 @@ declare -A SCENARIO_MAP=(
     ["s5"]="scenario_rdl_temporal_pingpong"
     ["s6"]="scenario_rdl_conflict_storm"
     ["s7"]="scenario_rdl_fault_injection"
-    ["s8"]="scenario_rdl_closed_loop_nori"
+    # s8: closed loop E2 real, só na bancada NORI (bash scripts/run_nori_scenario.sh S8 <semente>)
     ["s9"]="scenario_rdl_s9_ntn_orbital_handover"
     ["s10"]="scenario_rdl_s10_uav_swarm_battery"
     ["s11"]="scenario_rdl_s11_v2x_highway_platooning"
@@ -149,11 +149,7 @@ for scenario in "${SCENARIOS[@]}"; do
     (
         cd "${ACTIVE_NS3_DIR}"
         ./ns3 build "${scenario}"
-        if [[ "${scenario}" == "scenario_rdl_closed_loop_nori" ]]; then
-            ./ns3 run "${scenario} --simTime=10.0 --demoMode=traffic-only --enableE2=false"
-        else
-            ./ns3 run "${scenario} --simTime=10.0"
-        fi
+        ./ns3 run "${scenario} --simTime=10.0"
     ) >"${run_dir}/execution.log" 2>&1 || {
         echo "[ERROR] Build/execução de ${scenario} falhou. Consulte ${run_dir}/execution.log." >&2
         exit 1
@@ -176,11 +172,7 @@ for scenario in "${SCENARIOS[@]}"; do
     mv "${found_flowmon}" "${run_dir}/flowmonitor.xml"
     write_run_status "completed"
     trap - EXIT
-    if [[ "${scenario}" == "scenario_rdl_closed_loop_nori" ]]; then
-        echo "[PASS] S8 executado como tráfego NR; FlowMonitor preservado. Este cenário não comprova closed loop E2SM-RC/RDL."
-    else
-        echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
-    fi
+    echo "[PASS] Execução ns-3 concluída e FlowMonitor preservado; proveniência científica ainda exige manifesto válido e auditoria."
 done
 
 # ==============================================================================
@@ -220,15 +212,6 @@ if [[ -d "${BASE_DIR}/.git" ]]; then
             echo "[OK] Relatórios locais commitados no repositório!"
         else
             echo "[INFO] Relatórios locais já estão sincronizados com as últimas simulações."
-        fi
-
-        # Se estiver executando no WSL2 e o workspace do host Windows existir, sincroniza para push imediato via daemon
-        WIN_WORKSPACE="/mnt/c/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1"
-        if [[ -d "${WIN_WORKSPACE}" && "${BASE_DIR}" != "${WIN_WORKSPACE}" ]]; then
-            cp -u "${BASE_DIR}/docs/20_relatorio_experimental_ns3_flowmonitor_s0_s15.md" "${WIN_WORKSPACE}/docs/" 2>/dev/null || true
-            cp -ru "${BASE_DIR}/experiments/results/"* "${WIN_WORKSPACE}/experiments/results/" 2>/dev/null || true
-            cp -ru "${BASE_DIR}/reports/figures/"* "${WIN_WORKSPACE}/reports/figures/" 2>/dev/null || true
-            echo "[OK] Dados e relatórios sincronizados com o workspace host Windows e enviados ao GitHub!"
         fi
     )
 fi

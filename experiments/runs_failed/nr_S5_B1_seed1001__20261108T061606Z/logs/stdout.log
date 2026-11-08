@@ -1,4 +1,4 @@
-[RDL-ACT] 8 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv
+[RDL-ACT] 8 ações agendadas a partir de <repo>/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv
 [RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
 [RDL-KPI] t=2.0s vazao=8.72 Mbps atraso=57.26 ms
 [RDL-KPI] t=3.0s vazao=9.42 Mbps atraso=60.82 ms
@@ -18,4 +18,4 @@
 [RDL-KPI] t=17.0s vazao=7.54 Mbps atraso=63.77 ms
 [RDL-KPI] t=18.0s vazao=8.93 Mbps atraso=54.87 ms
 [RDL-ACT] t=18.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-18.000 -> APPLIED (13 UE(s) cell 1 -> 2)
-Command 'build/scratch/ns3.48-scenario_rdl_temporal_pingpong-optimized --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30' died with <Signals.SIGABRT: 6>.
+Command 'build/scratch/ns3.48-scenario_rdl_temporal_pingpong-optimized --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30' died with <Signals.SIGABRT: 6>.

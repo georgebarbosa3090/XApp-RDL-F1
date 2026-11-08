@@ -43,10 +43,13 @@ kpm:
 # RIC Control E2SM-RC v3.01: depois da N-ésima Indication KPM de cada conexão, envia um Control com
 # cotas de PRB por fatia (estilo 2, ação 6) e registra o ACK/Failure.
 #   decision: hrdl  -> cotas decididas pelo H-RDL sobre o KPM_t0 (fase 4; decision_source=H_RDL)
+#   decision: catalog -> o H-RDL arbitra as propostas do cenário de conflito (S0–S8) lido de /data/rdl_scenario
+#                        (padrão: scenario); só a cota de PRB no gNB 0 vira Control (docs/11)
 #   decision: fixed -> cotas de sliceQuotas (fase 3; decision_source=FIXED_PROBE)
 rc:
   enabled: true
   decision: hrdl
+  scenario: S8                # cenário do catálogo no modo catalog, se /data/rdl_scenario não existir
   ranFunctionId: 300          # RAN function E2SM-RC do NORI (OID 1.3.6.1.4.1.53148.1.3.2.3)
   requestorId: 1003           # o NORI também trata o requestor 1003 como RAN slicing
   afterIndications: 4

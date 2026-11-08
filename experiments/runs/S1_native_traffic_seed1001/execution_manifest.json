@@ -7,7 +7,7 @@
   "scenario": "scenario_rdl_direct_prb_conflict",
   "baseline": null,
   "seed": 1001,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --simTime=10'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_direct_prb_conflict --seed=1001 --simTime=10'",
   "rng_args": "--seed=1001",
   "run_status": "SUCCESS",
   "exit_code": 0,

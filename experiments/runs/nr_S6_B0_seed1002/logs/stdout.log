@@ -1,4 +1,4 @@
-[RDL-ACT] 80 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1002/raw/action_schedule.csv
+[RDL-ACT] 80 ações agendadas a partir de <repo>/experiments/runs/nr_S6_B0_seed1002/raw/action_schedule.csv
 [RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
 [RDL-KPI] t=2.0s vazao=17.04 Mbps atraso=145.87 ms
 [RDL-KPI] t=3.0s vazao=19.33 Mbps atraso=143.53 ms

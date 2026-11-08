@@ -14,7 +14,7 @@
   },
   "source_csv": "raw/slice_series.csv",
   "source_csv_sha256": "c5d44571852b7101222055d684e62841257923dd0b9b4dfdcd407a442f23b553",
-  "source_dissection_sha256": "a5fb743181bc724b1977ef978ed0284796b3f35446880e9785c4c2624c8b33e3",
+  "source_dissection_sha256": "0e7c77887721e6bd8a44b949e295167eb115621a17bde0ca64f209887f35c35f",
   "control_frame": 35,
   "control_wall_epoch": 1794175818.232896,
   "control_sim_time_s": 5.697003120271904,
@@ -34,7 +34,7 @@
   ],
   "control_apply_time_s": 19.428405046463013,
   "calibration": "experiments/calibration/slice_cap_curve_v5.json",
-  "calibration_sha256": "3679fad70c395dfb171d2b12759f0d071b3cdfea6e28a7255226cbfb29d5fc7e",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
   "verdict": "CONSISTENT",
   "window_before": [
     15.428405046463013,

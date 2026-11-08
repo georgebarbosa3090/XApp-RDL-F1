@@ -8,7 +8,7 @@
   "scenario": "scenario_rdl_fault_injection",
   "baseline": "B3",
   "seed": 1001,
-  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B3_seed1001/raw/action_schedule.csv --simTime=25'",
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_fault_injection --seed=1001 --actionSchedule=<repo>/experiments/runs/nr_S7_B3_seed1001/raw/action_schedule.csv --simTime=25'",
   "rng_args": "--seed=1001",
   "action_schedule_sha256": "a3297cb42c4389c50cbf526d1c2b21ba4e80b991b5c40f173b7392d83ee0a259",
   "run_status": "SUCCESS",
