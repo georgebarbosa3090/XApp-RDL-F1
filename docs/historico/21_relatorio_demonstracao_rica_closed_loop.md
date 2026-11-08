@@ -1,8 +1,12 @@
+> **Documento histórico — não é evidência.** Movido para `docs/historico/` em 2026-11-08.
+> Motivo: demonstração cujo handshake E2 era texto fixo impresso pelo cenário (TraceLifecycleE2), não troca E2 real.
+> Os resultados atuais, com proveniência verificável, estão em [`docs/04_metodologia_experimental_e_resultados.md`](../04_metodologia_experimental_e_resultados.md).
+
 # Volume 21: Guia Operacional Passo a Passo e Relatório de Execução Física Closed-Loop
 ## Co-Simulação Manual ns-3.48 / 5G-LENA v5.1 / Agente E2 NORI / Near-RT RIC em Tempo Real
 
 > **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[23. Diagrama de Sequência H-RDL](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)**
+> **[01. Arquitetura & Modelagem](../01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](../02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](../03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](../05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](../compliance/CARDL_F2_COMPATIBILITY_PROFILE.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)** | **[23. Diagrama de Sequência H-RDL](../23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)**
 
 ---
 

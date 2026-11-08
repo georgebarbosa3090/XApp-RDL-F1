@@ -1,3 +1,7 @@
+> **Documento histórico — não é evidência.** Movido para `docs/historico/` em 2026-11-08.
+> Motivo: FlowMonitor de cenários que, à época, não aplicavam conflitos (S0 e S4–S7 sequer anexavam os UEs; S8 repetia os arquivos de S3).
+> Os resultados atuais, com proveniência verificável, estão em [`docs/04_metodologia_experimental_e_resultados.md`](../04_metodologia_experimental_e_resultados.md).
+
 # Relatório Técnico Experimental e Rastreabilidade do ns-3 FlowMonitor (Cenários S0 a S15)
 
 > **Documento Oficial:** Parecer Técnico e Análise Experimental Exaustiva (Cronológica S0 a S15)  

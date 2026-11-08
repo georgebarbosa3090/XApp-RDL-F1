@@ -1,5 +1,7 @@
 # xSlice Reference xApp (QoS & Slicing Optimizer — GreenRAN Edition)
 
+> **Implementação local.** `xslice_xapp.py` foi escrito para este projeto, inspirado no comportamento descrito por Yan et al.; não contém código de `peihaoY/xslice-oran` nem foi comparado com ele. Os perfis GreenRAN abaixo são parâmetros de configuração, não medições de campo. Nos cenários ns-3 S0–S7 as propostas vêm de `simulations/ns3/conflicts/catalog.json`, não desta xApp.
+
 ## Referência Científica e Projeto Base
 * **Repositório Oficial Upstream:** [`peihaoY/xslice-oran`](https://github.com/peihaoY/xslice-oran)
 * **Artigo / Trabalho Base:** *xSlice: Near-Real-Time Resource Slicing for QoS Optimization in 5G O-RAN* (Yan et al., IEEE CAMAD)

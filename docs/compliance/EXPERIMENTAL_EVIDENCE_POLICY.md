@@ -1,57 +1,40 @@
-# Política de Evidência Experimental e Proveniência — Experimental Evidence Policy
+# Política de evidência experimental
 
-**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Documento:** `EXPERIMENTAL_EVIDENCE_POLICY.md`  
-**Escopo:** Diretrizes de integridade científica, separação de fontes de dados, proibição de contaminação e firewall entre suítes de testes e experimentos de publicação.
+Fonte normativa: [`reproducibility/provenance_policy.yaml`](../../reproducibility/provenance_policy.yaml), aplicada por [`scripts/certification/certify_chain.py`](../../scripts/certification/certify_chain.py).
 
----
+## 1. Regra de ouro
 
-## 1. A Regra de Ouro de Proveniência Científica
+Um resultado é válido se, e somente se, vem de uma execução identificada e bem-sucedida, com evidência bruta externa ao código de análise e proveniência verificável.
 
-$$\boxed{\text{resultado científico válido} \iff \text{ns-3 + 5G-LENA + NORI + E2 real}}$$
+## 2. Origens
 
-Nenhum resultado derivado exclusivamente de modelos emulados locais, mocks em Python, vetores estáticos de teste ou execuções de demonstração pode ser incorporado às tabelas e figuras publicáveis da dissertação ou de artigos científicos.
+| Elegíveis para publicação | Não elegíveis |
+| :-- | :-- |
+| `NS3_FLOWMONITOR`, `NORI_E2`, `SRSRAN_E2`, `OPEN5GS_CORE`, `OPENRANBR_TESTBED`, `UE_TRAFFIC_TRACE`, `E2_PCAP`, `HRDL_RUNTIME`, `ORAN_SC_RIC`, `SYSTEM_RESOURCE_TRACE` | `SYNTHETIC`, `MOCK`, `CODEC_TEST`, `LOCAL_GENERATOR`, `CAUSAL_FIXTURE`, `DISCRETE_EVENT_SIMULATOR`, `EMULATED`, `MANUAL`, `ESTIMATED`, `DEMO_RUN` |
 
----
+Além das origens declaradas, o certificador classifica como sintética qualquer execução cujo identificador corresponda ao molde de um script que gera valores com RNG estatístico (é o caso das 210 execuções `S1_B0..B6_seed1001..1030`).
 
-## 2. Categorização Rígida das Fontes de Dados
+Também não são evidência: mensagens de protocolo impressas pelo código do cenário; hashes gerados pelo próprio pipeline (provam integridade, não execução); decodificação pelo codec local (prova autoconsistência); FlowMonitor sozinho para afirmações sobre KPM, controle RC ou closed loop.
 
-### 2.1. Fontes Elegíveis para Publicação (`PUBLICATION_ELIGIBLE`)
+## 3. Registro
 
-| Fonte de Dados | Descrição / Origem | Nível de Evidência |
-| :--- | :--- | :---: |
-| **`NS3_FLOWMONITOR`** | Traces nativos XML do FlowMonitor 5G-LENA (ns-3.48). | **L5 / L6 (Científico)** |
-| **`NORI_E2`** | Mensagens E2AP/E2SM (KPM e RC) de/para a E2SIM NORI. | **L5 / L6 (Científico)** |
-| **`HRDL_RUNTIME`** | Telemetria bruta e logs de decisão da xApp RDL em execução real. | **L5 / L6 (Científico)** |
-| **`REAL_RIC_LOG`** | Logs brutos de roteamento e sinalização do Near-RT RIC (O-RAN SC). | **L5 / L6 (Científico)** |
-| **`SYSTEM_RESOURCE_TRACE`** | Métricas do sistema operacional (CPU, Memória, RTT RMR). | **L5 / L6 (Científico)** |
+Toda execução elegível é produzida por um executor com proveniência e fica em `experiments/runs/<run_id>/`:
 
-### 2.2. Fontes NÃO Elegíveis para Publicação (`NON_PUBLICATION`)
+| Item | Obrigatório |
+| :-- | :-- |
+| `execution_manifest.json` | origem, backend, cenário, semente, comando, `run_status`, `exit_code`, início e fim (UTC), versões e commits lidos dos checkouts |
+| `logs/` | saída completa |
+| `raw/` | evidência bruta do backend: FlowMonitor (`.xml`) na pilha nativa; FlowMonitor e PCAP/RAW E2 na pilha NORI |
+| `hashes.sha256` | SHA-256 de todos os arquivos |
 
-| Fonte de Dados | Função no Projeto | Elegibilidade para Artigo |
-| :--- | :--- | :---: |
-| `DISCRETE_EVENT_SIMULATOR` | Modelo discreto Python para depuração local e testes unitários. | **PROIBIDO ($\times$)** |
-| `EMULATED` / `SYNTHETIC` | Workloads gerados sinteticamente sem rádio 5G. | **PROIBIDO ($\times$)** |
-| `MOCK` / `CODEC_TEST` | Round-trip local de codecs ASN.1 APER. | **PROIBIDO ($\times$)** |
-| `DEMO_RUN` | Execução didática em tempo real para bancas (`--demoMode=realtime`). | **PROIBIDO ($\times$)** |
-| `LOCAL_GENERATOR` | Geradores locais sem traces físicos. | **PROIBIDO ($\times$)** |
+Executores: [`run_ns3_certified.sh`](../../scripts/certification/run_ns3_certified.sh) (nativa) e `/scripts/run.sh` no pod `nori-ns3` (NORI). Execuções nunca são sobrescritas nem editadas; execuções interrompidas não são evidência; falhas ficam preservadas em `experiments/runs_failed/`.
 
----
+## 4. Separação entre testes e experimentos
 
-## 3. Firewall entre Suítes de Testes e Experimentos
+Nada produzido por `tests/` é copiado para `experiments/` ou `reports/`. Tabelas e figuras são derivadas por leitura dos arquivos de `experiments/runs/`, citando os `run_id`. `experiments/runs/** -text` em `.gitattributes` preserva os bytes para que os hashes confiram em qualquer sistema.
 
-A arquitetura do projeto estabelece um firewall estrito entre o ambiente de testes de software e o ambiente de experimentos científicos:
+## 5. Auditorias automáticas
 
-```text
-                  tests/ ───────────────────X───────────────────> experiments/
-            (Unit / Integration / Codec)                   (Raw Traces / Scientific Publication)
-```
-
-- **Regra do Firewall:** Nenhum dado ou métrica gerada durante a execução de `tests/` pode ser copiada, vinculada ou exportada para `experiments/results/`, `statistics/`, `figures/` ou diretórios de publicação.
-- **Métricas Derivadas Exclusivas:** Todas as figuras e tabelas finais devem ser derivadas por parsers read-only dos arquivos brutos salvos em `experiments/runs/` (como `flowmonitor.xml`, `conflicts.jsonl`, `decisions.jsonl` e `causal.jsonl`).
-
----
-
-## 4. Auditoria Automatizada e Sincronização
-
-A integridade desta política é verificada continuamente por auditoria estática via [`scripts/check_no_synthetic_results.py`](file:///c:/Users/georg/XApp-RDL-F1/scripts/check_no_synthetic_results.py) e pelas configurações do [`reproducibility/provenance_policy.yaml`](file:///c:/Users/georg/XApp-RDL-F1/reproducibility/provenance_policy.yaml).
+- `scripts/certification/certify_chain.py` — vereditos por execução e por gate.
+- `scripts/check_no_synthetic_results.py` — procura geradores aleatórios em scripts de resultados.
+- `scripts/verify_provenance_and_integrity.py`, `scripts/validate_provenance.py`, `scripts/validate_experiment_tree.py --check-gate1` — validadores complementares.

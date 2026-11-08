@@ -1,72 +1,47 @@
-# Perfil de Validação em Testbed srsRAN — H-RDL F1 srsRAN Testbed Profile
+# Perfil de testbed srsRAN + Open5GS (planejado)
 
-**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Documento:** `HRDL_F1_SRSRAN_TESTBED_PROFILE.md`  
-**Status:** **ATIVO / INTEGRADO (Perfil Complementar de Testbed)**  
-**Escopo:** Definição formal do perfil de compatibilidade para execução em pilhas de software real (srsRAN gNB / Open5GS 5GC / O-RAN SC Near-RT RIC) no ambiente experimental do programa OpenRAN@Brasil.
+**Situação:** planejamento. Os adaptadores existem no código, mas nunca foram executados contra um srsRAN gNB ou um Open5GS reais. Nenhum item deste documento é evidência.
 
----
+## 1. Papel
 
-## 1. Visão Geral da Estratégia Dual-Backend
-
-Para garantir o máximo rigor científico e a reprodutibilidade dos resultados do H-RDL, a Fase 1 adota uma **estratégia dual-backend complementar**:
-
-$$\boxed{\begin{array}{ccc}
-\text{\textbf{Backend 1: Simulação ns-3/NORI}} & \Longleftrightarrow & \text{\textbf{Backend 2: Software RAN srsRAN/Open5GS}} \\
-\text{(Controle Experimental, 30 Seeds, Estudo de Ablação)} & & \text{(Interoperabilidade E2 Real, Software de Produção)}
-\end{array}}$$
-
-1. **`HRDL_F1_NORI_PROFILE` (Congelado):** Ancorado em `E2AP v02.03`, `E2SM-KPM v03.00` e `E2SM-RC v01.03` no simulador ns-3.48 / 5G-LENA v5.1.
-2. **`HRDL_F1_SRSRAN_TESTBED_PROFILE` (Testbed Real):** Ancorado em `E2AP v03.00`, `E2SM-KPM v03.00` e `E2SM-RC v03.00` na pilha srsRAN gNB + Open5GS 5GC + O-RAN SC.
-
----
-
-## 2. Especificação Normativa do Perfil srsRAN Testbed
+Complementar à simulação: validar a interoperabilidade E2 com software de RAN real (srsRAN Project) e núcleo 5G (Open5GS), antes do testbed físico OpenRAN@Brasil.
 
 ```yaml
-profile_name: "H-RDL F1 srsRAN Testbed Profile"
-status: "ACTIVE_TESTBED"
-e2ap_version: "v03.00"
-e2sm_kpm_version: "v03.00"
-e2sm_rc_version: "v03.00"
-oran_sc_release: "Release J / N"
-target_ran: "srsRAN Project (gNB / CU / DU)"
-target_core: "Open5GS 5GC (AMF / SMF / UPF)"
-decision_window_ms: 200
+profile: HRDL_F1_SRSRAN_TESTBED_PROFILE
+backend: SRSRAN_OPEN5GS
+srsran_version: 24.10.1   # ef4b0749a12a3b1a8347ae01c937a621603b4069 (versions.lock)
+open5gs_version: v2.7.0   # 83e35bb2de7e67646fdba849580184422b10006a
+e2ap: v03.00
+e2sm_kpm: v03.00
+e2sm_rc: v03.00
 kpm_reporting_period_ms: 1000
-testbed_stabilization_samples: 3
+decision_window_ms: 200
 ```
 
-### Tabela Canônica de Mapeamento de Protocolo
+## 2. Componentes no código
 
-| Componente | Especificação srsRAN / Open5GS | Mapeamento no H-RDL Core | Função na Arquitetura |
-| :--- | :---: | :--- | :--- |
-| **E2AP** | `v03.00` | `E2APHeaderDecoder` / `PDUWrapper` | Sinalização de aplicação E2 (Setup, Control, Indication, Sub). |
-| **E2SM-KPM** | `v03.00` | `KpmDecoder` / `SrsRanBackendAdapter` | Relatórios de medições de desempenho rádio e de fatias. |
-| **E2SM-RC** | `v03.00` | `SrsRanRCEncoder` / `RCMapper` | Controle de rádio (Style 2 / Action 6 para PRB Quota). |
-| **RAN Node** | `srsRAN gNB` | `E2NodeAdapter` | Nó gNodeB 5G NR com suporte a E2 Agent nativo. |
-| **5G Core** | `Open5GS` | `CoreObserver` | Núcleo 5G (N2 AMF / N3 UPF) para registro e sessões PDU. |
+| Item | Arquivo |
+| :-- | :-- |
+| Adaptador de backend | `SrsRanBackendAdapter` em `src/infrastructure/ran_backend_adapter.py` |
+| Adaptador E2 (socket) | `src/e2/backends/srsran_e2_adapter.py` |
+| Configurações de testbed | `configs/testbed_zmq/`, `configs/testbed_sdr/` |
+| Roteiros por fase | `scripts/testbed/run_phase1_zmq_baseline.py`, `run_phase2_e2_telemetry_loop.py`, `run_phase3_closed_loop_rc.py` |
 
----
+## 3. Mapeamento de controle previsto
 
-## 3. Mapeamento de Controle E2SM-RC para srsRAN
+| Parâmetro H-RDL | Estilo RC | Ação RC | Observação |
+| :-- | :-: | :-: | :-- |
+| `PRB_QUOTA` | 2 (slice) | 6 (alocação de PRB) | conforme o agente E2 do srsRAN |
+| `HANDOVER` | 3 (mobilidade) | 1 | a confirmar na versão do srsRAN |
 
-Diferente da simulação NORI (Style 1 / Action 1), a implementação nativa do srsRAN mapeia o controle de cotas de PRB por fatia (*Slice-Level PRB Quota*) no **Control Service Style 2 / Action 6**:
+O codec E2SM-RC atual da xApp é um perfil simplificado e precisaria ser substituído por um codec v3.00 normativo antes de qualquer teste.
 
-$$\boxed{\text{Ação H-RDL } (\text{PRB-QUOTA}) \longrightarrow \text{E2SM-RC Style 2} \longrightarrow \text{Control Action 6} \longrightarrow \text{RAN Parameter ID 1}}$$
+## 4. Observação de efeito
 
-| Parâmetro H-RDL | Control Style (`srsRAN`) | Control Action (`srsRAN`) | Parameter ID | Unidade / Faixa |
-| :--- | :---: | :---: | :---: | :---: |
-| **`PRB_QUOTA`** | `2` (Slice Level Control) | `6` (PRB Allocation) | `1` | `0.0` a `100.0%` |
-| **`HANDOVER`** | `3` (Mobility Control) | `1` (Directed Handover) | `5` | `Cell ID (int)` |
+Com KPM a cada 1 s, a avaliação de uma decisão exige pelo menos três amostras estáveis (3 s) após o controle.
 
----
+## 5. Pendências
 
-## 4. Separação de Relógios e Critério de Estabilização Testbed
-
-No testbed srsRAN, o período de emissão de telemetria KPM é configurado em $T_{\text{KPM}} = 1000\text{ms}$ (1 segundo). Para conciliar a janela de decisão em lote do H-RDL ($W_{\text{decision}} = 200\text{ms}$) com a observabilidade do testbed:
-
-1. **Janela de Agrupamento RDL ($W_{\text{decision}} = 200\text{ms}$):** As propostas emitidas pelas xApps concorrentes continuam sendo agregadas e arbitradas em lotes determinísticos de 200 ms.
-2. **Janela de Observação Testbed ($T_{\text{KPM}} = 1000\text{ms}$):** A recuperação da rede e a melhoria dos KPIs após uma ação de controle exigem **3 amostras KPM consecutivas estáveis** ($T_{\text{stable}} \approx 3.0\text{s}$) para encerramento de evento no `CausalTracker`.
-
-$$\boxed{T_{\text{observação}}^{\text{srsRAN}} = 3 \times T_{\text{KPM}} = 3.0\text{ s}}$$
+1. Codec E2SM-RC v3.00 normativo.
+2. Executar `scripts/testbed/` com captura PCAP e manifesto pelo mesmo padrão de proveniência (`reproducibility/provenance_policy.yaml`, backend `SRSRAN_OPEN5GS`).
+3. Registrar versões reais de srsRAN, Open5GS e O-RAN SC por execução.

@@ -1,7 +1,6 @@
-# Load Balancer Reference xApp (O-RAN SC lb-xapp)
+# Load Balancer (experimental)
 
-## Visão Geral
-A **Load Balancer xApp** gerencia o balanceamento dinâmico de carga entre células e portadoras de rádio através da definição de limiares de ocupação de PRB e redistribuição de tráfego.
+Gerador de propostas de limiar de ocupação para descarregamento de tráfego, escrito para este projeto.
 
-## Parâmetros de Controle
-- `LOAD_THRESHOLD`: Limiar de ocupação percentual de PRB para disparo de offload (faixa: 0.0 a 1.0, padrão: 0.75).
+- **Parâmetro:** `LOAD_THRESHOLD` (0–1, padrão 0,75).
+- **Limitação:** não há codificação RC nem efeito na simulação ns-3 para este parâmetro.

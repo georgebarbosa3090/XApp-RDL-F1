@@ -1,8 +1,12 @@
+> **Documento histórico — não é evidência.** Movido para `docs/historico/` em 2026-11-08.
+> Motivo: tabelas de baselines B0–B6 derivadas das 210 execuções sintéticas S1_B0–B6.
+> Os resultados atuais, com proveniência verificável, estão em [`docs/04_metodologia_experimental_e_resultados.md`](../04_metodologia_experimental_e_resultados.md).
+
 # Volume 07: Relatório Legado de Resultados de Simulação (não validado)
 ## Comparativo Multidimensional entre Baselines, H-RDL (Fase 1) e CA-RDL (Fase 2) em Todos os Cenários (S0 a S15)
 
 > **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados da Simulação S0–S15](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
+> **[01. Arquitetura & Modelagem](../01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](../02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](../03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](../05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](../compliance/CARDL_F2_COMPATIBILITY_PROFILE.md)** | **[07. Resultados da Simulação S0–S15](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
 
 ---
 

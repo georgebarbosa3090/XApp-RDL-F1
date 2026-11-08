@@ -1,223 +1,155 @@
-# xApp RDL (Resource and Decision Layer) — O-RAN Multi-xApp Conflict Governance
+# xApp RDL — Resource and Decision Layer (Fase 1: H-RDL)
 
-<div align="center">
+Camada de governança para o Near-RT RIC (O-RAN) que recebe as propostas de controle de várias xApps, detecta conflitos entre elas e decide, de forma determinística e com guardas de segurança, quais ações chegam à RAN.
 
-**Arquitetura Unificada de Governança Cognitiva, Arbitragem Determinística e Mitigação de Conflitos Multi-xApp para Near-RT RIC**  
-*Perfil-alvo documentado para O-RAN ALLIANCE WG2/WG3, O-RAN SC (Release J), NORI (5G-LENA v5.1 / ns-3.48) e OpenRAN@Brasil Blueprint v3; interoperabilidade externa segue em validação.*
+Projeto de mestrado — PPGCOMP / UFPA. Autor: George Alexandro Ferreira Barbosa. Orientador: Prof. Dr. André Riker.
 
-[![O-RAN WG3](https://img.shields.io/badge/O--RAN%20Alliance-WG3%20E2AP%20v2.03%20%7C%20E2SM--RC%20v1.03-blue.svg)](https://o-ran.org)
-[![ns-3 5G-LENA](https://img.shields.io/badge/ns--3.48-5G--LENA%20v5.1%20%7C%20NORI-green.svg)](https://cttc.es)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-yellow.svg)](LICENSE)
-
-</div>
+| Fase | Abordagem | Repositório |
+| :-- | :-- | :-- |
+| 1 — H-RDL | Heurísticas determinísticas (TVS/EEVS) + Safety Guard | este repositório |
+| 2 — CA-RDL | Contexto + Safe-MARL (MAPPO com restrições) | [XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
+| 3 | RDL autônoma/federada (6G) | planejamento |
 
 ---
 
-### 🗺️ Navegação Multi-Fases do Projeto RDL (Resource and Decision Layer)
+## Estado atual (2026-11-08)
 
-| Fase do Projeto | Descrição e Paradigma de Controle | Status de Implementação | Repositório Oficial |
-| :---: | :--- | :---: | :---: |
-| **Fase 1** | **RDL Determinística e Segura (H-RDL)**<br/>*Código experimental para heurísticas de prioridade, safety guards e mapeamento E2AP/E2SM.* | **Integração E2 e validação experimental não verificadas**<br/>*(closed loop causal e campanha científica multi-seed pendentes)* | [georgebarbosa3090/XApp-RDL-F1](https://github.com/georgebarbosa3090/XApp-RDL-F1) |
-| **Fase 2** | **RDL Baseada em Contexto e Safe-RL (CA-RDL)**<br/>*Aprendizado por Reforço Multiagente (Safe-MAPPO sob CMDP Lagrangian), Grafos de Conhecimento (GraphSAGE / GNN) e Sensibilidade Contextual.* | **Em desenvolvimento ativo** | [georgebarbosa3090/XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
-| **Fase 3** | **RDL Autônoma e Federada 6G (Zero-Touch)**<br/>*Inteligência distribuída, orquestração por intenção (A1 Intent-Driven), Federação Multi-RIC e SAGIN.* | **Roadmap Ativo (2026–2028)** | *Em especificação e testbed* |
+O que existe e o que foi verificado, com a evidência correspondente. Os vereditos dos gates vêm do certificador ([`scripts/certification/certify_chain.py`](scripts/certification/certify_chain.py)); o relatório mais recente está em [`reports/certification/`](reports/certification/).
+
+| Item | Situação | Evidência |
+| :-- | :-- | :-- |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 212 testes unitários passando | `tests/` |
+| Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
+| Comparação de baselines B0–B3 nos cenários S0–S7 | campanha de 5 sementes em execução | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
+| Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **não verificada** | pilha NORI preparada em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md), ainda não implantada |
+| Closed loop causal KPM → decisão → RC → KPM | **não verificado** | — |
+
+| Gate | Exigência | Veredito |
+| :-: | :-- | :-: |
+| G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilha nativa) |
+| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | NOT_CERTIFIED |
+| G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
+| G3 | E2SM-RC externo (Control + ACK correlacionados) | BLOCKED |
+| G4 | Closed loop causal | BLOCKED |
+| G5 | Campanha ≥ 30 sementes pareadas com E2 | BLOCKED |
+| G6 | Artefato reproduzível por terceiros | BLOCKED |
+
+Importante para leitura de resultados antigos:
+
+- As 210 execuções `experiments/runs/S1_B0..B6_seed1001..1030` foram geradas por `scripts/run_b0_b6_campaign_30seeds.py` com gerador aleatório (`numpy.random`). **Não são simulações**; o certificador as classifica como `SYNTHETIC_SUSPECT`.
+- Os relatórios com números anteriores a novembro de 2026 estão em [`docs/historico/`](docs/historico/README.md) e não devem ser usados como evidência.
+- As afirmações científicas C1–C6 permanecem `NOT_VERIFIED` em [`specs/claims.yaml`](specs/claims.yaml).
 
 ---
 
-### 🛡️ Matriz de Maturidade dos Gates de Evidência Experimental (Fase 1 — H-RDL)
-
-Em conformidade rigorosa com a política de proveniência (`reproducibility/provenance_policy.yaml`) e auditoria técnica de 22/10/2026:
-
-| Gate | Descrição Normativa | Status Atual | Evidência & Diagnóstico Técnico |
-| :---: | :--- | :---: | :--- |
-| **G0** | Ambiente Normativo Reproduzível | 🟡 **PARCIAL** | Certificado para a pilha nativa ns-3.48 + 5G-LENA v5.1 (execuções `S1_native_traffic_seed1001/1002`, commits registrados por execução); a pilha NORI ainda não foi implantada. |
-| **G1** | E2SM-KPM Real (Telemetria Externa) | 🔴 **NÃO VALIDADO** | Não há evidência elegível de Setup/descoberta E2, subscrição e Indications de uma execução ns-3/5G-LENA + NORI. |
-| **G2** | H-RDL Funcional (Decisão Determinística) | 🟢 **APROVADO LOCAL** | Testes locais de detecção, Safety default-deny, limites de potência e rollback; não certifica interoperabilidade E2 externa. |
-| **G3** | E2SM-RC Real (Controle + ACK Externo) | 🔴 **NÃO VALIDADO** | Não há evidência de ação E2SM-RC aplicada à RAN nem ACK externo correlacionado. |
-| **G4** | Closed-Loop Causal End-to-End | 🔴 **NÃO VALIDADO** | A fixture `CAUSAL_FIXTURE` não é experimento; não foi demonstrado loop causal na RAN simulada. |
-| **G5** | Campanha Científica Multi-Semente | 🔴 **NÃO APROVADO** | Execuções do simulador Python local estão desativadas; não há campanha elegível ns-3/5G-LENA com proveniência completa. |
-| **G6** | Artifact Readiness (ACM SIGSIM / IEEE) | ⚪ **BLOQUEADO** | Bloqueado formalmente até a coleta e certificação das evidências empíricas externas de G4 e G5. |
-
-> **Retificação de evidências (23/10/2026):** valores numéricos e manifestos legados não foram verificados contra execuções elegíveis de ns-3/5G-LENA; não usar relatórios históricos como evidência científica. O simulador Python local está desativado e não deve ser usado para experimentos. C1–C6 estão `NOT_VERIFIED` em [`specs/claims.yaml`](specs/claims.yaml); testes unitários locais não aprovam gates experimentais.
-
----
-
-## 1. Visão Geral da Arquitetura e Principais Inovações
-
-A **xApp RDL (Resource and Decision Layer)** atua como o middleware central de governança no **Near-RT RIC**, interceptando e mitigando colisões de recursos geradas por **xApps concorrentes da literatura O-RAN**:
-
-1. **xSlice (QoS & Slicing Optimizer) — [`peihaoY/xslice-oran`](https://github.com/peihaoY/xslice-oran):** Solicita cotas elevadas de PRBs (`PRB_QUOTA = 80%`, prioridade 90) para fatias críticas URLLC e eMBB.
-2. **Energy Saving (Green RAN Optimizer) — [`Orange-OpenSource/ns-O-RAN-flexric`](https://github.com/Orange-OpenSource/ns-O-RAN-flexric):** Solicita redução de potência de transmissão (`TX_POWER = 20 dBm`, prioridade 65) e modo sleep de células, colidindo com as garantias de QoS.
-3. **Traffic Steering (Mobility Optimizer) — [`o-ran-sc/ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts):** Solicita migração e balanceamento de tráfego (`HANDOVER`, prioridade 80), podendo induzir instabilidade e tempestades de Ping-Pong.
+## Como a H-RDL decide
 
 ```mermaid
-flowchart TD
-    subgraph SMO_RIC["SMO & NEAR-RT RIC (OSC)"]
-        direction TB
-        subgraph RDL_CORE["xApp-RDL CORE (H-RDL Determinística)"]
-            direction TB
-            PA["Perception Agent<br/>(modelo KPM local; APER não validado)"]
-            CD["Conflict Detector<br/>(Matriz Determinística de Conflitos)"]
-            RE["Reasoning Engine<br/>(Heurísticas TVS / EEVS & Utilidade)"]
-            SG["Safety Guard<br/>(Limites Físicos 3GPP TS 38.104)"]
-            AE["Actuation Engine<br/>(modelo RC local; APER não validado)"]
-            
-            PA --> CD
-            CD --> RE
-            RE --> SG
-            SG --> AE
-        end
-    end
-
-    subgraph XAPPS["xApps Concorrentes da Literatura"]
-        X1["xSlice (QoS / Slicing)"]
-        X2["Energy Saving (Green RAN)"]
-        X3["Traffic Steering (Mobilidade)"]
-    end
-
-    subgraph E2_NODE["Nó E2 / 5G-LENA ns-3.48 (NORI)"]
-        DU["O-DU (MAC / Scheduler / PRB)"]
-        CU["O-CU-CP / O-CU-UP (RRC / PDCP)"]
-        RU["O-RU (Massive MIMO / Tx Power)"]
-    end
-
-    X1 & X2 & X3 -->|Propostas Concorrentes de Controle| CD
-    E2_NODE -->|E2SM-KPM v2.03 Indication| PA
-    AE -->|E2SM-RC v1.03 Control Request Seguro| E2_NODE
+flowchart LR
+    X["xApps<br/>(xSlice, Energy Saving,<br/>Traffic Steering, ...)"] -->|propostas| W["Janela de decisão<br/>200 ms"]
+    W --> S0["Safety Guard<br/>por proposta"]
+    S0 --> P["Percepção<br/>conflitos por alvo"]
+    P --> D["Estágio 1: TVS<br/>1 vencedor por<br/>(nó, parâmetro)"]
+    D --> I["Estágio 2: EEVS<br/>conflitos indiretos<br/>entre vencedores"]
+    I --> R["Refinement<br/>limites + histerese"]
+    R --> E["Despacho E2SM-RC<br/>(MEID, RICrequestID)"]
+    E --> RAN["E2 Node"]
+    RAN -->|"E2SM-KPM"| P
 ```
 
----
+1. As propostas de cada janela de 200 ms são processadas em lote; uma proposta urgente (prioridade ≥ 80) antecipa o fechamento da janela.
+2. Cada proposta fora dos limites físicos é descartada individualmente antes da arbitragem, para que uma xApp maliciosa não vete ações legítimas.
+3. A percepção agrupa conflitos por alvo: um conflito **direto** por (nó, parâmetro) e um **indireto** por par de parâmetros do mesmo nó que afetam os mesmos KPIs. A última ação confirmada pela RAN entra como incumbente.
+4. **TVS** escolhe um vencedor por alvo; **EEVS** resolve os conflitos indiretos só entre os vencedores. Se a incumbente vence, nada é reenviado.
+5. O Refinement aplica limites, histerese de 1 s por alvo e, opcionalmente, *slew-rate*.
+6. O despacho envia `RIC_CONTROL_REQUEST` com o MEID do E2 Node, acompanha ACK/Failure e, só em caso de timeout, envia rollback para o último valor confirmado.
 
-## 2. Paradigmas de Controle e Governança: H-RDL (Fase 1) × CA-RDL (Fase 2)
+Detalhes e fórmulas em [`docs/01_arquitetura_e_modelagem.md`](docs/01_arquitetura_e_modelagem.md).
 
-A governança multi-xApp evolui através de dois paradigmas complementares e interoperáveis:
-
-```mermaid
-flowchart TD
-    subgraph F1["Fase 1: H-RDL (Determinística & Heurística)"]
-        direction TB
-        A1["Propostas de xApps"] --> A2["Janela Fixa (200 ms)"]
-        A2 --> A3["Heurística & Utilidade (TVS/EEVS)"]
-        A3 --> A4["Safety Guard (Boundary Clip)"]
-        A4 --> A5["Comando E2SM-RC validado (latência a medir)"]
-    end
-
-    subgraph F2["Fase 2: CA-RDL (Context-Aware & Safe-MAPPO)"]
-        direction TB
-        B1["Propostas de xApps"] --> B2["Janela Adaptativa (50 a 500 ms)"]
-        B2 --> B3["Knowledge Graph & GNN (Topologia Dinâmica)"]
-        B3 --> B4["Safe-MAPPO com Action Masking"]
-        B4 --> B5["Comando E2SM-RC otimizado (meta < 10 ms; não medido)"]
-    end
-```
-
-### 2.1 Comparativo Didático dos Paradigmas
-
-| Dimensão de Análise | Fase 1: H-RDL (Heuristic RDL) | Fase 2: CA-RDL (Context-Aware RDL) |
-| :--- | :--- | :--- |
-| **Filosofia de Controle** | **Determinística e Reativa:** Aplica regras matemáticas estritas e funções de utilidade convexas sobre estados instantâneos. | **Cognitiva e Adaptativa:** Aprende padrões temporais complexos, antecipa tendências e adapta a decisão ao contexto operacional. |
-| **Janela de Decisão ($\Delta t_{win}$)** | **Fixa (200 ms):** Agrupa propostas que chegam no intervalo regular para arbitragem em lote. | **Dinâmica e Adaptativa (50 a 500 ms):** Ajusta o intervalo com base na velocidade de variação do tráfego e churn de rádio. |
-| **Mecanismo de Detecção** | **Tabela de Conflitos e Regras Estáticas:** Verifica sobreposição de parâmetros físicos ($P_{tx}$, PRBs, Handover) na matriz de conflito. | **Knowledge Graph & GraphSAGE (GNN):** Mapeia a topologia como grafo dinâmico e detecta conflitos diretos, indiretos e implícitos. |
-| **Motor de Decisão (Reasoning)** | **Heurísticas TVS / EEVS:** Otimização combinatória convexa baseada em pesos estáticos de QoS e penalidades lineares. | **Safe-MAPPO (MARL):** Agentes neurais cooperativos treinados sob CMDP (*Constrained Markov Decision Process*) via Multiplicadores de Lagrange. |
-| **Garantia de Segurança** | **Safety Guard Rígido (Hard Bound):** *Clipping* e truncamento imediato de comandos fora dos limites do 3GPP TS 38.104. | **Action Masking + Lagrange Guard:** Invalidação prévia de ações inseguras no espaço de probabilidade da política neural. |
-| **Latência de Decisão** | A medir com traces de execução elegíveis; não há valor certificado nesta versão. | Meta arquitetural (< 10 ms), ainda sem resultado experimental certificado. |
-| **Cenário Ideal de Operação** | Redes estáveis, tráfego homogêneo e requisitos determinísticos estritos de sub-milissegundo. | Redes densas heterogêneas, fatiamento dinâmico (URLLC/eMBB/mMTC), ISAC 6G e mobilidade NTN/V2X. |
+**Limitação conhecida:** a percepção agrupa conflitos por gNB; conflitos **entre células** (handover para uma célula que outra xApp desliga, ping-pong entre duas células) não são detectados. Isso foi observado nos cenários S4 e S5.
 
 ---
 
-## 3. Topologias e Cenários Especificados para Avaliação (O-RAN / ns-3)
+## Simulação
 
-A plataforma valida cenários de simulação científica, com foco em H-RDL:
-
-| ID | Cenário | Topologia / Nós | xApps Concorrentes | Desafio de Conflito | Métrica Chave |
-| :---: | :--- | :--- | :--- | :--- | :--- |
-| **C1** | **EEVS (Energy vs QoS)** | 1 gNB Macro + 3 Small Cells, 30 UEs | xSlice vs Energy Saving | Conflito Direto de $P_{tx}$ e PRBs | Consumo (J/Mbit) vs SLA Violation |
-| **C2** | **TVS (Traffic Steering vs Slicing)** | 3 gNBs Interconectadas (Xn), 45 UEs | xSlice vs Traffic Steering | Conflito Indireto de Handover e Cota | Vazão Agregada (Mbps) e Ping-Pong |
-| **C3** | **5G-Adv Multi-Carrier MIMO** | Dual Carrier (n78 + n258), 60 UEs | xSlice + ES + TS + MIMO Alloc | Acoplamento Cruzado de Banda e Potência | Eficiência Espectral (bps/Hz) |
-
----
-
-## 4. Galeria de Figuras Científicas e Topologias de Rede
-
-Todas as figuras científicas, topologias e diagramas de sequência estão catalogados em [`docs/figures/`](docs/figures/README.md).
-- **Diagrama de Sequência Canônico Compacto (Dissertação / Artigos):** Modelado em 4 macro-entidades O-RAN e disponível em três formatos vetoriais:
-  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid`](docs/figures/diagrama_sequencia_compacto_dissertacao.mermaid) (Mermaid)
-  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.puml`](docs/figures/diagrama_sequencia_compacto_dissertacao.puml) (PlantUML)
-  - [`docs/figures/diagrama_sequencia_compacto_dissertacao.tex`](docs/figures/diagrama_sequencia_compacto_dissertacao.tex) (LaTeX / TikZ puro)
-
----
-
-## 5. Catálogo Formal de Relatórios Científicos e Normativos
-
-O arcabouço científico consolida as matrizes de rastreabilidade normativa, orçamentos de latência e evidências experimentais documentadas em [`docs/`](docs/README.md):
-- **Demonstrações legadas D1–D5:** consulte o [Volume 21](docs/21_relatorio_demonstracao_rica_closed_loop.md) somente como registro histórico retirado de evidência; o script correspondente está desativado.
-- **Diagrama de Sequência e Fluxo de Controle Closed-Loop (H-RDL Fase 1):** Consulte o [Volume 23](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) para a decomposição dos 5 estágios de arbitragem em malha fechada, mensagens normativas O-RAN WG2/WG3 e orçamento de latência.
-
----
-
-## 6. Pipeline de Execução e Reproducibilidade
-
-### 6.1 Execução dos Testes Automatizados
-```bash
-# Instalação das dependências para desenvolvimento e testes
-# Inclui ferramentas de teste e, opcionalmente, dependência O-RAN SC/RMR
-uv sync --extra test --extra oran
-
-# Execução da suíte de testes
-pytest tests/ -v
-```
-
-### 6.2 Execução da xApp
-```bash
-# Execução instalada
-xapp-rdl
-
-# Alternativa sem instalar o entry point
-python -m src.main
-```
-
-Variáveis relevantes: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RAN_BACKEND`, `SUBMGR_URL` (habilita a subscrição E2SM-KPM pela API REST do SubMgr; obrigatório no modo estrito), `XAPP_HTTP_HOST`/`XAPP_HTTP_PORT`/`XAPP_RMR_PORT` (endpoint informado ao SubMgr). A xApp só fica `READY` depois que o SubMgr notifica a subscrição em `POST /ric/v1/subscriptions/response`. Os controles E2 são enviados com o MEID do E2 Node.
-
-### 6.3 Simulação e certificação de evidências
-
-O NORI oficial não roda sobre ns-3.48 / 5G-LENA v5.1, por isso há duas pilhas (versões em [`reproducibility/versions.lock`](reproducibility/versions.lock)):
+Duas pilhas, porque o NORI oficial não compila sobre ns-3.48 / 5G-LENA v5.1 ([`reproducibility/versions.lock`](reproducibility/versions.lock)):
 
 | Pilha | Versões | Uso |
 | :-- | :-- | :-- |
-| Nativa (`NS3_5GLENA`) | ns-3.48 + 5G-LENA v5.1 | Cenários de conflito S0–S7 (FlowMonitor), sem E2 |
-| NORI (`NORI_NS3`) | ns-3.42 + 5G-LENA `78b7179` + NORI `8a30867` (E2 v3.01) | E2 real e closed loop, implantada via Helm em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md) |
+| Nativa (`NS3_5GLENA`) | ns-3.48 `d2add90` + 5G-LENA v5.1 `cedcead` | Cenários de conflito S0–S7, sem E2 |
+| NORI (`NORI_NS3`) | ns-3.42 `ab4cce0` + 5G-LENA `78b7179` + NORI `8a30867` (E2AP/E2SM v3.01) | E2 real e closed loop, via Helm |
+
+Nos cenários S0–S7, as ações decididas são aplicadas na RAN durante a simulação por [`simulations/ns3/rdl-nr-common.h`](simulations/ns3/rdl-nr-common.h): cota de PRB pela máscara de RBGs do escalonador, potência do gNB e handover X2. Quatro baselines são comparados com as mesmas propostas e sementes:
+
+| Baseline | Regra |
+| :-- | :-- |
+| B0 | sem coordenação: cada proposta é aplicada ao chegar |
+| B1 | FIFO por janela e alvo |
+| B2 | prioridade estática por janela e alvo |
+| B3 | H-RDL: o pipeline real da xApp (`RDLxApp._process_action_group`) no relógio simulado |
+
+Esta é uma avaliação em **malha aberta**: sem E2 e sem realimentação de KPM. Metodologia, métricas e resultados em [`docs/04_metodologia_experimental_e_resultados.md`](docs/04_metodologia_experimental_e_resultados.md).
+
+---
+
+## Início rápido
+
+Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu com ns-3.48 + 5G-LENA v5.1 compilados (ver o [guia operacional](docs/02_guia_operacional_deploy_e_simulacao.md)).
 
 ```bash
-# Executa um cenário com proveniência e saída ao vivo (pilha nativa)
-bash scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_direct_prb_conflict --seed 1001 --baseline B3 -- --simTime=10
+uv sync --extra test                     # dependências
+uv run pytest -q                         # testes (212)
 
-# Emite o veredito dos gates G0–G6 em reports/certification/
+# Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
+python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
+
+# Campanha: cenários × baselines × sementes (retomável, paralela)
+python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
+
+# Análise por cenário × baseline e certificação dos gates
+python scripts/certification/analyze_conflict_runs.py
 python scripts/certification/certify_chain.py
 ```
 
-**Experimentos de conflito (S0–S7):** os cenários aplicam na RAN as ações decididas por cada baseline (B0 sem coordenação, B1 FIFO, B2 prioridade estática, B3 H-RDL real), com cota de PRB, potência e handover via [`simulations/ns3/rdl-nr-common.h`](simulations/ns3/rdl-nr-common.h); detalhes e primeiros achados em [`simulations/ns3/README.md`](simulations/ns3/README.md#431-experimentos-de-conflito-com-atuação-real-na-ran-s0s7).
+Executar a xApp (modo local, sem RIC):
+
 ```bash
-python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
-python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2   # campanha completa
-python scripts/certification/analyze_conflict_runs.py
+python -m src.main
 ```
 
-O certificador trata como não elegíveis as execuções geradas por scripts com RNG estatístico (como as 210 rodadas `S1_B0..B6_seed1001..1030` de `scripts/run_b0_b6_campaign_30seeds.py`), fixtures causais e mensagens E2 impressas pelo código do cenário. O último relatório está em [`reports/certification/`](reports/certification/).
+Variáveis principais: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RAN_BACKEND`, `SUBMGR_URL` (subscrição E2SM-KPM pela API REST do Subscription Manager), `XAPP_HTTP_HOST`, `XAPP_HTTP_PORT`, `XAPP_RMR_PORT`. No modo `O_RAN_INTEROP` a xApp permanece bloqueada enquanto o codec E2 não for validado contra o ASN.1 oficial.
 
 ---
 
-## 7. Informações Acadêmicas e Governança
+## Estrutura do repositório
 
-- **Autor do Projeto:** George Alexandro Ferreira Barbosa
-- **Orientador:** Prof. Dr. André Riker
-- **Instituição:** Universidade Federal do Pará (UFPA) — Instituto de Tecnologia (ITEC)
-- **Programa:** Programa de Pós-Graduação em Ciência da Computação (PPGCOMP)
-- **Área de Concentração:** Sistemas de Computação e Redes de Comunicação
-- **Linha de Pesquisa:** Redes Sem Fio Inteligentes, Open RAN e Arquiteturas Cognitivas 6G
-- **Versão declarada do pacote:** `1.1.0` (metadados de `pyproject.toml`)
+| Caminho | Conteúdo |
+| :-- | :-- |
+| `src/` | xApp RDL: `rdl_xapp.py` (orquestração), `core/` (percepção, raciocínio, refinamento), `e2/` (E2AP, KPM, RC, despacho), `infrastructure/` (RMR, SubMgr, SDL), `observability/` |
+| `tests/` | testes unitários, de codec, integração e interoperabilidade local |
+| `simulations/ns3/` | cenários ns-3 (S0–S15), cabeçalho de atuação, catálogo de conflitos |
+| `scripts/certification/` | executor com proveniência, driver de experimentos, campanha, análise e certificador |
+| `experiments/runs/` | evidência por execução (manifesto, logs, saídas brutas, hashes) |
+| `reports/` | relatórios gerados (`certification/`, `conflicts/`) |
+| `reproducibility/` | política de proveniência, versões fixadas, roteiro de reprodução |
+| `deploy/` | Helm e Kubernetes (xApp RDL, xApps de referência, bancada NORI) |
+| `reference-xapps/` | implementações locais das xApps que geram propostas |
+| `docs/` | documentação ([índice](docs/README.md)) |
 
 ---
 
-## 8. Licença e Direitos
+## Documentação
 
-Este projeto é disponibilizado sob a licença **Apache License 2.0**. Consulte o arquivo [`LICENSE`](LICENSE) para obter os termos e condições na íntegra.
+- [Índice da documentação](docs/README.md)
+- [Arquitetura e modelagem](docs/01_arquitetura_e_modelagem.md)
+- [Guia operacional: instalação, simulação, campanha, implantação](docs/02_guia_operacional_deploy_e_simulacao.md)
+- [Taxonomia de conflitos e cenários](docs/03_taxonomia_de_conflitos_e_cenarios.md)
+- [Metodologia experimental e resultados](docs/04_metodologia_experimental_e_resultados.md)
+- [Conformidade O-RAN e achados de auditoria](docs/05_auditoria_e_conformidade_oran.md)
+- [Fluxo de mensagens (diagrama de sequência)](docs/23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md)
+
+---
+
+## Licença
+
+Apache License 2.0 — ver [`LICENSE`](LICENSE).

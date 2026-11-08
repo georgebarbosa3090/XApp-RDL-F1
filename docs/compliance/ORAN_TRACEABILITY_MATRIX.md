@@ -1,69 +1,44 @@
-# Matriz de Rastreabilidade O-RAN — ORAN Traceability Matrix
+# Matriz de rastreabilidade
 
-**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Documento:** `ORAN_TRACEABILITY_MATRIX.md`  
-**Escopo:** Mapeamento formal entre requisitos O-RAN ALLIANCE, mensagens E2AP/E2SM, componentes do H-RDL, suíte de testes e os 7 Gates de Evidência Experimental (G0 a G6).
+Níveis de verificação usados (do mais fraco ao mais forte): `IMPLEMENTED` (código existe), `UNIT_TESTED` (testes com dependências simuladas), `SIMULATION_EVIDENCE` (execução ns-3 com proveniência), `INTEROP_VERIFIED` (contra implementação externa real).
 
----
+## 1. Requisitos da xApp
 
-## 1. Matriz Normativa e Estrutural de Rastreabilidade
+| Requisito | Componente | Testes | Evidência | Nível atual |
+| :-- | :-- | :-- | :-- | :-: |
+| Subscrição E2SM-KPM via SubMgr REST | `SubscriptionManager`, `RDLxApp._subscription_notification_handler` | `tests/unit/test_evaluation_fixes.py` | — | UNIT_TESTED |
+| Decodificação de RIC Indication (KPM) | `KpmDecoder` | `tests/codec/test_kpm_codec.py`, `tests/test_kpm_decoder_e2ap.py` | *golden vectors* gerados pelo próprio codec | UNIT_TESTED |
+| RIC Control (RC) com MEID | `ControlDispatcher`, `rmr_transport` | `tests/test_control_dispatcher_mtype.py`, `tests/unit/test_evaluation_fixes.py` | — | UNIT_TESTED (codec RC fora da norma) |
+| Correlação ACK/Failure, timeout e rollback | `ControlDispatcher` | `tests/test_rollback_timeout.py`, `tests/unit/test_control_dispatcher_fault_injection.py` | — | UNIT_TESTED |
+| Detecção de conflitos por alvo | `Perception` | `tests/unit/test_conflict_detection.py`, `tests/unit/test_evaluation_fixes.py` | `experiments/runs/nr_*` (`decision_log.json`) | SIMULATION_EVIDENCE |
+| Arbitragem TVS/EEVS em dois estágios | `Reasoning`, `RDLxApp._process_action_group` | `tests/unit/test_reasoning_models.py`, `tests/unit/test_conflict_experiment.py` | `experiments/runs/nr_*_B3_*` | SIMULATION_EVIDENCE |
+| Safety Guard (limites, histerese, slew-rate, pré-filtro) | `Refinement` | `tests/unit/test_safety_guards.py`, `tests/unit/test_safety_guard_fuzzing.py` | `experiments/runs/nr_S7_*` | SIMULATION_EVIDENCE |
+| Modo estrito sem IDs estáticos | `RanFunctionCapabilityRegistry` | `tests/unit/test_negative_cases.py` | — | UNIT_TESTED |
+| Closed loop causal | `CausalTracker` + pilha NORI | `tests/interoperability/test_closed_loop.py` (local) | — | IMPLEMENTED |
+| Descoberta E2 (RAN Function Definition) | — | — | — | não implementado |
 
-| Requisito O-RAN / Especificação | Protocolo / Mensagem | Componente H-RDL | Suíte de Testes | Evidência / Artefato | Status de Conformidade |
-| :--- | :--- | :--- | :--- | :--- | :---: |
-| **REQ-O-RAN-E2SETUP** | E2AP ProcedureCode 1 | `src/e2/e2ap/` | `tests/codec/test_golden_vectors.py` | `e2/setup/request.raw` | **INTEGRATION-VALIDATED** |
-| **REQ-O-RAN-SUBMGR** | E2AP ProcedureCode 8 | `SubscriptionManager` | `tests/integration/test_all_reference_xapps.py` | `e2/kpm/subscription.raw` | **IMPLEMENTED / INTEROP-PENDING** |
-| **REQ-O-RAN-KPM-IND** | E2AP ProcedureCode 5 / KPM v3 | `KPMDecoder` | `tests/codec/test_kpm_codec.py` | `e2/kpm/indication.raw` | **INTEGRATION-VALIDATED** |
-| **REQ-O-RAN-RC-CTRL** | E2AP ProcedureCode 4 / RC v1.03 | `RCEncoder` / `RCMapper` | `tests/integration/test_rc_mapper.py` | `e2/rc/control.raw` | **INTEGRATION-VALIDATED** |
-| **REQ-RDL-PERCEPTION** | Janela em Lote (200ms) | `Perception` | `tests/unit/test_conflict_detection.py` | `hrdl/conflicts.jsonl` | **UNIT-VALIDATED** |
-| **REQ-RDL-REASONING** | Modelos Analíticos TVS/EEVS | `Reasoning` | `tests/unit/test_reasoning_models.py` | `hrdl/decisions.jsonl` | **UNIT-VALIDATED** |
-| **REQ-RDL-SAFETY** | Clamping & Handover Lock | `Refinement` | `tests/unit/test_safety_guards.py` | `hrdl/safety.jsonl` | **UNIT-VALIDATED** |
-| **REQ-RDL-CAPABILITY** | Strict Discovery Mode | `RanFunctionCapabilityRegistry` | `tests/unit/test_negative_cases.py` | `RDL_MODE=oran-strict` | **UNIT-VALIDATED** |
-| **REQ-O-RAN-CLOSED-LOOP** | Closed-Loop Causal | `CausalTracker` | `tests/interoperability/test_closed_loop.py` | `hrdl/causal.jsonl` | **INTEROP-PENDING** |
+`SIMULATION_EVIDENCE` aqui significa que a decisão da H-RDL foi aplicada na RAN simulada (malha aberta, sem E2). Nenhum requisito está em `INTEROP_VERIFIED`.
 
----
-
-## 2. Rastreabilidade dos 7 Gates Formais de Evidência (G0 a G6)
-
-$$\boxed{\text{Progressão Formal de Maturidade: } G_0 \longrightarrow G_1 \longrightarrow G_2 \longrightarrow G_3 \longrightarrow G_4 \longrightarrow G_5 \longrightarrow G_6}$$
+## 2. Gates
 
 ```mermaid
 flowchart LR
-    G0["G0: Ambiente Reproduzível<br/>(Versões, Hashes, Build)"] --> G1["G1: E2SM-KPM Real<br/>(Telemetria NORI)"]
-    G1 --> G2["G2: H-RDL Funcional<br/>(Conflito -> Decisão)"]
-    G2 --> G3["G3: E2SM-RC Real<br/>(Control + ACK/Failure)"]
-    G3 --> G4["G4: Closed-Loop Causal<br/>(KPM t0 -> KPM t1)"]
-    G4 --> G5["G5: Campanha Científica<br/>(30 Seeds Pareadas)"]
-    G5 --> G6["G6: Artefato Reproduzível<br/>(ACM / IEEE Readiness)"]
+    G0["G0 ambiente"] --> G1["G1 KPM externo"] --> G2["G2 decisão"] --> G3["G3 RC externo"] --> G4["G4 closed loop"] --> G5["G5 campanha"] --> G6["G6 artefato"]
 ```
 
-### Critérios de Conclusão por Gate (Definition of Done)
+| Gate | Critério | Veredito |
+| :-: | :-- | :-: |
+| G0 | Manifestos completos; versões e commits iguais ao lock | CERTIFIED (nativa) |
+| G1 | E2 Setup, Subscription e Indication KPM externos numa execução NORI elegível | NOT_CERTIFIED |
+| G2 | Conflito detectado e decisão determinística com Safety Guard | LOCAL_ONLY |
+| G3 | RIC Control e ACK/Failure externos correlacionados | BLOCKED |
+| G4 | KPM_t0 → decisão → RC → ACK → KPM_t1, em ordem e com efeito medido | BLOCKED |
+| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | BLOCKED |
+| G6 | G4 e G5 + reprodução independente | BLOCKED |
 
-- **Gate 0 (Ambiente Reproduzível):**
-  $$\text{PASS} \iff \text{Commits de ns-3, 5G-LENA e NORI fixados} \land \text{Hashes SHA-256 de binários e configs gerados}$$
-- **Gate 1 (E2SM-KPM Real):**
-  $$\text{PASS} \iff E2Setup \land RANFunction \land Subscription \land Indication \land APERDecode \land SemanticValidation (\epsilon < 5\%)$$
-- **Gate 2 (H-RDL Funcional):**
-  $$\text{PASS} \iff \text{Conflito detectado} \land \text{Decisão determinística H-RDL} \land \text{Safety Guards 100\% aplicados}$$
-- **Gate 3 (E2SM-RC Real):**
-  $$\text{PASS} \iff RICcontrolRequest \land \text{RICcontrolAck externo} \land \text{Teste negativo RICcontrolFailure}$$
-- **Gate 4 (Closed-Loop Causal):**
-  $$\text{PASS} \iff KPM(t_0) \longrightarrow H\text{-}RDL \longrightarrow E2SM\text{-}RC \longrightarrow NORI \longrightarrow 5G\text{-}LENA \longrightarrow KPM(t_1)$$
-- **Gate 5 (Campanha Científica):**
-  $$\text{PASS} \iff 30 \text{ sementes pareadas (B0, B1, B2, B3)} \land \text{Intervalos de Confiança 95\%} \land \text{Tamanho de Efeito Wilcoxon}$$
-- **Gate 6 (Artifact Readiness):**
-  $$\text{PASS} \iff \text{Execução limpa e automatizada em ambiente isolado (ACM SIGSIM / IEEE Artifact Evaluation)}$$
+## 3. Testbeds planejados
 
----
-
-## 3. Rastreabilidade de Testbed e Hierarquia de 3 Níveis (srsRAN + Open5GS)
-
-$$\boxed{\text{Hierarquia Metodológica: } \text{Simulação ns-3/NORI} \longrightarrow \text{Software RAN srsRAN/Open5GS} \longrightarrow \text{Testbed Físico OpenRAN@Brasil}}$$
-
-| Requisito / Perfil Testbed | Protocolo / Versão | Adaptador H-RDL | Gates de Testbed (`TB0` a `TB10`) | Status de Conformidade |
-| :--- | :--- | :--- | :--- | :---: |
-| **REQ-SRSRAN-E2AP** | E2AP v03.00 | `SrsRanBackendAdapter` | **TB2:** E2 Setup srsRAN $\leftrightarrow$ E2Term | **IMPLEMENTED** |
-| **REQ-SRSRAN-KPM** | E2SM-KPM v03.00 (1000ms) | `SrsRanBackendAdapter` | **TB3 / TB4:** Decodificação KPM Real | **INTEROP-PENDING** |
-| **REQ-SRSRAN-RC-STYLE2** | E2SM-RC v03.00 (Style 2 / Action 6) | `SrsRanRCEncoder` | **TB5 / TB6:** Controle PRB Slice | **IMPLEMENTED** |
-| **REQ-OPEN5GS-CORE** | N2 AMF / N3 UPF (5GC) | `CoreObserver` | **TB1:** UE Registration & PDU Session | **INTEGRATION-PENDING / PROFILE READY** |
-
-| **REQ-OPENRANBR-PILOT** | OpenRAN@Brasil Blueprint v3 | `deploy/openran-br-v3/` | **TB10:** Execução Físico COTS UE / O-RU | **INTEROP-PENDING** |
+| Perfil | Documento | Situação |
+| :-- | :-- | :-- |
+| srsRAN + Open5GS | [HRDL_F1_SRSRAN_TESTBED_PROFILE.md](HRDL_F1_SRSRAN_TESTBED_PROFILE.md) | adaptadores existem (`src/e2/backends/srsran_e2_adapter.py`, `SrsRanBackendAdapter`); não executados |
+| OpenRAN@Brasil | [OPENRAN_BRASIL_INTEGRATION.md](OPENRAN_BRASIL_INTEGRATION.md) | plano com gates TB0–TB10; não executado |

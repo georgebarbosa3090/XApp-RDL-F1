@@ -1,261 +1,202 @@
-# Volume 01: Arquitetura do Sistema, Módulos Core e Modelagem Matemática
+# 01 — Arquitetura e modelagem da H-RDL
 
-> **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
+Este documento descreve a xApp RDL como está implementada na Fase 1 (H-RDL). Cada seção indica os arquivos de referência; quando o texto e o código divergirem, o código prevalece e o documento deve ser corrigido.
 
----
+## 1. Papel no Near-RT RIC
 
-## 1. Visão Geral e Fundamentos Arquiteturais
+A xApp RDL fica entre as xApps que querem controlar a RAN e o E2 Node. Ela recebe propostas de controle, detecta conflitos, decide quais ações aplicar e as envia como E2SM-RC. Também consome telemetria E2SM-KPM, usada pelos modelos de decisão.
 
-No ecossistema **O-RAN (Open Radio Access Network)**, a arquitetura aberta e desagregada viabiliza a execução concorrente de micro-aplicações especializadas (**xApps**) sobre o **Near-RT RIC (Near-Real-Time RAN Intelligent Controller)**, operando em escalas temporais de $10\text{ ms} \le \Delta t \le 1000\text{ ms}$.
+```mermaid
+flowchart TB
+    subgraph XAPPS["xApps que propõem ações"]
+        A1["xSlice<br/>PRB_QUOTA"]
+        A2["Energy Saving<br/>TX_POWER"]
+        A3["Traffic Steering<br/>HANDOVER"]
+    end
+    subgraph RDL["xApp RDL (src/rdl_xapp.py)"]
+        W["Janela de decisão<br/>200 ms"]
+        G["Safety Guard<br/>por proposta"]
+        P["Perception<br/>src/core/perception.py"]
+        R["Reasoning TVS/EEVS<br/>src/core/reasoning.py"]
+        F["Refinement<br/>src/core/refinement.py"]
+        D["ControlDispatcher<br/>src/e2/control_dispatcher.py"]
+    end
+    subgraph RIC["Plataforma Near-RT RIC"]
+        SM["Subscription Manager<br/>(REST)"]
+        ET["E2Term<br/>(RMR / SCTP)"]
+    end
+    NODE["E2 Node<br/>(gNB / simulador)"]
 
-Contudo, a coexistência de múltiplas xApps operando de forma desacoplada e autônoma engendra conflitos severos de governança:
-- **Conflitos Diretos:** Múltiplas xApps solicitam simultaneamente alterações concorrentes no mesmo parâmetro de rádio (ex.: *xSlice* solicitando aumento de PRBs enquanto *Energy Saving* solicita corte de potência ou sono de células).
-- **Conflitos Indiretos:** Ações em parâmetros distintos que degradam métricas compartilhadas ou afetam fatias vizinhas (ex.: *Traffic Steering* migrando UEs para células que já operam no limite de capacidade URLLC).
-- **Conflitos Temporais (*Parameter Flipping / Ping-Pong*):** Oscilações cíclicas de sinalização decorrentes de decisões reativas em malha fechada.
-
-A arquitetura **xApp-RDL (Resource and Decision Layer)** foi projetada para atuar como o ponto único e determinístico de coordenação, validação e arbitragem no Near-RT RIC.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          SMO & NEAR-RT RIC (OSC)                            │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                            xApp-RDL CORE                              │  │
-│  │  - Perception Agent (modelo local KPM; APER ainda não interoperável)│  │
-│  │  - Conflict Detector (Direto/Indireto) + Cooldown Guard                │  │
-│  │  - Knowledge Graph & Context Engine (Neo4j / Matriz de Associação)    │  │
-│  │  - Reasoning Engine: Nível 1 (H-RDL) | Nível 2 (NDT) | Nível 3 (MAPPO)│  │
-│  │  - Refinement Agent & Safety Guard (Action Masking / Boundary Clip)   │  │
-│  │  - RCMapper & Dispatcher (modelo E2SM-RC local, APER não validado)    │  │
-│  └───────────────────────────────────┬───────────────────────────────────┘  │
-│                                      │ RMR (%meid gnb_01)                   │
-│  ┌───────────────────────────────────▼───────────────────────────────────┐  │
-│  │                  E2 TERMINATION (E2term / SCTP:36422)                 │  │
-│  └───────────────────────────────────┬───────────────────────────────────┘  │
-└──────────────────────────────────────┼──────────────────────────────────────┘
-                                       │ Protocolo E2AP v02.03 (SCTP)
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│                 CENÁRIO-ALVO ns-3.48 / 5G-LENA v5.1                         │
-│  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                NORI E2 Agent (integração a validar)                   │  │
-│  │  - E2AP Handler (SetupRequest, Subscription, RICcontrolRequest)       │  │
-│  │  - RAN Function Capability Registry (RC_ID=3, KPM_ID=2)               │  │
-│  └───────────────────────────────────┬───────────────────────────────────┘  │
-│                                      │ Callback em Memória C++ / IPC        │
-│  ┌───────────────────────────────────▼───────────────────────────────────┐  │
-│  │                 PILHA PROTOCOLAR 5G-LENA NR                            │  │
-│  │  - SDAP / RLC-AM & RLC-UM (Buffers de 10 MB, HOL Delay Tracking)     │  │
-│  │  - MAC: NrMacSchedulerOfdmaPF (Proportional Fair Slicing / BWP)       │  │
-│  │  - PHY: 3GPP 38.901 UMi Channel (3.5 GHz n78, 100 MHz, HARQ-IR, AMC) │  │
-│  │  - FlowMonitor: Coleta ponta a ponta (Drain Time: App 58s, Sim 60s)   │  │
-│  └───────────────────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────────┘
+    A1 & A2 & A3 -->|"RMR mtype 30000"| W
+    W --> G --> P --> R --> F --> D
+    D -->|"RIC_CONTROL_REQUEST 12040<br/>com MEID"| ET --> NODE
+    NODE -->|"ACK 12041 / Failure 12042"| ET --> D
+    RDL -->|"POST /ric/v1/subscriptions"| SM
+    SM -->|"notificação HTTP"| RDL
+    NODE -->|"RIC_INDICATION 12050 (KPM)"| ET --> P
 ```
 
-![Arquitetura Global de Co-Simulação ns-3 e Near-RT RIC](figures/01_arquitetura_e_governanca/diagram_01_global_pipeline_architecture.png)
+## 2. Modos de operação
 
-**Arquitetura-alvo, não descrição de uma integração validada.** O cenário C++ disponível configura NR/FlowMonitor e pode instalar um E2 Agent, mas não aplica ações RC à RAN; a xApp ainda não integra descoberta de RAN Functions/capacidades de E2 Setup no runtime. O diagrama não comprova a presença de cada bloco ou ligação. Testes locais, fixtures e o cenário sem atuação RC não demonstram conexão E2 live. G1, G3, G4 e G5 permanecem pendentes.
+| Modo (`RDL_MODE`) | Comportamento |
+| :-- | :-- |
+| `OFFLINE_SIMULATION` (padrão) | RMR simulado que nunca reporta envio com sucesso; memória local em vez de SDL; capacidades estáticas registradas para `gnb_01`; subscrição só se `SUBMGR_URL` estiver definido. Usado em testes e nos experimentos de simulação. |
+| `O_RAN_INTEROP` | Exige `ricxappframe`/RMR, SDL e `RAN_BACKEND` explícito; rejeita propostas externas (o transporte não autentica a xApp emissora); **bloqueia despacho e fica fora de `READY`** enquanto `protocol_interoperability_verified` for falso no backend, isto é, enquanto o codec E2 não for validado contra o ASN.1 oficial e uma implementação independente. |
 
-**Bloqueio explícito de interoperabilidade:** os codecs APER do repositório são modelos de pesquisa e não foram validados contra schemas ASN.1 normativos nem vetores independentes. Por isso, `O_RAN_INTEROP` agora permanece em `ERROR` e não inicia subscrições/controles enquanto o backend não declarar interoperabilidade validada. O runtime também não interpreta `RANFunctionDefinition`; capacidades pré-carregadas não equivalem a descoberta E2. O servidor A1-P local continua isolado e suas políticas não são aplicadas ao Reasoning/Safety Guard. Esses componentes não devem ser apresentados como funções integradas.
+Estados de saúde (`src/observability/health_server.py`): `STARTING`, `SUBSCRIBING`, `READY`, `DEGRADED`, `ERROR`, `STOPPED`. O endpoint `/ready` só responde 200 em `READY`.
 
-Medições KPM não reportadas são preservadas como ausentes; não são convertidas em zero ou associadas a um nó/UE inventado. A decisão determinística usa a latência reportada para bloquear pontuação de política de economia de energia quando a latência excede o limite configurado (`sla_latency_limit_ms`, padrão 5 ms). A interpretação dessa medida como milissegundos depende do adaptador/medição de origem e não certifica uma unidade normativa do codec local.
+## 3. Entrada de propostas
 
----
+As propostas chegam por RMR (`RDL_ACTION_PROPOSAL`, mtype 30000) como JSON:
 
-## 2. Paradigmas Evolutivos: H-RDL (Fase 1) × CA-RDL (Fase 2)
-
-A RDL é estruturada em duas fases complementares:
-
-| Dimensão de Comparação | Fase 1: H-RDL (Hierarchical / Heuristic) | Fase 2: CA-RDL (Context-Aware / MARL) |
-| :--- | :--- | :--- |
-| **Paradigma Decisório** | Heurística determinística + Matriz TVS/EEVS | Sensibilidade contextual + Grafo de Conhecimento + MAPPO |
-| **Janela de Decisão** | Lote fixo ($\Delta t = 200\text{ ms}$) | Janela adaptativa orientada a eventos e telemetria |
-| **Garantia de Segurança** | *Safety Guards* invariantes (Boundary Clipping) | *Action Masking* em tempo de inferência + Safety Guard desacoplado |
-| **Sobrecarga ($T_{decision}$)** | A medir em campanha ns-3/NORI elegível para publicação (G5 pendente) | A medir na campanha da Fase 2 |
-| **Ganho de Vazão (vs B0)** | Não certificado; resultados locais/offline não são evidência científica | Não certificado |
-| **Violações de SLA** | Não certificado; requer traces elegíveis e seeds pareadas | Não certificado |
-
-Os valores numéricos de desempenho anteriormente apresentados neste comparativo foram removidos por não estarem associados aqui a uma campanha elegível e reproduzível. Conforme a política de evidência, fixtures, mocks e simuladores locais não comprovam ganhos de rede. A demonstração de uma implementação estática em teste também não prova o comportamento da pilha NR em execução.
-
----
-
-## 3. Estrutura de Software (Clean Architecture & Domain-Driven Design)
-
-O código-fonte segue estritamente a separação em camadas independentes:
-
-```text
-src/
-├── core/                        # Camada de Inteligência e Governança (Tríade Cognitiva e MARL)
-│   ├── perception.py            # Agrupamento temporal e detecção de colisões
-│   ├── reasoning.py             # Resolução Nível 1 (Heurísticas) / Nível 2 (NDT) / Nível 3 (MAPPO)
-│   ├── refinement.py            # Safety Guards físicos invariantes
-│   └── marl/                    # Multi-Agent Reinforcement Learning (MAPPO & Ambientes)
-├── conflict_types.py            # Contratos de dados imutáveis (RDLDecision, XAppAction)
-├── coordination/                # Despacho e rastreamento de transações
-│   ├── dispatcher.py            # Envio E2SM-RC via RMR
-│   └── ack_tracker.py           # Rastreamento assíncrono de RIC_CONTROL_ACK e RTT
-├── e2/                          # Adaptadores/protótipos E2; conformidade externa pendente
-│   ├── e2ap/                    # Builders e parsers locais; interoperabilidade pendente
-│   ├── kpm/                     # Builders/decoder locais; vetores externos pendentes
-│   └── rc/                      # RCMapper/encoder de pesquisa; schema e RAN apply pendentes
-├── models/                      # Modelos Analíticos Calibrados de Rádio 5G
-│   ├── shannon_capacity.py      # Capacidade espectral com overhead 3GPP
-│   ├── queuing_delay.py         # Modelo de atraso M/G/1 com saturação
-│   └── earth_energy.py          # Modelo linear de consumo energético (Earth Project)
-├── observability/               # Telemetria e Saúde
-│   ├── health_server.py         # HTTP Health/Ready probes (FastAPI porta 8080)
-│   └── metrics_server.py        # Exportador Prometheus (porta 8081)
-└── rdl_xapp.py                  # Ciclo de vida da xApp e loop principal
+```json
+{"xapp_id": "xslice", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 75, "priority": 90}
 ```
 
----
+Validação na entrada (`RDLxApp._action_proposal_handler`): payload em bytes de até 64 KiB, objeto JSON, `xapp_id`/`node_id` não vazios de até 128 caracteres, `value` numérico finito (constantes como `NaN` são rejeitadas), `priority` inteiro em [0, 100]. O buffer da janela aceita até 4096 propostas.
 
-## 4. Componentes Core e Pipeline de Decisão
+O campo `xapp_id` é declarado pelo cliente e **não é credencial**; por isso o modo estrito rejeita propostas externas.
 
-### 4.1. Perception (Percepção e Detecção)
-- Agrupa propostas recebidas de múltiplas xApps dentro da janela de agregação ($\Delta t = 200\text{ ms}$).
-- Constrói o grafo de conflitos $G = (V, E)$, onde $V$ são as propostas e $E$ representa interseções diretas no mesmo `(cell_id, parameter_id)` ou colisões indiretas de fatia (*slice coupling*).
+## 4. Pipeline de decisão
 
-### 4.2. Reasoning (Raciocínio e Arbitragem)
-- **Nível 1 (Heurística Hierárquica - H-RDL):** Executa matriz de prioridades de serviço:
-  1. *Safety Invariants* (Proteção de enlace e integridade de rádio);
-  2. *URLLC Critical Guarantee* (SLA de latência $D \le 5\text{ ms}$);
-  3. *eMBB High-Throughput Allocation* (Vazão garantida $T \ge 60\text{ Mbps}$);
-  4. *Energy Efficiency Trimming* (Economia de energia quando folga de SLA existe).
-- **Nível 2 (Digital Twin & Árvore Decisória Não-Determinística - NDT):** Projeção preditiva do impacto antes da aplicação.
-- **Nível 3 (Multi-Agent PPO - CA-RDL):** Otimização da política conjunta sob formulação CMDP.
+Implementado em `RDLxApp._process_action_group`. A cada fechamento de janela (200 ms após a primeira proposta, ou antes, se chegar proposta com prioridade ≥ 80):
 
-### 4.3. Refinement & Safety Guards (Segurança Invariante)
-Aplica restrições físicas invioláveis antes de qualquer emissão para a interface E2:
-1. **Limites de Potência ($P_{tx}$):** aplicar os limites anunciados pelo nó; o perfil canônico offline atual aceita $-10$ a $43\text{ dBm}$. Em modo estrito, uma capacidade `TX_POWER` não descoberta bloqueia a ação.
-2. **Orçamento de Recursos ($PRB$):** cada comando `PRB_QUOTA` é validado no intervalo de $0$ a $100\%$. A soma de cotas por fatia ainda requer estado agregado de alocação e não deve ser descrita como invariante já aplicada.
-3. **Intervalo mínimo de controle:** o Safety Guard aplica $\Delta t_{min} = 1000\text{ ms}$ por par (nó, parâmetro), independentemente da direção da alteração.
+### 4.0 Safety Guard por proposta
 
-![Componentes e Fluxo de Decisão xApp-RDL](figures/01_arquitetura_e_governanca/fig_componentes_fluxo_decisao.png)
+Cada proposta passa por `Refinement.check_bounds` antes de qualquer arbitragem: parâmetro conhecido, valor finito, prioridade válida, formato (inteiro para `PRB_QUOTA`, `SCHEDULER_WEIGHT` e `HANDOVER`; no máximo uma casa decimal para `TX_POWER`) e limites (seção 5). Propostas reprovadas são descartadas individualmente.
 
----
+Motivo: antes desse passo, uma ação insegura que conflitasse com uma legítima fazia a validação rejeitar a resolução inteira, e uma xApp maliciosa conseguia vetar ações legítimas (observado no cenário S7).
 
-## 5. Modelagem Matemática Formal
+### 4.1 Percepção: conflitos agrupados por alvo
 
-### 5.1. Modelo Analítico de Capacidade e Rádio
-A capacidade máxima alcançável em enlace descendente (DL) é modelada pela formulação de Shannon com calibração de overhead 3GPP:
+`Perception.detect_action_group` não compara proposta a proposta; agrupa por alvo, o que mantém o número de eventos limitado por O(P²) por nó (P = parâmetros), independentemente do volume de propostas.
 
-$$C = BW_{\text{eff}} \cdot \log_2 \left( 1 + \min(\text{SINR}_{\text{eff}}, \text{SINR}_{\text{max}}) \right) \cdot (1 - \text{OH}_{\text{3GPP}})$$
+- Propostas repetidas da mesma xApp para o mesmo (nó, parâmetro) são deduplicadas (vale a mais recente).
+- **Conflito direto:** um evento por (nó, parâmetro) quando há candidatos de xApps diferentes com valores diferentes. A última ação confirmada pela RAN para aquele alvo (a *incumbente*) entra como candidata, salvo se a própria dona fez nova proposta.
+- **Conflito indireto:** um evento por par de parâmetros do mesmo nó que compartilham KPIs no grafo de dependências abaixo, com pelo menos um parâmetro com proposta nova e xApps diferentes envolvidas.
 
-Onde:
-- $BW_{\text{eff}} = N_{\text{PRB}} \cdot 12 \cdot \Delta f$ (com $\Delta f = 30\text{ kHz}$ para numerologia $\mu = 1$);
-- $\text{OH}_{\text{3GPP}} = 0,14$ (overhead de sinalização DMRS, PDCCH, CSI-RS e PBCH);
-- $\text{SINR}_{\text{eff}} = \frac{\text{SINR}}{\Gamma}$, com penalidade de implementação $\Gamma = 1,25$ ($0,97\text{ dB}$).
+| Parâmetro | KPIs afetados |
+| :-- | :-- |
+| `PRB_QUOTA` | `DRB.UEThpDl`, `RRU.PrbUsedDl` |
+| `SCHEDULER_WEIGHT` | `DRB.UEThpDl`, `DRB.RlcSduDelayDl` |
+| `TX_POWER` | `L1M.DL-sinr`, `DRB.UEThpDl` |
+| `HANDOVER` | `DRB.UEThpDl`, `RRU.PrbUsedDl` |
+| `VERTICAL_DOWNTILT`, `BEAM_WEIGHTS` | `L1M.DL-sinr`, `DRB.UEThpDl` |
+| `SENSING_RATIO`, `LOAD_THRESHOLD` | `RRU.PrbUsedDl`, `DRB.UEThpDl` |
+| `PING_INTERVAL` | `DRB.RlcSduDelayDl` |
 
-### 5.2. Modelo de Atraso e Filas M/G/1
-O atraso ponta a ponta $D$ é decomposto em atraso de transmissão, propagação e espera em buffer RLC:
+**Limitação:** os conflitos são agrupados por `node_id`. Conflitos entre células — por exemplo, Traffic Steering movendo UEs para uma célula que o Energy Saving desliga, ou ping-pong de handover entre duas células — não são detectados.
 
-$$D = D_{\text{prop}} + D_{\text{tx}} + \frac{\lambda \overline{X^2}}{2(1 - \rho)}$$
+### 4.2 Estágio 1 — TVS (conflitos diretos)
 
-Onde $\rho = \frac{\lambda}{\mu}$ representa a utilização do canal. Se $\rho \to 1$, o *Head-of-Line (HOL) Delay* satura exponencialmente.
+Para cada conflito direto, `Reasoning._resolve_direct_conflict` escolhe **um** vencedor maximizando
 
-### 5.3. Modelo de Eficiência Energética (Earth Project / 3GPP)
-A potência elétrica consumida pela gNodeB é expressa por:
+$$U_{TVS}(a) = 0{,}40\,s_{SLA} + 0{,}25\,s_{vazão} + 0{,}15\,s_{energia} + 0{,}10\,s_{estab} + 0{,}10\,s_{prio}$$
 
-$$P_{\text{total}} = N_{\text{TRX}} \cdot \left( P_0 + \alpha \cdot P_{\text{tx}} \right), \quad 0 \le P_{\text{tx}} \le P_{\text{max}}$$
+com desempate determinístico por (utilidade, prioridade, menor |valor|, `action_id`). As componentes são heurísticas calibradas à mão, não modelos analíticos completos:
 
-Onde $P_0 = 130\text{ W}$ é a potência estática do circuito em repouso e $\alpha = 4,7$ é o coeficiente do amplificador de potência (PA).
+| Componente | Regra no código |
+| :-- | :-- |
+| $s_{vazão}$ | `PRB_QUOTA`: v/100 limitado a [0,05; 1]; `TX_POWER`: 0,4 + 0,6·(v + 10)/(P_max + 10) limitado a [0,1; 1]; demais: 0,70 |
+| $s_{SLA}$ | prioridade ≥ 90: 0,98 se PRB ≥ 70, 0,45 se potência < 15 dBm, senão 0,85; ≥ 75: 0,82; ≥ 60: 0,75; senão 0,65. Zera para xApps de energia quando o KPM do nó indica atraso acima de 5 ms. |
+| $s_{energia}$ | `TX_POWER`: modelo linear de potência (4 TRX, P₀ = 130 W, ΔP = 4,7) normalizado entre consumo mínimo e máximo; `PRB_QUOTA`: max(0,2; 1 − v/150); demais: 0,60 |
+| $s_{estab}$ | 0,75 para `HANDOVER`, 0,90 para os demais |
+| $s_{prio}$ | prioridade/100 limitada a [0,1; 1] |
 
-### 5.4. Formalização do Grafo de Conflitos e Otimização Combinatória
+### 4.3 Estágio 2 — EEVS (conflitos indiretos)
 
-Seja $\mathcal{X} = \{x_1, x_2, \dots, x_K\}$ o conjunto de $K$ xApps concorrentes operando sobre o Near-RT RIC. Em cada janela de decisão temporal $\mathcal{W}_t = [t, t + \Delta t_{win})$, com $\Delta t_{win} = 200\text{ ms}$, as xApps submetem um conjunto de $m$ propostas de controle $\mathcal{A}_t = \{a_1, a_2, \dots, a_m\}$. Cada proposta $a_i \in \mathcal{A}_t$ é caracterizada pelos campos disponíveis no contrato de ação:
+Os conflitos indiretos são resolvidos só entre os vencedores do estágio 1 (perdedores não voltam a competir). `Reasoning._resolve_indirect_conflict` escolhe o subconjunto S que maximiza
 
-$$a_i = \langle \text{app\_id}_i, \text{node\_id}_i, \text{param\_id}_i, v_i, \rho_i, t_i \rangle$$
+$$U_{EEVS}(S) = 0{,}45\,QoS(S) + 0{,}20\,\overline{energia}(S) + 0{,}15\,J(S) - 0{,}35\,viol(S)$$
 
-onde $\text{app\_id}_i$ identifica a aplicação emissora, $\text{node\_id}_i$ identifica o nó RAN, $\text{param\_id}_i$ é o parâmetro solicitado, $v_i$ é o valor desejado, $\rho_i$ é a prioridade e $t_i$ é o timestamp da proposta. O contrato atual não contém TTL para propostas; ações admitidas permanecem no estado até serem substituídas ou removidas.
+- $QoS$: SLA médio ponderado pela prioridade; $J$: índice de Jain sobre os SLAs; $viol$: (prioridade máxima do conflito − prioridade máxima de S)/30, mais 0,20 se S combina uma xApp de energia com uma ação de prioridade ≥ 90.
+- Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro) valem −∞.
+- A busca exata enumera só subconjuntos compatíveis (no máximo uma ação por alvo): $\prod_k (n_k+1) - 1$ combinações. Acima de `max_exact_subsets` (padrão $2^{16}-1$) usa-se uma heurística gulosa determinística, sem garantia de ótimo.
+- Alvos sem vencedor no EEVS são bloqueados no lote.
 
-#### Grafo de Conflitos Dinâmico
-A camada de percepção da H-RDL mapeia as propostas concorrentes em um Grafo de Conflitos não-direcionado $G_t = (\mathcal{A}_t, \mathcal{E}_t)$, onde as arestas $(a_i, a_j) \in \mathcal{E}_t$ modelam colisões de controle satisfazendo o predicado:
+Se o vencedor de um alvo é a incumbente, o valor atual é mantido e nada é reenviado.
 
-$$(a_i, a_j) \in \mathcal{E}_t \iff
-\begin{cases}
-\text{target}_i = \text{target}_j \land \text{param}_i = \text{param}_j \land \text{app}_i \neq \text{app}_j & \text{(Conflito Direto)}, \\
-\text{target}_i = \text{target}_j \land \text{param}_i \neq \text{param}_j \land \text{app}_i \neq \text{app}_j \land \left(K(\text{param}_i) \cap K(\text{param}_j)\right) \neq \emptyset & \text{(Conflito Indireto)}.
-\end{cases}$$
+Confiança registrada: 0,92 (TVS), 0,88 (EEVS exato), 0,70 (EEVS guloso). A resolução por histórico (`_resolve_by_history`) existe no código, mas a memória sempre retorna lista vazia, então ela não é usada.
 
-Aqui, $K(p)$ é a lista configurada de KPIs associada ao parâmetro $p$. A histerese temporal é uma validação do `Refinement` por nó/parâmetro; ela não é atualmente emitida como um terceiro tipo de `ConflictEvent`.
+### 4.4 Refinement
 
-#### Materialização do grafo em eventos agrupados (implementação)
-O grafo $G_t$ não é materializado aresta a aresta. A `Perception` agrupa as arestas por alvo, o que mantém o número de eventos limitado por $\mathcal{O}(P^2)$ por nó ($P$ = parâmetros controláveis), independentemente do número $m$ de propostas:
+`Refinement.validate` (resoluções) e `validate_single_action` (propostas sem conflito) verificam:
 
-- propostas repetidas da mesma xApp para o mesmo (nó, parâmetro) são deduplicadas, valendo a mais recente;
-- **conflito direto:** um único evento por (nó, parâmetro), contendo todas as propostas concorrentes e, como *incumbente*, a última ação confirmada pela RAN (ACK), quando pertencer a outra xApp;
-- **conflito indireto:** um evento por par de parâmetros do mesmo nó com $K(p_i) \cap K(p_j) \neq \emptyset$, contendo os candidatos de ambos.
+- limites e formato (seção 5);
+- **histerese**: no máximo um controle por alvo a cada 1000 ms (`minimum_control_interval_ms`);
+- **slew-rate** (desligado por padrão): variação máxima de 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado pela RAN, lido da Perception. Ligado sem fonte de estado confirmado, falha fechado.
 
-#### Arbitragem em dois estágios
-0. **Safety Guard por proposta:** antes da detecção, cada proposta fora dos limites físicos é descartada individualmente (`Refinement.check_bounds`). Sem isso, uma ação insegura que conflitasse com uma legítima levaria a validação a rejeitar a resolução inteira, e uma xApp maliciosa vetaria ações legítimas (observado no cenário S7).
-1. **Estágio direto (TVS):** para cada (nó, parâmetro) em conflito, a utilidade TVS escolhe um único vencedor entre todos os candidatos (não há fusão posterior por prioridade).
-2. **Estágio indireto (EEVS):** os conflitos indiretos são resolvidos apenas entre os vencedores do estágio anterior; perdedores do estágio direto não voltam a competir. Um alvo que perde no EEVS é bloqueado no lote.
+Os carimbos de tempo da histerese só são gravados depois que o lote inteiro é decidido.
 
-Se o vencedor for a incumbente, o valor atual é mantido e nenhum controle é reenviado; a incumbente também não passa de novo pela histerese.
+### 4.5 Seleção e despacho
 
-#### Seleção de subconjunto admissível pela EEVS
-A arbitragem seleciona um subconjunto compatível $\mathcal{A}_t^* \subseteq \mathcal{A}_t$ que maximize a utilidade EEVS implementada para o grupo de conflito:
+Uma ação por alvo é selecionada: o vencedor arbitrado ou, sem conflito, a proposta de maior prioridade (convergentes têm o mesmo valor). A `RDLDecision` é formalizada antes do despacho e cada ação gera um `RIC_CONTROL_REQUEST`.
 
-$$\max_{\emptyset \neq S \subseteq \mathcal{A}_t} U_{\mathrm{EEVS}}(S \mid s_t)$$
+## 5. Parâmetros controláveis
 
-$$\text{sujeito a:} \quad 
-\begin{cases}
-S \neq \emptyset, \\
-\text{não incluir duas ações com valores diferentes para o mesmo (nó, parâmetro)}, \\
-\text{validar cada ação pelo Safety Guard antes do despacho}.
-\end{cases}$$
+Catálogo canônico (`src/e2/rc/control_parameter.py`); outros parâmetros são rejeitados (*default-deny*).
 
-#### Limite computacional implementado
-A busca exata enumera apenas subconjuntos fisicamente compatíveis (no máximo uma ação por (nó, parâmetro)): com $n_k$ candidatos no alvo $k$, são $\prod_k (n_k + 1) - 1$ subconjuntos, em vez de $2^m - 1$. Enquanto esse número não ultrapassa o limite configurado (`max_exact_subsets`, padrão $2^{16}-1$), o resultado é ótimo para a utilidade EEVS; acima dele, usa-se uma heurística gulosa determinística, com custo temporal $\mathcal{O}(m^3)$ e memória auxiliar linear, admissível mas sem garantia de ótimo global. A confiança da resolução é registrada como 0,88 na busca exata e 0,70 na heurística. Não se afirma uma prova formal de ausência de deadlock nem de ótimo global para grupos acima do limite.
+| Parâmetro | ID | Faixa | Unidade |
+| :-- | :-: | :-- | :-- |
+| `PRB_QUOTA` | 1 | 0–100 | % |
+| `SCHEDULER_WEIGHT` | 2 | 1–100 | peso |
+| `TX_POWER` | 3 | −10 a 43 (ou o máximo anunciado pela capacidade do nó) | dBm |
+| `HANDOVER` | 4 | 0–65535 | ID da célula de destino |
 
-As ações admitidas são mantidas como estado corrente por nó/parâmetro até serem substituídas ou removidas. Propostas não selecionadas não atualizam esse estado.
+## 6. Integração E2
 
-### 5.5. Formulação CMDP e Safe-MAPPO (Fase 2)
-O problema de controle multi-xApp é formulado como um **Processo de Decisão de Markov Parcialmente Observável e Restrito (CMP-POMDP)**:
+### 6.1 Subscrição E2SM-KPM
 
-$$\max_{\pi} \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^{T} \gamma^t R(s_t, \mathbf{a}_t) \right] \quad \text{sujeito a} \quad \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^{T} \gamma^t C_k(s_t, \mathbf{a}_t) \right] \le d_k, \quad \forall k$$
+`SubscriptionManager` (`src/infrastructure/subscription_manager.py`) usa a API REST do Subscription Manager do O-RAN SC:
 
-A função de recompensa global equilibra vazão, latência e equidade:
+1. `POST /ric/v1/subscriptions` com corpo `SubscriptionParams` (`ClientEndpoint` com host e portas, `Meid`, `RANFunctionID`, Event Trigger e Action Definition E2SM-KPM como listas de octetos, `TimeToWait` válido).
+2. A resposta só traz o `SubscriptionId`; a xApp fica em `SUBSCRIBING`.
+3. O resultado E2 chega por `POST /ric/v1/subscriptions/response` no servidor HTTP da xApp. Com `E2EventInstanceId` > 0 e sem `ErrorCause`, a xApp passa a `READY`; caso contrário, a subscrição é descartada e, sem nenhuma ativa, a xApp vai a `DEGRADED`.
 
-$$R(s_t, \mathbf{a}_t) = w_1 \sum_{s} T_s(t) - w_2 \sum_{s} \max(0, D_s(t) - D_{\text{max}, s}) + w_3 J_{\text{Jain}}(t)$$
+### 6.2 Controle E2SM-RC
 
-As restrições de custo $C_k$ penalizam violações de invariantes físicas, resolvidas pelo método de Multiplicadores de Lagrange e *Action Masking* estrito no ator.
+`ControlDispatcher.dispatch_control`:
 
-![Arquitetura Cognitiva Safe-MAPPO](figures/01_arquitetura_e_governanca/diagram_02_arquitetura_cognitiva_mappo.png)
+- valida o parâmetro e a capacidade anunciada pelo nó, aloca `RICrequestID` (correlação por nó, RAN Function, requestor e instância) e codifica pelo backend;
+- envia por `send_rmr_message` (`src/infrastructure/rmr_transport.py`), que aloca o buffer RMR **com o MEID** do E2 Node. O `rmr_send(payload, mtype, retries)` do `ricxappframe` não define MEID e, sem ele, o E2Term não roteia a mensagem;
+- ACK e Failure são correlacionados pela chave completa; RICrequestID duplicado enquanto pendente é rejeitado.
 
----
+### 6.3 Timeout, falha e rollback
 
-## 6. Mapeamento Normativo O-RAN (E2AP, E2SM-KPM e E2SM-RC)
+| Evento | Ação |
+| :-- | :-- |
+| `RIC_CONTROL_ACK` | transação `ACKNOWLEDGED`; a ação passa a ser o estado confirmado (incumbente) |
+| `RIC_CONTROL_FAILURE` | transação `FAILED`; **sem rollback** (`NOT_REQUIRED`), pois o E2 Node não aplicou o controle |
+| timeout (padrão 5 s) | transação `TIMEOUT`; rollback para o último valor confirmado, se conhecido e dentro dos limites |
 
-A camada contém builders/decoders locais e uma codificação APER de pesquisa. Não foi demonstrada conformidade com schemas normativos independentes nem interoperabilidade com NORI/RIC; as versões abaixo são metas de compatibilidade, não certificações:
+O rollback é uma nova transação (RICrequestID próprio, `noAck`) codificada pelo mesmo backend; `SENT_UNCONFIRMED` significa só que o RMR aceitou o envio. Transações finalizadas são removidas após 5 minutos e os históricos têm tamanho máximo.
 
-| Protocolo | Versão Normativa | Função na Arquitetura RDL |
-| :--- | :---: | :--- |
-| **E2AP** | v02.03 | Transporte de mensagens de controle, setup e subscrição SCTP na porta 36422. |
-| **E2SM-KPM** | v03.00 | Decodificação de telemetria periódica (Formato 1: PRBs alocados, vazão UE, BLER, perdas). |
-| **E2SM-RC** | v01.03 | Mapeamento de decisões RDL (`RCMapper`) em comandos Formato 1 Header e Formato 2 Message. |
+### 6.4 Codecs
 
-### Tabela Canônica de Parâmetros RAN Controlados
-- `PRB_QUOTA` (Parameter ID: 1, Faixa: 0–100%);
-- `SCHEDULER_WEIGHT` (Parameter ID: 2, Faixa: 1–100);
-- `TX_POWER` (Parameter ID: 3, faixa conforme capacidade anunciada; perfil offline canônico: -10 a 43 dBm);
-- `HANDOVER` (Parameter ID: 4, Cell ID de destino, faixa 0–65535).
+| Codec | Situação |
+| :-- | :-- |
+| E2AP (`src/e2/e2ap/`) | módulo pycrate reduzido escrito no projeto, não gerado do ASN.1 oficial |
+| E2SM-KPM (`src/e2/kpm*`) | codec local; os *golden vectors* foram gerados pelo próprio encoder (validação circular) |
+| E2SM-RC (`src/e2/rc_encoder.py`) | **perfil simplificado, não normativo**: falta o CHOICE `controlHeader-Format1` com UEID e os `RANParameter-ValueType`; `ranParameterName` não existe na norma |
 
-### Limites operacionais verificados no código
+Um E2 Node conforme rejeitaria os controles. O NORI oficial usa E2AP/E2SM **v3.01**; a interoperabilidade exige substituir os codecs por código gerado do ASN.1 oficial e validá-los contra implementação independente.
 
-- O encoder disponível nesta fase aceita somente os parâmetros do catálogo canônico: `PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER` e `HANDOVER`. Outros parâmetros experimentais não são despacháveis via E2SM-RC nesta implementação e devem ser rejeitados pelo Safety Guard.
-- Em `O_RAN_INTEROP`, os IDs e capacidades de RAN Function precisam ser carregados pela integração E2 antes de iniciar subscrições/controles. O runtime atual não decodifica `RANFunctionDefinition`; portanto, se a descoberta não estiver disponível, a xApp fica fora de `READY` e não usa IDs estáticos.
-- Propostas externas são rejeitadas em `O_RAN_INTEROP` enquanto o transporte não fornecer identidade autenticada da xApp emissora. O campo `xapp_id` do JSON é metadado declarado pelo cliente, não credencial.
-- O transporte RMR mock do modo local nunca reporta sucesso de envio. O endpoint A1-P local escuta somente em loopback, não está conectado ao pipeline de decisão e ainda não possui autenticação para exposição remota.
-- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado e dentro dos limites do parâmetro; `rollback_status=SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
-- Rollback só é emitido por **timeout** do ACK. Após `RIC_CONTROL_FAILURE` o E2 Node não aplicou o controle, então o status é `NOT_REQUIRED` e nada é reenviado. O rollback é uma nova transação: usa RICrequestID próprio (o original ainda pode receber resposta tardia), `ricControlAckRequest = noAck` e o mesmo caminho de codificação do backend.
-- Todo `RIC_CONTROL_REQUEST` é enviado com o **MEID** do E2 Node (`src/infrastructure/rmr_transport.py`): o buffer RMR é alocado com `meid`, porque `rmr_send(payload, mtype, retries)` do `ricxappframe` não define MEID e, sem ele, o E2Term não roteia a mensagem. Clientes que não suportam MEID são recusados.
-- A subscrição E2SM-KPM usa a **API REST do SubMgr** (`POST /ric/v1/subscriptions`, corpo `SubscriptionParams`). A xApp fica em `SUBSCRIBING` até o SubMgr notificar o resultado em `POST /ric/v1/subscriptions/response` (servido pelo health server). Sem `SUBMGR_URL` fora do modo estrito, a xApp opera em governança local, sem subscrição.
-- O endpoint `/ready` só retorna sucesso no estado `READY`, após a notificação de sucesso da subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
-- A proteção de *slew-rate* (quando habilitada) compara a proposta com o último valor confirmado pela RAN, lido da `Perception`; sem essa fonte, a validação falha fechada.
-- Transações de controle finalizadas (ACK, falha, timeout) são removidas após 5 minutos; históricos de rollback e cache SDL local têm tamanho máximo.
-- O codec E2SM-RC local é um perfil simplificado e **não** segue o ASN.1 oficial do E2SM-RC v1.03; o modo `O_RAN_INTEROP` permanece bloqueado até a adoção de um codec gerado do ASN.1 oficial (o NORI usa E2AP/E2SM v3.01).
-- Os runners Phase 1 estão limitados aos cenários S2/S3 ns-3 + 5G-LENA; falhas de build/execução interrompem a campanha. O benchmark offline de processamento de propostas não modela UEs, rádio, E2 ou Near-RT e não é evidência de simulação de rede.
+## 7. Observabilidade
 
-![Conformidade com os Padrões O-RAN Alliance](figures/01_arquitetura_e_governanca/diagram_05_conformidade_oran_standards.png)
+| Interface | Porta | Conteúdo |
+| :-- | :-: | :-- |
+| HTTP (`/health`, `/ready`, `/status`, `/ric/v1/subscriptions/response`) | 8080 | saúde e callback do SubMgr |
+| Prometheus | 8081 | contadores de KPM, conflitos, resoluções, controles, ACKs, falhas e timeouts |
+
+O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, conflitos, decisões e respostas de controle por correlação.
+
+O receptor A1 (`src/interfaces/a1_policy_receiver.py`) valida e armazena políticas, mas **não está conectado ao pipeline de decisão**.
+
+## 8. Limitações conhecidas
+
+1. Interoperabilidade E2 não demonstrada; codecs não normativos (seção 6.4).
+2. Conflitos entre células não detectados (seção 4.1).
+3. Identidade das xApps não autenticada no transporte de propostas.
+4. As utilidades TVS/EEVS são heurísticas com pesos fixos, sem calibração experimental publicada.
+5. Descoberta E2 (RAN Function Definition) não implementada: no modo estrito a xApp não obtém os IDs de função e permanece fora de `READY`.
+6. Políticas A1 não influenciam a decisão.

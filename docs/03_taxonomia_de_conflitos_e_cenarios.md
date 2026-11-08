@@ -1,254 +1,59 @@
-# Volume 03: Taxonomia de Conflitos Multi-xApp e Portfólio de Cenários (S0 a S15)
+# 03 — Taxonomia de conflitos e cenários
 
-> **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)**
+## 1. Tipos de conflito
 
----
+| Tipo | Definição | Exemplo | Tratamento na H-RDL |
+| :-- | :-- | :-- | :-- |
+| Direto | Duas xApps pedem valores diferentes para o mesmo parâmetro do mesmo nó | xSlice pede 75 % de PRB, Energy Saving pede 30 % | detectado; TVS escolhe um vencedor |
+| Indireto | Parâmetros diferentes do mesmo nó que afetam os mesmos KPIs | redução de potência junto com reserva de PRB | detectado pelo grafo de KPIs; EEVS escolhe o subconjunto |
+| Temporal | Alternância de valores no mesmo alvo ao longo do tempo | ping-pong de handover | parcialmente: histerese de 1 s por alvo; **não detectado quando as ações estão em células diferentes** |
+| Entre células | Ações em nós diferentes que interferem entre si | handover para uma célula que outra xApp desliga | **não detectado** (conflitos são agrupados por nó) |
+| Ação insegura | Valor fora dos limites físicos ou inválido | 60 dBm, PRB 150 % | descartada pelo Safety Guard antes da arbitragem |
+| Tempestade | Muitas propostas concorrentes na mesma janela | várias xApps em vários nós | eventos agrupados por alvo (custo limitado por O(P²) por nó) |
 
-## 1. Taxonomia Unificada de Conflitos em Open RAN
+## 2. Cenários
 
-A desagregação do plano de controle no Near-RT RIC permite que múltiplas xApps operem de forma autônoma sobre a mesma infraestrutura de rádio. Esta coexistência engendra 5 classes fundamentais de conflitos:
+Os cenários estão em [`simulations/ns3/`](../simulations/ns3/README.md). Todos usam 5G-LENA na banda de 3,5 GHz e tráfego UDP downlink de um host remoto para os UEs.
 
-```
-                              ┌─────────────────────────────────────────┐
-                              │     TAXONOMIA DE CONFLITOS O-RAN        │
-                              └────────────────────┬────────────────────┘
-                                                   │
-         ┌───────────────────┬─────────────────────┼─────────────────────┬───────────────────┐
-         │                   │                     │                     │                   │
-┌────────▼────────┐ ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐ ┌────────▼────────┐
-│ Conflito Direto │ │Conflito Indireto│   │Conflito Implíct.│   │Conflito Temporal│ │ Conflict Storm  │
-│(Mesmo Parâmetro)│ │(Coupled Slices) │   │(Grafo Semântico)│   │ (Ping-Pong/Osc) │ │(Carga > 50 act/s│
-└─────────────────┘ └─────────────────┘   └─────────────────┘   └─────────────────┘ └─────────────────┘
-```
+### 2.1 Cenários de conflito com atuação na RAN (S0–S7)
 
-### 1.1. Conflito Direto (Direct Collision)
-Ocorre quando duas ou mais xApps emitem solicitações simultâneas para alterar o mesmo parâmetro de rádio no mesmo nó (`cell_id`) com valores incompatíveis.
-- **Exemplo Clássico:** *xSlice* solicita `PRB_QUOTA = 80%` para a fatia URLLC enquanto *Energy Saving* solicita `PRB_QUOTA = 30%` ou corte de potência para a mesma célula.
-- **Resolução H-RDL:** Arbitragem determinística ponderada pela criticidade de SLA (TVS/EEVS) com aplicação de *Safety Guards*.
+Desde 2026-11-08 estes cenários aplicam, durante a simulação, as ações decididas pelo baseline (cota de PRB, potência do gNB e handover X2) por meio de [`rdl-nr-common.h`](../simulations/ns3/rdl-nr-common.h). As propostas das xApps de cada cenário estão em [`conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json).
 
-### 1.2. Conflito Indireto (Indirect / Coupled Conflict)
-Ocorre quando xApps atuam em parâmetros formalmente distintos, mas que compartilham o mesmo gargalo físico de canal ou interferem no mesmo KPI.
-- **Exemplo Clássico:** *Traffic Steering* migra UEs para uma célula vizinha para aliviar carga, provocando saturação oculta de buffer RLC e elevação do atraso HOL em fatias URLLC pré-existentes.
-- **Resolução CA-RDL:** Modelagem contextual com inferência de dependência de fatias e utilidade conjunta Shapley.
+| ID | Arquivo | Topologia | Carga | Propostas das xApps (janela de conflito) |
+| :-: | :-- | :-- | :-- | :-- |
+| S0 | `scenario_rdl_no_conflict` | 2 gNBs a 250 m, 30 UEs | 256 B / 20 ms por UE | xSlice PRB 80 % na gNB0; Energy Saving 30 dBm na gNB1 — sem conflito (controle) |
+| S1 | `scenario_rdl_direct_prb_conflict` | 1 gNB, 20 UEs | 1024 B / 200 µs por UE (saturada) | xSlice PRB 75 % (prio 90) × Energy Saving PRB 30 % (prio 65), reafirmadas a cada 1 s (10–15 s) |
+| S2 | `scenario_rdl_tvs_conflict` | 2 gNBs a 80 m (grade), 30 UEs em fatias URLLC/eMBB/mMTC | URLLC 128 B / 1 ms; eMBB 1400 B / 200 µs; mMTC 64 B / 100 ms | xSlice PRB 80 % na macro (prio 90) × Traffic Steering handover macro → small cell (prio 80) |
+| S3 | `scenario_rdl_energy_vs_qos` | 2 gNBs a 50 m (grade), 20 UEs, 50 MHz | duas classes de tráfego | xSlice 40 dBm (prio 90) × Energy Saving 10 dBm (prio 65) na mesma célula |
+| S4 | `scenario_rdl_ts_vs_energy` | macro + small cell a 200 m, 40 UEs | 30 UEs pesados (1024 B / 8 ms), 10 leves | Traffic Steering handover gNB0 → gNB1 (prio 80) × Energy Saving 0 dBm na gNB1 (prio 65) — conflito entre células |
+| S5 | `scenario_rdl_temporal_pingpong` | 2 gNBs a 150 m, 24 UEs no meio | 512 B / 10 ms | Traffic Steering gNB0 → gNB1 e Load Balancer gNB1 → gNB0, alternados a cada 2 s (18–26 s) |
+| S6 | `scenario_rdl_conflict_storm` | 4 gNBs em quadrado de 200 m, 30 UEs (`--loadLevel=0`) | 512 B / 5 ms | seis xApps disputam PRB e potência nas quatro gNBs a cada 0,5 s |
+| S7 | `scenario_rdl_fault_injection` | 2 gNBs a 200 m, 20 UEs | 512 B / 15 ms | xApp maliciosa pede 60 dBm e PRB 150 % (prio 100) contra xSlice PRB 70 % |
 
-### 1.3. Conflito Implícito e Semântico (Semantic / Implicit Conflict)
-Ocorre quando parâmetros de camadas diferentes possuem correlação cruzada não óbvia (e.g., tilt elétrico de antena *RET* vs limiares de handover *A3-Offset*).
-- **Resolução CA-RDL:** Rastreamento estrutural via Grafo de Conhecimento (*Knowledge Graph*) e embeddings relacionais.
+Observações dos experimentos:
 
-### 1.4. Conflito Temporal (Parameter Flipping / Ping-Pong)
-Ocorre quando o fechamento de malha reativo induz um ciclo infinito de decisões opostas entre xApps antagônicas ($40\% \to 70\% \to 40\% \to 70\%$).
-- **Resolução H-RDL:** Introdução de janela de resfriamento proativa (*Cooling Window* $\ge 1000\text{ ms}$) e memória de estados.
+- S2, S4 e S5 rodam com `--disableSrs=true`: o 5G-LENA v5.1 aborta em handover em massa por SRS sobrepostos no gNB de destino.
+- A rede de base do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
+- No S4 e no S5 os conflitos ocorrem entre células e não são detectados pela H-RDL.
 
-### 1.5. Tempestade de Conflitos (Conflict Storm)
-Ocorre sob sobrecarga extrema da interface de controle ($\ge 50\text{ propostas/s}$), demandando agregação em lote, filas de prioridade e poda computacional para evitar saturação do Near-RT RIC.
+### 2.2 Cenário S8 — closed loop com NORI (`scenario_rdl_closed_loop_nori`)
 
----
+Tráfego 5G-LENA com instalação opcional de agente E2. **Não aplica E2SM-RC** e as mensagens de handshake E2 que imprime (`TraceLifecycleE2`) são texto fixo, não troca real. O closed loop E2 depende da pilha NORI (ns-3.42, via [`deploy/helm/nori-ns3`](../deploy/helm/nori-ns3/README.md)) e dos exemplos do próprio NORI.
 
-## 2. Portfólio Completo de Cenários Experimentais (S0 a S15)
+### 2.3 Cenários de pesquisa futura (S9–S15)
 
-A suíte experimental engloba 16 cenários modelados no simulador ns-3.48 / 5G-LENA / NORI:
+| ID | Tema | Arquivo |
+| :-: | :-- | :-- |
+| S9 | Handover orbital em NTN (LEO) | `scenario_rdl_s9_ntn_orbital_handover.cc` |
+| S10 | Enxame de UAVs e bateria | `scenario_rdl_s10_uav_swarm_battery.cc` |
+| S11 | Pelotão V2X em rodovia | `scenario_rdl_s11_v2x_highway_platooning.cc` |
+| S12 | IIoT com jitter determinístico | `scenario_rdl_s12_iiot_zero_jitter_slicing.cc` |
+| S13 | SAGIN em resgate | `scenario_rdl_s13_sagin_disaster_rescue.cc` |
+| S14 | ISAC radar + comunicação | `scenario_rdl_s14_isac_radar_comm.cc` |
+| S15 | xApp maliciosa em enlace NTN | `scenario_rdl_s15_rogue_ntn_feeder_hijacking.cc` |
 
-| Cenário ID | Denominação do Cenário | Classe de Conflito | xApps Envolvidas | Parâmetros de Rádio Impactados | Topologia / Ambiente |
-| :---: | :--- | :--- | :--- | :--- | :--- |
-| **S0** | Baseline Pass-Through | Sem Conflito | Single xApp | Operação nominal em linha de base | Macrocell Urbana (30 UEs) |
-| **S1** | Colisão Direta de PRB | Direto | xSlice × Energy Saving | `PRB_QUOTA` (URLLC vs eMBB) | Macrocell Tri-Setor (100 MHz) |
-| **S2** | Trade-Off Potência vs QoS | Direto / Indireto | Energy Saving × QoS | `TX_POWER` vs `MCS_TARGET` | Microcélula Urbana Densa |
-| **S3** | Multi-Slice TVS Coupling | Indireto | xSlice (URLLC) × xSlice (eMBB) | Particionamento de Recursos BWP | Corredor com 2 Células |
-| **S4** | Traffic Steering vs Green RAN | Indireto / Semântico| Traffic Steering × Energy Saving | `HANDOVER_TRIGGER` vs `TX_POWER` | Hotspot Urbano + Célula Small |
-| **S5** | Ping-Pong Temporal Cíclico | Temporal | xSlice × Energy Saving | Oscilação contínua de `PRB_QUOTA` | Célula com Carga Dinâmica |
-| **S6** | Conflict Storm (Sobrecarga) | Concorrência Extrema| 5 xApps Sintéticas | 50 propostas simultâneas por segundo | Macrocell sob Carga Máxima |
-| **S7** | Injeção de Falhas na Interface E2 | Resiliência E2 | xApp RDL × E2 Termination | Timeouts SCTP e perda de ACK | Enlace E2 Degradado / Falhas |
-| **S8** | Closed-Loop Co-Simulação NORI | Malha Fechada E2 | xApp RDL × Agente E2 C++ | Telemetria KPM $\leftrightarrow$ Controle RC | Co-Simulação ns-3 + RIC |
-| **S9** | Handover Orbital NTN | Doppler / Mobilidade | NTN Mobility × QoS | Compensação Doppler e Handover LEO | Constelação Satélite LEO 600km |
-| **S10** | Enxame de VANTs Conectados | Restrição de Energia| UAV Trajectory × Energy | Potência de Transmissão e Bateria UAV | Cobertura em Estádio / Eventos |
-| **S11** | Pelotão V2X em Rodovia | Ultra-Baixa Latência| V2X Safety × Platoon Mgmt | Sidelink / Latência $< 5\text{ ms}$ | Rodovia Inteligente (120 km/h) |
-| **S12** | IIoT / TSN Jitter Zero | Sincronismo Crítico | TSN Slicing × Industrial QoS | Escalonamento Determinístico de Slots | Fábrica Inteligente / Robótica |
-| **S13** | SAGIN Resgate em Desastres | Multi-Domínio | Space-Air-Ground Federation | Alocação Híbrida Satélite-UAV-Terrestre | Zona de Catástrofe / Emergência |
-| **S14** | ISAC Radar vs Comunicações | Interferência Espectral| ISAC Sensing × eMBB Comm | Forma de Onda Compartilhada e Feixes | Campo Agrícola / Sensoriamento |
-| **S15** | 6G Dense Smart City & Zero-Trust| Concorrência 6G / Rogue| Security Guard × Rogue xApp | Quarentena, Beamforming e Slicing | Cidade Inteligente Hiperconectada |
+Estes arquivos existem, mas **não usam a camada de atuação** nem estão no catálogo de conflitos; não foram executados com proveniência. Há também três cenários exploratórios (`scenario_rdl_5ga_multicarrier_mimo`, `scenario_rdl_6g_cross_tier_governance`, `scenario_rdl_6g_isac_sensing_coexistence`) na mesma situação.
 
----
+## 3. xApps que geram as propostas
 
-## 3. Detalhamento e Figuras de Topologia dos Cenários (S0 a S15)
-
-### 3.1. Cenário S0: Linha de Base sem Conflito (Pass-Through)
-- **Descrição:** Operação nominal com uma única xApp ativa, servindo como referência de capacidade e latência pura do pipeline ns-3 + 5G-LENA.
-- **Dinâmica:** Nenhuma colisão de parâmetros; a RDL opera em modo pass-through transparente.
-- **Resultado:** Throughput de 100,0 Mbps, latência de 10,0 ms e 0% de violações.
-
-![Topologia do Cenário S0 - Linha de Base Nominal](figures/02_cenarios_e_topologias/s0_topologia_espacial_plano_2d.png)
-
----
-
-### 3.2. Cenário S1: Conflito Direto de Cotas de PRB (EEVS)
-- **Descrição:** Disputa direta pelo recurso `PRB_QUOTA` entre a xApp de QoS (solicitando 80% para URLLC) e a xApp de Eficiência Energética (solicitando 30%).
-- **Dinâmica do Conflito:** Sem coordenação (B0), ocorrem colisões que degradam o SLA da fatia URLLC em 36,7%.
-- **Resolução H-RDL:** A H-RDL arbitra a cota ótima em 60%, eliminando 100% das violações e elevando a vazão para 101,7 Mbps.
-
-![Topologia do Cenário S1 - Conflito Direto de Cotas de PRB (EEVS)](figures/02_cenarios_e_topologias/s1_eevs_energy_vs_qos_dark.png)
-
----
-
-### 3.3. Cenário S2: Trade-Off Potência vs QoS (TVS)
-- **Descrição:** A xApp de Economia de Energia solicita redução drástica da potência de transmissão (`TX_POWER = 10 dBm`) enquanto a xApp de QoS exige manutenção de alto MCS para garantir vazão.
-- **Dinâmica do Conflito:** A redução excessiva de potência colapsa o SINR dos UEs de borda, elevando o BLER para $> 14\%$.
-- **Resolução H-RDL:** O *Safety Guard* impõe piso de potência dinâmico em 33 dBm, preservando a modulação 64-QAM e o throughput agregado em 98,5 Mbps.
-
-![Topologia do Cenário S2 - Trade-Off de Potência de Transmissão vs QoS (TVS)](figures/02_cenarios_e_topologias/s2_tvs_traffic_steering_dark.png)
-
----
-
-### 3.4. Cenário S3: Conflito Indireto Multi-Slice (TVS Coupling)
-- **Descrição:** Ações simultâneas em fatias eMBB e URLLC concorrem pelo mesmo bloco BWP compartilhado no escalonador `NrMacSchedulerOfdmaPF`.
-- **Dinâmica do Conflito:** A elevação de vazão em eMBB provoca acúmulo de pacotes no buffer RLC e degrada o atraso HOL da fatia URLLC.
-- **Resolução H-RDL:** Arbitragem com prioridade estrita de SLA para URLLC e particionamento dinâmico de PRBs, garantindo latência $\le 5\text{ ms}$.
-
-![Topologia do Cenário S3 - Acoplamento Multi-Slice e Traffic Steering](figures/02_cenarios_e_topologias/s3_multi_slice_traffic_steering.png)
-
----
-
-### 3.5. Cenário S4: Traffic Steering vs Green RAN
-- **Descrição:** A xApp de Traffic Steering migra UEs para uma célula secundária visando balanceamento, enquanto a xApp Green RAN tenta colocar a mesma célula em modo sleep.
-- **Dinâmica do Conflito:** A célula secundária recebe ordens contraditórias de admissão de usuários e desligamento de transmissores de rádio.
-- **Resolução H-RDL:** Coordenação semântica que bloqueia o modo sleep até a conclusão e consolidação do fluxo de handover.
-
-![Topologia do Cenário S4 - Traffic Steering vs Green RAN](figures/02_cenarios_e_topologias/s4_topologia_espacial_plano_2d.png)
-
----
-
-### 3.6. Cenário S5: Ping-Pong Temporal e Supressão de Churn
-- **Descrição:** Retroalimentação reativa entre duas xApps que alternam periodicamente comandos antagônicos ($40\% \leftrightarrow 70\%$) a cada 200 ms.
-- **Dinâmica do Conflito:** Gera taxa de oscilação contínua de 1,00 ação/s (*Action Churn*), induzindo instabilidade crônica de rádio e jitter de fila.
-- **Resolução H-RDL:** A introdução da *Cooling Window* estabiliza a decisão no primeiro ciclo ($t = 190\text{ ms}$), reduzindo o Churn para 0,05 ações/s com 0 reversões.
-
-![Topologia do Cenário S5 - Supressão de Ping-Pong e Instabilidade Temporal](figures/02_cenarios_e_topologias/s5_topologia_espacial_plano_2d.png)
-
----
-
-### 3.7. Cenário S6: Tempestade de Conflitos (Conflict Storm)
-- **Descrição:** Injeção de alta carga na interface de controle ($\ge 50\text{ propostas/s}$) geradas por 5 xApps sintéticas simultâneas.
-- **Dinâmica do Conflito:** Saturação de filas de controle no Near-RT RIC e risco de atraso excessivo de processamento ($T_{decision} > 10\text{ ms}$).
-- **Resolução H-RDL:** Agrupamento em micro-lotes (*batch aggregation*), poda de comandos redundantes e resolução em tempo recorde (0,22 ms).
-
-![Topologia do Cenário S6 - Tempestade de Conflitos e Sobrecarga de Controle](figures/02_cenarios_e_topologias/s6_topologia_espacial_plano_2d.png)
-
----
-
-### 3.8. Cenário S7: Injeção de Falhas e Degradação de Canal 5G-Adv MIMO
-- **Descrição:** Injeção de falhas na interface de controle E2 (timeouts SCTP, perda de ACKs) combinada com sobreposição de canais multi-portadora MIMO.
-- **Dinâmica:** Queda de conexões E2AP e perda de telemetria KPM em tempo real.
-- **Resolução H-RDL:** Ativação automática de fallback determinístico (*Safety Guard Invariant*), garantindo **UnsafeApplied ≡ 0**.
-
-![Topologia do Cenário S7 - Resiliência a Falhas E2 e Canal Multicarrier MIMO](figures/02_cenarios_e_topologias/s7_5ga_multicarrier_mimo_dark.png)
-
----
-
-### 3.9. Cenário S8: Tráfego 5G-LENA com agente E2 opcional
-- **Descrição:** Cenário de tráfego NR que exporta métricas do FlowMonitor; um agente E2 NORI pode ser habilitado separadamente.
-- **Limitação:** O código atual não conecta decisões RDL à RAN nem implementa atuação E2SM-RC. A presença do agente não comprova KPM recebido ou malha fechada.
-- **Evidência necessária:** Artefatos KPM, decisão RDL, request/ACK E2SM-RC e efeito na RAN devem ser coletados e associados à mesma execução antes de alegar integração closed-loop.
-
-![Topologia do Cenário S8 - Malha Fechada NORI e Coexistência ISAC 6G](figures/02_cenarios_e_topologias/s8_6g_isac_sensing_dark.png)
-
----
-
-### 3.10. Cenário S9: Handover Orbital em Redes Não-Terrestres (NTN)
-- **Descrição:** Conectividade direta via satélites LEO orbitando a 600 km de altitude sob velocidade orbital de 7,5 km/s.
-- **Dinâmica:** Desvios Doppler severos ($\pm 40\text{ kHz}$) e janelas ultracurtas de visibilidade de satélite exigindo handovers frequentes.
-- **Resolução H-RDL:** Predição orbital determinística e pré-alocação de recursos de rádio antes da troca de feixe satelital.
-
-![Topologia do Cenário S9 - Handover Orbital e Conectividade Não-Terrestre NTN](figures/02_cenarios_e_topologias/s9_ntn_orbital_handover.png)
-
----
-
-### 3.11. Cenário S10: Enxame de VANTs Conectados em Eventos Massivos
-- **Descrição:** Cobertura temporária em estádio de futebol provida por enxame de Drones/UAVs atuando como gNodeBs aéreas.
-- **Dinâmica:** Restrições severas de bateria dos UAVs em conflito com a demanda explosiva de tráfego de vídeo dos espectadores.
-- **Resolução H-RDL:** Balanceamento ótimo entre potência de rádio e consumo energético para maximizar o tempo de voo e manter SLAs de vídeo.
-
-![Topologia do Cenário S10 - Enxame de VANTs e Cobertura Aérea Dinâmica](figures/02_cenarios_e_topologias/s10_uav_swarm_stadium_coverage.png)
-
----
-
-### 3.12. Cenário S11: Pelotão de Veículos Autônomos em Rodovia (V2X)
-- **Descrição:** Comunicação veicular cooperativa (V2V / V2I) em rodovia a 120 km/h com formação de pelotões (*platooning*).
-- **Dinâmica:** Tempestades de handover e disputa de espectro Sidelink para mensagens críticas de segurança CAM/DENM ($< 5\text{ ms}$).
-- **Resolução H-RDL:** Priorização estrita de pacotes de controle veicular com reserva instantânea de recursos em nós de borda.
-
-![Topologia do Cenário S11 - Pelotão Veicular V2X e Prevenção de Tempestade de Handover](figures/02_cenarios_e_topologias/s11_v2x_highway_pingpong_storm.png)
-
----
-
-### 3.13. Cenário S12: Automação Industrial IIoT com Jitter Zero (TSN Slicing)
-- **Descrição:** Ambiente fabril com braços robóticos sincronizados via Time-Sensitive Networking (TSN) e fatias industriais dedicadas.
-- **Dinâmica:** Requisito intransigente de jitter nulo ($\sigma_{\text{delay}} < 0,1\text{ ms}$) em coexistência com tráfego de telemetria industrial.
-- **Resolução H-RDL:** Escalonamento determinístico de slots de tempo (mini-slots NR) com isolamento estrito de fatias.
-
-![Topologia do Cenário S12 - Indústria 4.0 e Slicing TSN com Jitter Zero](figures/02_cenarios_e_topologias/s12_iiot_zero_jitter_robotic_slicing.png)
-
----
-
-### 3.14. Cenário S13: Resgate em Desastres Naturais com Federação SAGIN
-- **Descrição:** Rede integrada Espaço-Ar-Terra (SAGIN) operando em área de catástrofe com infraestrutura terrestre colapsada.
-- **Dinâmica:** Roteamento heterogêneo entre satélites LEO, drones de resgate e equipes em solo disputando canais de emergência.
-- **Resolução H-RDL:** Arbitragem multi-domínio que assegura vazão para comunicações críticas de salvamento.
-
-![Topologia do Cenário S13 - Resgate em Catástrofes e Federação SAGIN Multi-Domínio](figures/02_cenarios_e_topologias/s13_disaster_rescue_heterogeneous_mesh.png)
-
----
-
-### 3.15. Cenário S14: Agricultura Inteligente e Sensoriamento Ambiental
-- **Descrição:** Monitoramento agrícola em larga escala combinando conectividade de sensores de solo (mMTC) com sensoriamento radar ISAC.
-- **Dinâmica:** Conflito de coexistência espectral entre feixes de radar e transmissões intermitentes de sensores de baixa potência.
-- **Resolução H-RDL:** Coordenação temporal que aloca janelas ortogonais para radar e comunicação sem degradação de alcance.
-
-![Topologia do Cenário S14 - Agricultura Inteligente 4.0 e Sensoriamento ISAC](figures/02_cenarios_e_topologias/s14_rural_agriculture_sensing.png)
-
----
-
-### 3.16. Cenário S15: Cidade Inteligente 6G Hiperconectada e Zero-Trust
-- **Descrição:** Ambiente urbano denso com centenas de xApps de terceiros concorrendo por recursos e presença de xApps maliciosas (*Rogue xApps*).
-- **Dinâmica:** Tentativas de injeção de parâmetros de rádio inválidos e sequestro de canais de controle.
-- **Resolução H-RDL:** Detecção estatística e quarentena imediata de comandos maliciosos via *Sandbox Zero-Trust*, preservando a integridade da rede.
-
-![Topologia do Cenário S15 - Governança Cross-Tier 6G e Sandbox Zero-Trust](figures/02_cenarios_e_topologias/s15_6g_cross_tier_governance_dark.png)
-
----
-
-## 4. Integração com xApps de Referência Abertas
-
-A camada RDL é validada contra 3 xApps de código aberto consolidadas na literatura O-RAN:
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          xApps DE REFERÊNCIA ABERTAS                        │
-├──────────────────────────┬──────────────────────────┬───────────────────────┤
-│ xSlice (QoS & Slicing)   │ Energy Saving (GreenRAN) │ Traffic Steering (TS) │
-│ Repositório:             │ Repositório:             │ Repositório:          │
-│ peihaoY/xslice-oran      │ Orange / ns-O-RAN-flexric│ o-ran-sc/ric-app-ts   │
-├──────────────────────────┼──────────────────────────┼───────────────────────┤
-│ Solicita: PRB_QUOTA      │ Solicita: TX_POWER / SLEEP│ Solicita: HANDOVER   │
-│ Prioridade: 90 (Alta)    │ Prioridade: 65 (Média)   │ Prioridade: 80 (Alta) │
-└──────────────────────────┴──────────────────────────┴───────────────────────┘
-```
-
----
-
-## 5. Distribuição Empírica e Acurácia de Classificação de Conflitos
-
-Conforme documentado em `experiments/results/tables/empirical_conflict_distribution.csv` e `classification_prediction_metrics.csv`:
-
-| Classe de Conflito | Tipo | Incidência (%) | Severidade (0-1.0) | Mitigação H-RDL ($T_{mit}$) | Acurácia Classificador GNN (F1) | ROC-AUC |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Direct PRB Quota** | Explícito | 32,0% | 0,95 | 0,12 ms | 99,6% | 0,999 |
-| **TxPower vs QoS** | Explícito | 18,0% | 0,85 | 0,14 ms | 98,9% | 0,998 |
-| **Multi-Slice TVS** | Implícito | 22,0% | 0,90 | 0,45 ms | 98,0% | 0,994 |
-| **Mobility vs Energy**| Implícito | 12,0% | 0,70 | 0,38 ms | 98,7% | 0,997 |
-| **Semantic Inter-Dep**| Implícito | 8,0% | 0,80 | 0,85 ms | 98,5% | 0,995 |
-| **Ping-Pong Temporal**| Temporal | 5,0% | 0,75 | 0,05 ms | 99,8% | 1,000 |
-| **Conflict Storm** | Temporal | 3,0% | 0,88 | 0,22 ms | 99,2% | 0,996 |
-
-A matriz de confusão a seguir detalha a acurácia de classificação de conflitos pelo módulo de Inteligência da RDL:
-
-![Figura 24 - Matriz de Confusão para Classificação e Predição de Conflitos](figures/fig_24_implicit_explicit_conflict_confusion.png)
+As propostas do catálogo representam os papéis das xApps de [`reference-xapps/`](../reference-xapps/README.md): xSlice (QoS/fatias), Energy Saving, Traffic Steering, Load Balancer, Beamformer, ISAC Radar e uma xApp maliciosa de teste. Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes.

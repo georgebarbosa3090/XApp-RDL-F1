@@ -1,55 +1,36 @@
-# Taxonomia de Origem e Classificação das xApps (Terceiros vs. Propostas Experimentais)
+# xApps de referência
 
-Este repositório diferencia explicitamente **xApps de Terceiros (Oficiais O-RAN SC ou Reimplementações Acadêmicas da Literatura)** de **xApps Propostas/Experimentais do H-RDL** e **Workloads de Teste**.
+Geradores de propostas usados para exercitar a xApp RDL. **Todas são implementações locais em Python** (`*_xapp.py`), escritas para este projeto. Algumas se inspiram no comportamento de xApps publicadas, mas nenhuma contém código upstream nem foi validada contra a implementação original.
 
----
+Cada xApp expõe `/health`, `/ready` e `/metrics` (FastAPI + Prometheus) e envia propostas `RDL_ACTION_PROPOSAL` (mtype RMR 30000) no formato:
 
-## 1. Tabela Consolidada de Origem (`origin_type`)
+```json
+{"xapp_id": "...", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 66.0, "priority": 90}
+```
 
-| Nome da xApp | Diretório / Identificador | Tipo de Origem (`origin_type`) | Fonte Upstream / Referência | Papel no H-RDL |
-| :--- | :--- | :---: | :--- | :--- |
-| **Traffic Steering** | `reference-xapps/traffic-steering` | `ORAN_SC_OFFICIAL` | [O-RAN SC `ric-app-ts`](https://github.com/o-ran-sc/ric-app-ts) | Terceiros / Oficial O-RAN SC (Release J) |
-| **KPIMON** | `reference-xapps/kpimon` | `ORAN_SC_OFFICIAL` | [O-RAN SC `ric-app-kpimon`](https://github.com/o-ran-sc/ric-app-kpimon) | Terceiros / Oficial O-RAN SC (Coleta KPM) |
-| **xSlice / QoS Slicing** | `reference-xapps/qos-xslice` | `ACADEMIC_REIMPLEMENTATION` | [peihaoY/xslice-oran](https://github.com/peihaoY/xslice-oran) (Yan et al., 2025 / CAMAD) | Terceiros / Reimplementação Acadêmica (*Adaptada GreenRAN: Agro 4.0 / Campus*) |
-| **Energy Saving** | `reference-xapps/energy-saving` | `LITERATURE_INSPIRED` | [Orange-OpenSource/ns-O-RAN-flexric](https://github.com/Orange-OpenSource/ns-O-RAN-flexric) (Wadud et al., 2024) | Terceiros / Inspirada na Literatura (*Adaptada GreenRAN: Solar/Bateria/Micro-Sleep*) |
-| **Load Balancer** | `reference-xapps/load-balancer` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL |
-| **Beamformer** | `reference-xapps/beamformer` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL |
-| **ISAC Radar** | `reference-xapps/isac-radar` | `PROPOSED_EXPERIMENTAL` | Proposta Experimental H-RDL | Proposta / Referência H-RDL (6G ISAC) |
-| **Rogue xApp** | `reference-xapps/rogue-xapp` | `TEST_HARNESS` | Workload Adversário H-RDL | Teste / Injeção de Falhas (Zero-Violation) |
-| **Bouncer** | `reference-xapps/bouncer` | `TEST_HARNESS` | Workload de Benchmark H-RDL | Teste / Medição de Latência RMR |
+## 1. Catálogo
 
----
+| xApp | Diretório | Parâmetro proposto | Inspiração | Classe |
+| :-- | :-- | :-- | :-- | :-- |
+| Traffic Steering | [`traffic-steering/`](traffic-steering/) | `HANDOVER` | comportamento de `o-ran-sc/ric-app-ts` | inspirada |
+| xSlice | [`qos-xslice/`](qos-xslice/) | `PRB_QUOTA` | `peihaoY/xslice-oran` (Yan et al.) | inspirada |
+| Energy Saving | [`energy-saving/`](energy-saving/) | `TX_POWER` | `Orange-OpenSource/ns-O-RAN-flexric` (`xapp_es_with_cell_util`) | inspirada |
+| Load Balancer | [`load-balancer/`](load-balancer/) | `LOAD_THRESHOLD` | — | experimental |
+| Beamformer | [`beamformer/`](beamformer/) | `VERTICAL_DOWNTILT` | — | experimental |
+| ISAC Radar | [`isac-radar/`](isac-radar/) | `SENSING_RATIO` | — | experimental |
+| Rogue | [`rogue-xapp/`](rogue-xapp/) | `TX_POWER` fora dos limites | — | teste de segurança |
+| Bouncer | [`bouncer/`](bouncer/) | `PING_INTERVAL` | — | teste de latência |
 
-### 1.1. Detalhamento Arquitetural e Cenários das xApps de Terceiros
+A xApp RDL só sabe controlar os parâmetros definidos em `src/e2/rc/control_parameter.py` (`PRB_QUOTA`, `SCHEDULER_WEIGHT`, `TX_POWER`, `HANDOVER`). Propostas para `LOAD_THRESHOLD`, `VERTICAL_DOWNTILT`, `SENSING_RATIO` ou `PING_INTERVAL` são aceitas pelo pipeline, mas não têm codificação RC nem efeito na simulação.
 
-Para uma descrição completa contendo componentes internos, especificações de mensagens RMR, Service Models E2SM, parâmetros de controle (`HANDOVER`, `PRB_QUOTA`, `TX_POWER`), prioridades, métricas de simulação ns-3 e **figuras arquiteturais**, consulte a documentação dedicada:
+## 2. Relação com os cenários ns-3
 
-👉 **[`docs/modelagem_cenarios_xapps_terceiros.md`](../docs/modelagem_cenarios_xapps_terceiros.md)**
+Os cenários de conflito S0–S7 **não executam estas xApps**. As propostas de cada cenário vêm de [`simulations/ns3/conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json), cujos `xapp_id` (`xslice`, `traffic_steering`, `energy_saving` etc.) reproduzem o papel dessas xApps. Ver [`docs/03_taxonomia_de_conflitos_e_cenarios.md`](../docs/03_taxonomia_de_conflitos_e_cenarios.md).
 
-*Diagrama de Topologia de Simulação das xApps de Terceiros e Middleware H-RDL:*
-![Topologia Espacial Geral](../docs/figures/02_cenarios_e_topologias/fig_topologia_cenarios_ns3.png)
+## 3. Execução
 
+```bash
+python reference-xapps/qos-xslice/xslice_xapp.py
+```
 
----
-
-
-## 2. Taxonomia de xApps Propostas para Cenários Avançados (S9–S15 Roadmap 6G)
-
-| Nome da xApp | Cenário Relacionado | Tipo de Origem (`origin_type`) | Domínio de Pesquisa |
-| :--- | :---: | :---: | :--- |
-| **NTN-Steering** | S9 (NTN Orbital Handover) | `PROPOSED_EXPERIMENTAL` | Proposta / Satélites LEO (O-RAN 6G NTN) |
-| **Satellite-HO** | S9 (NTN Orbital Handover) | `PROPOSED_EXPERIMENTAL` | Proposta / Controle de Handover Orbital |
-| **UAV-Mobility** | S10 (UAV Swarm Battery) | `PROPOSED_EXPERIMENTAL` | Proposta / Estações-base Aéreas (UAV Swarm) |
-| **Energy-Conserver UAV** | S10 (UAV Swarm Battery) | `PROPOSED_EXPERIMENTAL` | Proposta / Gestão de SoC e Bateria UAV |
-| **V2X-Mobility** | S11 (V2X Highway) | `PROPOSED_EXPERIMENTAL` | Proposta / Veículos de Alta Velocidade (110 km/h) |
-| **Platoon-QoS** | S11 (V2X Highway) | `PROPOSED_EXPERIMENTAL` | Proposta / Comunicação Crítica de Pelotão |
-| **Industrial-QoS** | S12 (IIoT / TSN Factory) | `PROPOSED_EXPERIMENTAL` | Proposta / Latência Determinística Indústria 4.0 |
-| **Rescue-QoS** | S13 (Emergency SAGIN) | `PROPOSED_EXPERIMENTAL` | Proposta / Orquestração Multidomínio de Crise |
-
----
-
-## 3. Diretrizes de Transparência Científica
-
-1. **xApps de Terceiros (`ORAN_SC_OFFICIAL` / `ACADEMIC_REIMPLEMENTATION`):** Representam código open-source ou reimplementações fiéis da literatura. Seus comandos refletem os comportamentos originais descritos por seus autores.
-2. **xApps Propostas (`PROPOSED_EXPERIMENTAL`):** São contribuições e protótipos experimentais desenvolvidos especificamente para avaliar a capacidade de arbitragem e generalização do middleware H-RDL.
-3. **Workloads de Teste (`TEST_HARNESS`):** Não constituem aplicações operacionais de produção, servindo estritamente como ferramentas de injeção de falhas e estresse.
+As portas e os nós-alvo são configurados por variáveis de ambiente descritas no README de cada xApp.

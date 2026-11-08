@@ -1,7 +1,6 @@
-# Bouncer Reference xApp (O-RAN SC b-xapp)
+# Bouncer (teste de latência)
 
-## Visão Geral
-A **Bouncer xApp** realiza testes contínuos de integridade de malha e latência de loopback E2 / RMR entre o Near-RT RIC e os E2 Nodes.
+Gerador de propostas periódicas para medir a latência do caminho RMR até a xApp RDL. Escrito para este projeto; não é a `b-xapp` do O-RAN SC.
 
-## Parâmetros de Controle
-- `PING_INTERVAL`: Intervalo entre disparos de telemetria/ping de teste (ms).
+- **Parâmetro:** `PING_INTERVAL` (ms), prioridade 40.
+- **Limitação:** sem codificação RC; serve só para carga e latência do pipeline.

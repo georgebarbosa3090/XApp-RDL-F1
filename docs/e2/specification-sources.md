@@ -1,43 +1,39 @@
-# Fontes Normativas e Especificações de Referência — XApp-RDL-F1
+# Fontes de referência
 
-**Projeto:** xApp RDL (Resource and Decision Layer) — Near-RT RIC (O-RAN)  
-**Data de Atualização:** 10 de Setembro de 2026  
+## 1. O-RAN ALLIANCE (WG3)
 
----
+| Documento | Uso no projeto |
+| :-- | :-- |
+| O-RAN.WG3.E2GAP | arquitetura do Near-RT RIC e aspectos gerais do E2 |
+| O-RAN.WG3.E2AP v02.03 (alvo da xApp) e v03.01 (NORI) | procedimentos E2 Setup, Subscription, Indication, Control |
+| O-RAN.WG3.E2SM-KPM v03.00 | formatos de Event Trigger, Action Definition e Indication |
+| O-RAN.WG3.E2SM-RC v01.03 (alvo) e v03.01 (NORI) | Control Header/Message e estilos de controle |
 
-## 1. O-RAN ALLIANCE — Especificações Normativas Primárias
+## 2. O-RAN Software Community
 
-1. **O-RAN.WG3.E2GAP-v03.00:** *Near-Real-time RAN Intelligent Controller Architecture & E2 General Aspects*.
-2. **O-RAN.WG3.E2AP-v02.03 / v03.00:** *E2 Application Protocol (E2AP)* — Protocolo de sinalização e mensagens de procedimento básico (`RICsubscriptionRequest`, `RICindication`, `RICcontrolRequest`, `RICcontrolAcknowledge`, `RICcontrolFailure`, `E2setupRequest`).
-3. **O-RAN.WG3.E2SM-KPM-v02.00 / v03.00:** *E2 Service Model for Key Performance Measurements (KPM)* — Estruturação de `IndicationHeader-Format1`, `IndicationMessage-Format1`, `MeasurementInfoList` e métricas 3GPP (`DRB.UEThpDl`, `RRU.PrbUsedDl`, `DRB.RlcSduDelayDl`).
-4. **O-RAN.WG3.E2SM-RC-v01.00 / v01.03:** *E2 Service Model for RAN Control (RC)* — Definição de `RIC-ControlHeader-Format1`, `RIC-ControlMessage-Format1`, estilos de controle e parâmetros da RAN (`PRB_QUOTA`, `TX_POWER`, `HANDOVER`).
+| Componente | Repositório | Uso |
+| :-- | :-- | :-- |
+| xApp framework (Python) | `https://github.com/o-ran-sc/ric-plt-xapp-frame-py` | RMR, SDL, cliente REST de subscrição (versão 3.2.2) |
+| Subscription Manager | `https://github.com/o-ran-sc/ric-plt-submgr` | API REST `/ric/v1/subscriptions` |
+| E2 Manager | `https://github.com/o-ran-sc/ric-plt-e2mgr` | inventário de nós E2 |
+| RMR | `https://github.com/o-ran-sc/ric-plt-lib-rmr` | transporte e MEID |
+| RC xApp | `https://github.com/o-ran-sc/ric-app-rc` | referência de controle RC |
 
----
+## 3. Simulação
 
-## 2. O-RAN Software Community (O-RAN SC) — Implementação de Referência
+| Componente | Repositório | Versão fixada |
+| :-- | :-- | :-- |
+| ns-3 | `https://gitlab.com/nsnam/ns-3-dev` | 3.48 (nativa), 3.42 (NORI) |
+| 5G-LENA | `https://gitlab.com/cttc-lena/nr` | v5.1 (nativa), `78b7179` (NORI) |
+| NORI | `https://github.com/lasseufpa/nori` | `8a30867` |
+| e2sim | `https://github.com/o-ran-sc/sim-e2-interface` | `da6f82f` |
 
-1. **ric-plt/xapp-frame-py:** Framework base Python para desenvolvimento de xApps com suporte a RMR, SDL, REST e Health Check.
-   - Repositório: `https://github.com/o-ran-sc/ric-plt-xapp-frame-py`
-2. **ric-plt/submgr:** Subscription Manager do Near-RT RIC responsável pelo gerenciamento de subscrições E2 e orquestração de rotas RMR para xApps consumidoras de KPM.
-   - Repositório: `https://github.com/o-ran-sc/ric-plt-submgr`
-3. **ric-app/rc:** Implementação oficial de referência para despacho e emissão de mensagens de controle E2SM-RC.
-   - Repositório: `https://github.com/o-ran-sc/ric-app-rc`
-4. **ric-plt/e2mgr:** E2 Manager para gerenciamento de inventário e estado de nós E2 (`GET /v1/nodeb/states`, `GET /v1/nodeb/{node}`).
-   - Repositório: `https://github.com/o-ran-sc/ric-plt-e2mgr`
+Commits completos em [`reproducibility/versions.lock`](../../reproducibility/versions.lock).
 
----
+## 4. Testbed
 
-## 3. NORI & ns-3/5G-LENA — Co-Simulação e Emulação E2
-
-1. **NORI (New Open RAN Interface):** Módulo open-source desenvolvido por consórcio brasileiro (UFPA/UFG/UFRJ) para acoplamento do simulador ns-3 ao Near-RT RIC via interface E2/E2AP real com SCTP.
-   - Repositório: `https://github.com/lasseufpa/nori`
-2. **5G-LENA (CTTC NR Module):** Módulo de simulação física e de enlace para redes 5G New Radio (Release 16/17) sobre o discrete-event simulator ns-3.48.
-   - Documentação: `https://5g-lena.cttc.es/`
-
----
-
-## 4. OpenRAN@Brasil Blueprint v3 — Infraestrutura e Implantação
-
-1. **Blueprint v3:** Especificação padronizada de orquestração de infraestrutura de nuvem aberta (k3s, k3d, Rancher, Near-RT RIC, xApps e geradores de tráfego) para replicação de testes no contexto nacional.
-   - Repositório: `https://github.com/LABORA-INF-UFG/openran-br-blueprint`
-   - Wiki: `https://github.com/LABORA-INF-UFG/openran-br-blueprint/wiki/OpenRAN@Brasil-Blueprint-v3`
+| Item | Referência |
+| :-- | :-- |
+| OpenRAN@Brasil Blueprint v3 | `https://github.com/LABORA-INF-UFG/openran-br-blueprint` |
+| srsRAN Project | `https://github.com/srsran/srsRAN_Project` |
+| Open5GS | `https://github.com/open5gs/open5gs` |

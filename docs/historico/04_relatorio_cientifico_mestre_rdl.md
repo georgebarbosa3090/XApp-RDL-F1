@@ -1,12 +1,16 @@
+> **Documento histórico — não é evidência.** Movido para `docs/historico/` em 2026-11-08.
+> Motivo: números de execuções sintéticas (campanha S1_B0–B6 gerada com numpy.random) e de cenários que não aplicavam conflitos na RAN.
+> Os resultados atuais, com proveniência verificável, estão em [`docs/04_metodologia_experimental_e_resultados.md`](../04_metodologia_experimental_e_resultados.md).
+
 # Volume 04: Relatório Científico Mestre de Experimentos RDL (legado, não validado)
 ## Governança Cognitiva, Arbitragem de Conflitos Multi-xApp e Validação Causal em Circuito Fechado O-RAN (ns-3 + 5G-LENA + NORI + Near-RT RIC)
 
 > **Navegação da Documentação Consolidada:**  
-> **[01. Arquitetura & Modelagem](01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](06_roadmap_e_pesquisa_futura_6g.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)**
+> **[01. Arquitetura & Modelagem](../01_arquitetura_e_modelagem.md)** | **[02. Guia Operacional & Deploy](../02_guia_operacional_deploy_e_simulacao.md)** | **[03. Taxonomia de Conflitos & Cenários](../03_taxonomia_de_conflitos_e_cenarios.md)** | **[04. Relatório Científico Mestre](04_relatorio_cientifico_mestre_rdl.md)** | **[05. Auditoria & Conformidade O-RAN](../05_auditoria_e_conformidade_oran.md)** | **[06. Roadmap & Futuro 6G](../compliance/CARDL_F2_COMPATIBILITY_PROFILE.md)** | **[07. Resultados Simulação (S0–S15)](07_relatorio_resultados_simulacao_baselines_hrdl_cardl.md)** | **[20. Relatório Experimental FlowMonitor S0–S15](20_relatorio_experimental_ns3_flowmonitor_s0_s15.md)** | **[21. Demonstração Rica Closed-Loop](21_relatorio_demonstracao_rica_closed_loop.md)**
 
 ---
 
-> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** Este documento contém resultados numéricos e afirmações de integração que não foram confirmados por uma campanha elegível. Manifestos/artefatos legados não provam origem ns-3/NORI; o cenário C++ atual não fecha o loop de controle. **Os números, testes de hipótese, tabelas e conclusões deste relatório estão retirados como evidência empírica e não devem ser citados.** Consulte [`README.md`](../README.md) e [`specs/claims.yaml`](../specs/claims.yaml) para o estado dos gates e claims. A versão deste documento deve ser substituída somente após reprodução independente com ns-3 + 5G-LENA e evidências externas completas.
+> **RETIFICAÇÃO DE EVIDÊNCIA — 23/10/2026:** Este documento contém resultados numéricos e afirmações de integração que não foram confirmados por uma campanha elegível. Manifestos/artefatos legados não provam origem ns-3/NORI; o cenário C++ atual não fecha o loop de controle. **Os números, testes de hipótese, tabelas e conclusões deste relatório estão retirados como evidência empírica e não devem ser citados.** Consulte [`README.md`](../README.md) e [`specs/claims.yaml`](../../specs/claims.yaml) para o estado dos gates e claims. A versão deste documento deve ser substituída somente após reprodução independente com ns-3 + 5G-LENA e evidências externas completas.
 
 ### Metadados de Governança e Autoria Científica
 - **Autor Principal:** George Alexandro Ferreira Barbosa
@@ -179,7 +183,7 @@ experiments/runs/S1_B3_seed1001/
 
 A linha do tempo causal a seguir ilustra a sequência verificável de intervenções:
 
-![Figura 01 - Linha Temporal Causal e Cadeia de Evidências Closed-Loop](figures/fig_01_causal_timeline.png)
+![Figura 01 - Linha Temporal Causal e Cadeia de Evidências Closed-Loop](../figures/fig_01_causal_timeline.png)
 
 ---
 
@@ -220,11 +224,11 @@ O baseline sem coordenação (B0) sofre com a disputa predatória de recursos:
 
 As dinâmicas temporais e as distribuições de probabilidade acumulada são evidenciadas nas Figuras 02, 03 e 04:
 
-![Figura 02 - Séries Temporais de Vazão por Fatia](figures/fig_02_throughput_timeseries.png)
+![Figura 02 - Séries Temporais de Vazão por Fatia](../figures/fig_02_throughput_timeseries.png)
 
-![Figura 03 - ECDF de Latência Fim-a-Fim e Cauda P95/P99](figures/fig_03_latency_ecdf.png)
+![Figura 03 - ECDF de Latência Fim-a-Fim e Cauda P95/P99](../figures/fig_03_latency_ecdf.png)
 
-![Figura 04 - Boxplot de Throughput Agregado por Baseline](figures/fig_04_throughput_boxplot.png)
+![Figura 04 - Boxplot de Throughput Agregado por Baseline](../figures/fig_04_throughput_boxplot.png)
 
 ### 9.2 Garantia Estrita de SLA e SLA Drift
 Aplicando as formulações de SLA Drift:
@@ -233,7 +237,7 @@ $$SLAD_T = \max\left(0, \frac{T_{req} - T_{obs}}{T_{req}}\right), \quad SLAD_D =
 - No baseline B0, a fatia URLLC sofre 36,7% de violação contratual ($SLAD_T = 0,26$, $SLAD_D = 0,20$).
 - Com a entrada da H-RDL (B3) e Safe-MAPPO (B6), **a taxa de violações cai para 0,0% e o SLA Drift é anulado ($SLAD_T = 0,00, SLAD_D = 0,00$)**.
 
-![Figura 05 - Distribuição Violino de Violações de SLA](figures/fig_05_sla_violation_violin.png)
+![Figura 05 - Distribuição Violino de Violações de SLA](../figures/fig_05_sla_violation_violin.png)
 
 ### 9.3 Equidade de Jain (Throughput e SLA Normalizado)
 - **Jain Throughput Fairness ($J_T$):** Subiu de 0,52 (B0) para 0,94 (B3) e 0,97 (B6).
@@ -248,19 +252,19 @@ A análise das métricas de camada física esclarece a causa raiz das transiçõ
 - **B0 (Colisão):** A oscilação na cota de PRB ($40\% \leftrightarrow 70\%$) satura os buffers RLC em 8,4 MB, elevando o HOL Delay para 18 ms.
 - **B3 (H-RDL):** A estabilização determinística da cota em 60% permite que o AMC convirja para o MCS 22, reduzindo o BLER para menos de 1,2% com retransmissões HARQ quase nulas.
 
-![Figura 09 - Alocação Temporal de Recursos PRB por Fatia](figures/fig_09_prb_slice_area.png)
+![Figura 09 - Alocação Temporal de Recursos PRB por Fatia](../figures/fig_09_prb_slice_area.png)
 
 Conforme evidenciado no **Scatter Hexbin SINR × Throughput (Figura 10)** e no gráfico **MCS × BLER (Figura 11)**:
 1. **Região de Baixo SINR:** Atribuir cotas elevadas de PRB a UEs em condições de canal severo ($\text{SINR} < 8\text{ dB}$) satura o escalonador em modulações lentas (QPSK, MCS $\le 4$), elevando o BLER para $> 14\%$ e provocando retransmissões HARQ em cascata.
 2. **Atuação H-RDL:** O arbitramento determinístico para quota de 60% restabeleceu o ponto ótimo de operação do scheduler Proportional Fair, alcançando eficiência espectral de **1,02 bps/Hz** (B3) e **1,06 bps/Hz** (B6), contra apenas 0,85 bps/Hz em B0.
 
-![Figura 10 - Dispersão Hexbin SINR vs Throughput e Limite de Shannon](figures/fig_10_sinr_throughput_hexbin.png)
+![Figura 10 - Dispersão Hexbin SINR vs Throughput e Limite de Shannon](../figures/fig_10_sinr_throughput_hexbin.png)
 
-![Figura 11 - Curvas de Adaptação de Enlace MCS vs BLER](figures/fig_11_mcs_bler.png)
+![Figura 11 - Curvas de Adaptação de Enlace MCS vs BLER](../figures/fig_11_mcs_bler.png)
 
 A correlação multivariada completa entre as variáveis cross-layer é consolidada no pairplot a seguir:
 
-![Figura 19 - Pairplot Multivariado Cross-Layer PHY/MAC/RLC/App](figures/fig_19_crosslayer_pairplot.png)
+![Figura 19 - Pairplot Multivariado Cross-Layer PHY/MAC/RLC/App](../figures/fig_19_crosslayer_pairplot.png)
 
 ---
 
@@ -277,9 +281,9 @@ A correlação multivariada completa entre as variáveis cross-layer é consolid
 
 As dinâmicas temporais de conflitos e a supressão de churn são apresentadas nas Figuras 14 e 15:
 
-![Figura 14 - Linha Temporal e Frequência Instantânea de Conflitos](figures/fig_14_conflict_timeline.png)
+![Figura 14 - Linha Temporal e Frequência Instantânea de Conflitos](../figures/fig_14_conflict_timeline.png)
 
-![Figura 15 - Supressão de Ping-Pong e Curva de Degrau de Action Churn](figures/fig_15_action_churn.png)
+![Figura 15 - Supressão de Ping-Pong e Curva de Degrau de Action Churn](../figures/fig_15_action_churn.png)
 
 ---
 
@@ -300,7 +304,7 @@ $$T_{loop} = T_{detect} + T_{decision} + T_{encode} + T_{dispatch} + T_{E2} + T_
 | **$T_{observe}$** | Aguardo da próxima janela de telemetria KPM | 195,21 ms | 193,49 ms | 96,68% |
 | **$T_{loop}$ Total** | Latência fim-a-fim de fechamento da malha | **200,00 ms** | **200,00 ms** | **100,00%** |
 
-![Figura 12 - Decomposição da Latência do Ciclo Fechado T_loop](figures/fig_12_latency_breakdown.png)
+![Figura 12 - Decomposição da Latência do Ciclo Fechado T_loop](../figures/fig_12_latency_breakdown.png)
 
 > [!IMPORTANT]
 > **Achado D (Overhead de Decisão):** O tempo de raciocínio algorítmico da H-RDL (0,12 ms) representa apenas **0,06% do ciclo total de closed-loop**, comprovando que a otimização de algoritmos de arbitragem não constitui o gargalo do sistema, que é dominado pela periodicidade de telemetria ($T_{observe}$).
@@ -323,9 +327,9 @@ Avaliadas 5 sementes canônicas (e estendidas para 30 sementes com teste de robu
 
 As trajetórias pareadas e a distribuição de tamanho de efeito são ilustradas nas Figuras 06 e 07:
 
-![Figura 06 - Comparação Pareada Multi-Semente](figures/fig_06_paired_seed_plot.png)
+![Figura 06 - Comparação Pareada Multi-Semente](../figures/fig_06_paired_seed_plot.png)
 
-![Figura 07 - Forest Plot de Tamanhos de Efeito de Cohen](figures/fig_07_effect_forest.png)
+![Figura 07 - Forest Plot de Tamanhos de Efeito de Cohen](../figures/fig_07_effect_forest.png)
 
 ---
 
@@ -354,7 +358,7 @@ A suíte completa abrange os 16 cenários modelados no ns-3 FlowMonitor:
 
 O heatmap a seguir consolida a avaliação multidimensional cruzando todos os cenários contra todos os baselines:
 
-![Figura 08 - Heatmap de Desempenho Cenário vs Baseline](figures/fig_08_scenario_baseline_heatmap.png)
+![Figura 08 - Heatmap de Desempenho Cenário vs Baseline](../figures/fig_08_scenario_baseline_heatmap.png)
 
 ---
 
@@ -362,7 +366,7 @@ O heatmap a seguir consolida a avaliação multidimensional cruzando todos os ce
 
 O treinamento do modelo Safe-MAPPO com formulação CMDP converge de forma estável após 200 episódios:
 
-![Figura 16 - Curva de Convergência do Safe-MAPPO em 200 Episódios](figures/fig_16_mappo_convergence.png)
+![Figura 16 - Curva de Convergência do Safe-MAPPO em 200 Episódios](../figures/fig_16_mappo_convergence.png)
 
 ---
 
@@ -370,11 +374,11 @@ O treinamento do modelo Safe-MAPPO com formulação CMDP converge de forma está
 
 A blindagem determinística provida pelos *Safety Guards* invariantes assegura **zero violações de segurança** sob qualquer regime operacional:
 
-![Figura 17 - Invariante de Segurança e Custo de Safety](figures/fig_17_safety_cost.png)
+![Figura 17 - Invariante de Segurança e Custo de Safety](../figures/fig_17_safety_cost.png)
 
 A validação contra sementes e topologias não-vistas comprova que o gap de generalização permanece estritamente inferior a 1,0%:
 
-![Figura 18 - Generalization Gap para Sementes Não-Vistas](figures/fig_18_generalization_gap.png)
+![Figura 18 - Generalization Gap para Sementes Não-Vistas](../figures/fig_18_generalization_gap.png)
 
 ---
 
@@ -393,7 +397,7 @@ $$\Delta t_{win} \in \{50, 100, 200, 500, 1000\}\text{ ms}$$
 | **500 ms** | 98,6 | 16,5 | 2,8% | 0,02 | 0,6% | Lento (Reatividade comprometida) |
 | **1000 ms** | 94,1 | 22,1 | 7,5% | 0,01 | 0,3% | Crítico (Degradação de SLA) |
 
-![Figura 23 - Trade-Off da Janela de Decisão Near-RT](figures/fig_23_decision_windows_tradeoff.png)
+![Figura 23 - Trade-Off da Janela de Decisão Near-RT](../figures/fig_23_decision_windows_tradeoff.png)
 
 > [!TIP]
 > **Ponto de Equilíbrio ($\Delta t_{win} = 200\text{ ms}$):** Janelas abaixo de 100 ms aumentam o churn de reconfiguração de rádio em 8x ($0,42/\text{s}$) e a sobrecarga de CPU para 6,8%, sem ganho significativo de vazão. Janelas acima de 500 ms violam a agilidade Near-RT, resultando em 2,8% a 7,5% de violações de SLA. O ponto ótimo de joelho (*knee*) ocorre em $\Delta t_{win} = 200\text{ ms}$.
@@ -423,16 +427,16 @@ O tempo de estabilização pós-intervenção ($t_{settle}$) e o tempo de recupe
 
 A dispersão 3D em gradiente ilustra o espaço conjunto de parametrização:
 
-![Figura 21 - Dispersão 3D em Gradiente Janela x Carga x Tempo de Recuperação](figures/fig_21_3d_gradient_scatter_latency_recovery.png)
+![Figura 21 - Dispersão 3D em Gradiente Janela x Carga x Tempo de Recuperação](../figures/fig_21_3d_gradient_scatter_latency_recovery.png)
 
 ---
 
 ### 17.3 Fronteira de Pareto e Superfície 3D
 A fronteira de Pareto 2D e a superfície 3D comprovam a dominância das abordagens RDL frente aos baselines não coordenados e estáticos:
 
-![Figura 13 - Fronteira de Pareto 2D Throughput vs Violações SLA](figures/fig_13_pareto.png)
+![Figura 13 - Fronteira de Pareto 2D Throughput vs Violações SLA](../figures/fig_13_pareto.png)
 
-![Figura 20 - Superfície 3D de Pareto Throughput x Latência x Violações SLA](figures/fig_20_3d_pareto_surface.png)
+![Figura 20 - Superfície 3D de Pareto Throughput x Latência x Violações SLA](../figures/fig_20_3d_pareto_surface.png)
 
 ---
 
@@ -448,7 +452,7 @@ Desempenho dos classificadores cognitivos na identificação precoce de conflito
 | **Ping-Pong / Temporal**| 99,7% | 100,0% | 99,8% | 1,000 | 380 |
 | **Média Ponderada (Macro)**| **99,04%** | **99,06%** | **99,00%** | **0,9976** | **4.000** |
 
-![Figura 24 - Matriz de Confusão 5-Classes para Detecção e Predição de Conflitos](figures/fig_24_implicit_explicit_conflict_confusion.png)
+![Figura 24 - Matriz de Confusão 5-Classes para Detecção e Predição de Conflitos](../figures/fig_24_implicit_explicit_conflict_confusion.png)
 
 ---
 
@@ -475,7 +479,7 @@ Cronologia completa dos eventos de sinalização desde a camada física do UE at
 | **4** | PDU Session Establishment, QoS Flow Binding & NG-U Path | 3GPP SMF / UPF (5GC) | 11,2 ms | 40,3 ms |
 | **5** | E2 Node Subscription & KPM Telemetry Session Init | O-RAN Near-RT RIC (E2term) | 5,5 ms | **45,8 ms** |
 
-![Figura 25 - Cronograma Gantt de Registro do UE até Ativação E2](figures/fig_25_ue_registration_breakdown.png)
+![Figura 25 - Cronograma Gantt de Registro do UE até Ativação E2](../figures/fig_25_ue_registration_breakdown.png)
 
 ---
 
@@ -496,7 +500,7 @@ Detalhamento de cada fração de milissegundo gasta no processamento e transmiss
 | **10. Janela Observação** | Tempo de Estabilização e Coleta de KPMs Subsequentes | 194,98 ms | 193,26 ms | Simulador ns-3 |
 | **TOTAL** | **Ciclo Fechado Completo ($T_{loop}$)** | **200,00 ms** | **200,00 ms** | **Closed-Loop O-RAN** |
 
-![Figura 22 - Decomposição em Cascata Waterfall do Pipeline Cognitivo e Mensageria E2](figures/fig_22_cognitive_stages_waterfall.png)
+![Figura 22 - Decomposição em Cascata Waterfall do Pipeline Cognitivo e Mensageria E2](../figures/fig_22_cognitive_stages_waterfall.png)
 
 ---
 
@@ -562,7 +566,7 @@ $$J_{\text{Jain}}(t) = \frac{\left( \sum_{s=1}^{S} \eta_s(t) \right)^2}{S \sum_{
 | **eMBB (Slice 2)** | 0,56 | 0,74 | 0,82 | **0,93** | **0,96** | $p < 0,001$ |
 | **Agregado Geral ($J_{\text{Jain}}$)** | **0,52** | **0,68** | **0,78** | **0,94** | **0,97** | **$p < 0,001$** |
 
-![Figura 26 - Dinâmica Temporal da Equidade de Jain e Estabilidade Longitudinal [MODELO ANALÍTICO]](figures/01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png)
+![Figura 26 - Dinâmica Temporal da Equidade de Jain e Estabilidade Longitudinal [MODELO ANALÍTICO]](../figures/01_modelos_analiticos_e_conceituais/fig_26_jain_fairness_dynamics.png)
 
 > [!NOTE]
 > **Estabilidade de Equidade:** No baseline predatório B0, o índice de Jain oscila erraticamente entre 0,35 e 0,75 devido à inanição recorrente da fatia URLLC. A introdução da H-RDL (B3) estabiliza o sistema em $t_{settle} = 190\text{ ms}$, sustentando $J \ge 0,94$ estritamente acima do limiar contratual ($J \ge 0,90$).
@@ -583,7 +587,7 @@ $$P_{\text{total}} = N_{\text{TRX}} \cdot (P_0 + \alpha P_{\text{tx}}), \quad \t
 | **B3 (H-RDL Ponto Ótimo)** | **154,2 W** | **101,7** | **0,659 Mbit/J** | **+31,0%** | **0,0%** |
 | **B6 (Safe-MAPPO Pareto)** | **148,6 W** | **105,8** | **0,712 Mbit/J** | **+33,5%** | **0,0%** |
 
-![Figura 27 - Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB [MODELO ANALÍTICO]](figures/01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png)
+![Figura 27 - Superfície 3D de Eficiência Energética vs Potência de TX e Cotas de PRB [MODELO ANALÍTICO]](../figures/01_modelos_analiticos_e_conceituais/fig_27_energy_vs_qos_tradeoff_eevs.png)
 
 ---
 
@@ -597,7 +601,7 @@ A orquestração do ecossistema O-RAN opera em três escalas temporais hierárqu
 | **Near-RT RIC (xApp-RDL)** | E2 (E2AP v02.03) | $1.000\text{ ms}$ | **$200,0\text{ ms}$** | **$0,06\%$ ($0,12\text{ ms}$)** | **Arbitragem tática e resolução de conflitos** |
 | **Real-Time RAN (dApp)** | FAPI / Memória C++ | $5,0\text{ ms}$ | $1,0\text{ ms}$ | $10,0\%$ ($0,10\text{ ms}$) | Escalonamento MAC slot a slot |
 
-![Figura 28 - Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN [MODELO CONCEITUAL]](figures/01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png)
+![Figura 28 - Envelope de Latência e Escalas Temporais Multi-Camadas O-RAN [MODELO CONCEITUAL]](../figures/01_modelos_analiticos_e_conceituais/fig_28_cross_tier_governance_latency_envelope.png)
 
 ---
 
@@ -614,7 +618,7 @@ A robustez da governança determinística foi submetida a teste de estresse com 
 | **Tempo de Recuperação ($t_{\text{recover}}$)** | 8200 ms | **180 ms** | **175 ms** |
 | **Ações Inseguras Disparadas** | 12 | **0** | **0** |
 
-![Figura 29 - Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP [MODELO CONCEITUAL]](figures/01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png)
+![Figura 29 - Resiliência e Recuperação sob Injeção de Falhas E2 / Timeout SCTP [MODELO CONCEITUAL]](../figures/01_modelos_analiticos_e_conceituais/fig_29_resilience_e2_timeout_recovery.png)
 
 ---
 
@@ -633,7 +637,7 @@ A síntese global de desempenho comparativo nas 8 dimensões fundamentais de gov
 | **7. Eficiência Energética** | 0,55 | 0,62 | 0,70 | **0,92** | **0,96** |
 | **8. Baixo Overhead Algorítmico** | 1,00 | 0,99 | 0,98 | **0,99 (0,12 ms)** | 0,82 (1,84 ms) |
 
-![Figura 30 - Radar Multidimensional de Desempenho Comparativo em 8 Dimensões [MODELO ANALÍTICO CONSOLIDADO]](figures/01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png)
+![Figura 30 - Radar Multidimensional de Desempenho Comparativo em 8 Dimensões [MODELO ANALÍTICO CONSOLIDADO]](../figures/01_modelos_analiticos_e_conceituais/fig_30_sbrc_multidimensional_radar.png)
 
 ---
 

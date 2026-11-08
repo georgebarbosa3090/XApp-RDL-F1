@@ -1,110 +1,52 @@
-# Perfil de Implantação OpenRAN@Brasil Blueprint v3 (Release J / Blueprint v3)
+# Implantação da xApp RDL — perfil OpenRAN@Brasil Blueprint v3
 
-<div align="center">
+Manifestos Kubernetes para o namespace `ricxapp`, pensados para o testbed OpenRAN@Brasil. **Não foram aplicados contra uma plataforma Near-RT RIC em funcionamento**; servem de ponto de partida.
 
-**Manifestos de Implantação Kubernetes e Configurações de Rede para o namespace `ricxapp`**  
-*Perfil proposto para implantação e validação no OpenRAN@Brasil (LABORA/UFG, CPQD, INATEL, UFPA PCT)*
+## 1. Arquivos
 
+| Arquivo | Conteúdo |
+| :-- | :-- |
+| `config-map.yaml` | configuração da xApp e tabela de rotas RMR |
+| `service.yaml` | serviços RMR (4560/4561) e HTTP (8080/8081) |
+| `deployment.yaml` | Deployment com usuário não-root |
+| `values.yaml` | valores equivalentes para o chart `deploy/helm/iqos-xapp-rdl` |
 
-</div>
+## 2. Serviços esperados da plataforma (`ricplt`)
 
----
+| Serviço | Porta | Uso pela xApp |
+| :-- | :-- | :-- |
+| `service-ricplt-submgr-http` | 8088/TCP | subscrição REST (`SUBMGR_URL`) |
+| `service-ricplt-e2term-rmr` | 38000/TCP | RIC Control e Indication via RMR |
+| `service-ricplt-e2term-sctp` | 36422/SCTP | conexão dos E2 Nodes |
+| `service-ricplt-e2mgr-http` | 3800/TCP | inventário de nós E2 |
+| `service-ricplt-dbaas-tcp` | 6379/TCP | SDL (Redis) |
 
-## 1. Topologias de Cluster k3d Recomendadas
+Serviços da xApp (`ricxapp`): `service-ricxapp-iqos-xapp-rdl-rmr` (4560 dados, 4561 rotas) e `service-ricxapp-iqos-xapp-rdl-http` (8080 com `/health/alive`, `/health/ready` e o callback `/ric/v1/subscriptions/response`; 8081 com métricas Prometheus).
 
-Para implantação e validação rápida em ambiente local/WSL2 ou bare-metal:
+## 3. Implantação
 
-### Opção 1: Single-Node (1 Servidor/Worker Unificado, ~450 MB RAM)
-> *Ideal para desenvolvimento local rápido, CI/CD e máquinas com recursos limitados.*
+Num cluster k3s (ou no cluster do testbed) com a plataforma `ricplt` já instalada:
 
-```bash
-k3d cluster create rdl-cluster \
-  --servers 1 \
-  -p "36422:36422/sctp@server:0" \
-  -p "8080-8087:8080-8087@server:0" \
-  -p "4560-4561:4560-4561@server:0"
-```
-
-### Opção 2: Dual-Node (1 Control-Plane + 1 Worker Node, ~900 MB RAM)
-> *Separação física de Pods entre o plano de controle do cluster e os nós de execução da rede.*
-
-```bash
-k3d cluster create rdl-cluster \
-  --servers 1 \
-  --agents 1 \
-  -p "36422:36422/sctp@server:0" \
-  -p "8080-8087:8080-8087@server:0" \
-  -p "4560-4561:4560-4561@server:0"
-```
-
-### Opção 3: 3-Nodes / Multi-Node (1 Control-Plane + 2 Worker Nodes, ~1.5 GB RAM)
-> *Topologia de produção: Isolamento estrito de namespaces (`ricplt` no worker-1 e `ricxapp` no worker-2).*
-
-```bash
-k3d cluster create rdl-cluster \
-  --servers 1 \
-  --agents 2 \
-  -p "36422:36422/sctp@server:0" \
-  -p "8080-8087:8080-8087@server:0" \
-  -p "4560-4561:4560-4561@server:0"
-```
-
----
-
-## 2. Topologia de Namespaces e Serviços
-
-* **Namespace da Plataforma (`ricplt`):**
-  * `service-ricplt-e2term-sctp`: Porta `36422/SCTP` (Terminação E2 conectando gNBs/ns-3)
-  * `service-ricplt-e2mgr-http`: Porta `3800/TCP` (E2 Manager REST)
-  * `service-ricplt-submgr-http`: Porta `8088/TCP` (Subscription Manager)
-  * `service-ricplt-e2term-rmr`: Porta `38000/TCP` (E2 Termination RMR)
-  * `service-ricplt-dbaas-tcp`: Porta `6379/TCP` (Redis SDL - Shared Data Layer)
-
-* **Namespace das Aplicações (`ricxapp`):**
-  * `service-ricxapp-iqos-xapp-rdl-rmr`: Portas `4560/TCP` (Canal de Dados) / `4561/TCP` (Tabelas de Rota RMR)
-  * `service-ricxapp-iqos-xapp-rdl-http`: Portas `8080/TCP` (Health `/health/alive`, `/health/ready`) / `8081/TCP` (Métricas Prometheus)
-
----
-
-## 3. Instruções de Implantação Passo a Passo
-
-
-1. Garantir existência do namespace ricxapp
 ```bash
 kubectl create namespace ricxapp --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-2. Aplicar ConfigMap e Tabelas de Rota RMR
 ```bash
-kubectl apply -f deploy/openran-br-v3/config-map.yaml
+kubectl apply -f deploy/openran-br-v3/config-map.yaml -f deploy/openran-br-v3/service.yaml -f deploy/openran-br-v3/deployment.yaml
 ```
 
-3. Aplicar Serviços de Rede e Exposição de Portas
-```bash
-kubectl apply -f deploy/openran-br-v3/service.yaml
-```
-
-4. Aplicar Deployment da xApp RDL (com SecurityContext não-root)
-```bash
-kubectl apply -f deploy/openran-br-v3/deployment.yaml
-```
-
-5. Verificar Status e Prontidão dos Pods
 ```bash
 kubectl get pods -n ricxapp -l app=iqos-xapp-rdl -o wide
 ```
 
----
+Alternativa com Helm:
 
-## 4. Gestão Visual via Rancher Dashboard e Kiali Service Mesh
-
-
-* Importar cluster no Rancher Server (https://localhost:8443):
 ```bash
-make rancher-connect URL="https://localhost:8443/v3/import/c-m-xxxx_c-m-xxxx.yaml"
+helm upgrade --install iqos-xapp-rdl deploy/helm/iqos-xapp-rdl -n ricxapp -f deploy/openran-br-v3/values.yaml
 ```
 
-* Visualizar topologia e tráfego de rede no Kiali Dashboard (http://localhost:20001/kiali):
-```bash
-make kiali-dashboard
-```
+A prontidão (`/health/ready`) só fica verde depois que a subscrição KPM é confirmada pelo Subscription Manager; sem plataforma, o pod permanece não pronto.
+
+## 4. Painéis opcionais
+
+O `Makefile` tem alvos auxiliares para Rancher (`make rancher-connect URL=...`) e Kiali (`make kiali-dashboard`).

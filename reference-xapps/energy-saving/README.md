@@ -1,5 +1,7 @@
 # Energy Saving Reference xApp (Orange / FlexRIC — GreenRAN Edition)
 
+> **Implementação local.** `energy_saving_xapp.py` foi escrito para este projeto, inspirado em `xapp_es_with_cell_util` (Wadud et al.); não contém código de `Orange-OpenSource/ns-O-RAN-flexric` nem foi comparado com ele. Bateria, geração solar e demais entradas são valores de configuração (variáveis de ambiente), não telemetria real. Nos cenários ns-3 S0–S7 as propostas vêm de `simulations/ns3/conflicts/catalog.json`, não desta xApp.
+
 ## Referência Científica e Projeto Base
 * **Repositório Oficial Upstream:** [`Orange-OpenSource/ns-O-RAN-flexric`](https://github.com/Orange-OpenSource/ns-O-RAN-flexric)
 * **Aplicação Original:** `xapp_es_with_cell_util` (Energy Saving under Cell Utilization, Wadud et al., 2024)

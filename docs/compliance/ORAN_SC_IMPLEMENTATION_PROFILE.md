@@ -1,52 +1,65 @@
-# Perfil de Implantação O-RAN SC — O-RAN SC Implementation Profile
+# Perfil de integração com o O-RAN SC
 
-**Projeto:** xApp RDL (Resource and Decision Layer) — Fase 1 (H-RDL Determinística)  
-**Documento:** `ORAN_SC_IMPLEMENTATION_PROFILE.md`  
-**Escopo:** Mapeamento de integração do H-RDL com os serviços e componentes da plataforma de referência O-RAN Software Community (O-RAN SC Release J).
-
----
-
-## 1. Mapeamento de Serviços e Comunicação RMR / REST
-
-O H-RDL integra-se com a plataforma O-RAN SC Release J através de duas interfaces principais de comunicação:
+## 1. Interfaces
 
 ```text
-               ┌────────────────────────────────────────────────────────┐
-               │         Plataforma Near-RT RIC (O-RAN SC)              │
-               │                                                        │
-               │   ┌───────────────────┐        ┌───────────────────┐   │
-               │   │ Subscription Mgr  │        │      E2Term       │   │
-               │   │   (REST API)      │        │   (SCTP / RMR)    │   │
-               │   └─────────┬─────────┘        └─────────┬─────────┘   │
-               └─────────────┼────────────────────────────┼─────────────┘
-                             │ REST                       │ RMR / SCTP
-                             ▼                            ▼
-               ┌────────────────────────────────────────────────────────┐
-               │                   xApp RDL (H-RDL)                     │
-               │  - SubMgr REST Client (:8088)                          │
-               │  - RMR Dispatcher (:4560 / :38000)                     │
-               │  - E2AP APER Codec Engine                              │
-               └────────────────────────────────────────────────────────┘
+            ┌──────────────── Plataforma Near-RT RIC (O-RAN SC) ────────────────┐
+            │   Subscription Manager (REST :8088)        E2Term (SCTP / RMR)     │
+            └──────────────┬───────────────────────────────────┬────────────────┘
+                 REST      │  ▲ notificação HTTP           RMR │ ▲
+                           ▼  │                                ▼ │
+            ┌──────────────────── xApp RDL (H-RDL) ─────────────────────────────┐
+            │  SubscriptionManager    HTTP :8080        RMR :4560 (MEID por msg) │
+            │  métricas Prometheus :8081                                        │
+            └────────────────────────────────────────────────────────────────────┘
 ```
 
----
+## 2. Tipos de mensagem
 
-## 2. Tabela de Tipos de Mensagem RMR (`mtype`) vs E2AP `ProcedureCode`
+| Operação | Transporte | `mtype` RMR | ProcedureCode E2AP | Direção |
+| :-- | :-- | :-: | :-: | :-- |
+| E2 Setup | SCTP (E2Term) | — | 1 | E2 Node → E2Term |
+| Pedido de subscrição | REST `POST /ric/v1/subscriptions` | — | 8 (gerado pelo SubMgr) | xApp → SubMgr |
+| Resultado da subscrição | REST `POST /ric/v1/subscriptions/response` | — | — | SubMgr → xApp |
+| RIC Indication | RMR | 12050 | 5 | E2Term → xApp |
+| RIC Control Request | RMR com MEID | 12040 | 4 | xApp → E2Term |
+| RIC Control Acknowledge | RMR | 12041 | 4 | E2Term → xApp |
+| RIC Control Failure | RMR | 12042 | 4 | E2Term → xApp |
+| Proposta de ação (interna) | RMR | 30000 | — | xApps → xApp RDL |
 
-Para evitar qualquer confusão entre os identificadores internos do RMR e os códigos normativos do protocolo E2AP, o H-RDL mantém um mapeamento explícito de constantes:
+Os mtypes 12010/12011 (subscrição por RMR) existem nas constantes, mas a subscrição usa a API REST.
 
-| Função / Operação O-RAN | RMR Message Type (`mtype`) | E2AP `ProcedureCode` | Direção da Mensagem |
-| :--- | :---: | :---: | :--- |
-| **E2 Setup Request** | *N/A (SCTP/E2AP)* | `1` | E2 Node (gNB / NORI) $\rightarrow$ E2Term |
-| **RIC Subscription Request** | `12010` / REST (`:8088`) | `8` | H-RDL $\rightarrow$ SubMgr $\rightarrow$ E2Term |
-| **RIC Subscription Response** | `12011` / REST (`:8088`) | `8` | SubMgr $\rightarrow$ H-RDL |
-| **RIC Indication** | `12050` | `5` | E2Term $\rightarrow$ H-RDL |
-| **RIC Control Request** | `12040` | `4` | H-RDL $\rightarrow$ E2Term |
-| **RIC Control Acknowledge** | `12041` | `4` | E2Term $\rightarrow$ H-RDL |
-| **RIC Control Failure** | `12042` | `4` | E2Term $\rightarrow$ H-RDL |
+## 3. Subscrição
 
----
+Corpo `SubscriptionParams` conforme o modelo do cliente REST do `ricxappframe` 3.2.2:
 
-## 3. Integração com Subscription Manager (REST API)
+```json
+{
+  "ClientEndpoint": {"Host": "service-ricxapp-iqos-xapp-rdl-http.ricxapp", "HTTPPort": 8080, "RMRPort": 4560},
+  "Meid": "gnb_01",
+  "RANFunctionID": 2,
+  "SubscriptionDetails": [{
+    "XappEventInstanceId": 1,
+    "EventTriggers": [/* octetos E2SM-KPM */],
+    "ActionToBeSetupList": [{
+      "ActionID": 1, "ActionType": "report",
+      "ActionDefinition": [/* octetos E2SM-KPM */],
+      "SubsequentAction": {"SubsequentActionType": "continue", "TimeToWait": "zero"}
+    }]
+  }]
+}
+```
 
-Conforme os padrões atualizados da O-RAN SC (Release J), o envio e a gestão de assinaturas `RICsubscriptionRequest` pela xApp RDL são realizados via **API REST** do Subscription Manager (`http://service-ricplt-submgr-http.ricplt:8088/ric/v1/subscriptions`), mantendo a compatibilidade normativa O-RAN SC enquanto as indicações e controles fluem em alta velocidade via RMR.
+O host e as portas vêm de `XAPP_HTTP_HOST`, `XAPP_HTTP_PORT` e `XAPP_RMR_PORT`; o endereço do SubMgr, de `SUBMGR_URL` (padrão `http://service-ricplt-submgr-http.ricplt:8088` no modo estrito). A subscrição só é considerada ativa depois da notificação com `E2EventInstanceId` positivo e sem `ErrorCause`.
+
+## 4. Envio RMR com MEID
+
+`rmr_send(payload, mtype, retries)` do `ricxappframe` não define MEID. A xApp usa `rmr_alloc_msg(..., meid=<nó>)` e `rmr_send_msg`, repetindo só enquanto o RMR devolve `RMR_ERR_RETRY`, e sempre libera o buffer (`src/infrastructure/rmr_transport.py`).
+
+## 5. Rotas e implantação
+
+- Tabelas de rota de exemplo: `configs/routes.rt.template`, `configs/uta_rtg.rt`.
+- Descritor da xApp: `configs/xapp_descriptor.json`.
+- Helm: `deploy/helm/iqos-xapp-rdl`; manifestos: `deploy/kubernetes/`.
+
+Nenhum destes itens foi verificado contra uma plataforma O-RAN SC em funcionamento.
