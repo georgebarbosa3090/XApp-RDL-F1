@@ -9,8 +9,11 @@ Ponte da malha fechada (fase 4): KPM_t0 (E2SM-KPM v3) -> decisão H-RDL -> cotas
    propostas conflitantes para o mesmo alvo (nó, ``PRB_QUOTA``) quando a célula está congestionada
    e há UEs nas fatias eMBB (SST 1) e URLLC (SST 2):
 
-   - ``xapp-qos-xslice`` (prioridade 90): protege a URLLC, propõe teto de 40 % de PRB para a eMBB;
+   - ``xapp-qos-xslice`` (prioridade 90): protege a URLLC, propõe teto de 25 % de PRB para a eMBB;
    - ``xapp-embb-throughput`` (prioridade 60): maximiza a vazão eMBB, propõe teto de 80 %.
+
+   Valores da v2 (pré-registro docs/07_preregistro_fase4_v2.md). Na v1 (commit b48473d) a protetora
+   propunha 40 %; o TVS a escolheu e o teto não restringiu (a eMBB usava ~40 % dos PRBs).
 
    ``PRB_QUOTA`` é o teto de PRB (%) da fatia eMBB; a URLLC recebe ``100 - PRB_QUOTA``.
 3. ``HrdlDecider``: o pipeline real da xApp RDL (``RDLxApp._process_action_group``: Safety Guard,
@@ -33,7 +36,7 @@ CONGESTION_RATIO = 0.95       # congestionada: PRB usados >= 95 % dos disponíve
 SST_EMBB, SST_URLLC = 1, 2
 POLICIES = (
     # (xapp_id, prioridade, PRB_QUOTA proposto = teto % da fatia eMBB, justificativa)
-    ("xapp-qos-xslice", 90, 40, "protege a URLLC sob congestionamento: teto de 40 % para a eMBB"),
+    ("xapp-qos-xslice", 90, 25, "protege a URLLC sob congestionamento: teto de 25 % para a eMBB"),
     ("xapp-embb-throughput", 60, 80, "maximiza a vazão eMBB sob congestionamento: teto de 80 % para a eMBB"),
 )
 ENGINE = "src/rdl_xapp.py RDLxApp._process_action_group"

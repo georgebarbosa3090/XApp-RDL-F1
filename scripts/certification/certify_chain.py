@@ -489,9 +489,15 @@ def _certify_pcap_dissection(run_dir: Path, pcaps: List[Path], dissection_root: 
         csv_path = run_dir / "raw" / "slice_series.csv"
         csv_ok = csv_path.is_file() and sha256_file(csv_path) == effect.get("source_csv_sha256")
         diss_ok = sha256_file(ddir / "e2_messages.json") == effect.get("source_dissection_sha256")
+        cal_ok = True
+        if effect.get("calibration"):
+            cal_path = ROOT / str(effect["calibration"])
+            cal_ok = cal_path.is_file() and sha256_file(cal_path) == effect.get("calibration_sha256")
+        sources_ok = csv_ok and diss_ok and cal_ok
         report.facts["slice_effect"] = {
-            "verdict": effect.get("verdict") if csv_ok and diss_ok else "INVALID",
-            "reason": effect.get("reason") if csv_ok and diss_ok else "CSV ou dissecação de origem com hash diferente",
+            "rule": effect.get("rule", "v1-throughput-share"),
+            "verdict": effect.get("verdict") if sources_ok else "INVALID",
+            "reason": effect.get("reason") if sources_ok else "CSV, dissecação ou calibração de origem com hash diferente",
             "control_sim_time_s": effect.get("control_sim_time_s"),
             "quotas_from_pcap": effect.get("quotas_from_pcap"),
             "slices": effect.get("slices"),
@@ -606,15 +612,18 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
                 if all(r.facts.get("e2_roles", {}).get(k) for k in ("kpm_t0", "control_request", "control_ack", "kpm_t1"))]
     decided = [r for r in complete if decision(r).get("source") == "H_RDL" and decision(r).get("trigger_is_kpm_t0")
                and decision(r).get("pcap_control_sent_by_xapp")]
-    # Efeito causal medido na RAN (slice_series.csv): a mudança de vazão por fatia confere com as cotas.
-    g4 = [r for r in decided if (r.facts.get("slice_effect") or {}).get("verdict") == "CONSISTENT"]
+    # Efeito causal medido na RAN (slice_series.csv) pela regra v2 (parte de PRB calibrada): a regra v1
+    # tomava a parte da vazão como parte dos PRBs e foi superada (docs/07_preregistro_fase4_v2.md).
+    g4 = [r for r in decided if (r.facts.get("slice_effect") or {}).get("verdict") == "CONSISTENT"
+          and (r.facts.get("slice_effect") or {}).get("rule") == "v2-calibrated"]
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
     if g4_ok:
         g4_reason = (f"{len(g4) or len(chains_ok)} cadeia(s) KPM_t0 -> decisão H-RDL -> RC -> ACK -> KPM_t1 com efeito "
                      f"na RAN coerente com as cotas")
     elif decided:
-        verdicts = sorted({str((r.facts.get("slice_effect") or {}).get("verdict", "sem medida de efeito")) for r in decided})
+        verdicts = sorted({f"{(r.facts.get('slice_effect') or {}).get('verdict', 'sem medida de efeito')}"
+                           f" ({(r.facts.get('slice_effect') or {}).get('rule', '-')})" for r in decided})
         g4_reason = (f"cadeia completa e decidida pelo H-RDL em {len(decided)} execução(ões), mas o efeito na RAN "
                      f"não foi confirmado (veredito: {', '.join(verdicts)})")
     elif complete:

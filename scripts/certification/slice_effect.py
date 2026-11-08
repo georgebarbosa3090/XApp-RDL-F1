@@ -21,10 +21,20 @@ Procedimento (constantes fixadas antes das execuções):
    cumprem; INCONSISTENT se alguma falha; NOT_TESTABLE se nenhuma fatia tem teto abaixo da parte
    que usava ou se a série não cobre as janelas.
 
-Saída: ``experiments/e2_dissection/<run>/slice_effect.json`` (hash do CSV de origem incluído).
+Regra v2 (com ``--calibration``, pré-registro docs/07_preregistro_fase4_v2.md): a parte dos PRBs que
+cada fatia usava vem da calibração (k_s, Mb/s por ponto percentual de PRB), não da parte da vazão:
+
+   - p_s = vazão_antes_s / k_s (% de PRB);
+   - teto < p_s − MARGEM_PP: fatia restrita; a vazão deve cair ao menos QUEDA_MIN e ficar a no máximo
+     TOLERÂNCIA (relativa) da previsão teto·k_s;
+   - caso contrário: a vazão não pode cair mais que QUEDA_MIN.
+
+Saída: ``experiments/e2_dissection/<run>/slice_effect.json`` (hashes do CSV, da dissecação e, na
+regra v2, da calibração).
 
 Uso:
     python scripts/certification/slice_effect.py --run nori_hrdl_loop_seed1
+    python scripts/certification/slice_effect.py --run nori_hrdl_v2_seed1 --calibration experiments/calibration/slice_capacity_v2.json
 """
 
 from __future__ import annotations
@@ -46,6 +56,7 @@ WINDOW_S = 4.0       # W
 SETTLE_S = 2.0       # S
 MARGIN_PP = 5.0      # pontos percentuais
 MIN_DROP = 0.05      # 5 %
+TOLERANCE = 0.20     # regra v2: |vazão_depois − teto·k| / (teto·k) <= 20 % nas fatias restritas
 SCHEMA = "xapp-rdl/slice-effect/v1"
 
 
@@ -122,8 +133,48 @@ def evaluate(series: Dict[int, List[Tuple[float, float, float]]], t_control: flo
     return {"verdict": verdict, "window_before": before_w, "window_after": after_w, "slices": stats}
 
 
+def evaluate_v2(series: Dict[int, List[Tuple[float, float, float]]], t_control: float,
+                quotas: List[Dict[str, Any]], k: Dict[int, float]) -> Dict[str, Any]:
+    """Regra v2: fatia restrita decidida pela parte de PRB calibrada (k_s em Mb/s por % de PRB)."""
+    before_w = (t_control - WINDOW_S, t_control)
+    after_w = (t_control + SETTLE_S, t_control + SETTLE_S + WINDOW_S)
+    caps = {int(q["sst"]): float(q["max_prb_ratio"]) for q in quotas}
+    before = {sst: throughput_mbps(rows, *before_w) for sst, rows in series.items()}
+    after = {sst: throughput_mbps(rows, *after_w) for sst, rows in series.items()}
+    if any(v is None for v in list(before.values()) + list(after.values())) or not caps:
+        return {"verdict": "NOT_TESTABLE", "reason": "série não cobre as janelas ou Control sem cotas",
+                "window_before": before_w, "window_after": after_w}
+    if any(sst not in k for sst in series):
+        return {"verdict": "NOT_TESTABLE", "reason": "calibração sem k para alguma fatia"}
+    stats: Dict[str, Dict[str, Any]] = {}
+    binding_any, all_ok = False, True
+    for sst in sorted(series):
+        cap = caps.get(sst, 100.0)
+        prb_used = before[sst] / k[sst]
+        change = (after[sst] - before[sst]) / before[sst] if before[sst] > 0 else 0.0
+        entry = {"cap_max_prb_pct": cap, "k_mbps_per_prb_pct": round(k[sst], 4),
+                 "prb_used_before_pct_est": round(prb_used, 2),
+                 "throughput_before_mbps": round(before[sst], 3), "throughput_after_mbps": round(after[sst], 3),
+                 "relative_change": round(change, 4)}
+        if cap < prb_used - MARGIN_PP:
+            predicted = cap * k[sst]
+            error = abs(after[sst] - predicted) / predicted
+            ok = change <= -MIN_DROP and error <= TOLERANCE
+            entry.update(expectation="decrease_to_prediction", predicted_after_mbps=round(predicted, 3),
+                         prediction_error=round(error, 4), met=ok)
+            binding_any = True
+        else:
+            ok = change >= -MIN_DROP
+            entry.update(expectation="no_decrease", met=ok)
+        all_ok &= ok
+        stats[str(sst)] = entry
+    verdict = "NOT_TESTABLE" if not binding_any else ("CONSISTENT" if all_ok else "INCONSISTENT")
+    return {"verdict": verdict, "window_before": before_w, "window_after": after_w, "slices": stats}
+
+
 def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
-            dissection_root: Path = ROOT / "experiments" / "e2_dissection") -> Dict[str, Any]:
+            dissection_root: Path = ROOT / "experiments" / "e2_dissection",
+            calibration: Optional[Path] = None) -> Dict[str, Any]:
     run_dir, ddir = runs_dir / run_id, dissection_root / run_id
     csv_path = run_dir / "raw" / "slice_series.csv"
     dissection = json.loads((ddir / "e2_messages.json").read_text(encoding="utf-8"))
@@ -131,7 +182,9 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
         "schema": SCHEMA, "run_id": run_id,
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": "scripts/certification/slice_effect.py",
-        "constants": {"window_s": WINDOW_S, "settle_s": SETTLE_S, "margin_pp": MARGIN_PP, "min_drop": MIN_DROP},
+        "rule": "v2-calibrated" if calibration else "v1-throughput-share",
+        "constants": {"window_s": WINDOW_S, "settle_s": SETTLE_S, "margin_pp": MARGIN_PP, "min_drop": MIN_DROP,
+                      **({"tolerance": TOLERANCE} if calibration else {})},
         "source_csv": f"raw/slice_series.csv",
         "source_csv_sha256": hashlib.sha256(csv_path.read_bytes()).hexdigest() if csv_path.exists() else None,
         "source_dissection_sha256": hashlib.sha256((ddir / "e2_messages.json").read_bytes()).hexdigest(),
@@ -149,6 +202,18 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                        quotas_from_pcap=quotas)
             if t_c is None:
                 out.update(verdict="NOT_TESTABLE", reason="instante do Control fora da série (relógio de parede)")
+            elif calibration:
+                cal = json.loads(Path(calibration).read_text(encoding="utf-8"))
+                try:
+                    cal_rel = Path(calibration).resolve().relative_to(ROOT).as_posix()
+                except ValueError:
+                    cal_rel = str(calibration)
+                out.update(calibration=cal_rel, calibration_sha256=hashlib.sha256(Path(calibration).read_bytes()).hexdigest())
+                if cal.get("valid") is not True:
+                    out.update(verdict="NOT_TESTABLE", reason="calibração inválida (teto não restringiu na calibração)")
+                else:
+                    k = {int(sst): float(v) for sst, v in cal["k_mbps_per_prb_pct"].items()}
+                    out.update(evaluate_v2(series, t_c, quotas, k))
             else:
                 out.update(evaluate(series, t_c, quotas))
     data = (json.dumps(out, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
@@ -165,15 +230,20 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", required=True)
+    parser.add_argument("--calibration", help="calibração (calibrate_slice_capacity.py): ativa a regra v2")
     args = parser.parse_args(argv)
-    r = analyze(args.run)
+    r = analyze(args.run, calibration=Path(args.calibration) if args.calibration else None)
     print(f"Efeito do Control ({args.run}): {r['verdict']}" + (f" — {r['reason']}" if r.get("reason") else ""))
     if r.get("control_sim_time_s") is not None:
         print(f"  Control no quadro {r['control_frame']}, t_sim = {r['control_sim_time_s']:.2f} s; cotas do PCAP: {r['quotas_from_pcap']}")
     for sst, s in (r.get("slices") or {}).items():
-        print(f"  SST {sst}: teto {s['cap_max_prb_pct']:.0f} %, parte antes {s['share_before_pct']:.1f} %; "
+        share = (f"parte antes {s['share_before_pct']:.1f} %" if "share_before_pct" in s
+                 else f"PRB usado (calibrado) {s['prb_used_before_pct_est']:.1f} %")
+        pred = (f"; previsto {s['predicted_after_mbps']:.2f} Mb/s (erro {100 * s['prediction_error']:.1f} %)"
+                if "predicted_after_mbps" in s else "")
+        print(f"  SST {sst}: teto {s['cap_max_prb_pct']:.0f} %, {share}; "
               f"{s['throughput_before_mbps']:.2f} -> {s['throughput_after_mbps']:.2f} Mb/s "
-              f"({100 * s['relative_change']:+.1f} %); esperado {s['expectation']}: {'cumprido' if s['met'] else 'NÃO cumprido'}")
+              f"({100 * s['relative_change']:+.1f} %){pred}; esperado {s['expectation']}: {'cumprido' if s['met'] else 'NÃO cumprido'}")
     return 0 if r["verdict"] == "CONSISTENT" else 1
 
 

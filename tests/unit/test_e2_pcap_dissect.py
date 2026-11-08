@@ -458,7 +458,13 @@ def _series_csv(t_change, embb_after, urllc_after, wall0=1794146159.0):
     return "\n".join(rows) + "\n"
 
 
-def _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after, urllc_after):
+def _calibration(tmp_path, k):
+    path = tmp_path / "calibration.json"
+    path.write_text(json.dumps({"valid": True, "k_mbps_per_prb_pct": {"1": k, "2": k}}), encoding="utf-8")
+    return path
+
+
+def _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after, urllc_after, calibration_k=3.0):
     try:
         from src.e2.v3 import codec as c3
         e2sm = c3.E2smCodec()
@@ -489,7 +495,14 @@ def _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after, urllc_after):
     ev = tmp_path / "events.jsonl"
     ev.write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
     dis.dissect(run_dir / "raw" / "e2_sctp.pcap", droot / run_dir.name, run_dir.name, xapp_events=ev)
-    effect = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot)
+    cal = _calibration(tmp_path, calibration_k) if calibration_k else None
+    effect = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot, calibration=cal)
+    if cal:
+        # o certificador confere a calibração pelo caminho relativo à raiz do repositório
+        monkeypatch.setattr(cert, "ROOT", tmp_path)
+        data = json.loads((droot / run_dir.name / "slice_effect.json").read_text(encoding="utf-8"))
+        data["calibration"] = "calibration.json"
+        (droot / run_dir.name / "slice_effect.json").write_text(json.dumps(data), encoding="utf-8")
     return run_dir, droot, effect
 
 
@@ -499,7 +512,11 @@ def test_effect_consistent_with_quotas_certifies_g4(tmp_path, policy, lock, monk
     assert effect["verdict"] == "CONSISTENT", effect
     assert abs(effect["control_sim_time_s"] - 5.0) < 1e-6
     assert effect["quotas_from_pcap"][0]["max_prb_ratio"] == 40
-    assert effect["slices"]["1"]["expectation"] == "decrease" and effect["slices"]["2"]["expectation"] == "no_decrease"
+    # k = 3 Mb/s por % -> eMBB usava 50 % dos PRBs; teto 40 restringe; previsão 120 Mb/s, medido 100 (erro 16,7 %)
+    assert effect["rule"] == "v2-calibrated"
+    assert effect["slices"]["1"]["expectation"] == "decrease_to_prediction"
+    assert effect["slices"]["1"]["predicted_after_mbps"] == 120.0
+    assert effect["slices"]["2"]["expectation"] == "no_decrease"
     report = cert.certify_run(run_dir, policy, lock, [], droot)
     gates = cert.evaluate_gates([report], lock)
     assert gates["G4"]["verdict"] == cert.CERTIFIED, gates["G4"]["reason"]
@@ -520,3 +537,47 @@ def test_tampered_series_invalidates_effect(tmp_path, policy, lock, monkeypatch)
     csv_path.write_text(csv_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
     report = cert.certify_run(run_dir, policy, lock, [], droot)
     assert report.facts["slice_effect"]["verdict"] == "INVALID"
+
+
+def test_v1_rule_consistent_does_not_certify_g4(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    run_dir, droot, effect = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=100.0,
+                                                   urllc_after=150.0, calibration_k=None)
+    assert effect["rule"] == "v1-throughput-share" and effect["verdict"] == "CONSISTENT"
+    gates = cert.evaluate_gates([cert.certify_run(run_dir, policy, lock, [], droot)], lock)
+    assert gates["G4"]["verdict"] == cert.NOT_CERTIFIED
+
+
+def test_v2_prediction_outside_tolerance_is_inconsistent(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    # eMBB cai, mas para 60 Mb/s: previsão 40 % x 3 = 120 Mb/s, erro de 50 %
+    _, _, effect = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=60.0, urllc_after=150.0)
+    assert effect["verdict"] == "INCONSISTENT"
+    assert effect["slices"]["1"]["prediction_error"] == 0.5
+
+
+cal_mod = _load("calibrate_slice_capacity", "scripts/certification/calibrate_slice_capacity.py")
+
+
+@pytest.mark.parametrize("after,valid", [(90.0, True), (150.0, False)])
+def test_calibration_requires_binding_caps(tmp_path, lock, monkeypatch, after, valid):
+    try:
+        from src.e2.v3 import codec as c3
+        e2sm = c3.E2smCodec()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"ASN.1 do NORI indisponível: {exc}")
+    pdus = closed_loop_pdus()
+    pdus[5] = ("down", c3.build_slice_quota_control(e2sm, 1003, 1, 300,
+                                                    [c3.SlicePrbQuota(1, 30), c3.SlicePrbQuota(2, 30)]))
+    pdus[6] = ("up", _pdu(1, 4, [_req(1003, 1), _fn(300)]))
+    frames = [_frame(*((NODE, RIC, 38470, 36422) if d == "up" else (RIC, NODE, 36422, 38470)),
+                     [_data_chunk(i + 1, p)]) for i, (d, p) in enumerate(pdus)]
+    pcap = _pcap(frames)
+    run_dir = _nori_run(tmp_path, lock, pcap)
+    (run_dir / "raw" / "slice_series.csv").write_text(_series_csv(5.0, after, after), encoding="utf-8")
+    droot = tmp_path / "e2_dissection"
+    dis.dissect(run_dir / "raw" / "e2_sctp.pcap", droot / run_dir.name, run_dir.name, use_tshark=False)
+    out = cal_mod.calibrate(run_dir.name, tmp_path / "cal.json", tmp_path / "runs", droot)
+    assert out["valid"] is valid
+    if valid:
+        assert out["k_mbps_per_prb_pct"] == {"1": 3.0, "2": 3.0}

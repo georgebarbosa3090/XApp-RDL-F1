@@ -24,7 +24,7 @@ def test_state_reads_congestion_and_slices_from_kpm():
 def test_policies_conflict_on_the_same_target():
     proposals = loop.reference_proposals(loop.slice_state(CONGESTED, UES), NODE_ID)
     assert {(p.xapp_id, p.value, p.priority) for p in proposals} == {
-        ("xapp-qos-xslice", 40.0, 90), ("xapp-embb-throughput", 80.0, 60)}
+        ("xapp-qos-xslice", 25.0, 90), ("xapp-embb-throughput", 80.0, 60)}
     assert {(p.node_id, p.parameter) for p in proposals} == {(NODE_ID, "PRB_QUOTA")}
     only_embb = [UES[0]]
     assert loop.reference_proposals(loop.slice_state(CONGESTED, only_embb), NODE_ID) == []
@@ -35,10 +35,11 @@ def test_real_hrdl_pipeline_resolves_the_direct_conflict():
     assert record["decision_source"] == "H_RDL" and record["engine"] == loop.ENGINE
     assert [r["conflict_type"] for r in record["resolutions"]] == ["DIRECT"]
     assert record["resolutions"][0]["strategy"] == "TVS"
-    assert record["selected"]["xapp_id"] == "xapp-qos-xslice"
+    # Previsão pré-registrada da v2 (docs/07): com 25 contra 80, o TVS escolhe a política de vazão eMBB.
+    assert record["selected"]["xapp_id"] == "xapp-embb-throughput"
     assert record["quotas"] == [
-        {"sst": 1, "max_prb_ratio": 40, "min_prb_ratio": 0, "dedicated_prb_ratio": 0},
-        {"sst": 2, "max_prb_ratio": 60, "min_prb_ratio": 0, "dedicated_prb_ratio": 0}]
+        {"sst": 1, "max_prb_ratio": 80, "min_prb_ratio": 0, "dedicated_prb_ratio": 0},
+        {"sst": 2, "max_prb_ratio": 20, "min_prb_ratio": 0, "dedicated_prb_ratio": 0}]
 
 
 def test_decision_is_deterministic_across_fresh_deciders():
