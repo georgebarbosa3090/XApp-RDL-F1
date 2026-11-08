@@ -164,6 +164,8 @@ cd ns-3-oran && ./ns3 configure -d optimized --disable-examples --disable-tests 
 
 **Execução com proveniência e saída ao vivo:** `bash scripts/certification/run_ns3_certified.sh --scenario <cenario> --seed <n> [--baseline Bx] [-- args]` grava manifesto, logs, FlowMonitor e hashes em `experiments/runs/<run_id>/`. A certificação dos gates G0–G6 é feita por `python scripts/certification/certify_chain.py` (relatórios em `reports/certification/`).
 
+**Experimentos de conflito (S0–S7) com atuação real na RAN:** `python scripts/certification/run_conflict_experiment.py --scenario <S0..S7> --baseline <B0..B3> --seed <n>` aplica, durante a simulação, as ações decididas pelo baseline (cota de PRB, potência e handover via `simulations/ns3/rdl-nr-common.h`); `python scripts/certification/analyze_conflict_runs.py` resume vazão, atraso, ações inseguras e oscilações por cenário × baseline em `reports/conflicts/`. Detalhes em [`simulations/ns3/README.md`](../simulations/ns3/README.md).
+
 Navegue até a raiz do workspace do simulador ns-3 (onde reside o script `./ns3`):
 ```bash
 cd ~/ns3-oran-workspace/ns-3-oran

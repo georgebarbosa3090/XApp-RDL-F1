@@ -188,6 +188,7 @@ O grafo $G_t$ não é materializado aresta a aresta. A `Perception` agrupa as ar
 - **conflito indireto:** um evento por par de parâmetros do mesmo nó com $K(p_i) \cap K(p_j) \neq \emptyset$, contendo os candidatos de ambos.
 
 #### Arbitragem em dois estágios
+0. **Safety Guard por proposta:** antes da detecção, cada proposta fora dos limites físicos é descartada individualmente (`Refinement.check_bounds`). Sem isso, uma ação insegura que conflitasse com uma legítima levaria a validação a rejeitar a resolução inteira, e uma xApp maliciosa vetaria ações legítimas (observado no cenário S7).
 1. **Estágio direto (TVS):** para cada (nó, parâmetro) em conflito, a utilidade TVS escolhe um único vencedor entre todos os candidatos (não há fusão posterior por prioridade).
 2. **Estágio indireto (EEVS):** os conflitos indiretos são resolvidos apenas entre os vencedores do estágio anterior; perdedores do estágio direto não voltam a competir. Um alvo que perde no EEVS é bloqueado no lote.
 

@@ -1,0 +1,260 @@
+{
+  "generated_at_utc": "2026-11-08T03:08:45Z",
+  "aggregate": [
+    {
+      "scenario": "S1",
+      "baseline": "B0",
+      "n": 1,
+      "seeds": [
+        1001
+      ],
+      "thp_pre": {
+        "mean": 366.75248,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_conflict": {
+        "mean": 118.06316000000001,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_post": {
+        "mean": 109.68357777777778,
+        "sd": null,
+        "ci95": null
+      },
+      "delay_conflict_ms": {
+        "mean": 17.047640299750206,
+        "sd": null,
+        "ci95": null
+      },
+      "actions_applied": {
+        "mean": 10.0,
+        "sd": null,
+        "ci95": null
+      },
+      "handovers": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "unsafe_applied": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "oscillations": {
+        "mean": 9.0,
+        "sd": null,
+        "ci95": null
+      }
+    },
+    {
+      "scenario": "S1",
+      "baseline": "B3",
+      "n": 1,
+      "seeds": [
+        1001
+      ],
+      "thp_pre": {
+        "mean": 366.75248,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_conflict": {
+        "mean": 278.98192,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_post": {
+        "mean": 275.3023111111111,
+        "sd": null,
+        "ci95": null
+      },
+      "delay_conflict_ms": {
+        "mean": 9.136882062756568,
+        "sd": null,
+        "ci95": null
+      },
+      "actions_applied": {
+        "mean": 5.0,
+        "sd": null,
+        "ci95": null
+      },
+      "handovers": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "unsafe_applied": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "oscillations": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      }
+    },
+    {
+      "scenario": "S7",
+      "baseline": "B0",
+      "n": 1,
+      "seeds": [
+        1001
+      ],
+      "thp_pre": {
+        "mean": 4.038740000000001,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_conflict": {
+        "mean": 5.535019999999999,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_post": {
+        "mean": 5.459421052631579,
+        "sd": null,
+        "ci95": null
+      },
+      "delay_conflict_ms": {
+        "mean": 10.270647476690838,
+        "sd": null,
+        "ci95": null
+      },
+      "actions_applied": {
+        "mean": 15.0,
+        "sd": null,
+        "ci95": null
+      },
+      "handovers": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "unsafe_applied": {
+        "mean": 10.0,
+        "sd": null,
+        "ci95": null
+      },
+      "oscillations": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      }
+    },
+    {
+      "scenario": "S7",
+      "baseline": "B3",
+      "n": 1,
+      "seeds": [
+        1001
+      ],
+      "thp_pre": {
+        "mean": 4.038740000000001,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_conflict": {
+        "mean": 5.4716,
+        "sd": null,
+        "ci95": null
+      },
+      "thp_post": {
+        "mean": 5.459926315789473,
+        "sd": null,
+        "ci95": null
+      },
+      "delay_conflict_ms": {
+        "mean": 13.131592753406197,
+        "sd": null,
+        "ci95": null
+      },
+      "actions_applied": {
+        "mean": 5.0,
+        "sd": null,
+        "ci95": null
+      },
+      "handovers": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "unsafe_applied": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      },
+      "oscillations": {
+        "mean": 0.0,
+        "sd": null,
+        "ci95": null
+      }
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "nr_S1_B0_seed1001",
+      "scenario": "S1",
+      "baseline": "B0",
+      "seed": 1001,
+      "run_status": "SUCCESS",
+      "thp_pre": 366.75248,
+      "thp_conflict": 118.06316000000001,
+      "thp_post": 109.68357777777778,
+      "delay_conflict_ms": 17.047640299750206,
+      "actions_applied": 10,
+      "handovers": 0,
+      "unsafe_applied": 0,
+      "oscillations": 9
+    },
+    {
+      "run_id": "nr_S1_B3_seed1001",
+      "scenario": "S1",
+      "baseline": "B3",
+      "seed": 1001,
+      "run_status": "SUCCESS",
+      "thp_pre": 366.75248,
+      "thp_conflict": 278.98192,
+      "thp_post": 275.3023111111111,
+      "delay_conflict_ms": 9.136882062756568,
+      "actions_applied": 5,
+      "handovers": 0,
+      "unsafe_applied": 0,
+      "oscillations": 0
+    },
+    {
+      "run_id": "nr_S7_B0_seed1001",
+      "scenario": "S7",
+      "baseline": "B0",
+      "seed": 1001,
+      "run_status": "SUCCESS",
+      "thp_pre": 4.038740000000001,
+      "thp_conflict": 5.535019999999999,
+      "thp_post": 5.459421052631579,
+      "delay_conflict_ms": 10.270647476690838,
+      "actions_applied": 15,
+      "handovers": 0,
+      "unsafe_applied": 10,
+      "oscillations": 0
+    },
+    {
+      "run_id": "nr_S7_B3_seed1001",
+      "scenario": "S7",
+      "baseline": "B3",
+      "seed": 1001,
+      "run_status": "SUCCESS",
+      "thp_pre": 4.038740000000001,
+      "thp_conflict": 5.4716,
+      "thp_post": 5.459926315789473,
+      "delay_conflict_ms": 13.131592753406197,
+      "actions_applied": 5,
+      "handovers": 0,
+      "unsafe_applied": 0,
+      "oscillations": 0
+    }
+  ],
+  "skipped": []
+}

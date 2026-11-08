@@ -130,6 +130,14 @@ class Refinement:
 
         return True, ""
 
+    def check_bounds(self, action: XAppAction) -> Tuple[bool, str]:
+        """Valida só limites físicos e formato do parâmetro (sem histerese temporal)."""
+        if not self.config.get("enabled", True):
+            return True, "Safety guard disabled"
+        if not action or not action.node_id:
+            return False, "Unknown target node or empty action"
+        return self._validate_parameter_bounds(action)
+
     def commit_control_timestamps(self, actions: List[XAppAction], timestamp_ms: Optional[float] = None) -> None:
         """Registra os timestamps de histerese ao final do lote de decisão."""
         now = timestamp_ms if timestamp_ms is not None else (time.time() * 1000)

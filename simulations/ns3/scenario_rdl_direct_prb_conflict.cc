@@ -22,6 +22,7 @@
 #if __has_include("ns3/nr-module.h")
 #include "ns3/nr-module.h"
 #define HAS_NR_MODULE 1
+#include "rdl-nr-common.h"
 #else
 #define HAS_NR_MODULE 0
 #endif
@@ -68,6 +69,12 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpmPeriod", "Periodo de relatorio E2SM-KPM (s)", kpmPeriod);
     cmd.AddValue ("seed", "Semente pseudoaleatoria do gerador ns-3", randomSeed);
     cmd.AddValue ("run", "Indice da repeticao estocastica ns-3", runIndex);
+    std::string actionSchedule = "";
+    double kpiPeriod = 0.1;
+    cmd.AddValue ("actionSchedule", "CSV de acoes de controle aplicadas na RAN (gerado pelo baseline)", actionSchedule);
+    cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
+    uint32_t udpIntervalUs = 5000;
+    cmd.AddValue ("udpIntervalUs", "Intervalo entre pacotes UDP por UE (us)", udpIntervalUs);
     cmd.Parse (argc, argv);
 
     SeedManager::SetSeed (randomSeed);
@@ -211,10 +218,13 @@ int main (int argc, char *argv[])
 
         UdpClientHelper client (ueIpIface.GetAddress (i), port);
         client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-        client.SetAttribute ("Interval", TimeValue (MilliSeconds (5))); // Carga Saturante de 1024B / 5ms
+        client.SetAttribute ("Interval", TimeValue (MicroSeconds (udpIntervalUs))); // 1024B a cada udpIntervalUs
         client.SetAttribute ("PacketSize", UintegerValue (1024));
         clientApps.Add (client.Install (remoteHost));
     }
+    RdlActuation rdlActuation (nrHelper, gNbDevs, ueDevs);
+    rdlActuation.Load (actionSchedule);
+    RdlKpiSampler rdlKpi (ueDevs, kpiPeriod, simTime);
 #else
     // Modo Fallback: Enlaces Ponto-a-Ponto e Sub-redes IPv4 Dedicadas
     InternetStackHelper internet;

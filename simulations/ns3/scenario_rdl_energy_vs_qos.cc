@@ -23,6 +23,7 @@
 #if __has_include("ns3/nr-module.h")
 #include "ns3/nr-module.h"               // Modulo principal do 5G-LENA NR (PHY, MAC, RRC, BWP, Schedulers)
 #define HAS_NR_MODULE 1                  // Flag indicando que o modulo 5G-LENA esta presente no build
+#include "rdl-nr-common.h"
 #else
 #define HAS_NR_MODULE 0                  // Flag indicando compilacao em modo fallback caso 5G-LENA esteja ausente
 #endif
@@ -88,6 +89,10 @@ int main (int argc, char *argv[])
     uint32_t runIndex = 1;
     cmd.AddValue ("seed", "Semente pseudoaleatoria do gerador ns-3", randomSeed);
     cmd.AddValue ("run", "Indice da repeticao estocastica ns-3", runIndex);
+    std::string actionSchedule = "";
+    double kpiPeriod = 0.1;
+    cmd.AddValue ("actionSchedule", "CSV de acoes de controle aplicadas na RAN (gerado pelo baseline)", actionSchedule);
+    cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
     cmd.Parse (argc, argv);
 
     SeedManager::SetSeed (randomSeed);
@@ -302,6 +307,11 @@ int main (int argc, char *argv[])
 
     // Ativacao dos traces fisicos e de enlace do 5G-LENA
     nrHelper->EnableTraces ();
+    // X2 entre gNBs: necessária para executar handovers pedidos pelas xApps
+    nrHelper->AddX2Interface (gridScenario.GetBaseStations ());
+    RdlActuation rdlActuation (nrHelper, gnbNetDev, ueNetDev);
+    rdlActuation.Load (actionSchedule);
+    RdlKpiSampler rdlKpi (ueNetDev, kpiPeriod, simTime);
 #else
     // =========================================================================
     // Modo Fallback: Execucao RAN Basica (Quando modulo 5G-LENA nao estiver presente)
@@ -360,7 +370,7 @@ int main (int argc, char *argv[])
     Simulator::Run ();                                                       // Dispara a execucao do laco de simulacao discreta
 
     // Exportacao dos resultados de Throughput, Atraso, Perda e Jitter em formato XML estruturado
-    flowMonitor->SerializeToXmlFile ("flowmonitor_results.xml", true, true);
+    flowMonitor->SerializeToXmlFile ("flowmonitor_scenario_rdl_energy_vs_qos.xml", true, true);
     Simulator::Destroy ();                                                   // Libera a memoria alocada pelas estruturas do simulador
 
     NS_LOG_INFO ("Simulacao EEVS concluida com sucesso. Metricas salvas em flowmonitor_results.xml.");

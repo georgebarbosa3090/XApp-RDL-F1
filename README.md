@@ -195,6 +195,12 @@ bash scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_direct_p
 python scripts/certification/certify_chain.py
 ```
 
+**Experimentos de conflito (S0–S7):** os cenários aplicam na RAN as ações decididas por cada baseline (B0 sem coordenação, B1 FIFO, B2 prioridade estática, B3 H-RDL real), com cota de PRB, potência e handover via [`simulations/ns3/rdl-nr-common.h`](simulations/ns3/rdl-nr-common.h); detalhes e primeiros achados em [`simulations/ns3/README.md`](simulations/ns3/README.md#431-experimentos-de-conflito-com-atuação-real-na-ran-s0s7).
+```bash
+python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
+python scripts/certification/analyze_conflict_runs.py
+```
+
 O certificador trata como não elegíveis as execuções geradas por scripts com RNG estatístico (como as 210 rodadas `S1_B0..B6_seed1001..1030` de `scripts/run_b0_b6_campaign_30seeds.py`), fixtures causais e mensagens E2 impressas pelo código do cenário. O último relatório está em [`reports/certification/`](reports/certification/).
 
 ---

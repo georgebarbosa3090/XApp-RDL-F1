@@ -22,6 +22,7 @@
 #if __has_include("ns3/nr-module.h")
 #include "ns3/nr-module.h"
 #define HAS_NR_MODULE 1
+#include "rdl-nr-common.h"
 #else
 #define HAS_NR_MODULE 0
 #endif
@@ -68,6 +69,10 @@ int main (int argc, char *argv[])
     uint32_t runIndex = 1;
     cmd.AddValue ("seed", "Semente pseudoaleatoria do gerador ns-3", randomSeed);
     cmd.AddValue ("run", "Indice da repeticao estocastica ns-3", runIndex);
+    std::string actionSchedule = "";
+    double kpiPeriod = 0.1;
+    cmd.AddValue ("actionSchedule", "CSV de acoes de controle aplicadas na RAN (gerado pelo baseline)", actionSchedule);
+    cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
     cmd.Parse (argc, argv);
 
     SeedManager::SetSeed (randomSeed);
@@ -151,43 +156,25 @@ int main (int argc, char *argv[])
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
     mobility.Install (ueNodes);
 
-    InternetStackHelper internet;
-    internet.Install (gNbNodes);
-    internet.Install (ueNodes);
-
 #if HAS_NR_MODULE
-    Ptr<NrPointToPointEpcHelper> epcHelper = CreateObject<NrPointToPointEpcHelper> ();
-    Ptr<IdealBeamformingHelper> idealBeamformingHelper = CreateObject<IdealBeamformingHelper> ();
-    Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
-    nrHelper->SetBeamformingHelper (idealBeamformingHelper);
-    nrHelper->SetEpcHelper (epcHelper);
-
-    CcBwpCreator ccBwpCreator;
-    CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
-    OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
-    Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
-    channelHelper->AssignChannelsToBands ({band});
-    BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
-
-    NetDeviceContainer gNbDevs = nrHelper->InstallGnbDevice (gNbNodes, allBwps);
-    NetDeviceContainer ueDevs = nrHelper->InstallUeDevice (ueNodes, allBwps);
-#endif
-
+    // Rede NR funcional comum (rdl-nr-common.h): EPC, host remoto, IPs, attach ao gNB mais
+    // proximo e X2. A montagem anterior nao anexava os UEs nem lhes atribuia IP, e o trafego
+    // era enviado para 10.0.0.1 (inexistente): o FlowMonitor ficava vazio.
+    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth);
     uint16_t port = 9501;
     ApplicationContainer serverApps;
     ApplicationContainer clientApps;
-
-    for (uint32_t i = 0; i < ueNum; ++i)
-    {
-        UdpServerHelper server (port + i);
-        serverApps.Add (server.Install (ueNodes.Get (i)));
-
-        UdpClientHelper client (Ipv4Address ("10.0.0.1"), port + i);
-        client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-        client.SetAttribute ("Interval", TimeValue (MilliSeconds (15)));
-        client.SetAttribute ("PacketSize", UintegerValue (512));
-        clientApps.Add (client.Install (gNbNodes.Get (i % gNbNum)));
-    }
+    // Carga original do cenario, agora em downlink a partir do host remoto
+    RdlInstallDownlinkUdp (rdlNet, ueNodes, serverApps, clientApps, port,
+                           [&] (uint32_t i) { return MilliSeconds (15); }, 512);
+    RdlActuation rdlActuation (rdlNet.nrHelper, rdlNet.gnbDevs, rdlNet.ueDevs);
+    rdlActuation.Load (actionSchedule);
+    RdlKpiSampler rdlKpi (rdlNet.ueDevs, kpiPeriod, simTime);
+#else
+    NS_FATAL_ERROR ("Este cenario requer o modulo 5G-LENA (nr).");
+    ApplicationContainer serverApps;
+    ApplicationContainer clientApps;
+#endif
 
     serverApps.Start (Seconds (0.5));
     serverApps.Stop (Seconds (simTime));

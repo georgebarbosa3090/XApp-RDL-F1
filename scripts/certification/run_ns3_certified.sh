@@ -16,8 +16,15 @@
 #
 # Uso (dentro do WSL/Linux):
 #   bash scripts/certification/run_ns3_certified.sh \
-#        --scenario scenario_rdl_closed_loop_nori --seed 1001 --baseline B3 \
-#        [--run-id S8_B3_seed1001] [--e2-trace-dir /caminho/traços] [-- <args do cenário>]
+#        --scenario scenario_rdl_direct_prb_conflict --seed 1001 --baseline B3 \
+#        [--run-id nr_S1_B3_seed1001] [--action-schedule cronograma.csv] \
+#        [--attach decision_log.json] [--extra-source HRDL_RUNTIME] \
+#        [--e2-trace-dir /caminho/traços] [-- <args do cenário>]
+#
+# --action-schedule: cronograma de ações de controle (gerado pelo baseline) aplicado na
+#   RAN pelo cenário via rdl-nr-common.h; é copiado para raw/ e entra nos hashes.
+# --attach: arquivo adicional da execução (ex.: log de decisões do baseline) copiado para raw/.
+# --extra-source: origem adicional declarada no manifesto (validada contra a política).
 #
 # Variáveis: NS3_DIR (padrão ~/ns3-oran-workspace/ns-3-oran)
 # =============================================================================
@@ -25,7 +32,8 @@ set -uo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 NS3_DIR="${NS3_DIR:-${HOME}/ns3-oran-workspace/ns-3-oran}"
-SCENARIO="" SEED="" BASELINE="" RUN_ID="" E2_TRACE_DIR="" SCENARIO_ARGS=()
+SCENARIO="" SEED="" BASELINE="" RUN_ID="" E2_TRACE_DIR="" ACTION_SCHEDULE="" SCENARIO_ARGS=()
+ATTACHMENTS=() EXTRA_SOURCES=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -34,6 +42,9 @@ while [ $# -gt 0 ]; do
     --baseline) BASELINE="$2"; shift 2 ;;
     --run-id) RUN_ID="$2"; shift 2 ;;
     --e2-trace-dir) E2_TRACE_DIR="$2"; shift 2 ;;
+    --action-schedule) ACTION_SCHEDULE="$2"; shift 2 ;;
+    --attach) ATTACHMENTS+=("$2"); shift 2 ;;
+    --extra-source) EXTRA_SOURCES+=("$2"); shift 2 ;;
     --) shift; SCENARIO_ARGS=("$@"); break ;;
     *) echo "Argumento desconhecido: $1" >&2; exit 64 ;;
   esac
@@ -42,6 +53,13 @@ done
 [ -n "$SCENARIO" ] && [ -n "$SEED" ] || { echo "Obrigatório: --scenario e --seed" >&2; exit 64; }
 [[ "$SEED" =~ ^[0-9]+$ ]] || { echo "--seed deve ser inteiro" >&2; exit 64; }
 [ -x "${NS3_DIR}/ns3" ] || { echo "ns-3 não encontrado em NS3_DIR=${NS3_DIR} (rode scripts/setup_ns3.sh)" >&2; exit 69; }
+[ -z "$ACTION_SCHEDULE" ] || [ -f "$ACTION_SCHEDULE" ] || { echo "Cronograma não encontrado: $ACTION_SCHEDULE" >&2; exit 66; }
+for f in "${ATTACHMENTS[@]}"; do [ -f "$f" ] || { echo "Anexo não encontrado: $f" >&2; exit 66; }; done
+for src in "${EXTRA_SOURCES[@]}"; do
+  awk '{sub(/\r$/, "")} /^publication_eligible_sources:/{f=1;next} /^[^ #]/{f=0} f' "${REPO_DIR}/reproducibility/provenance_policy.yaml" \
+    | grep -qE "^  - ${src}\$" \
+    || { echo "Origem não elegível na política: ${src}" >&2; exit 64; }
+done
 
 RUN_ID="${RUN_ID:-${SCENARIO}_${BASELINE:-NA}_seed${SEED}}"
 RUN_DIR="${REPO_DIR}/experiments/runs/${RUN_ID}"
@@ -64,6 +82,8 @@ BACKEND=$([ -n "$NORI_DIR" ] && echo NORI_NS3 || echo NS3_5GLENA)
 SCENARIO_SRC="${REPO_DIR}/simulations/ns3/${SCENARIO}.cc"
 SCRATCH_SRC="${NS3_DIR}/scratch/${SCENARIO}.cc"
 [ -f "$SCENARIO_SRC" ] && cp -f "$SCENARIO_SRC" "$SCRATCH_SRC"
+# Cabeçalhos comuns dos cenários (rede NR, atuação e KPIs)
+cp -f "${REPO_DIR}/simulations/ns3/"*.h "${NS3_DIR}/scratch/" 2>/dev/null || true
 [ -f "$SCRATCH_SRC" ] || { echo "Cenário ${SCENARIO}.cc não encontrado" >&2; rm -rf "$RUN_DIR"; exit 66; }
 
 WORK_DIR="$(mktemp -d)"
@@ -76,7 +96,15 @@ if grep -qE 'AddValue *\( *"seed"' "$SCRATCH_SRC"; then
 else
   RNG_ARGS="--RngRun=${SEED}"
 fi
-SIM_ARGS="${RNG_ARGS} ${SCENARIO_ARGS[*]:-}"
+SCHEDULE_ARG=""
+SCHEDULE_SHA=""
+if [ -n "$ACTION_SCHEDULE" ]; then
+  cp -f "$ACTION_SCHEDULE" "${RUN_DIR}/raw/action_schedule.csv"
+  SCHEDULE_ARG="--actionSchedule=${RUN_DIR}/raw/action_schedule.csv"
+  SCHEDULE_SHA="$(sha256sum "${RUN_DIR}/raw/action_schedule.csv" | cut -d' ' -f1)"
+fi
+for f in "${ATTACHMENTS[@]}"; do cp -f "$f" "${RUN_DIR}/raw/"; done
+SIM_ARGS="${RNG_ARGS} ${SCHEDULE_ARG} ${SCENARIO_ARGS[*]:-}"
 CMD=(./ns3 run "scratch/${SCENARIO} ${SIM_ARGS}" --cwd "${WORK_DIR}")
 echo "=== [${STARTED}] ${SCENARIO} seed=${SEED} backend=${BACKEND} (saída ao vivo) ==="
 # Saída ao vivo no terminal e, ao mesmo tempo, gravada como evidência.
@@ -99,6 +127,9 @@ ls "${RUN_DIR}/raw/"*.xml >/dev/null 2>&1 && SOURCES='["NS3_FLOWMONITOR"]'
 if [ "$BACKEND" = "NORI_NS3" ] && { ls "${RUN_DIR}/raw/"*.raw >/dev/null 2>&1 || ls "${RUN_DIR}/raw/"*.pcap* >/dev/null 2>&1; }; then
   SOURCES='["NS3_FLOWMONITOR", "NORI_E2"]'
 fi
+if [ "${#EXTRA_SOURCES[@]}" -gt 0 ] && [ "$SOURCES" != '[]' ]; then
+  SOURCES="$(python3 -c 'import json,sys; s=json.loads(sys.argv[1]); s+= [x for x in sys.argv[2:] if x not in s]; print(json.dumps(s))' "$SOURCES" "${EXTRA_SOURCES[@]}")"
+fi
 RUN_STATUS=$([ "$EXIT_CODE" -eq 0 ] && echo SUCCESS || echo FAILED)
 
 python3 - "$RUN_DIR" <<PY
@@ -117,6 +148,7 @@ manifest = {
     "seed": int("${SEED}"),
     "command": "cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} ${SIM_ARGS}'",
     "rng_args": "${RNG_ARGS}",
+    "action_schedule_sha256": "${SCHEDULE_SHA}" or None,
     "run_status": "${RUN_STATUS}",
     "exit_code": int("${EXIT_CODE}"),
     "started_at_utc": "${STARTED}",

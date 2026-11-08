@@ -554,10 +554,26 @@ class RDLxApp:
         for act in actions:
             self.memory.add_action(act)
 
-        conflicts = self.perception.detect_action_group(actions)
-        self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
         from src.observability.causal_tracker import causal_tracker
         causal_tracker.register_proposals([action.action_id for action in actions])
+
+        # 0. Safety Guard por proposta, ANTES da arbitragem: uma ação fora dos limites
+        # físicos é descartada sozinha. Se entrasse na arbitragem, a validação da resolução
+        # rejeitaria o lote inteiro e uma xApp maliciosa vetaria as ações legítimas com que
+        # conflita (observado no cenário S7 de injeção de falhas).
+        safe_actions: List[XAppAction] = []
+        for act in actions:
+            within_bounds, reason = self.refinement.check_bounds(act)
+            if within_bounds:
+                safe_actions.append(act)
+            else:
+                logger.warning("Proposta bloqueada pelo Safety Guard antes da arbitragem",
+                               xapp=act.xapp_id, param=act.parameter, val=act.value, reason=reason)
+                causal_tracker.record_safety_validation(intervention=True)
+        actions = safe_actions
+
+        conflicts = self.perception.detect_action_group(actions)
+        self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
 
         def target_of(act: XAppAction) -> Tuple[str, str]:
             return (act.node_id, act.parameter)

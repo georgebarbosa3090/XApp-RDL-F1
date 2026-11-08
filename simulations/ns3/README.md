@@ -73,11 +73,43 @@ python scripts/certification/certify_chain.py --run scenario_rdl_direct_prb_conf
 ```
 O executor mostra a saída do simulador em tempo real e grava em `experiments/runs/<run_id>/` o manifesto (versões lidas dos checkouts, comando, horários, código de saída), `logs/`, as saídas em `raw/` e `hashes.sha256`. Ele nunca sobrescreve uma execução existente.
 
-> **Limitação dos cenários S0–S8 (verificada em 2026-11-08):** nenhum cenário altera parâmetros da RAN durante a simulação. `conflictStart`/`conflictEnd` são lidos da linha de comando, mas não agendam nenhum evento; não há mudança de cota de PRB, potência ou handover (no S5 o cronograma de ping-pong existe só em comentário; no S8 os eventos agendados apenas imprimem mensagens). Os cenários medem o tráfego NR de base e **não exercitam conflitos nem a H-RDL**. Na análise do FlowMonitor, exclua os fluxos internos do EPC (GTP-C, porta 2123).
->
+### 4.3.1. Experimentos de conflito com atuação real na RAN (S0–S7)
+
+Desde 2026-11-08 os cenários S0–S7 aplicam conflitos na RAN durante a simulação, por meio de [`rdl-nr-common.h`](rdl-nr-common.h):
+
+| Ação de controle | Atuação no 5G-LENA v5.1 |
+| :-- | :-- |
+| `PRB_QUOTA` (%) | máscara de RBGs do escalonador (`NrMacSchedulerNs3::SetDlNotchedRbgMask`; o escalonador padrão `NrMacSchedulerTdmaRR` respeita a máscara) |
+| `TX_POWER` (dBm) | potência do gNB (`NrGnbPhy::SetTxPower`) |
+| `HANDOVER` (índice do gNB de destino) | handover X2 dos UEs servidos pelo gNB de origem (`NrHelper::HandoverRequest`) |
+| `SCHEDULER_WEIGHT` | sem mapeamento; registrado como `UNSUPPORTED` |
+
+O cabeçalho também monta a rede NR funcional usada por S0 e S4–S7, cuja montagem anterior não anexava os UEs nem lhes atribuía IP (FlowMonitor vazio), e grava duas séries medidas no simulador: `rdl_actuation_log.csv` (cada ação aplicada, com instante e efeito) e `rdl_kpi_timeseries.csv` (vazão e atraso por célula a cada `--kpiPeriod`). A saída `[RDL-ACT]`/`[RDL-KPI]` aparece ao vivo no terminal.
+
+As propostas das xApps de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). O baseline decide o que chega à RAN:
+
+| Baseline | Regra |
+| :-- | :-- |
+| B0 | sem coordenação: cada proposta é aplicada ao chegar |
+| B1 | FIFO por janela de 200 ms e alvo |
+| B2 | prioridade estática por janela e alvo |
+| B3 | H-RDL: pipeline real `RDLxApp._process_action_group` por janela, no relógio simulado |
+
+```bash
+python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
+python scripts/certification/analyze_conflict_runs.py      # tabela por cenário × baseline em reports/conflicts/
+```
+Cada execução fica em `experiments/runs/nr_<S>_<B>_seed<N>/` com o cronograma (`raw/action_schedule.csv`) e o log de decisões (`raw/decision_log.json`) cobertos pelos hashes. É uma avaliação **em malha aberta** (sem E2 nem realimentação de KPM); o closed loop exige a pilha NORI.
+
+**Achados das primeiras execuções (2026-11-08):**
+- S1 (seed 1001): no B0 a cota oscila 75 %→30 % e a vazão cai de 367 para 118 Mbps (atraso 17 ms); com B3 a H-RDL mantém 75 % (279 Mbps, 9,1 ms).
+- S7: no B0 chegam à RAN 10 ações fora dos limites físicos (60 dBm, PRB 150 %); no B3, nenhuma. A rede do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
+- A percepção da H-RDL agrupa conflitos por gNB: conflitos **entre células** (S4: handover para uma célula que o Energy Saving desliga; S5: ping-pong entre gNB0 e gNB1) não são detectados.
+- Na análise do FlowMonitor, exclua os fluxos internos do EPC (GTP-C, porta 2123).
+
 > **Semente:** os cenários chamam `SeedManager::SetSeed(--seed)` e `SetRun(--run)` depois de ler a linha de comando, o que anula `--RngRun`. O executor certificado passa a semente por `--seed` quando o cenário expõe essa opção e registra o argumento em `rng_args` no manifesto.
 
-> **Atenção:** `scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc` gravam o mesmo `flowmonitor_results.xml`, e os FlowMonitor de S8 em `experiments/results/ns3_runs/` são byte-idênticos aos de S3. Confira o hash de cada saída antes de atribuí-la a um cenário. O `scenario_rdl_closed_loop_nori.cc` imprime mensagens E2 fixas por `std::cout` (`TraceLifecycleE2`), que não são evidência de protocolo.
+> **Atenção:** até 2026-11-08 `scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc` gravavam o mesmo `flowmonitor_results.xml` (agora cada um grava `flowmonitor_<cenário>.xml`), e os FlowMonitor de S8 em `experiments/results/ns3_runs/` são byte-idênticos aos de S3. Confira o hash de cada saída antes de atribuí-la a um cenário. O `scenario_rdl_closed_loop_nori.cc` imprime mensagens E2 fixas por `std::cout` (`TraceLifecycleE2`), que não são evidência de protocolo.
 
 ### 4.4. Suíte legada (sem proveniência)
 O script abaixo não grava manifesto e faz `git commit`/`git push` automáticos; seus resultados não são certificáveis.

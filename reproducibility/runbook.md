@@ -70,6 +70,12 @@ python scripts/certification/certify_chain.py
 ```
 O certificador emite o veredito dos gates G0–G6 em `reports/certification/`.
 
+Experimentos de conflito com atuação na RAN (baselines B0–B3; propostas em `simulations/ns3/conflicts/catalog.json`):
+```bash
+python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
+python scripts/certification/analyze_conflict_runs.py
+```
+
 ### Passo 3: Execução da Suíte de 3 Simulações Consecutivas
 
 * Executa em sequência rigorosa os cenários TVS, EEVS e Closed-Loop NORI (N = 30 Runs):
