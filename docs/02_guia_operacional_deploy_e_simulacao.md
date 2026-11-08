@@ -180,6 +180,8 @@ helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespac
 kubectl -n ricsim logs -f deploy/nori-ns3                               # preparo e compilação (horas na 1ª vez)
 ```
 
+O chart aplica os patches do projeto sobre o NORI listados no `versions.lock` (hoje um: [`0001-rc-control-ack.patch`](../deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), que faz a função E2SM-RC responder ao RIC Control com ACK; ver seção 7.8) e recompila incrementalmente; `BUILD_INFO.json` e cada manifesto registram `nori_patches`.
+
 O exemplo `nori-rc-slicing-demo` instala um FlowMonitor mas nunca o grava. O chart gera, em `scratch/`, a variante `nori-rc-slicing-flowmon`, idêntica ao exemplo exceto por gravar `flowmonitor.xml` ao fim de `Simulator::Run()` (os fontes do NORI ficam intactos; o manifesto registra o sha256 do fonte compilado em `scenario_source`). Execução ao vivo, com o período de relatório E2 alinhado ao da subscrição:
 
 ```bash
@@ -210,9 +212,11 @@ python scripts/certification/certify_chain.py
 O chart [`deploy/helm/xapp-kpm-probe`](../deploy/helm/xapp-kpm-probe/README.md) implanta, sem Docker, uma xApp mínima no namespace `ricxapp`: registra-se no AppMgr, assina E2SM-KPM v3.00 pelo SubMgr em cada nó E2 que fica `CONNECTED` no E2Mgr e registra cada RIC Indication recebida por RMR (tipo, subscription id, tamanho e sha256 do payload) em JSON Lines. O *Event Trigger* (Format 1, 1000 ms) e a *Action Definition* (estilo 1, Format 1) são codificados em APER com `asn1tools` a partir do ASN.1 do próprio NORI, baixado no commit fixado e conferido por sha256. A xApp não decide nada: materializa os elos Subscription e KPM da cadeia.
 
 ```bash
-helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp
+helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp --set-file e2v3Codec=src/e2/v3/codec.py
 kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
 ```
+
+Desde a fase 3, a xApp também envia, depois da 4.ª Indication de cada conexão, um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. A codificação E2AP/E2SM vem de [`src/e2/v3/codec.py`](../src/e2/v3/codec.py), passado ao chart com `--set-file` (sem cópia). A cota é fixa (`decision_source: FIXED_PROBE`).
 
 ### 7.6 Dissecação E2 do PCAP
 
@@ -247,6 +251,29 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 - Os três FlowMonitor têm 6 fluxos com pacotes recebidos (R9/R10 `PASS`).
 - Certificador: as três execuções são `ELIGIBLE`; **G1 `CERTIFIED`** com `nori_kpm_flowmon_seed1_r2` e `_p1s`. G3 continua `NOT_CERTIFIED`: nenhuma xApp enviou RIC Control (fase 3).
 - Observação: no E2 Setup, o RANfunction-Item da função 4 traz o OID do E2SM-KPM v3 (`1.3.6.1.4.1.53148.1.3.2.2`), embora a descrição CCC do NORI declare `…1.6.2.4`; o dissecador classifica pelo OID do E2AP e a reporta como KPM. A cadeia usa a função da subscrição (200).
+
+### 7.8 Resultado da fase 3: RIC Control E2SM-RC com ACK (2026-11-08)
+
+**Achado que motivou o patch.** O NORI `8a30867` aplica o RIC Control da função 300 (E2SM-RC: cotas de PRB por fatia no escalonador `NrRLMacSchedulerOfdma`), mas nunca responde com RIC Control Acknowledge; só a função 4 (E2SM-CCC, JSON) confirma. Sem ACK, o G3 é impossível. Por decisão registrada, o chart aplica [`0001-rc-control-ack.patch`](../deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch): a função 300 passa a enviar `RICcontrolAcknowledge` com o RICrequestID e o RANfunctionID do pedido, com o código que o próprio NORI usa na CCC, e só depois de decodificar ao menos uma cota. O patch e seu sha256 estão no `versions.lock`; o certificador (R6) recusa patches fora da lista. **A bancada que certifica G3 é, portanto, um NORI modificado.**
+
+**Codec v3.01.** [`src/e2/v3/codec.py`](../src/e2/v3/codec.py): E2AP v03.01 em APER escrito à mão (RIC Control Request e leitura de Acknowledge/Failure, IEs na ordem do ASN.1) e E2SM-KPM v03.00 / E2SM-RC v03.01 com `asn1tools` sobre o ASN.1 do NORI (download conferido por sha256). O Control segue o que o NORI decodifica (`model/ric-control-message.cc`): Control Header Format 1 (estilo 2, ação 6) e Control Message Format 1 com o parâmetro 1 (lista de políticas) contendo, por fatia, 3 = SST, 4 = PRB máximo, 5 = PRB mínimo e 6 = PRB dedicado.
+
+[`nori_rc_control_seed1`](../experiments/runs/nori_rc_control_seed1/execution_manifest.json) (`nori-rc-slicing-flowmon`, 40 s, `E2Periodicity=1`, NORI com o patch, xApp com cotas eMBB 70/10/5 % e URLLC 30/10/5 %):
+
+| # | Mensagem | Direção | IDs | Evidência |
+| --: | :-- | :-- | :-- | :-- |
+| 2 | E2 Setup Response | RIC → nó | transação 1 | PCAP + tshark |
+| 4 | Subscription Response | nó → RIC | 123/4, função 200 | PCAP + tshark |
+| 8 | Indication (KPM_t0) | nó → RIC | 123/4, função 200 | PCAP + tshark; mesmo sha256 recebido pela xApp, que a usou para disparar o Control |
+| 9 | RIC Control Request | RIC → nó | 1003/1, função 300 | PCAP + tshark; mesmos bytes enviados pela xApp |
+| 10 | RIC Control Acknowledge | nó → RIC | 1003/1, função 300 | PCAP + tshark; recebido pela xApp 1,9 ms após o envio, correlacionado |
+| 11 | Indication (KPM_t1) | nó → RIC | 123/4, função 200 | PCAP + tshark |
+
+- 86 mensagens E2AP; o tshark concorda com o dissecador nas 86; as 80 Indications do PCAP chegaram à xApp com os mesmos bytes.
+- Certificador: execução `ELIGIBLE` (R6 aceita o patch do lock); **G3 `CERTIFIED`**. **G4 `NOT_CERTIFIED`**: a cadeia está completa no fio, mas o Control registrado pela xApp tem `decision_source=FIXED_PROBE`; G4 exige uma decisão do H-RDL disparada pelo KPM_t0.
+- O tshark 4.2 só conhece o OID E2SM-RC `…53148.1.1.2.3`; o NORI anuncia o RC v3 como `…1.3.2.3`, e o tshark cai no dissector KPM (aviso "Dissector version mismatch"). A confirmação independente cobre o E2AP do Control e do ACK; o conteúdo E2SM-RC é conferido pelo codec (ida e volta, testes) e pelo decodificador asn1c do NORI (o ACK só sai depois de decodificar cotas).
+- Efeito: a vazão por fatia não mudou depois do Control (~102,7 Mbps nas duas). Cada UE pede 100 Mb/s e a célula de 100 MHz não satura, então um teto de 30 % de PRB ainda atende o URLLC. Demonstrar efeito causal (fase 4) exige cotas que restrinjam a carga ou carga maior.
+- O perfil `optimized` compila sem `NS_LOG`: os logs de aplicação de cota e de envio do ACK não aparecem no `stdout.log`; a evidência é o PCAP.
 
 ## 8. Implantação da xApp no Kubernetes
 

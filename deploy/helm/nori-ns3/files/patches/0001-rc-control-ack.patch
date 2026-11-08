@@ -1,0 +1,65 @@
+--- a/model/E2-interface.cc
++++ b/model/E2-interface.cc
+@@ -473,6 +473,62 @@
+                                        &E2Interface::ApplySlicingControl,
+                                        this,
+                                        quotas);
++
++        // [xapp-rdl 0001-rc-control-ack] O NORI 8a30867 aplica o RIC Control E2SM-RC mas não o
++        // confirma (só a função CCC envia ACK). Confirma aqui, com o mesmo código da CCC, quando
++        // o Control foi decodificado com ao menos uma cota de PRB: RICrequestID e RANfunctionID
++        // são copiados do pedido.
++        auto e2Term = m_netDev->GetObject<E2Termination>();
++        if (e2Term && !quotas.empty())
++        {
++            long reqId = 0, instId = 0, ranFuncId = 300;
++            auto& ies = sub_req_pdu->choice.initiatingMessage->value.choice.RICcontrolRequest.protocolIEs.list;
++            for (int i = 0; i < ies.count; ++i)
++            {
++                auto* ie = reinterpret_cast<RICcontrolRequest_IEs_t*>(ies.array[i]);
++                if (ie->value.present == RICcontrolRequest_IEs__value_PR_RICrequestID)
++                {
++                    reqId = ie->value.choice.RICrequestID.ricRequestorID;
++                    instId = ie->value.choice.RICrequestID.ricInstanceID;
++                }
++                else if (ie->value.present == RICcontrolRequest_IEs__value_PR_RANfunctionID)
++                {
++                    ranFuncId = ie->value.choice.RANfunctionID;
++                }
++            }
++
++            auto* ackPdu = (E2AP_PDU_t*)calloc(1, sizeof(E2AP_PDU_t));
++            ackPdu->present = E2AP_PDU_PR_successfulOutcome;
++            ackPdu->choice.successfulOutcome = (SuccessfulOutcome_t*)calloc(1, sizeof(SuccessfulOutcome_t));
++            ackPdu->choice.successfulOutcome->procedureCode = ProcedureCode_id_RICcontrol;
++            ackPdu->choice.successfulOutcome->criticality = Criticality_reject;
++            ackPdu->choice.successfulOutcome->value.present = SuccessfulOutcome__value_PR_RICcontrolAcknowledge;
++            auto* ack = &ackPdu->choice.successfulOutcome->value.choice.RICcontrolAcknowledge;
++
++            auto* ieReqId = (RICcontrolAcknowledge_IEs_t*)calloc(1, sizeof(RICcontrolAcknowledge_IEs_t));
++            ieReqId->id = ProtocolIE_ID_id_RICrequestID;
++            ieReqId->criticality = Criticality_reject;
++            ieReqId->value.present = RICcontrolAcknowledge_IEs__value_PR_RICrequestID;
++            ieReqId->value.choice.RICrequestID.ricRequestorID = reqId;
++            ieReqId->value.choice.RICrequestID.ricInstanceID = instId;
++            ASN_SEQUENCE_ADD(&ack->protocolIEs.list, ieReqId);
++
++            auto* ieFuncId = (RICcontrolAcknowledge_IEs_t*)calloc(1, sizeof(RICcontrolAcknowledge_IEs_t));
++            ieFuncId->id = ProtocolIE_ID_id_RANfunctionID;
++            ieFuncId->criticality = Criticality_reject;
++            ieFuncId->value.present = RICcontrolAcknowledge_IEs__value_PR_RANfunctionID;
++            ieFuncId->value.choice.RANfunctionID = ranFuncId;
++            ASN_SEQUENCE_ADD(&ack->protocolIEs.list, ieFuncId);
++
++            e2Term->SendE2Message(ackPdu);
++            NS_LOG_INFO("[xapp-rdl] RIC Control Acknowledge (E2SM-RC) sent: requestor=" << reqId
++                        << " instance=" << instId << " ranFunction=" << ranFuncId
++                        << " quotas=" << quotas.size());
++        }
++        else
++        {
++            NS_LOG_WARN("[xapp-rdl] RAN Slicing control without PRB quotas: no RICcontrolAcknowledge sent");
++        }
+         break;
+     }
+     case RicControlMessage::TS:

@@ -25,6 +25,11 @@ e2sm_kpm = "v03.00"
 e2sm_rc = "v03.01"
 oran_sc_release = "I"
 deployment = "helm: deploy/helm/nori-ns3"
+# Patches do projeto aceitos sobre o NORI (arquivo:sha256, separados por vírgula). Execuções sem
+# patch (NORI intacto) também conferem; um patch fora desta lista reprova R6.
+#   0001-rc-control-ack.patch: o NORI 8a30867 aplica o RIC Control E2SM-RC mas não envia
+#   RICcontrolAcknowledge (só a CCC envia); o patch o envia quando o Control traz cotas de PRB.
+nori_patches = "0001-rc-control-ack.patch:94a1d0911eb276ec279eb878fd8d0ab8a6d46af68a4a44973a7ade6e1516e3eb"
 
 # Pilha nativa sem NORI (FlowMonitor dos cenários de conflito S0-S7; sem E2).
 [profile.native]

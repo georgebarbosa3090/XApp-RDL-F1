@@ -90,6 +90,7 @@ manifest = {
     "nori_commit": info.get("nori_commit"),
     "e2sim_commit": info.get("e2sim_commit"),
     "e2ap": info.get("e2ap"), "e2sm_kpm": info.get("e2sm_kpm"), "e2sm_rc": info.get("e2sm_rc"),
+    "nori_patches": info.get("nori_patches", []),
     "e2term": "${E2TERM_ADDRESS}:${E2TERM_PORT}",
     "e2term_ip": "${E2TERM_IP}",
     "pcap_has_packets": pcap_has_packets,

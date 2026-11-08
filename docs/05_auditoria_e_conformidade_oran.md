@@ -34,8 +34,8 @@ Definidos em [`reproducibility/provenance_policy.yaml`](../reproducibility/prove
 | G0 | Manifestos completos e versões/commits iguais ao `versions.lock` | CERTIFIED (pilhas nativa e NORI) |
 | G1 | Execução NORI elegível com E2 Setup, Subscription e Indication KPM externos, confirmados por dissecação independente do PCAP (R14) | CERTIFIED |
 | G2 | Decisão H-RDL funcional (testes) | LOCAL_ONLY |
-| G3 | RIC Control e ACK/Failure externos correlacionados | NOT_CERTIFIED |
-| G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal | BLOCKED |
+| G3 | RIC Control e ACK/Failure externos correlacionados | CERTIFIED (NORI com o patch `0001-rc-control-ack` do lock) |
+| G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal, e Control decidido pelo H-RDL a partir do KPM_t0 (registro da xApp casado com o PCAP) | NOT_CERTIFIED (Control com cota fixa) |
 | G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | BLOCKED |
 | G6 | G4 e G5 certificados + reprodução independente | BLOCKED |
 
@@ -72,13 +72,17 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 23 | RtMgr da Release I tem o A1 Mediator fixo; sem ele, a rota da subscrição estoura o prazo do SubMgr | corrigido: A1 Mediator incluído na receita |
 | 24 | NORI ignora o *Event Trigger* da subscrição e reporta a cada `E2Periodicity` (padrão 10 ms) | documentado; execuções usam `--ns3::E2Interface::E2Periodicity=1` |
 | 25 | RAN function 4 do NORI anunciada no E2 Setup com o OID do E2SM-KPM v3, embora a descrição CCC declare outro OID | documentado |
+| 26 | NORI aplica o RIC Control E2SM-RC mas nunca envia RIC Control Acknowledge (só a CCC confirma) | contornado: patch `0001-rc-control-ack` no chart, listado com sha256 no lock e verificado por R6 |
+| 27 | Critério de G4 aceitava qualquer cadeia com os seis papéis, inclusive um Control fixo sem decisão | corrigido: G4 exige `decision_source=H_RDL` e disparo pelo KPM_t0, ligados ao PCAP por sha256 |
+| 28 | tshark 4.2 não disseca E2SM-RC v3 (OID `…1.3.2.3`) | documentado: confirmação independente limitada ao E2AP do Control/ACK |
+| 29 | Cotas de PRB do Control não restringiram a carga do cenário (vazão inalterada) | aberto: fase 4 precisa de cotas ou carga que exponham o efeito |
 
 As auditorias anteriores estão em [`auditoria/`](auditoria/README.md) como registro histórico; os relatórios com números não verificados, em [`historico/`](historico/README.md).
 
 ## 5. Pendências para interoperabilidade
 
-1. Gerar o codec E2SM-RC da xApp a partir do ASN.1 oficial (v3.01, compatível com o NORI) e validá-lo com o tshark, como já é feito com o E2AP do PCAP (fase 3, G3).
+1. Integrar o codec v3.01 ([`src/e2/v3/codec.py`](../src/e2/v3/codec.py)) ao pipeline de decisão do H-RDL, para que o Control venha de uma decisão sobre o KPM_t0 (G4).
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
-3. Capturar RIC Control e ACK reais (E2 Setup, Subscription e Indication KPM já capturados e certificados em G1).
+3. Propor ao NORI o envio do RIC Control Acknowledge na função E2SM-RC, para dispensar o patch local.
 4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).
 5. Autenticar a identidade das xApps no transporte de propostas.

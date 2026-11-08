@@ -108,6 +108,29 @@ else
   [ "$(git -C "$NS3/contrib/nr" rev-parse HEAD)" = "$NR_COMMIT" ] || { log "ERRO: nr fora do commit fixado"; exit 5; }
 fi
 
+# Patches do projeto sobre o NORI (deploy/helm/nori-ns3/files/patches, listados com sha256 no
+# reproducibility/versions.lock). Idempotente: só aplica o que falta e então recompila (-j${JOBS}).
+PATCHED=0
+for pf in /scripts/*.patch; do
+  [ -f "$pf" ] || continue
+  name="$(basename "$pf")"
+  if ( cd "$NS3/contrib/nori" && patch -p1 -R --dry-run -s -f < "$pf" ) >/dev/null 2>&1; then
+    log "patch ${name}: já aplicado"
+  elif ( cd "$NS3/contrib/nori" && patch -p1 --dry-run -s -f < "$pf" ) >/dev/null 2>&1; then
+    ( cd "$NS3/contrib/nori" && patch -p1 -s -f --no-backup-if-mismatch < "$pf" )
+    chown -R developer: "$NS3/contrib/nori"
+    log "patch ${name}: aplicado (sha256 $(sha256sum "$pf" | cut -d' ' -f1))"
+    PATCHED=1
+  else
+    log "ERRO: patch ${name} não se aplica ao NORI ${NORI_COMMIT}"; exit 7
+  fi
+done
+if [ "$PATCHED" = 1 ]; then
+  log "recompilação incremental após patches (-j${JOBS})"
+  set -o pipefail
+  su developer -c "cd '$NS3' && ./ns3 build -j${JOBS}" 2>&1 | tee "$W/logs/build_patches_$(date -u +%Y%m%dT%H%M%SZ).log"
+fi
+
 # Variante do projeto em scratch/ (os fontes do NORI ficam intactos): o exemplo RC do NORI
 # instala um FlowMonitor mas nunca o grava; a variante grava flowmonitor.xml (no --cwd da
 # execução, isto é, raw/) ao fim de Simulator::Run(). Só recompila quando a variante muda.
@@ -154,6 +177,9 @@ info = {
     "e2sim_commit": rev("$E2SIM"),
     "asn1c_commit": rev("$SRC/asn1c"),
     "e2ap": "v03.01", "e2sm_kpm": "v03.00", "e2sm_rc": "v03.01",
+    "nori_patches": [{"file": __import__("os").path.basename(p),
+                      "sha256": __import__("hashlib").sha256(open(p, "rb").read()).hexdigest()}
+                     for p in sorted(__import__("glob").glob("/scripts/*.patch"))],
     "build_profile": "${BUILD_PROFILE}",
     "compiler": first(["g++", "--version"]),
     "os": first(["bash", "-c", ". /etc/os-release && echo \$PRETTY_NAME"]),

@@ -25,7 +25,10 @@ xapp-rdl = "src.main:main"
 
 [project.optional-dependencies]
 oran = ["ricxappframe>=3.2.2"]
+# Codec E2SM v3 (KPM v03.00 / RC v03.01) compilado do ASN.1 do NORI: src/e2/v3/codec.py
+e2v3 = ["asn1tools>=0.169.0"]
 test = [
+    "asn1tools>=0.169.0",
     "httpx>=0.24.0",
     "mypy>=1.8.0",
     "pytest>=8.0.0",

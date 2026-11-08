@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 """
-xApp kpm-probe — assina E2SM-KPM v3.00 pelo SubMgr do Near-RT RIC Release I.
+xApp kpm-probe — assina E2SM-KPM v3.00 e envia RIC Control E2SM-RC v3.01 (Near-RT RIC Release I).
 
 Fluxo:
   1. registra a xApp no AppMgr (o RtMgr passa a conhecer o endpoint RMR);
   2. acompanha os nós E2 no E2Mgr; a cada nó que fica CONNECTED, envia ao SubMgr (REST)
-     uma subscrição REPORT com Event Trigger Format 1 e Action Definition Format 1,
-     codificados em APER com asn1tools a partir do ASN.1 do NORI no commit fixado;
+     uma subscrição REPORT com Event Trigger Format 1 e Action Definition Format 1;
   3. recebe por RMR as RIC Indications (12050) e registra tipo, subscription id,
-     tamanho e sha256 do payload — o sha256 permite casar cada Indication recebida com a
-     mensagem correspondente no PCAP da execução.
+     tamanho e sha256 do payload — o sha256 casa cada Indication recebida com o PCAP;
+  4. (fase 3) depois da N-ésima Indication KPM de um nó, envia um RIC Control (12040) com
+     cotas de PRB por fatia (E2SM-RC estilo 2, ação 6) e registra o ACK/Failure (12041/12042).
 
-Cada evento vai para stdout e para EVENTS_FILE (JSON Lines). A xApp não decide nada:
-é a sonda que materializa os elos Subscription e KPM da cadeia closed-loop.
+A codificação E2AP/E2SM vem de src/e2/v3/codec.py (o mesmo arquivo do repositório, montado
+pelo chart com helm --set-file). A cota enviada é FIXA, configurada no chart: o evento
+control_request registra decision_source=FIXED_PROBE e o KPM que disparou o envio, para que o
+certificador não confunda este Control com uma decisão do H-RDL (fase 4).
+
+Cada evento vai para stdout e para EVENTS_FILE (JSON Lines).
 """
 
 import hashlib
@@ -41,6 +45,15 @@ GRANULARITY_MS = int(ENV.get("KPM_GRANULARITY_PERIOD_MS", "1000"))
 MEAS_NAMES = [n for n in ENV.get("KPM_MEAS_NAMES", "").split(",") if n]
 ASN_DIR = ENV.get("ASN_DIR", "/data/asn")
 EVENTS_FILE = ENV.get("EVENTS_FILE", "/data/logs/kpm_probe_events.jsonl")
+RC_ENABLED = ENV.get("RC_CONTROL_ENABLED", "false").lower() == "true"
+RC_RAN_FUNCTION_ID = int(ENV.get("RC_RAN_FUNCTION_ID", "300"))
+RC_REQUESTOR_ID = int(ENV.get("RC_REQUESTOR_ID", "1003"))
+RC_AFTER_INDICATIONS = int(ENV.get("RC_AFTER_INDICATIONS", "4"))
+RC_QUOTAS = ENV.get("RC_SLICE_QUOTAS", "1:70:10:5,2:30:10:5")   # sst:max:min:dedicated (%)
+DECISION_SOURCE = "FIXED_PROBE"
+
+sys.path.insert(0, "/scripts")
+import e2v3_codec as codec  # noqa: E402  (src/e2/v3/codec.py)
 
 RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILURE",
              12020: "RIC_SUB_DEL_REQ", 12021: "RIC_SUB_DEL_RESP", 12050: "RIC_INDICATION",
@@ -163,22 +176,26 @@ def deregister() -> None:
 # E2SM-KPM v3.00 (ASN.1 do NORI)
 # ---------------------------------------------------------------------------
 
+E2SM = None
+
+
 def encode_kpm():
-    import asn1tools
-    files = [os.path.join(ASN_DIR, f) for f in ("e2sm-v03.01.asn", "e2sm-kpm-v03.00.asn")]
-    spec = asn1tools.compile_files(files, "per")
-    trigger = spec.encode("E2SM-KPM-EventTriggerDefinition", {
-        "eventDefinition-formats": ("eventDefinition-Format1", {"reportingPeriod": REPORTING_PERIOD_MS})})
-    action = spec.encode("E2SM-KPM-ActionDefinition", {
-        "ric-Style-Type": REPORT_STYLE,
-        "actionDefinition-formats": ("actionDefinition-Format1", {
-            "measInfoList": [{"measType": ("measName", n), "labelInfoList": [{"measLabel": {"noLabel": "true"}}]}
-                             for n in MEAS_NAMES],
-            "granulPeriod": GRANULARITY_MS})})
-    asn_hashes = {os.path.basename(f): hashlib.sha256(open(f, "rb").read()).hexdigest() for f in files}
+    global E2SM
+    E2SM = codec.E2smCodec(ASN_DIR, download=False)   # entrypoint já baixou e conferiu o ASN.1
+    trigger = E2SM.kpm_event_trigger(REPORTING_PERIOD_MS)
+    action = E2SM.kpm_action_definition(MEAS_NAMES, GRANULARITY_MS, REPORT_STYLE)
     event("kpm_encoded", event_trigger_hex=trigger.hex(), action_definition_hex=action.hex(),
-          meas_names=MEAS_NAMES, reporting_period_ms=REPORTING_PERIOD_MS, asn1_sha256=asn_hashes)
+          meas_names=MEAS_NAMES, reporting_period_ms=REPORTING_PERIOD_MS, asn1_sha256=E2SM.asn1_sha256,
+          codec_sha256=hashlib.sha256(open(codec.__file__, "rb").read()).hexdigest())
     return trigger, action
+
+
+def parse_quotas(spec: str):
+    quotas = []
+    for item in filter(None, (x.strip() for x in spec.split(","))):
+        sst, mx, mn, ded = (int(v) for v in item.split(":"))
+        quotas.append(codec.SlicePrbQuota(sst, mx, mn, ded))
+    return quotas
 
 
 # ---------------------------------------------------------------------------
@@ -222,6 +239,55 @@ def unsubscribe(sub_id: str, meid: str) -> None:
 # ---------------------------------------------------------------------------
 
 COUNTS = {}
+PLMN = {}            # meid -> PLMN Identity (bytes) lido do E2Mgr
+CONTROL = {}         # meid -> estado do Control enviado neste ciclo de conexão
+_control_instance = [0]
+
+
+def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> None:
+    """Envia um RIC Control com as cotas fixas e registra o pedido (bytes e KPM que o disparou)."""
+    _control_instance[0] += 1
+    instance = _control_instance[0]
+    quotas = parse_quotas(RC_QUOTAS)
+    header = E2SM.rc_slice_quota_header(PLMN.get(meid, b"\x00\xf1\x10"))
+    message = E2SM.rc_slice_quota_message(quotas)
+    pdu = codec.encode_ric_control_request(RC_REQUESTOR_ID, instance, RC_RAN_FUNCTION_ID, header, message,
+                                           ack_request=True)
+    sbuf = rmr.rmr_alloc_msg(ctx, len(pdu), payload=pdu, gen_transaction_id=True, mtype=12040,
+                             meid=meid.encode())
+    state = None
+    for _ in range(10):
+        sbuf = rmr.rmr_send_msg(ctx, sbuf)
+        state = sbuf.contents.state
+        if state != rmr.RMR_ERR_RETRY:
+            break
+        time.sleep(0.1)
+    rmr.rmr_free_msg(sbuf)
+    CONTROL[meid] = {"requestor": RC_REQUESTOR_ID, "instance": instance, "ran_function_id": RC_RAN_FUNCTION_ID,
+                     "sent_at": time.monotonic(), "outcome": None}
+    event("control_request", meid=meid, rmr_state=state, rmr_ok=state == rmr.RMR_OK,
+          ric_requestor_id=RC_REQUESTOR_ID, ric_instance_id=instance, ran_function_id=RC_RAN_FUNCTION_ID,
+          quotas=[q.__dict__ for q in quotas], control_header_hex=header.hex(), control_message_hex=message.hex(),
+          length=len(pdu), sha256=hashlib.sha256(pdu).hexdigest(), pdu_hex=pdu.hex(),
+          decision_source=DECISION_SOURCE, trigger_kpm_sha256=trigger_sha, trigger_kpm_seq=trigger_seq)
+
+
+def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
+    try:
+        out = codec.parse_ric_control_outcome(payload)
+    except codec.CodecError as exc:
+        event("control_outcome", meid=meid, mtype=mtype, decode_error=str(exc), sha256=hashlib.sha256(payload).hexdigest())
+        return
+    pending = CONTROL.get(meid) or next((c for c in CONTROL.values() if c.get("instance") == out.get("ric_instance_id")), None)
+    correlated = bool(pending) and (pending["requestor"], pending["instance"], pending["ran_function_id"]) == (
+        out.get("ric_requestor_id"), out.get("ric_instance_id"), out.get("ran_function_id"))
+    latency = round((time.monotonic() - pending["sent_at"]) * 1000, 3) if pending else None
+    if pending:
+        pending["outcome"] = out["outcome"]
+    event("control_outcome", meid=meid, mtype=mtype, outcome=out["outcome"],
+          ric_requestor_id=out.get("ric_requestor_id"), ric_instance_id=out.get("ric_instance_id"),
+          ran_function_id=out.get("ran_function_id"), correlated_with_request=correlated, latency_ms=latency,
+          length=len(payload), sha256=hashlib.sha256(payload).hexdigest(), cause_raw=out.get("cause_raw"))
 
 
 def rmr_loop() -> None:
@@ -253,10 +319,19 @@ def rmr_loop() -> None:
         mtype, sub_id = s[rmr.RMR_MS_MSG_TYPE], s[rmr.RMR_MS_SUB_ID]
         COUNTS[(mtype, sub_id)] = COUNTS.get((mtype, sub_id), 0) + 1
         meid = s[rmr.RMR_MS_MEID]
-        event("rmr_message", mtype=mtype, mtype_name=RMR_TYPES.get(mtype, "?"), sub_id=sub_id,
-              meid=meid.decode("utf-8", "replace") if isinstance(meid, bytes) else meid,
-              length=len(payload), sha256=hashlib.sha256(payload).hexdigest(),
-              seq=COUNTS[(mtype, sub_id)], source=s[rmr.RMR_MS_MSG_SOURCE])
+        meid = meid.decode("utf-8", "replace") if isinstance(meid, bytes) else meid
+        sha = hashlib.sha256(payload).hexdigest()
+        event("rmr_message", mtype=mtype, mtype_name=RMR_TYPES.get(mtype, "?"), sub_id=sub_id, meid=meid,
+              length=len(payload), sha256=sha, seq=COUNTS[(mtype, sub_id)], source=s[rmr.RMR_MS_MSG_SOURCE])
+        if mtype in (12041, 12042):
+            handle_control_outcome(meid, mtype, payload)
+        elif (mtype == 12050 and RC_ENABLED and meid and meid not in CONTROL
+              and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS):
+            try:
+                send_control(rmr, ctx, meid, sha, COUNTS[(mtype, sub_id)])
+            except Exception as exc:  # noqa: BLE001 - registra e segue recebendo KPM
+                CONTROL[meid] = {"error": str(exc)}
+                event("control_error", meid=meid, detail=f"{type(exc).__name__}: {exc}")
     rmr.rmr_free_msg(mbuf)
     rmr.rmr_close(ctx)
 
@@ -269,7 +344,9 @@ def main() -> int:
     signal.signal(signal.SIGTERM, lambda *_: STOP.set())
     signal.signal(signal.SIGINT, lambda *_: STOP.set())
     event("start", name=NAME, version=VERSION, http_host=HTTP_HOST, rmr_host=RMR_HOST,
-          e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID)
+          e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID,
+          rc_control_enabled=RC_ENABLED, rc_ran_function_id=RC_RAN_FUNCTION_ID, rc_requestor_id=RC_REQUESTOR_ID,
+          rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, decision_source=DECISION_SOURCE)
     server = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     def rmr_guard():
@@ -279,8 +356,8 @@ def main() -> int:
             event("rmr_error", detail=f"{type(exc).__name__}: {exc}")
             STOP.set()
 
-    threading.Thread(target=rmr_guard, daemon=True).start()
     trigger, action = encode_kpm()
+    threading.Thread(target=rmr_guard, daemon=True).start()
     register()
 
     subs = {}      # meid -> subscription id
@@ -298,6 +375,9 @@ def main() -> int:
             if status_seen.get(meid) != state:
                 event("e2_node_status", meid=meid, status=state, global_nb_id=node.get("globalNbId"))
                 status_seen[meid] = state
+            plmn = (node.get("globalNbId") or {}).get("plmnId")
+            if plmn and len(plmn) == 6:
+                PLMN[meid] = bytes.fromhex(plmn)
             if state == "CONNECTED" and meid not in subs and attempts.get(meid, 0) < 5:
                 attempts[meid] = attempts.get(meid, 0) + 1
                 sub_id = subscribe(meid, trigger, action)
@@ -305,6 +385,7 @@ def main() -> int:
                     subs[meid] = sub_id
             elif state != "CONNECTED":
                 attempts.pop(meid, None)
+                CONTROL.pop(meid, None)   # próxima conexão (nova execução) recebe novo Control
                 if meid in subs:
                     indications = {str(k[1]): v for k, v in COUNTS.items() if k[0] == 12050}
                     event("e2_node_disconnected", meid=meid, subscription_id=subs[meid],

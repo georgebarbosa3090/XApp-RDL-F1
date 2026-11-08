@@ -472,16 +472,18 @@ def assign_chain_roles(messages: List[Dict[str, Any]], kinds: Dict[int, str]) ->
     def kpm_indication(m: Dict[str, Any]) -> bool:
         return m.get("role") == "indication" and m["direction"] == "E2_NODE->RIC" and _req_key(m) == sub_key
 
-    t0 = first(kpm_indication, sub_resp["index"])
-    if not t0:
-        return roles
-    roles["kpm_t0"] = t0["index"]
     ctrl = first(lambda m: m.get("role") == "control_request" and m["direction"] == "RIC->E2_NODE"
-                 and kinds.get((_req_key(m) or (0, 0, -1))[2]) in (None, "RC"), t0["index"])
+                 and kinds.get((_req_key(m) or (0, 0, -1))[2]) in (None, "RC"), sub_resp["index"])
     if not ctrl:
+        t0 = first(kpm_indication, sub_resp["index"])
+        roles["kpm_t0"] = t0["index"] if t0 else None
         return roles
+    # KPM_t0 = último KPM antes do Control: o estado observado quando o Control foi decidido.
+    before = [m for m in messages if sub_resp["index"] < m["index"] < ctrl["index"] and kpm_indication(m)]
+    roles["kpm_t0"] = before[-1]["index"] if before else None
     roles["control_request"] = ctrl["index"]
-    ack = first(lambda m: m.get("role") == "control_ack" and _req_key(m) == _req_key(ctrl), ctrl["index"])
+    ack = first(lambda m: m.get("role") == "control_ack" and m["direction"] == "E2_NODE->RIC"
+                and _req_key(m) == _req_key(ctrl), ctrl["index"])
     if not ack:
         return roles
     roles["control_ack"] = ack["index"]
@@ -584,6 +586,7 @@ def xapp_crosscheck(messages: List[Dict[str, Any]], roles: Dict[str, Optional[in
     raw = events_path.read_bytes()
     received: Dict[str, int] = {}
     subscriptions = []
+    controls, outcomes = [], []
     for line in raw.decode("utf-8").splitlines():
         try:
             ev = json.loads(line)
@@ -593,6 +596,11 @@ def xapp_crosscheck(messages: List[Dict[str, Any]], roles: Dict[str, Optional[in
             received[ev["sha256"]] = received.get(ev["sha256"], 0) + 1
         elif ev.get("event") in ("subscription_request", "submgr_notification"):
             subscriptions.append({k: ev.get(k) for k in ("t_utc", "event", "status", "response", "body") if k in ev})
+        elif ev.get("event") == "control_request":
+            controls.append(ev)
+        elif ev.get("event") == "control_outcome":
+            outcomes.append(ev)
+    decision = _decision_crosscheck(messages, roles, controls, outcomes)
     pcap_ind = [m for m in messages if m.get("role") == "indication" and m.get("direction") == "E2_NODE->RIC"]
     remaining = dict(received)
     matched = 0
@@ -614,6 +622,33 @@ def xapp_crosscheck(messages: List[Dict[str, Any]], roles: Dict[str, Optional[in
         "chain_roles_received_by_xapp": {r: by_index[i].get("received_by_xapp") for r, i in roles.items()
                                          if i and r in ("kpm_t0", "kpm_t1")},
         "subscription_events": subscriptions[:10],
+        "decision": decision,
+    }
+
+
+def _decision_crosscheck(messages: List[Dict[str, Any]], roles: Dict[str, Optional[int]],
+                         controls: List[Dict[str, Any]], outcomes: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """Liga o Control do PCAP ao registro da xApp: quem decidiu, com base em qual KPM, e o ACK recebido."""
+    by_index = {m["index"]: m for m in messages}
+    ctrl = by_index.get(roles.get("control_request") or -1)
+    if not controls and not ctrl:
+        return None
+    pcap_sha = ctrl["sha256"] if ctrl else None
+    sent = next((c for c in controls if c.get("sha256") == pcap_sha), None) if pcap_sha else None
+    t0 = by_index.get(roles.get("kpm_t0") or -1)
+    ack = by_index.get(roles.get("control_ack") or -1)
+    outcome = next((o for o in outcomes if ack and o.get("sha256") == ack["sha256"]), None)
+    return {
+        "xapp_control_requests": len(controls),
+        "pcap_control_sent_by_xapp": bool(sent),
+        "source": (sent or {}).get("decision_source"),
+        "trigger_kpm_sha256": (sent or {}).get("trigger_kpm_sha256"),
+        "trigger_is_kpm_t0": bool(sent and t0 and sent.get("trigger_kpm_sha256") == t0["sha256"]),
+        "quotas": (sent or {}).get("quotas"),
+        "ack_received_by_xapp": bool(outcome),
+        "xapp_outcome": (outcome or {}).get("outcome"),
+        "xapp_correlated_with_request": (outcome or {}).get("correlated_with_request"),
+        "xapp_ack_latency_ms": (outcome or {}).get("latency_ms"),
     }
 
 
@@ -761,6 +796,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"xApp: {x['xapp_indications']} Indications recebidas por RMR; "
               f"{x['pcap_indications_received_by_xapp']}/{x['pcap_indications']} do PCAP casadas por sha256; "
               f"{x['xapp_indications_not_in_pcap']} recebidas sem par no PCAP")
+        d = x.get("decision")
+        if d:
+            print(f"Control: enviado pela xApp={d['pcap_control_sent_by_xapp']}; fonte da decisão={d['source']}; "
+                  f"disparado pelo KPM_t0={d['trigger_is_kpm_t0']}; ACK recebido pela xApp={d['ack_received_by_xapp']} "
+                  f"({d['xapp_outcome']}, correlacionado={d['xapp_correlated_with_request']}, "
+                  f"{d['xapp_ack_latency_ms']} ms); cotas={d['quotas']}")
     for e in s["errors"]:
         print(f"ERRO: {e}")
     print(f"Saída: {out_dir}")

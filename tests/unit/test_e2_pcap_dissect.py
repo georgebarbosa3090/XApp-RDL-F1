@@ -244,7 +244,7 @@ def lock():
     return cert.load_versions_lock()
 
 
-def _nori_run(base, lock, pcap_bytes):
+def _nori_run(base, lock, pcap_bytes, **extra):
     nori = lock["profile.nori"]
     run_dir = base / "runs" / "nori_closed_loop_seed1"
     (run_dir / "raw").mkdir(parents=True)
@@ -259,6 +259,7 @@ def _nori_run(base, lock, pcap_bytes):
         "ns3_commit": nori["ns3_commit"], "nr_commit": nori["nr_commit"],
         "nori_commit": nori["nori_commit"], "e2sim_commit": nori["e2sim_commit"],
     }
+    manifest.update(extra)
     (run_dir / "execution_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(run_dir).as_posix()}"
              for p in sorted(run_dir.rglob("*")) if p.is_file()]
@@ -373,3 +374,63 @@ def test_xapp_crosscheck_matches_indications_by_sha256(tmp_path):
     assert x["chain_roles_received_by_xapp"] == {"kpm_t0": True}
     last = (tmp_path / "out" / "messages.tsv").read_text(encoding="utf-8").splitlines()[-1].split("\t")
     assert last[-1] == "0"
+
+
+def test_kpm_t0_is_the_last_kpm_before_the_control():
+    pdus = closed_loop_pdus()
+    extra = [("up", _pdu(0, 5, [_req(1001, 1), _fn(200), _octets(25, b"h"), _octets(26, b"kpm-%d" % i)]))
+             for i in range(3)]
+    pdus = pdus[:5] + extra + pdus[5:]   # 4 KPM antes do Control
+    frames = [_frame(*((NODE, RIC, 38470, 36422) if d == "up" else (RIC, NODE, 36422, 38470)),
+                     [_data_chunk(i + 1, p)]) for i, (d, p) in enumerate(pdus)]
+    msgs = dis.extract_messages(_pcap(frames))["messages"]
+    roles = dis.assign_chain_roles(msgs, dis.ran_function_kinds(msgs))
+    assert roles["kpm_t0"] == 8 and roles["control_request"] == 9 and roles["control_ack"] == 10
+    assert roles["kpm_t1"] == 11
+
+
+def _closed_loop_with_xapp_events(tmp_path, source):
+    pcap = tmp_path / "e2.pcap"
+    pcap.write_bytes(_closed_loop_pcap())
+    msgs = dis.extract_messages(pcap.read_bytes())["messages"]
+    by_role = {}
+    for m in msgs:
+        by_role.setdefault(m["role"], []).append(m)
+    t0, ctrl, ack = by_role["indication"][0], by_role["control_request"][0], by_role["control_ack"][0]
+    events = [{"t_utc": "2026-11-08T02:00:01Z", "event": "rmr_message", "mtype": 12050, "sha256": m["sha256"]}
+              for m in by_role["indication"]]
+    events.append({"t_utc": "2026-11-08T02:00:02Z", "event": "control_request", "sha256": ctrl["sha256"],
+                   "decision_source": source, "trigger_kpm_sha256": t0["sha256"], "quotas": []})
+    events.append({"t_utc": "2026-11-08T02:00:03Z", "event": "control_outcome", "sha256": ack["sha256"],
+                   "outcome": "ACK", "correlated_with_request": True, "latency_ms": 4.2})
+    path = tmp_path / "events.jsonl"
+    path.write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
+    return path
+
+
+@pytest.mark.parametrize("source,expected", [("FIXED_PROBE", "NOT_CERTIFIED"), ("H_RDL", "CERTIFIED")])
+def test_g4_requires_an_h_rdl_decision_on_kpm_t0(tmp_path, policy, lock, monkeypatch, source, expected):
+    _fake_tshark_agreeing(monkeypatch)
+    run_dir = _nori_run(tmp_path, lock, _closed_loop_pcap())
+    droot = tmp_path / "e2_dissection"
+    events = _closed_loop_with_xapp_events(tmp_path, source)
+    summary = dis.dissect(run_dir / "raw" / "e2_sctp.pcap", droot / run_dir.name, run_dir.name, xapp_events=events)
+    decision = summary["xapp_crosscheck"]["decision"]
+    assert decision["pcap_control_sent_by_xapp"] and decision["trigger_is_kpm_t0"] and decision["ack_received_by_xapp"]
+    report = cert.certify_run(run_dir, policy, lock, [], droot)
+    gates = cert.evaluate_gates([report], lock)
+    assert gates["G3"]["verdict"] == cert.CERTIFIED
+    assert gates["G4"]["verdict"] == expected, gates["G4"]["reason"]
+    if source == "FIXED_PROBE":
+        assert "FIXED_PROBE" in gates["G4"]["reason"]
+
+
+def test_versions_lock_accepts_only_listed_nori_patches(tmp_path, policy, lock):
+    allowed = lock["profile.nori"]["nori_patches"].split(",")[0]
+    name, _, digest = allowed.partition(":")
+    ok = _nori_run(tmp_path / "a", lock, b"", nori_patches=[{"file": name, "sha256": digest}])
+    rules = _rules(cert.certify_run(ok, policy, lock, [], tmp_path / "e2_dissection"))
+    assert rules["R6.versions_lock"].status == cert.PASS and name in rules["R6.versions_lock"].detail
+    bad = _nori_run(tmp_path / "b", lock, b"", nori_patches=[{"file": name, "sha256": "0" * 64}])
+    rules = _rules(cert.certify_run(bad, policy, lock, [], tmp_path / "e2_dissection"))
+    assert rules["R6.versions_lock"].status == cert.FAIL

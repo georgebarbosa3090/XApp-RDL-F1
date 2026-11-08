@@ -10,6 +10,10 @@ data:
 {{ .Files.Get "files/entrypoint.sh" | indent 4 }}
   run.sh: |
 {{ .Files.Get "files/run.sh" | indent 4 }}
+{{- range $path, $_ := .Files.Glob "files/patches/*.patch" }}
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -44,7 +48,7 @@ spec:
       labels:
         {{- include "nori-ns3.selector" . | nindent 8 }}
       annotations:
-        checksum/scripts: {{ printf "%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/run.sh") | sha256sum }}
+        checksum/scripts: {{ printf "%s%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/run.sh") (.Files.Glob "files/patches/*.patch" | toString) | sha256sum }}
     spec:
       containers:
         - name: workbench

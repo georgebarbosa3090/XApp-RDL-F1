@@ -62,6 +62,14 @@ bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
 python scripts/certification/certify_chain.py
 ```
 
+### Patches sobre o NORI
+
+O NORI `8a30867` aplica o RIC Control E2SM-RC da função 300 (cotas de PRB por fatia no escalonador `NrRLMacSchedulerOfdma`), mas não responde com RIC Control Acknowledge: só a função 4 (E2SM-CCC) confirma. Sem ACK não há como correlacionar Control e desfecho (gate G3). O patch [`files/patches/0001-rc-control-ack.patch`](files/patches/0001-rc-control-ack.patch) faz a função 300 enviar `RICcontrolAcknowledge` com o RICrequestID e o RANfunctionID do pedido, reaproveitando o código que o próprio NORI usa na CCC, e só quando o Control foi decodificado com ao menos uma cota de PRB.
+
+- O entrypoint aplica os patches de `files/patches/` de forma idempotente (`patch -R --dry-run` detecta o que já está aplicado) e recompila incrementalmente com `build.jobs` processos (~8 min na primeira vez); se um patch não se aplicar, aborta (código 7).
+- `BUILD_INFO.json` e cada manifesto registram `nori_patches` (arquivo e sha256). O certificador (R6) só aceita patches listados em `reproducibility/versions.lock` com o mesmo sha256. Execuções com o NORI intacto continuam conferindo.
+- O perfil `optimized` compila sem `NS_LOG`: os `NS_LOG_INFO` do NORI e do patch não aparecem no `stdout.log`; a evidência do Control e do ACK é o PCAP.
+
 ### Variante `nori-rc-slicing-flowmon`
 
 O exemplo `nori-rc-slicing-demo` instala um FlowMonitor mas não o grava, e a política exige FlowMonitor para `NORI_NS3` (R9/R10). A cada início, o entrypoint gera `scratch/nori-rc-slicing-flowmon.cc` a partir do exemplo, inserindo após o único `Simulator::Run();`:

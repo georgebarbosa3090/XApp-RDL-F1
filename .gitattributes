@@ -5,3 +5,4 @@ experiments/runs/** -text
 experiments/runs_failed/** -text
 experiments/e2_dissection/** -text
 experiments/xapp_logs/** -text
+*.patch text eol=lf

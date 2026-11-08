@@ -1,10 +1,13 @@
-# Chart `xapp-kpm-probe` — assinatura E2SM-KPM v3.00 no Near-RT RIC Release I
+# Chart `xapp-kpm-probe` — assinatura E2SM-KPM v3.00 e RIC Control E2SM-RC v3.01 no Near-RT RIC Release I
 
-xApp mínima, implantada via Helm sem Docker, que materializa os elos **Subscription** e **KPM** da cadeia closed-loop (gate G1). Ela não decide nem controla nada.
+xApp mínima, implantada via Helm sem Docker, que materializa os elos **Subscription**, **KPM**, **RIC Control** e **ACK** da cadeia closed-loop (gates G1 e G3). Ela não decide: a cota de PRB enviada é fixa, configurada no chart.
 
 1. Registra-se no AppMgr (`/ric/v1/register`); o RtMgr passa a distribuir rotas RMR para ela.
 2. Acompanha os nós E2 no E2Mgr (`/v1/nodeb/states`). A cada nó que fica `CONNECTED`, envia ao SubMgr (`POST /ric/v1/subscriptions`, porta 8088) uma subscrição REPORT na RAN function KPM (200 no NORI). Quando o nó cai, apaga a subscrição.
 3. Recebe por RMR as RIC Indications (tipo 12050) e registra tipo, subscription id, MEID, tamanho e sha256 do payload.
+4. Depois da N-ésima Indication de cada conexão (`rc.afterIndications`), envia por RMR um RIC Control (12040, MEID do nó) com cotas de PRB por fatia (E2SM-RC v3.01, estilo 2, ação 6; `rc.sliceQuotas`) e registra o ACK ou Failure (12041/12042), conferindo a correlação por RICrequestID e RANfunctionID. O evento `control_request` guarda os bytes enviados, `decision_source: FIXED_PROBE` e o sha256 da Indication que disparou o envio: o certificador não aceita este Control como decisão do H-RDL (G4).
+
+A codificação vem de [`src/e2/v3/codec.py`](../../../src/e2/v3/codec.py), o mesmo arquivo usado pelo repositório, passado ao chart com `--set-file` (sem cópia no chart; a renderização falha sem ele).
 
 O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* (estilo 1, Format 1, `granulPeriod` 1000 ms, métricas do estilo 1 anunciadas pelo NORI) são codificados em APER com `asn1tools`. A fonte é o ASN.1 do próprio NORI (`e2sm-v03.01.asn`, `e2sm-kpm-v03.00.asn`), baixado no commit fixado e conferido por sha256.
 
@@ -21,13 +24,13 @@ O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* 
 ## Uso
 
 ```bash
-helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp
+helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp --set-file e2v3Codec=src/e2/v3/codec.py
 kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
 ```
 
 Os eventos ficam em `/data/logs/kpm_probe_events.jsonl` (volume persistente). [`scripts/collect_nori_run.sh`](../../../scripts/collect_nori_run.sh) recorta os eventos do intervalo de uma execução NORI para `experiments/xapp_logs/<run_id>/`. Lá a dissecação do PCAP casa cada Indication do fio com a recebida pela xApp.
 
-Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action definition, sha256 do ASN.1), `appmgr_register`, `rmr_ready`, `e2_node_status`, `subscription_request` (status e resposta do SubMgr), `submgr_notification` (resultado da subscrição no nó), `rmr_message`, `e2_node_disconnected`, `subscription_delete`, `appmgr_deregister`, `stop`.
+Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action definition, sha256 do ASN.1 e do codec), `appmgr_register`, `rmr_ready`, `e2_node_status`, `subscription_request` (status e resposta do SubMgr), `submgr_notification` (resultado da subscrição no nó), `rmr_message`, `control_request`, `control_outcome`, `control_error`, `e2_node_disconnected`, `subscription_delete`, `appmgr_deregister`, `stop`.
 
 ## Detalhes de implantação
 
@@ -38,3 +41,5 @@ Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action de
 ## Resultado (2026-11-08)
 
 Com o NORI (`nori-rc-slicing-flowmon`), a subscrição foi aceita (HTTP 201 e notificação com `E2EventInstanceId` ≠ 0). A xApp recebeu por RMR todas as Indications que o PCAP mostra no fio, com os mesmos bytes: 11 954 de 11 954 com período de 10 ms e 80 de 80 com período de 1 s. Detalhes no [guia, seção 7.7](../../../docs/02_guia_operacional_deploy_e_simulacao.md#77-resultado-da-fase-2-subscrição-e-indications-kpm-reais-2026-11-08).
+
+Fase 3, com o NORI corrigido pelo patch do chart `nori-ns3`: o Control (RICrequestID 1003/1, função 300, cotas eMBB 70 % e URLLC 30 % de PRB máximo) saiu por RMR e o ACK voltou correlacionado em 1,9 ms; os bytes do Control e do ACK são os mesmos do PCAP. Detalhes no [guia, seção 7.8](../../../docs/02_guia_operacional_deploy_e_simulacao.md#78-resultado-da-fase-3-ric-control-e2sm-rc-com-ack-2026-11-08).

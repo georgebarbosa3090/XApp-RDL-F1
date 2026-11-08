@@ -165,9 +165,24 @@ def compare_with_lock(manifest: Dict[str, Any], profile: Dict[str, str], profile
         expected = profile.get(lock_key)
         if expected and norm_version(manifest.get(field_name)).split("-")[0] != norm_version(expected):
             mismatches.append(f"{label} {manifest.get(field_name)} != {expected}")
+    # Patches sobre o NORI: cada patch declarado no manifesto deve constar do lock com o mesmo sha256.
+    allowed = {}
+    for entry in filter(None, (e.strip() for e in profile.get("nori_patches", "").split(","))):
+        name, _, digest = entry.partition(":")
+        allowed[name.strip()] = digest.strip().lower()
+    declared = manifest.get("nori_patches") or []
+    patches_txt = []
+    for item in declared if isinstance(declared, list) else []:
+        name, digest = str(item.get("file", "")), str(item.get("sha256", "")).lower()
+        if allowed.get(name) != digest:
+            mismatches.append(f"patch {name} ({digest[:12]}) fora do lock")
+        patches_txt.append(f"{name} {digest[:12]}")
+    if declared and not isinstance(declared, list):
+        mismatches.append("nori_patches com formato inválido")
     if mismatches:
         return FAIL, f"[{profile_name}] " + "; ".join(mismatches)
-    return PASS, f"[{profile_name}] versões e commits conferem"
+    suffix = f"; NORI com patches do lock: {', '.join(patches_txt)}" if patches_txt else ""
+    return PASS, f"[{profile_name}] versões e commits conferem{suffix}"
 
 
 def synthetic_run_id_patterns() -> List[Tuple[str, re.Pattern]]:
@@ -569,12 +584,27 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
     gates["G3"] = {"verdict": (CERTIFIED if g3 else NOT_CERTIFIED) if gates["G1"]["verdict"] == CERTIFIED else BLOCKED,
                    "reason": f"{len(g3)} execução(ões) com RC request/ACK correlacionados" if g3
                              else "sem RIC Control + ACK externos correlacionados em execução elegível"}
-    g4 = [r for r in eligible if all(r.facts.get("e2_roles", {}).get(k) for k in ("kpm_t0", "control_request", "control_ack", "kpm_t1"))]
+    # G4 exige a cadeia completa E que o Control tenha sido decidido pelo H-RDL a partir do KPM_t0:
+    # o registro da xApp liga os bytes do Control no PCAP à fonte da decisão e ao KPM que a motivou.
+    def decision(r: RunReport) -> Dict[str, Any]:
+        return (((r.facts.get("e2_dissection") or {}).get("xapp_crosscheck") or {}).get("decision") or {})
+
+    complete = [r for r in eligible
+                if all(r.facts.get("e2_roles", {}).get(k) for k in ("kpm_t0", "control_request", "control_ack", "kpm_t1"))]
+    g4 = [r for r in complete if decision(r).get("source") == "H_RDL" and decision(r).get("trigger_is_kpm_t0")
+          and decision(r).get("pcap_control_sent_by_xapp")]
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
+    if g4_ok:
+        g4_reason = "cadeia KPM_t0 -> decisão H-RDL -> RC -> ACK -> KPM_t1 elegível encontrada"
+    elif complete:
+        sources = sorted({str(decision(r).get("source")) for r in complete})
+        g4_reason = (f"cadeia E2 completa em {len(complete)} execução(ões), mas o Control não veio de uma decisão "
+                     f"do H-RDL sobre o KPM_t0 (fonte registrada: {', '.join(sources)})")
+    else:
+        g4_reason = "nenhuma cadeia closed-loop elegível (fixtures e execuções sintéticas não contam)"
     gates["G4"] = {"verdict": (CERTIFIED if g4_ok else NOT_CERTIFIED) if gates["G3"]["verdict"] == CERTIFIED else BLOCKED,
-                   "reason": "cadeia KPM_t0 -> decisão -> RC -> ACK -> KPM_t1 elegível encontrada" if g4_ok
-                             else "nenhuma cadeia closed-loop elegível (fixtures e execuções sintéticas não contam)"}
+                   "reason": g4_reason}
     per_baseline: Dict[str, set] = {}
     for r in eligible:
         per_baseline.setdefault(str(r.facts.get("baseline")), set()).add(r.facts.get("seed"))
@@ -638,6 +668,11 @@ def render_markdown(reports: List[RunReport], gates: Dict[str, Dict[str, Any]], 
         "- Execuções NORI: as mensagens E2 vêm de `experiments/e2_dissection/<run>/` (dissecador do projeto, "
         "sem o codec da xApp) e só contam para G1–G4 quando o tshark concorda mensagem a mensagem (R14).",
         "- A dissecação classifica as mensagens pelos IEs E2AP; o conteúdo E2SM-KPM/E2SM-RC não é interpretado aqui.",
+        "- O tshark 4.2 não disseca o E2SM-RC v3 do NORI (OID `…53148.1.3.2.3`, desconhecido para ele): a confirmação "
+        "independente cobre o E2AP do Control e do ACK; o conteúdo RC é conferido pelo codec (ida e volta) e pelo "
+        "decodificador asn1c do NORI, cujo patch só envia o ACK depois de decodificar ao menos uma cota.",
+        "- G4 exige que o Control registrado pela xApp tenha `decision_source=H_RDL` e tenha sido disparado pelo KPM_t0; "
+        "Controls com cota fixa (`FIXED_PROBE`) certificam G3, não G4.",
         "- Artefatos `.raw` gravados pelo próprio projeto usam o codec local (autoconsistência, sem validação independente).",
     ]
     return "\n".join(lines) + "\n"
