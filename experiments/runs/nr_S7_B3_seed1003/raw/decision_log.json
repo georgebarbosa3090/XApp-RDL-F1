@@ -1,0 +1,283 @@
+{
+  "scenario": "S7",
+  "baseline": "B3",
+  "ns3_scenario": "scenario_rdl_fault_injection",
+  "summary": "Injeção de falhas: uma xApp maliciosa pede potência fora do limite físico (60 dBm) e cota de PRB inválida (150%), concorrendo com ações legítimas.",
+  "conflict_window_s": [
+    10.0,
+    15.0
+  ],
+  "engine": "src/rdl_xapp.py RDLxApp._process_action_group",
+  "repo_git_sha": "dfe8b1f",
+  "proposals": [
+    {
+      "t": 10.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 60.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g0-TX_POWER-10.000"
+    },
+    {
+      "t": 10.05,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-10.050"
+    },
+    {
+      "t": 10.1,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 150.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g1-PRB_QUOTA-10.100"
+    },
+    {
+      "t": 11.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 60.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g0-TX_POWER-11.000"
+    },
+    {
+      "t": 11.05,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-11.050"
+    },
+    {
+      "t": 11.1,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 150.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g1-PRB_QUOTA-11.100"
+    },
+    {
+      "t": 12.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 60.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g0-TX_POWER-12.000"
+    },
+    {
+      "t": 12.05,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-12.050"
+    },
+    {
+      "t": 12.1,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 150.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g1-PRB_QUOTA-12.100"
+    },
+    {
+      "t": 13.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 60.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g0-TX_POWER-13.000"
+    },
+    {
+      "t": 13.05,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-13.050"
+    },
+    {
+      "t": 13.1,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 150.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g1-PRB_QUOTA-13.100"
+    },
+    {
+      "t": 14.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 60.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g0-TX_POWER-14.000"
+    },
+    {
+      "t": 14.05,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-14.050"
+    },
+    {
+      "t": 14.1,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 150.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "rogue_xapp-g1-PRB_QUOTA-14.100"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 10.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-TX_POWER-10.000",
+        "xslice-g0-PRB_QUOTA-10.050",
+        "rogue_xapp-g1-PRB_QUOTA-10.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-10.050"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.555,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 11.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-TX_POWER-11.000",
+        "xslice-g0-PRB_QUOTA-11.050",
+        "rogue_xapp-g1-PRB_QUOTA-11.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-11.050"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.308,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 12.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-TX_POWER-12.000",
+        "xslice-g0-PRB_QUOTA-12.050",
+        "rogue_xapp-g1-PRB_QUOTA-12.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-12.050"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.254,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 13.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-TX_POWER-13.000",
+        "xslice-g0-PRB_QUOTA-13.050",
+        "rogue_xapp-g1-PRB_QUOTA-13.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-13.050"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.34,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 14.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-TX_POWER-14.000",
+        "xslice-g0-PRB_QUOTA-14.050",
+        "rogue_xapp-g1-PRB_QUOTA-14.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-14.050"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.265,
+      "rule": "hrdl-pipeline"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 10.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-10.050"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-11.050"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-12.050"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-13.050"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 70.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-14.050"
+    }
+  ]
+}

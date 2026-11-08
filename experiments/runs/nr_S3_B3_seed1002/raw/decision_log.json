@@ -1,0 +1,288 @@
+{
+  "scenario": "S3",
+  "baseline": "B3",
+  "ns3_scenario": "scenario_rdl_energy_vs_qos",
+  "summary": "Conflito direto de potência: Energy Saving reduz para 10 dBm, xSlice exige 40 dBm na mesma célula.",
+  "conflict_window_s": [
+    10.0,
+    15.0
+  ],
+  "engine": "src/rdl_xapp.py RDLxApp._process_action_group",
+  "repo_git_sha": "dfe8b1f",
+  "proposals": [
+    {
+      "t": 10.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-TX_POWER-10.000"
+    },
+    {
+      "t": 10.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 10.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-TX_POWER-10.050"
+    },
+    {
+      "t": 11.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-TX_POWER-11.000"
+    },
+    {
+      "t": 11.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 10.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-TX_POWER-11.050"
+    },
+    {
+      "t": 12.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-TX_POWER-12.000"
+    },
+    {
+      "t": 12.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 10.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-TX_POWER-12.050"
+    },
+    {
+      "t": 13.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-TX_POWER-13.000"
+    },
+    {
+      "t": 13.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 10.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-TX_POWER-13.050"
+    },
+    {
+      "t": 14.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-TX_POWER-14.000"
+    },
+    {
+      "t": 14.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 10.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-TX_POWER-14.050"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 10.2,
+      "proposal_ids": [
+        "xslice-g0-TX_POWER-10.000",
+        "energy_saving-g0-TX_POWER-10.050"
+      ],
+      "selected": [
+        "xslice-g0-TX_POWER-10.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "DIRECT",
+          "involved": [
+            "xslice-g0-TX_POWER-10.000",
+            "energy_saving-g0-TX_POWER-10.050"
+          ],
+          "winners": [
+            "xslice-g0-TX_POWER-10.000"
+          ],
+          "strategy": "TVS"
+        }
+      ],
+      "decision_wall_ms": 0.471,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 11.2,
+      "proposal_ids": [
+        "xslice-g0-TX_POWER-11.000",
+        "energy_saving-g0-TX_POWER-11.050"
+      ],
+      "selected": [
+        "xslice-g0-TX_POWER-11.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "DIRECT",
+          "involved": [
+            "xslice-g0-TX_POWER-11.000",
+            "energy_saving-g0-TX_POWER-11.050"
+          ],
+          "winners": [
+            "xslice-g0-TX_POWER-11.000"
+          ],
+          "strategy": "TVS"
+        }
+      ],
+      "decision_wall_ms": 0.227,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 12.2,
+      "proposal_ids": [
+        "xslice-g0-TX_POWER-12.000",
+        "energy_saving-g0-TX_POWER-12.050"
+      ],
+      "selected": [
+        "xslice-g0-TX_POWER-12.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "DIRECT",
+          "involved": [
+            "xslice-g0-TX_POWER-12.000",
+            "energy_saving-g0-TX_POWER-12.050"
+          ],
+          "winners": [
+            "xslice-g0-TX_POWER-12.000"
+          ],
+          "strategy": "TVS"
+        }
+      ],
+      "decision_wall_ms": 0.187,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 13.2,
+      "proposal_ids": [
+        "xslice-g0-TX_POWER-13.000",
+        "energy_saving-g0-TX_POWER-13.050"
+      ],
+      "selected": [
+        "xslice-g0-TX_POWER-13.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "DIRECT",
+          "involved": [
+            "xslice-g0-TX_POWER-13.000",
+            "energy_saving-g0-TX_POWER-13.050"
+          ],
+          "winners": [
+            "xslice-g0-TX_POWER-13.000"
+          ],
+          "strategy": "TVS"
+        }
+      ],
+      "decision_wall_ms": 0.174,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 14.2,
+      "proposal_ids": [
+        "xslice-g0-TX_POWER-14.000",
+        "energy_saving-g0-TX_POWER-14.050"
+      ],
+      "selected": [
+        "xslice-g0-TX_POWER-14.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "DIRECT",
+          "involved": [
+            "xslice-g0-TX_POWER-14.000",
+            "energy_saving-g0-TX_POWER-14.050"
+          ],
+          "winners": [
+            "xslice-g0-TX_POWER-14.000"
+          ],
+          "strategy": "TVS"
+        }
+      ],
+      "decision_wall_ms": 0.17,
+      "rule": "hrdl-pipeline"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 10.2,
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-TX_POWER-10.000"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-TX_POWER-11.000"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-TX_POWER-12.000"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-TX_POWER-13.000"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 0,
+      "parameter": "TX_POWER",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-TX_POWER-14.000"
+    }
+  ]
+}

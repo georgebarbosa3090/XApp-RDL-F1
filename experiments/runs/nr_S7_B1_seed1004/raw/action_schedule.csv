@@ -1,0 +1,16 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+10.2,0,TX_POWER,60.0,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-10.000
+10.2,1,PRB_QUOTA,150.0,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-10.100
+10.2,0,PRB_QUOTA,70.0,-1,xslice,xslice-g0-PRB_QUOTA-10.050
+11.2,0,TX_POWER,60.0,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-11.000
+11.2,1,PRB_QUOTA,150.0,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-11.100
+11.2,0,PRB_QUOTA,70.0,-1,xslice,xslice-g0-PRB_QUOTA-11.050
+12.2,0,TX_POWER,60.0,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-12.000
+12.2,1,PRB_QUOTA,150.0,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-12.100
+12.2,0,PRB_QUOTA,70.0,-1,xslice,xslice-g0-PRB_QUOTA-12.050
+13.2,0,TX_POWER,60.0,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-13.000
+13.2,1,PRB_QUOTA,150.0,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-13.100
+13.2,0,PRB_QUOTA,70.0,-1,xslice,xslice-g0-PRB_QUOTA-13.050
+14.2,0,TX_POWER,60.0,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-14.000
+14.2,1,PRB_QUOTA,150.0,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-14.100
+14.2,0,PRB_QUOTA,70.0,-1,xslice,xslice-g0-PRB_QUOTA-14.050

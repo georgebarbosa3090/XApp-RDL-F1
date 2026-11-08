@@ -1,0 +1,31 @@
+{
+  "run_id": "nr_S0_B1_seed1001",
+  "source": [
+    "NS3_FLOWMONITOR"
+  ],
+  "backend": "NS3_5GLENA",
+  "scenario": "scenario_rdl_no_conflict",
+  "baseline": "B1",
+  "seed": 1001,
+  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_no_conflict --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B1_seed1001/raw/action_schedule.csv --simTime=20'",
+  "rng_args": "--seed=1001",
+  "action_schedule_sha256": "0e1a2c1ce15d192b997c6de49214acda7c8ccbf7f6d13e87a6b300a544491c7b",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "started_at_utc": "2026-11-08T05:50:06Z",
+  "finished_at_utc": "2026-11-08T05:51:11Z",
+  "ns3_version": "3.48",
+  "ns3_commit": "d2add90b452d600cfb4859baed8e9ea633519447",
+  "fiveg_lena_version": "v5.1",
+  "nr_commit": "cedceadda17392c90587fb9400eb9b1f8c236713",
+  "nori_commit": null,
+  "repo_git_sha": "dedae21",
+  "scenario_sha256": "38646996126ab55b01225ac46cd2bb86e3276538bb16fae143fca7a55e63332d",
+  "environment": {
+    "os": "Ubuntu 24.04.1 LTS",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "cmake": "cmake version 3.28.3"
+  },
+  "publication_eligible": true
+}

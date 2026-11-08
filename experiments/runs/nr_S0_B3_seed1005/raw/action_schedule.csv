@@ -1,0 +1,3 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+10.2,1,TX_POWER,30.0,-1,energy_saving,energy_saving-g1-TX_POWER-10.050
+10.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-10.000

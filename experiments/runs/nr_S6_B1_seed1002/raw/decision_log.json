@@ -1,0 +1,1568 @@
+{
+  "scenario": "S6",
+  "baseline": "B1",
+  "ns3_scenario": "scenario_rdl_conflict_storm",
+  "summary": "Tempestade de conflitos: seis xApps disputam PRB e potência nas quatro gNBs a cada 0,5 s.",
+  "conflict_window_s": [
+    10.0,
+    15.0
+  ],
+  "engine": "FIFO: por janela e alvo, a primeira proposta a chegar.",
+  "repo_git_sha": "dfe8b1f",
+  "proposals": [
+    {
+      "t": 10.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-10.000"
+    },
+    {
+      "t": 10.02,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-10.020"
+    },
+    {
+      "t": 10.04,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-10.040"
+    },
+    {
+      "t": 10.06,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-10.060"
+    },
+    {
+      "t": 10.08,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-10.080"
+    },
+    {
+      "t": 10.1,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-10.100"
+    },
+    {
+      "t": 10.12,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-10.120"
+    },
+    {
+      "t": 10.14,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-10.140"
+    },
+    {
+      "t": 10.5,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-10.500"
+    },
+    {
+      "t": 10.52,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-10.520"
+    },
+    {
+      "t": 10.54,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-10.540"
+    },
+    {
+      "t": 10.56,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-10.560"
+    },
+    {
+      "t": 10.58,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-10.580"
+    },
+    {
+      "t": 10.6,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-10.600"
+    },
+    {
+      "t": 10.62,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-10.620"
+    },
+    {
+      "t": 10.64,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-10.640"
+    },
+    {
+      "t": 11.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-11.000"
+    },
+    {
+      "t": 11.02,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-11.020"
+    },
+    {
+      "t": 11.04,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-11.040"
+    },
+    {
+      "t": 11.06,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-11.060"
+    },
+    {
+      "t": 11.08,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-11.080"
+    },
+    {
+      "t": 11.1,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-11.100"
+    },
+    {
+      "t": 11.12,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-11.120"
+    },
+    {
+      "t": 11.14,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-11.140"
+    },
+    {
+      "t": 11.5,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-11.500"
+    },
+    {
+      "t": 11.52,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-11.520"
+    },
+    {
+      "t": 11.54,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-11.540"
+    },
+    {
+      "t": 11.56,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-11.560"
+    },
+    {
+      "t": 11.58,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-11.580"
+    },
+    {
+      "t": 11.6,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-11.600"
+    },
+    {
+      "t": 11.62,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-11.620"
+    },
+    {
+      "t": 11.64,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-11.640"
+    },
+    {
+      "t": 12.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-12.000"
+    },
+    {
+      "t": 12.02,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-12.020"
+    },
+    {
+      "t": 12.04,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-12.040"
+    },
+    {
+      "t": 12.06,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-12.060"
+    },
+    {
+      "t": 12.08,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-12.080"
+    },
+    {
+      "t": 12.1,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-12.100"
+    },
+    {
+      "t": 12.12,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-12.120"
+    },
+    {
+      "t": 12.14,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-12.140"
+    },
+    {
+      "t": 12.5,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-12.500"
+    },
+    {
+      "t": 12.52,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-12.520"
+    },
+    {
+      "t": 12.54,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-12.540"
+    },
+    {
+      "t": 12.56,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-12.560"
+    },
+    {
+      "t": 12.58,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-12.580"
+    },
+    {
+      "t": 12.6,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-12.600"
+    },
+    {
+      "t": 12.62,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-12.620"
+    },
+    {
+      "t": 12.64,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-12.640"
+    },
+    {
+      "t": 13.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-13.000"
+    },
+    {
+      "t": 13.02,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-13.020"
+    },
+    {
+      "t": 13.04,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-13.040"
+    },
+    {
+      "t": 13.06,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-13.060"
+    },
+    {
+      "t": 13.08,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-13.080"
+    },
+    {
+      "t": 13.1,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-13.100"
+    },
+    {
+      "t": 13.12,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-13.120"
+    },
+    {
+      "t": 13.14,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-13.140"
+    },
+    {
+      "t": 13.5,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-13.500"
+    },
+    {
+      "t": 13.52,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-13.520"
+    },
+    {
+      "t": 13.54,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-13.540"
+    },
+    {
+      "t": 13.56,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-13.560"
+    },
+    {
+      "t": 13.58,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-13.580"
+    },
+    {
+      "t": 13.6,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-13.600"
+    },
+    {
+      "t": 13.62,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-13.620"
+    },
+    {
+      "t": 13.64,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-13.640"
+    },
+    {
+      "t": 14.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-14.000"
+    },
+    {
+      "t": 14.02,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-14.020"
+    },
+    {
+      "t": 14.04,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-14.040"
+    },
+    {
+      "t": 14.06,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-14.060"
+    },
+    {
+      "t": 14.08,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-14.080"
+    },
+    {
+      "t": 14.1,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-14.100"
+    },
+    {
+      "t": 14.12,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-14.120"
+    },
+    {
+      "t": 14.14,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-14.140"
+    },
+    {
+      "t": 14.5,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-14.500"
+    },
+    {
+      "t": 14.52,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 25.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-14.520"
+    },
+    {
+      "t": 14.54,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "priority": 75,
+      "ue": -1,
+      "id": "load_balancer-g1-PRB_QUOTA-14.540"
+    },
+    {
+      "t": 14.56,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-TX_POWER-14.560"
+    },
+    {
+      "t": 14.58,
+      "xapp_id": "beamformer",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "beamformer-g2-TX_POWER-14.580"
+    },
+    {
+      "t": 14.6,
+      "xapp_id": "energy_saving",
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g2-TX_POWER-14.600"
+    },
+    {
+      "t": 14.62,
+      "xapp_id": "isac_radar",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "isac_radar-g3-PRB_QUOTA-14.620"
+    },
+    {
+      "t": 14.64,
+      "xapp_id": "xslice",
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 90.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g3-PRB_QUOTA-14.640"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 10.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-10.000",
+        "energy_saving-g0-PRB_QUOTA-10.020",
+        "load_balancer-g1-PRB_QUOTA-10.040",
+        "energy_saving-g1-TX_POWER-10.060",
+        "beamformer-g2-TX_POWER-10.080",
+        "energy_saving-g2-TX_POWER-10.100",
+        "isac_radar-g3-PRB_QUOTA-10.120",
+        "xslice-g3-PRB_QUOTA-10.140"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-10.000",
+        "load_balancer-g1-PRB_QUOTA-10.040",
+        "energy_saving-g1-TX_POWER-10.060",
+        "beamformer-g2-TX_POWER-10.080",
+        "isac_radar-g3-PRB_QUOTA-10.120"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 10.6,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-10.500",
+        "energy_saving-g0-PRB_QUOTA-10.520",
+        "load_balancer-g1-PRB_QUOTA-10.540",
+        "energy_saving-g1-TX_POWER-10.560",
+        "beamformer-g2-TX_POWER-10.580"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-10.500",
+        "load_balancer-g1-PRB_QUOTA-10.540",
+        "energy_saving-g1-TX_POWER-10.560",
+        "beamformer-g2-TX_POWER-10.580"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 10.8,
+      "proposal_ids": [
+        "energy_saving-g2-TX_POWER-10.600",
+        "isac_radar-g3-PRB_QUOTA-10.620",
+        "xslice-g3-PRB_QUOTA-10.640"
+      ],
+      "selected": [
+        "energy_saving-g2-TX_POWER-10.600",
+        "isac_radar-g3-PRB_QUOTA-10.620"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 11.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-11.000",
+        "energy_saving-g0-PRB_QUOTA-11.020",
+        "load_balancer-g1-PRB_QUOTA-11.040",
+        "energy_saving-g1-TX_POWER-11.060",
+        "beamformer-g2-TX_POWER-11.080",
+        "energy_saving-g2-TX_POWER-11.100",
+        "isac_radar-g3-PRB_QUOTA-11.120",
+        "xslice-g3-PRB_QUOTA-11.140"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-11.000",
+        "load_balancer-g1-PRB_QUOTA-11.040",
+        "energy_saving-g1-TX_POWER-11.060",
+        "beamformer-g2-TX_POWER-11.080",
+        "isac_radar-g3-PRB_QUOTA-11.120"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 11.6,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-11.500",
+        "energy_saving-g0-PRB_QUOTA-11.520",
+        "load_balancer-g1-PRB_QUOTA-11.540",
+        "energy_saving-g1-TX_POWER-11.560",
+        "beamformer-g2-TX_POWER-11.580"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-11.500",
+        "load_balancer-g1-PRB_QUOTA-11.540",
+        "energy_saving-g1-TX_POWER-11.560",
+        "beamformer-g2-TX_POWER-11.580"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 11.8,
+      "proposal_ids": [
+        "energy_saving-g2-TX_POWER-11.600",
+        "isac_radar-g3-PRB_QUOTA-11.620",
+        "xslice-g3-PRB_QUOTA-11.640"
+      ],
+      "selected": [
+        "energy_saving-g2-TX_POWER-11.600",
+        "isac_radar-g3-PRB_QUOTA-11.620"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 12.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-12.000",
+        "energy_saving-g0-PRB_QUOTA-12.020",
+        "load_balancer-g1-PRB_QUOTA-12.040",
+        "energy_saving-g1-TX_POWER-12.060",
+        "beamformer-g2-TX_POWER-12.080",
+        "energy_saving-g2-TX_POWER-12.100",
+        "isac_radar-g3-PRB_QUOTA-12.120",
+        "xslice-g3-PRB_QUOTA-12.140"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-12.000",
+        "load_balancer-g1-PRB_QUOTA-12.040",
+        "energy_saving-g1-TX_POWER-12.060",
+        "beamformer-g2-TX_POWER-12.080",
+        "isac_radar-g3-PRB_QUOTA-12.120"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 12.6,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-12.500",
+        "energy_saving-g0-PRB_QUOTA-12.520",
+        "load_balancer-g1-PRB_QUOTA-12.540",
+        "energy_saving-g1-TX_POWER-12.560",
+        "beamformer-g2-TX_POWER-12.580"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-12.500",
+        "load_balancer-g1-PRB_QUOTA-12.540",
+        "energy_saving-g1-TX_POWER-12.560",
+        "beamformer-g2-TX_POWER-12.580"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 12.8,
+      "proposal_ids": [
+        "energy_saving-g2-TX_POWER-12.600",
+        "isac_radar-g3-PRB_QUOTA-12.620",
+        "xslice-g3-PRB_QUOTA-12.640"
+      ],
+      "selected": [
+        "energy_saving-g2-TX_POWER-12.600",
+        "isac_radar-g3-PRB_QUOTA-12.620"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 13.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-13.000",
+        "energy_saving-g0-PRB_QUOTA-13.020",
+        "load_balancer-g1-PRB_QUOTA-13.040",
+        "energy_saving-g1-TX_POWER-13.060",
+        "beamformer-g2-TX_POWER-13.080",
+        "energy_saving-g2-TX_POWER-13.100",
+        "isac_radar-g3-PRB_QUOTA-13.120",
+        "xslice-g3-PRB_QUOTA-13.140"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-13.000",
+        "load_balancer-g1-PRB_QUOTA-13.040",
+        "energy_saving-g1-TX_POWER-13.060",
+        "beamformer-g2-TX_POWER-13.080",
+        "isac_radar-g3-PRB_QUOTA-13.120"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 13.6,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-13.500",
+        "energy_saving-g0-PRB_QUOTA-13.520",
+        "load_balancer-g1-PRB_QUOTA-13.540",
+        "energy_saving-g1-TX_POWER-13.560",
+        "beamformer-g2-TX_POWER-13.580"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-13.500",
+        "load_balancer-g1-PRB_QUOTA-13.540",
+        "energy_saving-g1-TX_POWER-13.560",
+        "beamformer-g2-TX_POWER-13.580"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 13.8,
+      "proposal_ids": [
+        "energy_saving-g2-TX_POWER-13.600",
+        "isac_radar-g3-PRB_QUOTA-13.620",
+        "xslice-g3-PRB_QUOTA-13.640"
+      ],
+      "selected": [
+        "energy_saving-g2-TX_POWER-13.600",
+        "isac_radar-g3-PRB_QUOTA-13.620"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 14.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-14.000",
+        "energy_saving-g0-PRB_QUOTA-14.020",
+        "load_balancer-g1-PRB_QUOTA-14.040",
+        "energy_saving-g1-TX_POWER-14.060",
+        "beamformer-g2-TX_POWER-14.080",
+        "energy_saving-g2-TX_POWER-14.100",
+        "isac_radar-g3-PRB_QUOTA-14.120",
+        "xslice-g3-PRB_QUOTA-14.140"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-14.000",
+        "load_balancer-g1-PRB_QUOTA-14.040",
+        "energy_saving-g1-TX_POWER-14.060",
+        "beamformer-g2-TX_POWER-14.080",
+        "isac_radar-g3-PRB_QUOTA-14.120"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 14.6,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-14.500",
+        "energy_saving-g0-PRB_QUOTA-14.520",
+        "load_balancer-g1-PRB_QUOTA-14.540",
+        "energy_saving-g1-TX_POWER-14.560",
+        "beamformer-g2-TX_POWER-14.580"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-14.500",
+        "load_balancer-g1-PRB_QUOTA-14.540",
+        "energy_saving-g1-TX_POWER-14.560",
+        "beamformer-g2-TX_POWER-14.580"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 14.8,
+      "proposal_ids": [
+        "energy_saving-g2-TX_POWER-14.600",
+        "isac_radar-g3-PRB_QUOTA-14.620",
+        "xslice-g3-PRB_QUOTA-14.640"
+      ],
+      "selected": [
+        "energy_saving-g2-TX_POWER-14.600",
+        "isac_radar-g3-PRB_QUOTA-14.620"
+      ],
+      "rule": "fifo-per-target"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 10.2,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-10.080"
+    },
+    {
+      "time_s": 10.2,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-10.060"
+    },
+    {
+      "time_s": 10.2,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-10.120"
+    },
+    {
+      "time_s": 10.2,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-10.040"
+    },
+    {
+      "time_s": 10.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-10.000"
+    },
+    {
+      "time_s": 10.6,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-10.580"
+    },
+    {
+      "time_s": 10.6,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-10.560"
+    },
+    {
+      "time_s": 10.6,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-10.540"
+    },
+    {
+      "time_s": 10.6,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-10.500"
+    },
+    {
+      "time_s": 10.8,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g2-TX_POWER-10.600"
+    },
+    {
+      "time_s": 10.8,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-10.620"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-11.080"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-11.060"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-11.120"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-11.040"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-11.000"
+    },
+    {
+      "time_s": 11.6,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-11.580"
+    },
+    {
+      "time_s": 11.6,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-11.560"
+    },
+    {
+      "time_s": 11.6,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-11.540"
+    },
+    {
+      "time_s": 11.6,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-11.500"
+    },
+    {
+      "time_s": 11.8,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g2-TX_POWER-11.600"
+    },
+    {
+      "time_s": 11.8,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-11.620"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-12.080"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-12.060"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-12.120"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-12.040"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-12.000"
+    },
+    {
+      "time_s": 12.6,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-12.580"
+    },
+    {
+      "time_s": 12.6,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-12.560"
+    },
+    {
+      "time_s": 12.6,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-12.540"
+    },
+    {
+      "time_s": 12.6,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-12.500"
+    },
+    {
+      "time_s": 12.8,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g2-TX_POWER-12.600"
+    },
+    {
+      "time_s": 12.8,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-12.620"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-13.080"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-13.060"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-13.120"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-13.040"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-13.000"
+    },
+    {
+      "time_s": 13.6,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-13.580"
+    },
+    {
+      "time_s": 13.6,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-13.560"
+    },
+    {
+      "time_s": 13.6,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-13.540"
+    },
+    {
+      "time_s": 13.6,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-13.500"
+    },
+    {
+      "time_s": 13.8,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g2-TX_POWER-13.600"
+    },
+    {
+      "time_s": 13.8,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-13.620"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-14.080"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-14.060"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-14.120"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-14.040"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-14.000"
+    },
+    {
+      "time_s": 14.6,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 38.0,
+      "ue": -1,
+      "xapp_id": "beamformer",
+      "action_id": "beamformer-g2-TX_POWER-14.580"
+    },
+    {
+      "time_s": 14.6,
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 15.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-TX_POWER-14.560"
+    },
+    {
+      "time_s": 14.6,
+      "gnb": 1,
+      "parameter": "PRB_QUOTA",
+      "value": 60.0,
+      "ue": -1,
+      "xapp_id": "load_balancer",
+      "action_id": "load_balancer-g1-PRB_QUOTA-14.540"
+    },
+    {
+      "time_s": 14.6,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 85.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-14.500"
+    },
+    {
+      "time_s": 14.8,
+      "gnb": 2,
+      "parameter": "TX_POWER",
+      "value": 12.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g2-TX_POWER-14.600"
+    },
+    {
+      "time_s": 14.8,
+      "gnb": 3,
+      "parameter": "PRB_QUOTA",
+      "value": 40.0,
+      "ue": -1,
+      "xapp_id": "isac_radar",
+      "action_id": "isac_radar-g3-PRB_QUOTA-14.620"
+    }
+  ]
+}

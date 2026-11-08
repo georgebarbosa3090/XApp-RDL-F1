@@ -1,0 +1,6 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+10.2,0,1,TX_POWER,40,-1,xslice,xslice-g0-TX_POWER-10.000,APPLIED,TxPower=40 dBm
+11.2,0,1,TX_POWER,40,-1,xslice,xslice-g0-TX_POWER-11.000,APPLIED,TxPower=40 dBm
+12.2,0,1,TX_POWER,40,-1,xslice,xslice-g0-TX_POWER-12.000,APPLIED,TxPower=40 dBm
+13.2,0,1,TX_POWER,40,-1,xslice,xslice-g0-TX_POWER-13.000,APPLIED,TxPower=40 dBm
+14.2,0,1,TX_POWER,40,-1,xslice,xslice-g0-TX_POWER-14.000,APPLIED,TxPower=40 dBm

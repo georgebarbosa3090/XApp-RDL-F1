@@ -1,0 +1,7 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+10.2,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-10.100,APPLIED,4 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+10.2,0,1,PRB_QUOTA,80,-1,xslice,xslice-g0-PRB_QUOTA-10.000,APPLIED,RBG 426/533
+11.2,0,1,PRB_QUOTA,80,-1,xslice,xslice-g0-PRB_QUOTA-11.000,APPLIED,RBG 426/533
+12.2,0,1,PRB_QUOTA,80,-1,xslice,xslice-g0-PRB_QUOTA-12.000,APPLIED,RBG 426/533
+13.2,0,1,PRB_QUOTA,80,-1,xslice,xslice-g0-PRB_QUOTA-13.000,APPLIED,RBG 426/533
+14.2,0,1,PRB_QUOTA,80,-1,xslice,xslice-g0-PRB_QUOTA-14.000,APPLIED,RBG 426/533

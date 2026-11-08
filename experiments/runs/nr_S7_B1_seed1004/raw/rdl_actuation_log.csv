@@ -1,0 +1,16 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+10.2,0,1,TX_POWER,60,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-10.000,APPLIED,TxPower=60 dBm
+10.2,1,2,PRB_QUOTA,150,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-10.100,APPLIED,RBG 533/533 (fora de 0-100, limitado pela PHY)
+10.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-10.050,APPLIED,RBG 373/533
+11.2,0,1,TX_POWER,60,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-11.000,APPLIED,TxPower=60 dBm
+11.2,1,2,PRB_QUOTA,150,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-11.100,APPLIED,RBG 533/533 (fora de 0-100, limitado pela PHY)
+11.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-11.050,APPLIED,RBG 373/533
+12.2,0,1,TX_POWER,60,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-12.000,APPLIED,TxPower=60 dBm
+12.2,1,2,PRB_QUOTA,150,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-12.100,APPLIED,RBG 533/533 (fora de 0-100, limitado pela PHY)
+12.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-12.050,APPLIED,RBG 373/533
+13.2,0,1,TX_POWER,60,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-13.000,APPLIED,TxPower=60 dBm
+13.2,1,2,PRB_QUOTA,150,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-13.100,APPLIED,RBG 533/533 (fora de 0-100, limitado pela PHY)
+13.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-13.050,APPLIED,RBG 373/533
+14.2,0,1,TX_POWER,60,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-14.000,APPLIED,TxPower=60 dBm
+14.2,1,2,PRB_QUOTA,150,-1,rogue_xapp,rogue_xapp-g1-PRB_QUOTA-14.100,APPLIED,RBG 533/533 (fora de 0-100, limitado pela PHY)
+14.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-14.050,APPLIED,RBG 373/533

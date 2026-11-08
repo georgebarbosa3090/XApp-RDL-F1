@@ -126,6 +126,32 @@ def run_one(scenario: str, baseline: str, seed: int, log_dir: Path) -> tuple:
     return run_id, code, elapsed
 
 
+def select_jobs(seeds: List[int], scenarios: List[str], baselines: List[str], experiments_dir: Path,
+                retry_failed: bool, stamp: str) -> List[tuple]:
+    """Execuções a rodar, em ordem de semente. Remove as interrompidas e, com retry_failed,
+    move as que falharam para runs_failed/; em ambos os casos elas voltam para a fila."""
+    jobs = []
+    for sd in seeds:
+        for sc in scenarios:
+            for bl in baselines:
+                run_dir = experiments_dir / "runs" / f"nr_{sc}_{bl}_seed{sd}"
+                state = run_state(run_dir)
+                if state == "INCOMPLETE":
+                    # Sem hashes.sha256 a execução foi interrompida antes de terminar: não é evidência.
+                    shutil.rmtree(run_dir)
+                    say(f"Removida execução interrompida {run_dir.name}; será refeita")
+                    state = "MISSING"
+                elif state == "FAILED" and retry_failed:
+                    target = experiments_dir / "runs_failed" / f"{run_dir.name}__{stamp}"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(run_dir), str(target))
+                    say(f"Execução com falha preservada em {target}; será refeita")
+                    state = "MISSING"
+                if state == "MISSING":
+                    jobs.append((sc, bl, sd))
+    return jobs
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     catalog = driver.load_catalog()
@@ -147,24 +173,7 @@ def main(argv=None) -> int:
     log_dir = Path(args.log_dir) if args.log_dir else Path(os.environ.get("TEMP", "/tmp")) / f"rdl_campaign_{stamp}"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    jobs = []
-    for sd in seeds:
-        for sc in args.scenarios:
-            for bl in args.baselines:
-                run_dir = ROOT / "experiments" / "runs" / f"nr_{sc}_{bl}_seed{sd}"
-                state = run_state(run_dir)
-                if state == "INCOMPLETE":
-                    # Sem hashes.sha256 a execução foi interrompida antes de terminar: não é evidência.
-                    shutil.rmtree(run_dir)
-                    say(f"Removida execução interrompida {run_dir.name}")
-                elif state == "FAILED" and args.retry_failed:
-                    target = ROOT / "experiments" / "runs_failed" / f"{run_dir.name}__{stamp}"
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.move(str(run_dir), str(target))
-                    say(f"Execução com falha preservada em {target.relative_to(ROOT)}; será refeita")
-                    state = "MISSING"
-                if state == "MISSING":
-                    jobs.append((sc, bl, sd))
+    jobs = select_jobs(seeds, args.scenarios, args.baselines, ROOT / "experiments", args.retry_failed, stamp)
     total = len(seeds) * len(args.scenarios) * len(args.baselines)
     say(f"Campanha: {len(args.scenarios)} cenário(s) × {len(args.baselines)} baseline(s) × {len(seeds)} semente(s) "
         f"= {total} execuções; {total - len(jobs)} já existem; {len(jobs)} a rodar com {args.jobs} em paralelo.")

@@ -1,0 +1,34 @@
+{
+  "run_id": "nr_S5_B1_seed1003",
+  "source": [
+    "NS3_FLOWMONITOR"
+  ],
+  "backend": "NS3_5GLENA",
+  "scenario": "scenario_rdl_temporal_pingpong",
+  "baseline": "B1",
+  "seed": 1003,
+  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_temporal_pingpong --seed=1003 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1003/raw/action_schedule.csv --simTime=30 --disableSrs=true'",
+  "rng_args": "--seed=1003",
+  "action_schedule_sha256": "25b43c4ed33b0f16aaff73fb4d693f9621d4f89024bc2a7f27abc26e7fe11849",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "started_at_utc": "2026-11-08T08:50:09Z",
+  "finished_at_utc": "2026-11-08T08:51:55Z",
+  "ns3_version": "3.48",
+  "ns3_commit": "d2add90b452d600cfb4859baed8e9ea633519447",
+  "fiveg_lena_version": "v5.1",
+  "nr_commit": "cedceadda17392c90587fb9400eb9b1f8c236713",
+  "nori_commit": null,
+  "repo_git_sha": "dfe8b1f",
+  "scenario_sha256": "777408ad455637f00605f35fa7aabdf39d487a088b64a8da5ed058edf64b9799",
+  "support_files_sha256": {
+    "rdl-nr-common.h": "546042eb68e97e2772cc33f13ea36b4bdfe03848c025adf4ea795099269524fc"
+  },
+  "environment": {
+    "os": "Ubuntu 24.04.1 LTS",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "cmake": "cmake version 3.28.3"
+  },
+  "publication_eligible": true
+}

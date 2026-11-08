@@ -1,0 +1,11 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+10.0,0,PRB_QUOTA,75.0,-1,xslice,xslice-g0-PRB_QUOTA-10.000
+10.05,0,PRB_QUOTA,30.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-10.050
+11.0,0,PRB_QUOTA,75.0,-1,xslice,xslice-g0-PRB_QUOTA-11.000
+11.05,0,PRB_QUOTA,30.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-11.050
+12.0,0,PRB_QUOTA,75.0,-1,xslice,xslice-g0-PRB_QUOTA-12.000
+12.05,0,PRB_QUOTA,30.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-12.050
+13.0,0,PRB_QUOTA,75.0,-1,xslice,xslice-g0-PRB_QUOTA-13.000
+13.05,0,PRB_QUOTA,30.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-13.050
+14.0,0,PRB_QUOTA,75.0,-1,xslice,xslice-g0-PRB_QUOTA-14.000
+14.05,0,PRB_QUOTA,30.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-14.050

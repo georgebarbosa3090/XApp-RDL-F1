@@ -1,0 +1,31 @@
+{
+  "run_id": "nr_S3_B1_seed1001",
+  "source": [
+    "NS3_FLOWMONITOR"
+  ],
+  "backend": "NS3_5GLENA",
+  "scenario": "scenario_rdl_energy_vs_qos",
+  "baseline": "B1",
+  "seed": 1001,
+  "command": "cd /home/george/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_energy_vs_qos --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S3_B1_seed1001/raw/action_schedule.csv --simTime=20'",
+  "rng_args": "--seed=1001",
+  "action_schedule_sha256": "c3adce93236f17ff477854f8ab6c8eafe6471a87a14026396fab7c760310fba2",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "started_at_utc": "2026-11-08T06:00:36Z",
+  "finished_at_utc": "2026-11-08T06:01:27Z",
+  "ns3_version": "3.48",
+  "ns3_commit": "d2add90b452d600cfb4859baed8e9ea633519447",
+  "fiveg_lena_version": "v5.1",
+  "nr_commit": "cedceadda17392c90587fb9400eb9b1f8c236713",
+  "nori_commit": null,
+  "repo_git_sha": "ee72885",
+  "scenario_sha256": "6d141018d50d7ec6e7374c9e5c82243f1371d554c6893c01ad024ed755ac0fde",
+  "environment": {
+    "os": "Ubuntu 24.04.1 LTS",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "cmake": "cmake version 3.28.3"
+  },
+  "publication_eligible": true
+}

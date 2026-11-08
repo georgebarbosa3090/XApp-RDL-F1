@@ -18,9 +18,9 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 212 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 213 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
-| Comparação de baselines B0–B3 nos cenários S0–S7 | campanha de 5 sementes em execução | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
+| Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
 | Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **não verificada** | pilha NORI preparada em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md), ainda não implantada |
 | Closed loop causal KPM → decisão → RC → KPM | **não verificado** | — |
 

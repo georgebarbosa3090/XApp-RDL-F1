@@ -123,6 +123,34 @@ def test_campaign_run_state(tmp_path):
     assert campaign.run_state(run) == "SUCCESS"
 
 
+def test_campaign_requeues_interrupted_and_failed_runs(tmp_path):
+    campaign = sys.modules.get("run_conflict_campaign")
+    if campaign is None:
+        test_campaign_seed_parsing()
+        campaign = sys.modules["run_conflict_campaign"]
+    runs = tmp_path / "runs"
+
+    def make(name, status, hashes=True):
+        d = runs / name
+        d.mkdir(parents=True)
+        (d / "execution_manifest.json").write_text(f'{{"run_status": "{status}"}}', encoding="utf-8")
+        if hashes:
+            (d / "hashes.sha256").write_text("x  y\n", encoding="utf-8")
+
+    make("nr_S1_B0_seed1", "SUCCESS")
+    make("nr_S1_B1_seed1", "SUCCESS", hashes=False)  # interrompida
+    make("nr_S1_B2_seed1", "FAILED")
+    args = ([1], ["S1"], ["B0", "B1", "B2", "B3"], tmp_path)
+
+    jobs = campaign.select_jobs(*args, retry_failed=False, stamp="T")
+    assert jobs == [("S1", "B1", 1), ("S1", "B3", 1)]  # interrompida volta para a fila
+    assert not (runs / "nr_S1_B1_seed1").exists()
+
+    jobs = campaign.select_jobs(*args, retry_failed=True, stamp="T")
+    assert jobs == [("S1", "B1", 1), ("S1", "B2", 1), ("S1", "B3", 1)]
+    assert (tmp_path / "runs_failed" / "nr_S1_B2_seed1__T" / "hashes.sha256").exists()
+
+
 def test_to_wsl_path_conversion():
     assert driver.to_wsl(Path("C:/Users/x/file.csv")) == "/mnt/c/Users/x/file.csv"
 

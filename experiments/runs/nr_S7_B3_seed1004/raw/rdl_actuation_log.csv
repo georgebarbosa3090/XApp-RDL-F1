@@ -1,0 +1,6 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+10.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-10.050,APPLIED,RBG 373/533
+11.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-11.050,APPLIED,RBG 373/533
+12.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-12.050,APPLIED,RBG 373/533
+13.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-13.050,APPLIED,RBG 373/533
+14.2,0,1,PRB_QUOTA,70,-1,xslice,xslice-g0-PRB_QUOTA-14.050,APPLIED,RBG 373/533
