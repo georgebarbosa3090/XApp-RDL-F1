@@ -1,0 +1,22 @@
+[RDL-ACT] 2 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S0_B3_seed1003/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=3.07 Mbps atraso=5.17 ms
+[RDL-KPI] t=3.0s vazao=3.07 Mbps atraso=5.08 ms
+[RDL-KPI] t=4.0s vazao=3.07 Mbps atraso=5.17 ms
+[RDL-KPI] t=5.0s vazao=3.07 Mbps atraso=5.08 ms
+[RDL-KPI] t=6.0s vazao=3.07 Mbps atraso=5.17 ms
+[RDL-KPI] t=7.0s vazao=3.07 Mbps atraso=5.08 ms
+[RDL-KPI] t=8.0s vazao=3.07 Mbps atraso=5.17 ms
+[RDL-KPI] t=9.0s vazao=3.07 Mbps atraso=5.08 ms
+[RDL-KPI] t=10.0s vazao=3.07 Mbps atraso=5.17 ms
+[RDL-ACT] t=10.200s gnb=1 cell=2 TX_POWER=30.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-10.050 -> APPLIED (TxPower=30 dBm)
+[RDL-ACT] t=10.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-10.000 -> APPLIED (RBG 426/533)
+[RDL-KPI] t=11.0s vazao=3.19 Mbps atraso=24.85 ms
+[RDL-KPI] t=12.0s vazao=3.11 Mbps atraso=23.93 ms
+[RDL-KPI] t=13.0s vazao=2.87 Mbps atraso=52.53 ms
+[RDL-KPI] t=14.0s vazao=2.23 Mbps atraso=50.30 ms
+[RDL-KPI] t=15.0s vazao=1.97 Mbps atraso=39.86 ms
+[RDL-KPI] t=16.0s vazao=1.95 Mbps atraso=36.42 ms
+[RDL-KPI] t=17.0s vazao=2.07 Mbps atraso=42.50 ms
+[RDL-KPI] t=18.0s vazao=1.99 Mbps atraso=34.70 ms
+[RDL-KPI] t=19.0s vazao=1.78 Mbps atraso=22.12 ms

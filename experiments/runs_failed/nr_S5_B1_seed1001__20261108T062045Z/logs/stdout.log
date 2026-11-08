@@ -1,0 +1,21 @@
+[RDL-ACT] 8 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=8.72 Mbps atraso=57.26 ms
+[RDL-KPI] t=3.0s vazao=9.42 Mbps atraso=60.82 ms
+[RDL-KPI] t=4.0s vazao=9.13 Mbps atraso=72.79 ms
+[RDL-KPI] t=5.0s vazao=9.83 Mbps atraso=74.29 ms
+[RDL-KPI] t=6.0s vazao=10.36 Mbps atraso=58.80 ms
+[RDL-KPI] t=7.0s vazao=8.44 Mbps atraso=64.27 ms
+[RDL-KPI] t=8.0s vazao=9.58 Mbps atraso=51.80 ms
+[RDL-KPI] t=9.0s vazao=4.18 Mbps atraso=47.15 ms
+[RDL-KPI] t=10.0s vazao=9.83 Mbps atraso=68.22 ms
+[RDL-KPI] t=11.0s vazao=7.58 Mbps atraso=50.08 ms
+[RDL-KPI] t=12.0s vazao=8.44 Mbps atraso=77.89 ms
+[RDL-KPI] t=13.0s vazao=9.18 Mbps atraso=54.74 ms
+[RDL-KPI] t=14.0s vazao=7.29 Mbps atraso=61.09 ms
+[RDL-KPI] t=15.0s vazao=10.04 Mbps atraso=61.12 ms
+[RDL-KPI] t=16.0s vazao=5.04 Mbps atraso=95.60 ms
+[RDL-KPI] t=17.0s vazao=7.54 Mbps atraso=63.77 ms
+[RDL-KPI] t=18.0s vazao=8.93 Mbps atraso=54.87 ms
+[RDL-ACT] t=18.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-18.000 -> APPLIED (13 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+Command 'build/scratch/ns3.48-scenario_rdl_temporal_pingpong-optimized --seed=1001 --actionSchedule=/mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S5_B1_seed1001/raw/action_schedule.csv --simTime=30' died with <Signals.SIGABRT: 6>.

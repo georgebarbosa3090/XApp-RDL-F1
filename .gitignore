@@ -149,6 +149,9 @@ htmlcov/
 # 10. Logs, Bancos de Dados e Binários Locais
 *.log
 !experiments/runs/certified_closed_loop_chain/*.log
+# Logs de execução são evidência (listados em hashes.sha256): sem eles a integridade não confere num clone.
+!experiments/runs/*/logs/*.log
+!experiments/runs_failed/*/logs/*.log
 *.sqlite3
 wheels/
 

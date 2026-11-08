@@ -1,0 +1,100 @@
+[RDL-ACT] 80 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S6_B0_seed1003/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=19.54 Mbps atraso=140.63 ms
+[RDL-KPI] t=3.0s vazao=18.76 Mbps atraso=142.37 ms
+[RDL-KPI] t=4.0s vazao=22.32 Mbps atraso=144.88 ms
+[RDL-KPI] t=5.0s vazao=16.22 Mbps atraso=145.63 ms
+[RDL-KPI] t=6.0s vazao=18.72 Mbps atraso=145.21 ms
+[RDL-KPI] t=7.0s vazao=19.29 Mbps atraso=145.30 ms
+[RDL-KPI] t=8.0s vazao=19.87 Mbps atraso=147.47 ms
+[RDL-KPI] t=9.0s vazao=18.35 Mbps atraso=140.65 ms
+[RDL-ACT] t=10.000s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-10.000 -> APPLIED (RBG 453/533)
+[RDL-KPI] t=10.0s vazao=20.68 Mbps atraso=144.50 ms
+[RDL-ACT] t=10.020s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-10.020 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=10.040s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-10.040 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=10.060s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-10.060 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=10.080s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-10.080 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=10.100s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-10.100 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=10.120s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-10.120 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=10.140s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-10.140 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=10.500s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-10.500 -> APPLIED (RBG 453/533)
+[RDL-ACT] t=10.520s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-10.520 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=10.540s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-10.540 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=10.560s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-10.560 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=10.580s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-10.580 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=10.600s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-10.600 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=10.620s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-10.620 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=10.640s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-10.640 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=11.000s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-11.000 -> APPLIED (RBG 453/533)
+[RDL-KPI] t=11.0s vazao=18.47 Mbps atraso=79.41 ms
+[RDL-ACT] t=11.020s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-11.020 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=11.040s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-11.040 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=11.060s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-11.060 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=11.080s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-11.080 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=11.100s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-11.100 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=11.120s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-11.120 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=11.140s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-11.140 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=11.500s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-11.500 -> APPLIED (RBG 453/533)
+[RDL-ACT] t=11.520s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-11.520 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=11.540s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-11.540 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=11.560s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-11.560 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=11.580s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-11.580 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=11.600s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-11.600 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=11.620s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-11.620 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=11.640s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-11.640 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=12.000s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-12.000 -> APPLIED (RBG 453/533)
+[RDL-KPI] t=12.0s vazao=17.16 Mbps atraso=82.82 ms
+[RDL-ACT] t=12.020s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-12.020 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=12.040s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-12.040 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=12.060s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-12.060 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=12.080s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-12.080 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=12.100s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-12.100 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=12.120s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-12.120 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=12.140s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-12.140 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=12.500s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-12.500 -> APPLIED (RBG 453/533)
+[RDL-ACT] t=12.520s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-12.520 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=12.540s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-12.540 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=12.560s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-12.560 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=12.580s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-12.580 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=12.600s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-12.600 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=12.620s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-12.620 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=12.640s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-12.640 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=13.000s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-13.000 -> APPLIED (RBG 453/533)
+[RDL-KPI] t=13.0s vazao=22.81 Mbps atraso=24.84 ms
+[RDL-ACT] t=13.020s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-13.020 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=13.040s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-13.040 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=13.060s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-13.060 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=13.080s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-13.080 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=13.100s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-13.100 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=13.120s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-13.120 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=13.140s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-13.140 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=13.500s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-13.500 -> APPLIED (RBG 453/533)
+[RDL-ACT] t=13.520s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-13.520 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=13.540s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-13.540 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=13.560s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-13.560 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=13.580s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-13.580 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=13.600s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-13.600 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=13.620s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-13.620 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=13.640s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-13.640 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=14.000s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-14.000 -> APPLIED (RBG 453/533)
+[RDL-KPI] t=14.0s vazao=28.92 Mbps atraso=62.96 ms
+[RDL-ACT] t=14.020s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-14.020 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=14.040s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-14.040 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=14.060s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-14.060 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=14.080s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-14.080 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=14.100s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-14.100 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=14.120s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-14.120 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=14.140s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-14.140 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=14.500s gnb=0 cell=1 PRB_QUOTA=85.000 xapp=xslice id=xslice-g0-PRB_QUOTA-14.500 -> APPLIED (RBG 453/533)
+[RDL-ACT] t=14.520s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=energy_saving id=energy_saving-g0-PRB_QUOTA-14.520 -> APPLIED (RBG 133/533)
+[RDL-ACT] t=14.540s gnb=1 cell=2 PRB_QUOTA=60.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-14.540 -> APPLIED (RBG 320/533)
+[RDL-ACT] t=14.560s gnb=1 cell=2 TX_POWER=15.000 xapp=energy_saving id=energy_saving-g1-TX_POWER-14.560 -> APPLIED (TxPower=15 dBm)
+[RDL-ACT] t=14.580s gnb=2 cell=3 TX_POWER=38.000 xapp=beamformer id=beamformer-g2-TX_POWER-14.580 -> APPLIED (TxPower=38 dBm)
+[RDL-ACT] t=14.600s gnb=2 cell=3 TX_POWER=12.000 xapp=energy_saving id=energy_saving-g2-TX_POWER-14.600 -> APPLIED (TxPower=12 dBm)
+[RDL-ACT] t=14.620s gnb=3 cell=4 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g3-PRB_QUOTA-14.620 -> APPLIED (RBG 213/533)
+[RDL-ACT] t=14.640s gnb=3 cell=4 PRB_QUOTA=90.000 xapp=xslice id=xslice-g3-PRB_QUOTA-14.640 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=15.0s vazao=25.97 Mbps atraso=53.16 ms
+[RDL-KPI] t=16.0s vazao=19.87 Mbps atraso=44.47 ms
+[RDL-KPI] t=17.0s vazao=22.73 Mbps atraso=36.23 ms
+[RDL-KPI] t=18.0s vazao=22.81 Mbps atraso=37.05 ms
+[RDL-KPI] t=19.0s vazao=23.27 Mbps atraso=36.95 ms

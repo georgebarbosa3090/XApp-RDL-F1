@@ -1,0 +1,14 @@
+msg="Not allowed state for starting SRS reception.", +18.201857136s 1 file=/home/george/ns3-oran-workspace/ns-3-oran/contrib/nr/model/nr-spectrum-phy.cc, line=1508
+NS_FATAL, terminating
+   0# ns3::NrSpectrumPhy::StartRxSrs(ns3::Ptr<ns3::NrSpectrumSignalParametersUlCtrlFrame> const&) at :0
+   1# ns3::NrSpectrumPhy::StartRx(ns3::Ptr<ns3::SpectrumSignalParameters>) [clone .localalias] at :0
+   2# ns3::MultiModelSpectrumChannel::StartRx(ns3::MultiModelSpectrumChannel::RxInfo const&) [clone .localalias] at :0
+   3# ns3::DefaultSimulatorImpl::ProcessOneEvent() [clone .localalias] at :0
+   4# ns3::DefaultSimulatorImpl::Run() at :0
+   5# main at :0
+   6#      at :0
+   7# __libc_start_main at :0
+   8# _start at :0
+   9# 
+
+terminate called without an active exception

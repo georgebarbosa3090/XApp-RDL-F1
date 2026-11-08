@@ -1,0 +1,25 @@
+[RDL-ACT] 5 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S1_B1_seed1004/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-KPI] t=3.0s vazao=367.00 Mbps atraso=7.68 ms
+[RDL-KPI] t=4.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-KPI] t=5.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-KPI] t=6.0s vazao=367.33 Mbps atraso=7.69 ms
+[RDL-KPI] t=7.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-KPI] t=8.0s vazao=367.08 Mbps atraso=7.68 ms
+[RDL-KPI] t=9.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-KPI] t=10.0s vazao=367.33 Mbps atraso=7.68 ms
+[RDL-ACT] t=10.200s gnb=0 cell=1 PRB_QUOTA=75.000 xapp=xslice id=xslice-g0-PRB_QUOTA-10.000 -> APPLIED (RBG 400/533)
+[RDL-KPI] t=11.0s vazao=274.92 Mbps atraso=9.22 ms
+[RDL-ACT] t=11.200s gnb=0 cell=1 PRB_QUOTA=75.000 xapp=xslice id=xslice-g0-PRB_QUOTA-11.000 -> APPLIED (RBG 400/533)
+[RDL-KPI] t=12.0s vazao=275.58 Mbps atraso=9.23 ms
+[RDL-ACT] t=12.200s gnb=0 cell=1 PRB_QUOTA=75.000 xapp=xslice id=xslice-g0-PRB_QUOTA-12.000 -> APPLIED (RBG 400/533)
+[RDL-KPI] t=13.0s vazao=275.91 Mbps atraso=9.22 ms
+[RDL-ACT] t=13.200s gnb=0 cell=1 PRB_QUOTA=75.000 xapp=xslice id=xslice-g0-PRB_QUOTA-13.000 -> APPLIED (RBG 400/533)
+[RDL-KPI] t=14.0s vazao=275.66 Mbps atraso=9.21 ms
+[RDL-ACT] t=14.200s gnb=0 cell=1 PRB_QUOTA=75.000 xapp=xslice id=xslice-g0-PRB_QUOTA-14.000 -> APPLIED (RBG 400/533)
+[RDL-KPI] t=15.0s vazao=275.58 Mbps atraso=9.23 ms
+[RDL-KPI] t=16.0s vazao=275.91 Mbps atraso=9.21 ms
+[RDL-KPI] t=17.0s vazao=274.92 Mbps atraso=9.22 ms
+[RDL-KPI] t=18.0s vazao=275.58 Mbps atraso=9.22 ms
+[RDL-KPI] t=19.0s vazao=275.91 Mbps atraso=9.21 ms

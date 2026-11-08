@@ -1,0 +1,40 @@
+[RDL-ACT] 15 ações agendadas a partir de /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1/experiments/runs/nr_S7_B0_seed1004/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=3.85 Mbps atraso=71.46 ms
+[RDL-KPI] t=3.0s vazao=4.34 Mbps atraso=77.93 ms
+[RDL-KPI] t=4.0s vazao=4.46 Mbps atraso=61.05 ms
+[RDL-KPI] t=5.0s vazao=4.01 Mbps atraso=65.09 ms
+[RDL-KPI] t=6.0s vazao=3.40 Mbps atraso=81.63 ms
+[RDL-KPI] t=7.0s vazao=4.22 Mbps atraso=70.01 ms
+[RDL-KPI] t=8.0s vazao=4.14 Mbps atraso=66.53 ms
+[RDL-KPI] t=9.0s vazao=4.34 Mbps atraso=83.38 ms
+[RDL-ACT] t=10.000s gnb=0 cell=1 TX_POWER=60.000 xapp=rogue_xapp id=rogue_xapp-g0-TX_POWER-10.000 -> APPLIED (TxPower=60 dBm)
+[RDL-KPI] t=10.0s vazao=4.22 Mbps atraso=70.01 ms
+[RDL-ACT] t=10.050s gnb=0 cell=1 PRB_QUOTA=70.000 xapp=xslice id=xslice-g0-PRB_QUOTA-10.050 -> APPLIED (RBG 373/533)
+[RDL-ACT] t=10.100s gnb=1 cell=2 PRB_QUOTA=150.000 xapp=rogue_xapp id=rogue_xapp-g1-PRB_QUOTA-10.100 -> APPLIED (RBG 533/533 (fora de 0-100, limitado pela PHY))
+[RDL-ACT] t=11.000s gnb=0 cell=1 TX_POWER=60.000 xapp=rogue_xapp id=rogue_xapp-g0-TX_POWER-11.000 -> APPLIED (TxPower=60 dBm)
+[RDL-KPI] t=11.0s vazao=5.61 Mbps atraso=7.20 ms
+[RDL-ACT] t=11.050s gnb=0 cell=1 PRB_QUOTA=70.000 xapp=xslice id=xslice-g0-PRB_QUOTA-11.050 -> APPLIED (RBG 373/533)
+[RDL-ACT] t=11.100s gnb=1 cell=2 PRB_QUOTA=150.000 xapp=rogue_xapp id=rogue_xapp-g1-PRB_QUOTA-11.100 -> APPLIED (RBG 533/533 (fora de 0-100, limitado pela PHY))
+[RDL-ACT] t=12.000s gnb=0 cell=1 TX_POWER=60.000 xapp=rogue_xapp id=rogue_xapp-g0-TX_POWER-12.000 -> APPLIED (TxPower=60 dBm)
+[RDL-KPI] t=12.0s vazao=5.61 Mbps atraso=7.27 ms
+[RDL-ACT] t=12.050s gnb=0 cell=1 PRB_QUOTA=70.000 xapp=xslice id=xslice-g0-PRB_QUOTA-12.050 -> APPLIED (RBG 373/533)
+[RDL-ACT] t=12.100s gnb=1 cell=2 PRB_QUOTA=150.000 xapp=rogue_xapp id=rogue_xapp-g1-PRB_QUOTA-12.100 -> APPLIED (RBG 533/533 (fora de 0-100, limitado pela PHY))
+[RDL-ACT] t=13.000s gnb=0 cell=1 TX_POWER=60.000 xapp=rogue_xapp id=rogue_xapp-g0-TX_POWER-13.000 -> APPLIED (TxPower=60 dBm)
+[RDL-KPI] t=13.0s vazao=5.16 Mbps atraso=7.55 ms
+[RDL-ACT] t=13.050s gnb=0 cell=1 PRB_QUOTA=70.000 xapp=xslice id=xslice-g0-PRB_QUOTA-13.050 -> APPLIED (RBG 373/533)
+[RDL-ACT] t=13.100s gnb=1 cell=2 PRB_QUOTA=150.000 xapp=rogue_xapp id=rogue_xapp-g1-PRB_QUOTA-13.100 -> APPLIED (RBG 533/533 (fora de 0-100, limitado pela PHY))
+[RDL-ACT] t=14.000s gnb=0 cell=1 TX_POWER=60.000 xapp=rogue_xapp id=rogue_xapp-g0-TX_POWER-14.000 -> APPLIED (TxPower=60 dBm)
+[RDL-KPI] t=14.0s vazao=5.61 Mbps atraso=7.20 ms
+[RDL-ACT] t=14.050s gnb=0 cell=1 PRB_QUOTA=70.000 xapp=xslice id=xslice-g0-PRB_QUOTA-14.050 -> APPLIED (RBG 373/533)
+[RDL-ACT] t=14.100s gnb=1 cell=2 PRB_QUOTA=150.000 xapp=rogue_xapp id=rogue_xapp-g1-PRB_QUOTA-14.100 -> APPLIED (RBG 533/533 (fora de 0-100, limitado pela PHY))
+[RDL-KPI] t=15.0s vazao=5.61 Mbps atraso=7.27 ms
+[RDL-KPI] t=16.0s vazao=5.16 Mbps atraso=7.54 ms
+[RDL-KPI] t=17.0s vazao=5.61 Mbps atraso=7.20 ms
+[RDL-KPI] t=18.0s vazao=5.61 Mbps atraso=7.27 ms
+[RDL-KPI] t=19.0s vazao=5.16 Mbps atraso=7.55 ms
+[RDL-KPI] t=20.0s vazao=5.61 Mbps atraso=7.20 ms
+[RDL-KPI] t=21.0s vazao=5.61 Mbps atraso=7.27 ms
+[RDL-KPI] t=22.0s vazao=5.16 Mbps atraso=7.54 ms
+[RDL-KPI] t=23.0s vazao=5.61 Mbps atraso=7.20 ms
+[RDL-KPI] t=24.0s vazao=5.61 Mbps atraso=7.27 ms
