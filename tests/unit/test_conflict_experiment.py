@@ -97,6 +97,16 @@ def test_write_outputs_produces_schedule_readable_by_actuation(tmp_path, catalog
     assert decision_path.exists()
 
 
+def test_campaign_seed_parsing():
+    spec = importlib.util.spec_from_file_location(
+        "run_conflict_campaign", ROOT / "scripts" / "certification" / "run_conflict_campaign.py"
+    )
+    campaign = importlib.util.module_from_spec(spec)
+    sys.modules["run_conflict_campaign"] = campaign
+    spec.loader.exec_module(campaign)
+    assert campaign.parse_seeds(["1001-1003", "1005", "1002"]) == [1001, 1002, 1003, 1005]
+
+
 def test_to_wsl_path_conversion():
     assert driver.to_wsl(Path("C:/Users/x/file.csv")) == "/mnt/c/Users/x/file.csv"
 

@@ -209,14 +209,29 @@ def decide(scenario_id: str, baseline: str, catalog: Dict[str, Any]):
     return spec, events, schedule, log
 
 
+def repo_git_sha() -> str:
+    """Commit atual do repositório; usa o git do WSL se o do Windows não estiver disponível."""
+    candidates = [["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"]]
+    if os.name == "nt":
+        candidates.append(["wsl", "-d", "Ubuntu", "--", "git", "-C", to_wsl(ROOT), "rev-parse", "--short", "HEAD"])
+    for cmd in candidates:
+        try:
+            out = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            continue
+        sha = out.stdout.replace("\0", "").strip()
+        if out.returncode == 0 and sha:
+            return sha
+    return "unknown"
+
+
 def write_outputs(directory: Path, scenario_id, baseline, spec, events, schedule, log) -> Tuple[Path, Path]:
     schedule_path = directory / "action_schedule.csv"
     with open(schedule_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=SCHEDULE_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(schedule)
-    git_sha = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
-                             capture_output=True, text=True).stdout.strip()
+    git_sha = repo_git_sha()
     decision = {
         "scenario": scenario_id, "baseline": baseline, "ns3_scenario": spec["ns3"],
         "summary": spec.get("summary"), "conflict_window_s": spec.get("conflict_window_s"),
@@ -243,6 +258,8 @@ def main(argv=None) -> int:
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--dry-run", action="store_true", help="só gera e mostra o cronograma")
     parser.add_argument("--sim-arg", action="append", default=[], help="argumento extra do cenário")
+    parser.add_argument("--no-build", action="store_true",
+                        help="não recompila o ns-3 (execuções paralelas; exige binário atualizado)")
     args = parser.parse_args(argv)
 
     catalog = load_catalog()
@@ -266,6 +283,8 @@ def main(argv=None) -> int:
                "--action-schedule", to_wsl(schedule_path), "--attach", to_wsl(decision_path)]
         if args.baseline == "B3":
             cmd += ["--extra-source", "HRDL_RUNTIME"]
+        if args.no_build:
+            cmd += ["--no-build"]
         cmd += ["--", *spec.get("args", []), *args.sim_arg]
         if os.name == "nt":
             cmd = ["wsl", "-d", "Ubuntu", "--", *cmd]

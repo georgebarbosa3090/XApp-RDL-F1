@@ -198,6 +198,7 @@ python scripts/certification/certify_chain.py
 **Experimentos de conflito (S0–S7):** os cenários aplicam na RAN as ações decididas por cada baseline (B0 sem coordenação, B1 FIFO, B2 prioridade estática, B3 H-RDL real), com cota de PRB, potência e handover via [`simulations/ns3/rdl-nr-common.h`](simulations/ns3/rdl-nr-common.h); detalhes e primeiros achados em [`simulations/ns3/README.md`](simulations/ns3/README.md#431-experimentos-de-conflito-com-atuação-real-na-ran-s0s7).
 ```bash
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
+python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2   # campanha completa
 python scripts/certification/analyze_conflict_runs.py
 ```
 

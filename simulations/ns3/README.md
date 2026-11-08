@@ -98,7 +98,13 @@ As propostas das xApps de cada cenário estão em [`conflicts/catalog.json`](con
 ```bash
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
 python scripts/certification/analyze_conflict_runs.py      # tabela por cenário × baseline em reports/conflicts/
+
+# Campanha: cenários × baselines × sementes, retomável, com execuções em paralelo
+python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
 ```
+A campanha compila os cenários uma única vez e roda cada execução com `--no-build` (o executor só aceita esse modo se a fonte em `scratch/` for idêntica à do repositório e o binário for mais novo que ela), o que permite paralelismo sem disputa pela árvore de build. Execuções já existentes são puladas; a ordem por semente garante conjuntos pareados completos. As linhas `[RDL-ACT]`/`[RDL-KPI]` de cada execução aparecem ao vivo, prefixadas pelo `run_id`; ao final rodam a análise e o certificador.
+
+**Espaço em disco:** o executor recusa rodar com menos de 1 GB livre (`MIN_FREE_MB`) no disco das evidências ou no temporário do simulador, e a campanha para sozinha nesse limite (basta rodá-la de novo depois). Em S2 e S3 os traces completos do 5G-LENA (`nrHelper->EnableTraces`), que geram vários GB por execução, ficam desligados salvo `--nrTraces=true`; isso não altera a simulação, só os arquivos gravados.
 Cada execução fica em `experiments/runs/nr_<S>_<B>_seed<N>/` com o cronograma (`raw/action_schedule.csv`) e o log de decisões (`raw/decision_log.json`) cobertos pelos hashes. É uma avaliação **em malha aberta** (sem E2 nem realimentação de KPM); o closed loop exige a pilha NORI.
 
 **Achados das primeiras execuções (2026-11-08):**

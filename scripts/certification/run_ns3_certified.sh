@@ -33,7 +33,7 @@ set -uo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 NS3_DIR="${NS3_DIR:-${HOME}/ns3-oran-workspace/ns-3-oran}"
 SCENARIO="" SEED="" BASELINE="" RUN_ID="" E2_TRACE_DIR="" ACTION_SCHEDULE="" SCENARIO_ARGS=()
-ATTACHMENTS=() EXTRA_SOURCES=()
+ATTACHMENTS=() EXTRA_SOURCES=() NO_BUILD=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -45,6 +45,7 @@ while [ $# -gt 0 ]; do
     --action-schedule) ACTION_SCHEDULE="$2"; shift 2 ;;
     --attach) ATTACHMENTS+=("$2"); shift 2 ;;
     --extra-source) EXTRA_SOURCES+=("$2"); shift 2 ;;
+    --no-build) NO_BUILD=1; shift ;;
     --) shift; SCENARIO_ARGS=("$@"); break ;;
     *) echo "Argumento desconhecido: $1" >&2; exit 64 ;;
   esac
@@ -81,11 +82,35 @@ LENA_COMMIT="$(git -C "${LENA_DIR}" rev-parse HEAD 2>/dev/null || echo "")"
 BACKEND=$([ -n "$NORI_DIR" ] && echo NORI_NS3 || echo NS3_5GLENA)
 SCENARIO_SRC="${REPO_DIR}/simulations/ns3/${SCENARIO}.cc"
 SCRATCH_SRC="${NS3_DIR}/scratch/${SCENARIO}.cc"
-[ -f "$SCENARIO_SRC" ] && cp -f "$SCENARIO_SRC" "$SCRATCH_SRC"
+# --no-build (campanhas paralelas): não recompila nem altera scratch/; exige que a fonte
+# em scratch/ seja idêntica à do repositório e que o binário seja mais novo que ela.
+if [ "$NO_BUILD" = 1 ]; then
+  for f in "$SCENARIO_SRC" "${REPO_DIR}/simulations/ns3/"*.h; do
+    [ -f "$f" ] || continue
+    cmp -s "$f" "${NS3_DIR}/scratch/$(basename "$f")" \
+      || { echo "scratch/ desatualizado para $(basename "$f"): recompile antes de usar --no-build" >&2; rm -rf "$RUN_DIR"; exit 65; }
+  done
+  BIN="$(ls "${NS3_DIR}"/build/scratch/ns3*-"${SCENARIO}"-* 2>/dev/null | head -1)"
+  { [ -n "$BIN" ] && [ "$BIN" -nt "$SCRATCH_SRC" ]; } \
+    || { echo "binário de ${SCENARIO} ausente ou mais antigo que a fonte: recompile" >&2; rm -rf "$RUN_DIR"; exit 65; }
+fi
+# Copia só o que mudou, para não invalidar binários de outras execuções em andamento
+[ -f "$SCENARIO_SRC" ] && { cmp -s "$SCENARIO_SRC" "$SCRATCH_SRC" || cp -f "$SCENARIO_SRC" "$SCRATCH_SRC"; }
 # Cabeçalhos comuns dos cenários (rede NR, atuação e KPIs)
-cp -f "${REPO_DIR}/simulations/ns3/"*.h "${NS3_DIR}/scratch/" 2>/dev/null || true
+for h in "${REPO_DIR}/simulations/ns3/"*.h; do
+  [ -f "$h" ] && { cmp -s "$h" "${NS3_DIR}/scratch/$(basename "$h")" || cp -f "$h" "${NS3_DIR}/scratch/"; }
+done
 [ -f "$SCRATCH_SRC" ] || { echo "Cenário ${SCENARIO}.cc não encontrado" >&2; rm -rf "$RUN_DIR"; exit 66; }
 
+# Espaço livre mínimo (MB) no disco das evidências e no temporário do simulador
+MIN_FREE_MB="${MIN_FREE_MB:-1024}"
+for target in "${RUN_DIR}" "${TMPDIR:-/tmp}"; do
+  free_mb=$(df -Pm "$target" | awk 'NR==2 {print $4}')
+  if [ "${free_mb:-0}" -lt "$MIN_FREE_MB" ]; then
+    echo "Espaço insuficiente em ${target}: ${free_mb} MB livres (mínimo ${MIN_FREE_MB} MB)" >&2
+    rm -rf "$RUN_DIR"; exit 75
+  fi
+done
 WORK_DIR="$(mktemp -d)"
 STARTED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 # Os cenários do projeto chamam SeedManager::SetSeed/SetRun com os próprios argumentos
@@ -106,6 +131,7 @@ fi
 for f in "${ATTACHMENTS[@]}"; do cp -f "$f" "${RUN_DIR}/raw/"; done
 SIM_ARGS="${RNG_ARGS} ${SCHEDULE_ARG} ${SCENARIO_ARGS[*]:-}"
 CMD=(./ns3 run "scratch/${SCENARIO} ${SIM_ARGS}" --cwd "${WORK_DIR}")
+[ "$NO_BUILD" = 1 ] && CMD+=(--no-build)
 echo "=== [${STARTED}] ${SCENARIO} seed=${SEED} backend=${BACKEND} (saída ao vivo) ==="
 # Saída ao vivo no terminal e, ao mesmo tempo, gravada como evidência.
 ( cd "${NS3_DIR}" && "${CMD[@]}" )   > >(tee "${RUN_DIR}/logs/stdout.log")   2> >(tee "${RUN_DIR}/logs/stderr.log" >&2)

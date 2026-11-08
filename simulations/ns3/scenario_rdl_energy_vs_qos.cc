@@ -93,6 +93,8 @@ int main (int argc, char *argv[])
     double kpiPeriod = 0.1;
     cmd.AddValue ("actionSchedule", "CSV de acoes de controle aplicadas na RAN (gerado pelo baseline)", actionSchedule);
     cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
+    bool nrTraces = false;
+    cmd.AddValue ("nrTraces", "Ativar traces completos do 5G-LENA (arquivos de varios GB)", nrTraces);
     cmd.Parse (argc, argv);
 
     SeedManager::SetSeed (randomSeed);
@@ -306,7 +308,12 @@ int main (int argc, char *argv[])
     }
 
     // Ativacao dos traces fisicos e de enlace do 5G-LENA
-    nrHelper->EnableTraces ();
+    // Traces completos do 5G-LENA (RxPacketTrace, SINR, RLC, PDCP...) geram arquivos de
+    // varios GB por execucao; ficam desligados salvo pedido explicito (--nrTraces=true).
+    if (nrTraces)
+    {
+        nrHelper->EnableTraces ();
+    }
     // X2 entre gNBs: necessária para executar handovers pedidos pelas xApps
     nrHelper->AddX2Interface (gridScenario.GetBaseStations ());
     RdlActuation rdlActuation (nrHelper, gnbNetDev, ueNetDev);
