@@ -265,6 +265,8 @@ def main(argv=None) -> int:
     catalog = load_catalog()
     if args.scenario not in catalog["scenarios"]:
         parser.error(f"cenário desconhecido: {args.scenario}")
+    if not catalog["scenarios"][args.scenario].get("ns3"):
+        parser.error(f"{args.scenario} só roda na bancada NORI (scripts/run_nori_scenario.sh)")
     spec, events, schedule, log = decide(args.scenario, args.baseline, catalog)
     print(f"=== {args.scenario} ({spec['ns3']}) baseline {args.baseline}: "
           f"{len(events)} propostas -> {len(schedule)} ações na RAN ===")

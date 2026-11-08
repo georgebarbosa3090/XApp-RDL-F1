@@ -36,10 +36,14 @@ def _two_xapp_spec():
     }
 
 
-def test_catalog_covers_s0_to_s7(catalog):
-    assert set(catalog["scenarios"]) == {f"S{i}" for i in range(8)}
-    for spec in catalog["scenarios"].values():
-        assert (ROOT / "simulations" / "ns3" / f"{spec['ns3']}.cc").exists()
+def test_catalog_covers_s0_to_s8(catalog):
+    # S0–S7: pilha nativa (binário ns-3.48) e bancada NORI; S8: só bancada NORI (ns3 = null)
+    assert set(catalog["scenarios"]) == {f"S{i}" for i in range(9)}
+    for sid, spec in catalog["scenarios"].items():
+        if sid == "S8":
+            assert spec["ns3"] is None and spec["backend"] == "NORI_NS3"
+        else:
+            assert (ROOT / "simulations" / "ns3" / f"{spec['ns3']}.cc").exists()
         assert driver.expand_proposals(spec)
 
 

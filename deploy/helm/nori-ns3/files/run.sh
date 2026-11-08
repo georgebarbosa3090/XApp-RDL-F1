@@ -77,6 +77,9 @@ manifest = {
     "source": sources,
     "backend": "NORI_NS3",
     "scenario": "$EXAMPLE",
+    # Porte S0–S8 (scripts/run_nori_scenario.sh): cenário de conflito do catálogo e baseline da decisão
+    "conflict_scenario": os.environ.get("RDL_SCENARIO") or None,
+    "baseline": os.environ.get("RDL_BASELINE") or None,
     "seed": int("$SEED"),
     "command": """$CMD""",
     "run_status": status,

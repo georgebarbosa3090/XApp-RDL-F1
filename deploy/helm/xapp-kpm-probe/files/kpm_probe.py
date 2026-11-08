@@ -53,8 +53,12 @@ RC_RAN_FUNCTION_ID = int(ENV.get("RC_RAN_FUNCTION_ID", "300"))
 RC_REQUESTOR_ID = int(ENV.get("RC_REQUESTOR_ID", "1003"))
 RC_AFTER_INDICATIONS = int(ENV.get("RC_AFTER_INDICATIONS", "4"))
 RC_QUOTAS = ENV.get("RC_SLICE_QUOTAS", "1:70:10:5,2:30:10:5")   # sst:max:min:dedicated (%)
-RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | fixed
-DECISION_SOURCE = "H_RDL" if RC_DECISION == "hrdl" else "FIXED_PROBE"
+RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | catalog | fixed
+DECISION_SOURCE = "FIXED_PROBE" if RC_DECISION == "fixed" else "H_RDL"
+# Modo catalog (porte S0–S8 para o NORI): cenário lido a cada decisão deste arquivo (escrito pelo
+# roteiro antes de cada execução), ou de RC_SCENARIO
+RC_SCENARIO = ENV.get("RC_SCENARIO", "S8")
+RC_SCENARIO_FILE = ENV.get("RC_SCENARIO_FILE", "/data/rdl_scenario")
 APP_DIR = ENV.get("XAPP_RDL_APP_DIR", "/data/app")
 SRC_COMMIT = ENV.get("XAPP_RDL_SRC_COMMIT", "")
 
@@ -262,17 +266,39 @@ def track_kpm(meid: str, payload: bytes, sha: str) -> None:
     entry = LAST_KPM.setdefault(meid, {})
     if kpm["format"] == 1:
         entry.update(node=kpm["node"], node_sha256=sha)
+        n = kpm["node"]
+        event("kpm", meid=meid, format=1, sha256=sha,
+              node={k: n.get(k) for k in ("RRU.PrbUsedDl", "RRU.PrbAvailDl", "DRB.MeanActiveUeDl", "RRC.ConnMean",
+                                          "TB.TotNbrDlInitial", "QosFlow.PdcpPduVolumeDL_Filter")})
     elif kpm["format"] == 3:
         entry.update(ues=kpm["ues"], ues_sha256=sha)
+        event("kpm", meid=meid, format=3, sha256=sha,
+              ues=[{"ue_id": u.get("ue_id"),
+                    **{k: (u.get("measurements") or {}).get(k) for k in ("DRB.NetworkSlicing.SST", "RRU.PrbUsedDl",
+                                                                         "DRB.UEThpDl", "TB.TotNbrDl.1", "L1M.RS-SINR.Bin127")}}
+                   for u in kpm["ues"]])
+
+
+def current_scenario() -> str:
+    try:
+        value = open(RC_SCENARIO_FILE, encoding="utf-8").read().strip()
+        return value or RC_SCENARIO
+    except OSError:
+        return RC_SCENARIO
 
 
 def decide(meid: str):
     """Cotas a enviar e registro da decisão (H-RDL sobre o KPM_t0, ou cota fixa)."""
-    if RC_DECISION != "hrdl":
+    if RC_DECISION == "fixed":
         return parse_quotas(RC_QUOTAS), {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
-    from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
     kpm = LAST_KPM.get(meid) or {}
-    record = decide_slice_quotas(meid, kpm.get("node") or {}, kpm.get("ues") or [])
+    if RC_DECISION == "catalog":
+        from src.closed_loop.catalog_loop import decide_catalog, load_catalog
+        catalog = load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json"))
+        record = decide_catalog(current_scenario(), meid, kpm.get("node") or {}, kpm.get("ues") or [], catalog)
+    else:
+        from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
+        record = decide_slice_quotas(meid, kpm.get("node") or {}, kpm.get("ues") or [])
     record.update(src_commit=SRC_COMMIT, kpm_node_sha256=kpm.get("node_sha256"), kpm_ues_sha256=kpm.get("ues_sha256"))
     quotas = [codec.SlicePrbQuota(q["sst"], q["max_prb_ratio"], q["min_prb_ratio"], q["dedicated_prb_ratio"])
               for q in record["quotas"]]
@@ -391,6 +417,7 @@ def main() -> int:
           e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID,
           rc_control_enabled=RC_ENABLED, rc_ran_function_id=RC_RAN_FUNCTION_ID, rc_requestor_id=RC_REQUESTOR_ID,
           rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, rc_decision=RC_DECISION,
+          rc_scenario_file=RC_SCENARIO_FILE,
           decision_source=DECISION_SOURCE, src_commit=SRC_COMMIT)
     server = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()

@@ -155,7 +155,9 @@ def select_jobs(seeds: List[int], scenarios: List[str], baselines: List[str], ex
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     catalog = driver.load_catalog()
-    parser.add_argument("--scenarios", nargs="+", default=sorted(catalog["scenarios"]))
+    # Só cenários com binário ns-3.48 (o S8 é do NORI: scripts/run_nori_campaign.sh)
+    native = sorted(s for s, spec in catalog["scenarios"].items() if spec.get("ns3"))
+    parser.add_argument("--scenarios", nargs="+", default=native)
     parser.add_argument("--baselines", nargs="+", default=list(driver.BASELINES))
     parser.add_argument("--seeds", nargs="+", required=True, help="ex.: 1001-1005 ou 1001 1002")
     parser.add_argument("--jobs", type=int, default=2)
@@ -166,6 +168,9 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     seeds = parse_seeds(args.seeds)
+    nori_only = [s for s in args.scenarios if s in catalog["scenarios"] and not catalog["scenarios"][s].get("ns3")]
+    if nori_only:
+        parser.error(f"cenário(s) só da bancada NORI, sem binário ns-3.48: {nori_only} (use scripts/run_nori_campaign.sh)")
     unknown = [s for s in args.scenarios if s not in catalog["scenarios"]]
     if unknown:
         parser.error(f"cenários desconhecidos: {unknown}")

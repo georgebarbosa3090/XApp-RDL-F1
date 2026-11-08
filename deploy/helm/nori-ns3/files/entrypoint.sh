@@ -199,10 +199,77 @@ XappRdlSliceSeries(Ptr<FlowMonitor> monitor,
 }
 
 '''
-text = insert(text, "int\nmain(int argc, char* argv[])\n", series_fn, before=True)
+ue_fn = r'''
+// [xapp-rdl] Registro de UEs ao vivo: linhas [RDL-UE] em std::cout (o perfil optimized compila sem
+// NS_LOG), ligadas aos traces RRC do 5G-LENA no gNB e no UE.
+static void
+XappRdlUeNewContext(std::string, uint16_t cellId, uint16_t rnti)
+{
+    std::cout << "[RDL-UE] t=" << Simulator::Now().GetSeconds() << "s gNB: novo contexto de UE (célula "
+              << cellId << ", RNTI " << rnti << ")" << std::endl;
+}
+
+static void
+XappRdlUeGnbConnected(std::string, uint64_t imsi, uint16_t cellId, uint16_t rnti)
+{
+    std::cout << "[RDL-UE] t=" << Simulator::Now().GetSeconds() << "s gNB: conexão RRC estabelecida IMSI "
+              << imsi << " (célula " << cellId << ", RNTI " << rnti << ")" << std::endl;
+}
+
+static void
+XappRdlUeCellSelected(std::string, uint64_t imsi, uint16_t cellId)
+{
+    std::cout << "[RDL-UE] t=" << Simulator::Now().GetSeconds() << "s UE IMSI " << imsi
+              << ": seleção inicial de célula concluída (célula " << cellId << ")" << std::endl;
+}
+
+static void
+XappRdlUeConnected(std::string, uint64_t imsi, uint16_t cellId, uint16_t rnti)
+{
+    std::cout << "[RDL-UE] t=" << Simulator::Now().GetSeconds() << "s UE IMSI " << imsi
+              << ": conexão RRC estabelecida (célula " << cellId << ", RNTI " << rnti << ")" << std::endl;
+}
+
+static void
+XappRdlUeSummary(NetDeviceContainer ueDevs, Ipv4InterfaceContainer ueIps)
+{
+    for (uint32_t i = 0; i < ueDevs.GetN(); ++i)
+    {
+        Ptr<NrUeNetDevice> dev = DynamicCast<NrUeNetDevice>(ueDevs.Get(i));
+        std::cout << "[RDL-UE] t=" << Simulator::Now().GetSeconds() << "s UE " << i << " IMSI "
+                  << (dev ? dev->GetImsi() : 0) << " IP " << ueIps.GetAddress(i) << " fatia "
+                  << (i == 0 ? "eMBB (SST 1)" : "URLLC (SST 2)") << std::endl;
+    }
+}
+
+static void
+XappRdlConnectUeTraces()
+{
+    struct Hook { const char* path; bool ok; };
+    Hook hooks[] = {
+        {"/NodeList/*/DeviceList/*/NrGnbRrc/NewUeContext",
+         Config::ConnectFailSafe("/NodeList/*/DeviceList/*/NrGnbRrc/NewUeContext", MakeCallback(&XappRdlUeNewContext))},
+        {"/NodeList/*/DeviceList/*/NrGnbRrc/ConnectionEstablished",
+         Config::ConnectFailSafe("/NodeList/*/DeviceList/*/NrGnbRrc/ConnectionEstablished", MakeCallback(&XappRdlUeGnbConnected))},
+        {"/NodeList/*/DeviceList/*/NrUeRrc/InitialCellSelectionEndOk",
+         Config::ConnectFailSafe("/NodeList/*/DeviceList/*/NrUeRrc/InitialCellSelectionEndOk", MakeCallback(&XappRdlUeCellSelected))},
+        {"/NodeList/*/DeviceList/*/NrUeRrc/ConnectionEstablished",
+         Config::ConnectFailSafe("/NodeList/*/DeviceList/*/NrUeRrc/ConnectionEstablished", MakeCallback(&XappRdlUeConnected))},
+    };
+    for (const auto& h : hooks)
+    {
+        std::cout << "[RDL-UE] trace " << h.path << ": " << (h.ok ? "conectado" : "indisponível") << std::endl;
+    }
+}
+
+'''
+text = insert(text, "int\nmain(int argc, char* argv[])\n", series_fn + ue_fn, before=True)
 text = insert(text, "\n    Simulator::Run();\n",
               "\n    // [xapp-rdl] série por fatia a cada 0,5 s simulado\n"
-              "    Simulator::Schedule(Seconds(0.5), &XappRdlSliceSeries, monitor, &flowmonHelper, ueIpToIndex, 0.5, simTime);\n",
+              "    Simulator::Schedule(Seconds(0.5), &XappRdlSliceSeries, monitor, &flowmonHelper, ueIpToIndex, 0.5, simTime);\n"
+              "    // [xapp-rdl] registro de UEs: traces RRC e resumo UE -> IMSI, IP e fatia\n"
+              "    XappRdlConnectUeTraces();\n"
+              "    Simulator::Schedule(Seconds(0.3), &XappRdlUeSummary, ueDevs, ueIpIfaces);\n",
               before=True)
 text = insert(text, "\n    Simulator::Run();\n",
               "\n    // [xapp-rdl] FlowMonitor gravado em XML para o certificador (R9/R10)\n"
