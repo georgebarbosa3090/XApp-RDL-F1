@@ -612,10 +612,11 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
                 if all(r.facts.get("e2_roles", {}).get(k) for k in ("kpm_t0", "control_request", "control_ack", "kpm_t1"))]
     decided = [r for r in complete if decision(r).get("source") == "H_RDL" and decision(r).get("trigger_is_kpm_t0")
                and decision(r).get("pcap_control_sent_by_xapp")]
-    # Efeito causal medido na RAN (slice_series.csv) pela regra v2 (parte de PRB calibrada): a regra v1
+    # Efeito causal medido na RAN (slice_series.csv) por regra calibrada (v2: parte de PRB calibrada; v4:
+    # curva teto -> vazão com interpolação deixa-um-fora, docs/07_preregistro_fase4_v4.md). A regra v1
     # tomava a parte da vazão como parte dos PRBs e foi superada (docs/07_preregistro_fase4_v2.md).
     g4 = [r for r in decided if (r.facts.get("slice_effect") or {}).get("verdict") == "CONSISTENT"
-          and (r.facts.get("slice_effect") or {}).get("rule") == "v2-calibrated"]
+          and (r.facts.get("slice_effect") or {}).get("rule") in ("v2-calibrated", "v4-curve")]
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
     if g4_ok:

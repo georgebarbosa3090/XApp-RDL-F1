@@ -629,3 +629,70 @@ def test_complementary_calibration_rejects_caps_not_summing_100(tmp_path, lock):
     out = cal_mod.calibrate_complementary(["nori_cal30"], tmp_path / "cal.json", tmp_path / "runs",
                                           tmp_path / "e2_dissection")
     assert out["valid"] is False and "não somam 100" in out["reason"]
+
+
+# ---------------------------------------------------------------------------
+# Desenho v4: curva teto -> vazão e previsão por interpolação deixa-um-fora
+# ---------------------------------------------------------------------------
+
+curve_mod = _load("slice_cap_curve", "scripts/certification/slice_cap_curve.py")
+
+CURVE_PTS = [  # URLLC: restringe até 25 %, livre a 30 %
+    {"cap_max_prb_pct": 10.0, "throughput_after_mbps": 38.0, "binding": True},
+    {"cap_max_prb_pct": 15.0, "throughput_after_mbps": 57.0, "binding": True},
+    {"cap_max_prb_pct": 20.0, "throughput_after_mbps": 76.0, "binding": True},
+    {"cap_max_prb_pct": 25.0, "throughput_after_mbps": 95.0, "binding": True},
+    {"cap_max_prb_pct": 30.0, "throughput_after_mbps": 151.0, "binding": False},
+]
+
+
+def test_predict_leave_one_out_and_threshold():
+    p = effect_mod.predict(CURVE_PTS, 20.0)
+    assert p["kind"] == "interpolated" and p["from_levels"] == [15.0, 25.0]   # o nível 20 fica de fora
+    assert abs(p["predicted_after_mbps"] - 76.0) < 1e-9
+    assert effect_mod.predict(CURVE_PTS, 80.0)["kind"] == "no_decrease"
+    assert effect_mod.predict(CURVE_PTS, 30.0)["kind"] == "no_decrease"
+    assert effect_mod.predict(CURVE_PTS, 10.0)["kind"] == "not_testable"      # sem vizinho abaixo
+
+
+def test_curve_v4_rule_certifies_g4_when_prediction_holds(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    # eMBB com teto 40: série cai de 150 para 100; curva da eMBB prevê 100 a 40 % (entre 30 e 50)
+    run_dir, droot, _ = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=100.0,
+                                              urllc_after=150.0, calibration_k=None)
+    curve = {"valid": True, "curve": {
+        "1": [{"cap_max_prb_pct": 30.0, "throughput_after_mbps": 80.0, "binding": True},
+              {"cap_max_prb_pct": 40.0, "throughput_after_mbps": 99.0, "binding": True},
+              {"cap_max_prb_pct": 50.0, "throughput_after_mbps": 120.0, "binding": True},
+              {"cap_max_prb_pct": 70.0, "throughput_after_mbps": 150.0, "binding": False}],
+        "2": [{"cap_max_prb_pct": 30.0, "throughput_after_mbps": 150.0, "binding": False}]}}
+    cpath = tmp_path / "curve.json"
+    cpath.write_text(json.dumps(curve), encoding="utf-8")
+    effect = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot, curve=cpath)
+    assert effect["rule"] == "v4-curve" and effect["verdict"] == "CONSISTENT", effect
+    assert effect["slices"]["1"]["predicted_after_mbps"] == 100.0          # interpolado entre 30 e 50
+    monkeypatch.setattr(cert, "ROOT", tmp_path)
+    data = json.loads((droot / run_dir.name / "slice_effect.json").read_text(encoding="utf-8"))
+    data["calibration"] = "curve.json"
+    (droot / run_dir.name / "slice_effect.json").write_text(json.dumps(data), encoding="utf-8")
+    gates = cert.evaluate_gates([cert.certify_run(run_dir, policy, lock, [], droot)], lock)
+    assert gates["G4"]["verdict"] == cert.CERTIFIED, gates["G4"]["reason"]
+
+
+def test_curve_build_validity(tmp_path, lock):
+    try:
+        from src.e2.v3 import codec as c3
+        c3.E2smCodec()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"ASN.1 do NORI indisponível: {exc}")
+    _calibration_run(tmp_path, lock, "nori_curve10", (10, 10), (40.0, 30.0))
+    _calibration_run(tmp_path, lock, "nori_curve20", (20, 20), (80.0, 60.0))
+    out = curve_mod.build_curve(["nori_curve10", "nori_curve20"], tmp_path / "curve.json",
+                                tmp_path / "runs", tmp_path / "e2_dissection")
+    assert out["valid"] is True
+    assert [p["cap_max_prb_pct"] for p in out["curve"]["1"]] == [10.0, 20.0]
+    # não monotônica: mais vazão com teto menor
+    _calibration_run(tmp_path, lock, "nori_curve15", (15, 15), (120.0, 45.0))
+    bad = curve_mod.build_curve(["nori_curve10", "nori_curve15", "nori_curve20"], tmp_path / "curve2.json",
+                                tmp_path / "runs", tmp_path / "e2_dissection")
+    assert bad["valid"] is False and "monotônica" in bad["reason"]

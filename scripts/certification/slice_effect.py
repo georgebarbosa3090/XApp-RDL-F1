@@ -172,9 +172,75 @@ def evaluate_v2(series: Dict[int, List[Tuple[float, float, float]]], t_control: 
     return {"verdict": verdict, "window_before": before_w, "window_after": after_w, "slices": stats}
 
 
+def predict(curve_pts: List[Dict[str, Any]], cap: float) -> Dict[str, Any]:
+    """Previsão da vazão depois do Control para um teto, deixando de fora o próprio nível (se medido).
+
+    - teto >= maior nível medido que NÃO restringiu: sem queda esperada (``no_decrease``);
+    - teto entre dois níveis medidos (excluído o próprio): interpolação linear da vazão depois;
+    - fora do intervalo medido: ``not_testable``.
+    """
+    pts = [p for p in curve_pts if abs(p["cap_max_prb_pct"] - cap) > 1e-9]
+    # limiar: menor nível sem restrição acima de todos os níveis que restringem
+    highest_binding = max((p["cap_max_prb_pct"] for p in curve_pts if p["binding"]), default=float("-inf"))
+    free = [p["cap_max_prb_pct"] for p in curve_pts if not p["binding"] and p["cap_max_prb_pct"] > highest_binding]
+    if free and cap >= min(free):
+        return {"kind": "no_decrease", "threshold_free_pct": min(free)}
+    lower = [p for p in pts if p["cap_max_prb_pct"] < cap]
+    upper = [p for p in pts if p["cap_max_prb_pct"] > cap]
+    if not lower or not upper:
+        return {"kind": "not_testable", "reason": f"teto {cap:.0f} % fora do intervalo medido (deixa-um-fora)"}
+    lo, hi = lower[-1], upper[0]
+    w = (cap - lo["cap_max_prb_pct"]) / (hi["cap_max_prb_pct"] - lo["cap_max_prb_pct"])
+    value = lo["throughput_after_mbps"] + w * (hi["throughput_after_mbps"] - lo["throughput_after_mbps"])
+    return {"kind": "interpolated", "predicted_after_mbps": value,
+            "from_levels": [lo["cap_max_prb_pct"], hi["cap_max_prb_pct"]]}
+
+
+def evaluate_curve(series: Dict[int, List[Tuple[float, float, float]]], t_control: float,
+                   quotas: List[Dict[str, Any]], curve: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+    """Regra v4: previsão pela curva teto -> vazão medida (interpolação deixando de fora o próprio nível)."""
+    before_w = (t_control - WINDOW_S, t_control)
+    after_w = (t_control + SETTLE_S, t_control + SETTLE_S + WINDOW_S)
+    caps = {int(q["sst"]): float(q["max_prb_ratio"]) for q in quotas}
+    before = {sst: throughput_mbps(rows, *before_w) for sst, rows in series.items()}
+    after = {sst: throughput_mbps(rows, *after_w) for sst, rows in series.items()}
+    if any(v is None for v in list(before.values()) + list(after.values())) or not caps:
+        return {"verdict": "NOT_TESTABLE", "reason": "série não cobre as janelas ou Control sem cotas",
+                "window_before": before_w, "window_after": after_w}
+    stats: Dict[str, Dict[str, Any]] = {}
+    binding_any, all_ok, untestable = False, True, []
+    for sst in sorted(series):
+        cap = caps.get(sst, 100.0)
+        change = (after[sst] - before[sst]) / before[sst] if before[sst] > 0 else 0.0
+        pred = predict(curve.get(str(sst), []), cap)
+        entry = {"cap_max_prb_pct": cap, "throughput_before_mbps": round(before[sst], 3),
+                 "throughput_after_mbps": round(after[sst], 3), "relative_change": round(change, 4),
+                 "curve_prediction": {k: (round(v, 3) if isinstance(v, float) else v) for k, v in pred.items()}}
+        if pred["kind"] == "not_testable":
+            untestable.append(sst)
+            entry.update(expectation="not_testable", met=None)
+        elif pred["kind"] == "interpolated" and pred["predicted_after_mbps"] < before[sst] * (1 - MIN_DROP):
+            error = abs(after[sst] - pred["predicted_after_mbps"]) / pred["predicted_after_mbps"]
+            ok = change <= -MIN_DROP and error <= TOLERANCE
+            entry.update(expectation="decrease_to_prediction", predicted_after_mbps=round(pred["predicted_after_mbps"], 3),
+                         prediction_error=round(error, 4), met=ok)
+            binding_any = True
+            all_ok &= ok
+        else:
+            ok = change >= -MIN_DROP
+            entry.update(expectation="no_decrease", met=ok)
+            all_ok &= ok
+        stats[str(sst)] = entry
+    if untestable:
+        verdict = "NOT_TESTABLE"
+    else:
+        verdict = "NOT_TESTABLE" if not binding_any else ("CONSISTENT" if all_ok else "INCONSISTENT")
+    return {"verdict": verdict, "window_before": before_w, "window_after": after_w, "slices": stats}
+
+
 def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
             dissection_root: Path = ROOT / "experiments" / "e2_dissection",
-            calibration: Optional[Path] = None) -> Dict[str, Any]:
+            calibration: Optional[Path] = None, curve: Optional[Path] = None) -> Dict[str, Any]:
     run_dir, ddir = runs_dir / run_id, dissection_root / run_id
     csv_path = run_dir / "raw" / "slice_series.csv"
     dissection = json.loads((ddir / "e2_messages.json").read_text(encoding="utf-8"))
@@ -182,9 +248,9 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
         "schema": SCHEMA, "run_id": run_id,
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": "scripts/certification/slice_effect.py",
-        "rule": "v2-calibrated" if calibration else "v1-throughput-share",
+        "rule": "v4-curve" if curve else ("v2-calibrated" if calibration else "v1-throughput-share"),
         "constants": {"window_s": WINDOW_S, "settle_s": SETTLE_S, "margin_pp": MARGIN_PP, "min_drop": MIN_DROP,
-                      **({"tolerance": TOLERANCE} if calibration else {})},
+                      **({"tolerance": TOLERANCE} if (calibration or curve) else {})},
         "source_csv": f"raw/slice_series.csv",
         "source_csv_sha256": hashlib.sha256(csv_path.read_bytes()).hexdigest() if csv_path.exists() else None,
         "source_dissection_sha256": hashlib.sha256((ddir / "e2_messages.json").read_bytes()).hexdigest(),
@@ -202,6 +268,17 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                        quotas_from_pcap=quotas)
             if t_c is None:
                 out.update(verdict="NOT_TESTABLE", reason="instante do Control fora da série (relógio de parede)")
+            elif curve:
+                cv = json.loads(Path(curve).read_text(encoding="utf-8"))
+                try:
+                    cv_rel = Path(curve).resolve().relative_to(ROOT).as_posix()
+                except ValueError:
+                    cv_rel = str(curve)
+                out.update(calibration=cv_rel, calibration_sha256=hashlib.sha256(Path(curve).read_bytes()).hexdigest())
+                if cv.get("valid") is not True:
+                    out.update(verdict="NOT_TESTABLE", reason="curva teto -> vazão inválida")
+                else:
+                    out.update(evaluate_curve(series, t_c, quotas, cv["curve"]))
             elif calibration:
                 cal = json.loads(Path(calibration).read_text(encoding="utf-8"))
                 try:
@@ -231,14 +308,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", required=True)
     parser.add_argument("--calibration", help="calibração (calibrate_slice_capacity.py): ativa a regra v2")
+    parser.add_argument("--curve", help="curva teto -> vazão (slice_cap_curve.py): ativa a regra v4")
     args = parser.parse_args(argv)
-    r = analyze(args.run, calibration=Path(args.calibration) if args.calibration else None)
+    r = analyze(args.run, calibration=Path(args.calibration) if args.calibration else None,
+                curve=Path(args.curve) if args.curve else None)
     print(f"Efeito do Control ({args.run}): {r['verdict']}" + (f" — {r['reason']}" if r.get("reason") else ""))
     if r.get("control_sim_time_s") is not None:
         print(f"  Control no quadro {r['control_frame']}, t_sim = {r['control_sim_time_s']:.2f} s; cotas do PCAP: {r['quotas_from_pcap']}")
     for sst, s in (r.get("slices") or {}).items():
         share = (f"parte antes {s['share_before_pct']:.1f} %" if "share_before_pct" in s
-                 else f"PRB usado (calibrado) {s['prb_used_before_pct_est']:.1f} %")
+                 else f"PRB usado (calibrado) {s['prb_used_before_pct_est']:.1f} %" if "prb_used_before_pct_est" in s
+                 else f"curva: {s['curve_prediction']}")
         pred = (f"; previsto {s['predicted_after_mbps']:.2f} Mb/s (erro {100 * s['prediction_error']:.1f} %)"
                 if "predicted_after_mbps" in s else "")
         print(f"  SST {sst}: teto {s['cap_max_prb_pct']:.0f} %, {share}; "
