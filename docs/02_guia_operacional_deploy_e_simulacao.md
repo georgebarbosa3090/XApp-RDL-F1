@@ -15,9 +15,11 @@ O ambiente de execução e desenvolvimento da xApp RDL é homologado sobre **WSL
 | **k3d (K3s em Docker)** | ≥ 5.6.0 | Provisionamento de cluster Kubernetes leve |
 | **Helm** | ≥ 3.12.0 | Gerenciamento de pacotes e deploys de xApps |
 | **Python** | ≥ 3.10 | Runtime da xApp RDL, bibliotecas e agentes |
-| **ns-3** | 3.48 | Simulador de eventos discretos da RAN |
-| **5G-LENA** | v5.1 | Módulo NR CTTC-LENA para camada física/MAC |
-| **NORI E2 Agent** | SBrT 2025 (`9b64c12`) | Agente E2 C++ com suporte a E2AP v2.03 / E2SM-KPM / E2SM-RC |
+| **ns-3 (pilha nativa)** | 3.48 (`d2add90`) | Cenários de conflito S0–S7 com FlowMonitor (sem E2) |
+| **5G-LENA (pilha nativa)** | v5.1 (`cedcead`) | Módulo NR CTTC-LENA para camada física/MAC |
+| **ns-3 + 5G-LENA (pilha NORI)** | 3.42 (`ab4cce0`) + nr `78b7179` | Versões exigidas pelo NORI oficial |
+| **NORI E2 Agent** | `8a30867` (lasseufpa/nori) | Agente E2 C++ com E2AP v3.01 / E2SM-KPM v3.00 / E2SM-RC v3.01, implantado via Helm (`deploy/helm/nori-ns3`) |
+| **Memória do WSL** | 4,5 GB (`.wslconfig`) | Compilação com até 3 processos (nativa) ou 2 (pod NORI) |
 
 ### 1.1. Clonagem e Preparação do Repositório (WSL2 / Linux)
 
@@ -148,7 +150,19 @@ Para provisionar as dependências e o workspace dedicado, execute como usuário 
 make setup-ns3
 ```
 
-O setup usa somente ns-3.48, 5G-LENA v5.1 e o commit NORI configurado; ele não limpa caches, não altera o launcher `ns3` nem remove conteúdo existente de `scratch`. Checkouts existentes fora das versões fixadas causam erro explícito, sem troca automática de branch. O launcher ns-3 recusa execução como root.
+> **Atenção:** `scripts/setup_ns3.sh` usa `sudo apt`, recai silenciosamente na branch padrão se a versão pedida não existir, altera o launcher `ns3` para permitir execução como root e remove o NORI quando `libe2sim.a` falta. Para resultados rastreáveis, use a instalação fixada abaixo (sem fallback).
+
+**Pilha nativa (sem sudo), versões fixadas:**
+```bash
+mkdir -p ~/ns3-oran-workspace && cd ~/ns3-oran-workspace
+git clone --branch ns-3.48 --depth 1 https://gitlab.com/nsnam/ns-3-dev.git ns-3-oran
+git clone --branch v5.1 --depth 1 https://gitlab.com/cttc-lena/nr.git ns-3-oran/contrib/nr
+cd ns-3-oran && ./ns3 configure -d optimized --disable-examples --disable-tests --disable-werror && ./ns3 build -j3
+```
+
+**Pilha NORI (E2) via Helm, sem Docker:** veja [`deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md).
+
+**Execução com proveniência e saída ao vivo:** `bash scripts/certification/run_ns3_certified.sh --scenario <cenario> --seed <n> [--baseline Bx] [-- args]` grava manifesto, logs, FlowMonitor e hashes em `experiments/runs/<run_id>/`. A certificação dos gates G0–G6 é feita por `python scripts/certification/certify_chain.py` (relatórios em `reports/certification/`).
 
 Navegue até a raiz do workspace do simulador ns-3 (onde reside o script `./ns3`):
 ```bash

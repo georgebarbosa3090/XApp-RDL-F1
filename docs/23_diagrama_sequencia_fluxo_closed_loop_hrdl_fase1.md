@@ -59,8 +59,9 @@ sequenceDiagram
         RAN->>RDL: E2 Setup Request (SCTP :36421, KPM-ID=2, RC-ID=3)
         RDL-->>RAN: E2 Setup Response (OK)
         SMO->>RDL: A1-P Policy Create (Type 20000: Cooldown 1000ms, Max PRB 100%)
-        RDL->>RAN: RIC Subscription Request (mtype 12010, KPM Período = 200ms)
-        RAN-->>RDL: RIC Subscription Response (mtype 12011, Subscribed OK)
+        RDL->>RAN: POST /ric/v1/subscriptions ao SubMgr (SubscriptionParams, KPM Período = 200ms)
+        Note over RDL,RAN: SubMgr converte em RIC Subscription Request E2AP para o E2 Node
+        RAN-->>RDL: Notificação POST /ric/v1/subscriptions/response (E2EventInstanceId > 0)
     end
 
     %% FASE II: INGESTÃO DE TELEMETRIA E SUBMISSÃO CONCORRENTE
@@ -173,7 +174,7 @@ Onde a função de utilidade multiobjetivo é condicionada pelo envelope de pol�
    - `max_cell_prb_limit = 100`: Limite teto de ocupação do agendador MAC;
    - `cooling_lockout_ms = 1000`: Janela temporal mínima de resfriamento entre atuações no mesmo recurso;
    - `urllc_priority_boost = 25`: Peso de prioridade estrita para tráfego ultraconfiável.
-3. **Subscrição E2SM-KPM:** A H-RDL envia `RIC_SUBSCRIPTION_REQ` (mtype `12010`) via RMR para o *Subscription Manager* (SubMgr), solicitando o envio de relatórios periódicos a cada $200\text{ ms}$.
+3. **Subscrição E2SM-KPM:** A H-RDL envia `POST /ric/v1/subscriptions` à API REST do *Subscription Manager* (SubMgr) com o corpo `SubscriptionParams` (Event Trigger e Action Definition E2SM-KPM como listas de octetos), solicitando relatórios a cada $200\text{ ms}$. O SubMgr gera o `RIC_SUBSCRIPTION_REQ` E2AP para o E2 Node e devolve o resultado de forma assíncrona em `POST /ric/v1/subscriptions/response`; só então a xApp passa a `READY`.
 
 > [!IMPORTANT]
 > **Nota Metodológica e Honestidade Científica sobre a Fase 1:**  
@@ -237,8 +238,8 @@ A tabela a seguir consolida todas as mensagens trocadas no fluxo de sequência d
 | :--- | :--- | :---: | :---: | :--- | :---: |
 | **E2 Setup Request** | E2AP v02.03 (SCTP) | `SCTP:36421` | E2 Node $\to$ E2term | Catálogo ASN.1 APER (KPM-ID=2, RC-ID=3) | $\approx 45,8\text{ ms}$ |
 | **A1-P Policy Create** | A1AP v03.01 (REST) | `PUT /a1-p/v3/...` | SMO $\to$ xApp-RDL | JSON Schema Policy 20000 (Cooldown & PRB) | $\approx 15,0\text{ ms}$ |
-| **RIC_SUBSCRIPTION_REQ** | E2AP v02.03 / RMR | `mtype: 12010` | xApp-RDL $\to$ SubMgr | EventTrigger ASN.1 APER (Período: $200\text{ ms}$) | $< 1,0\text{ ms}$ |
-| **RIC_SUBSCRIPTION_RESP**| E2AP v02.03 / RMR | `mtype: 12011` | SubMgr $\to$ xApp-RDL | RICsubscriptionResponse (Admissão confirmada) | $< 1,0\text{ ms}$ |
+| **SubscriptionParams** | REST SubMgr | `POST /ric/v1/subscriptions` | xApp-RDL $\to$ SubMgr | EventTrigger/ActionDefinition E2SM-KPM em octetos (Período: $200\text{ ms}$) | a medir |
+| **Subscription notification** | REST SubMgr | `POST /ric/v1/subscriptions/response` | SubMgr $\to$ xApp-RDL | `SubscriptionInstances` (E2EventInstanceId ou ErrorCause) | a medir |
 | **RIC_INDICATION** $[t_0]$ | E2AP v02.03 / RMR | `mtype: 12050` | E2 Node $\to$ xApp-RDL | ASN.1 APER E2SM-KPM (Throughput, Delay, PRB) | $\approx 8,20\text{ ms}$ |
 | **RDL_ACTION_PROPOSAL** | RMR Barramento | `mtype: 20010` | xApps $\to$ xApp-RDL | JSON: `xapp_id`, `parameter`, `value`, `priority` | $< 0,05\text{ ms}$ |
 | **Decision Window Flush**| Loop Interno RDL | N/A | Buffer $\to$ Perception | Lote de ações após expiração de $\Delta t_{win}$ | **$200,0\text{ ms}$** |
@@ -274,7 +275,7 @@ Cada etapa descrita no diagrama de sequência mapeia-se de forma estrita e audit
 
 Para garantir que nenhuma ação insegura atinja a rede de acesso sob falhas de infraestrutura, a H-RDL adota mecanismos de contenção de falhas determinísticos:
 
-1. **Timeout de ACK e Rollback Determinístico:** Caso o nó RAN não emita `RIC_CONTROL_ACK` dentro do limiar de segurança ($1,0\text{ s}$), a transação é declarada órfã e a H-RDL emite imediatamente uma ação corretiva de *rollback* para o último ponto de operação estável homologado na SDL.
+1. **Timeout de ACK e Rollback Determinístico:** Caso o nó RAN não emita `RIC_CONTROL_ACK` dentro do limiar configurado (padrão $5,0\text{ s}$), a transação é declarada expirada e a H-RDL emite um *rollback* para o último valor confirmado pela RAN, somente se esse valor for conhecido e estiver dentro dos limites do parâmetro. O rollback é uma nova transação E2AP (RICrequestID próprio, `noAck`), enviada com o MEID do E2 Node; seu status `SENT_UNCONFIRMED` não significa restauração confirmada. Um `RIC_CONTROL_FAILURE` **não** dispara rollback: o E2 Node não aplicou o controle (`rollback_status = NOT_REQUIRED`).
 2. **Rejeição por Safety Guard:** Qualquer proposta que ultrapasse os limites do 3GPP TS 38.104 é bloqueada na camada `Refinement`, sendo substituída por um valor truncado (*Boundary Clipping*) ou descartada com log de auditoria, assegurando estritamente:
    $$\text{UnsafeApplied} \equiv 0$$
 3. **Resiliência a Queda de Barramento:** Se o barramento RMR estiver indisponível ou em estado de saturação, a H-RDL retém o estado anterior de alocação de rádio, impedindo colapsos em cascata ou degradação catastrófica de QoS.

@@ -176,6 +176,27 @@ xapp-rdl
 python -m src.main
 ```
 
+Variáveis relevantes: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RAN_BACKEND`, `SUBMGR_URL` (habilita a subscrição E2SM-KPM pela API REST do SubMgr; obrigatório no modo estrito), `XAPP_HTTP_HOST`/`XAPP_HTTP_PORT`/`XAPP_RMR_PORT` (endpoint informado ao SubMgr). A xApp só fica `READY` depois que o SubMgr notifica a subscrição em `POST /ric/v1/subscriptions/response`. Os controles E2 são enviados com o MEID do E2 Node.
+
+### 6.3 Simulação e certificação de evidências
+
+O NORI oficial não roda sobre ns-3.48 / 5G-LENA v5.1, por isso há duas pilhas (versões em [`reproducibility/versions.lock`](reproducibility/versions.lock)):
+
+| Pilha | Versões | Uso |
+| :-- | :-- | :-- |
+| Nativa (`NS3_5GLENA`) | ns-3.48 + 5G-LENA v5.1 | Cenários de conflito S0–S7 (FlowMonitor), sem E2 |
+| NORI (`NORI_NS3`) | ns-3.42 + 5G-LENA `78b7179` + NORI `8a30867` (E2 v3.01) | E2 real e closed loop, implantada via Helm em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md) |
+
+```bash
+# Executa um cenário com proveniência e saída ao vivo (pilha nativa)
+bash scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_direct_prb_conflict --seed 1001 --baseline B3 -- --simTime=10
+
+# Emite o veredito dos gates G0–G6 em reports/certification/
+python scripts/certification/certify_chain.py
+```
+
+O certificador trata como não elegíveis as execuções geradas por scripts com RNG estatístico (como as 210 rodadas `S1_B0..B6_seed1001..1030` de `scripts/run_b0_b6_campaign_30seeds.py`), fixtures causais e mensagens E2 impressas pelo código do cenário. O último relatório está em [`reports/certification/`](reports/certification/).
+
 ---
 
 ## 7. Informações Acadêmicas e Governança

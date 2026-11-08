@@ -7,7 +7,7 @@ Auditor de Providência e Integridade Científica (scripts/validate_provenance.p
 Valida estritamente a rastreabilidade de evidências reais extraídas do ns-3 / 5G-LENA / NORI:
   ✓ execution_manifest.json com meta-informações completas
   ✓ Hashes SHA256 do executável ns-3 e do cenário .cc
-  ✓ Versão do ns-3 (3.48), commit do 5G-LENA (v5.1), commit do NORI (9b64c12)
+  ✓ Versões do ns-3 / 5G-LENA / NORI conforme reproducibility/versions.lock (perfil do backend)
   ✓ Semente de simulação (seed) e parâmetros CLI
   ✓ FlowMonitor XML bruto gerado pelo ns-3
   ✓ Artefatos brutos E2 KPM (.raw) capturados do socket/RMR

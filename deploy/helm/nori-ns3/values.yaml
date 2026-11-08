@@ -1,0 +1,44 @@
+# Bancada NORI compilada no cluster (k3s), reproduzindo o Dockerfile oficial do NORI
+# (github.com/lasseufpa/nori) sem Docker. Todas as versões são fixadas por commit;
+# o build falha se algum commit não existir (sem fallback silencioso).
+
+
+image: ubuntu:20.04          # mesma base do Dockerfile oficial do NORI
+
+pins:
+  nori:
+    repo: https://github.com/lasseufpa/nori.git
+    commit: 8a30867c8105d328aa50a7daaab3bcb2b4603763   # HEAD em 2026-10-29
+  ns3:
+    repo: https://gitlab.com/nsnam/ns-3-dev.git
+    commit: ab4cce021d8f6b2458784704a10af810d3969f0f   # ns-3.42, fixado pelo NORI
+  nr:
+    repo: https://gitlab.com/cttc-lena/nr.git
+    commit: 78b7179e3841c608c2021ffa88bea1906a1c7594   # 5G-LENA fixado pelo NORI
+  e2sim:
+    repo: https://gerrit.o-ran-sc.org/r/sim/e2-interface
+    commit: da6f82f286cdbb38af1178f82f85877b12c2f85b   # fixado pelo NORI
+  asn1c:
+    repo: https://github.com/nokia/asn1c.git
+    commit: 8b8028a80aa8f5545dfcaa9d357150ac0c475f70   # o NORI usa o HEAD; fixado aqui
+
+build:
+  jobs: 2                    # WSL com 4,5 GB: mais que 2 processos estoura memória no 5G-LENA
+  profile: optimized
+  enableExamples: true       # os exemplos nori-* são os cenários E2 executáveis
+
+resources:
+  requests:
+    cpu: "1"
+    memory: 1Gi
+  limits:
+    memory: 3584Mi
+
+storage:
+  size: 25Gi
+  storageClassName: local-path   # provisionador padrão do k3s
+
+# Near-RT RIC (E2Term) usado pelas execuções; ajuste ao endereço do serviço SCTP do RIC.
+ric:
+  e2termAddress: service-ricplt-e2term-sctp-alpha.ricplt
+  e2termPort: 36422

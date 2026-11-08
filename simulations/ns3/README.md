@@ -55,12 +55,28 @@ $$
 git pull origin main
 ```
 
-### 4.2. Configurar e Compilar o ns-3 com 5G-LENA e NORI
-```bash
-bash scripts/setup_ns3.sh
-```
+### 4.2. Pilhas de simulação
 
-### 4.3. Executar a Suíte de Simulação ns-3 FlowMonitor
+São duas pilhas distintas, porque o NORI oficial não roda em ns-3.48 / 5G-LENA v5.1:
+
+| Pilha | Versões | Backend no manifesto | Serve para |
+| :-- | :-- | :-- | :-- |
+| Nativa | ns-3.48 (`d2add90`) + 5G-LENA v5.1 (`cedcead`) | `NS3_5GLENA` | Cenários de conflito S0–S7 (FlowMonitor); **sem E2** |
+| NORI | ns-3.42 (`ab4cce0`) + nr `78b7179` + NORI `8a30867` | `NORI_NS3` | E2 real e closed loop (S8), via Helm |
+
+A instalação fixada da pilha nativa está no [guia operacional](../../docs/02_guia_operacional_deploy_e_simulacao.md#5-pipeline-de-co-simulação-ns-348--5g-lena--nori); a do NORI, em [`deploy/helm/nori-ns3`](../../deploy/helm/nori-ns3/README.md). O `scripts/setup_ns3.sh` legado recai silenciosamente em outras versões e não deve ser usado para gerar evidência.
+
+### 4.3. Executar um cenário com proveniência (saída ao vivo)
+```bash
+bash scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_direct_prb_conflict --seed 1001 --baseline B3 -- --simTime=10
+python scripts/certification/certify_chain.py --run scenario_rdl_direct_prb_conflict_B3_seed1001
+```
+O executor mostra a saída do simulador em tempo real e grava em `experiments/runs/<run_id>/` o manifesto (versões lidas dos checkouts, comando, horários, código de saída), `logs/`, as saídas em `raw/` e `hashes.sha256`. Ele nunca sobrescreve uma execução existente.
+
+> **Atenção:** `scenario_rdl_tvs_conflict.cc` e `scenario_rdl_energy_vs_qos.cc` gravam o mesmo `flowmonitor_results.xml`, e os FlowMonitor de S8 em `experiments/results/ns3_runs/` são byte-idênticos aos de S3. Confira o hash de cada saída antes de atribuí-la a um cenário. O `scenario_rdl_closed_loop_nori.cc` imprime mensagens E2 fixas por `std::cout` (`TraceLifecycleE2`), que não são evidência de protocolo.
+
+### 4.4. Suíte legada (sem proveniência)
+O script abaixo não grava manifesto e faz `git commit`/`git push` automáticos; seus resultados não são certificáveis.
 ```bash
 # Executar todos os 16 cenários (S0 a S15)
 bash simulations/ns3/run_all_s0_s15_simulations.sh all
@@ -73,7 +89,7 @@ bash simulations/ns3/run_all_s0_s15_simulations.sh 6g
 bash simulations/ns3/run_all_s0_s15_simulations.sh S1
 ```
 
-### 4.4. Gerar Relatório Markdown a partir dos Traces XML Reais
+### 4.5. Gerar Relatório Markdown a partir dos Traces XML Reais
 ```bash
 python3 scripts/generate_ns3_flowmonitor_markdown_report.py
 ```

@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nori-ns3.name" . }}-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nori-ns3.labels" . | nindent 4 }}
+data:
+  entrypoint.sh: |
+{{ .Files.Get "files/entrypoint.sh" | indent 4 }}
+  run.sh: |
+{{ .Files.Get "files/run.sh" | indent 4 }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "nori-ns3.name" . }}-workspace
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nori-ns3.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: {{ .Values.storage.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nori-ns3.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "nori-ns3.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "nori-ns3.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "nori-ns3.selector" . | nindent 8 }}
+      annotations:
+        checksum/scripts: {{ printf "%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/run.sh") | sha256sum }}
+    spec:
+      containers:
+        - name: workbench
+          image: {{ .Values.image }}
+          command: ["bash", "/scripts/entrypoint.sh"]
+          env:
+            - { name: NORI_REPO, value: {{ .Values.pins.nori.repo | quote }} }
+            - { name: NORI_COMMIT, value: {{ .Values.pins.nori.commit | quote }} }
+            - { name: NS3_REPO, value: {{ .Values.pins.ns3.repo | quote }} }
+            - { name: NS3_COMMIT, value: {{ .Values.pins.ns3.commit | quote }} }
+            - { name: NR_REPO, value: {{ .Values.pins.nr.repo | quote }} }
+            - { name: NR_COMMIT, value: {{ .Values.pins.nr.commit | quote }} }
+            - { name: E2SIM_REPO, value: {{ .Values.pins.e2sim.repo | quote }} }
+            - { name: E2SIM_COMMIT, value: {{ .Values.pins.e2sim.commit | quote }} }
+            - { name: ASN1C_REPO, value: {{ .Values.pins.asn1c.repo | quote }} }
+            - { name: ASN1C_COMMIT, value: {{ .Values.pins.asn1c.commit | quote }} }
+            - { name: BUILD_JOBS, value: {{ .Values.build.jobs | quote }} }
+            - { name: BUILD_PROFILE, value: {{ .Values.build.profile | quote }} }
+            - { name: ENABLE_EXAMPLES, value: {{ .Values.build.enableExamples | quote }} }
+            - { name: E2TERM_ADDRESS, value: {{ .Values.ric.e2termAddress | quote }} }
+            - { name: E2TERM_PORT, value: {{ .Values.ric.e2termPort | quote }} }
+          securityContext:
+            capabilities:
+              add: ["NET_RAW", "NET_ADMIN"]   # tcpdump da interface SCTP/E2
+          readinessProbe:
+            exec:
+              command: ["test", "-f", "/workspace/READY"]
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - { name: workspace, mountPath: /workspace }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: {{ include "nori-ns3.name" . }}-workspace
+        - name: scripts
+          configMap:
+            name: {{ include "nori-ns3.name" . }}-scripts

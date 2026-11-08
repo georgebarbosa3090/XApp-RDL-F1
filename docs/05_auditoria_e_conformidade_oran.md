@@ -118,7 +118,7 @@ Em conformidade com a política de integridade estrita do projeto:
 
 ### 6.3. Resiliência E2, Injeção de Falhas e Rollback de Segurança
 * **Mecanismo:** Implementado em `ControlDispatcher` e coberto em `tests/unit/test_control_dispatcher_fault_injection.py`.
-* **Comportamento no código:** existem caminhos para timeout, falha e rollback; não há evidência de comportamento temporal ou invariantes em uma RAN executada.
+* **Comportamento no código:** existem caminhos para timeout, falha e rollback; não há evidência de comportamento temporal ou invariantes em uma RAN executada. Regras atuais: rollback apenas por timeout do ACK e somente com valor anterior verificado e dentro dos limites; `RIC_CONTROL_FAILURE` não gera rollback (`NOT_REQUIRED`); o rollback usa RICrequestID novo e `noAck`; todo controle sai com o MEID do E2 Node (`src/infrastructure/rmr_transport.py`); transações finalizadas são removidas após 5 minutos.
 * **Suíte de Testes:** a contagem histórica **81/81** não representa a suíte atual e não foi reexecutada neste documento. Testes unitários não aprovam conformidade E2 nem gates experimentais.
 
 ---

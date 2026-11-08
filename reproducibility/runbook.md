@@ -15,7 +15,7 @@
 * **Contêineres e Cluster:** Docker Engine 24.0+ e k3d v5.6.0+;
 * **Ambiente Python:** Python 3.10+ / 3.12 com dependências instaladas (`pip install -r requirements.txt`);
 * **Toolchain de Compilação:** CMake 3.25+, Ninja e g++ 11+;
-* **Simulador de Rádio 5G:** Árvore de fontes do `ns-3.48` integrada com `5G-LENA v5.1` e `NORI`.
+* **Simulador de Rádio 5G:** pilha nativa `ns-3.48` + `5G-LENA v5.1` (cenários de conflito, sem E2) e pilha NORI `ns-3.42` + 5G-LENA `78b7179` + NORI `8a30867` via Helm (E2 v3.01). Memória do WSL: 4,5 GB.
 
 ---
 
@@ -51,6 +51,24 @@ kubectl apply -f deploy/openran-br-v3/deployment.yaml
 ```bash
 kubectl get pods -n ricxapp -l app=iqos-xapp-rdl
 ```
+
+### Passo 2b: Bancada NORI (E2) via Helm
+
+O NORI oficial exige ns-3.42 e E2 v3.01 (ver `versions.lock`, perfil `profile.nori`). Ele é compilado dentro do cluster, sem Docker:
+```bash
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespace
+kubectl -n ricsim logs -f deploy/nori-ns3
+kubectl -n ricsim exec -it deploy/nori-ns3 -- bash /scripts/run.sh nori-rc-slicing-demo nori_rc_demo_seed1 --seed 1 -- --simTime=10
+```
+Detalhes em [`deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md).
+
+### Passo 2c: Cenários de conflito na pilha nativa e certificação
+```bash
+bash scripts/certification/run_ns3_certified.sh --scenario scenario_rdl_direct_prb_conflict --seed 1001 --baseline B3 -- --simTime=10
+python scripts/certification/certify_chain.py
+```
+O certificador emite o veredito dos gates G0–G6 em `reports/certification/`.
 
 ### Passo 3: Execução da Suíte de 3 Simulações Consecutivas
 

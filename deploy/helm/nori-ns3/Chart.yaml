@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nori-ns3
+description: Bancada ns-3 + 5G-LENA + NORI (E2 Agent) compilada dentro do cluster, sem Docker, para as simulações closed-loop do xApp RDL
+type: application
+version: 0.1.0
+appVersion: "nori-8a30867"

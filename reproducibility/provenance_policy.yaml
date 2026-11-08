@@ -45,9 +45,24 @@ backend_evidence_rules:
       - "command"
       - "started_at_utc"
       - "finished_at_utc"
+    # Cada grupo é satisfeito por qualquer uma das extensões listadas.
     required_raw_groups:
       - [".xml"]
-      - [".raw"]
+      - [".pcap", ".pcapng", ".raw"]
+  # Pilha nativa ns-3 + 5G-LENA sem NORI: produz só FlowMonitor (não serve a G1/G3/G4).
+  NS3_5GLENA:
+    required_manifest_fields:
+      - "ns3_version"
+      - "fiveg_lena_version"
+      - "scenario"
+      - "seed"
+      - "run_status"
+      - "exit_code"
+      - "command"
+      - "started_at_utc"
+      - "finished_at_utc"
+    required_raw_groups:
+      - [".xml"]
   SRSRAN_OPEN5GS:
     required_manifest_fields: ["srsran_version", "open5gs_version"]
     required_raw_extensions: [".pcap", ".log"]

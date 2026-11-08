@@ -79,15 +79,21 @@ def validate_gate1() -> bool:
     g6 = bool(decoded_files)
     sem_val = manifest.get("semantic_validation_error_pct")
     g7 = isinstance(sem_val, (int, float)) and 0 <= sem_val < 5.0
+    # Versões esperadas vêm do perfil NORI do versions.lock (o NORI oficial exige ns-3.42).
+    from scripts.certification.certify_chain import load_versions_lock
+    nori_profile = load_versions_lock().get("profile.nori", {})
+    declared_sources = manifest.get("source")
+    declared_sources = declared_sources if isinstance(declared_sources, list) else [declared_sources]
+    nori_commit = str(manifest.get("nori_commit") or "")
     manifest_ok = (
-        manifest.get("source") == "NORI_E2"
+        "NORI_E2" in declared_sources
         and manifest.get("publication_eligible") is True
         and manifest.get("backend") in ("NORI_NS3", "NORI_NS3_5GLENA")
-        and manifest.get("ns3_version") == "3.48"
-        and manifest.get("fiveg_lena_version") == "5.1"
+        and str(manifest.get("ns3_version", "")).startswith(nori_profile.get("ns3", "?"))
+        and len(nori_commit) >= 7
+        and nori_profile.get("nori_commit", "").startswith(nori_commit[:7])
         and manifest.get("run_status") == "SUCCESS"
         and manifest.get("exit_code") == 0
-        and bool(manifest.get("nori_commit"))
         and isinstance(manifest.get("seed"), int)
     )
     try:

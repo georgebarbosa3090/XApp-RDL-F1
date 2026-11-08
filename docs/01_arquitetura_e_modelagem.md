@@ -180,6 +180,19 @@ $$(a_i, a_j) \in \mathcal{E}_t \iff
 
 Aqui, $K(p)$ é a lista configurada de KPIs associada ao parâmetro $p$. A histerese temporal é uma validação do `Refinement` por nó/parâmetro; ela não é atualmente emitida como um terceiro tipo de `ConflictEvent`.
 
+#### Materialização do grafo em eventos agrupados (implementação)
+O grafo $G_t$ não é materializado aresta a aresta. A `Perception` agrupa as arestas por alvo, o que mantém o número de eventos limitado por $\mathcal{O}(P^2)$ por nó ($P$ = parâmetros controláveis), independentemente do número $m$ de propostas:
+
+- propostas repetidas da mesma xApp para o mesmo (nó, parâmetro) são deduplicadas, valendo a mais recente;
+- **conflito direto:** um único evento por (nó, parâmetro), contendo todas as propostas concorrentes e, como *incumbente*, a última ação confirmada pela RAN (ACK), quando pertencer a outra xApp;
+- **conflito indireto:** um evento por par de parâmetros do mesmo nó com $K(p_i) \cap K(p_j) \neq \emptyset$, contendo os candidatos de ambos.
+
+#### Arbitragem em dois estágios
+1. **Estágio direto (TVS):** para cada (nó, parâmetro) em conflito, a utilidade TVS escolhe um único vencedor entre todos os candidatos (não há fusão posterior por prioridade).
+2. **Estágio indireto (EEVS):** os conflitos indiretos são resolvidos apenas entre os vencedores do estágio anterior; perdedores do estágio direto não voltam a competir. Um alvo que perde no EEVS é bloqueado no lote.
+
+Se o vencedor for a incumbente, o valor atual é mantido e nenhum controle é reenviado; a incumbente também não passa de novo pela histerese.
+
 #### Seleção de subconjunto admissível pela EEVS
 A arbitragem seleciona um subconjunto compatível $\mathcal{A}_t^* \subseteq \mathcal{A}_t$ que maximize a utilidade EEVS implementada para o grupo de conflito:
 
@@ -193,7 +206,7 @@ S \neq \emptyset, \\
 \end{cases}$$
 
 #### Limite computacional implementado
-Para grupos com até 16 ações, o código avalia subconjuntos não vazios por busca exata, com custo temporal $\mathcal{O}(m 2^m)$ e memória auxiliar linear, mantendo apenas a melhor solução. Acima desse limite, usa uma heurística gulosa determinística, com custo temporal $\mathcal{O}(m^3)$ e memória auxiliar linear; essa solução é admissível, mas não possui garantia de ótimo global. A confiança da resolução é registrada como 0,88 na busca exata e 0,70 na heurística. Não se afirma uma prova formal de ausência de deadlock nem de ótimo global para grupos acima do limite.
+A busca exata enumera apenas subconjuntos fisicamente compatíveis (no máximo uma ação por (nó, parâmetro)): com $n_k$ candidatos no alvo $k$, são $\prod_k (n_k + 1) - 1$ subconjuntos, em vez de $2^m - 1$. Enquanto esse número não ultrapassa o limite configurado (`max_exact_subsets`, padrão $2^{16}-1$), o resultado é ótimo para a utilidade EEVS; acima dele, usa-se uma heurística gulosa determinística, com custo temporal $\mathcal{O}(m^3)$ e memória auxiliar linear, admissível mas sem garantia de ótimo global. A confiança da resolução é registrada como 0,88 na busca exata e 0,70 na heurística. Não se afirma uma prova formal de ausência de deadlock nem de ótimo global para grupos acima do limite.
 
 As ações admitidas são mantidas como estado corrente por nó/parâmetro até serem substituídas ou removidas. Propostas não selecionadas não atualizam esse estado.
 
@@ -234,8 +247,14 @@ A camada contém builders/decoders locais e uma codificação APER de pesquisa. 
 - Em `O_RAN_INTEROP`, os IDs e capacidades de RAN Function precisam ser carregados pela integração E2 antes de iniciar subscrições/controles. O runtime atual não decodifica `RANFunctionDefinition`; portanto, se a descoberta não estiver disponível, a xApp fica fora de `READY` e não usa IDs estáticos.
 - Propostas externas são rejeitadas em `O_RAN_INTEROP` enquanto o transporte não fornecer identidade autenticada da xApp emissora. O campo `xapp_id` do JSON é metadado declarado pelo cliente, não credencial.
 - O transporte RMR mock do modo local nunca reporta sucesso de envio. O endpoint A1-P local escuta somente em loopback, não está conectado ao pipeline de decisão e ainda não possui autenticação para exposição remota.
-- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado; `rollback_status=SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
-- O endpoint `/ready` só retorna sucesso no estado `READY`, após resposta bem-sucedida de subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
+- O estado anterior de um parâmetro não é inferido de defaults. Rollback só pode ser solicitado quando a decisão fornecer um valor anterior verificado e dentro dos limites do parâmetro; `rollback_status=SENT_UNCONFIRMED` significa que o RMR aceitou o envio, não que a RAN confirmou a restauração.
+- Rollback só é emitido por **timeout** do ACK. Após `RIC_CONTROL_FAILURE` o E2 Node não aplicou o controle, então o status é `NOT_REQUIRED` e nada é reenviado. O rollback é uma nova transação: usa RICrequestID próprio (o original ainda pode receber resposta tardia), `ricControlAckRequest = noAck` e o mesmo caminho de codificação do backend.
+- Todo `RIC_CONTROL_REQUEST` é enviado com o **MEID** do E2 Node (`src/infrastructure/rmr_transport.py`): o buffer RMR é alocado com `meid`, porque `rmr_send(payload, mtype, retries)` do `ricxappframe` não define MEID e, sem ele, o E2Term não roteia a mensagem. Clientes que não suportam MEID são recusados.
+- A subscrição E2SM-KPM usa a **API REST do SubMgr** (`POST /ric/v1/subscriptions`, corpo `SubscriptionParams`). A xApp fica em `SUBSCRIBING` até o SubMgr notificar o resultado em `POST /ric/v1/subscriptions/response` (servido pelo health server). Sem `SUBMGR_URL` fora do modo estrito, a xApp opera em governança local, sem subscrição.
+- O endpoint `/ready` só retorna sucesso no estado `READY`, após a notificação de sucesso da subscrição. `DEGRADED`, `SUBSCRIBING` e `DISCOVERING_E2_NODES` permanecem não prontos.
+- A proteção de *slew-rate* (quando habilitada) compara a proposta com o último valor confirmado pela RAN, lido da `Perception`; sem essa fonte, a validação falha fechada.
+- Transações de controle finalizadas (ACK, falha, timeout) são removidas após 5 minutos; históricos de rollback e cache SDL local têm tamanho máximo.
+- O codec E2SM-RC local é um perfil simplificado e **não** segue o ASN.1 oficial do E2SM-RC v1.03; o modo `O_RAN_INTEROP` permanece bloqueado até a adoção de um codec gerado do ASN.1 oficial (o NORI usa E2AP/E2SM v3.01).
 - Os runners Phase 1 estão limitados aos cenários S2/S3 ns-3 + 5G-LENA; falhas de build/execução interrompem a campanha. O benchmark offline de processamento de propostas não modela UEs, rádio, E2 ou Near-RT e não é evidência de simulação de rede.
 
 ![Conformidade com os Padrões O-RAN Alliance](figures/01_arquitetura_e_governanca/diagram_05_conformidade_oran_standards.png)
