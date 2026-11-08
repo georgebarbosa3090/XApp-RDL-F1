@@ -35,8 +35,8 @@ Definidos em [`reproducibility/provenance_policy.yaml`](../reproducibility/prove
 | G1 | Execução NORI elegível com E2 Setup, Subscription e Indication KPM externos, confirmados por dissecação independente do PCAP (R14) | CERTIFIED |
 | G2 | Decisão H-RDL funcional (testes) | LOCAL_ONLY |
 | G3 | RIC Control e ACK/Failure externos correlacionados | CERTIFIED (NORI com o patch `0001-rc-control-ack` do lock) |
-| G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal, Control decidido pelo H-RDL a partir do KPM_t0 (registro da xApp casado com o PCAP) e efeito na RAN coerente com as cotas (`slice_effect.py`, veredito `CONSISTENT`) | NOT_CERTIFIED (efeito INCONSISTENT na única execução decidida pelo H-RDL) |
-| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | BLOCKED |
+| G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal, Control decidido pelo H-RDL a partir do KPM_t0 (registro da xApp casado com o PCAP) e efeito na RAN coerente com as cotas por regra calibrada (`slice_effect.py`, veredito `CONSISTENT`) | CERTIFIED (3 execuções v5; ressalvas em [`07_preregistro_fase4_v5.md`](07_preregistro_fase4_v5.md)) |
+| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | NOT_CERTIFIED |
 | G6 | G4 e G5 certificados + reprodução independente | BLOCKED |
 
 Regras do certificador por execução: manifesto presente; origem explícita e elegível; `run_id` que não corresponda a gerador estatístico; campos obrigatórios do backend; `run_status=SUCCESS` e `exit_code=0`; versões e commits iguais ao perfil do backend no lock; todos os arquivos com hash e hashes conferindo; grupos de evidência bruta exigidos (FlowMonitor e, no NORI, PCAP/RAW); FlowMonitor com fluxos recebidos; artefatos E2 por mensagem e correlação RC/ACK (só NORI); horários coerentes. No NORI, as mensagens E2 vêm da dissecação do PCAP em `experiments/e2_dissection/<run>/` ([`e2_pcap_dissect.py`](../scripts/certification/e2_pcap_dissect.py)): ela só vale se o hash do PCAP conferir, e só conta para G1–G4 quando o tshark concorda com o dissecador do projeto mensagem a mensagem (R14 `PASS`).
@@ -83,12 +83,13 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 34 | Calibração da v2 com tetos 30/30 (soma 60 %) não restringiu nenhuma fatia; o teto do NORI parecia só limitar quando as cotas somam 100 % | calibração inválida; avaliações v2 não executadas, conforme o pré-registro |
 | 35 | Calibração da v3 com cotas complementares (30/70 e 70/30): teto de 30 % não restringiu nenhuma fatia dentro da janela; hipótese da soma 100 % refutada | calibração inválida; avaliações v3 não executadas, conforme o pré-registro. A leitura "não linear" foi superada pelo achado 36 |
 | 36 | O Control do NORI só tem efeito quando o tempo simulado alcança o relógio de parede do instante em que chegou (~12 s simulados depois): `ScheduleWithContext` a partir da thread do E2 no `RealtimeSimulatorImpl`. Com isso, a cota é linear (~3,8 Mb/s por ponto percentual) e independe da soma | v4 oficial: curva inválida pela janela pré-registrada, avaliações não executadas; achado exploratório registrado. Próximo desenho: janela ancorada no instante de aplicação |
+| 37 | Roteiro de avaliação v5 verificava a prontidão da xApp no `kubectl logs`, que o k3s rotaciona; abortou a semente 3 antes de iniciá-la | corrigido (lê o arquivo de eventos persistente); semente 3 executada com a mesma semente, desvio declarado |
 
 As auditorias anteriores estão em [`auditoria/`](auditoria/README.md) como registro histórico; os relatórios com números não verificados, em [`historico/`](historico/README.md).
 
 ## 5. Pendências para interoperabilidade
 
-1. Pré-registrar um desenho v5 com a janela de efeito ancorada no instante de aplicação do Control (relógio de parede no Control, mapeado pela série) e repetir a fase 4 (G4); v2 a v4 pararam em calibrações inválidas pela janela.
+1. G5: campanha com E2 real e ≥ 30 sementes pareadas por baseline B0–B3, com o Control decidido por cada baseline (G4 certificado com o H-RDL na v5).
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
 3. Propor ao NORI o envio do RIC Control Acknowledge na função E2SM-RC, para dispensar o patch local.
 4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).

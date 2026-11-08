@@ -55,3 +55,34 @@ A curva da v4 já foi medida, e eu já vi seus valores (exploratórios). Por iss
 - **Calibração já vista:** a curva vem de execuções cujos valores já eram conhecidos. A predição da URLLC a 20 % ainda é deixa-um-fora, mas o ponto de 20 % da curva (76,45 Mb/s) já mostrava o valor esperado. O teste prospectivo está na replicação com o Control decidido pelo H-RDL, em sementes e configurações novas (eMBB 80 / URLLC 20 em vez de 20/20).
 - **Estimativa do instante de aplicação:** depende de a primeira amostra não ter atraso. Na v4, essa estimativa coincidiu com o início do efeito com resolução de 0,5 s.
 - **Cenário único, limite por UE (~151,5 Mb/s) e sinal de congestionamento:** as mesmas limitações das versões anteriores.
+
+## 7. Resultado (registrado depois das execuções, 2026-11-08)
+
+O pré-registro foi publicado no commit `6bb7773`; a xApp rodou o `src/` desse commit.
+
+**Curva (passo 1):** [`slice_cap_curve_v5.json`](../experiments/calibration/slice_cap_curve_v5.json) saiu válida. Para as duas fatias: 10 % → 37,46; 15 % → 56,25; 20 % → 76,45; 30 % → ~113,98; 70 % → 151,49 Mb/s (sem restrição). Previsões fixadas antes das avaliações: URLLC a 20 % → **75,49 Mb/s** (interpolação entre 15 % e 30 %); eMBB a 80 % → sem queda (acima do nível livre de 70 %).
+
+**Avaliações (passo 2): as três `CONSISTENT`.**
+
+| Execução | Decisão do H-RDL | Control → ACK | Aplicação (t_sim) | URLLC (teto 20 %) | eMBB (teto 80 %) |
+| :-- | :-- | :-- | --: | :-- | :-- |
+| [`nori_hrdl_v5_seed1`](../experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json) | `xapp-embb-throughput` (TVS, 0,92), 80/20 | correlacionado, 8,1 ms | 19,43 s | 151,49 → 76,45 Mb/s (prevista 75,49; erro 1,3 %) | 151,49 → 151,49 Mb/s |
+| [`nori_hrdl_v5_seed2`](../experiments/runs/nori_hrdl_v5_seed2/execution_manifest.json) | idem | correlacionado, 2,0 ms | 18,26 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
+| [`nori_hrdl_v5_seed3`](../experiments/runs/nori_hrdl_v5_seed3/execution_manifest.json) | idem | correlacionado, 18,1 ms | 18,05 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
+
+- **H4.1 cumprida nas três:** 86 mensagens E2AP, com o tshark de acordo em todas; 80/80 Indications casadas com a xApp; Control com `decision_source=H_RDL`, disparado pelo KPM_t0 e com os mesmos bytes do registro.
+- **H4.2 cumprida:** o H-RDL selecionou `xapp-embb-throughput` (cotas 80/20) nas três, em 1 a 5 ms.
+- **H4.3 cumprida:** a URLLC caiu 49,5 % e ficou a 1,3 % da previsão; a eMBB não perdeu vazão.
+- **Certificador:** **G4 `CERTIFIED`** (3 cadeias), "cadeia closed-loop validada: SIM".
+
+**Desvio de procedimento.** O roteiro de execução abortou a semente 3 **antes de iniciá-la**: a verificação de prontidão da xApp procurava o evento `start` no `kubectl logs`, que o k3s rotacionou depois de duas execuções. O pod estava saudável (único, sem reinício). Nenhum dado da semente 3 foi gerado nem visto antes da correção. A semente 3 foi executada em seguida, com a mesma semente pré-registrada e a verificação corrigida para ler o arquivo de eventos persistente da xApp.
+
+**O que esta certificação afirma, e o que não afirma.**
+
+- **Afirma:** numa bancada NORI + Near-RT RIC Release I real, o H-RDL decidiu cotas de PRB a partir do KPM_t0 recebido por E2. O Control E2SM-RC chegou ao nó, foi confirmado por ACK correlacionado e produziu na RAN o efeito previsto antes das execuções, nas três sementes.
+- **Não afirma:**
+  - que a decisão responde a variações do KPM: o sinal de congestionamento do NORI fica sempre verdadeiro nesse cenário, então a decisão foi a mesma nas três. A dependência KPM → decisão está coberta só pelos testes unitários (sem congestionamento, sem Control);
+  - que o efeito aparece no KPM: o NORI não mede vazão por UE, e o efeito foi medido no FlowMonitor;
+  - nada além do cenário único (um gNB, dois UEs, carga saturada);
+  - que o NORI está intacto: o G3/G4 usa o patch `0001-rc-control-ack` do lock;
+  - que a calibração é cega: ela vem de execuções cujos valores já eram conhecidos (seção 6).

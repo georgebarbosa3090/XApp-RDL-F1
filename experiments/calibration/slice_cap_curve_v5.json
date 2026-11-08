@@ -1,0 +1,330 @@
+{
+  "schema": "xapp-rdl/slice-cap-curve/v1",
+  "anchor": "apply",
+  "generated_at_utc": "2026-11-08T22:09:00Z",
+  "generator": "scripts/certification/slice_cap_curve.py",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "min_drop": 0.05
+  },
+  "runs": [
+    {
+      "run_id": "nori_curve10_seed301",
+      "source_csv": "experiments/runs/nori_curve10_seed301/raw/slice_series.csv",
+      "source_csv_sha256": "0306cb475e3fa98c3fff324152c76afaa0986d5f27b77bdf2d19b18fe82bf573",
+      "source_dissection_sha256": "a162c373d433de19e3ce0d6aae4aba9ab8bd2513c331d026a6e5a2dd920dd702",
+      "points": {
+        "1": {
+          "cap_max_prb_pct": 10.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 37.458,
+          "relative_change": -0.7527,
+          "binding": true
+        },
+        "2": {
+          "cap_max_prb_pct": 10.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 37.458,
+          "relative_change": -0.7527,
+          "binding": true
+        }
+      },
+      "quotas_from_pcap": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 10,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 10,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "anchor": "apply",
+      "anchor_time_s": 19.29670214653015,
+      "window_before": [
+        15.296702146530151,
+        19.29670214653015
+      ],
+      "window_after": [
+        21.29670214653015,
+        25.29670214653015
+      ]
+    },
+    {
+      "run_id": "nori_curve15_seed302",
+      "source_csv": "experiments/runs/nori_curve15_seed302/raw/slice_series.csv",
+      "source_csv_sha256": "8f03942d0406ae759128a647e4c5eceb871e70b43c73670a9b98e9f7ff7bf10f",
+      "source_dissection_sha256": "5d8628198da65091b4519e97536f1984314f0ad2428531784bf95304aa47fab3",
+      "points": {
+        "1": {
+          "cap_max_prb_pct": 15.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 56.25,
+          "relative_change": -0.6287,
+          "binding": true
+        },
+        "2": {
+          "cap_max_prb_pct": 15.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 56.25,
+          "relative_change": -0.6287,
+          "binding": true
+        }
+      },
+      "quotas_from_pcap": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 15,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 15,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "anchor": "apply",
+      "anchor_time_s": 17.397995948791504,
+      "window_before": [
+        13.397995948791504,
+        17.397995948791504
+      ],
+      "window_after": [
+        19.397995948791504,
+        23.397995948791504
+      ]
+    },
+    {
+      "run_id": "nori_curve20_seed303",
+      "source_csv": "experiments/runs/nori_curve20_seed303/raw/slice_series.csv",
+      "source_csv_sha256": "348e1bb2e8363889a08d0aed638d9c978120df78fc70e504f2e07102b9dd1bd4",
+      "source_dissection_sha256": "f10749842219f306cf23a2c72a5e4b2e3559531064f51be3666c7d5d5d235606",
+      "points": {
+        "1": {
+          "cap_max_prb_pct": 20.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 76.446,
+          "relative_change": -0.4954,
+          "binding": true
+        },
+        "2": {
+          "cap_max_prb_pct": 20.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 76.446,
+          "relative_change": -0.4954,
+          "binding": true
+        }
+      },
+      "quotas_from_pcap": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 20,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 20,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "anchor": "apply",
+      "anchor_time_s": 18.888752937316895,
+      "window_before": [
+        14.888752937316895,
+        18.888752937316895
+      ],
+      "window_after": [
+        20.888752937316895,
+        24.888752937316895
+      ]
+    },
+    {
+      "run_id": "nori_cal3070_seed201",
+      "source_csv": "experiments/runs/nori_cal3070_seed201/raw/slice_series.csv",
+      "source_csv_sha256": "37c5e68342429869c703dc01ae0bb7cdff2284a286d67333bfa63646e0e9b839",
+      "source_dissection_sha256": "b84615505c04888133bad304f8f180af9c4d566f02aac325eefe3b7be90be8cd",
+      "points": {
+        "1": {
+          "cap_max_prb_pct": 30.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 113.986,
+          "relative_change": -0.2476,
+          "binding": true
+        },
+        "2": {
+          "cap_max_prb_pct": 70.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 151.488,
+          "relative_change": 0.0,
+          "binding": false
+        }
+      },
+      "quotas_from_pcap": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 30,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 70,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "anchor": "apply",
+      "anchor_time_s": 18.283966064453125,
+      "window_before": [
+        14.283966064453125,
+        18.283966064453125
+      ],
+      "window_after": [
+        20.283966064453125,
+        24.283966064453125
+      ]
+    },
+    {
+      "run_id": "nori_cal7030_seed202",
+      "source_csv": "experiments/runs/nori_cal7030_seed202/raw/slice_series.csv",
+      "source_csv_sha256": "ad0371e5c473b031f95162017954edb940d494d172babe9fd4fb346522717a3e",
+      "source_dissection_sha256": "275113ae8e60d80521ad18aa86bd45bbd03d6c866cee7753fdac2a5b4488ad5a",
+      "points": {
+        "1": {
+          "cap_max_prb_pct": 70.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 151.488,
+          "relative_change": 0.0,
+          "binding": false
+        },
+        "2": {
+          "cap_max_prb_pct": 30.0,
+          "throughput_before_mbps": 151.488,
+          "throughput_after_mbps": 113.984,
+          "relative_change": -0.2476,
+          "binding": true
+        }
+      },
+      "quotas_from_pcap": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 70,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 30,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "anchor": "apply",
+      "anchor_time_s": 18.704665899276733,
+      "window_before": [
+        14.704665899276733,
+        18.704665899276733
+      ],
+      "window_after": [
+        20.704665899276733,
+        24.704665899276733
+      ]
+    }
+  ],
+  "curve": {
+    "1": [
+      {
+        "run_id": "nori_curve10_seed301",
+        "cap_max_prb_pct": 10.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 37.458,
+        "relative_change": -0.7527,
+        "binding": true
+      },
+      {
+        "run_id": "nori_curve15_seed302",
+        "cap_max_prb_pct": 15.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 56.25,
+        "relative_change": -0.6287,
+        "binding": true
+      },
+      {
+        "run_id": "nori_curve20_seed303",
+        "cap_max_prb_pct": 20.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 76.446,
+        "relative_change": -0.4954,
+        "binding": true
+      },
+      {
+        "run_id": "nori_cal3070_seed201",
+        "cap_max_prb_pct": 30.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 113.986,
+        "relative_change": -0.2476,
+        "binding": true
+      },
+      {
+        "run_id": "nori_cal7030_seed202",
+        "cap_max_prb_pct": 70.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 151.488,
+        "relative_change": 0.0,
+        "binding": false
+      }
+    ],
+    "2": [
+      {
+        "run_id": "nori_curve10_seed301",
+        "cap_max_prb_pct": 10.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 37.458,
+        "relative_change": -0.7527,
+        "binding": true
+      },
+      {
+        "run_id": "nori_curve15_seed302",
+        "cap_max_prb_pct": 15.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 56.25,
+        "relative_change": -0.6287,
+        "binding": true
+      },
+      {
+        "run_id": "nori_curve20_seed303",
+        "cap_max_prb_pct": 20.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 76.446,
+        "relative_change": -0.4954,
+        "binding": true
+      },
+      {
+        "run_id": "nori_cal7030_seed202",
+        "cap_max_prb_pct": 30.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 113.984,
+        "relative_change": -0.2476,
+        "binding": true
+      },
+      {
+        "run_id": "nori_cal3070_seed201",
+        "cap_max_prb_pct": 70.0,
+        "throughput_before_mbps": 151.488,
+        "throughput_after_mbps": 151.488,
+        "relative_change": 0.0,
+        "binding": false
+      }
+    ]
+  },
+  "valid": true
+}
