@@ -81,13 +81,14 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 32 | KPM do NORI: nomes de métrica com `_`, fora do alfabeto de `PrintableString` | contornado na leitura (tipo equivalente em APER); codificação estrita |
 | 33 | Expectativa de efeito da fase 4 tomou a parte da vazão como parte dos PRBs; o teto escolhido pelo H-RDL não restringiu | resultado negativo registrado (G4 `NOT_CERTIFIED`); desenho v2 pré-registrado em [`07_preregistro_fase4_v2.md`](07_preregistro_fase4_v2.md) |
 | 34 | Calibração da v2 com tetos 30/30 (soma 60 %) não restringiu nenhuma fatia; o teto do NORI parecia só limitar quando as cotas somam 100 % | calibração inválida; avaliações v2 não executadas, conforme o pré-registro |
-| 35 | Calibração da v3 com cotas complementares (30/70 e 70/30): teto de 30 % não restringiu nenhuma fatia; hipótese da soma 100 % refutada; relação teto → vazão não linear (só 20 % restringiu, ~50 %) | calibração inválida; avaliações v3 não executadas, conforme o pré-registro; próximo desenho exige curva teto → vazão em vários níveis |
+| 35 | Calibração da v3 com cotas complementares (30/70 e 70/30): teto de 30 % não restringiu nenhuma fatia dentro da janela; hipótese da soma 100 % refutada | calibração inválida; avaliações v3 não executadas, conforme o pré-registro. A leitura "não linear" foi superada pelo achado 36 |
+| 36 | O Control do NORI só tem efeito quando o tempo simulado alcança o relógio de parede do instante em que chegou (~12 s simulados depois): `ScheduleWithContext` a partir da thread do E2 no `RealtimeSimulatorImpl`. Com isso, a cota é linear (~3,8 Mb/s por ponto percentual) e independe da soma | v4 oficial: curva inválida pela janela pré-registrada, avaliações não executadas; achado exploratório registrado. Próximo desenho: janela ancorada no instante de aplicação |
 
 As auditorias anteriores estão em [`auditoria/`](auditoria/README.md) como registro histórico; os relatórios com números não verificados, em [`historico/`](historico/README.md).
 
 ## 5. Pendências para interoperabilidade
 
-1. Medir, com pré-registro, a curva teto → vazão de cada fatia em vários níveis abaixo de 30 % antes de prever o efeito de uma decisão (G4); a v2 e a v3 pararam em calibrações inválidas.
+1. Pré-registrar um desenho v5 com a janela de efeito ancorada no instante de aplicação do Control (relógio de parede no Control, mapeado pela série) e repetir a fase 4 (G4); v2 a v4 pararam em calibrações inválidas pela janela.
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
 3. Propor ao NORI o envio do RIC Control Acknowledge na função E2SM-RC, para dispensar o patch local.
 4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).

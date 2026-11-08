@@ -64,3 +64,5 @@ O pré-registro foi publicado no commit `3962e97`; a xApp rodou o `src/` desse c
 | 30 / 30 (calibração v2) | 60 % | nenhuma fatia muda |
 
 Um modelo linear calibrado no ponto 80/20 (~3,8 Mb/s por ponto percentual de PRB) previa ~115 Mb/s com teto de 30 %. O 30/30 contradiz isso. Os dados combinam com um escalonador que reaproveita os PRBs não usados: o teto só limita quando as cotas somam 100 % e não sobra capacidade para redistribuir. Testar isso exige calibração com cotas complementares (por exemplo, 20/80 e 80/20) e um novo pré-registro.
+
+> **Errata (2026-11-08, depois da v4):** a leitura acima foi superada. A cota tem efeito, e linear; o efeito só começa quando o tempo simulado alcança o relógio de parede do instante em que o Control chegou (~12 s simulados depois, fora da janela). Ver o [pré-registro v4, seção 7](07_preregistro_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08). O resultado oficial (calibração inválida, avaliações não rodadas) não muda.
