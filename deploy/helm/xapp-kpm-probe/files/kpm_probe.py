@@ -305,6 +305,29 @@ def decide(meid: str):
     return quotas, record
 
 
+def warm_up_decision() -> None:
+    """Carrega o H-RDL (numpy, pydantic, pycrate...) e roda uma decisão de aquecimento antes do primeiro
+    KPM: importar tudo na hora da decisão atrasava o Control o bastante para chegar outra Indication,
+    e a decisão deixava de ser sobre o último KPM antes do Control (KPM_t0)."""
+    if RC_DECISION == "fixed":
+        return
+    started = time.monotonic()
+    try:
+        node = {"RRU.PrbUsedDl": 1, "RRU.PrbAvailDl": 1}
+        ues = [{"ue_id": 1, "measurements": {"DRB.NetworkSlicing.SST": 1}},
+               {"ue_id": 2, "measurements": {"DRB.NetworkSlicing.SST": 2}}]
+        if RC_DECISION == "catalog":
+            from src.closed_loop.catalog_loop import decide_catalog, load_catalog
+            decide_catalog("S8", "warm-up", node, ues,
+                           load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json")))
+        else:
+            from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
+            decide_slice_quotas("warm-up", node, ues)
+        event("decision_warm_up", ok=True, seconds=round(time.monotonic() - started, 3))
+    except Exception as exc:  # noqa: BLE001 - a decisão real ainda pode funcionar; registra
+        event("decision_warm_up", ok=False, detail=f"{type(exc).__name__}: {exc}")
+
+
 def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> None:
     """Decide e envia um RIC Control; registra o pedido (bytes, decisão e KPM que o disparou)."""
     quotas, decision = decide(meid)
@@ -429,6 +452,7 @@ def main() -> int:
             STOP.set()
 
     trigger, action = encode_kpm()
+    warm_up_decision()
     threading.Thread(target=rmr_guard, daemon=True).start()
     register()
 
