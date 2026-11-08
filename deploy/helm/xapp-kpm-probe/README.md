@@ -7,7 +7,7 @@ xApp mínima, implantada via Helm sem Docker, que materializa os elos **Subscrip
 3. Recebe por RMR as RIC Indications (tipo 12050) e registra tipo, subscription id, MEID, tamanho e sha256 do payload.
 4. Depois da N-ésima Indication de cada conexão (`rc.afterIndications`), envia por RMR um RIC Control (12040, MEID do nó) com cotas de PRB por fatia (E2SM-RC v3.01, estilo 2, ação 6; `rc.sliceQuotas`) e registra o ACK ou Failure (12041/12042), conferindo a correlação por RICrequestID e RANfunctionID. O evento `control_request` guarda os bytes enviados, `decision_source: FIXED_PROBE` e o sha256 da Indication que disparou o envio: o certificador não aceita este Control como decisão do H-RDL (G4).
 
-A codificação vem de [`src/e2/v3/codec.py`](../../../src/e2/v3/codec.py), o mesmo arquivo usado pelo repositório, passado ao chart com `--set-file` (sem cópia no chart; a renderização falha sem ele).
+O código vem do repositório: [`scripts/deploy_kpm_probe.sh`](../../../scripts/deploy_kpm_probe.sh) passa ao chart, em base64, o `git archive` do `src/` do commit atual (codec E2 v3, ponte H-RDL e o próprio H-RDL) e recusa um `src/` com alterações não commitadas. Com `rc.decision: hrdl` (padrão), as cotas são decididas pelo H-RDL sobre o KPM_t0 ([`src/closed_loop/hrdl_slice_loop.py`](../../../src/closed_loop/hrdl_slice_loop.py)) e o evento `control_request` traz o registro completo da decisão (estado, propostas, resoluções, ação selecionada, commit); com `rc.decision: fixed`, vêm de `rc.sliceQuotas`.
 
 O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* (estilo 1, Format 1, `granulPeriod` 1000 ms, métricas do estilo 1 anunciadas pelo NORI) são codificados em APER com `asn1tools`. A fonte é o ASN.1 do próprio NORI (`e2sm-v03.01.asn`, `e2sm-kpm-v03.00.asn`), baixado no commit fixado e conferido por sha256.
 
@@ -19,12 +19,13 @@ O *Event Trigger* (Format 1, `reportingPeriod` 1000 ms) e a *Action Definition* 
 | RMR | 4.9.4 (`.deb` do packagecloud O-RAN SC) | sha256 `76b48a28…f10f84a` |
 | `ricxappframe` | 3.2.2, sem dependências | só `ricxappframe.rmr` é usado (ctypes); as dependências declaradas (`ricsdl` → `hiredis`) exigiriam compilador C |
 | `asn1tools` | 0.169.0 | — |
+| Dependências do H-RDL | pydantic 2.13.5, numpy 2.2.6, pycrate 0.8.1, requests 2.34.2, structlog 26.1.0 | versões do `uv.lock`; instaladas com `--no-compile` (o bytecode do pycrate estoura a memória); limite do pod 1 GiB |
 | ASN.1 E2SM do NORI | commit `8a30867` | sha256 por arquivo |
 
 ## Uso
 
 ```bash
-helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp --set-file e2v3Codec=src/e2/v3/codec.py
+bash scripts/deploy_kpm_probe.sh            # args extras vão para o helm (ex.: -f valores.yaml)
 kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
 ```
 

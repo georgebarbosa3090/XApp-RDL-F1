@@ -8,9 +8,11 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
 cd "$REPO"
-if [ -n "$(git status --porcelain -- src)" ]; then
+# core.autocrlf=true: no checkout do Windows a cópia de trabalho tem CRLF e o índice LF; sem isso,
+# o git do WSL veria todos os arquivos como modificados. O pacote sai do commit (LF).
+if [ -n "$(git -c core.autocrlf=true status --porcelain -- src)" ]; then
   echo "src/ tem alterações não commitadas; faça o commit antes de implantar:" >&2
-  git status --short -- src >&2
+  git -c core.autocrlf=true status --short -- src >&2
   exit 3
 fi
 COMMIT="$(git rev-parse HEAD)"

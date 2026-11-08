@@ -212,11 +212,13 @@ python scripts/certification/certify_chain.py
 O chart [`deploy/helm/xapp-kpm-probe`](../deploy/helm/xapp-kpm-probe/README.md) implanta, sem Docker, uma xApp mínima no namespace `ricxapp`: registra-se no AppMgr, assina E2SM-KPM v3.00 pelo SubMgr em cada nó E2 que fica `CONNECTED` no E2Mgr e registra cada RIC Indication recebida por RMR (tipo, subscription id, tamanho e sha256 do payload) em JSON Lines. O *Event Trigger* (Format 1, 1000 ms) e a *Action Definition* (estilo 1, Format 1) são codificados em APER com `asn1tools` a partir do ASN.1 do próprio NORI, baixado no commit fixado e conferido por sha256. A xApp não decide nada: materializa os elos Subscription e KPM da cadeia.
 
 ```bash
-helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp --set-file e2v3Codec=src/e2/v3/codec.py
+bash scripts/deploy_kpm_probe.sh            # pacote do src/ do commit atual (recusa src/ não commitado)
 kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
 ```
 
-Desde a fase 3, a xApp também envia, depois da 4.ª Indication de cada conexão, um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. A codificação E2AP/E2SM vem de [`src/e2/v3/codec.py`](../src/e2/v3/codec.py), passado ao chart com `--set-file` (sem cópia). A cota é fixa (`decision_source: FIXED_PROBE`).
+O script gera o pacote do `src/` com `git archive` do commit atual e o passa ao chart em base64; a xApp registra o commit no evento `start` e em cada decisão.
+
+Desde a fase 3, a xApp também envia, depois da N-ésima Indication de cada conexão (`rc.afterIndications`), um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. Com `rc.decision: hrdl` (fase 4, padrão) as cotas são decididas pelo H-RDL sobre o KPM_t0 (`decision_source: H_RDL`); com `rc.decision: fixed`, vêm de `rc.sliceQuotas` (`FIXED_PROBE`).
 
 ### 7.6 Dissecação E2 do PCAP
 
@@ -274,6 +276,30 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 - O tshark 4.2 só conhece o OID E2SM-RC `…53148.1.1.2.3`; o NORI anuncia o RC v3 como `…1.3.2.3`, e o tshark cai no dissector KPM (aviso "Dissector version mismatch"). A confirmação independente cobre o E2AP do Control e do ACK; o conteúdo E2SM-RC é conferido pelo codec (ida e volta, testes) e pelo decodificador asn1c do NORI (o ACK só sai depois de decodificar cotas).
 - Efeito: a vazão por fatia não mudou depois do Control (~102,7 Mbps nas duas). Cada UE pede 100 Mb/s e a célula de 100 MHz não satura, então um teto de 30 % de PRB ainda atende o URLLC. Demonstrar efeito causal (fase 4) exige cotas que restrinjam a carga ou carga maior.
 - O perfil `optimized` compila sem `NS_LOG`: os logs de aplicação de cota e de envio do ACK não aparecem no `stdout.log`; a evidência é o PCAP.
+
+### 7.9 Resultado da fase 4: decisão H-RDL sobre o KPM_t0 e efeito na RAN (2026-11-08)
+
+**Desenho (fixado antes da execução).**
+
+- **Decisão:** [`src/closed_loop/hrdl_slice_loop.py`](../src/closed_loop/hrdl_slice_loop.py). O KPM_t0 decodificado ([`src/e2/v3/codec.py`](../src/e2/v3/codec.py)) vira estado: congestionamento quando `RRU.PrbUsedDl ≥ 95 %` de `RRU.PrbAvailDl` no nó, e a fatia de cada UE por `DRB.NetworkSlicing.SST`. Sob congestionamento, com as duas fatias presentes, duas políticas de referência propõem `PRB_QUOTA` (teto % da eMBB; a URLLC recebe o complemento): `xapp-qos-xslice` (prioridade 90) propõe 40, `xapp-embb-throughput` (prioridade 60) propõe 80. O conflito vai ao pipeline real da xApp RDL (`RDLxApp._process_action_group`: Safety Guard, Perception, Reasoning TVS/EEVS, Refinement), o mesmo do B3 na campanha.
+- **Entrega:** a xApp `kpm-probe` recebe o `src/` do commit `b48473d` ([`scripts/deploy_kpm_probe.sh`](../scripts/deploy_kpm_probe.sh)), decide dentro do pod e envia o Control com as cotas vencedoras.
+- **Efeito:** [`scripts/certification/slice_effect.py`](../scripts/certification/slice_effect.py). O KPM do NORI não mede vazão por UE, então o efeito é medido na série do FlowMonitor por fatia (`raw/slice_series.csv`, gravada pela variante a cada 0,5 s com tempo simulado e relógio de parede). O instante do Control no PCAP é convertido em tempo simulado; as cotas vêm dos bytes do Control no PCAP. Janelas de 4 s antes e 4 s depois de 2 s de acomodação. Uma fatia com teto abaixo da sua parte da vazão (margem de 5 p.p.) deve perder ao menos 5 %; as demais não podem perder mais que 5 %. O certificador só aceita G4 com veredito `CONSISTENT` e hashes de origem conferidos.
+
+[`nori_hrdl_loop_seed1`](../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json) (`nori-rc-slicing-flowmon`, 30 s, `E2Periodicity=1`, 300 Mb/s por UE, Control depois da 12.ª Indication):
+
+| Elo | Evidência |
+| :-- | :-- |
+| KPM_t0 (#18) | PRB usados 236 / disponíveis 139 (congestionada); UE 1 em SST 1, UE 2 em SST 2 |
+| Decisão H-RDL | conflito DIRECT entre as duas propostas; TVS escolheu `xapp-qos-xslice` (confiança 0,92) em 1,3 ms; cotas eMBB 40 % / URLLC 60 % |
+| RIC Control (#19) | RICrequestID 1003/1, função 300; bytes iguais ao registro da xApp; disparado pelo KPM_t0 |
+| ACK (#20) | correlacionado, recebido pela xApp em 14,8 ms (inclui a decisão) |
+| KPM_t1 (#21) | presente |
+| Efeito (t_sim do Control = 7,12 s) | eMBB 151,49 → 151,49 Mb/s (esperado: queda ≥ 5 %, **não cumprido**); URLLC 151,49 → 151,49 Mb/s (sem queda, cumprido) |
+
+- 64 mensagens E2AP; o tshark concorda nas 64. A xApp recebeu 56 das 58 Indications: as duas primeiras saíram no mesmo milissegundo da resposta da subscrição, antes de a rota até a xApp existir no E2Term.
+- Certificador: execução `ELIGIBLE`; G1 e G3 `CERTIFIED`; **G4 `NOT_CERTIFIED`**, efeito `INCONSISTENT`.
+- **Por que o efeito não apareceu.** A vazão de cada UE para em 151,49 Mb/s em qualquer carga acima disso; a perda de 50 % vem desse teto por UE, não da disputa por PRB. A execução exploratória [`nori_rc_effect_load300_seed1`](../experiments/runs/nori_rc_effect_load300_seed1/execution_manifest.json) (cotas fixas 80/20, mesma carga) dá a escala: com teto de 20 %, a URLLC caiu para ~76,5 Mb/s, cerca de 3,8 Mb/s por ponto percentual de PRB; logo, os 151,5 Mb/s de cada UE correspondem a ~40 % dos PRBs. O teto de 40 % da eMBB ficou em cima do que ela já usava e não restringiu nada. O erro está na expectativa pré-registrada, que tomou a parte da vazão (50/50) como parte dos PRBs. As políticas e a regra não foram reajustadas depois de ver o resultado.
+- Limitações do sensor KPM do NORI usadas na decisão: `RRU.PrbUsedDl` do nó passa dos PRBs disponíveis mesmo sem saturação (225 de 139 a 100 Mb/s), então o sinal de congestionamento é sempre verdadeiro nesse cenário; `RRU.PrbUsedDl` por UE é calculado por símbolos OFDM (119 para cada UE, antes e depois do Control); `DRB.UEThpDl` sai sempre 0; nomes de métrica com `_` fora do alfabeto de `PrintableString` (lidos com um tipo equivalente em APER).
 
 ## 8. Implantação da xApp no Kubernetes
 

@@ -79,6 +79,8 @@ monitor->CheckForLostPackets();
 monitor->SerializeToXmlFile("flowmonitor.xml", true, true);
 ```
 
+Desde a fase 4, a variante também grava `slice_series.csv` a cada 0,5 s simulado: contadores acumulados do FlowMonitor por UE/fatia (UE 0 = SST 1, UE 1 = SST 2), com o tempo simulado e o relógio de parede. É a medida de referência do efeito do Control, porque o KPM do NORI não mede vazão por UE.
+
 Os fontes do NORI não são alterados. Se a variante mudar, o entrypoint reconfigura e compila só esse alvo (~20 s); se o ponto de inserção não for único, aborta (código 6). `run.sh` registra no manifesto o caminho e o sha256 do fonte compilado (`scenario_source`).
 
 ### Período dos relatórios KPM

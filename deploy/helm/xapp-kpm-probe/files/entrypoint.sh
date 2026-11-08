@@ -33,7 +33,8 @@ if [ ! -f "$STAMP" ]; then
   # Só o módulo ricxappframe.rmr é usado, e ele depende apenas da biblioteca padrão (ctypes).
   # As dependências declaradas (ricsdl -> hiredis) exigiriam compilador C na imagem.
   "$D/venv/bin/pip" install -q --no-cache-dir --no-deps "ricxappframe==${PIP_RICXAPPFRAME}"
-  "$D/venv/bin/pip" install -q --no-cache-dir "asn1tools==${PIP_ASN1TOOLS}" ${PIP_HRDL_DEPS}
+  # --no-compile: compilar o bytecode dos módulos grandes do pycrate estoura a memória do pod
+  "$D/venv/bin/pip" install -q --no-cache-dir --no-compile "asn1tools==${PIP_ASN1TOOLS}" ${PIP_HRDL_DEPS}
   "$D/venv/bin/python" -c "from ricxappframe.rmr import rmr; import asn1tools, pydantic, numpy, pycrate_asn1rt, structlog"
   touch "$STAMP"
 fi

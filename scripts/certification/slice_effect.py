@@ -151,7 +151,14 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                 out.update(verdict="NOT_TESTABLE", reason="instante do Control fora da série (relógio de parede)")
             else:
                 out.update(evaluate(series, t_c, quotas))
-    (ddir / "slice_effect.json").write_bytes((json.dumps(out, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+    data = (json.dumps(out, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    (ddir / "slice_effect.json").write_bytes(data)
+    # Mantém o hashes.sha256 da dissecação completo (a dissecação o grava antes desta análise).
+    hashes = ddir / "hashes.sha256"
+    if hashes.exists():
+        lines = [l for l in hashes.read_text(encoding="utf-8").splitlines() if not l.endswith("  slice_effect.json")]
+        lines.append(f"{hashlib.sha256(data).hexdigest()}  slice_effect.json")
+        hashes.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     return out
 
 

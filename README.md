@@ -18,19 +18,19 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 243 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 252 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
 | Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup, E2SM-KPM e RIC Control E2SM-RC verificados** (NORI ↔ Near-RT RIC Release I no k3s). A xApp [`kpm-probe`](deploy/helm/xapp-kpm-probe/README.md) assina KPM v3.00 pelo SubMgr e envia um RIC Control E2SM-RC v3.01 (cotas de PRB por fatia) codificado por [`src/e2/v3/codec.py`](src/e2/v3/codec.py); o NORI devolve o ACK correlacionado. As mensagens E2AP são confirmadas pelo tshark 4.2.2 e casadas byte a byte com a xApp. O ACK do RC exige um [patch de 56 linhas no NORI](deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), registrado no lock | [`nori_rc_control_seed1`](experiments/runs/nori_rc_control_seed1/execution_manifest.json), [`nori_kpm_flowmon_seed1_p1s`](experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json), [`experiments/e2_dissection/`](experiments/e2_dissection/), [guia, seção 7](docs/02_guia_operacional_deploy_e_simulacao.md#7-pilha-nori-via-helm-e2-real) |
-| Closed loop causal KPM → decisão → RC → KPM | **não verificado**: as seis mensagens da cadeia já aparecem no fio, mas o Control usa uma cota fixa (não é decisão do H-RDL) e não mudou o desempenho medido (as cotas não restringiram a carga) | [guia, seção 7.8](docs/02_guia_operacional_deploy_e_simulacao.md#78-resultado-da-fase-3-ric-control-e2sm-rc-com-ack-2026-11-08) |
+| Closed loop causal KPM → decisão → RC → KPM | **não verificado**. A cadeia completa roda no fio com o Control **decidido pelo H-RDL** a partir do KPM_t0 (fase 4), mas o efeito pré-registrado não se confirmou: o teto de 40 % escolhido para a eMBB não restringiu o UE, que usava ~40 % dos PRBs (veredito INCONSISTENT) | [`nori_hrdl_loop_seed1`](experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json), [guia, seção 7.9](docs/02_guia_operacional_deploy_e_simulacao.md#79-resultado-da-fase-4-decisão-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-2026-11-08) |
 
 | Gate | Exigência | Veredito |
 | :-: | :-- | :-: |
 | G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilhas nativa e NORI) |
-| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (3 execuções NORI) |
+| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (5 execuções NORI) |
 | G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
-| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (NORI com patch do lock) |
-| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0) | NOT_CERTIFIED |
+| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (3 execuções; NORI com patch do lock) |
+| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | NOT_CERTIFIED (efeito INCONSISTENT) |
 | G5 | Campanha ≥ 30 sementes pareadas com E2 | BLOCKED |
 | G6 | Artefato reproduzível por terceiros | BLOCKED |
 
@@ -98,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (243)
+uv run pytest -q                         # testes (252)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

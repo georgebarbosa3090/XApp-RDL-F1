@@ -2,8 +2,8 @@
 Codec E2AP v03.01 / E2SM-KPM v03.00 / E2SM-RC v03.01 — as versões do NORI e da Release I.
 
 Arquivo único e autocontido (biblioteca padrão + ``asn1tools`` só para o E2SM), para ser usado
-tanto pela xApp RDL quanto pela xApp ``kpm-probe`` no cluster (o chart o recebe com
-``helm --set-file``), sem cópias divergentes.
+tanto pela xApp RDL quanto pela xApp ``kpm-probe`` no cluster (o chart recebe o ``src/`` de um
+commit por ``scripts/deploy_kpm_probe.sh``), sem cópias divergentes.
 
 - E2AP: codificação APER escrita à mão para o subconjunto usado (RIC Control Request e leitura
   de Acknowledge/Failure). O E2AP usa classes de objetos de informação que o ``asn1tools`` não

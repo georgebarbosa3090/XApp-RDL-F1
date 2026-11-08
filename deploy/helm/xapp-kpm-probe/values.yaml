@@ -63,6 +63,6 @@ storage:
 resources:
   requests:
     cpu: 100m
-    memory: 128Mi
+    memory: 256Mi
   limits:
-    memory: 512Mi
+    memory: 1Gi       # o H-RDL (numpy, pydantic, pycrate) e a instalação inicial passam de 512 Mi

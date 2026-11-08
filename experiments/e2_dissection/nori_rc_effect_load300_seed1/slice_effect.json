@@ -1,0 +1,17 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_rc_effect_load300_seed1",
+  "generated_at_utc": "2026-11-08T18:51:54Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": null,
+  "source_dissection_sha256": "484974e2031f5a90fa34b153524a8005c99df024c87cbd42d4c9c7f99ebea1ce",
+  "verdict": "NOT_TESTABLE",
+  "reason": "execução sem raw/slice_series.csv"
+}
