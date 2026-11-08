@@ -96,9 +96,28 @@ python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
 - Para sozinha se o disco ficar com menos de 1 GB livre.
 - Ao final roda a análise e o certificador.
 
-Tempos medidos (20–30 s simulados, `--jobs 2`): S3 ~0,8 min; S7 ~1,5 min; S0 ~2 min; S5 ~2,5 min; S4 ~4 min; S1 4–7 min; S2 ~5,5 min. Uma campanha de 160 execuções leva cerca de 5 horas.
+Tempos medidos (20–30 s simulados, `--jobs 2`): S3 ~0,8 min; S7 ~1,5 min; S0 ~2 min; S5 ~2,5 min; S4 ~4 min; S1 4–7 min; S2 ~5,5 min. Em 2026-11-08, 96 execuções (S0–S7 × B0–B3 × 3 sementes) levaram 2 h 20 min; as 160 da campanha completa, cerca de 4 horas.
 
 Rode campanhas longas num terminal visível para acompanhar ao vivo; os logs completos de cada execução ficam na própria evidência.
+
+### 5.1 Direto no terminal WSL/Ubuntu
+
+Os scripts rodam nativamente no Ubuntu, sem passar pelo Windows (fora do Windows o driver chama `bash` direto, em vez de `wsl`). No B3 o driver usa a `RDLxApp` real, que precisa das dependências do projeto. O Ubuntu 24.04 não traz `python3-venv` e o pip do sistema é gerenciado externamente; sem `sudo`, crie o venv sem pip e instale com o pip do sistema (uma vez):
+
+```bash
+python3 -m venv --without-pip ~/.venvs/xapp-rdl
+python3 -m pip --python ~/.venvs/xapp-rdl/bin/python install "pydantic>=2.0.0" "structlog>=23.1.0" "prometheus-client>=0.19.0" "pycrate>=0.7.0" "requests>=2.31.0" "numpy>=1.24.0" "fastapi>=0.100.0" "uvicorn>=0.20.0"
+```
+
+Em cada terminal novo:
+
+```bash
+cd /mnt/c/Users/georg/.antigravity-ide/XApp-RDL-F1
+source ~/.venvs/xapp-rdl/bin/activate
+python scripts/certification/run_conflict_campaign.py --scenarios S0 S1 S2 S3 S4 S5 S6 S7 --baselines B0 B1 B2 B3 --seeds 1001-1005 --jobs 2
+```
+
+Verificado em 2026-11-08: os cronogramas gerados no Ubuntu são idênticos aos das 160 execuções (32 combinações cenário × baseline), e uma execução real pelo Ubuntu (S0/B0/1003) reproduziu byte a byte `rdl_kpi_timeseries.csv`, `rdl_actuation_log.csv` e `action_schedule.csv` da execução da campanha. No B3, as mensagens de porta 8080/8081 em uso vêm dos servidores de saúde e métricas da `RDLxApp` e não afetam a decisão.
 
 ## 6. Análise e certificação
 
@@ -106,7 +125,10 @@ Rode campanhas longas num terminal visível para acompanhar ao vivo; os logs com
 python scripts/certification/analyze_conflict_runs.py      # reports/conflicts/conflict_analysis_<UTC>.{md,json}
 python scripts/certification/certify_chain.py              # reports/certification/certificate_<UTC>.{md,json}
 python scripts/certification/certify_chain.py --run nr_S1_B3_seed1001
+python scripts/certification/generate_campaign_report.py   # reports/conflicts/relatorio_campanha_<UTC>.md
 ```
+
+O relatório da campanha ([`generate_campaign_report.py`](../scripts/certification/generate_campaign_report.py)) é gerado só a partir da análise, dos manifestos, do catálogo e do certificado: hipóteses e critérios, comandos de execução, ambiente, resultados agregados, uma tabela por semente com todas as métricas, diferenças pareadas B3 − Bx, cronogramas idênticos entre baselines, avaliação das hipóteses, conclusões, ameaças à validade, falhas preservadas e o comando ns-3 de cada execução.
 
 O certificador avalia cada execução contra [`reproducibility/provenance_policy.yaml`](../reproducibility/provenance_policy.yaml) e [`reproducibility/versions.lock`](../reproducibility/versions.lock) e emite os vereditos G0–G6. A análise considera só execuções elegíveis no certificador. Critérios em [`05_auditoria_e_conformidade_oran.md`](05_auditoria_e_conformidade_oran.md).
 

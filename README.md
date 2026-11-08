@@ -18,9 +18,9 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 213 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 217 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
-| Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
+| Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
 | Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **não verificada** | pilha NORI preparada em [`deploy/helm/nori-ns3`](deploy/helm/nori-ns3/README.md), ainda não implantada |
 | Closed loop causal KPM → decisão → RC → KPM | **não verificado** | — |
 
@@ -98,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (212)
+uv run pytest -q                         # testes (217)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
@@ -109,6 +109,7 @@ python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
 # Análise por cenário × baseline e certificação dos gates
 python scripts/certification/analyze_conflict_runs.py
 python scripts/certification/certify_chain.py
+python scripts/certification/generate_campaign_report.py   # relatório: hipóteses, tabelas por semente, conclusões, comandos
 ```
 
 Executar a xApp (modo local, sem RIC):

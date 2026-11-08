@@ -95,13 +95,17 @@ Consequência: em S0, S1, S3 e S5 a campanha não distingue a H-RDL de FIFO ou p
 ### 4.2 Leitura
 
 - **S1 (conflito direto de PRB):** coordenar elimina as 9 oscilações e eleva a vazão no conflito de 118 para 279 Mbps, com o atraso caindo de 17,1 para 9,1 ms. O ganho é de qualquer coordenação (B1–B3 decidem igual), não específico da H-RDL. Sem coordenação, a xApp de energia escreve por último e a cota fica em 30 % na maior parte do tempo.
-- **S6 (tempestade de conflitos):** a H-RDL aplica 25 ações (contra 55 do B1/B2 e 80 do B0) e zera as oscilações (9 no B1/B2, 57 no B0). O atraso no conflito é o menor (51,3 ± 6,7 ms); o IC não se sobrepõe ao do B0 (94,4 ± 12,8 ms), mas se sobrepõe aos do B1 e do B2. A vazão não difere de forma distinguível entre os quatro.
+- **S6 (tempestade de conflitos):** a H-RDL aplica 25 ações (contra 55 do B1/B2 e 80 do B0) e zera as oscilações (9 no B1/B2, 57 no B0). O atraso no conflito é o menor (51,3 ± 6,7 ms). Os ICs por baseline se sobrepõem aos do B1 e do B2, mas a diferença pareada por semente exclui zero contra os três: B3 − B0 = −43,1 ± 11,0 ms, B3 − B1 = −11,8 ± 11,3 ms, B3 − B2 = −16,4 ± 12,5 ms, com o B3 melhor nas 5 sementes. A vazão não difere de forma distinguível entre os quatro.
 - **S7 (injeção de falha):** só a H-RDL impede que as 10 ações inseguras (potência de 60 dBm, cota de 150 %) cheguem à RAN; B1 e B2 escolhem por janela e alvo, mas não validam valores. A vazão é igual; o atraso é menor no B0 (10,5 ms contra 13,2–13,6 ms), efeito de redução de interferência e não da arbitragem (achado 3 da seção 5).
 - **S2 (handover × QoS):** a H-RDL evita o handover (0 contra 0,8 em média), mas o atraso no conflito fica maior e mais variável (26,2 ± 23,4 ms contra ~7,5 ms) e a vazão mais variável. Resultado desfavorável à H-RDL neste cenário, a investigar.
 - **S4 e S5 (conflitos entre células):** a H-RDL remove uma ação no S4 sem efeito nos KPIs, e o handover ocorre igual; no S5 os quatro baselines aplicam os mesmos 8 handovers. Coerente com a limitação do achado 2 da seção 5 (a percepção não relaciona ações em células diferentes).
 - **S0 (sem conflito):** sem diferença distinguível entre baselines, como esperado.
 
 Sobreposição de IC não é um teste de hipótese pareado; com n = 5 os resultados indicam comportamento e não sustentam afirmações estatísticas fortes.
+
+### 4.3 Relatório completo
+
+O relatório [`relatorio_campanha_20261108T110655Z.md`](../reports/conflicts/relatorio_campanha_20261108T110655Z.md), gerado por [`generate_campaign_report.py`](../scripts/certification/generate_campaign_report.py), traz as hipóteses H0–H7 com critérios e vereditos (seis suportadas; H2 e H3 inconclusivas), uma tabela por semente com todas as métricas, as diferenças pareadas B3 − Bx, as conclusões, os comandos de execução no terminal WSL/Ubuntu e o comando ns-3 de cada execução.
 
 ## 5. Achados sobre a H-RDL
 
