@@ -186,6 +186,10 @@ manifest = {
     "nori_commit": "${NORI_COMMIT}" or None,
     "repo_git_sha": out(["git", "-C", "${REPO_DIR}", "rev-parse", "--short=7", "HEAD"]),
     "scenario_sha256": out(["sha256sum", "${SCRATCH_SRC}"]).split(" ")[0],
+    "support_files_sha256": {
+        __import__("os").path.basename(h): out(["sha256sum", h]).split(" ")[0]
+        for h in sorted(__import__("glob").glob("${NS3_DIR}/scratch/*.h"))
+    },
     "environment": {
         "os": out(["lsb_release", "-ds"]) or platform.platform(),
         "kernel": platform.release(),

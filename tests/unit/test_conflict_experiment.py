@@ -107,6 +107,22 @@ def test_campaign_seed_parsing():
     assert campaign.parse_seeds(["1001-1003", "1005", "1002"]) == [1001, 1002, 1003, 1005]
 
 
+def test_campaign_run_state(tmp_path):
+    campaign = sys.modules.get("run_conflict_campaign")
+    if campaign is None:
+        test_campaign_seed_parsing()
+        campaign = sys.modules["run_conflict_campaign"]
+    run = tmp_path / "nr_S1_B0_seed1"
+    assert campaign.run_state(run) == "MISSING"
+    run.mkdir()
+    (run / "execution_manifest.json").write_text('{"run_status": "FAILED"}', encoding="utf-8")
+    assert campaign.run_state(run) == "INCOMPLETE"  # sem hashes: interrompida
+    (run / "hashes.sha256").write_text("x  y\n", encoding="utf-8")
+    assert campaign.run_state(run) == "FAILED"
+    (run / "execution_manifest.json").write_text('{"run_status": "SUCCESS"}', encoding="utf-8")
+    assert campaign.run_state(run) == "SUCCESS"
+
+
 def test_to_wsl_path_conversion():
     assert driver.to_wsl(Path("C:/Users/x/file.csv")) == "/mnt/c/Users/x/file.csv"
 

@@ -2,3 +2,4 @@
 *.sh text eol=lf
 # Evidência experimental: bytes preservados (hashes SHA-256 dependem disso)
 experiments/runs/** -text
+experiments/runs_failed/** -text

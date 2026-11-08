@@ -310,12 +310,16 @@ class RdlActuation
                 Ptr<NrUeRrc> rrc = ue->GetRrc();
                 if (rrc->GetCellId() == sourceCell && rrc->GetState() == NrUeRrc::CONNECTED_NORMALLY)
                 {
-                    m_nrHelper->HandoverRequest(Seconds(0), ue, gnb, targetCell);
+                    // Handovers escalonados (kHandoverSpacing por UE): disparar todos no mesmo
+                    // instante leva o 5G-LENA v5.1 a abortar em NrSpectrumPhy::StartRxSrs
+                    // ("Not allowed state for starting SRS reception").
+                    m_nrHelper->HandoverRequest(kHandoverSpacing * moved, ue, gnb, targetCell);
                     ++moved;
                 }
             }
             std::ostringstream d;
-            d << moved << " UE(s) cell " << sourceCell << " -> " << targetCell;
+            d << moved << " UE(s) cell " << sourceCell << " -> " << targetCell << " (escalonados a cada "
+              << kHandoverSpacing.GetMilliSeconds() << " ms)";
             Record(a, moved > 0 ? "APPLIED" : "NO_EFFECT", d.str());
         }
         else
@@ -324,6 +328,7 @@ class RdlActuation
         }
     }
 
+    const Time kHandoverSpacing = MilliSeconds(10);
     Ptr<NrHelper> m_nrHelper;
     NetDeviceContainer m_gnbDevs;
     NetDeviceContainer m_ueDevs;

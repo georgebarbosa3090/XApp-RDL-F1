@@ -73,7 +73,16 @@ int main (int argc, char *argv[])
     double kpiPeriod = 0.1;
     cmd.AddValue ("actionSchedule", "CSV de acoes de controle aplicadas na RAN (gerado pelo baseline)", actionSchedule);
     cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
+    bool disableSrs = false;
+    cmd.AddValue ("disableSrs", "Desativar SRS (contorno de falha do 5G-LENA em handover)", disableSrs);
     cmd.Parse (argc, argv);
+    if (disableSrs)
+    {
+        // Contorno de NS_FATAL do 5G-LENA v5.1 em handover (NrSpectrumPhy::StartRxSrs, "Not allowed
+        // state for starting SRS reception"): sem ocasioes de SRS no escalonador.
+        Config::SetDefault ("ns3::NrMacSchedulerNs3::EnableSrsInUlSlots", BooleanValue (false));
+        Config::SetDefault ("ns3::NrMacSchedulerNs3::EnableSrsInFSlots", BooleanValue (false));
+    }
 
     SeedManager::SetSeed (randomSeed);
     SeedManager::SetRun (runIndex);

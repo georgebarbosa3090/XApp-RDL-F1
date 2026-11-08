@@ -18,7 +18,9 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import json
 import os
+import shutil
 import subprocess
 import sys
 import threading
@@ -38,6 +40,19 @@ PRINT_LOCK = threading.Lock()
 def say(msg: str) -> None:
     with PRINT_LOCK:
         print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
+def run_state(run_dir: Path) -> str:
+    """MISSING, INCOMPLETE (interrompida), FAILED ou SUCCESS."""
+    if not run_dir.exists():
+        return "MISSING"
+    if not (run_dir / "hashes.sha256").exists():
+        return "INCOMPLETE"
+    try:
+        status = json.loads((run_dir / "execution_manifest.json").read_text(encoding="utf-8")).get("run_status")
+    except (OSError, ValueError):
+        return "FAILED"
+    return "SUCCESS" if status == "SUCCESS" else "FAILED"
 
 
 def parse_seeds(items: List[str]) -> List[int]:
@@ -120,6 +135,8 @@ def main(argv=None) -> int:
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--log-dir", default=None, help="logs da campanha (padrão: diretório temporário)")
     parser.add_argument("--skip-analysis", action="store_true")
+    parser.add_argument("--retry-failed", action="store_true",
+                        help="move execuções com run_status != SUCCESS para experiments/runs_failed/ e as refaz")
     args = parser.parse_args(argv)
 
     seeds = parse_seeds(args.seeds)
@@ -130,8 +147,24 @@ def main(argv=None) -> int:
     log_dir = Path(args.log_dir) if args.log_dir else Path(os.environ.get("TEMP", "/tmp")) / f"rdl_campaign_{stamp}"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    jobs = [(sc, bl, sd) for sd in seeds for sc in args.scenarios for bl in args.baselines
-            if not (ROOT / "experiments" / "runs" / f"nr_{sc}_{bl}_seed{sd}").exists()]
+    jobs = []
+    for sd in seeds:
+        for sc in args.scenarios:
+            for bl in args.baselines:
+                run_dir = ROOT / "experiments" / "runs" / f"nr_{sc}_{bl}_seed{sd}"
+                state = run_state(run_dir)
+                if state == "INCOMPLETE":
+                    # Sem hashes.sha256 a execução foi interrompida antes de terminar: não é evidência.
+                    shutil.rmtree(run_dir)
+                    say(f"Removida execução interrompida {run_dir.name}")
+                elif state == "FAILED" and args.retry_failed:
+                    target = ROOT / "experiments" / "runs_failed" / f"{run_dir.name}__{stamp}"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(run_dir), str(target))
+                    say(f"Execução com falha preservada em {target.relative_to(ROOT)}; será refeita")
+                    state = "MISSING"
+                if state == "MISSING":
+                    jobs.append((sc, bl, sd))
     total = len(seeds) * len(args.scenarios) * len(args.baselines)
     say(f"Campanha: {len(args.scenarios)} cenário(s) × {len(args.baselines)} baseline(s) × {len(seeds)} semente(s) "
         f"= {total} execuções; {total - len(jobs)} já existem; {len(jobs)} a rodar com {args.jobs} em paralelo.")

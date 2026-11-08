@@ -4,90 +4,343 @@
   "scenarios": {
     "S0": {
       "ns3": "scenario_rdl_no_conflict",
-      "args": ["--simTime=20"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=20"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Ações independentes em gNBs distintos: não há conflito; serve de controle (pass-through).",
       "proposals": [
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA", "value": 80, "priority": 90, "start": 10.0, "end": 10.1, "period": 0},
-        {"xapp_id": "energy_saving", "gnb": 1, "parameter": "TX_POWER", "value": 30, "priority": 65, "start": 10.05, "end": 10.15, "period": 0}
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 80,
+          "priority": 90,
+          "start": 10.0,
+          "end": 10.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "TX_POWER",
+          "value": 30,
+          "priority": 65,
+          "start": 10.05,
+          "end": 10.15,
+          "period": 0
+        }
       ]
     },
     "S1": {
       "ns3": "scenario_rdl_direct_prb_conflict",
-      "args": ["--simTime=20", "--udpIntervalUs=200"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=20",
+        "--udpIntervalUs=200"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Conflito direto de PRB na mesma célula: xApp-QoS pede 75%, xApp-Energy pede 30%.",
       "proposals": [
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA", "value": 75, "priority": 90, "start": 10.0, "end": 15.0, "period": 1.0},
-        {"xapp_id": "energy_saving", "gnb": 0, "parameter": "PRB_QUOTA", "value": 30, "priority": 65, "start": 10.05, "end": 15.0, "period": 1.0}
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 75,
+          "priority": 90,
+          "start": 10.0,
+          "end": 15.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 30,
+          "priority": 65,
+          "start": 10.05,
+          "end": 15.0,
+          "period": 1.0
+        }
       ]
     },
     "S2": {
       "ns3": "scenario_rdl_tvs_conflict",
-      "args": ["--simTime=20"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=20",
+        "--disableSrs=true"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Conflito indireto TVS: xSlice reserva PRB na célula macro enquanto o Traffic Steering move os UEs dela para a small cell.",
       "proposals": [
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA", "value": 80, "priority": 90, "start": 10.0, "end": 15.0, "period": 1.0},
-        {"xapp_id": "traffic_steering", "gnb": 0, "parameter": "HANDOVER", "value": 1, "priority": 80, "start": 10.1, "end": 10.2, "period": 0}
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 80,
+          "priority": 90,
+          "start": 10.0,
+          "end": 15.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 10.1,
+          "end": 10.2,
+          "period": 0
+        }
       ]
     },
     "S3": {
       "ns3": "scenario_rdl_energy_vs_qos",
-      "args": ["--simTime=20"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=20"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Conflito direto de potência: Energy Saving reduz para 10 dBm, xSlice exige 40 dBm na mesma célula.",
       "proposals": [
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "TX_POWER", "value": 40, "priority": 90, "start": 10.0, "end": 15.0, "period": 1.0},
-        {"xapp_id": "energy_saving", "gnb": 0, "parameter": "TX_POWER", "value": 10, "priority": 65, "start": 10.05, "end": 15.0, "period": 1.0}
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "TX_POWER",
+          "value": 40,
+          "priority": 90,
+          "start": 10.0,
+          "end": 15.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "TX_POWER",
+          "value": 10,
+          "priority": 65,
+          "start": 10.05,
+          "end": 15.0,
+          "period": 1.0
+        }
       ]
     },
     "S4": {
       "ns3": "scenario_rdl_ts_vs_energy",
-      "args": ["--simTime=30"],
-      "conflict_window_s": [15.0, 25.0],
+      "args": [
+        "--simTime=30",
+        "--disableSrs=true"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
       "summary": "Conflito entre células: Traffic Steering move UEs da gNB0 congestionada para a gNB1 enquanto o Energy Saving coloca a gNB1 em baixa potência.",
       "proposals": [
-        {"xapp_id": "traffic_steering", "gnb": 0, "parameter": "HANDOVER", "value": 1, "priority": 80, "start": 15.0, "end": 15.1, "period": 0},
-        {"xapp_id": "energy_saving", "gnb": 1, "parameter": "TX_POWER", "value": 0, "priority": 65, "start": 15.05, "end": 25.0, "period": 1.0}
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 15.0,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "TX_POWER",
+          "value": 0,
+          "priority": 65,
+          "start": 15.05,
+          "end": 25.0,
+          "period": 1.0
+        }
       ]
     },
     "S5": {
       "ns3": "scenario_rdl_temporal_pingpong",
-      "args": ["--simTime=30"],
-      "conflict_window_s": [18.0, 26.0],
+      "args": [
+        "--simTime=30",
+        "--disableSrs=true"
+      ],
+      "conflict_window_s": [
+        18.0,
+        26.0
+      ],
       "summary": "Ping-pong temporal: Traffic Steering move UEs para a gNB1 e o Load Balancer os devolve à gNB0, alternadamente.",
       "proposals": [
-        {"xapp_id": "traffic_steering", "gnb": 0, "parameter": "HANDOVER", "value": 1, "priority": 80, "start": 18.0, "end": 26.0, "period": 2.0},
-        {"xapp_id": "load_balancer", "gnb": 1, "parameter": "HANDOVER", "value": 0, "priority": 70, "start": 19.0, "end": 26.0, "period": 2.0}
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 18.0,
+          "end": 26.0,
+          "period": 2.0
+        },
+        {
+          "xapp_id": "load_balancer",
+          "gnb": 1,
+          "parameter": "HANDOVER",
+          "value": 0,
+          "priority": 70,
+          "start": 19.0,
+          "end": 26.0,
+          "period": 2.0
+        }
       ]
     },
     "S6": {
       "ns3": "scenario_rdl_conflict_storm",
-      "args": ["--simTime=20", "--loadLevel=0"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=20",
+        "--loadLevel=0"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Tempestade de conflitos: seis xApps disputam PRB e potência nas quatro gNBs a cada 0,5 s.",
       "proposals": [
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA", "value": 85, "priority": 90, "start": 10.0, "end": 15.0, "period": 0.5},
-        {"xapp_id": "energy_saving", "gnb": 0, "parameter": "PRB_QUOTA", "value": 25, "priority": 65, "start": 10.02, "end": 15.0, "period": 0.5},
-        {"xapp_id": "load_balancer", "gnb": 1, "parameter": "PRB_QUOTA", "value": 60, "priority": 75, "start": 10.04, "end": 15.0, "period": 0.5},
-        {"xapp_id": "energy_saving", "gnb": 1, "parameter": "TX_POWER", "value": 15, "priority": 65, "start": 10.06, "end": 15.0, "period": 0.5},
-        {"xapp_id": "beamformer", "gnb": 2, "parameter": "TX_POWER", "value": 38, "priority": 70, "start": 10.08, "end": 15.0, "period": 0.5},
-        {"xapp_id": "energy_saving", "gnb": 2, "parameter": "TX_POWER", "value": 12, "priority": 65, "start": 10.1, "end": 15.0, "period": 0.5},
-        {"xapp_id": "isac_radar", "gnb": 3, "parameter": "PRB_QUOTA", "value": 40, "priority": 60, "start": 10.12, "end": 15.0, "period": 0.5},
-        {"xapp_id": "xslice", "gnb": 3, "parameter": "PRB_QUOTA", "value": 90, "priority": 90, "start": 10.14, "end": 15.0, "period": 0.5}
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 85,
+          "priority": 90,
+          "start": 10.0,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 25,
+          "priority": 65,
+          "start": 10.02,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "load_balancer",
+          "gnb": 1,
+          "parameter": "PRB_QUOTA",
+          "value": 60,
+          "priority": 75,
+          "start": 10.04,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "TX_POWER",
+          "value": 15,
+          "priority": 65,
+          "start": 10.06,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "beamformer",
+          "gnb": 2,
+          "parameter": "TX_POWER",
+          "value": 38,
+          "priority": 70,
+          "start": 10.08,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 2,
+          "parameter": "TX_POWER",
+          "value": 12,
+          "priority": 65,
+          "start": 10.1,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "isac_radar",
+          "gnb": 3,
+          "parameter": "PRB_QUOTA",
+          "value": 40,
+          "priority": 60,
+          "start": 10.12,
+          "end": 15.0,
+          "period": 0.5
+        },
+        {
+          "xapp_id": "xslice",
+          "gnb": 3,
+          "parameter": "PRB_QUOTA",
+          "value": 90,
+          "priority": 90,
+          "start": 10.14,
+          "end": 15.0,
+          "period": 0.5
+        }
       ]
     },
     "S7": {
       "ns3": "scenario_rdl_fault_injection",
-      "args": ["--simTime=25"],
-      "conflict_window_s": [10.0, 15.0],
+      "args": [
+        "--simTime=25"
+      ],
+      "conflict_window_s": [
+        10.0,
+        15.0
+      ],
       "summary": "Injeção de falhas: uma xApp maliciosa pede potência fora do limite físico (60 dBm) e cota de PRB inválida (150%), concorrendo com ações legítimas.",
       "proposals": [
-        {"xapp_id": "rogue_xapp", "gnb": 0, "parameter": "TX_POWER", "value": 60, "priority": 100, "start": 10.0, "end": 15.0, "period": 1.0},
-        {"xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA", "value": 70, "priority": 90, "start": 10.05, "end": 15.0, "period": 1.0},
-        {"xapp_id": "rogue_xapp", "gnb": 1, "parameter": "PRB_QUOTA", "value": 150, "priority": 100, "start": 10.1, "end": 15.0, "period": 1.0}
+        {
+          "xapp_id": "rogue_xapp",
+          "gnb": 0,
+          "parameter": "TX_POWER",
+          "value": 60,
+          "priority": 100,
+          "start": 10.0,
+          "end": 15.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 70,
+          "priority": 90,
+          "start": 10.05,
+          "end": 15.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "rogue_xapp",
+          "gnb": 1,
+          "parameter": "PRB_QUOTA",
+          "value": 150,
+          "priority": 100,
+          "start": 10.1,
+          "end": 15.0,
+          "period": 1.0
+        }
       ]
     }
-  }
+  },
+  "srs_note": "S2, S4 e S5 (cenários com handover) rodam com --disableSrs=true: o 5G-LENA v5.1 aborta em NrSpectrumPhy::StartRxSrs quando UEs transferidos geram SRS sobrepostos no gNB de destino. A opção vale igualmente para todos os baselines do cenário."
 }
