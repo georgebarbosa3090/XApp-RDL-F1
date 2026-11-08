@@ -46,6 +46,8 @@ IE_RIC_CALL_PROCESS_ID = 20
 IE_RIC_CONTROL_ACK_REQUEST = 21
 IE_RIC_CONTROL_HEADER = 22
 IE_RIC_CONTROL_MESSAGE = 23
+IE_RIC_INDICATION_HEADER = 25
+IE_RIC_INDICATION_MESSAGE = 26
 IE_RIC_REQUEST_ID = 29
 IE_RIC_CONTROL_OUTCOME = 32
 
@@ -261,7 +263,9 @@ def decode_e2ap_pdu(pdu: bytes) -> Dict[str, Any]:
     if IE_RAN_FUNCTION_ID in ies:
         out["ran_function_id"] = AperReader(ies[IE_RAN_FUNCTION_ID]).constrained(0, 4095)
     for ie_id, key in ((IE_RIC_CONTROL_HEADER, "control_header"), (IE_RIC_CONTROL_MESSAGE, "control_message"),
-                       (IE_RIC_CONTROL_OUTCOME, "control_outcome"), (IE_RIC_CALL_PROCESS_ID, "call_process_id")):
+                       (IE_RIC_CONTROL_OUTCOME, "control_outcome"), (IE_RIC_CALL_PROCESS_ID, "call_process_id"),
+                       (IE_RIC_INDICATION_HEADER, "indication_header"),
+                       (IE_RIC_INDICATION_MESSAGE, "indication_message")):
         if ie_id in ies:
             rr = AperReader(ies[ie_id])
             out[key] = rr.octets(rr.length())
@@ -313,6 +317,17 @@ class E2smCodec:
         common = str(d / "e2sm-v03.01.asn")
         self.kpm = asn1tools.compile_files([common, str(d / "e2sm-kpm-v03.00.asn")], "per")
         self.rc = asn1tools.compile_files([common, str(d / "e2sm-rc-v03.01.asn")], "per")
+        # Leitura tolerante: o NORI envia nomes de métrica com "_" (ex.: QosFlow.PdcpPduVolumeDL_Filter),
+        # fora do alfabeto de PrintableString. Em APER alinhado, PrintableString e IA5String sem alfabeto
+        # restrito têm a mesma codificação (8 bits por caractere, código ASCII); trocar só o tipo de
+        # MeasurementTypeName na especificação de leitura aceita esses bytes. A codificação segue estrita.
+        kpm_text = (d / "e2sm-kpm-v03.00.asn").read_text(encoding="utf-8")
+        strict = "MeasurementTypeName ::= PrintableString(SIZE(1.. 150, ...))"
+        if kpm_text.count(strict) != 1:
+            raise CodecError("definição de MeasurementTypeName inesperada no ASN.1 KPM")
+        self.kpm_lenient = asn1tools.compile_string(
+            Path(common).read_text(encoding="utf-8") + "\n"
+            + kpm_text.replace(strict, "MeasurementTypeName ::= IA5String(SIZE(1.. 150, ...))"), "per")
         self.asn1_sha256 = dict(NORI_ASN1_FILES)
 
     # KPM ------------------------------------------------------------------
@@ -327,6 +342,50 @@ class E2smCodec:
                 "measInfoList": [{"measType": ("measName", n), "labelInfoList": [{"measLabel": {"noLabel": "true"}}]}
                                  for n in meas_names],
                 "granulPeriod": granularity_ms})})
+
+    def kpm_decode_indication(self, header: bytes, message: bytes) -> Dict[str, Any]:
+        """Indication KPM v03.00 normalizada: formato, instante de coleta e medições.
+
+        Format 1 (nó): ``{"node": {métrica: valor}}``; Format 3 (por UE):
+        ``{"ues": [{"ue_id": ..., "measurements": {métrica: valor}}]}``. Cada métrica traz o
+        valor da última amostra (``measData``) do período de granularidade.
+        """
+        out: Dict[str, Any] = {}
+        hdr = self.kpm_lenient.decode("E2SM-KPM-IndicationHeader", header)
+        hfmt, hbody = hdr["indicationHeader-formats"]
+        ts = hbody.get("colletStartTime")
+        if isinstance(ts, (bytes, bytearray)) and len(ts) == 8:
+            # TimeStamp: 4 octetos de segundos NTP + 4 de fração
+            secs, frac = int.from_bytes(ts[:4], "big"), int.from_bytes(ts[4:], "big")
+            out["collect_start_ntp"] = round(secs + frac / 2 ** 32, 6)
+        msg = self.kpm_lenient.decode("E2SM-KPM-IndicationMessage", message)
+        fmt, body = msg["indicationMessage-formats"]
+        if fmt == "indicationMessage-Format1":
+            out["format"] = 1
+            out["node"] = self._kpm_format1(body)
+        elif fmt == "indicationMessage-Format3":
+            out["format"] = 3
+            ues = []
+            for item in body["ueMeasReportList"]:
+                kind, ue = item["ueID"]
+                ue_id = ue.get("amf-UE-NGAP-ID") if isinstance(ue, dict) else None
+                ues.append({"ue_id": ue_id, "ue_id_type": kind, "measurements": self._kpm_format1(item["measReport"])})
+            out["ues"] = ues
+        else:
+            raise CodecError(f"formato de Indication KPM não suportado: {fmt}")
+        return out
+
+    @staticmethod
+    def _kpm_format1(body: Dict[str, Any]) -> Dict[str, Any]:
+        names = []
+        for info in body.get("measInfoList") or []:
+            kind, value = info["measType"]
+            names.append(value if kind == "measName" else f"measID:{value}")
+        values: Dict[str, Any] = {}
+        for sample in body.get("measData") or []:
+            for name, (kind, value) in zip(names, sample["measRecord"]):
+                values[name] = None if kind == "noValue" else value
+        return values
 
     # RC -------------------------------------------------------------------
     def rc_slice_quota_header(self, plmn: bytes = b"\x00\xf1\x10", amf_ue_ngap_id: int = 0,

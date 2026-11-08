@@ -10,9 +10,10 @@ data:
 {{ .Files.Get "files/entrypoint.sh" | indent 4 }}
   kpm_probe.py: |
 {{ .Files.Get "files/kpm_probe.py" | indent 4 }}
-  # Codec E2AP/E2SM v3 do repositório (src/e2/v3/codec.py), sem cópia no chart
-  e2v3_codec.py: |
-{{ required "passe o codec do repositório: --set-file e2v3Codec=src/e2/v3/codec.py" .Values.e2v3Codec | indent 4 }}
+  # Pacote do src/ do repositório (git archive de um commit, tar.gz em base64): codec E2 v3,
+  # ponte H-RDL e o próprio H-RDL. Gerado por scripts/deploy_kpm_probe.sh, sem cópia no chart.
+  src.tar.gz.b64: |
+{{ required "use scripts/deploy_kpm_probe.sh (pacote do src/ de um commit)" .Values.srcBundle | indent 4 }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -72,7 +73,7 @@ spec:
       labels:
         {{- include "kpm-probe.selector" . | nindent 8 }}
       annotations:
-        checksum/scripts: {{ printf "%s%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/kpm_probe.py") .Values.e2v3Codec | sha256sum }}
+        checksum/scripts: {{ printf "%s%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/kpm_probe.py") .Values.srcBundle | sha256sum }}
         checksum/values: {{ toJson .Values | sha256sum }}
     spec:
       containers:
@@ -107,6 +108,9 @@ spec:
             - { name: RC_REQUESTOR_ID, value: {{ .Values.rc.requestorId | quote }} }
             - { name: RC_AFTER_INDICATIONS, value: {{ .Values.rc.afterIndications | quote }} }
             - { name: RC_SLICE_QUOTAS, value: {{ .Values.rc.sliceQuotas | quote }} }
+            - { name: RC_DECISION, value: {{ .Values.rc.decision | quote }} }
+            - { name: XAPP_RDL_SRC_COMMIT, value: {{ required "srcCommit ausente" .Values.srcCommit | quote }} }
+            - { name: PIP_HRDL_DEPS, value: {{ join " " .Values.pins.python.hrdl | quote }} }
           ports:
             - { name: http, containerPort: 8080 }
             - { name: rmr-data, containerPort: 4560 }

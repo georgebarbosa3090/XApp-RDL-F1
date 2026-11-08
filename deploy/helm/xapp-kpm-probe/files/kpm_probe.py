@@ -8,13 +8,16 @@ Fluxo:
      uma subscrição REPORT com Event Trigger Format 1 e Action Definition Format 1;
   3. recebe por RMR as RIC Indications (12050) e registra tipo, subscription id,
      tamanho e sha256 do payload — o sha256 casa cada Indication recebida com o PCAP;
-  4. (fase 3) depois da N-ésima Indication KPM de um nó, envia um RIC Control (12040) com
-     cotas de PRB por fatia (E2SM-RC estilo 2, ação 6) e registra o ACK/Failure (12041/12042).
+  4. depois da N-ésima Indication KPM de um nó, envia um RIC Control (12040) com cotas de PRB
+     por fatia (E2SM-RC estilo 2, ação 6) e registra o ACK/Failure (12041/12042). As cotas vêm:
+     - (fase 4, RC_DECISION=hrdl) do H-RDL: o KPM_t0 decodificado vira estado, duas políticas de
+       referência propõem PRB_QUOTA e o pipeline real da xApp RDL arbitra
+       (src/closed_loop/hrdl_slice_loop.py); decision_source=H_RDL;
+     - (fase 3, RC_DECISION=fixed) de uma cota fixa do chart; decision_source=FIXED_PROBE.
 
-A codificação E2AP/E2SM vem de src/e2/v3/codec.py (o mesmo arquivo do repositório, montado
-pelo chart com helm --set-file). A cota enviada é FIXA, configurada no chart: o evento
-control_request registra decision_source=FIXED_PROBE e o KPM que disparou o envio, para que o
-certificador não confunda este Control com uma decisão do H-RDL (fase 4).
+O código do repositório (src/: codec E2AP/E2SM v3, ponte H-RDL e o próprio H-RDL) chega ao pod
+num pacote gerado de um commit (scripts/deploy_kpm_probe.sh); o commit fica registrado no evento
+start e em cada decisão.
 
 Cada evento vai para stdout e para EVENTS_FILE (JSON Lines).
 """
@@ -50,10 +53,13 @@ RC_RAN_FUNCTION_ID = int(ENV.get("RC_RAN_FUNCTION_ID", "300"))
 RC_REQUESTOR_ID = int(ENV.get("RC_REQUESTOR_ID", "1003"))
 RC_AFTER_INDICATIONS = int(ENV.get("RC_AFTER_INDICATIONS", "4"))
 RC_QUOTAS = ENV.get("RC_SLICE_QUOTAS", "1:70:10:5,2:30:10:5")   # sst:max:min:dedicated (%)
-DECISION_SOURCE = "FIXED_PROBE"
+RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | fixed
+DECISION_SOURCE = "H_RDL" if RC_DECISION == "hrdl" else "FIXED_PROBE"
+APP_DIR = ENV.get("XAPP_RDL_APP_DIR", "/data/app")
+SRC_COMMIT = ENV.get("XAPP_RDL_SRC_COMMIT", "")
 
-sys.path.insert(0, "/scripts")
-import e2v3_codec as codec  # noqa: E402  (src/e2/v3/codec.py)
+sys.path.insert(0, APP_DIR)
+from src.e2.v3 import codec  # noqa: E402  (src/e2/v3/codec.py do commit SRC_COMMIT)
 
 RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILURE",
              12020: "RIC_SUB_DEL_REQ", 12021: "RIC_SUB_DEL_RESP", 12050: "RIC_INDICATION",
@@ -186,7 +192,7 @@ def encode_kpm():
     action = E2SM.kpm_action_definition(MEAS_NAMES, GRANULARITY_MS, REPORT_STYLE)
     event("kpm_encoded", event_trigger_hex=trigger.hex(), action_definition_hex=action.hex(),
           meas_names=MEAS_NAMES, reporting_period_ms=REPORTING_PERIOD_MS, asn1_sha256=E2SM.asn1_sha256,
-          codec_sha256=hashlib.sha256(open(codec.__file__, "rb").read()).hexdigest())
+          codec_sha256=hashlib.sha256(open(codec.__file__, "rb").read()).hexdigest(), src_commit=SRC_COMMIT)
     return trigger, action
 
 
@@ -241,14 +247,48 @@ def unsubscribe(sub_id: str, meid: str) -> None:
 COUNTS = {}
 PLMN = {}            # meid -> PLMN Identity (bytes) lido do E2Mgr
 CONTROL = {}         # meid -> estado do Control enviado neste ciclo de conexão
+LAST_KPM = {}        # meid -> {"node": ..., "node_sha256": ..., "ues": ..., "ues_sha256": ...}
 _control_instance = [0]
 
 
+def track_kpm(meid: str, payload: bytes, sha: str) -> None:
+    """Decodifica a Indication (E2AP + E2SM-KPM v3) e guarda o último KPM de nó e de UEs."""
+    try:
+        pdu = codec.decode_e2ap_pdu(payload)
+        kpm = E2SM.kpm_decode_indication(pdu["indication_header"], pdu["indication_message"])
+    except Exception as exc:  # noqa: BLE001 - registra e segue
+        event("kpm_decode_error", meid=meid, sha256=sha, detail=f"{type(exc).__name__}: {exc}")
+        return
+    entry = LAST_KPM.setdefault(meid, {})
+    if kpm["format"] == 1:
+        entry.update(node=kpm["node"], node_sha256=sha)
+    elif kpm["format"] == 3:
+        entry.update(ues=kpm["ues"], ues_sha256=sha)
+
+
+def decide(meid: str):
+    """Cotas a enviar e registro da decisão (H-RDL sobre o KPM_t0, ou cota fixa)."""
+    if RC_DECISION != "hrdl":
+        return parse_quotas(RC_QUOTAS), {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
+    from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
+    kpm = LAST_KPM.get(meid) or {}
+    record = decide_slice_quotas(meid, kpm.get("node") or {}, kpm.get("ues") or [])
+    record.update(src_commit=SRC_COMMIT, kpm_node_sha256=kpm.get("node_sha256"), kpm_ues_sha256=kpm.get("ues_sha256"))
+    quotas = [codec.SlicePrbQuota(q["sst"], q["max_prb_ratio"], q["min_prb_ratio"], q["dedicated_prb_ratio"])
+              for q in record["quotas"]]
+    return quotas, record
+
+
 def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> None:
-    """Envia um RIC Control com as cotas fixas e registra o pedido (bytes e KPM que o disparou)."""
+    """Decide e envia um RIC Control; registra o pedido (bytes, decisão e KPM que o disparou)."""
+    quotas, decision = decide(meid)
+    if not quotas:
+        CONTROL[meid] = {"skipped": decision.get("reason")}
+        event("control_decision", meid=meid, sent=False, decision_source=DECISION_SOURCE, decision=decision,
+              trigger_kpm_sha256=trigger_sha, trigger_kpm_seq=trigger_seq)
+        return
     _control_instance[0] += 1
     instance = _control_instance[0]
-    quotas = parse_quotas(RC_QUOTAS)
     header = E2SM.rc_slice_quota_header(PLMN.get(meid, b"\x00\xf1\x10"))
     message = E2SM.rc_slice_quota_message(quotas)
     pdu = codec.encode_ric_control_request(RC_REQUESTOR_ID, instance, RC_RAN_FUNCTION_ID, header, message,
@@ -269,7 +309,8 @@ def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> Non
           ric_requestor_id=RC_REQUESTOR_ID, ric_instance_id=instance, ran_function_id=RC_RAN_FUNCTION_ID,
           quotas=[q.__dict__ for q in quotas], control_header_hex=header.hex(), control_message_hex=message.hex(),
           length=len(pdu), sha256=hashlib.sha256(pdu).hexdigest(), pdu_hex=pdu.hex(),
-          decision_source=DECISION_SOURCE, trigger_kpm_sha256=trigger_sha, trigger_kpm_seq=trigger_seq)
+          decision_source=DECISION_SOURCE, decision=decision, trigger_kpm_sha256=trigger_sha,
+          trigger_kpm_seq=trigger_seq)
 
 
 def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
@@ -323,10 +364,13 @@ def rmr_loop() -> None:
         sha = hashlib.sha256(payload).hexdigest()
         event("rmr_message", mtype=mtype, mtype_name=RMR_TYPES.get(mtype, "?"), sub_id=sub_id, meid=meid,
               length=len(payload), sha256=sha, seq=COUNTS[(mtype, sub_id)], source=s[rmr.RMR_MS_MSG_SOURCE])
+        if mtype == 12050 and meid:
+            track_kpm(meid, payload, sha)
         if mtype in (12041, 12042):
             handle_control_outcome(meid, mtype, payload)
         elif (mtype == 12050 and RC_ENABLED and meid and meid not in CONTROL
-              and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS):
+              and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS
+              and {"node", "ues"} <= set(LAST_KPM.get(meid, {}))):
             try:
                 send_control(rmr, ctx, meid, sha, COUNTS[(mtype, sub_id)])
             except Exception as exc:  # noqa: BLE001 - registra e segue recebendo KPM
@@ -346,7 +390,8 @@ def main() -> int:
     event("start", name=NAME, version=VERSION, http_host=HTTP_HOST, rmr_host=RMR_HOST,
           e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID,
           rc_control_enabled=RC_ENABLED, rc_ran_function_id=RC_RAN_FUNCTION_ID, rc_requestor_id=RC_REQUESTOR_ID,
-          rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, decision_source=DECISION_SOURCE)
+          rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, rc_decision=RC_DECISION,
+          decision_source=DECISION_SOURCE, src_commit=SRC_COMMIT)
     server = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     def rmr_guard():
@@ -386,6 +431,7 @@ def main() -> int:
             elif state != "CONNECTED":
                 attempts.pop(meid, None)
                 CONTROL.pop(meid, None)   # próxima conexão (nova execução) recebe novo Control
+                LAST_KPM.pop(meid, None)
                 if meid in subs:
                     indications = {str(k[1]): v for k, v in COUNTS.items() if k[0] == 12050}
                     event("e2_node_disconnected", meid=meid, subscription_id=subs[meid],

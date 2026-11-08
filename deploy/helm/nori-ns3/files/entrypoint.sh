@@ -131,23 +131,84 @@ if [ "$PATCHED" = 1 ]; then
   su developer -c "cd '$NS3' && ./ns3 build -j${JOBS}" 2>&1 | tee "$W/logs/build_patches_$(date -u +%Y%m%dT%H%M%SZ).log"
 fi
 
-# Variante do projeto em scratch/ (os fontes do NORI ficam intactos): o exemplo RC do NORI
-# instala um FlowMonitor mas nunca o grava; a variante grava flowmonitor.xml (no --cwd da
-# execução, isto é, raw/) ao fim de Simulator::Run(). Só recompila quando a variante muda.
+# Variante do projeto em scratch/ (os fontes do NORI ficam intactos), gerada do exemplo RC:
+#  - grava flowmonitor.xml ao fim de Simulator::Run() (o exemplo instala o FlowMonitor mas não grava);
+#  - grava slice_series.csv a cada 0,5 s simulado: contadores acumulados do FlowMonitor por UE/fatia
+#    com o tempo simulado e o relógio de parede, para alinhar ao PCAP E2 e medir o efeito do Control
+#    (o KPM do NORI não mede vazão por UE: DRB.UEThpDl sai sempre 0).
+# Os arquivos vão para o --cwd da execução (raw/). Só recompila quando a variante muda.
 VAR_DST="$NS3/scratch/nori-rc-slicing-flowmon.cc"
 VAR_TMP="$(mktemp)"
 python3 - "$NS3/contrib/nori/examples/nori-rc-slicing-demo.cc" "$VAR_TMP" <<'PY' || { log "ERRO: variante FlowMonitor não gerada"; exit 6; }
 import sys
 src, dst = sys.argv[1:3]
 text = open(src).read()
-anchor = "\n    Simulator::Run();\n"
-if text.count(anchor) != 1:
-    sys.exit("ponto de inserção 'Simulator::Run();' não é único no exemplo do NORI")
-patch = ("\n    // [xapp-rdl] FlowMonitor gravado em XML para o certificador (R9/R10)\n"
-         "    monitor->CheckForLostPackets();\n"
-         "    monitor->SerializeToXmlFile(\"flowmonitor.xml\", true, true);\n")
-open(dst, "w").write("// Gerado pelo chart nori-ns3 a partir de contrib/nori/examples/nori-rc-slicing-demo.cc\n"
-                     + text.replace(anchor, anchor + patch))
+
+def insert(text, anchor, new, before=False):
+    if text.count(anchor) != 1:
+        sys.exit(f"ponto de inserção não é único no exemplo do NORI: {anchor.strip()!r}")
+    return text.replace(anchor, (new + anchor) if before else (anchor + new))
+
+text = insert(text, "#include <vector>\n", "#include <chrono>\n#include <fstream>\n")
+series_fn = r'''
+// [xapp-rdl] Série temporal do FlowMonitor por UE/fatia (medida de referência da RAN), com tempo
+// simulado e relógio de parede (simulação em tempo real) para alinhar ao PCAP E2.
+static void
+XappRdlSliceSeries(Ptr<FlowMonitor> monitor,
+                   FlowMonitorHelper* helper,
+                   std::map<Ipv4Address, uint32_t> ueIpToIndex,
+                   double interval,
+                   double simTime)
+{
+    static std::ofstream out;
+    if (!out.is_open())
+    {
+        out.open("slice_series.csv");
+        out << "sim_time_s,wall_epoch_s,ue_index,sst,tx_packets,rx_packets,rx_bytes,delay_sum_s\n";
+    }
+    Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(helper->GetClassifier());
+    std::map<uint32_t, FlowMonitor::FlowStats> perUe;
+    for (const auto& it : monitor->GetFlowStats())
+    {
+        Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(it.first);
+        auto idx = ueIpToIndex.find(t.destinationAddress);
+        if (idx == ueIpToIndex.end())
+        {
+            continue;
+        }
+        FlowMonitor::FlowStats& acc = perUe[idx->second];
+        acc.txPackets += it.second.txPackets;
+        acc.rxPackets += it.second.rxPackets;
+        acc.rxBytes += it.second.rxBytes;
+        acc.delaySum += it.second.delaySum;
+    }
+    double wall = std::chrono::duration<double>(std::chrono::system_clock::now().time_since_epoch()).count();
+    double now = Simulator::Now().GetSeconds();
+    for (uint32_t i = 0; i < ueIpToIndex.size(); ++i)
+    {
+        const FlowMonitor::FlowStats& s = perUe[i];
+        int sst = (i == 0) ? 1 : 2; // mapeamento do exemplo: UE 0 eMBB (SST 1), UE 1 URLLC (SST 2)
+        out << std::fixed << std::setprecision(6) << now << "," << wall << "," << i << "," << sst << ","
+            << s.txPackets << "," << s.rxPackets << "," << s.rxBytes << "," << s.delaySum.GetSeconds() << "\n";
+    }
+    out.flush();
+    if (simTime <= 0.0 || now + interval <= simTime)
+    {
+        Simulator::Schedule(Seconds(interval), &XappRdlSliceSeries, monitor, helper, ueIpToIndex, interval, simTime);
+    }
+}
+
+'''
+text = insert(text, "int\nmain(int argc, char* argv[])\n", series_fn, before=True)
+text = insert(text, "\n    Simulator::Run();\n",
+              "\n    // [xapp-rdl] série por fatia a cada 0,5 s simulado\n"
+              "    Simulator::Schedule(Seconds(0.5), &XappRdlSliceSeries, monitor, &flowmonHelper, ueIpToIndex, 0.5, simTime);\n",
+              before=True)
+text = insert(text, "\n    Simulator::Run();\n",
+              "\n    // [xapp-rdl] FlowMonitor gravado em XML para o certificador (R9/R10)\n"
+              "    monitor->CheckForLostPackets();\n"
+              "    monitor->SerializeToXmlFile(\"flowmonitor.xml\", true, true);\n")
+open(dst, "w").write("// Gerado pelo chart nori-ns3 a partir de contrib/nori/examples/nori-rc-slicing-demo.cc\n" + text)
 PY
 if ! cmp -s "$VAR_TMP" "$VAR_DST"; then
   install -o developer -g developer -m 644 "$VAR_TMP" "$VAR_DST"

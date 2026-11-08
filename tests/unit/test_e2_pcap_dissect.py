@@ -408,8 +408,8 @@ def _closed_loop_with_xapp_events(tmp_path, source):
     return path
 
 
-@pytest.mark.parametrize("source,expected", [("FIXED_PROBE", "NOT_CERTIFIED"), ("H_RDL", "CERTIFIED")])
-def test_g4_requires_an_h_rdl_decision_on_kpm_t0(tmp_path, policy, lock, monkeypatch, source, expected):
+@pytest.mark.parametrize("source,reason", [("FIXED_PROBE", "FIXED_PROBE"), ("H_RDL", "efeito na RAN")])
+def test_g4_requires_an_h_rdl_decision_on_kpm_t0(tmp_path, policy, lock, monkeypatch, source, reason):
     _fake_tshark_agreeing(monkeypatch)
     run_dir = _nori_run(tmp_path, lock, _closed_loop_pcap())
     droot = tmp_path / "e2_dissection"
@@ -420,9 +420,9 @@ def test_g4_requires_an_h_rdl_decision_on_kpm_t0(tmp_path, policy, lock, monkeyp
     report = cert.certify_run(run_dir, policy, lock, [], droot)
     gates = cert.evaluate_gates([report], lock)
     assert gates["G3"]["verdict"] == cert.CERTIFIED
-    assert gates["G4"]["verdict"] == expected, gates["G4"]["reason"]
-    if source == "FIXED_PROBE":
-        assert "FIXED_PROBE" in gates["G4"]["reason"]
+    # Sem medida de efeito na RAN, nem a decisão do H-RDL certifica G4.
+    assert gates["G4"]["verdict"] == cert.NOT_CERTIFIED
+    assert reason in gates["G4"]["reason"], gates["G4"]["reason"]
 
 
 def test_versions_lock_accepts_only_listed_nori_patches(tmp_path, policy, lock):
@@ -434,3 +434,89 @@ def test_versions_lock_accepts_only_listed_nori_patches(tmp_path, policy, lock):
     bad = _nori_run(tmp_path / "b", lock, b"", nori_patches=[{"file": name, "sha256": "0" * 64}])
     rules = _rules(cert.certify_run(bad, policy, lock, [], tmp_path / "e2_dissection"))
     assert rules["R6.versions_lock"].status == cert.FAIL
+
+
+# ---------------------------------------------------------------------------
+# Efeito do Control na RAN (scripts/certification/slice_effect.py) e G4
+# ---------------------------------------------------------------------------
+
+effect_mod = _load("slice_effect", "scripts/certification/slice_effect.py")
+
+
+def _series_csv(t_change, embb_after, urllc_after, wall0=1794146159.0):
+    """Série a cada 0,5 s com tempo real exato (parede = wall0 + t); 150 Mb/s por fatia antes de t_change."""
+    rows = ["sim_time_s,wall_epoch_s,ue_index,sst,tx_packets,rx_packets,rx_bytes,delay_sum_s"]
+    acc = {1: 0.0, 2: 0.0}
+    for k in range(0, 31):
+        t = k * 0.5
+        if k:
+            for sst, after in ((1, embb_after), (2, urllc_after)):
+                rate = 150.0 if t <= t_change else after
+                acc[sst] += rate * 1e6 / 8 * 0.5
+        for ue, sst in ((0, 1), (1, 2)):
+            rows.append(f"{t:.6f},{wall0 + t:.6f},{ue},{sst},0,0,{int(acc[sst])},0")
+    return "\n".join(rows) + "\n"
+
+
+def _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after, urllc_after):
+    try:
+        from src.e2.v3 import codec as c3
+        e2sm = c3.E2smCodec()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(f"ASN.1 do NORI indisponível: {exc}")
+    pdus = closed_loop_pdus()
+    pdus[5] = ("down", c3.build_slice_quota_control(e2sm, 1003, 1, 300,
+                                                    [c3.SlicePrbQuota(1, 40), c3.SlicePrbQuota(2, 60)]))
+    pdus[6] = ("up", _pdu(1, 4, [_req(1003, 1), _fn(300)]))
+    frames = [_frame(*((NODE, RIC, 38470, 36422) if d == "up" else (RIC, NODE, 36422, 38470)),
+                     [_data_chunk(i + 1, p)]) for i, (d, p) in enumerate(pdus)]
+    pcap = _pcap(frames)           # quadro 6 (Control) no instante wall0 + 5 s
+    run_dir = _nori_run(tmp_path, lock, pcap)
+    (run_dir / "raw" / "slice_series.csv").write_text(_series_csv(5.0, embb_after, urllc_after), encoding="utf-8")
+    lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(run_dir).as_posix()}"
+             for p in sorted(run_dir.rglob("*")) if p.is_file() and p.name != "hashes.sha256"]
+    (run_dir / "hashes.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    droot = tmp_path / "e2_dissection"
+    msgs = dis.extract_messages(pcap)["messages"]
+    by_role = {}
+    for m in msgs:
+        by_role.setdefault(m["role"], []).append(m)
+    events = [{"event": "rmr_message", "mtype": 12050, "sha256": m["sha256"]} for m in by_role["indication"]]
+    events += [{"event": "control_request", "sha256": by_role["control_request"][0]["sha256"], "decision_source": "H_RDL",
+                "trigger_kpm_sha256": by_role["indication"][0]["sha256"], "quotas": []},
+               {"event": "control_outcome", "sha256": by_role["control_ack"][0]["sha256"], "outcome": "ACK",
+                "correlated_with_request": True, "latency_ms": 2.0}]
+    ev = tmp_path / "events.jsonl"
+    ev.write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
+    dis.dissect(run_dir / "raw" / "e2_sctp.pcap", droot / run_dir.name, run_dir.name, xapp_events=ev)
+    effect = effect_mod.analyze(run_dir.name, tmp_path / "runs", droot)
+    return run_dir, droot, effect
+
+
+def test_effect_consistent_with_quotas_certifies_g4(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    run_dir, droot, effect = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=100.0, urllc_after=150.0)
+    assert effect["verdict"] == "CONSISTENT", effect
+    assert abs(effect["control_sim_time_s"] - 5.0) < 1e-6
+    assert effect["quotas_from_pcap"][0]["max_prb_ratio"] == 40
+    assert effect["slices"]["1"]["expectation"] == "decrease" and effect["slices"]["2"]["expectation"] == "no_decrease"
+    report = cert.certify_run(run_dir, policy, lock, [], droot)
+    gates = cert.evaluate_gates([report], lock)
+    assert gates["G4"]["verdict"] == cert.CERTIFIED, gates["G4"]["reason"]
+
+
+def test_effect_contrary_to_quotas_blocks_g4(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    run_dir, droot, effect = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=150.0, urllc_after=150.0)
+    assert effect["verdict"] == "INCONSISTENT"
+    gates = cert.evaluate_gates([cert.certify_run(run_dir, policy, lock, [], droot)], lock)
+    assert gates["G4"]["verdict"] == cert.NOT_CERTIFIED and "INCONSISTENT" in gates["G4"]["reason"]
+
+
+def test_tampered_series_invalidates_effect(tmp_path, policy, lock, monkeypatch):
+    _fake_tshark_agreeing(monkeypatch)
+    run_dir, droot, _ = _hrdl_closed_loop_run(tmp_path, lock, monkeypatch, embb_after=100.0, urllc_after=150.0)
+    csv_path = run_dir / "raw" / "slice_series.csv"
+    csv_path.write_text(csv_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    report = cert.certify_run(run_dir, policy, lock, [], droot)
+    assert report.facts["slice_effect"]["verdict"] == "INVALID"

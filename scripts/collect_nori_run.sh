@@ -53,4 +53,11 @@ fi
 TSHARK="${TSHARK:-$(command -v tshark || echo "$HOME/.local/tshark-4.2.2/root/usr/bin/tshark")}"
 [ -x "$TSHARK" ] || { say "tshark não encontrado ($TSHARK): a dissecação fica sem confirmação independente"; TSHARK=""; }
 if [ -n "$TSHARK" ]; then TS_ARGS=(--tshark "$TSHARK"); else TS_ARGS=(--no-tshark); fi
-python3 "$REPO/scripts/certification/e2_pcap_dissect.py" --run "$RUN_ID" "${TS_ARGS[@]}"
+python3 "$REPO/scripts/certification/e2_pcap_dissect.py" --run "$RUN_ID" "${TS_ARGS[@]}" || true
+
+# Efeito do Control na RAN (série do FlowMonitor por fatia); requer asn1tools (codec E2SM v3)
+if [ -f "$DEST/raw/slice_series.csv" ]; then
+  PY="${PYTHON:-$HOME/.venvs/xapp-rdl/bin/python}"
+  [ -x "$PY" ] || PY=python3
+  ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" ) || true
+fi

@@ -26,15 +26,15 @@ fi
 dpkg --install "$DEB" >/dev/null && ldconfig
 log "RMR ${RMR_VERSION} instalado (sha256 ${RMR_SHA256})"
 
-STAMP="$D/.stamp-venv-ricxappframe${PIP_RICXAPPFRAME}-nodeps-asn1tools${PIP_ASN1TOOLS}"
+STAMP="$D/.stamp-venv-$(echo "ricxappframe${PIP_RICXAPPFRAME} asn1tools${PIP_ASN1TOOLS} ${PIP_HRDL_DEPS}" | sha256sum | cut -c1-16)"
 if [ ! -f "$STAMP" ]; then
   log "venv: ricxappframe==${PIP_RICXAPPFRAME} (sem dependências) asn1tools==${PIP_ASN1TOOLS}"
   rm -rf "$D/venv" && python3 -m venv "$D/venv"
   # Só o módulo ricxappframe.rmr é usado, e ele depende apenas da biblioteca padrão (ctypes).
   # As dependências declaradas (ricsdl -> hiredis) exigiriam compilador C na imagem.
   "$D/venv/bin/pip" install -q --no-cache-dir --no-deps "ricxappframe==${PIP_RICXAPPFRAME}"
-  "$D/venv/bin/pip" install -q --no-cache-dir "asn1tools==${PIP_ASN1TOOLS}"
-  "$D/venv/bin/python" -c "from ricxappframe.rmr import rmr; import asn1tools"
+  "$D/venv/bin/pip" install -q --no-cache-dir "asn1tools==${PIP_ASN1TOOLS}" ${PIP_HRDL_DEPS}
+  "$D/venv/bin/python" -c "from ricxappframe.rmr import rmr; import asn1tools, pydantic, numpy, pycrate_asn1rt, structlog"
   touch "$STAMP"
 fi
 
@@ -46,5 +46,13 @@ for entry in $NORI_ASN_FILES; do
   log "ASN.1 $f sha256 $h"
 done
 
-export ASN_DIR="$D/asn" EVENTS_FILE="$D/logs/kpm_probe_events.jsonl"
+# Código do repositório (src/) do commit XAPP_RDL_SRC_COMMIT, entregue em base64 pelo chart
+APP="$D/app/${XAPP_RDL_SRC_COMMIT}"
+if [ ! -d "$APP/src" ]; then
+  rm -rf "$D/app" && mkdir -p "$APP"
+  base64 -d /scripts/src.tar.gz.b64 | tar -xz -C "$APP"
+fi
+log "src/ do commit ${XAPP_RDL_SRC_COMMIT} em $APP"
+
+export ASN_DIR="$D/asn" EVENTS_FILE="$D/logs/kpm_probe_events.jsonl" XAPP_RDL_APP_DIR="$APP" XAPP_RDL_ASN1_DIR="$D/asn"
 exec "$D/venv/bin/python" -u /scripts/kpm_probe.py
