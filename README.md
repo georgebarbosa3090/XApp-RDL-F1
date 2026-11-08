@@ -18,18 +18,18 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 217 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 230 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
-| Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup verificado** (NORI ↔ Near-RT RIC Release I no k3s); KPM e RC **não verificados** (falta a xApp assinar e controlar) | [`experiments/runs/nori_rc_demo_seed1`](experiments/runs/nori_rc_demo_seed1/execution_manifest.json), [guia, seção 7](docs/02_guia_operacional_deploy_e_simulacao.md#7-pilha-nori-via-helm-e2-real) |
+| Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup e E2SM-KPM verificados** (NORI ↔ Near-RT RIC Release I no k3s): a xApp [`kpm-probe`](deploy/helm/xapp-kpm-probe/README.md) assina KPM v3.00 pelo SubMgr; Subscription e Indications confirmadas por dissecação independente (tshark 4.2.2) e casadas byte a byte com o que a xApp recebeu por RMR. E2SM-RC **não verificado** (nenhum RIC Control enviado) | [`nori_kpm_flowmon_seed1_p1s`](experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json), [`nori_kpm_flowmon_seed1_r2`](experiments/runs/nori_kpm_flowmon_seed1_r2/execution_manifest.json), [`experiments/e2_dissection/`](experiments/e2_dissection/), [guia, seção 7](docs/02_guia_operacional_deploy_e_simulacao.md#7-pilha-nori-via-helm-e2-real) |
 | Closed loop causal KPM → decisão → RC → KPM | **não verificado** | — |
 
 | Gate | Exigência | Veredito |
 | :-: | :-- | :-: |
-| G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilha nativa) |
-| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | NOT_CERTIFIED |
+| G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilhas nativa e NORI) |
+| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (2 execuções NORI) |
 | G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
-| G3 | E2SM-RC externo (Control + ACK correlacionados) | BLOCKED |
+| G3 | E2SM-RC externo (Control + ACK correlacionados) | NOT_CERTIFIED |
 | G4 | Closed loop causal | BLOCKED |
 | G5 | Campanha ≥ 30 sementes pareadas com E2 | BLOCKED |
 | G6 | Artefato reproduzível por terceiros | BLOCKED |
@@ -98,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (217)
+uv run pytest -q                         # testes (230)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
@@ -110,6 +110,10 @@ python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
 python scripts/certification/analyze_conflict_runs.py
 python scripts/certification/certify_chain.py
 python scripts/certification/generate_campaign_report.py   # relatório: hipóteses, tabelas por semente, conclusões, comandos
+
+# Pilha E2 (NORI + Near-RT RIC + xApp kpm-probe no k3s): trazer uma execução, dissecar o E2 e certificar
+bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
+python scripts/certification/certify_chain.py
 ```
 
 Executar a xApp (modo local, sem RIC):

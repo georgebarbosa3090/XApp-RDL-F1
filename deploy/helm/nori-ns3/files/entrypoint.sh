@@ -107,6 +107,34 @@ else
   [ "$(git -C "$NS3" rev-parse HEAD)" = "$NS3_COMMIT" ] || { log "ERRO: ns-3 fora do commit fixado"; exit 5; }
   [ "$(git -C "$NS3/contrib/nr" rev-parse HEAD)" = "$NR_COMMIT" ] || { log "ERRO: nr fora do commit fixado"; exit 5; }
 fi
+
+# Variante do projeto em scratch/ (os fontes do NORI ficam intactos): o exemplo RC do NORI
+# instala um FlowMonitor mas nunca o grava; a variante grava flowmonitor.xml (no --cwd da
+# execução, isto é, raw/) ao fim de Simulator::Run(). Só recompila quando a variante muda.
+VAR_DST="$NS3/scratch/nori-rc-slicing-flowmon.cc"
+VAR_TMP="$(mktemp)"
+python3 - "$NS3/contrib/nori/examples/nori-rc-slicing-demo.cc" "$VAR_TMP" <<'PY' || { log "ERRO: variante FlowMonitor não gerada"; exit 6; }
+import sys
+src, dst = sys.argv[1:3]
+text = open(src).read()
+anchor = "\n    Simulator::Run();\n"
+if text.count(anchor) != 1:
+    sys.exit("ponto de inserção 'Simulator::Run();' não é único no exemplo do NORI")
+patch = ("\n    // [xapp-rdl] FlowMonitor gravado em XML para o certificador (R9/R10)\n"
+         "    monitor->CheckForLostPackets();\n"
+         "    monitor->SerializeToXmlFile(\"flowmonitor.xml\", true, true);\n")
+open(dst, "w").write("// Gerado pelo chart nori-ns3 a partir de contrib/nori/examples/nori-rc-slicing-demo.cc\n"
+                     + text.replace(anchor, anchor + patch))
+PY
+if ! cmp -s "$VAR_TMP" "$VAR_DST"; then
+  install -o developer -g developer -m 644 "$VAR_TMP" "$VAR_DST"
+  log "scratch/nori-rc-slicing-flowmon.cc atualizado: reconfiguração e compilação incremental (-j${JOBS})"
+  EX_FLAG=$([ "${ENABLE_EXAMPLES}" = "true" ] && echo --enable-examples || echo --disable-examples)
+  set -o pipefail
+  su developer -c "cd '$NS3' && ./ns3 configure -d '${BUILD_PROFILE}' ${EX_FLAG} >/dev/null && ./ns3 build -j${JOBS} nori-rc-slicing-flowmon" \
+    2>&1 | tee "$W/logs/build_flowmon_$(date -u +%Y%m%dT%H%M%SZ).log"
+fi
+rm -f "$VAR_TMP"
 chown -R developer: "$W/runs" "$W/logs"
 
 python3 - <<PY

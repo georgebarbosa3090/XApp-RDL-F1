@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kpm-probe.name" . }}-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" . | nindent 4 }}
+data:
+  entrypoint.sh: |
+{{ .Files.Get "files/entrypoint.sh" | indent 4 }}
+  kpm_probe.py: |
+{{ .Files.Get "files/kpm_probe.py" | indent 4 }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kpm-probe.name" . }}-data
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" . | nindent 4 }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: {{ .Values.storage.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+{{- /*
+O SubMgr usa o Host do ClientEndpoint para o HTTP e para o RMR; o AppMgr/RtMgr usam o
+endpoint RMR do registro. Os dois serviços expõem as mesmas portas para que qualquer
+convenção de nome (-http/-rmr) chegue ao pod.
+*/}}
+{{- range $svc := list "http" "rmr" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-{{ $.Release.Namespace }}-{{ include "kpm-probe.name" $ }}-{{ $svc }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" $ | nindent 4 }}
+spec:
+  # O pod só fica pronto quando o RMR recebe a tabela de rotas, e o RtMgr só a entrega pela
+  # porta 4561 do serviço: sem publicar endereços não prontos, nenhum dos dois avança.
+  publishNotReadyAddresses: true
+  selector:
+    {{- include "kpm-probe.selector" $ | nindent 4 }}
+  ports:
+    - { name: http, port: 8080, targetPort: 8080, protocol: TCP }
+    - { name: rmr-data, port: 4560, targetPort: 4560, protocol: TCP }
+    - { name: rmr-route, port: 4561, targetPort: 4561, protocol: TCP }
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kpm-probe.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "kpm-probe.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kpm-probe.selector" . | nindent 8 }}
+      annotations:
+        checksum/scripts: {{ printf "%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/kpm_probe.py") | sha256sum }}
+        checksum/values: {{ toJson .Values | sha256sum }}
+    spec:
+      containers:
+        - name: kpm-probe
+          image: {{ .Values.image }}
+          command: ["bash", "/scripts/entrypoint.sh"]
+          env:
+            - { name: XAPP_NAME, value: {{ include "kpm-probe.name" . | quote }} }
+            - { name: XAPP_VERSION, value: {{ .Chart.AppVersion | quote }} }
+            - { name: XAPP_HTTP_HOST, value: "service-{{ .Release.Namespace }}-{{ include "kpm-probe.name" . }}-http.{{ .Release.Namespace }}" }
+            - { name: XAPP_RMR_HOST, value: "service-{{ .Release.Namespace }}-{{ include "kpm-probe.name" . }}-rmr.{{ .Release.Namespace }}" }
+            - { name: RMR_SRC_ID, value: "service-{{ .Release.Namespace }}-{{ include "kpm-probe.name" . }}-rmr.{{ .Release.Namespace }}" }
+            - { name: RMR_RTG_SVC, value: "4561" }
+            - { name: RMR_VERSION, value: {{ .Values.pins.rmr.version | quote }} }
+            - { name: RMR_URL, value: {{ .Values.pins.rmr.url | quote }} }
+            - { name: RMR_SHA256, value: {{ .Values.pins.rmr.sha256 | quote }} }
+            - { name: PIP_RICXAPPFRAME, value: {{ .Values.pins.python.ricxappframe | quote }} }
+            - { name: PIP_ASN1TOOLS, value: {{ .Values.pins.python.asn1tools | quote }} }
+            - { name: NORI_ASN_BASE_URL, value: {{ .Values.pins.noriAsn.baseUrl | quote }} }
+            - name: NORI_ASN_FILES
+              value: {{ range $f, $h := .Values.pins.noriAsn.files }}{{ $f }}={{ $h }} {{ end }}
+            - { name: E2MGR_URL, value: {{ .Values.ric.e2mgrUrl | quote }} }
+            - { name: SUBMGR_URL, value: {{ .Values.ric.submgrUrl | quote }} }
+            - { name: APPMGR_URL, value: {{ .Values.ric.appmgrUrl | quote }} }
+            - { name: KPM_RAN_FUNCTION_ID, value: {{ .Values.kpm.ranFunctionId | quote }} }
+            - { name: KPM_REPORT_STYLE, value: {{ .Values.kpm.reportStyle | quote }} }
+            - { name: KPM_REPORTING_PERIOD_MS, value: {{ .Values.kpm.reportingPeriodMs | quote }} }
+            - { name: KPM_GRANULARITY_PERIOD_MS, value: {{ .Values.kpm.granularityPeriodMs | quote }} }
+            - { name: KPM_MEAS_NAMES, value: {{ join "," .Values.kpm.measNames | quote }} }
+          ports:
+            - { name: http, containerPort: 8080 }
+            - { name: rmr-data, containerPort: 4560 }
+            - { name: rmr-route, containerPort: 4561 }
+          readinessProbe:
+            httpGet: { path: /ric/v1/health/ready, port: 8080 }
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "kpm-probe.name" . }}-data
+        - name: scripts
+          configMap:
+            name: {{ include "kpm-probe.name" . }}-scripts

@@ -52,15 +52,30 @@ helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespac
 # Acompanhar a preparação e a compilação ao vivo (a primeira vez leva horas)
 kubectl -n ricsim logs -f deploy/nori-ns3
 
-# Executar um cenário AO VIVO (saída em tempo real no terminal)
+# Executar um cenário AO VIVO (saída em tempo real no terminal); variante com FlowMonitor
 kubectl -n ricsim exec -it deploy/nori-ns3 -- \
-  bash /scripts/run.sh nori-rc-slicing-demo nori_rc_demo_seed1 --seed 1 -- --simTime=10
+  bash /scripts/run.sh nori-rc-slicing-flowmon nori_kpm_flowmon_seed1_p1s --seed 1 -- \
+  --simTime=40 --ns3::E2Interface::E2Periodicity=1
 
-# Trazer a evidência para o repositório e certificar
-POD=$(kubectl -n ricsim get pod -l app.kubernetes.io/name=nori-ns3 -o jsonpath='{.items[0].metadata.name}')
-kubectl -n ricsim cp "$POD:/workspace/runs/nori_rc_demo_seed1" experiments/runs/nori_rc_demo_seed1
-python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
+# Trazer a evidência, recortar os eventos da xApp kpm-probe, dissecar o E2 e certificar
+bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
+python scripts/certification/certify_chain.py
 ```
+
+### Variante `nori-rc-slicing-flowmon`
+
+O exemplo `nori-rc-slicing-demo` instala um FlowMonitor mas não o grava, e a política exige FlowMonitor para `NORI_NS3` (R9/R10). A cada início, o entrypoint gera `scratch/nori-rc-slicing-flowmon.cc` a partir do exemplo, inserindo após o único `Simulator::Run();`:
+
+```cpp
+monitor->CheckForLostPackets();
+monitor->SerializeToXmlFile("flowmonitor.xml", true, true);
+```
+
+Os fontes do NORI não são alterados. Se a variante mudar, o entrypoint reconfigura e compila só esse alvo (~20 s); se o ponto de inserção não for único, aborta (código 6). `run.sh` registra no manifesto o caminho e o sha256 do fonte compilado (`scenario_source`).
+
+### Período dos relatórios KPM
+
+O NORI ignora o *Event Trigger* da subscrição: envia duas Indications (nó e UE) a cada `E2Interface::E2Periodicity` de tempo simulado, padrão 0,01 s. Em 60 s isso dá ~12 mil Indications e um PCAP de ~16 MB; use `--ns3::E2Interface::E2Periodicity=1` para alinhar ao período de 1000 ms pedido pela xApp `kpm-probe`.
 
 `run.sh` grava em `/workspace/runs/<run_id>/`: `execution_manifest.json` (backend `NORI_NS3`, commits reais lidos de `BUILD_INFO.json`, comando, horários, código de saída), `logs/stdout.log`, saídas do ns-3 em `raw/` e `raw/e2_sctp.pcap` com o tráfego SCTP/E2 capturado por `tcpdump`, além de `hashes.sha256`. Ele não sobrescreve execuções existentes.
 
@@ -70,5 +85,6 @@ python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
   - o git do root recusava os checkouts do usuário `developer` ("dubious ownership"): `ns3_commit` e `nr_commit` saíam vazios no `BUILD_INFO.json` e um reinício abortaria em `pin()`; o entrypoint marca os repositórios como seguros;
   - um reinício refazia checkout e extração do NORI, mudando os horários dos fontes e levando o próximo `./ns3` a recompilar tudo com todos os núcleos; agora os fontes só são tocados quando a compilação vai acontecer, e `run.sh` usa `./ns3 run --no-build`;
   - os exemplos do NORI esperam um IP em `--ipE2TermRic`; `run.sh` resolve o nome do serviço do E2Term para o ClusterIP e registra `e2term_ip` no manifesto.
-- O PCAP comprova tráfego SCTP real, mas a separação das mensagens E2 por tipo (Setup, Indication, Control, ACK) ainda depende de dissecação (`tshark`), sem a qual o certificador não aprova G1/G3.
+- O PCAP é dissecado fora do pod ([`e2_pcap_dissect.py`](../../../scripts/certification/e2_pcap_dissect.py), com confirmação do tshark); o diretório da execução não é alterado.
+- Em tempo real, a simulação fica mais lenta que o relógio: 60 s simulados levaram ~3 min com Indications a cada 10 ms.
 - Sem RIC acessível, o NORI não completa o E2 Setup: a execução só gera FlowMonitor.

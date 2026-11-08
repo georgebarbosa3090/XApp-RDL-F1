@@ -91,7 +91,7 @@ def test_nori_pcap_only_run_does_not_certify_e2_gates(tmp_path, policy, lock):
         ns3_commit=nori["ns3_commit"], nr_commit=nori["nr_commit"],
         nori_commit=nori["nori_commit"], e2sim_commit=nori["e2sim_commit"],
     ), {"raw/flowmonitor.xml": FLOWMONITOR, "raw/e2_sctp.pcap": b"\xd4\xc3\xb2\xa1" + b"\x00" * 60})
-    report = cert.certify_run(run_dir, policy, lock, [])
+    report = cert.certify_run(run_dir, policy, lock, [], tmp_path / "e2_dissection")
     rules = _rules(report)
     assert rules["R11.e2_artifacts"] == cert.NA
     assert rules["R12.rc_correlation"] == cert.NA

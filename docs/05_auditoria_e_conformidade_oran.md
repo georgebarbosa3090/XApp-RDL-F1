@@ -31,15 +31,15 @@ Definidos em [`reproducibility/provenance_policy.yaml`](../reproducibility/prove
 
 | Gate | Exigência para `CERTIFIED` | Veredito atual |
 | :-: | :-- | :-: |
-| G0 | Manifestos completos e versões/commits iguais ao `versions.lock` | CERTIFIED (pilha nativa) |
-| G1 | Execução NORI elegível com E2 Setup, Subscription e Indication KPM externos | NOT_CERTIFIED |
+| G0 | Manifestos completos e versões/commits iguais ao `versions.lock` | CERTIFIED (pilhas nativa e NORI) |
+| G1 | Execução NORI elegível com E2 Setup, Subscription e Indication KPM externos, confirmados por dissecação independente do PCAP (R14) | CERTIFIED |
 | G2 | Decisão H-RDL funcional (testes) | LOCAL_ONLY |
-| G3 | RIC Control e ACK/Failure externos correlacionados | BLOCKED |
+| G3 | RIC Control e ACK/Failure externos correlacionados | NOT_CERTIFIED |
 | G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal | BLOCKED |
 | G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | BLOCKED |
 | G6 | G4 e G5 certificados + reprodução independente | BLOCKED |
 
-Regras do certificador por execução: manifesto presente; origem explícita e elegível; `run_id` que não corresponda a gerador estatístico; campos obrigatórios do backend; `run_status=SUCCESS` e `exit_code=0`; versões e commits iguais ao perfil do backend no lock; todos os arquivos com hash e hashes conferindo; grupos de evidência bruta exigidos (FlowMonitor e, no NORI, PCAP/RAW); FlowMonitor com fluxos recebidos; artefatos E2 por mensagem e correlação RC/ACK (só NORI); horários coerentes.
+Regras do certificador por execução: manifesto presente; origem explícita e elegível; `run_id` que não corresponda a gerador estatístico; campos obrigatórios do backend; `run_status=SUCCESS` e `exit_code=0`; versões e commits iguais ao perfil do backend no lock; todos os arquivos com hash e hashes conferindo; grupos de evidência bruta exigidos (FlowMonitor e, no NORI, PCAP/RAW); FlowMonitor com fluxos recebidos; artefatos E2 por mensagem e correlação RC/ACK (só NORI); horários coerentes. No NORI, as mensagens E2 vêm da dissecação do PCAP em `experiments/e2_dissection/<run>/` ([`e2_pcap_dissect.py`](../scripts/certification/e2_pcap_dissect.py)): ela só vale se o hash do PCAP conferir, e só conta para G1–G4 quando o tshark concorda com o dissecador do projeto mensagem a mensagem (R14 `PASS`).
 
 O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`, `LOCAL_GENERATOR`, `CAUSAL_FIXTURE`, `DISCRETE_EVENT_SIMULATOR`, `EMULATED`, `MANUAL`, `ESTIMATED`, `DEMO_RUN`; execuções geradas por scripts com RNG estatístico; mensagens E2 impressas pelo código do cenário; hashes gerados pelo próprio pipeline (provam integridade, não execução); decodificação pelo codec local (autoconsistência).
 
@@ -67,13 +67,18 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 18 | `scripts/setup_ns3.sh` recai em outras versões silenciosamente | documentado; instalação fixada no guia |
 | 19 | `analysis/export_tables.py` contém resultados escritos à mão (ex.: 103,1 Mbps em S8) | aberto: não usar como fonte |
 | 20 | 5G-LENA v5.1 aborta em handover em massa (SRS sobreposto) | contornado com `--disableSrs=true` em S2, S4, S5 |
+| 21 | PCAP E2 do NORI sem dissecação: mensagens não separadas por papel | corrigido: dissecador próprio + confirmação do tshark 4.2.2 (R14) |
+| 22 | Exemplos do NORI instalam FlowMonitor mas não o gravam (R9/R10) | corrigido: variante `nori-rc-slicing-flowmon` gerada em `scratch/` pelo chart |
+| 23 | RtMgr da Release I tem o A1 Mediator fixo; sem ele, a rota da subscrição estoura o prazo do SubMgr | corrigido: A1 Mediator incluído na receita |
+| 24 | NORI ignora o *Event Trigger* da subscrição e reporta a cada `E2Periodicity` (padrão 10 ms) | documentado; execuções usam `--ns3::E2Interface::E2Periodicity=1` |
+| 25 | RAN function 4 do NORI anunciada no E2 Setup com o OID do E2SM-KPM v3, embora a descrição CCC declare outro OID | documentado |
 
 As auditorias anteriores estão em [`auditoria/`](auditoria/README.md) como registro histórico; os relatórios com números não verificados, em [`historico/`](historico/README.md).
 
 ## 5. Pendências para interoperabilidade
 
-1. Gerar codecs E2AP/E2SM a partir do ASN.1 oficial (v3.01, compatível com o NORI) e validá-los com um dissector independente (`tshark`).
+1. Gerar o codec E2SM-RC da xApp a partir do ASN.1 oficial (v3.01, compatível com o NORI) e validá-lo com o tshark, como já é feito com o E2AP do PCAP (fase 3, G3).
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
-3. Implantar a bancada NORI e um Near-RT RIC Release I; capturar E2 Setup, Subscription, Indication, Control e ACK.
+3. Capturar RIC Control e ACK reais (E2 Setup, Subscription e Indication KPM já capturados e certificados em G1).
 4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).
 5. Autenticar a identidade das xApps no transporte de propostas.

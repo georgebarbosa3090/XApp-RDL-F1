@@ -59,6 +59,7 @@ E2_RAW_ROLES = {
     "control_ack": ("ric_control_ack", "control_ack"),
     "kpm_t1": ("kpm_t1", "indication_t1"),
 }
+DEFAULT_DISSECTION_ROOT = ROOT / "experiments" / "e2_dissection"
 RANDOM_CALL = re.compile(r"\b(np\.random|numpy\.random|random\.(gauss|uniform|random|randint|normalvariate)|RandomState|default_rng|rng\.(normal|uniform|integers|random))\b")
 
 
@@ -215,7 +216,8 @@ def find_role_file(run_dir: Path, aliases: Tuple[str, ...]) -> Optional[Path]:
 # ---------------------------------------------------------------------------
 
 def certify_run(run_dir: Path, policy: Dict[str, Any], lock: Dict[str, Dict[str, str]],
-                synthetic_patterns: List[Tuple[str, re.Pattern]]) -> RunReport:
+                synthetic_patterns: List[Tuple[str, re.Pattern]],
+                dissection_root: Optional[Path] = None) -> RunReport:
     manifest_path = run_dir / "execution_manifest.json"
     chain_path = run_dir / "chain_manifest.json"
     kind = "chain" if chain_path.exists() and not manifest_path.exists() else "run"
@@ -258,7 +260,7 @@ def certify_run(run_dir: Path, policy: Dict[str, Any], lock: Dict[str, Dict[str,
     if kind == "chain":
         _certify_chain_specific(run_dir, manifest, report)
     else:
-        _certify_run_specific(run_dir, manifest, policy, lock, report)
+        _certify_run_specific(run_dir, manifest, policy, lock, report, dissection_root)
 
     if report.classification == "UNKNOWN":
         report.classification = "ELIGIBLE" if not report.failed() else "INCOMPLETE_EVIDENCE"
@@ -267,7 +269,8 @@ def certify_run(run_dir: Path, policy: Dict[str, Any], lock: Dict[str, Dict[str,
 
 
 def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[str, Any],
-                          lock: Dict[str, Dict[str, str]], report: RunReport) -> None:
+                          lock: Dict[str, Dict[str, str]], report: RunReport,
+                          dissection_root: Optional[Path] = None) -> None:
     backend = str(manifest.get("backend", ""))
     report.facts["backend"] = backend
     report.facts["scenario"] = manifest.get("scenario")
@@ -356,17 +359,16 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
 
     _check_timeline(manifest, report)
     pcaps = [p for p in files if p.suffix.lower() in (".pcap", ".pcapng")]
+    roles = {role: find_role_file(run_dir, aliases) for role, aliases in E2_RAW_ROLES.items()}
+    if pcaps and all(p is None for p in roles.values()):
+        # NORI grava o E2 como tráfego SCTP: as mensagens vêm da dissecação do PCAP.
+        _certify_pcap_dissection(run_dir, pcaps, dissection_root or DEFAULT_DISSECTION_ROOT, report)
+        return
     report.add("R14.pcap", NA if pcaps else FAIL,
-               f"{len(pcaps)} PCAP(s); dissecação E2AP independente (tshark) não executada" if pcaps else "nenhum PCAP E2")
+               f"{len(pcaps)} PCAP(s) ao lado de artefatos .raw; dissecação não aplicada" if pcaps else "nenhum PCAP E2")
 
     # R11 — artefatos E2 por papel no protocolo
-    roles = {role: find_role_file(run_dir, aliases) for role, aliases in E2_RAW_ROLES.items()}
     report.facts["e2_roles"] = {r: (str(p.relative_to(run_dir)) if p else None) for r, p in roles.items()}
-    if pcaps and all(p is None for p in roles.values()):
-        # NORI grava o E2 como tráfego SCTP: separar as mensagens exige dissecção do PCAP.
-        report.add("R11.e2_artifacts", NA, "E2 apenas em PCAP; extração por mensagem ainda não realizada")
-        report.add("R12.rc_correlation", NA, "depende da extração das mensagens E2 do PCAP")
-        return
     missing_roles = [r for r, p in roles.items() if p is None]
     empty_roles = [r for r, p in roles.items() if p is not None and p.stat().st_size == 0]
     report.add("R11.e2_artifacts", FAIL if missing_roles or empty_roles else PASS,
@@ -394,6 +396,105 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
     else:
         report.add("R12.rc_correlation", FAIL, "Control Request/ACK ausentes ou vazios")
 
+
+
+def _certify_pcap_dissection(run_dir: Path, pcaps: List[Path], dissection_root: Path, report: RunReport) -> None:
+    """R14/R11/R12 a partir de experiments/e2_dissection/<run>/ (scripts/certification/e2_pcap_dissect.py).
+
+    A dissecação fica fora do diretório da execução para não alterar a evidência bruta
+    nem seu hashes.sha256; ela só vale se o hash do PCAP de origem conferir.
+    """
+    ddir = dissection_root / run_dir.name
+    cmd = f"python scripts/certification/e2_pcap_dissect.py --run {run_dir.name}"
+    data = load_json(ddir / "e2_messages.json")
+    if data is None:
+        report.add("R14.pcap", NA, f"{len(pcaps)} PCAP(s) sem dissecação E2AP; execute: {cmd}")
+        report.add("R11.e2_artifacts", NA, "E2 apenas em PCAP; dissecação ausente")
+        report.add("R12.rc_correlation", NA, "depende da dissecação do PCAP")
+        return
+    pcap_hashes = {sha256_file(p) for p in pcaps}
+    if data.get("source_pcap_sha256") not in pcap_hashes:
+        report.add("R14.pcap", FAIL, f"dissecação não corresponde ao PCAP da execução (hash diferente); refaça: {cmd}")
+        report.add("R11.e2_artifacts", NA, "dissecação inválida para esta execução")
+        report.add("R12.rc_correlation", NA, "dissecação inválida para esta execução")
+        return
+
+    # "messages" traz só as mensagens notáveis (com bytes em messages/); a lista completa está
+    # em messages.tsv, cujo hash é conferido, e as contagens em role_counts.
+    messages = {m.get("index"): m for m in data.get("messages", []) if isinstance(m, dict)}
+    corrupted = [i for i, m in messages.items() if m.get("file")
+                 and (not (ddir / str(m["file"])).is_file() or sha256_file(ddir / m["file"]) != m.get("sha256"))]
+    tsv = ddir / str(data.get("messages_tsv", "messages.tsv"))
+    tsv_ok = "messages_tsv_sha256" not in data or (tsv.is_file() and sha256_file(tsv) == data["messages_tsv_sha256"])
+    counts: Dict[str, int] = data.get("role_counts") or {}
+    if not counts:
+        for m in messages.values():
+            counts[m.get("role", "?")] = counts.get(m.get("role", "?"), 0) + 1
+    total = int(data.get("message_count", len(messages)))
+    undecoded = int(data.get("undecoded_count", counts.get("undecoded", 0)))
+    errors = data.get("errors") or []
+    cmp_ = data.get("tshark_comparison") or {}
+    tshark = data.get("tshark") or {}
+    rel_dir = ddir.relative_to(ROOT).as_posix() if ddir.is_relative_to(ROOT) else str(ddir)
+    summary = f"{total} mensagem(ns) E2AP ({', '.join(f'{k}={v}' for k, v in sorted(counts.items()))})"
+    xapp = data.get("xapp_crosscheck")
+    if xapp:
+        summary += (f"; xApp recebeu {xapp.get('xapp_indications')} Indications por RMR, "
+                    f"{xapp.get('pcap_indications_received_by_xapp')}/{xapp.get('pcap_indications')} "
+                    f"casadas com o PCAP por sha256")
+    if not total or corrupted or not tsv_ok or undecoded or errors:
+        problems = []
+        if not total:
+            problems.append("nenhuma mensagem E2AP no PCAP")
+        if corrupted:
+            problems.append(f"bytes divergentes do registrado: {corrupted[:5]}")
+        if not tsv_ok:
+            problems.append("messages.tsv ausente ou com hash divergente")
+        if undecoded:
+            problems.append(f"{undecoded} mensagem(ns) não decodificada(s)")
+        if errors:
+            problems.append(f"erros de dissecação: {errors[:3]}")
+        report.add("R14.pcap", FAIL, "; ".join(problems))
+    elif cmp_.get("checked") and cmp_.get("agreement"):
+        report.add("R14.pcap", PASS, f"{summary}; tshark ({tshark.get('version', '?')}) concorda mensagem a mensagem")
+    elif cmp_.get("checked"):
+        report.add("R14.pcap", FAIL, f"{summary}; tshark diverge em {len(cmp_.get('mismatches') or [])} posição(ões)")
+    else:
+        report.add("R14.pcap", WARN, f"{summary}; sem confirmação independente "
+                                      f"({tshark.get('reason') or tshark.get('error') or 'tshark não executado'})")
+    confirmed = any(c.rule == "R14.pcap" and c.status == PASS for c in report.checks)
+
+    chain = data.get("chain_roles") or {}
+    role_files = {r: (f"{rel_dir}/{messages[chain[r]]['file']}" if chain.get(r) in messages else None)
+                  for r in E2_RAW_ROLES}
+    report.facts["e2_roles"] = role_files
+    report.facts["e2_dissection"] = {"dir": rel_dir, "messages": total, "role_counts": counts,
+                                     "independent_confirmation": confirmed,
+                                     "ran_functions": data.get("ran_functions", {}),
+                                     "xapp_crosscheck": {k: v for k, v in (xapp or {}).items()
+                                                         if k != "subscription_events"} or None}
+
+    # R11 — papéis observados. A cadeia incompleta limita os gates, não a elegibilidade da evidência.
+    present = [r for r, f in role_files.items() if f]
+    missing = [r for r, f in role_files.items() if not f]
+    if not role_files.get("e2_setup"):
+        report.add("R11.e2_artifacts", FAIL, "E2 Setup Request/Response pareados ausentes no PCAP")
+    else:
+        report.add("R11.e2_artifacts", PASS, f"presentes: {present}; ausentes: {missing}" if missing
+                   else "6 papéis da cadeia presentes no PCAP")
+
+    # R12 — correlação RC request/ACK pelos IEs RICrequestID/RANfunctionID da dissecação
+    req, ack = chain.get("control_request"), chain.get("control_ack")
+    has_ctrl = counts.get("control_request", 0) > 0
+    if req in messages and ack in messages:
+        detail = (f"Control Request #{req:03d} e ACK #{ack:03d} com o mesmo RICrequestID/RANfunctionID "
+                  f"(dissecação independente do codec da xApp)")
+        report.add("R12.rc_correlation", PASS if confirmed else WARN,
+                   detail if confirmed else detail + "; sem confirmação do tshark")
+    elif has_ctrl:
+        report.add("R12.rc_correlation", FAIL, "RIC Control Request sem ACK correspondente no PCAP")
+    else:
+        report.add("R12.rc_correlation", NA, "nenhum RIC Control no PCAP")
 
 
 def _check_timeline(manifest: Dict[str, Any], report: RunReport) -> None:
@@ -455,10 +556,13 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
         "reason": f"{len(g0_runs)} execução(ões) com manifesto completo e versões do lock" if g0_runs
                   else "nenhuma execução registra todas as versões/campos exigidos",
     }
+    # E2 só conta com dissecação confirmada por implementação independente (R14 PASS).
+    eligible = [r for r in eligible if rule_pass(r, "R14")]
     g1 = [r for r in eligible if r.facts.get("e2_roles", {}).get("kpm_t0") and r.facts.get("e2_roles", {}).get("subscription")]
     gates["G1"] = {"verdict": CERTIFIED if g1 else NOT_CERTIFIED,
                    "reason": f"{len(g1)} execução(ões) elegíveis com KPM e subscrição" if g1
-                             else "nenhuma execução elegível com Indication KPM e subscrição E2 externas"}
+                             else "nenhuma execução elegível com Indication KPM e subscrição E2 externas "
+                                  "confirmadas por dissecação independente do PCAP"}
     gates["G2"] = {"verdict": "LOCAL_ONLY",
                    "reason": "decisão determinística coberta por testes unitários; não certifica interoperabilidade"}
     g3 = [r for r in eligible if rule_pass(r, "R12")]
@@ -531,8 +635,10 @@ def render_markdown(reports: List[RunReport], gates: Dict[str, Dict[str, Any]], 
         "## Limites desta certificação",
         "",
         "- Hashes gerados pelo próprio pipeline comprovam integridade, não execução.",
-        "- A correlação RC usa o codec local, que ainda não segue o ASN.1 oficial do E2SM-RC v1.03.",
-        "- PCAPs não são dissecados por implementação independente (tshark ausente).",
+        "- Execuções NORI: as mensagens E2 vêm de `experiments/e2_dissection/<run>/` (dissecador do projeto, "
+        "sem o codec da xApp) e só contam para G1–G4 quando o tshark concorda mensagem a mensagem (R14).",
+        "- A dissecação classifica as mensagens pelos IEs E2AP; o conteúdo E2SM-KPM/E2SM-RC não é interpretado aqui.",
+        "- Artefatos `.raw` gravados pelo próprio projeto usam o codec local (autoconsistência, sem validação independente).",
     ]
     return "\n".join(lines) + "\n"
 
@@ -542,6 +648,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--runs-dir", default=str(ROOT / "experiments" / "runs"))
     parser.add_argument("--run", action="append", default=[], help="restringe a execuções específicas")
     parser.add_argument("--out", default=str(ROOT / "reports" / "certification"))
+    parser.add_argument("--dissection-dir", default=str(DEFAULT_DISSECTION_ROOT),
+                        help="raiz das dissecações E2 (e2_pcap_dissect.py)")
     parser.add_argument("--no-write", action="store_true", help="apenas imprime o resumo")
     args = parser.parse_args(argv)
 
@@ -552,7 +660,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     candidates = sorted(p for p in runs_dir.iterdir() if p.is_dir()) if runs_dir.exists() else []
     if args.run:
         candidates = [p for p in candidates if p.name in set(args.run)]
-    reports = [certify_run(p, policy, lock, patterns) for p in candidates]
+    reports = [certify_run(p, policy, lock, patterns, Path(args.dissection_dir)) for p in candidates]
     gates = evaluate_gates(reports, lock)
     traces = scenario_console_traces()
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

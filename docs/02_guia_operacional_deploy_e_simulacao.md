@@ -156,7 +156,7 @@ Clusters k3d e o Rancher (Docker) que existam no WSL disputam a memória com o R
 
 ### 7.2 Near-RT RIC O-RAN SC Release I
 
-[`deploy_ric_i_release.sh`](../scripts/deploy_ric_i_release.sh) implanta, sem sudo e em primeiro plano, só os componentes da cadeia E2 (DBaaS, AppMgr, RtMgr, E2Mgr, E2Term, SubMgr) a partir do `ric-dep` (branch `i-release`, commit `0a6f18e`), com a receita [`recipe_ric_i_release_e2.yaml`](../deploy/ric/recipe_ric_i_release_e2.yaml) (mesmas imagens e tags da receita oficial da Release I):
+[`deploy_ric_i_release.sh`](../scripts/deploy_ric_i_release.sh) implanta, sem sudo e em primeiro plano, só os componentes da cadeia E2 (DBaaS, AppMgr, RtMgr, E2Mgr, E2Term, SubMgr) e o A1 Mediator a partir do `ric-dep` (branch `i-release`, commit `0a6f18e`), com a receita [`recipe_ric_i_release_e2.yaml`](../deploy/ric/recipe_ric_i_release_e2.yaml) (mesmas imagens e tags da receita oficial da Release I):
 
 ```bash
 bash scripts/deploy_ric_i_release.sh            # implanta ou atualiza
@@ -165,9 +165,11 @@ bash scripts/deploy_ric_i_release.sh --status   # pods, serviços e releases
 
 - Os charts da Release I usam APIs removidas no Kubernetes 1.22 (RBAC e Ingress `v1beta1`). O plugin pós-renderizador do Helm 4 [`deploy/ric/helm-postrenderer`](../deploy/ric/helm-postrenderer/plugin.yaml) troca o RBAC para `v1` e remove os Ingress (usados só com o Kong, que não é implantado); os charts oficiais não são alterados.
 - O chart `ric-common` é servido por HTTP local (127.0.0.1:8879) em vez do `chartmuseum` do instalador oficial, que exige sudo.
-- Fora da receita: Kong, Prometheus, A1, O1, VES, alarmes, InfluxDB e Jaeger. O RtMgr registra erros de DNS para o `a1mediator`, esperados.
+- O A1 Mediator não participa da cadeia E2, mas o RtMgr o tem fixo em `PlatformComponents`. Sem ele, cada distribuição de rotas espera o timeout do *wormhole* para o A1, e a criação da rota de uma subscrição (`/ric/v1/handles/xapp-subscription-handle`) estoura o prazo do SubMgr: a subscrição volta com `ErrorSource: RTMGR`, "context deadline exceeded" (observado em 2026-11-08 antes de incluí-lo).
+- Fora da receita: Kong, Prometheus, O1, VES, alarmes, InfluxDB e Jaeger.
 - O E2Term SCTP fica em `service-ricplt-e2term-sctp-alpha.ricplt:36422` (NodePort 32222), o endereço padrão do chart do NORI. O kernel do WSL2 (6.6) tem o módulo `sctp`.
-- Verificado em 2026-11-08: 6 pods prontos, E2Term e E2Mgr trocando mensagens RMR, ~200 MB de memória para a plataforma.
+- Verificado em 2026-11-08: 7 pods prontos, rotas distribuídas pelo RtMgr a todos os endpoints (inclusive xApps registradas), ~3,4 GB livres no WSL com RIC, NORI e xApp ativos.
+- API REST de subscrição do SubMgr: porta **8088** (`service-ricplt-submgr-http.ricplt:8088/ric/v1/subscriptions`); a 8080 só responde ao *health check*.
 
 ### 7.3 Bancada NORI
 
@@ -176,15 +178,22 @@ O NORI oficial exige ns-3.42, 5G-LENA `78b7179`, e2sim `da6f82f` e E2AP/E2SM v3.
 ```bash
 helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespace
 kubectl -n ricsim logs -f deploy/nori-ns3                               # preparo e compilação (horas na 1ª vez)
-kubectl -n ricsim exec -it deploy/nori-ns3 -- bash /scripts/run.sh nori-rc-slicing-demo nori_rc_demo_seed1 --seed 1 -- --simTime=10
 ```
 
-Trazer a evidência para o repositório e certificar:
+O exemplo `nori-rc-slicing-demo` instala um FlowMonitor mas nunca o grava. O chart gera, em `scratch/`, a variante `nori-rc-slicing-flowmon`, idêntica ao exemplo exceto por gravar `flowmonitor.xml` ao fim de `Simulator::Run()` (os fontes do NORI ficam intactos; o manifesto registra o sha256 do fonte compilado em `scenario_source`). Execução ao vivo, com o período de relatório E2 alinhado ao da subscrição:
 
 ```bash
-POD=$(kubectl -n ricsim get pod -l app.kubernetes.io/name=nori-ns3 -o jsonpath='{.items[0].metadata.name}')
-kubectl -n ricsim cp "$POD:/workspace/runs/nori_rc_demo_seed1" experiments/runs/nori_rc_demo_seed1
-python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
+kubectl -n ricsim exec -it deploy/nori-ns3 -- bash /scripts/run.sh nori-rc-slicing-flowmon nori_kpm_flowmon_seed1_p1s \
+  --seed 1 -- --simTime=40 --ns3::E2Interface::E2Periodicity=1
+```
+
+O NORI ignora o *Event Trigger* da subscrição e reporta a cada `E2Interface::E2Periodicity` (padrão 0,01 s de tempo simulado: duas Indications, nó e UE, a cada 10 ms). Sem o ajuste, 60 s geram ~12 mil Indications e um PCAP de ~16 MB.
+
+Trazer a evidência para o repositório, recortar os eventos da xApp e dissecar o E2 (Ubuntu do WSL):
+
+```bash
+bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
+python scripts/certification/certify_chain.py
 ```
 
 ### 7.4 Resultado da primeira execução E2 (2026-11-08)
@@ -194,7 +203,50 @@ python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
 - **E2 Setup real concluído.** O NORI enviou o E2-SETUP-REQUEST e recebeu SETUP-RESPONSE-SUCCESS do Near-RT RIC. O PCAP (`raw/e2_sctp.pcap`, 12 pacotes) tem o handshake SCTP (INIT, INIT ACK, COOKIE ECHO, COOKIE ACK), o DATA do gNB com o pedido, o DATA do RIC com PPID 70 (E2AP) e o encerramento SHUTDOWN.
 - O E2Mgr registrou o nó `gnb_268_341_00000001` na R-NIB com três funções RAN: 4 (CCC), 200 (KPM) e 300 (E2SM-RC v3.01, incluindo cota de PRB por fatia).
 - Não houve RIC Subscription, Indication KPM nem Control RC: nenhuma xApp assinou o nó. Esses são os passos dos gates G1 e G3.
-- Certificador: G0 `CERTIFIED` para a pilha NORI (commits conferem com `profile.nori`); a execução é `INCOMPLETE_EVIDENCE` porque os exemplos do NORI não geram FlowMonitor (R9/R10, exigido pela política para `NORI_NS3`) e a dissecação E2AP do PCAP ainda não existe (R11/R12/R14 `NOT_CHECKED`). R7 avisa que o SO do pod (Ubuntu 20.04, base do Dockerfile do NORI) difere da seção genérica `[infrastructure]` do lock.
+- Certificador: G0 `CERTIFIED` para a pilha NORI (commits conferem com `profile.nori`); a execução é `INCOMPLETE_EVIDENCE` porque o exemplo do NORI não grava o FlowMonitor (R9/R10, exigido pela política para `NORI_NS3`). A dissecação posterior (seção 7.6) confirma as duas mensagens E2AP com o tshark (R14 `PASS`). R7 avisa que o SO do pod (Ubuntu 20.04, base do Dockerfile do NORI) difere da seção genérica `[infrastructure]` do lock.
+
+### 7.5 xApp `kpm-probe` (assinatura E2SM-KPM)
+
+O chart [`deploy/helm/xapp-kpm-probe`](../deploy/helm/xapp-kpm-probe/README.md) implanta, sem Docker, uma xApp mínima no namespace `ricxapp`: registra-se no AppMgr, assina E2SM-KPM v3.00 pelo SubMgr em cada nó E2 que fica `CONNECTED` no E2Mgr e registra cada RIC Indication recebida por RMR (tipo, subscription id, tamanho e sha256 do payload) em JSON Lines. O *Event Trigger* (Format 1, 1000 ms) e a *Action Definition* (estilo 1, Format 1) são codificados em APER com `asn1tools` a partir do ASN.1 do próprio NORI, baixado no commit fixado e conferido por sha256. A xApp não decide nada: materializa os elos Subscription e KPM da cadeia.
+
+```bash
+helm upgrade --install kpm-probe deploy/helm/xapp-kpm-probe -n ricxapp
+kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INFO\] sends"
+```
+
+### 7.6 Dissecação E2 do PCAP
+
+[`e2_pcap_dissect.py`](../scripts/certification/e2_pcap_dissect.py) separa o tráfego SCTP de uma execução NORI em mensagens E2AP, classifica cada uma pelo papel (Setup, Subscription, Indication, Control, ACK...) e identifica a cadeia KPM_t0 → Control → ACK → KPM_t1. Dois decodificadores de origens distintas:
+
+1. o próprio script (só biblioteca padrão; não usa o codec da xApp): PCAP, remontagem SCTP e cabeçalho APER do E2AP-PDU com os IEs de identificação;
+2. o `tshark` (Wireshark 4.2.2, gerado do ASN.1 oficial), comparado mensagem a mensagem em tipo de PDU, código de procedimento, RICrequestID e RANfunctionID.
+
+O certificador só aceita a dissecação (R14 `PASS`) quando os dois concordam e o hash do PCAP de origem confere; sem tshark, R14 fica `WARN` e os gates E2 não são certificados. A saída vai para `experiments/e2_dissection/<run_id>/` (o diretório da execução não é alterado): `e2_messages.json` (resumo, papéis da cadeia, resultado do tshark e cruzamento com a xApp), `messages.tsv` (uma linha por mensagem), `messages/*.aper` (bytes das mensagens notáveis), `tshark_fields.tsv` e `hashes.sha256`. Com `experiments/xapp_logs/<run_id>/kpm_probe_events.jsonl`, cada Indication do PCAP é casada por sha256 com as recebidas pela xApp.
+
+O tshark pode ser instalado com `sudo apt-get install -y tshark` ou, sem sudo, extraído do pacote oficial do Ubuntu na mesma versão das bibliotecas do Wireshark já instaladas (é o caminho padrão de `collect_nori_run.sh`):
+
+```bash
+mkdir -p ~/.local/tshark-4.2.2 && cd ~/.local/tshark-4.2.2
+apt-get download tshark=4.2.2-1.1build3
+dpkg-deb -x tshark_4.2.2-1.1build3_amd64.deb root
+root/usr/bin/tshark --version | head -1
+```
+
+### 7.7 Resultado da fase 2: subscrição e Indications KPM reais (2026-11-08)
+
+Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe` ativa:
+
+| Execução | Configuração | Mensagens E2AP | Cadeia identificada | tshark | Indications PCAP ↔ xApp |
+| :-- | :-- | --: | :-- | :-: | :-- |
+| [`nori_kpm_flowmon_seed1`](../experiments/runs/nori_kpm_flowmon_seed1/execution_manifest.json) | 60 s; SubMgr consultado na porta errada (8080) | 2 | E2 Setup | concorda | sem subscrição |
+| [`nori_kpm_flowmon_seed1_r2`](../experiments/runs/nori_kpm_flowmon_seed1_r2/execution_manifest.json) | 60 s; `E2Periodicity` padrão (10 ms) | 11 958 | Setup, Subscription, KPM_t0 | concorda nas 11 958 | 11 954 / 11 954 casadas |
+| [`nori_kpm_flowmon_seed1_p1s`](../experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json) | 40 s; `E2Periodicity=1` | 84 | Setup, Subscription, KPM_t0 | concorda nas 84 | 80 / 80 casadas |
+
+- A subscrição REST foi aceita pelo SubMgr (HTTP 201) e confirmada pelo nó (notificação com `E2EventInstanceId` ≠ 0). O E2Term encaminhou cada Indication à xApp com os mesmos bytes vistos no fio: nenhuma Indication recebida sem par no PCAP, nenhuma do PCAP perdida.
+- RICrequestID atribuído pelo SubMgr: requestor 123, instância igual ao subscription id RMR (2 e 3); RAN function 200 (KPM).
+- Os três FlowMonitor têm 6 fluxos com pacotes recebidos (R9/R10 `PASS`).
+- Certificador: as três execuções são `ELIGIBLE`; **G1 `CERTIFIED`** com `nori_kpm_flowmon_seed1_r2` e `_p1s`. G3 continua `NOT_CERTIFIED`: nenhuma xApp enviou RIC Control (fase 3).
+- Observação: no E2 Setup, o RANfunction-Item da função 4 traz o OID do E2SM-KPM v3 (`1.3.6.1.4.1.53148.1.3.2.2`), embora a descrição CCC do NORI declare `…1.6.2.4`; o dissecador classifica pelo OID do E2AP e a reporta como KPM. A cadeia usa a função da subscrição (200).
 
 ## 8. Implantação da xApp no Kubernetes
 
@@ -203,6 +255,7 @@ python scripts/certification/certify_chain.py --run nori_rc_demo_seed1
 | `deploy/helm/iqos-xapp-rdl` | xApp RDL (portas 4560 RMR, 8080 HTTP, 8081 métricas) |
 | `deploy/helm/xapp-qos-xslice`, `xapp-energy-saving`, `xapp-traffic-steering` | xApps de referência |
 | `deploy/helm/nori-ns3` | bancada NORI |
+| `deploy/helm/xapp-kpm-probe` | xApp de assinatura E2SM-KPM (fase 2) |
 
 ```bash
 helm upgrade --install rdl deploy/helm/iqos-xapp-rdl -n ricxapp --create-namespace

@@ -1,9 +1,12 @@
 # Receita mínima do Near-RT RIC O-RAN SC Release I para a cadeia E2 (KPM -> xApp -> RC).
 # Derivada de ric-dep (branch i-release, commit 0a6f18e) RECIPE_EXAMPLE/example_recipe_oran_i_release.yaml,
 # com as mesmas imagens e tags, mas só com os componentes usados pela cadeia E2:
-#   dbaas (R-NIB/SDL), appmgr (registro de xApps), rtmgr (rotas RMR), e2mgr, e2term (SCTP), submgr.
-# Fora: infrastructure (Kong, Prometheus, tiller do Helm 2), a1mediator, o1mediator, vespamgr,
-# alarmmanager, influxdb e jaegeradapter — não participam da cadeia e não cabem nos 4,5 GB do WSL.
+#   dbaas (R-NIB/SDL), appmgr (registro de xApps), rtmgr (rotas RMR), e2mgr, e2term (SCTP), submgr
+#   e a1mediator. O a1mediator não participa da cadeia E2, mas o rtmgr o tem fixo em
+#   PlatformComponents: sem ele, cada distribuição de rotas espera o timeout do wormhole para o A1 e
+#   a criação da rota de subscrição (xapp-subscription-handle) estoura o prazo do submgr.
+# Fora: infrastructure (Kong, Prometheus, tiller do Helm 2), o1mediator, vespamgr, alarmmanager,
+# influxdb e jaegeradapter — não participam da cadeia e não cabem nos 5 GB do WSL.
 # Implantação: scripts/deploy_ric_i_release.sh
 common:
   releasePrefix: r4
@@ -12,6 +15,15 @@ extsvcplt:
   auxip: "10.0.0.1"
 prometheus:
   enabled: false
+a1mediator:
+  image:
+    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+    name: ric-plt-a1
+    tag: 3.2.2
+  rmr_timeout_config:
+    a1_rcv_retry_times: 20
+    ins_del_no_resp_ttl: 5
+    ins_del_resp_ttl: 10
 appmgr:
   image:
    init:

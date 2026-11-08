@@ -63,6 +63,15 @@ if xmls:
 if pcap_has_packets:
     sources += ["NORI_E2", "E2_PCAP"]
 status = "SUCCESS" if int("$EXIT_CODE") == 0 else "FAILED"
+# Cenário gerado em scratch/ pelo chart: registra o fonte efetivamente compilado.
+scenario_source = None
+scratch = os.path.join("$NS3", "scratch", os.path.basename("$EXAMPLE") + ".cc")
+if os.path.exists(scratch):
+    import hashlib
+    scenario_source = {"path": os.path.relpath(scratch, "$NS3"),
+                       "sha256": hashlib.sha256(open(scratch, "rb").read()).hexdigest(),
+                       "derived_from": "contrib/nori/examples/nori-rc-slicing-demo.cc"
+                       if "nori-rc-slicing" in scratch else None}
 manifest = {
     "run_id": "$RUN_ID",
     "source": sources,
@@ -84,6 +93,7 @@ manifest = {
     "e2term": "${E2TERM_ADDRESS}:${E2TERM_PORT}",
     "e2term_ip": "${E2TERM_IP}",
     "pcap_has_packets": pcap_has_packets,
+    "scenario_source": scenario_source,
     "environment": {"os": info.get("os"), "compiler": info.get("compiler"), "runtime": "kubernetes (k3s) pod"},
     "publication_eligible": status == "SUCCESS" and bool(sources),
 }

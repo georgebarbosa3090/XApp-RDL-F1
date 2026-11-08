@@ -32,7 +32,7 @@ RIC_DEP_COMMIT="0a6f18efda7b20b9d3d9d6bf80a9e0feedddd8e7"   # i-release, "Updati
 CHART_REPO="$ORAN_DIR/chartrepo"
 PORT=8879
 NS=ricplt
-COMPONENTS=(dbaas appmgr rtmgr e2mgr e2term submgr)
+COMPONENTS=(dbaas appmgr rtmgr e2mgr e2term submgr a1mediator)
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
 
 say() { echo "[$(date +%H:%M:%S)] $*"; }

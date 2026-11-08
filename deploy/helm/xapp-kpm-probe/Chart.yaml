@@ -1,0 +1,6 @@
+apiVersion: v2
+name: xapp-kpm-probe
+description: xApp mínima que assina E2SM-KPM v3.00 pelo SubMgr do Near-RT RIC Release I e registra as RIC Indications recebidas por RMR (fase 2 da certificação closed-loop)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
