@@ -1,0 +1,59 @@
+{
+  "schema": "xapp-rdl/slice-capacity-calibration/v1",
+  "run_id": "nori_cal30_seed101",
+  "generated_at_utc": "2026-11-08T19:10:29Z",
+  "generator": "scripts/certification/calibrate_slice_capacity.py",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "min_drop": 0.05
+  },
+  "source_csv": "experiments/runs/nori_cal30_seed101/raw/slice_series.csv",
+  "source_csv_sha256": "4fcb2353904664e099439024b69448c240c84ba171338a9fe4755f97805ca909",
+  "source_dissection_sha256": "32e021f09c38e42a89c4ac523edbb0637bb6629b6888ad0046b37dd362bfb6d3",
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 30,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 30,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "valid": false,
+  "control_sim_time_s": 5.263962496595709,
+  "window_before": [
+    1.2639624965957088,
+    5.263962496595709
+  ],
+  "window_after": [
+    7.263962496595709,
+    11.26396249659571
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 30.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "binding": false
+    },
+    "2": {
+      "cap_max_prb_pct": 30.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "binding": false
+    }
+  },
+  "k_mbps_per_prb_pct": {
+    "1": 5.0496,
+    "2": 5.0496
+  },
+  "reason": "o teto não restringiu todas as fatias: k não mede capacidade por PRB"
+}

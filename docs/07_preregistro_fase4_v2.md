@@ -48,3 +48,19 @@ Constantes da análise: janela de 4 s antes do Control e 4 s depois de 2 s de ac
 - **Limite por UE (~151,5 Mb/s):** pode mascarar ganhos da fatia não restrita; por isso só se exige que ela não perca.
 - **Sinal de congestionamento:** vem do `RRU.PrbUsedDl` do nó, que no NORI fica sempre acima dos PRBs disponíveis.
 - **Tempo real:** a simulação atrasa em relação ao relógio. A conversão do instante do Control usa a série com os dois relógios.
+
+## 7. Resultado (registrado depois das execuções, 2026-11-08)
+
+O pré-registro foi publicado no commit `3962e97`; a xApp rodou o `src/` desse commit.
+
+**Calibração inválida; avaliações não executadas.** Em [`nori_cal30_seed101`](../experiments/runs/nori_cal30_seed101/execution_manifest.json), o Control com teto de 30 % nas duas fatias saiu e foi confirmado (ACK correlacionado em 3,6 ms, tshark de acordo). Mas nenhuma fatia perdeu vazão: as duas ficaram em 151,49 Mb/s nas janelas antes e depois (t_sim do Control = 5,26 s). [`slice_capacity_v2.json`](../experiments/calibration/slice_capacity_v2.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v2_seed1..3` **não foram rodadas**, e a reanálise exploratória da v1 pela regra v2 ficou sem calibração.
+
+**O que os dados sugerem, como hipótese para um próximo desenho (não como conclusão).** As três execuções com cotas, todas a 300 Mb/s por UE:
+
+| Cotas eMBB / URLLC | Soma | Efeito observado |
+| :-- | --: | :-- |
+| 80 / 20 (exploratória) | 100 % | URLLC 151 → ~76 Mb/s; eMBB inalterada |
+| 40 / 60 (v1, decidida pelo H-RDL) | 100 % | nenhuma fatia muda |
+| 30 / 30 (calibração v2) | 60 % | nenhuma fatia muda |
+
+Um modelo linear calibrado no ponto 80/20 (~3,8 Mb/s por ponto percentual de PRB) previa ~115 Mb/s com teto de 30 %. O 30/30 contradiz isso. Os dados combinam com um escalonador que reaproveita os PRBs não usados: o teto só limita quando as cotas somam 100 % e não sobra capacidade para redistribuir. Testar isso exige calibração com cotas complementares (por exemplo, 20/80 e 80/20) e um novo pré-registro.

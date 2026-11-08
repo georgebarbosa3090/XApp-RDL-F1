@@ -9,6 +9,7 @@
 | [03 — Taxonomia de conflitos e cenários](03_taxonomia_de_conflitos_e_cenarios.md) | Tipos de conflito, cenários S0–S15, propostas das xApps por cenário |
 | [04 — Metodologia experimental e resultados](04_metodologia_experimental_e_resultados.md) | Baselines, métricas, proveniência, campanha e resultados |
 | [05 — Conformidade O-RAN e auditoria](05_auditoria_e_conformidade_oran.md) | Versões de especificação, estado de cada interface, gates G0–G6, achados e correções |
+| [07 — Pré-registro da fase 4, desenho v2](07_preregistro_fase4_v2.md) | Hipóteses, calibração, critérios e regras de relato do efeito causal da decisão H-RDL, registrados antes das execuções, e o resultado (calibração inválida) |
 | [23 — Fluxo de mensagens](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) | Diagrama de sequência do ciclo subscrição → decisão → controle → ACK |
 
 ## Referência
