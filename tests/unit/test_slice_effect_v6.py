@@ -1,6 +1,6 @@
 """
 Testes da regra v6 do efeito do Control (scripts/certification/slice_effect.py, pré-registro
-docs/07_preregistro_fase4_v6.md): previsão relativa à vazão antes do Control, com a razão r(teto) da curva
+docs/preregistros/05_fase4_v6.md): previsão relativa à vazão antes do Control, com a razão r(teto) da curva
 interpolada só entre níveis que restringem.
 """
 

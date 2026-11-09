@@ -1,23 +1,42 @@
 # Documentação — xApp RDL (Fase 1: H-RDL)
 
+## Por onde começar
+
+| Se você quer… | Leia |
+| :-- | :-- |
+| entender as peças do projeto, quem fala com quem e por qual protocolo | [01 — Componentes e fluxos](01_componentes_e_fluxos.md) |
+| entender como a H-RDL decide | [02 — Modelo de decisão](02_modelo_de_decisao_h_rdl.md) |
+| saber o que cada cenário testa | [03 — Cenários e conflitos](03_cenarios_e_conflitos.md) |
+| instalar e rodar a bancada | [04 — Instalação e operação](04_instalacao_e_operacao.md) |
+| acompanhar uma execução ao vivo ou rodar uma campanha | [05 — Observabilidade e campanhas](05_observabilidade_e_campanhas.md) |
+| ver os resultados | [06 — Metodologia e resultados](06_metodologia_e_resultados.md) |
+| saber o que está certificado e o que foi corrigido | [07 — Certificação, conformidade e achados](07_certificacao_e_achados.md) |
+| conferir o que foi fixado antes de cada avaliação | [Pré-registros](preregistros/README.md) |
+
 ## Documentos principais
 
-| Documento | Conteúdo |
+| # | Documento | Conteúdo |
+| :-: | :-- | :-- |
+| 01 | [Componentes e fluxos](01_componentes_e_fluxos.md) | O que é simulado, emulado ou real. Quem se registra em quem. Protocolos, portas, tipos de mensagem RMR e identificadores E2. O que cada ação faz em cada pilha. Componentes do NORI. PCAP e tshark. Diagramas de cada fluxo: registro, subscrição, KPM, decisão e Control, efeito, certificação, observabilidade e pilha nativa |
+| 02 | [Modelo de decisão da H-RDL](02_modelo_de_decisao_h_rdl.md) | Modos de operação, entrada de propostas, Safety Guard, percepção, TVS/EEVS, Refinement, parâmetros controláveis, integração E2 da `RDLxApp`, limitações |
+| 03 | [Cenários e conflitos](03_cenarios_e_conflitos.md) | Tipos de conflito, cenários S0–S8 e o que cada um atua na bancada NORI |
+| 04 | [Instalação e operação](04_instalacao_e_operacao.md) | Ambiente, pilha nativa, execução com proveniência, campanhas, certificação, k3s, Near-RT RIC, NORI, xApp `kpm-probe`, dissecação do PCAP, Helm, solução de problemas |
+| 05 | [Observabilidade e campanhas](05_observabilidade_e_campanhas.md) | Painel tmux, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), InfluxDB e Grafana, campanhas NORI e nativa |
+| 06 | [Metodologia e resultados](06_metodologia_e_resultados.md) | Pergunta, desenho, métricas, proveniência, resultados da pilha nativa e da bancada com E2 real (fases 1–4, campanha S0–S8, v6, v7, G5), ameaças à validade |
+| 07 | [Certificação, conformidade e achados](07_certificacao_e_achados.md) | Versões de especificação, estado por interface, gates G0–G6, registro de achados e correções |
+| — | [Pré-registros](preregistros/README.md) | Desenhos v2–v7 da fase 4 e campanha do G5, cada um com o resultado registrado depois |
+
+## Glossário curto
+
+| Termo | Significado |
 | :-- | :-- |
-| [01 — Arquitetura e modelagem](01_arquitetura_e_modelagem.md) | Componentes da xApp, pipeline de decisão, modelos TVS/EEVS, Safety Guard, integração E2 e limitações |
-| [02 — Guia operacional](02_guia_operacional_deploy_e_simulacao.md) | Instalação das pilhas ns-3, execução de cenários, experimentos e campanhas, certificação, implantação Helm, solução de problemas |
-| [03 — Taxonomia de conflitos e cenários](03_taxonomia_de_conflitos_e_cenarios.md) | Tipos de conflito, cenários S0–S8, propostas das xApps por cenário |
-| [04 — Metodologia experimental e resultados](04_metodologia_experimental_e_resultados.md) | Baselines, métricas, proveniência, campanha e resultados |
-| [05 — Conformidade O-RAN e auditoria](05_auditoria_e_conformidade_oran.md) | Versões de especificação, estado de cada interface, gates G0–G6, achados e correções |
-| [07 — Pré-registro da fase 4, desenho v2](07_preregistro_fase4_v2.md) | Hipóteses, calibração, critérios e regras de relato do efeito causal da decisão H-RDL, registrados antes das execuções, e o resultado (calibração inválida) |
-| [07 — Pré-registro da fase 4, desenho v3](07_preregistro_fase4_v3.md) | Calibração por cotas complementares (soma 100 %), hipóteses H4.0–H4.3 e regras de relato, registrados antes das execuções, e o resultado (H4.0 refutada, calibração inválida) |
-| [07 — Pré-registro da fase 4, desenho v4](07_preregistro_fase4_v4.md) | Curva teto → vazão (10–30 %) e previsão por interpolação deixa-um-fora, registrados antes das execuções; resultado (curva inválida pela janela) e o achado do atraso de aplicação do Control |
-| [07 — Pré-registro da fase 4, desenho v5](07_preregistro_fase4_v5.md) | Janela de efeito ancorada no instante de aplicação do Control, curva v4 como calibração e três avaliações prospectivas, registrados antes das avaliações; resultado: as três `CONSISTENT`, G4 certificado, com ressalvas |
-| [07 — Pré-registro da fase 4, desenho v6](07_preregistro_fase4_v6.md) | Efeito da cota relativo à vazão sem restrição (achados 41 e 42), interpolação só entre níveis que restringem, hipóteses H6.1–H6.4 e avaliação em sementes novas (2001–2005), registrados antes das execuções; resultado: 30/30 `CONSISTENT`, H6.4 não testada |
-| [07 — Pré-registro da fase 4, desenho v7](07_preregistro_fase4_v7.md) | Teste da H6.4: a razão da cota com outra vazão de base (banda de 50 MHz, URLLC a ~40 Mb/s no piloto), sementes 4001–4005, registrado antes das execuções; resultado: 30/30 `INCONSISTENT`, H6.4 refutada para mudança de banda (teto em PRBs absolutos) |
-| [07 — Pré-registro da campanha do G5](07_preregistro_g5_campanha_s8.md) | S8 × B0–B3 × sementes 5001–5030 com E2 real: baselines na xApp, critério do G5 no certificador, hipóteses H8.1–H8.3, registrado antes das execuções; resultado: G5 certificado (30 pares), desvios e reposições declarados |
-| [11 — Observabilidade ao vivo e campanhas](11_observabilidade_e_campanhas.md) | Porte dos cenários S0–S8 para a bancada NORI, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), InfluxDB e Grafana com o dashboard das simulações, Rancher opcional, painel tmux, campanhas NORI e nativa, certificação |
-| [23 — Fluxo de mensagens](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) | Diagrama de sequência do ciclo subscrição → decisão → controle → ACK |
+| H-RDL | a camada de decisão da Fase 1: Safety Guard, TVS/EEVS e Refinement |
+| NORI | módulo E2 para o ns-3 + 5G-LENA (`lasseufpa/nori`); na bancada, o gNB simulado fala E2 real com o RIC |
+| KPM_t0 / KPM_t1 | o relatório KPM antes do Control (que dispara a decisão) e o primeiro depois dele |
+| B0–B3 | baselines: sem coordenação, FIFO, prioridade estática e H-RDL |
+| G0–G6 | gates de evidência avaliados pelo certificador |
+| MEID | identificador do nó E2 usado pelo RMR para rotear o Control (`gnb_268_341_00000001` na bancada) |
+| RMR | o roteador de mensagens interno do Near-RT RIC |
 
 ## Referência
 
@@ -26,15 +45,18 @@
 | [`compliance/`](compliance/README.md) | Perfis de compatibilidade, política de evidência, matriz de rastreabilidade, perfil O-RAN SC |
 | [`e2/`](e2/version-matrix.md) | Matriz de versões E2 e fontes das especificações |
 | [`figures/`](figures/README.md) | Figuras e diagramas |
+| [`preregistros/`](preregistros/README.md) | Pré-registros das avaliações |
 
 ## Outros documentos do repositório
 
-- [`../simulations/ns3/README.md`](../simulations/ns3/README.md) — cenários ns-3, atuação na RAN e catálogo de conflitos
-- [`../deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md) — bancada NORI via Helm
-- [`../reproducibility/runbook.md`](../reproducibility/runbook.md) — roteiro de reprodução
-- [`../reference-xapps/README.md`](../reference-xapps/README.md) — xApps que geram as propostas
+- [`../simulations/ns3/README.md`](../simulations/ns3/README.md): cenários ns-3, atuação na RAN e catálogo de conflitos.
+- [`../deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md): bancada NORI via Helm.
+- [`../deploy/helm/xapp-kpm-probe/README.md`](../deploy/helm/xapp-kpm-probe/README.md): xApp da bancada.
+- [`../reproducibility/runbook.md`](../reproducibility/runbook.md): roteiro de reprodução.
+- [`../reference-xapps/README.md`](../reference-xapps/README.md): xApps que geram as propostas.
 
 ## Convenções
 
-- Status de validação só é declarado com evidência: execução em `experiments/runs/` com manifesto e hashes, ou veredito do certificador. Testes unitários comprovam o comportamento do código, não interoperabilidade.
-- Toda mudança de código vem acompanhada da atualização dos documentos afetados no mesmo commit.
+- Status de validação só é declarado com evidência: uma execução em `experiments/runs/` com manifesto e hashes, ou um veredito do certificador. Testes unitários comprovam o comportamento do código, não a interoperabilidade.
+- Toda mudança de código vem acompanhada da atualização dos documentos afetados, no mesmo commit.
+- Os documentos são numerados na ordem de leitura. Rascunhos locais ficam em `docs/local/`, que não vai para o repositório.

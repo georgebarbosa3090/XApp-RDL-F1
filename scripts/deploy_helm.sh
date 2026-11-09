@@ -93,7 +93,7 @@ echo -e "\n${YELLOW}[3/6] Provisionando plataforma Near-RT RIC (namespace ${NAME
 kubectl create namespace ${NAMESPACE_RIC} --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ${NAMESPACE_XAPP} --dry-run=client -o yaml | kubectl apply -f -
 
-# O Near-RT RIC (O-RAN SC Release I) é implantado à parte: bash scripts/deploy_ric_i_release.sh (docs/02, seção 7.2)
+# O Near-RT RIC (O-RAN SC Release I) é implantado à parte: bash scripts/deploy_ric_i_release.sh (docs/04, seção 7.2)
 if ! kubectl get deployment deployment-ricplt-e2term-alpha -n ${NAMESPACE_RIC} >/dev/null 2>&1; then
     echo " -> Near-RT RIC não encontrado em ${NAMESPACE_RIC}: rode antes 'bash scripts/deploy_ric_i_release.sh'" >&2
     exit 3

@@ -44,7 +44,7 @@ kpm:
 # cotas de PRB por fatia (estilo 2, ação 6) e registra o ACK/Failure.
 #   decision: hrdl  -> cotas decididas pelo H-RDL sobre o KPM_t0 (fase 4; decision_source=H_RDL)
 #   decision: catalog -> o H-RDL arbitra as propostas do cenário de conflito (S0–S8) lido de /data/rdl_scenario
-#                        (padrão: scenario); só a cota de PRB no gNB 0 vira Control (docs/11)
+#                        (padrão: scenario); só a cota de PRB no gNB 0 vira Control (docs/05)
 #   decision: fixed -> cotas de sliceQuotas (fase 3; decision_source=FIXED_PROBE)
 rc:
   enabled: true

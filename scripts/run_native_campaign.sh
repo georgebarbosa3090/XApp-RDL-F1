@@ -6,7 +6,7 @@
 # Uso (Ubuntu do WSL):
 #   bash scripts/run_native_campaign.sh                              # S0–S7 × B0–B3 × 1001–1005 (160 execuções)
 #   bash scripts/run_native_campaign.sh --seeds 1001-1002 --jobs 1
-# Pré-requisito: venv com as dependências (docs/02, seção 5.1) em ~/.venvs/xapp-rdl ou em $VENV.
+# Pré-requisito: venv com as dependências (docs/04, seção 5.1) em ~/.venvs/xapp-rdl ou em $VENV.
 # Retomável: execuções concluídas são puladas.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,7 +22,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 # shellcheck disable=SC1091
-source "$VENV/bin/activate" || { echo "venv não encontrado em $VENV (docs/02, seção 5.1)" >&2; exit 3; }
+source "$VENV/bin/activate" || { echo "venv não encontrado em $VENV (docs/04, seção 5.1)" >&2; exit 3; }
 cd "$REPO"
 say() { echo "[$(date +%H:%M:%S)] $*"; }
 say "campanha nativa: cenários [$SCENARIOS] × baselines [$BASELINES] × sementes $SEEDS (jobs $JOBS)"

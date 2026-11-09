@@ -1,5 +1,5 @@
 """
-Disparo da decisão só com o relatório KPM completo do período (achado 48 de docs/05).
+Disparo da decisão só com o relatório KPM completo do período (achado 48 de docs/07).
 
 O NORI envia o KPM de cada período em par: formato 1 (nó) e formato 3 (UEs), com menos de 1 ms entre si, e o
 E2Term pode entregá-los à xApp em qualquer ordem. Uma decisão rápida (os baselines decidem em ~1 ms) disparada

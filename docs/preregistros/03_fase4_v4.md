@@ -63,18 +63,18 @@ Constantes: janela de 4 s antes do Control e 4 s depois de 2 s de acomodação; 
 
 O pré-registro foi publicado no commit `d9e046c`; a xApp rodou o `src/` desse commit.
 
-**Resultado oficial: curva inválida; avaliações não executadas.** As quatro execuções da curva rodaram ao vivo. Em todas, o Control saiu e o ACK voltou correlacionado, e o tshark concordou nas 66 mensagens. Pela regra pré-registrada (janela de 2 s a 6 s depois do Control), nenhum nível restringiu nenhuma fatia, e [`slice_cap_curve_v4.json`](../experiments/calibration/slice_cap_curve_v4.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v4_seed1..3` **não foram rodadas**. Em `nori_curve25_seed304` houve um desvio de procedimento: o pod da xApp foi trocado durante a execução, a subscrição ficou com o pod anterior, e o novo pod só enviou o Control em t_sim = 21,8 s (28 de 60 Indications recebidas).
+**Resultado oficial: curva inválida; avaliações não executadas.** As quatro execuções da curva rodaram ao vivo. Em todas, o Control saiu e o ACK voltou correlacionado, e o tshark concordou nas 66 mensagens. Pela regra pré-registrada (janela de 2 s a 6 s depois do Control), nenhum nível restringiu nenhuma fatia, e [`slice_cap_curve_v4.json`](../../experiments/calibration/slice_cap_curve_v4.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v4_seed1..3` **não foram rodadas**. Em `nori_curve25_seed304` houve um desvio de procedimento: o pod da xApp foi trocado durante a execução, a subscrição ficou com o pod anterior, e o novo pod só enviou o Control em t_sim = 21,8 s (28 de 60 Indications recebidas).
 
 **Análise exploratória (post hoc, fora do pré-registro): a cota funciona, e o efeito atrasa.** Na série inteira de cada execução, a vazão da fatia restrita cai para um patamar estável, mas só a partir de t_sim ≈ 17–19 s, cerca de 12 s simulados depois do Control. O início do efeito coincide, dentro da resolução de 0,5 s, com o tempo de **relógio de parede** decorrido desde o início da simulação no instante em que o Control chegou:
 
 | Execução | Teto da fatia restrita | Control (t_sim) | Relógio de parede decorrido no Control | Início do efeito (t_sim) | Vazão estável depois (t 22–28 s) |
 | :-- | --: | --: | --: | --: | --: |
-| [`nori_curve10_seed301`](../experiments/runs/nori_curve10_seed301/execution_manifest.json) | 10 % (as duas) | 5,70 | 19,30 s | 19,0 | 37,46 Mb/s |
-| [`nori_curve15_seed302`](../experiments/runs/nori_curve15_seed302/execution_manifest.json) | 15 % (as duas) | 5,12 | 17,40 s | 17,0 | 56,25 Mb/s |
-| [`nori_curve20_seed303`](../experiments/runs/nori_curve20_seed303/execution_manifest.json) | 20 % (as duas) | 5,67 | 18,89 s | 18,5 | 76,45 Mb/s |
-| [`nori_cal30_seed101`](../experiments/runs/nori_cal30_seed101/execution_manifest.json) | 30 % (as duas) | 5,26 | 17,28 s | 17,0 | 113,98 Mb/s |
-| [`nori_cal3070_seed201`](../experiments/runs/nori_cal3070_seed201/execution_manifest.json) | 30 % (eMBB) | 5,43 | 18,28 s | 18,0 | 113,98 Mb/s (URLLC 151,49) |
-| [`nori_cal7030_seed202`](../experiments/runs/nori_cal7030_seed202/execution_manifest.json) | 30 % (URLLC) | 5,06 | 18,70 s | 18,5 | 113,98 Mb/s (eMBB 151,49) |
+| [`nori_curve10_seed301`](../../experiments/runs/nori_curve10_seed301/execution_manifest.json) | 10 % (as duas) | 5,70 | 19,30 s | 19,0 | 37,46 Mb/s |
+| [`nori_curve15_seed302`](../../experiments/runs/nori_curve15_seed302/execution_manifest.json) | 15 % (as duas) | 5,12 | 17,40 s | 17,0 | 56,25 Mb/s |
+| [`nori_curve20_seed303`](../../experiments/runs/nori_curve20_seed303/execution_manifest.json) | 20 % (as duas) | 5,67 | 18,89 s | 18,5 | 76,45 Mb/s |
+| [`nori_cal30_seed101`](../../experiments/runs/nori_cal30_seed101/execution_manifest.json) | 30 % (as duas) | 5,26 | 17,28 s | 17,0 | 113,98 Mb/s |
+| [`nori_cal3070_seed201`](../../experiments/runs/nori_cal3070_seed201/execution_manifest.json) | 30 % (eMBB) | 5,43 | 18,28 s | 18,0 | 113,98 Mb/s (URLLC 151,49) |
+| [`nori_cal7030_seed202`](../../experiments/runs/nori_cal7030_seed202/execution_manifest.json) | 30 % (URLLC) | 5,06 | 18,70 s | 18,5 | 113,98 Mb/s (eMBB 151,49) |
 
 - **Mecanismo provável:** o NORI recebe o Control na thread do E2 e o agenda com `Simulator::ScheduleWithContext(MicroSeconds(0), ...)`. No `RealtimeSimulatorImpl`, um evento vindo de outra thread é posicionado pelo relógio de tempo real, que fica 3 a 4 vezes à frente da simulação atrasada pela carga.
 - **Relação teto → vazão:** linear, ~3,75–3,82 Mb/s por ponto percentual de PRB, igual para as duas fatias e independente da soma das cotas. Com teto de 40 %, a previsão (~152 Mb/s) fica acima do limite por UE (151,5 Mb/s), o que é coerente com a v1: o Control dela chegou com 26,3 s de relógio decorrido, e a partir de t_sim ≈ 26 s a série continua em 151,5 Mb/s até o fim (29,5 s).

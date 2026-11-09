@@ -185,7 +185,7 @@ def compare_with_lock(manifest: Dict[str, Any], profile: Dict[str, str], profile
     return PASS, f"[{profile_name}] versões e commits conferem{suffix}"
 
 
-# Geradores sintéticos já removidos do repositório (achado 45 de docs/05): os run_id que produziam continuam
+# Geradores sintéticos já removidos do repositório (achado 45 de docs/07): os run_id que produziam continuam
 # sinalizados, para o caso de essas execuções voltarem de uma cópia antiga.
 REMOVED_SYNTHETIC_GENERATORS: List[Tuple[str, str]] = [
     ("scripts/run_b0_b6_campaign_30seeds.py (removido)", r"^S1_B[0-6]_seed[0-9]+$"),
@@ -424,7 +424,7 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
 
 
 
-# Regra do efeito no G4. A v6 (previsão relativa, docs/07_preregistro_fase4_v6.md) foi adotada depois de confirmada
+# Regra do efeito no G4. A v6 (previsão relativa, docs/preregistros/05_fase4_v6.md) foi adotada depois de confirmada
 # nas avaliações pré-registradas, sem efeito retroativo: vale só para execuções iniciadas depois do commit do
 # pré-registro v6 (4af88dc) e que tenham o slice_effect_v6.json gravado na coleta. As anteriores seguem com a regra
 # que valia quando rodaram (slice_effect.json: v5, v4 ou v2).
@@ -679,7 +679,7 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
         g4_reason = "nenhuma cadeia closed-loop elegível (fixtures e execuções sintéticas não contam)"
     gates["G4"] = {"verdict": (CERTIFIED if g4_ok else NOT_CERTIFIED) if gates["G3"]["verdict"] == CERTIFIED else BLOCKED,
                    "reason": g4_reason}
-    # G5 (docs/05): campanha com E2 real, >= 30 sementes pareadas por baseline B0–B3, com o Control decidido
+    # G5 (docs/07): campanha com E2 real, >= 30 sementes pareadas por baseline B0–B3, com o Control decidido
     # por cada baseline. Conta só execuções com a cadeia E2 completa no PCAP e cuja fonte da decisão registrada
     # pela xApp corresponde ao baseline do manifesto; o par é (cenário, semente) presente nos quatro baselines.
     g5_units = g5_paired_units(complete, decision)

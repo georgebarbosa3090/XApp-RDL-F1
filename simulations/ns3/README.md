@@ -9,7 +9,7 @@ Cenários C++ usados para avaliar a xApp RDL (H-RDL). Um cenário existir ou com
 | Nativa | ns-3.48 (`d2add90`) + 5G-LENA v5.1 (`cedcead`) | `NS3_5GLENA` | cenários de conflito S0–S7; **sem E2** |
 | NORI | ns-3.42 (`ab4cce0`) + nr `78b7179` + NORI `8a30867` | `NORI_NS3` | E2 real e closed loop (S8), via Helm em [`deploy/helm/nori-ns3`](../../deploy/helm/nori-ns3/README.md) |
 
-O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separadas. A instalação da pilha nativa está no [guia operacional](../../docs/02_guia_operacional_deploy_e_simulacao.md). O `scripts/setup_ns3.sh` legado pode instalar outras versões e não deve ser usado para gerar evidência.
+O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separadas. A instalação da pilha nativa está no [guia operacional](../../docs/04_instalacao_e_operacao.md). O `scripts/setup_ns3.sh` legado pode instalar outras versões e não deve ser usado para gerar evidência.
 
 ## 2. Cenários da Fase 1
 
@@ -25,7 +25,7 @@ O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separa
 | S7 | injeção de falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | propostas fora dos limites físicos |
 | S8 | closed loop com NORI | — (só na bancada NORI: variante `nori-rc-slicing-flowmon`, `bash scripts/run_nori_scenario.sh S8 <semente>`) | xslice × embb_throughput disputam a cota de PRB; o H-RDL decide sobre o KPM real e o RIC Control E2SM-RC altera a RAN |
 
-As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). Os cenários S0–S8 também rodam na bancada NORI com a cadeia E2 real (só a cota de PRB no gNB 0 é atuável lá); ver [docs/11](../../docs/11_observabilidade_e_campanhas.md).
+As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). Os cenários S0–S8 também rodam na bancada NORI com a cadeia E2 real (só a cota de PRB no gNB 0 é atuável lá); ver [docs/05](../../docs/05_observabilidade_e_campanhas.md).
 
 ## 3. Atuação na RAN
 
@@ -96,8 +96,8 @@ Cada execução fica em `experiments/runs/<run_id>/` com `execution_manifest.jso
 - A percepção agrupa conflitos por gNB: conflitos **entre células** (S4, S5) não são detectados.
 - Não há E2 nem closed loop na pilha nativa.
 
-Resultados: [`docs/04_metodologia_experimental_e_resultados.md`](../../docs/04_metodologia_experimental_e_resultados.md).
+Resultados: [`docs/06_metodologia_e_resultados.md`](../../docs/06_metodologia_e_resultados.md).
 
 ## 8. Arquivos removidos
 
-Os esboços S9–S15, os cenários exploratórios 5G-Advanced/6G e os roteiros legados `run_all_s0_s15_simulations.sh` e `run_b0_b6_campaign_30seeds.sh` (sem manifesto, com `git commit`/`git push` automáticos) foram removidos em 2026-11-09 (achado 45 de docs/05). As execuções vêm só de `scripts/certification/run_conflict_experiment.py` (pilha nativa) e `scripts/run_nori_scenario.sh` (bancada NORI).
+Os esboços S9–S15, os cenários exploratórios 5G-Advanced/6G e os roteiros legados `run_all_s0_s15_simulations.sh` e `run_b0_b6_campaign_30seeds.sh` (sem manifesto, com `git commit`/`git push` automáticos) foram removidos em 2026-11-09 (achado 45 de docs/07). As execuções vêm só de `scripts/certification/run_conflict_experiment.py` (pilha nativa) e `scripts/run_nori_scenario.sh` (bancada NORI).

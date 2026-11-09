@@ -4,13 +4,13 @@ Registrado em 2026-11-09, **antes** das execuções de avaliação descritas aqu
 
 ## 1. Contexto
 
-O desenho v6 ([pré-registro](07_preregistro_fase4_v6.md)) confirmou a regra relativa nas sementes 2001–2005: previsão = vazão_antes × r(teto). Ficou sem testar a H6.4: a razão r(teto) não depende da vazão de base. Nenhuma semente nova mudou a vazão de base. A única evidência continua exploratória: a semente 1005 deu, por acaso, 75,74 Mb/s para os dois UEs, e as razões coincidiram.
+O desenho v6 ([pré-registro](05_fase4_v6.md)) confirmou a regra relativa nas sementes 2001–2005: previsão = vazão_antes × r(teto). Ficou sem testar a H6.4: a razão r(teto) não depende da vazão de base. Nenhuma semente nova mudou a vazão de base. A única evidência continua exploratória: a semente 1005 deu, por acaso, 75,74 Mb/s para os dois UEs, e as razões coincidiram.
 
 Este desenho muda a vazão de base **de propósito**. Em vez de esperar que uma semente a altere, ele reduz a banda da portadora.
 
 ## 2. Piloto (registrado antes deste documento, sem Control)
 
-Para escolher a condição, rodei um piloto que não envia Control: o S3, cuja decisão não é atuável no NORI. Ele usou banda de 50 MHz e a semente 3901, que não pertence a nenhuma faixa de avaliação. A execução é [`nori_S3_B3_bw50_seed3901`](../experiments/runs/nori_S3_B3_bw50_seed3901/execution_manifest.json). O piloto mede só a vazão de base, e nenhum efeito de cota foi visto.
+Para escolher a condição, rodei um piloto que não envia Control: o S3, cuja decisão não é atuável no NORI. Ele usou banda de 50 MHz e a semente 3901, que não pertence a nenhuma faixa de avaliação. A execução é [`nori_S3_B3_bw50_seed3901`](../../experiments/runs/nori_S3_B3_bw50_seed3901/execution_manifest.json). O piloto mede só a vazão de base, e nenhum efeito de cota foi visto.
 
 | Condição | eMBB (UE 0, 20 m) | URLLC (UE 1, 40 m) |
 | :-- | --: | --: |
@@ -22,7 +22,7 @@ Com 50 MHz, só a URLLC muda: a vazão de base cai 74 %, estável do segundo 4 a
 ## 3. Desenho v7
 
 - **Condição:** `--bandwidth=50e6`; o resto é igual à v6: `--simTime=40 --ns3::E2Interface::E2Periodicity=1 --trafficRate=300Mb/s`, a xApp kpm-probe em modo `catalog` e a decisão na 12.ª Indication.
-- **Regra:** `v6-ratio-apply`, **sem nenhuma alteração**. Mesma curva v5 ([`slice_cap_curve_v5.json`](../experiments/calibration/slice_cap_curve_v5.json), medida a 100 MHz), mesmas razões r(teto), mesmas janelas e tolerância de 10 %. A regra v5 (Mb/s absolutos) também é registrada, lado a lado.
+- **Regra:** `v6-ratio-apply`, **sem nenhuma alteração**. Mesma curva v5 ([`slice_cap_curve_v5.json`](../../experiments/calibration/slice_cap_curve_v5.json), medida a 100 MHz), mesmas razões r(teto), mesmas janelas e tolerância de 10 %. A regra v5 (Mb/s absolutos) também é registrada, lado a lado.
 - **Avaliação:** cenários S0, S1, S2, S6, S7 e S8 × sementes **4001, 4002, 4003, 4004 e 4005**, nunca rodadas: 30 execuções, com `run_id` `nori_<S>_B3_bw50_seed<N>`.
 
   Previsões fixadas agora para a URLLC (base ≈ 40 Mb/s, pelo piloto). A previsão efetiva usa a vazão antes medida em cada execução.
@@ -73,7 +73,7 @@ Com 50 MHz, só a URLLC muda: a vazão de base cai 74 %, estável do segundo 4 a
 
 ## 8. Resultado (registrado depois das execuções, 2026-11-09)
 
-O pré-registro foi publicado no commit `b7da55e`. A xApp kpm-probe foi implantada a partir desse commit, em modo `catalog`, e rodou o `src/` dele nas 30 avaliações. Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T062838Z.md`](../reports/nori/resumo_campanha_nori_20261109T062838Z.md) e certificado `reports/certification/certificate_20261109T062838Z.md`.
+O pré-registro foi publicado no commit `b7da55e`. A xApp kpm-probe foi implantada a partir desse commit, em modo `catalog`, e rodou o `src/` dele nas 30 avaliações. Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T062838Z.md`](../../reports/nori/resumo_campanha_nori_20261109T062838Z.md) e certificado `reports/certification/certificate_20261109T062838Z.md`.
 
 **H7.2 (= H6.4) refutada: as 30 avaliações saíram `INCONSISTENT` pela regra v6.** A vazão depois do Control foi a mesma nas cinco sementes de cada cenário:
 

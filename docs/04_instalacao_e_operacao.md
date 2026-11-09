@@ -1,6 +1,6 @@
-# 02 — Guia operacional
+# 04 — Instalação e operação
 
-Como preparar o ambiente, executar cenários e experimentos, rodar campanhas, certificar a evidência e implantar a bancada NORI. Os comandos foram usados neste projeto em Windows 11 com WSL2 (Ubuntu 24.04).
+Como preparar o ambiente, executar cenários e experimentos, rodar campanhas, certificar a evidência e implantar a bancada NORI. O que cada componente faz e como eles se registram está em [01](01_componentes_e_fluxos.md); os resultados, em [06](06_metodologia_e_resultados.md). Os comandos foram usados neste projeto em Windows 11 com WSL2 (Ubuntu 24.04).
 
 ## 1. Ambiente
 
@@ -130,7 +130,7 @@ python scripts/certification/generate_campaign_report.py   # reports/conflicts/r
 
 O relatório da campanha ([`generate_campaign_report.py`](../scripts/certification/generate_campaign_report.py)) é gerado só a partir da análise, dos manifestos, do catálogo e do certificado: hipóteses e critérios, comandos de execução, ambiente, resultados agregados, uma tabela por semente com todas as métricas, diferenças pareadas B3 − Bx, cronogramas idênticos entre baselines, avaliação das hipóteses, conclusões, ameaças à validade, falhas preservadas e o comando ns-3 de cada execução.
 
-O certificador avalia cada execução contra [`reproducibility/provenance_policy.yaml`](../reproducibility/provenance_policy.yaml) e [`reproducibility/versions.lock`](../reproducibility/versions.lock) e emite os vereditos G0–G6. A análise considera só execuções elegíveis no certificador. Critérios em [`05_auditoria_e_conformidade_oran.md`](05_auditoria_e_conformidade_oran.md).
+O certificador avalia cada execução contra [`reproducibility/provenance_policy.yaml`](../reproducibility/provenance_policy.yaml) e [`reproducibility/versions.lock`](../reproducibility/versions.lock) e emite os vereditos G0–G6. A análise considera só execuções elegíveis no certificador. Critérios em [`07_certificacao_e_achados.md`](07_certificacao_e_achados.md).
 
 Evidências e relatórios não guardam caminhos locais. O executor ns-3, o dissecador e o relatório da campanha gravam a raiz do clone como `<repo>` e o HOME como `~`. Para conferir o repositório inteiro:
 
@@ -141,7 +141,7 @@ python scripts/certification/redact_local_paths.py --apply    # redige, recalcul
 
 Validadores mais antigos, complementares: `scripts/validate_provenance.py`, `scripts/verify_provenance_and_integrity.py`, `scripts/validate_experiment_tree.py --check-gate1`, `scripts/check_no_synthetic_results.py`.
 
-## 7. Pilha NORI via Helm (E2 real)
+## 7. Bancada E2 real: Near-RT RIC, NORI e xApp
 
 ### 7.1 k3s nativo
 
@@ -187,7 +187,7 @@ helm upgrade --install nori-ns3 deploy/helm/nori-ns3 -n ricsim --create-namespac
 kubectl -n ricsim logs -f deploy/nori-ns3                               # preparo e compilação (horas na 1ª vez)
 ```
 
-O chart aplica os patches do projeto sobre o NORI listados no `versions.lock` (hoje um: [`0001-rc-control-ack.patch`](../deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), que faz a função E2SM-RC responder ao RIC Control com ACK; ver seção 7.8) e recompila incrementalmente; `BUILD_INFO.json` e cada manifesto registram `nori_patches`.
+O chart aplica os patches do projeto sobre o NORI listados no `versions.lock` (hoje um: [`0001-rc-control-ack.patch`](../deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), que faz a função E2SM-RC responder ao RIC Control com ACK; ver [06 §5.3](06_metodologia_e_resultados.md#53-fase-3-ric-control-e2sm-rc-com-ack-2026-11-08)) e recompila incrementalmente; `BUILD_INFO.json` e cada manifesto registram `nori_patches`.
 
 O exemplo `nori-rc-slicing-demo` instala um FlowMonitor mas nunca o grava. O chart gera, em `scratch/`, a variante `nori-rc-slicing-flowmon`, idêntica ao exemplo exceto por gravar `flowmonitor.xml` ao fim de `Simulator::Run()` (os fontes do NORI ficam intactos; o manifesto registra o sha256 do fonte compilado em `scenario_source`). Execução ao vivo, com o período de relatório E2 alinhado ao da subscrição:
 
@@ -205,16 +205,7 @@ bash scripts/collect_nori_run.sh nori_kpm_flowmon_seed1_p1s
 python scripts/certification/certify_chain.py
 ```
 
-### 7.4 Resultado da primeira execução E2 (2026-11-08)
-
-[`experiments/runs/nori_rc_demo_seed1`](../experiments/runs/nori_rc_demo_seed1/execution_manifest.json): `nori-rc-slicing-demo`, semente 1, 10 s em tempo real, contra o E2Term da Release I.
-
-- **E2 Setup real concluído.** O NORI enviou o E2-SETUP-REQUEST e recebeu SETUP-RESPONSE-SUCCESS do Near-RT RIC. O PCAP (`raw/e2_sctp.pcap`, 12 pacotes) tem o handshake SCTP (INIT, INIT ACK, COOKIE ECHO, COOKIE ACK), o DATA do gNB com o pedido, o DATA do RIC com PPID 70 (E2AP) e o encerramento SHUTDOWN.
-- O E2Mgr registrou o nó `gnb_268_341_00000001` na R-NIB com três funções RAN: 4 (CCC), 200 (KPM) e 300 (E2SM-RC v3.01, incluindo cota de PRB por fatia).
-- Não houve RIC Subscription, Indication KPM nem Control RC: nenhuma xApp assinou o nó. Esses são os passos dos gates G1 e G3.
-- Certificador: G0 `CERTIFIED` para a pilha NORI (commits conferem com `profile.nori`); a execução é `INCOMPLETE_EVIDENCE` porque o exemplo do NORI não grava o FlowMonitor (R9/R10, exigido pela política para `NORI_NS3`). A dissecação posterior (seção 7.6) confirma as duas mensagens E2AP com o tshark (R14 `PASS`). R7 avisa que o SO do pod (Ubuntu 20.04, base do Dockerfile do NORI) difere da seção genérica `[infrastructure]` do lock.
-
-### 7.5 xApp `kpm-probe` (assinatura E2SM-KPM)
+### 7.4 xApp `kpm-probe` (assinatura E2SM-KPM)
 
 O chart [`deploy/helm/xapp-kpm-probe`](../deploy/helm/xapp-kpm-probe/README.md) implanta, sem Docker, uma xApp mínima no namespace `ricxapp`: registra-se no AppMgr, assina E2SM-KPM v3.00 pelo SubMgr em cada nó E2 que fica `CONNECTED` no E2Mgr e registra cada RIC Indication recebida por RMR (tipo, subscription id, tamanho e sha256 do payload) em JSON Lines. O *Event Trigger* (Format 1, 1000 ms) e a *Action Definition* (estilo 1, Format 1) são codificados em APER com `asn1tools` a partir do ASN.1 do próprio NORI, baixado no commit fixado e conferido por sha256. A xApp não decide nada: materializa os elos Subscription e KPM da cadeia.
 
@@ -227,7 +218,7 @@ O script gera o pacote do `src/` com `git archive` do commit atual e o passa ao 
 
 Desde a fase 3, a xApp também envia, depois da N-ésima Indication de cada conexão (`rc.afterIndications`), um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. Com `rc.decision: hrdl` (fase 4, padrão) as cotas são decididas pelo H-RDL sobre o KPM_t0 (`decision_source: H_RDL`); com `rc.decision: fixed`, vêm de `rc.sliceQuotas` (`FIXED_PROBE`).
 
-### 7.6 Dissecação E2 do PCAP
+### 7.5 Dissecação E2 do PCAP
 
 [`e2_pcap_dissect.py`](../scripts/certification/e2_pcap_dissect.py) separa o tráfego SCTP de uma execução NORI em mensagens E2AP, classifica cada uma pelo papel (Setup, Subscription, Indication, Control, ACK...) e identifica a cadeia KPM_t0 → Control → ACK → KPM_t1. Dois decodificadores de origens distintas:
 
@@ -245,76 +236,9 @@ dpkg-deb -x tshark_4.2.2-1.1build3_amd64.deb root
 root/usr/bin/tshark --version | head -1
 ```
 
-### 7.7 Resultado da fase 2: subscrição e Indications KPM reais (2026-11-08)
+### 7.6 Cenários de conflito S0–S8 na bancada NORI e observabilidade ao vivo
 
-Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe` ativa:
-
-| Execução | Configuração | Mensagens E2AP | Cadeia identificada | tshark | Indications PCAP ↔ xApp |
-| :-- | :-- | --: | :-- | :-: | :-- |
-| [`nori_kpm_flowmon_seed1`](../experiments/runs/nori_kpm_flowmon_seed1/execution_manifest.json) | 60 s; SubMgr consultado na porta errada (8080) | 2 | E2 Setup | concorda | sem subscrição |
-| [`nori_kpm_flowmon_seed1_r2`](../experiments/runs/nori_kpm_flowmon_seed1_r2/execution_manifest.json) | 60 s; `E2Periodicity` padrão (10 ms) | 11 958 | Setup, Subscription, KPM_t0 | concorda nas 11 958 | 11 954 / 11 954 casadas |
-| [`nori_kpm_flowmon_seed1_p1s`](../experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json) | 40 s; `E2Periodicity=1` | 84 | Setup, Subscription, KPM_t0 | concorda nas 84 | 80 / 80 casadas |
-
-- A subscrição REST foi aceita pelo SubMgr (HTTP 201) e confirmada pelo nó (notificação com `E2EventInstanceId` ≠ 0). O E2Term encaminhou cada Indication à xApp com os mesmos bytes vistos no fio: nenhuma Indication recebida sem par no PCAP, nenhuma do PCAP perdida.
-- RICrequestID atribuído pelo SubMgr: requestor 123, instância igual ao subscription id RMR (2 e 3); RAN function 200 (KPM).
-- Os três FlowMonitor têm 6 fluxos com pacotes recebidos (R9/R10 `PASS`).
-- Certificador: as três execuções são `ELIGIBLE`; **G1 `CERTIFIED`** com `nori_kpm_flowmon_seed1_r2` e `_p1s`. G3 continua `NOT_CERTIFIED`: nenhuma xApp enviou RIC Control (fase 3).
-- Observação: no E2 Setup, o RANfunction-Item da função 4 traz o OID do E2SM-KPM v3 (`1.3.6.1.4.1.53148.1.3.2.2`), embora a descrição CCC do NORI declare `…1.6.2.4`; o dissecador classifica pelo OID do E2AP e a reporta como KPM. A cadeia usa a função da subscrição (200).
-
-### 7.8 Resultado da fase 3: RIC Control E2SM-RC com ACK (2026-11-08)
-
-**Achado que motivou o patch.** O NORI `8a30867` aplica o RIC Control da função 300 (E2SM-RC: cotas de PRB por fatia no escalonador `NrRLMacSchedulerOfdma`), mas nunca responde com RIC Control Acknowledge; só a função 4 (E2SM-CCC, JSON) confirma. Sem ACK, o G3 é impossível. Por decisão registrada, o chart aplica [`0001-rc-control-ack.patch`](../deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch): a função 300 passa a enviar `RICcontrolAcknowledge` com o RICrequestID e o RANfunctionID do pedido, com o código que o próprio NORI usa na CCC, e só depois de decodificar ao menos uma cota. O patch e seu sha256 estão no `versions.lock`; o certificador (R6) recusa patches fora da lista. **A bancada que certifica G3 é, portanto, um NORI modificado.**
-
-**Codec v3.01.** [`src/e2/v3/codec.py`](../src/e2/v3/codec.py): E2AP v03.01 em APER escrito à mão (RIC Control Request e leitura de Acknowledge/Failure, IEs na ordem do ASN.1) e E2SM-KPM v03.00 / E2SM-RC v03.01 com `asn1tools` sobre o ASN.1 do NORI (download conferido por sha256). O Control segue o que o NORI decodifica (`model/ric-control-message.cc`): Control Header Format 1 (estilo 2, ação 6) e Control Message Format 1 com o parâmetro 1 (lista de políticas) contendo, por fatia, 3 = SST, 4 = PRB máximo, 5 = PRB mínimo e 6 = PRB dedicado.
-
-[`nori_rc_control_seed1`](../experiments/runs/nori_rc_control_seed1/execution_manifest.json) (`nori-rc-slicing-flowmon`, 40 s, `E2Periodicity=1`, NORI com o patch, xApp com cotas eMBB 70/10/5 % e URLLC 30/10/5 %):
-
-| # | Mensagem | Direção | IDs | Evidência |
-| --: | :-- | :-- | :-- | :-- |
-| 2 | E2 Setup Response | RIC → nó | transação 1 | PCAP + tshark |
-| 4 | Subscription Response | nó → RIC | 123/4, função 200 | PCAP + tshark |
-| 8 | Indication (KPM_t0) | nó → RIC | 123/4, função 200 | PCAP + tshark; mesmo sha256 recebido pela xApp, que a usou para disparar o Control |
-| 9 | RIC Control Request | RIC → nó | 1003/1, função 300 | PCAP + tshark; mesmos bytes enviados pela xApp |
-| 10 | RIC Control Acknowledge | nó → RIC | 1003/1, função 300 | PCAP + tshark; recebido pela xApp 1,9 ms após o envio, correlacionado |
-| 11 | Indication (KPM_t1) | nó → RIC | 123/4, função 200 | PCAP + tshark |
-
-- 86 mensagens E2AP; o tshark concorda com o dissecador nas 86; as 80 Indications do PCAP chegaram à xApp com os mesmos bytes.
-- Certificador: execução `ELIGIBLE` (R6 aceita o patch do lock); **G3 `CERTIFIED`**. **G4 `NOT_CERTIFIED`**: a cadeia está completa no fio, mas o Control registrado pela xApp tem `decision_source=FIXED_PROBE`; G4 exige uma decisão do H-RDL disparada pelo KPM_t0.
-- O tshark 4.2 só conhece o OID E2SM-RC `…53148.1.1.2.3`; o NORI anuncia o RC v3 como `…1.3.2.3`, e o tshark cai no dissector KPM (aviso "Dissector version mismatch"). A confirmação independente cobre o E2AP do Control e do ACK; o conteúdo E2SM-RC é conferido pelo codec (ida e volta, testes) e pelo decodificador asn1c do NORI (o ACK só sai depois de decodificar cotas).
-- Efeito: a vazão por fatia não mudou depois do Control (~102,7 Mbps nas duas). Cada UE pede 100 Mb/s e a célula de 100 MHz não satura, então um teto de 30 % de PRB ainda atende o URLLC. Demonstrar efeito causal (fase 4) exige cotas que restrinjam a carga ou carga maior.
-- O perfil `optimized` compila sem `NS_LOG`: os logs de aplicação de cota e de envio do ACK não aparecem no `stdout.log`; a evidência é o PCAP.
-
-### 7.9 Resultado da fase 4: decisão H-RDL sobre o KPM_t0 e efeito na RAN (2026-11-08)
-
-**Desenho (fixado antes da execução).**
-
-- **Decisão:** [`src/closed_loop/hrdl_slice_loop.py`](../src/closed_loop/hrdl_slice_loop.py). O KPM_t0 decodificado ([`src/e2/v3/codec.py`](../src/e2/v3/codec.py)) vira estado: congestionamento quando `RRU.PrbUsedDl ≥ 95 %` de `RRU.PrbAvailDl` no nó, e a fatia de cada UE por `DRB.NetworkSlicing.SST`. Sob congestionamento, com as duas fatias presentes, duas políticas de referência propõem `PRB_QUOTA` (teto % da eMBB; a URLLC recebe o complemento): `xapp-qos-xslice` (prioridade 90) propõe 40, `xapp-embb-throughput` (prioridade 60) propõe 80. O conflito vai ao pipeline real da xApp RDL (`RDLxApp._process_action_group`: Safety Guard, Perception, Reasoning TVS/EEVS, Refinement), o mesmo do B3 na campanha.
-- **Entrega:** a xApp `kpm-probe` recebe o `src/` do commit `b48473d` ([`scripts/deploy_kpm_probe.sh`](../scripts/deploy_kpm_probe.sh)), decide dentro do pod e envia o Control com as cotas vencedoras.
-- **Efeito:** [`scripts/certification/slice_effect.py`](../scripts/certification/slice_effect.py). O KPM do NORI não mede vazão por UE, então o efeito é medido na série do FlowMonitor por fatia (`raw/slice_series.csv`, gravada pela variante a cada 0,5 s com tempo simulado e relógio de parede). O instante do Control no PCAP é convertido em tempo simulado; as cotas vêm dos bytes do Control no PCAP. Janelas de 4 s antes e 4 s depois de 2 s de acomodação. Uma fatia com teto abaixo da sua parte da vazão (margem de 5 p.p.) deve perder ao menos 5 %; as demais não podem perder mais que 5 %. O certificador só aceita G4 com veredito `CONSISTENT` e hashes de origem conferidos.
-
-[`nori_hrdl_loop_seed1`](../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json) (`nori-rc-slicing-flowmon`, 30 s, `E2Periodicity=1`, 300 Mb/s por UE, Control depois da 12.ª Indication):
-
-| Elo | Evidência |
-| :-- | :-- |
-| KPM_t0 (#18) | PRB usados 236 / disponíveis 139 (congestionada); UE 1 em SST 1, UE 2 em SST 2 |
-| Decisão H-RDL | conflito DIRECT entre as duas propostas; TVS escolheu `xapp-qos-xslice` (confiança 0,92) em 1,3 ms; cotas eMBB 40 % / URLLC 60 % |
-| RIC Control (#19) | RICrequestID 1003/1, função 300; bytes iguais ao registro da xApp; disparado pelo KPM_t0 |
-| ACK (#20) | correlacionado, recebido pela xApp em 14,8 ms (inclui a decisão) |
-| KPM_t1 (#21) | presente |
-| Efeito (t_sim do Control = 7,12 s) | eMBB 151,49 → 151,49 Mb/s (esperado: queda ≥ 5 %, **não cumprido**); URLLC 151,49 → 151,49 Mb/s (sem queda, cumprido) |
-
-- 64 mensagens E2AP; o tshark concorda nas 64. A xApp recebeu 56 das 58 Indications: as duas primeiras saíram no mesmo milissegundo da resposta da subscrição, antes de a rota até a xApp existir no E2Term.
-- Certificador: execução `ELIGIBLE`; G1 e G3 `CERTIFIED`; **G4 `NOT_CERTIFIED`**, efeito `INCONSISTENT`.
-- **Por que o efeito não apareceu.** A vazão de cada UE para em 151,49 Mb/s em qualquer carga acima disso; a perda de 50 % vem desse teto por UE, não da disputa por PRB. A execução exploratória [`nori_rc_effect_load300_seed1`](../experiments/runs/nori_rc_effect_load300_seed1/execution_manifest.json) (cotas fixas 80/20, mesma carga) dá a escala: com teto de 20 %, a URLLC caiu para ~76,5 Mb/s, cerca de 3,8 Mb/s por ponto percentual de PRB; logo, os 151,5 Mb/s de cada UE correspondem a ~40 % dos PRBs. O teto de 40 % da eMBB ficou em cima do que ela já usava e não restringiu nada. O erro está na expectativa pré-registrada, que tomou a parte da vazão (50/50) como parte dos PRBs. As políticas e a regra não foram reajustadas depois de ver o resultado.
-- **Desenho v2** ([pré-registro](07_preregistro_fase4_v2.md), commit `3962e97`): a calibração [`nori_cal30_seed101`](../experiments/runs/nori_cal30_seed101/execution_manifest.json) (teto de 30 % nas duas fatias) saiu inválida, porque nenhuma fatia perdeu vazão. Por isso as avaliações v2 não foram rodadas, como o pré-registro determina. Os dados sugeriam que o teto só limitaria com cotas somando 100 %.
-- **Desenho v3** ([pré-registro](07_preregistro_fase4_v3.md), commit `7ded3b2`): calibrações com cotas complementares, [`nori_cal3070_seed201`](../experiments/runs/nori_cal3070_seed201/execution_manifest.json) e [`nori_cal7030_seed202`](../experiments/runs/nori_cal7030_seed202/execution_manifest.json). Um teto de 30 % não restringiu nenhuma das fatias, mesmo com soma 100 %. A hipótese da soma foi refutada, a calibração saiu inválida e as avaliações não foram rodadas. O único efeito observado continua sendo a URLLC a 20 %; a relação teto → vazão é não linear (ver o pré-registro v3, seção 7).
-- **Desenho v4** ([pré-registro](07_preregistro_fase4_v4.md), commit `d9e046c`): a curva com a janela pré-registrada saiu inválida, e as avaliações não foram rodadas. A análise exploratória da série inteira mostrou que **a cota funciona e é linear** (~3,8 Mb/s por ponto percentual de PRB: 10 % → 37,5; 15 % → 56,2; 20 % → 76,5; 30 % → 114,0 Mb/s). O efeito começa quando o tempo simulado alcança o relógio de parede do instante do Control (~12 s simulados depois), porque o NORI agenda o Control a partir da thread do E2 no simulador em tempo real. Os nulos da v1 a v3 vieram da janela de análise.
-- **Desenho v5** ([pré-registro](07_preregistro_fase4_v5.md), commit `6bb7773`): janela ancorada no instante de aplicação do Control. Nas três avaliações (`nori_hrdl_v5_seed1..3`, 40 s), o H-RDL decidiu 80/20 sobre o KPM_t0; a URLLC caiu de 151,49 para 76,44–76,45 Mb/s (previsão 75,49, erro de 1,3 %) e a eMBB não mudou. As três foram `CONSISTENT`, e o **G4 foi certificado**. Ressalvas na seção 7 do pré-registro.
-- Limitações do sensor KPM do NORI usadas na decisão: `RRU.PrbUsedDl` do nó passa dos PRBs disponíveis mesmo sem saturação (225 de 139 a 100 Mb/s), então o sinal de congestionamento é sempre verdadeiro nesse cenário; `RRU.PrbUsedDl` por UE é calculado por símbolos OFDM (119 para cada UE, antes e depois do Control); `DRB.UEThpDl` sai sempre 0; nomes de métrica com `_` fora do alfabeto de `PrintableString` (lidos com um tipo equivalente em APER).
-
-### 7.10 Cenários de conflito S0–S8 na bancada NORI e observabilidade ao vivo
-
-Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e a decisão do H-RDL sobre o KPM (só a cota de PRB no gNB 0 é atuável). Um cenário: `bash scripts/run_nori_scenario.sh S1 1001`; a campanha S0–S8 × 5 sementes, com certificação e resumo: `bash scripts/run_nori_campaign.sh`. Os comandos de cada aba ao vivo (execução NORI, E2AP pelo tshark, xApp, RIC, Kubernetes, registro de UEs), o painel tmux e a campanha nativa com análise, certificação e relatório estão em [docs/11](11_observabilidade_e_campanhas.md).
+Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e a decisão do H-RDL sobre o KPM (só a cota de PRB no gNB 0 é atuável). Um cenário: `bash scripts/run_nori_scenario.sh S1 1001`; a campanha S0–S8 × 5 sementes, com certificação e resumo: `bash scripts/run_nori_campaign.sh`. Os comandos de cada aba ao vivo (execução NORI, E2AP pelo tshark, xApp, RIC, Kubernetes, registro de UEs), o painel tmux e a campanha nativa com análise, certificação e relatório estão em [docs/05](05_observabilidade_e_campanhas.md).
 
 ## 8. Implantação da xApp no Kubernetes
 
@@ -343,3 +267,4 @@ A imagem `iqos-xapp-rdl:1.1.0` precisa estar disponível para o cluster; o `dock
 | Hashes de execuções antigas não conferem | Conversão CRLF do Git no Windows; `experiments/runs/** -text` em `.gitattributes` preserva os bytes. Para restaurar, apague os arquivos e rode `git checkout -- experiments/runs`. |
 | `scratch/ desatualizado` ao usar `--no-build` | A fonte mudou depois da compilação; rode a campanha (que recompila) ou compile o cenário. |
 | Porta 8080 ocupada nos testes | Cada `RDLxApp` sobe um servidor HTTP; o erro de bind é apenas registrado. |
+| E2 Setup do NORI sem resposta depois de reiniciar o WSL (só o Setup Request no PCAP) | Os pods do RIC subiram fora de ordem: o RtMgr não recebeu o registro do E2Term e não há rota para a mensagem 1101. Reinicie em ordem e confira os logs: `kubectl -n ricplt rollout restart deploy/deployment-ricplt-rtmgr`, espere ficar pronto, depois o E2Mgr e o E2Term (achado 51 de [07](07_certificacao_e_achados.md)). |

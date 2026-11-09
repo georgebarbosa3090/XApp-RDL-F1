@@ -39,4 +39,4 @@ Cada gate só é aprovado com artefatos brutos registrados conforme a [política
 
 S1 evita controle de potência, cujo suporte varia entre versões de firmware. Duas xApps propõem cotas de PRB incompatíveis para o mesmo alvo. A H-RDL agrupa as propostas por alvo na janela de 200 ms, descarta as que violam os limites do Safety Guard, escolhe **uma** ação por TVS/EEVS e a despacha como RIC Control. Não há divisão fixa de cotas: o valor aplicado é o da proposta vencedora, dentro dos limites configurados em `configs/`. A validação exige ACK correlacionado e três amostras KPM consecutivas após o controle (3 s com KPM a cada 1 s).
 
-O comportamento correspondente na simulação está nos resultados de S1 em [`../04_metodologia_experimental_e_resultados.md`](../04_metodologia_experimental_e_resultados.md).
+O comportamento correspondente na simulação está nos resultados de S1 em [`../06_metodologia_e_resultados.md`](../06_metodologia_e_resultados.md).

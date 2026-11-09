@@ -39,10 +39,10 @@ Eventos registrados: `start`, `kpm_encoded` (bytes hex do trigger e da action de
 
 - Os serviços `service-ricxapp-kpm-probe-http` e `-rmr` expõem as portas 8080 (HTTP), 4560 (RMR dados) e 4561 (rotas). Eles usam `publishNotReadyAddresses`: o pod só fica pronto quando o RMR recebe a tabela de rotas, e o RtMgr só a entrega pelo serviço.
 - `rmr_torcv_msg` precisa de um buffer alocado: com `None`, devolve ponteiro nulo.
-- A RtMgr da Release I exige o A1 Mediator implantado. Sem ele, a criação da rota da subscrição estoura o prazo do SubMgr ([guia, seção 7.2](../../../docs/02_guia_operacional_deploy_e_simulacao.md#72-near-rt-ric-o-ran-sc-release-i)).
+- A RtMgr da Release I exige o A1 Mediator implantado. Sem ele, a criação da rota da subscrição estoura o prazo do SubMgr ([guia, seção 7.2](../../../docs/04_instalacao_e_operacao.md#72-near-rt-ric-o-ran-sc-release-i)).
 
 ## Resultado (2026-11-08)
 
-Com o NORI (`nori-rc-slicing-flowmon`), a subscrição foi aceita (HTTP 201 e notificação com `E2EventInstanceId` ≠ 0). A xApp recebeu por RMR todas as Indications que o PCAP mostra no fio, com os mesmos bytes: 11 954 de 11 954 com período de 10 ms e 80 de 80 com período de 1 s. Detalhes no [guia, seção 7.7](../../../docs/02_guia_operacional_deploy_e_simulacao.md#77-resultado-da-fase-2-subscrição-e-indications-kpm-reais-2026-11-08).
+Com o NORI (`nori-rc-slicing-flowmon`), a subscrição foi aceita (HTTP 201 e notificação com `E2EventInstanceId` ≠ 0). A xApp recebeu por RMR todas as Indications que o PCAP mostra no fio, com os mesmos bytes: 11 954 de 11 954 com período de 10 ms e 80 de 80 com período de 1 s. Detalhes no [docs/06, seção 5.2](../../../docs/06_metodologia_e_resultados.md#52-fase-2-subscrição-e-indications-kpm-reais-2026-11-08).
 
-Fase 3, com o NORI corrigido pelo patch do chart `nori-ns3`: o Control (RICrequestID 1003/1, função 300, cotas eMBB 70 % e URLLC 30 % de PRB máximo) saiu por RMR e o ACK voltou correlacionado em 1,9 ms; os bytes do Control e do ACK são os mesmos do PCAP. Detalhes no [guia, seção 7.8](../../../docs/02_guia_operacional_deploy_e_simulacao.md#78-resultado-da-fase-3-ric-control-e2sm-rc-com-ack-2026-11-08).
+Fase 3, com o NORI corrigido pelo patch do chart `nori-ns3`: o Control (RICrequestID 1003/1, função 300, cotas eMBB 70 % e URLLC 30 % de PRB máximo) saiu por RMR e o ACK voltou correlacionado em 1,9 ms; os bytes do Control e do ACK são os mesmos do PCAP. Detalhes no [docs/06, seção 5.3](../../../docs/06_metodologia_e_resultados.md#53-fase-3-ric-control-e2sm-rc-com-ack-2026-11-08).

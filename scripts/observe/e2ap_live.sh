@@ -4,7 +4,7 @@
 # Uso: bash scripts/observe/e2ap_live.sh            (TSHARK=/caminho/tshark para outro executável)
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
 TSHARK="${TSHARK:-$(command -v tshark || echo "$HOME/.local/tshark-4.2.2/root/usr/bin/tshark")}"
-[ -x "$TSHARK" ] || { echo "tshark não encontrado (docs/02, seção 7.6)" >&2; exit 3; }
+[ -x "$TSHARK" ] || { echo "tshark não encontrado (docs/04, seção 7.5)" >&2; exit 3; }
 echo "capturando SCTP/E2 no pod do NORI; decodificação pelo $("$TSHARK" --version | head -1)"
 printf '%-12s %-14s %-20s %-26s %-13s %s\n' "hora" "sentido" "PDU" "procedimento" "RICrequestID" "RAN function"
 kubectl -n ricsim exec -i deploy/nori-ns3 -- tcpdump -i any -U -s 0 -w - sctp 2>/dev/null \

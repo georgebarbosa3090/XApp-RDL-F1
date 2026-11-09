@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Calibração da capacidade por fatia (pré-registro docs/07_preregistro_fase4_v2.md).
+Calibração da capacidade por fatia (pré-registro docs/preregistros/01_fase4_v2.md).
 
 A partir de uma execução de calibração (Control com teto fixo e RESTRITIVO nas fatias, ex. 30/30),
 estima k_s = vazão_depois_s / teto_s, em Mb/s por ponto percentual de PRB. Usa as mesmas janelas e
@@ -11,7 +11,7 @@ entre as janelas. Sem isso, k_s não mede a capacidade por PRB e a regra v2 não
 
 Saída: ``experiments/calibration/<nome>.json`` com hashes da série e da dissecação de origem.
 
-Modo de cotas complementares (desenho v3, docs/07_preregistro_fase4_v3.md): várias execuções, cada uma
+Modo de cotas complementares (desenho v3, docs/preregistros/02_fase4_v3.md): várias execuções, cada uma
 com cotas que somam 100 % (ex.: 30/70 e 70/30). Em cada execução só a fatia de MENOR teto é calibrada
 (k_s = vazão depois ÷ teto), e ela precisa ter caído ao menos QUEDA_MIN; a de teto maior não entra. A
 calibração é válida quando cada fatia recebe exatamente um k válido.

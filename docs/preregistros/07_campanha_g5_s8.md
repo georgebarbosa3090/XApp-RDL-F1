@@ -4,7 +4,7 @@ Registrado em 2026-11-09, **antes** das execuções descritas aqui, no mesmo com
 
 ## 1. Objetivo
 
-O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pareadas por baseline B0–B3, com o RIC Control decidido por cada baseline. Até aqui, a bancada NORI só tinha o B3 (H-RDL), e os baselines B0–B2 existiam só na pilha nativa, sem E2.
+O gate G5 (docs/07) exige uma campanha com E2 real e pelo menos 30 sementes pareadas por baseline B0–B3, com o RIC Control decidido por cada baseline. Até aqui, a bancada NORI só tinha o B3 (H-RDL), e os baselines B0–B2 existiam só na pilha nativa, sem E2.
 
 ## 2. O que muda no código (neste commit)
 
@@ -15,7 +15,7 @@ O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pare
   - **B3:** o H-RDL, como na campanha S0–S8.
 - **Fonte da decisão** registrada pela xApp: `BASELINE_B0`, `BASELINE_B1`, `BASELINE_B2` ou `H_RDL`. O B0 envia um Control por proposta, em sequência, e o ACK de cada um é correlacionado pelo `RICInstanceID`.
 - **Efeito na RAN:** quando há mais de um Control antes do KPM_t1 (só no B0), vale o último, que é o que fica aplicado. Com um único Control, nada muda.
-- **G5 no certificador:** passa a seguir a definição do docs/05. Conta só execuções da bancada NORI que cumprem as três condições:
+- **G5 no certificador:** passa a seguir a definição do docs/07. Conta só execuções da bancada NORI que cumprem as três condições:
   - cadeia E2 completa no PCAP;
   - Control decidido pelo próprio baseline do manifesto (fonte registrada pela xApp, ligada ao PCAP por sha256);
   - disparo pelo KPM_t0.
@@ -87,7 +87,7 @@ O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pare
 
 ## 9. Resultado (registrado depois das execuções, 2026-11-09)
 
-A xApp kpm-probe foi implantada a partir do commit do pré-registro (`87d5282`) e rodou o `src/` dele em todas as execuções, inclusive nas de reposição. Resumo completo em [`reports/nori/resumo_campanha_nori_20261109T130646Z.md`](../reports/nori/resumo_campanha_nori_20261109T130646Z.md) e certificado `reports/certification/certificate_20261109T130613Z.md`.
+A xApp kpm-probe foi implantada a partir do commit do pré-registro (`87d5282`) e rodou o `src/` dele em todas as execuções, inclusive nas de reposição. Resumo completo em [`reports/nori/resumo_campanha_nori_20261109T130646Z.md`](../../reports/nori/resumo_campanha_nori_20261109T130646Z.md) e certificado `reports/certification/certificate_20261109T130613Z.md`.
 
 **G5 `CERTIFIED`:** 30 (cenário, semente) pareados nos quatro baselines com E2 real. São as sementes 5001–5033, menos 5012, 5028 e 5029 (seção 8). O certificador contou execuções com cadeia E2 e decisão do próprio baseline: B0 31, B1 32, B2 32 e B3 121 (as de B3 incluem as campanhas anteriores). O G6 passou de `BLOCKED` para `NOT_CERTIFIED` e agora depende só de uma reprodução independente.
 

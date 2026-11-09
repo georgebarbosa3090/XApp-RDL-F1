@@ -74,7 +74,7 @@ Detalhes em [`deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md
 
 ## 6. Implantação da xApp num Near-RT RIC
 
-Helm (`deploy/helm/iqos-xapp-rdl`). A bancada E2 real (Near-RT RIC Release I, NORI e xApp kpm-probe) está em [docs/02, seção 7](../docs/02_guia_operacional_deploy_e_simulacao.md) e [docs/11](../docs/11_observabilidade_e_campanhas.md).
+Helm (`deploy/helm/iqos-xapp-rdl`). A bancada E2 real (Near-RT RIC Release I, NORI e xApp kpm-probe) está em [docs/04, seção 7](../docs/04_instalacao_e_operacao.md) e [docs/05](../docs/05_observabilidade_e_campanhas.md).
 
 ## 7. Scripts aposentados
 

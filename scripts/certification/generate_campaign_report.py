@@ -56,7 +56,7 @@ COUNT_METRICS = {"actions_applied", "handovers", "unsafe_applied", "oscillations
 
 # ---------------------------------------------------------------------------------------------
 # Hipóteses. Derivadas do tratamento esperado de cada tipo de conflito na taxonomia
-# (docs/03_taxonomia_de_conflitos_e_cenarios.md, coluna "Tratamento na H-RDL"), escrita antes
+# (docs/03_cenarios_e_conflitos.md, coluna "Tratamento na H-RDL"), escrita antes
 # desta campanha. Não foram pré-registradas formalmente.
 #
 # Cada critério é um de:
@@ -297,7 +297,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
              "prioridade estática por janela e alvo (B2)?")
     L.append("")
     L.append("As hipóteses abaixo foram derivadas do tratamento esperado de cada tipo de conflito na "
-             "[taxonomia](../../docs/03_taxonomia_de_conflitos_e_cenarios.md), escrita antes desta campanha. "
+             "[taxonomia](../../docs/03_cenarios_e_conflitos.md), escrita antes desta campanha. "
              "Não houve pré-registro formal. H4 e H5 descrevem limitações conhecidas: \"suportada\" significa que a "
              "limitação se confirmou.")
     L.append("")
@@ -370,7 +370,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     L.append("Todos os comandos abaixo rodam direto no terminal do Ubuntu (WSL), sem passar pelo Windows. "
              "O ns-3.48 + 5G-LENA v5.1 compilado fica em `~/ns3-oran-workspace/ns-3-oran` (variável `NS3_DIR`); "
              "a saída `[RDL-ACT]`/`[RDL-KPI]` de cada execução aparece ao vivo. Detalhes do ambiente no "
-             "[guia operacional](../../docs/02_guia_operacional_deploy_e_simulacao.md).")
+             "[guia operacional](../../docs/04_instalacao_e_operacao.md).")
     L.append("")
     L.append("**Preparação (uma vez).** O driver usa a `RDLxApp` real no B3 e precisa das dependências do projeto. "
              "Sem `sudo` (o Ubuntu 24.04 não traz `python3-venv`), o venv é criado sem pip e as dependências "

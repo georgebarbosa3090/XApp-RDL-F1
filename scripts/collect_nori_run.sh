@@ -60,8 +60,8 @@ if [ -f "$DEST/raw/slice_series.csv" ]; then
   PY="${PYTHON:-$HOME/.venvs/xapp-rdl/bin/python}"
   [ -x "$PY" ] || PY=python3
   # Regra calibrada (pré-registros docs/07_*): usa a calibração, exceto nas próprias execuções de calibração
-  CAL="${CALIBRATION:-$REPO/experiments/calibration/slice_capacity_v3.json}"   # desenho v3 (docs/07_preregistro_fase4_v3.md)
-  CURVE="${CURVE:-$REPO/experiments/calibration/slice_cap_curve_v5.json}"   # desenho v5 (docs/07_preregistro_fase4_v5.md)
+  CAL="${CALIBRATION:-$REPO/experiments/calibration/slice_capacity_v3.json}"   # desenho v3 (docs/preregistros/02_fase4_v3.md)
+  CURVE="${CURVE:-$REPO/experiments/calibration/slice_cap_curve_v5.json}"   # desenho v5 (docs/preregistros/04_fase4_v5.md)
   CAL_ARGS=()
   if [[ "$RUN_ID" == nori_cal* || "$RUN_ID" == nori_curve* ]]; then
     :   # execuções de calibração/curva: sem previsão
@@ -71,7 +71,7 @@ if [ -f "$DEST/raw/slice_series.csv" ]; then
     CAL_ARGS=(--calibration "$CAL")
   fi
   ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" "${CAL_ARGS[@]}" ) || true
-  # Regra v6 (docs/07_preregistro_fase4_v6.md): previsão relativa, gravada à parte em slice_effect_v6.json
+  # Regra v6 (docs/preregistros/05_fase4_v6.md): previsão relativa, gravada à parte em slice_effect_v6.json
   if [ "${#CAL_ARGS[@]}" -gt 0 ] && [ "${CAL_ARGS[0]}" = "--curve" ]; then
     ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" "${CAL_ARGS[@]}" --rule v6 ) || true
   fi

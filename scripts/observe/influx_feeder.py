@@ -2,7 +2,7 @@
 """
 Alimentador do InfluxDB para acompanhar as simulações no Grafana (bucket "simulacoes", org "rdl").
 
-Fontes (o mesmo que as abas de observabilidade mostram, docs/11):
+Fontes (o mesmo que as abas de observabilidade mostram, docs/05):
 
 - execução NORI corrente: raw/slice_series.csv do pod do NORI (contadores acumulados do FlowMonitor por UE a cada
   0,5 s simulado) -> measurement ``nori_slice`` (vazão e atraso por fatia, com o tempo simulado);

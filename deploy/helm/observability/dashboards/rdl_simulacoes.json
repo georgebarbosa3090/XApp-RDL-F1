@@ -218,7 +218,7 @@
           "mode": "multi"
         }
       },
-      "description": "Eixo X: tempo simulado (s). O Control é aplicado pelo NORI no instante de aplicação (docs/07 v5); a queda da fatia restrita aparece alguns segundos simulados depois."
+      "description": "Eixo X: tempo simulado (s). O Control é aplicado pelo NORI no instante de aplicação (docs/preregistros, v5); a queda da fatia restrita aparece alguns segundos simulados depois."
     },
     {
       "id": 5,

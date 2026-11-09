@@ -7,7 +7,7 @@ do tshark, Indications casadas com a xApp, decisão do H-RDL (estratégias, aç�
 atuadas e não atuáveis no NORI), Control/ACK, efeito na RAN (``slice_effect.json``) e o veredito
 do certificador por execução. Saída: ``reports/nori/resumo_campanha_nori_<UTC>.md``.
 
-Com ``slice_effect_v6.json`` (regra v6, docs/07_preregistro_fase4_v6.md), mostra também o veredito v6.
+Com ``slice_effect_v6.json`` (regra v6, docs/preregistros/05_fase4_v6.md), mostra também o veredito v6.
 
 Uso:
     python scripts/certification/nori_campaign_summary.py

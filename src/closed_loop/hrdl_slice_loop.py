@@ -12,7 +12,7 @@ Ponte da malha fechada (fase 4): KPM_t0 (E2SM-KPM v3) -> decisão H-RDL -> cotas
    - ``xapp-qos-xslice`` (prioridade 90): protege a URLLC, propõe teto de 25 % de PRB para a eMBB;
    - ``xapp-embb-throughput`` (prioridade 60): maximiza a vazão eMBB, propõe teto de 80 %.
 
-   Valores da v2 (pré-registro docs/07_preregistro_fase4_v2.md). Na v1 (commit b48473d) a protetora
+   Valores da v2 (pré-registro docs/preregistros/01_fase4_v2.md). Na v1 (commit b48473d) a protetora
    propunha 40 %; o TVS a escolheu e o teto não restringiu (a eMBB usava ~40 % dos PRBs).
 
    ``PRB_QUOTA`` é o teto de PRB (%) da fatia eMBB; a URLLC recebe ``100 - PRB_QUOTA``.

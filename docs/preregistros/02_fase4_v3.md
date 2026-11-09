@@ -4,8 +4,8 @@ Registrado em 2026-11-08, **antes** das execuções descritas aqui, no mesmo com
 
 ## 1. Contexto: v1 e v2
 
-- **v1** ([`nori_hrdl_loop_seed1`](../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json)): a cadeia E2 completa funcionou com o Control decidido pelo H-RDL sobre o KPM_t0 (cotas eMBB 40 / URLLC 60). Nenhuma fatia mudou; efeito `INCONSISTENT`, G4 `NOT_CERTIFIED`.
-- **v2** ([pré-registro](07_preregistro_fase4_v2.md), commit `3962e97`): a calibração com tetos 30/30 (soma 60 %) não restringiu nenhuma fatia. A calibração foi inválida e as avaliações não foram rodadas.
+- **v1** ([`nori_hrdl_loop_seed1`](../../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json)): a cadeia E2 completa funcionou com o Control decidido pelo H-RDL sobre o KPM_t0 (cotas eMBB 40 / URLLC 60). Nenhuma fatia mudou; efeito `INCONSISTENT`, G4 `NOT_CERTIFIED`.
+- **v2** ([pré-registro](01_fase4_v2.md), commit `3962e97`): a calibração com tetos 30/30 (soma 60 %) não restringiu nenhuma fatia. A calibração foi inválida e as avaliações não foram rodadas.
 - **Observação que motiva a v3:** as três execuções com cotas (80/20, 40/60 e 30/30) combinam com um escalonador que reaproveita os PRBs não usados. O teto só restringiria quando as cotas somam 100 % e não sobra capacidade para redistribuir.
 
 ## 2. O que muda na v3
@@ -43,7 +43,7 @@ Constantes da análise: janela de 4 s antes do Control e 4 s depois de 2 s de ac
 - Políticas, constantes e regras não serão ajustadas depois de ver os resultados. Um novo ajuste exige um novo pré-registro.
 - Análises exploratórias, rotuladas como tais e sem efeito sobre o G4:
   - a execução v1 (teto 40 % na eMBB) pela regra calibrada;
-  - a execução exploratória [`nori_rc_effect_load300_seed1`](../experiments/runs/nori_rc_effect_load300_seed1/execution_manifest.json) (URLLC a 20 %, ~76,5 Mb/s pelo console do cenário, sem série CSV) como comparação com a previsão 20 × k_URLLC.
+  - a execução exploratória [`nori_rc_effect_load300_seed1`](../../experiments/runs/nori_rc_effect_load300_seed1/execution_manifest.json) (URLLC a 20 %, ~76,5 Mb/s pelo console do cenário, sem série CSV) como comparação com a previsão 20 × k_URLLC.
 
 ## 6. Ameaças à validade conhecidas
 
@@ -61,10 +61,10 @@ O pré-registro foi publicado no commit `7ded3b2`; a xApp rodou o `src/` desse c
 
 | Execução | Cotas eMBB / URLLC | Fatia de teto 30 % | Vazão antes → depois |
 | :-- | :-- | :-- | :-- |
-| [`nori_cal3070_seed201`](../experiments/runs/nori_cal3070_seed201/execution_manifest.json) | 30 / 70 | eMBB | 151,49 → 151,49 Mb/s |
-| [`nori_cal7030_seed202`](../experiments/runs/nori_cal7030_seed202/execution_manifest.json) | 70 / 30 | URLLC | 151,49 → 151,49 Mb/s |
+| [`nori_cal3070_seed201`](../../experiments/runs/nori_cal3070_seed201/execution_manifest.json) | 30 / 70 | eMBB | 151,49 → 151,49 Mb/s |
+| [`nori_cal7030_seed202`](../../experiments/runs/nori_cal7030_seed202/execution_manifest.json) | 70 / 30 | URLLC | 151,49 → 151,49 Mb/s |
 
-[`slice_capacity_v3.json`](../experiments/calibration/slice_capacity_v3.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v3_seed1..3` **não foram rodadas**, e as análises exploratórias da seção 5 ficaram sem calibração.
+[`slice_capacity_v3.json`](../../experiments/calibration/slice_capacity_v3.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v3_seed1..3` **não foram rodadas**, e as análises exploratórias da seção 5 ficaram sem calibração.
 
 **Todas as configurações de cota observadas** (300 Mb/s por UE, mesma bancada):
 
@@ -78,4 +78,4 @@ O pré-registro foi publicado no commit `7ded3b2`; a xApp rodou o `src/` desse c
 
 **Leitura (hipótese, não conclusão).** A soma das cotas não explica os dados: com soma 100 %, um teto de 30 % não restringe nenhuma das fatias. O único efeito observado é a URLLC com teto de 20 %, e ele foi grande (~50 %). A relação entre teto e vazão no escalonador do NORI é, portanto, não linear, com um limiar entre 20 % e 30 % para cada UE a 151,5 Mb/s, ou depende da granularidade de alocação (grupos de blocos de recurso). Nenhum modelo linear calibrado num ponto que não restringe pode prever o efeito. Um próximo desenho precisaria medir a curva teto → vazão em vários níveis abaixo de 30 % (por exemplo 10, 15, 20 e 25 %, por fatia) antes de qualquer previsão, com novo pré-registro.
 
-> **Errata (2026-11-08, depois da v4):** a leitura acima foi superada. A cota tem efeito, e linear; o efeito só começa quando o tempo simulado alcança o relógio de parede do instante em que o Control chegou (~12 s simulados depois, fora da janela). Ver o [pré-registro v4, seção 7](07_preregistro_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08). O resultado oficial (calibração inválida, avaliações não rodadas) não muda.
+> **Errata (2026-11-08, depois da v4):** a leitura acima foi superada. A cota tem efeito, e linear; o efeito só começa quando o tempo simulado alcança o relógio de parede do instante em que o Control chegou (~12 s simulados depois, fora da janela). Ver o [pré-registro v4, seção 7](03_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08). O resultado oficial (calibração inválida, avaliações não rodadas) não muda.

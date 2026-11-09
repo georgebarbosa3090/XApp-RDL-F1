@@ -45,12 +45,6 @@ docs/auditoria/
 docs/relatorio_extenso*
 
 # Relatórios Restritos e Somente Locais (Permanentemente Proibido Subir ao GitHub)
-docs/06_*
-docs/08_*
-docs/09_*
-docs/10_*
-docs/22_*
-docs/24_*
 
 # 3. Artefatos de Fase 2 (Não pertencem ao repositório Fase 1) e Dumps Locais de Simulação
 experiments/results/rdl_phase2/
@@ -221,3 +215,5 @@ scripts/validate_ml_provenance.*
 !scripts/stop_auto_sync.ps1
 auto_git_sync.log
 auto_git_sync.err.log
+# rascunhos locais da documentação (fora do controle de versão)
+docs/local/

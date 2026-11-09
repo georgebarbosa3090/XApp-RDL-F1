@@ -21,7 +21,7 @@ Procedimento (constantes fixadas antes das execuções):
    cumprem; INCONSISTENT se alguma falha; NOT_TESTABLE se nenhuma fatia tem teto abaixo da parte
    que usava ou se a série não cobre as janelas.
 
-Regra v2 (com ``--calibration``, pré-registro docs/07_preregistro_fase4_v2.md): a parte dos PRBs que
+Regra v2 (com ``--calibration``, pré-registro docs/preregistros/01_fase4_v2.md): a parte dos PRBs que
 cada fatia usava vem da calibração (k_s, Mb/s por ponto percentual de PRB), não da parte da vazão:
 
    - p_s = vazão_antes_s / k_s (% de PRB);
@@ -29,7 +29,7 @@ cada fatia usava vem da calibração (k_s, Mb/s por ponto percentual de PRB), n�
      TOLERÂNCIA (relativa) da previsão teto·k_s;
    - caso contrário: a vazão não pode cair mais que QUEDA_MIN.
 
-Regra v6 (com ``--rule v6 --curve <curva v5>``, pré-registro docs/07_preregistro_fase4_v6.md): a curva da
+Regra v6 (com ``--rule v6 --curve <curva v5>``, pré-registro docs/preregistros/05_fase4_v6.md): a curva da
 calibração vira razão r(teto) = vazão_depois / vazão_antes, e a previsão é vazão_antes × r(teto):
 
    - teto >= menor nível livre acima dos que restringem: sem queda esperada;
@@ -373,7 +373,7 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
             elif curve:
                 cv = json.loads(Path(curve).read_text(encoding="utf-8"))
                 if cv.get("anchor") == "apply":
-                    # v5: janelas ancoradas no instante de aplicação do Control (docs/07_preregistro_fase4_v5.md)
+                    # v5: janelas ancoradas no instante de aplicação do Control (docs/preregistros/04_fase4_v5.md)
                     t_c = apply_time(series, float(ctrl["time_epoch"]))
                     out.update(rule="v5-curve-apply", anchor="apply", control_apply_time_s=t_c)
                 try:

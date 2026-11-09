@@ -4,7 +4,7 @@ Registrado em 2026-11-08, **antes** das execuções de avaliação descritas aqu
 
 ## 1. Contexto
 
-As versões v1 a v4 não confirmaram efeito. A análise exploratória da v4 ([seção 7](07_preregistro_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08)) mostrou a causa:
+As versões v1 a v4 não confirmaram efeito. A análise exploratória da v4 ([seção 7](03_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08)) mostrou a causa:
 
 - **A cota funciona e é linear:** ~3,8 Mb/s por ponto percentual de PRB.
 - **O efeito atrasa:** só começa quando o tempo simulado alcança o relógio de parede decorrido no instante em que o Control chegou, cerca de 12 s simulados depois. O NORI agenda o Control a partir da thread do E2 no simulador em tempo real.
@@ -60,15 +60,15 @@ A curva da v4 já foi medida, e eu já vi seus valores (exploratórios). Por iss
 
 O pré-registro foi publicado no commit `6bb7773`; a xApp rodou o `src/` desse commit.
 
-**Curva (passo 1):** [`slice_cap_curve_v5.json`](../experiments/calibration/slice_cap_curve_v5.json) saiu válida. Para as duas fatias: 10 % → 37,46; 15 % → 56,25; 20 % → 76,45; 30 % → ~113,98; 70 % → 151,49 Mb/s (sem restrição). Previsões fixadas antes das avaliações: URLLC a 20 % → **75,49 Mb/s** (interpolação entre 15 % e 30 %); eMBB a 80 % → sem queda (acima do nível livre de 70 %).
+**Curva (passo 1):** [`slice_cap_curve_v5.json`](../../experiments/calibration/slice_cap_curve_v5.json) saiu válida. Para as duas fatias: 10 % → 37,46; 15 % → 56,25; 20 % → 76,45; 30 % → ~113,98; 70 % → 151,49 Mb/s (sem restrição). Previsões fixadas antes das avaliações: URLLC a 20 % → **75,49 Mb/s** (interpolação entre 15 % e 30 %); eMBB a 80 % → sem queda (acima do nível livre de 70 %).
 
 **Avaliações (passo 2): as três `CONSISTENT`.**
 
 | Execução | Decisão do H-RDL | Control → ACK | Aplicação (t_sim) | URLLC (teto 20 %) | eMBB (teto 80 %) |
 | :-- | :-- | :-- | --: | :-- | :-- |
-| [`nori_hrdl_v5_seed1`](../experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json) | `xapp-embb-throughput` (TVS, 0,92), 80/20 | correlacionado, 8,1 ms | 19,43 s | 151,49 → 76,45 Mb/s (prevista 75,49; erro 1,3 %) | 151,49 → 151,49 Mb/s |
-| [`nori_hrdl_v5_seed2`](../experiments/runs/nori_hrdl_v5_seed2/execution_manifest.json) | idem | correlacionado, 2,0 ms | 18,26 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
-| [`nori_hrdl_v5_seed3`](../experiments/runs/nori_hrdl_v5_seed3/execution_manifest.json) | idem | correlacionado, 18,1 ms | 18,05 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
+| [`nori_hrdl_v5_seed1`](../../experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json) | `xapp-embb-throughput` (TVS, 0,92), 80/20 | correlacionado, 8,1 ms | 19,43 s | 151,49 → 76,45 Mb/s (prevista 75,49; erro 1,3 %) | 151,49 → 151,49 Mb/s |
+| [`nori_hrdl_v5_seed2`](../../experiments/runs/nori_hrdl_v5_seed2/execution_manifest.json) | idem | correlacionado, 2,0 ms | 18,26 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
+| [`nori_hrdl_v5_seed3`](../../experiments/runs/nori_hrdl_v5_seed3/execution_manifest.json) | idem | correlacionado, 18,1 ms | 18,05 s | 151,49 → 76,44 Mb/s (erro 1,3 %) | 151,49 → 151,49 Mb/s |
 
 - **H4.1 cumprida nas três:** 86 mensagens E2AP, com o tshark de acordo em todas; 80/80 Indications casadas com a xApp; Control com `decision_source=H_RDL`, disparado pelo KPM_t0 e com os mesmos bytes do registro.
 - **H4.2 cumprida:** o H-RDL selecionou `xapp-embb-throughput` (cotas 80/20) nas três, em 1 a 5 ms.

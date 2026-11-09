@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Curva teto -> vazão por fatia (desenho v4, docs/07_preregistro_fase4_v4.md).
+Curva teto -> vazão por fatia (desenho v4, docs/preregistros/03_fase4_v4.md).
 
 Cada execução da curva aplica, por RIC Control, o MESMO teto às duas fatias (ex.: 10/10). A soma das
 cotas não alterou o efeito nas calibrações v2/v3 (30/30, 30/70 e 70/30 deram o mesmo resultado), então

@@ -35,7 +35,7 @@ def test_real_hrdl_pipeline_resolves_the_direct_conflict():
     assert record["decision_source"] == "H_RDL" and record["engine"] == loop.ENGINE
     assert [r["conflict_type"] for r in record["resolutions"]] == ["DIRECT"]
     assert record["resolutions"][0]["strategy"] == "TVS"
-    # Previsão pré-registrada da v2 (docs/07): com 25 contra 80, o TVS escolhe a política de vazão eMBB.
+    # Previsão pré-registrada da v2 (docs/preregistros): com 25 contra 80, o TVS escolhe a política de vazão eMBB.
     assert record["selected"]["xapp_id"] == "xapp-embb-throughput"
     assert record["quotas"] == [
         {"sst": 1, "max_prb_ratio": 80, "min_prb_ratio": 0, "dedicated_prb_ratio": 0},

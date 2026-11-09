@@ -1,6 +1,6 @@
-# 01 — Arquitetura e modelagem da H-RDL
+# 02 — Modelo de decisão da H-RDL
 
-Este documento descreve a xApp RDL como está implementada na Fase 1 (H-RDL). Cada seção indica os arquivos de referência; quando o texto e o código divergirem, o código prevalece e o documento deve ser corrigido.
+Este documento descreve o modelo de decisão da xApp RDL na Fase 1 (H-RDL). O mapa dos componentes, protocolos e fluxos da bancada está em [01](01_componentes_e_fluxos.md). Cada seção indica os arquivos de referência; quando o texto e o código divergirem, o código prevalece e o documento deve ser corrigido.
 
 ## 1. Papel no Near-RT RIC
 

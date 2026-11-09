@@ -12,7 +12,7 @@ export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
 CM_VERSION=v1.14.7
 RANCHER_VERSION=2.8.5
 # Em 2026-11-09, com 2,9 GB livres, a máquina virtual do WSL reiniciou durante o download e a descompactação da
-# imagem do Rancher (~1,4 GB) e derrubou a bancada (docs/05, achado 50). O padrão exige 4,5 GB livres, o que um WSL
+# imagem do Rancher (~1,4 GB) e derrubou a bancada (docs/07, achado 50). O padrão exige 4,5 GB livres, o que um WSL
 # de 5 GB com RIC e NORI não tem: rode o Rancher fora dele (outra máquina ou WSL com >= 8 GB) e importe o cluster.
 MIN_FREE_MB="${MIN_FREE_MB:-4500}"
 say() { echo "[$(date +%H:%M:%S)] $*"; }

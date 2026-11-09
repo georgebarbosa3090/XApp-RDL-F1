@@ -4,7 +4,7 @@ Registrado em 2026-11-09, **antes** das execuções de avaliação descritas aqu
 
 ## 1. Contexto
 
-A campanha NORI S0–S8 × 1001–1005 ([docs/11, seção 8](11_observabilidade_e_campanhas.md)) levantou dois problemas na regra v5. Os dois aparecem nos achados 41 e 42 de [docs/05](05_auditoria_e_conformidade_oran.md):
+A campanha NORI S0–S8 × 1001–1005 ([docs/06, seção 5.5](../06_metodologia_e_resultados.md#55-campanha-nori-s0s8--10011005-2026-11-09)) levantou dois problemas na regra v5. Os dois aparecem nos achados 41 e 42 de [docs/07](../07_certificacao_e_achados.md):
 
 - **Achado 41:** no teto de 30 %, a regra v5 deixa o próprio nível de fora e interpola até 70 %, nível em que a vazão já está saturada. A previsão sai 91,45 Mb/s; o medido é 113,98 Mb/s, igual ao ponto de 30 % da curva.
 - **Achado 42:** com a semente 1005, a vazão máxima por UE cai pela metade (75,74 Mb/s). A curva v5 está em Mb/s absolutos e deixa de valer. Já a razão depois/antes do Control, para cada teto, foi a mesma nas duas vazões de base.
@@ -13,7 +13,7 @@ Os dois achados vieram de dados já vistos. Este desenho os transforma em hipót
 
 ## 2. Desenho v6
 
-- **Calibração:** a mesma curva da v5, sem nenhuma alteração ([`slice_cap_curve_v5.json`](../experiments/calibration/slice_cap_curve_v5.json)). Ela vem das cinco execuções de calibração, não da campanha. De cada nível que restringe sai a razão r(teto) = vazão_depois / vazão_antes:
+- **Calibração:** a mesma curva da v5, sem nenhuma alteração ([`slice_cap_curve_v5.json`](../../experiments/calibration/slice_cap_curve_v5.json)). Ela vem das cinco execuções de calibração, não da campanha. De cada nível que restringe sai a razão r(teto) = vazão_depois / vazão_antes:
 
   | Teto | r(teto) | Origem |
   | --: | --: | :-- |
@@ -83,7 +83,7 @@ Os vereditos da regra v5 dessas mesmas execuções também entram no relatório,
 
 O pré-registro foi publicado no commit `4af88dc`. A xApp kpm-probe foi implantada a partir desse commit, em modo `catalog`, antes da primeira avaliação, e rodou o `src/` dele em todas as 30.
 
-**Avaliações: as 30 `CONSISTENT` pela regra v6.** Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md) e certificado `reports/certification/certificate_20261109T043932Z.md`.
+**Avaliações: as 30 `CONSISTENT` pela regra v6.** Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../../reports/nori/resumo_campanha_nori_20261109T043933Z.md) e certificado `reports/certification/certificate_20261109T043932Z.md`.
 
 | Cenário | Cotas eMBB/URLLC | URLLC antes → depois (Mb/s, 5 sementes) | Previsão v6 | Erro máximo | Veredito v6 | Veredito v5 |
 | :-: | :-: | :-- | --: | --: | :-: | :-: |

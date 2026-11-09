@@ -4,7 +4,7 @@ Registrado em 2026-11-08, **antes** das execuções descritas aqui, no mesmo com
 
 ## 1. Contexto: o que a v1 mostrou
 
-Na execução [`nori_hrdl_loop_seed1`](../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json) (commit `b48473d`), a cadeia E2 completa funcionou com o Control decidido pelo H-RDL sobre o KPM_t0. O teto escolhido (eMBB 40 %) não restringiu a fatia e a expectativa pré-registrada falhou (efeito `INCONSISTENT`, G4 `NOT_CERTIFIED`). A causa está na regra v1, que tomou a parte da vazão (50/50) como parte dos PRBs. A vazão de cada UE para em ~151,5 Mb/s por um limite próprio do UE, e a execução exploratória com teto de 20 % indicou ~3,8 Mb/s por ponto percentual de PRB, ou seja, ~40 % dos PRBs por UE. Esse resultado continua relatado como está.
+Na execução [`nori_hrdl_loop_seed1`](../../experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json) (commit `b48473d`), a cadeia E2 completa funcionou com o Control decidido pelo H-RDL sobre o KPM_t0. O teto escolhido (eMBB 40 %) não restringiu a fatia e a expectativa pré-registrada falhou (efeito `INCONSISTENT`, G4 `NOT_CERTIFIED`). A causa está na regra v1, que tomou a parte da vazão (50/50) como parte dos PRBs. A vazão de cada UE para em ~151,5 Mb/s por um limite próprio do UE, e a execução exploratória com teto de 20 % indicou ~3,8 Mb/s por ponto percentual de PRB, ou seja, ~40 % dos PRBs por UE. Esse resultado continua relatado como está.
 
 ## 2. O que muda na v2
 
@@ -53,7 +53,7 @@ Constantes da análise: janela de 4 s antes do Control e 4 s depois de 2 s de ac
 
 O pré-registro foi publicado no commit `3962e97`; a xApp rodou o `src/` desse commit.
 
-**Calibração inválida; avaliações não executadas.** Em [`nori_cal30_seed101`](../experiments/runs/nori_cal30_seed101/execution_manifest.json), o Control com teto de 30 % nas duas fatias saiu e foi confirmado (ACK correlacionado em 3,6 ms, tshark de acordo). Mas nenhuma fatia perdeu vazão: as duas ficaram em 151,49 Mb/s nas janelas antes e depois (t_sim do Control = 5,26 s). [`slice_capacity_v2.json`](../experiments/calibration/slice_capacity_v2.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v2_seed1..3` **não foram rodadas**, e a reanálise exploratória da v1 pela regra v2 ficou sem calibração.
+**Calibração inválida; avaliações não executadas.** Em [`nori_cal30_seed101`](../../experiments/runs/nori_cal30_seed101/execution_manifest.json), o Control com teto de 30 % nas duas fatias saiu e foi confirmado (ACK correlacionado em 3,6 ms, tshark de acordo). Mas nenhuma fatia perdeu vazão: as duas ficaram em 151,49 Mb/s nas janelas antes e depois (t_sim do Control = 5,26 s). [`slice_capacity_v2.json`](../../experiments/calibration/slice_capacity_v2.json) registra `valid: false`. Conforme a seção 4, passo 1, as execuções `nori_hrdl_v2_seed1..3` **não foram rodadas**, e a reanálise exploratória da v1 pela regra v2 ficou sem calibração.
 
 **O que os dados sugerem, como hipótese para um próximo desenho (não como conclusão).** As três execuções com cotas, todas a 300 Mb/s por UE:
 
@@ -65,4 +65,4 @@ O pré-registro foi publicado no commit `3962e97`; a xApp rodou o `src/` desse c
 
 Um modelo linear calibrado no ponto 80/20 (~3,8 Mb/s por ponto percentual de PRB) previa ~115 Mb/s com teto de 30 %. O 30/30 contradiz isso. Os dados combinam com um escalonador que reaproveita os PRBs não usados: o teto só limita quando as cotas somam 100 % e não sobra capacidade para redistribuir. Testar isso exige calibração com cotas complementares (por exemplo, 20/80 e 80/20) e um novo pré-registro.
 
-> **Errata (2026-11-08, depois da v4):** a leitura acima foi superada. A cota tem efeito, e linear; o efeito só começa quando o tempo simulado alcança o relógio de parede do instante em que o Control chegou (~12 s simulados depois, fora da janela). Ver o [pré-registro v4, seção 7](07_preregistro_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08). O resultado oficial (calibração inválida, avaliações não rodadas) não muda.
+> **Errata (2026-11-08, depois da v4):** a leitura acima foi superada. A cota tem efeito, e linear; o efeito só começa quando o tempo simulado alcança o relógio de parede do instante em que o Control chegou (~12 s simulados depois, fora da janela). Ver o [pré-registro v4, seção 7](03_fase4_v4.md#7-resultado-registrado-depois-das-execuções-2026-11-08). O resultado oficial (calibração inválida, avaliações não rodadas) não muda.

@@ -25,7 +25,7 @@ A xApp RDL só sabe controlar os parâmetros definidos em `src/e2/rc/control_par
 
 ## 2. Relação com os cenários ns-3
 
-Os cenários de conflito S0–S7 **não executam estas xApps**. As propostas de cada cenário vêm de [`simulations/ns3/conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json), cujos `xapp_id` (`xslice`, `traffic_steering`, `energy_saving` etc.) reproduzem o papel dessas xApps. Ver [`docs/03_taxonomia_de_conflitos_e_cenarios.md`](../docs/03_taxonomia_de_conflitos_e_cenarios.md).
+Os cenários de conflito S0–S7 **não executam estas xApps**. As propostas de cada cenário vêm de [`simulations/ns3/conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json), cujos `xapp_id` (`xslice`, `traffic_steering`, `energy_saving` etc.) reproduzem o papel dessas xApps. Ver [`docs/03_cenarios_e_conflitos.md`](../docs/03_cenarios_e_conflitos.md).
 
 ## 3. Execução
 

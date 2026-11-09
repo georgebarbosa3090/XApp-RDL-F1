@@ -4,7 +4,7 @@
         helm-uninstall deploy-reference-xapps build cluster-create cluster-delete cluster-recreate rancher-start \
         rancher-stop rancher-logs rancher-password rancher-connect kiali-install kiali-dashboard status
 
-# Uso detalhado: docs/02 (instalação, campanhas, certificação) e docs/11 (bancada NORI e observabilidade ao vivo).
+# Uso detalhado: docs/04 (instalação, campanhas, certificação) e docs/05 (bancada NORI e observabilidade ao vivo).
 # Os alvos de simulação, RIC e NORI rodam no Ubuntu do WSL.
 
 IMAGE_NAME ?= iqos-xapp-rdl

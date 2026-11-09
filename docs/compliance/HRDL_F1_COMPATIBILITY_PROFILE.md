@@ -23,7 +23,7 @@ control_timeout_s: 5
 kpm_report_period_ms: 200
 ```
 
-São **alvos**: os codecs da xApp são locais e não foram validados contra o ASN.1 oficial (o E2SM-RC local é um perfil simplificado, fora da norma). Ver [`../05_auditoria_e_conformidade_oran.md`](../05_auditoria_e_conformidade_oran.md).
+São **alvos**: os codecs da xApp são locais e não foram validados contra o ASN.1 oficial (o E2SM-RC local é um perfil simplificado, fora da norma). Ver [`../07_certificacao_e_achados.md`](../07_certificacao_e_achados.md).
 
 ## 3. Pilhas de simulação
 

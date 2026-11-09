@@ -40,7 +40,7 @@ panels = [
        '  |> pivot(rowKey: ["sim_time_s"], columnKey: ["slice"], valueColumn: "throughput_mbps")\n'
        '  |> keep(columns: ["sim_time_s", "eMBB", "URLLC"])\n  |> sort(columns: ["sim_time_s"])',
        0, 9, w=24, kind="trend",
-       desc="Eixo X: tempo simulado (s). O Control é aplicado pelo NORI no instante de aplicação (docs/07 v5); a queda da fatia restrita aparece alguns segundos simulados depois.",
+       desc="Eixo X: tempo simulado (s). O Control é aplicado pelo NORI no instante de aplicação (docs/preregistros, v5); a queda da fatia restrita aparece alguns segundos simulados depois.",
        extra={"options": {"xField": "sim_time_s", "legend": {"showLegend": True, "displayMode": "list", "placement": "bottom"},
                           "tooltip": {"mode": "multi"}},
               "fieldConfig": {"defaults": {"unit": "Mbits", "custom": {"drawStyle": "line", "lineWidth": 2, "showPoints": "never"}},

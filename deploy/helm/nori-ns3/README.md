@@ -41,7 +41,7 @@ Se algum commit não existir, a preparação falha (sem fallback). O NORI implem
   ```
 - WSL com 5 GB de memória (`%UserProfile%\.wslconfig`: `memory=5GB`). O limite do pod é 3,5 GiB com `build.jobs: 2`; não aumente os processos de compilação.
 - ~25 GB livres no volume (`storage.size`).
-- Para E2 real: Near-RT RIC Release I implantado com `bash scripts/deploy_ric_i_release.sh` ([guia operacional, seção 7.2](../../../docs/02_guia_operacional_deploy_e_simulacao.md#72-near-rt-ric-o-ran-sc-release-i)), com o E2Term SCTP em `service-ricplt-e2term-sctp-alpha.ricplt:36422` (valor padrão de `ric.e2termAddress`).
+- Para E2 real: Near-RT RIC Release I implantado com `bash scripts/deploy_ric_i_release.sh` ([guia operacional, seção 7.2](../../../docs/04_instalacao_e_operacao.md#72-near-rt-ric-o-ran-sc-release-i)), com o E2Term SCTP em `service-ricplt-e2term-sctp-alpha.ricplt:36422` (valor padrão de `ric.e2termAddress`).
 
 ## Uso
 
@@ -81,7 +81,7 @@ monitor->SerializeToXmlFile("flowmonitor.xml", true, true);
 
 Desde a fase 4, a variante também grava `slice_series.csv` a cada 0,5 s simulado: contadores acumulados do FlowMonitor por UE/fatia (UE 0 = SST 1, UE 1 = SST 2), com o tempo simulado e o relógio de parede. É a medida de referência do efeito do Control, porque o KPM do NORI não mede vazão por UE.
 
-A variante também imprime o registro dos UEs, que o build otimizado do ns-3 não mostra (os `NS_LOG` somem): callbacks nos traces RRC do 5G-LENA (`NrGnbRrc/NewUeContext`, `NrGnbRrc/ConnectionEstablished`, `NrUeRrc/InitialCellSelectionEndOk`, `NrUeRrc/ConnectionEstablished`) escrevem uma linha `[RDL-UE]` por evento, e um resumo a t = 0,3 s liga cada UE a IMSI, IP e fatia. No início, cada trace aparece como "conectado" ou "indisponível". `run.sh` registra no manifesto o cenário de conflito (`conflict_scenario`, de `RDL_SCENARIO`) e o baseline (`baseline`, de `RDL_BASELINE`) quando a execução vem de `scripts/run_nori_scenario.sh` ([docs/11](../../../docs/11_observabilidade_e_campanhas.md)).
+A variante também imprime o registro dos UEs, que o build otimizado do ns-3 não mostra (os `NS_LOG` somem): callbacks nos traces RRC do 5G-LENA (`NrGnbRrc/NewUeContext`, `NrGnbRrc/ConnectionEstablished`, `NrUeRrc/InitialCellSelectionEndOk`, `NrUeRrc/ConnectionEstablished`) escrevem uma linha `[RDL-UE]` por evento, e um resumo a t = 0,3 s liga cada UE a IMSI, IP e fatia. No início, cada trace aparece como "conectado" ou "indisponível". `run.sh` registra no manifesto o cenário de conflito (`conflict_scenario`, de `RDL_SCENARIO`) e o baseline (`baseline`, de `RDL_BASELINE`) quando a execução vem de `scripts/run_nori_scenario.sh` ([docs/05](../../../docs/05_observabilidade_e_campanhas.md)).
 
 Os fontes do NORI não são alterados. Se a variante mudar, o entrypoint reconfigura e compila só esse alvo (~20 s); se o ponto de inserção não for único, aborta (código 6). `run.sh` registra no manifesto o caminho e o sha256 do fonte compilado (`scenario_source`).
 
