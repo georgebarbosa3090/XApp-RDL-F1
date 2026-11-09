@@ -1,0 +1,47 @@
+{
+  "run_id": "nori_S8_B3_seed5011",
+  "source": [
+    "NS3_FLOWMONITOR",
+    "NORI_E2",
+    "E2_PCAP"
+  ],
+  "backend": "NORI_NS3",
+  "scenario": "nori-rc-slicing-flowmon",
+  "conflict_scenario": "S8",
+  "baseline": "B3",
+  "seed": 5011,
+  "command": "cd '/workspace/ns-3-dev' && ./ns3 run --no-build 'nori-rc-slicing-flowmon --RngRun=5011 --ipE2TermRic=10.43.143.195 --simTime=40 --ns3::E2Interface::E2Periodicity=1 --trafficRate=300Mb/s' --cwd '/workspace/runs/nori_S8_B3_seed5011/raw'",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "started_at_utc": "2026-11-09T08:24:39Z",
+  "finished_at_utc": "2026-11-09T08:26:51Z",
+  "ns3_version": "3.42",
+  "ns3_commit": "ab4cce021d8f6b2458784704a10af810d3969f0f",
+  "fiveg_lena_version": "v3.3-100-g78b7179e",
+  "nr_commit": "78b7179e3841c608c2021ffa88bea1906a1c7594",
+  "nori_commit": "8a30867c8105d328aa50a7daaab3bcb2b4603763",
+  "e2sim_commit": "da6f82f286cdbb38af1178f82f85877b12c2f85b",
+  "e2ap": "v03.01",
+  "e2sm_kpm": "v03.00",
+  "e2sm_rc": "v03.01",
+  "nori_patches": [
+    {
+      "file": "0001-rc-control-ack.patch",
+      "sha256": "94a1d0911eb276ec279eb878fd8d0ab8a6d46af68a4a44973a7ade6e1516e3eb"
+    }
+  ],
+  "e2term": "service-ricplt-e2term-sctp-alpha.ricplt:36422",
+  "e2term_ip": "10.43.143.195",
+  "pcap_has_packets": true,
+  "scenario_source": {
+    "path": "scratch/nori-rc-slicing-flowmon.cc",
+    "sha256": "07e73c7c8c61fbba77f269e0f26efd12811061f455f1f583c2c80a64babb06cc",
+    "derived_from": "contrib/nori/examples/nori-rc-slicing-demo.cc"
+  },
+  "environment": {
+    "os": "Ubuntu 20.04.6 LTS",
+    "compiler": "g++ (Ubuntu 11.5.0-10ubuntu1~20~ppa3) 11.5.0",
+    "runtime": "kubernetes (k3s) pod"
+  },
+  "publication_eligible": true
+}

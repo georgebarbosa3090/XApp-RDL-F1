@@ -1,0 +1,402 @@
+[e2sim.cpp:65] [INFO] About to register E2SM RAN function description with ID 200
+[e2sim.cpp:65] [INFO] About to register E2SM RAN function description with ID 300
+[e2sim.cpp:65] [INFO] About to register E2SM RAN function description with ID 4
+E2TermHelper: PLMN ID 268413, Cell ID 1, Cell id int 1, Local Port 38471
+[RDL-UE] trace /NodeList/*/DeviceList/*/NrGnbRrc/NewUeContext: conectado
+[RDL-UE] trace /NodeList/*/DeviceList/*/NrGnbRrc/ConnectionEstablished: conectado
+[RDL-UE] trace /NodeList/*/DeviceList/*/NrUeRrc/InitialCellSelectionEndOk: conectado
+[RDL-UE] trace /NodeList/*/DeviceList/*/NrUeRrc/ConnectionEstablished: conectado
+[e2sim-mod.h:223] [INFO] [E2SimMod-gNB1] Start E2 Agent (E2 Simulator)
+[e2sim-mod.h:228] [INFO] [E2SimMod-gNB1] After reading input options: RIC IP=10.43.143.195, Port=36422, LocalPort=38471
+[e2sim-mod.h:255] [INFO] [E2SimMod-gNB1] Bound SCTP socket to local port 38471
+[e2sim-mod.h:276] [INFO] [E2SimMod-gNB1] Connecting to RIC at 10.43.143.195:36422 ...
+[e2sim-mod.h:286] [INFO] [E2SimMod-gNB1] SCTP Connection established (fd=3)
+[e2sim-mod.h:291] [INFO] [E2SimMod-gNB1] Constructing list of RAN functions
+[e2sim-mod.h:303] [INFO] [E2SimMod-gNB1] Encoding E2-SETUP-REQUEST
+[e2sim-mod.h:318] [INFO] [E2SimMod-gNB1] Sent E2-SETUP-REQUEST as E2AP message
+[e2sim-mod.h:333] [INFO] [E2SimMod-gNB1] Waiting for SCTP data from RIC
+[e2sim-mod.h:343] [INFO] [E2SimMod-gNB1] Received new data of size 78
+[e2sim-mod.h:122] [INFO] [E2SimMod-gNB1] Unpacked E2AP-PDU: index = 2, procedureCode = 1
+[e2sim-mod.h:129] [INFO] [E2SimMod-gNB1] Received SETUP-RESPONSE-SUCCESS from Near-RT RIC
+[RDL-UE] t=0.017s gNB: novo contexto de UE (célula 1, RNTI 1)
+[RDL-UE] t=0.017s gNB: novo contexto de UE (célula 1, RNTI 2)
+[RDL-UE] t=0.0180357s UE IMSI 1: conexão RRC estabelecida (célula 1, RNTI 1)
+[RDL-UE] t=0.0180357s UE IMSI 2: conexão RRC estabelecida (célula 1, RNTI 2)
+[RDL-UE] t=0.0180357s gNB: conexão RRC estabelecida IMSI 1 (célula 1, RNTI 1)
+[RDL-UE] t=0.0180357s gNB: conexão RRC estabelecida IMSI 2 (célula 1, RNTI 2)
+[e2sim-mod.h:343] [INFO] [E2SimMod-gNB1] Received new data of size 151
+[e2sim-mod.h:122] [INFO] [E2SimMod-gNB1] Unpacked E2AP-PDU: index = 1, procedureCode = 8
+[e2sim-mod.h:189] [INFO] [E2SimMod-gNB1] Received RICsubscriptionRequest for RANfunctionID=200
+[e2sim-mod.h:194] [INFO] [E2SimMod-gNB1] Invoking instance callback for subscription request (func_id=200)
+[e2sim-mod.h:451] [INFO] [E2SimMod-gNB1] Subscription response created
+<E2AP-PDU>
+    <successfulOutcome>
+        <procedureCode>8</procedureCode>
+        <criticality><reject/></criticality>
+        <value>
+            <RICsubscriptionResponse>
+                <protocolIEs>
+                    <RICsubscriptionResponse-IEs>
+                        <id>29</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <RICrequestID>
+                                <ricRequestorID>123</ricRequestorID>
+                                <ricInstanceID>175</ricInstanceID>
+                            </RICrequestID>
+                        </value>
+                    </RICsubscriptionResponse-IEs>
+                    <RICsubscriptionResponse-IEs>
+                        <id>5</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <RANfunctionID>200</RANfunctionID>
+                        </value>
+                    </RICsubscriptionResponse-IEs>
+                    <RICsubscriptionResponse-IEs>
+                        <id>17</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <RICaction-Admitted-List>
+                                <ProtocolIE-SingleContainer>
+                                    <id>14</id>
+                                    <criticality><reject/></criticality>
+                                    <value>
+                                        <RICaction-Admitted-Item>
+                                            <ricActionID>1</ricActionID>
+                                        </RICaction-Admitted-Item>
+                                    </value>
+                                </ProtocolIE-SingleContainer>
+                            </RICaction-Admitted-List>
+                        </value>
+                    </RICsubscriptionResponse-IEs>
+                </protocolIEs>
+            </RICsubscriptionResponse>
+        </value>
+    </successfulOutcome>
+</E2AP-PDU>
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 33
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 784
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1542
+[RDL-UE] t=0.3s UE 0 IMSI 1 IP 7.0.0.2 fatia eMBB (SST 1)
+[RDL-UE] t=0.3s UE 1 IMSI 2 IP 7.0.0.3 fatia URLLC (SST 2)
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 790
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1544
+
+========================================================
+[t = 2.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 75.31 Mbps (Avg: 75.31 Mbps), Delay = 2.94 ms, Loss = 51.13 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 75.07 Mbps (Avg: 75.07 Mbps), Delay = 2.95 ms, Loss = 51.28 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 4.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 113.40 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 113.28 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[e2sim-mod.h:343] [INFO] [E2SimMod-gNB1] Received new data of size 116
+[e2sim-mod.h:122] [INFO] [E2SimMod-gNB1] Unpacked E2AP-PDU: index = 1, procedureCode = 4
+[e2sim-mod.h:151] [INFO] [E2SimMod-gNB1] Received RICcontrolRequest for RANfunctionID=300
+[e2sim-mod.h:156] [INFO] [E2SimMod-gNB1] Invoking instance callback for control request (func_id=300)
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 22
+[e2sim-mod.h:343] [INFO] [E2SimMod-gNB1] Received new data of size 116
+[e2sim-mod.h:122] [INFO] [E2SimMod-gNB1] Unpacked E2AP-PDU: index = 1, procedureCode = 4
+[e2sim-mod.h:151] [INFO] [E2SimMod-gNB1] Received RICcontrolRequest for RANfunctionID=300
+[e2sim-mod.h:156] [INFO] [E2SimMod-gNB1] Invoking instance callback for control request (func_id=300)
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 22
+
+========================================================
+[t = 6.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 126.09 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 126.02 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 8.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 132.44 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 132.38 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 10.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 136.25 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 136.21 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 12.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 138.79 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 138.75 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 14.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 151.49 Mbps (Avg: 140.60 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 140.57 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 16.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 112.80 Mbps (Avg: 137.13 Mbps), Delay = 2.97 ms, Loss = 63.40 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.38 Mbps (Avg: 141.92 Mbps), Delay = 2.94 ms, Loss = 50.88 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 18.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 132.47 Mbps), Delay = 3.00 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 142.99 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 20.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 128.75 Mbps), Delay = 3.02 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 143.84 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 22.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 125.70 Mbps), Delay = 3.04 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 144.53 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 24.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 123.17 Mbps), Delay = 3.06 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 145.11 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 26.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 121.02 Mbps), Delay = 3.08 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 145.60 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 28.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 119.18 Mbps), Delay = 3.10 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 146.02 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 30.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 117.58 Mbps), Delay = 3.11 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 146.39 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 32.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 116.18 Mbps), Delay = 3.12 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 146.71 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 34.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 114.95 Mbps), Delay = 3.13 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 146.99 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 36.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 113.86 Mbps), Delay = 3.14 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 147.24 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+
+========================================================
+[t = 38.0s] Per-Slice Performance Monitoring:
+========================================================
+  Slice 0 (eMBB, SST=1) -> UE[0]: Throughput = 95.24 Mbps (Avg: 112.88 Mbps), Delay = 3.15 ms, Loss = 69.10 %
+  Slice 1 (URLLC, SST=2) -> UE[1]: Throughput = 151.49 Mbps (Avg: 147.46 Mbps), Delay = 2.94 ms, Loss = 50.85 %
+========================================================
+
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 791
+[encode_e2apv1.cpp:902] [INFO] Initializing E2AP request
+[e2ap_asn1c_codec.c:175] [DEBUG] [E2AP ASN] Encoded succesfully, encoded size = 1554

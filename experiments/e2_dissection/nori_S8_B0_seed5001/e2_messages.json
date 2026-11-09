@@ -1,0 +1,831 @@
+{
+  "schema": "xapp-rdl/e2-dissection/v1",
+  "run_id": "nori_S8_B0_seed5001",
+  "generated_at_utc": "2026-11-09T06:35:31Z",
+  "generator": "scripts/certification/e2_pcap_dissect.py",
+  "source_pcap": "experiments/runs/nori_S8_B0_seed5001/raw/e2_sctp.pcap",
+  "source_pcap_sha256": "47b9aa1d8238c7bc9bf57f5a44e5ded15ff4dcd58f014f165be92c5d3b3cb40f",
+  "pcap_linktype": 113,
+  "ric_ports": [
+    36421,
+    36422
+  ],
+  "stats": {
+    "frames": 179,
+    "sctp_frames": 179,
+    "data_chunks": 126,
+    "retransmissions": 0,
+    "fragments": 80
+  },
+  "errors": [],
+  "ran_functions": {
+    "4": "KPM",
+    "200": "KPM",
+    "300": "RC"
+  },
+  "message_count": 86,
+  "role_counts": {
+    "control_ack": 2,
+    "control_request": 2,
+    "e2_setup_request": 1,
+    "e2_setup_response": 1,
+    "indication": 78,
+    "subscription_request": 1,
+    "subscription_response": 1
+  },
+  "undecoded_count": 0,
+  "messages_tsv": "messages.tsv",
+  "messages_tsv_sha256": "6aa8390b3ef699f287aeecf8de2cbca35630230f3842f340682aa79cbcd0a4f6",
+  "messages": [
+    {
+      "index": 1,
+      "frame": 5,
+      "time_epoch": 1794206000.611299,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 1408,
+      "sha256": "d252f5667d7fb667e9d3a39d3f815173b9fd7afc2c1842459d305f6fd1af2d1f",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 1,
+      "procedure": "e2_setup",
+      "role": "e2_setup_request",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 49,
+          "name": "TransactionID",
+          "len": 2,
+          "value": 1
+        },
+        {
+          "id": 3,
+          "name": "GlobalE2node_ID",
+          "len": 9
+        },
+        {
+          "id": 10,
+          "name": "RANfunctionsAdded",
+          "len": 1338,
+          "value": [
+            {
+              "ran_function_id": 4,
+              "definition_len": 243,
+              "revision": 3,
+              "oid": "1.3.6.1.4.1.53148.1.3.2.2"
+            },
+            {
+              "ran_function_id": 300,
+              "definition_len": 287,
+              "revision": 3,
+              "oid": "1.3.6.1.4.1.53148.1.3.2.3"
+            },
+            {
+              "ran_function_id": 200,
+              "definition_len": 687,
+              "revision": 3,
+              "oid": "1.3.6.1.4.1.53148.1.3.2.2"
+            }
+          ]
+        },
+        {
+          "id": 50,
+          "name": "E2nodeComponentConfigAddition",
+          "len": 34
+        }
+      ],
+      "file": "messages/00001_e2_setup_request.aper"
+    },
+    {
+      "index": 2,
+      "frame": 7,
+      "time_epoch": 1794206000.659112,
+      "direction": "RIC->E2_NODE",
+      "src": "10.43.143.195:36422",
+      "dst": "10.42.0.75:38471",
+      "sctp_stream": 0,
+      "sctp_ppid": 70,
+      "length": 78,
+      "sha256": "113f2e8edfd80ad9928402305e272d0374b05168dc6eefbdb4ce478ef9a04f50",
+      "pdu_type": "successfulOutcome",
+      "procedure_code": 1,
+      "procedure": "e2_setup",
+      "role": "e2_setup_response",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 49,
+          "name": "TransactionID",
+          "len": 2,
+          "value": 1
+        },
+        {
+          "id": 4,
+          "name": "GlobalRIC_ID",
+          "len": 7
+        },
+        {
+          "id": 9,
+          "name": "RANfunctionsAccepted",
+          "len": 28,
+          "value": [
+            {
+              "ran_function_id": 4,
+              "revision": 3
+            },
+            {
+              "ran_function_id": 300,
+              "revision": 3
+            },
+            {
+              "ran_function_id": 200,
+              "revision": 3
+            }
+          ]
+        },
+        {
+          "id": 52,
+          "name": "ie_52",
+          "len": 18
+        }
+      ],
+      "file": "messages/00002_e2_setup_response.aper"
+    },
+    {
+      "index": 3,
+      "frame": 9,
+      "time_epoch": 1794206001.648488,
+      "direction": "RIC->E2_NODE",
+      "src": "10.43.143.195:36422",
+      "dst": "10.42.0.75:38471",
+      "sctp_stream": 1,
+      "sctp_ppid": 70,
+      "length": 151,
+      "sha256": "65051b619c6d3c5b297d0edb93cd5b637530b2d65e6557b4c7fdd6cd8ce32bce",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 8,
+      "procedure": "subscription",
+      "role": "subscription_request",
+      "criticality": 1,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 30,
+          "name": "RICsubscriptionDetails",
+          "len": 124
+        }
+      ],
+      "file": "messages/00003_subscription_request.aper"
+    },
+    {
+      "index": 4,
+      "frame": 10,
+      "time_epoch": 1794206001.649742,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 33,
+      "sha256": "a08f98fce5e783930ba1a9ac6944b1fc95110fa2866ba231b367428a858cff81",
+      "pdu_type": "successfulOutcome",
+      "procedure_code": 8,
+      "procedure": "subscription",
+      "role": "subscription_response",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 17,
+          "name": "RICactions_Admitted",
+          "len": 7
+        }
+      ],
+      "file": "messages/00004_subscription_response.aper"
+    },
+    {
+      "index": 5,
+      "frame": 11,
+      "time_epoch": 1794206001.764207,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 786,
+      "sha256": "eb3c27ca87b8b7955d417679a5b1e0847897c177ce7f8996ca615552f9aeef2b",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 5,
+      "procedure": "indication",
+      "role": "indication",
+      "criticality": 1,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 15,
+          "name": "RICactionID",
+          "len": 1,
+          "value": 1
+        },
+        {
+          "id": 27,
+          "name": "RICindicationSN",
+          "len": 2,
+          "value": 1
+        },
+        {
+          "id": 28,
+          "name": "RICindicationType",
+          "len": 1,
+          "value": "report"
+        },
+        {
+          "id": 25,
+          "name": "RICindicationHeader",
+          "len": 10,
+          "value": {
+            "len": 9,
+            "sha256": "33d556efed4745086b58393f30fb87cd382301f0b7457394eb39097ccea30983"
+          }
+        },
+        {
+          "id": 26,
+          "name": "RICindicationMessage",
+          "len": 719,
+          "value": {
+            "len": 717,
+            "sha256": "33638a9299d49b20fa90a4c26b8265c1d6decbe4318ae90e52520955ca4c592a"
+          }
+        },
+        {
+          "id": 20,
+          "name": "RICcallProcessID",
+          "len": 5
+        }
+      ],
+      "received_by_xapp": true,
+      "file": "messages/00005_indication.aper"
+    },
+    {
+      "index": 16,
+      "frame": 32,
+      "time_epoch": 1794206017.650665,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 1553,
+      "sha256": "98f56a061dd2762044463a119c0b94e0b6e2aa6368f8592d94f7a21b037dcada",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 5,
+      "procedure": "indication",
+      "role": "indication",
+      "criticality": 1,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 15,
+          "name": "RICactionID",
+          "len": 1,
+          "value": 1
+        },
+        {
+          "id": 27,
+          "name": "RICindicationSN",
+          "len": 2,
+          "value": 2
+        },
+        {
+          "id": 28,
+          "name": "RICindicationType",
+          "len": 1,
+          "value": "report"
+        },
+        {
+          "id": 25,
+          "name": "RICindicationHeader",
+          "len": 10,
+          "value": {
+            "len": 9,
+            "sha256": "bd057b9abbbbe8ab1f83d02421d1b054800c659c94b1706d2635b0fee7d2a1c7"
+          }
+        },
+        {
+          "id": 26,
+          "name": "RICindicationMessage",
+          "len": 1486,
+          "value": {
+            "len": 1484,
+            "sha256": "cc489514a4b226020738467f96f4e206dd27779d5c628242c7950bfe90b9bacc"
+          }
+        },
+        {
+          "id": 20,
+          "name": "RICcallProcessID",
+          "len": 5
+        }
+      ],
+      "received_by_xapp": true,
+      "file": "messages/00016_indication.aper"
+    },
+    {
+      "index": 17,
+      "frame": 34,
+      "time_epoch": 1794206017.660509,
+      "direction": "RIC->E2_NODE",
+      "src": "10.43.143.195:36422",
+      "dst": "10.42.0.75:38471",
+      "sctp_stream": 1,
+      "sctp_ppid": 70,
+      "length": 116,
+      "sha256": "c95f063ba627f64bf7fcca57955d74d12061ccfd84771e8c024cf11b2b579609",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 4,
+      "procedure": "control",
+      "role": "control_request",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 1003,
+            "instance": 1
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 300
+        },
+        {
+          "id": 22,
+          "name": "RICcontrolHeader",
+          "len": 18,
+          "value": {
+            "len": 17,
+            "sha256": "78f6cc13832d4e6f464a1bb50b1496ef3ca501d44b4fcc610f170321890d8148"
+          }
+        },
+        {
+          "id": 23,
+          "name": "RICcontrolMessage",
+          "len": 63,
+          "value": {
+            "len": 62,
+            "sha256": "aee25e68a6f71f2e22925edde298023155e301e23c133f30e6f5100c01fb959d"
+          }
+        },
+        {
+          "id": 21,
+          "name": "RICcontrolAckRequest",
+          "len": 1
+        }
+      ],
+      "file": "messages/00017_control_request.aper"
+    },
+    {
+      "index": 18,
+      "frame": 35,
+      "time_epoch": 1794206017.660949,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 22,
+      "sha256": "2f872078900b4d9008f78f2d03258fa700fe7cfa8ef69d400d51cb1f7d9542df",
+      "pdu_type": "successfulOutcome",
+      "procedure_code": 4,
+      "procedure": "control",
+      "role": "control_ack",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 1003,
+            "instance": 1
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 300
+        }
+      ],
+      "file": "messages/00018_control_ack.aper"
+    },
+    {
+      "index": 19,
+      "frame": 36,
+      "time_epoch": 1794206017.700549,
+      "direction": "RIC->E2_NODE",
+      "src": "10.43.143.195:36422",
+      "dst": "10.42.0.75:38471",
+      "sctp_stream": 1,
+      "sctp_ppid": 70,
+      "length": 116,
+      "sha256": "f6e8a914e0b3b8721605d6aa15f7e303b9155ffcf83ec732c80ea6149e3f2ca0",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 4,
+      "procedure": "control",
+      "role": "control_request",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 1003,
+            "instance": 2
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 300
+        },
+        {
+          "id": 22,
+          "name": "RICcontrolHeader",
+          "len": 18,
+          "value": {
+            "len": 17,
+            "sha256": "78f6cc13832d4e6f464a1bb50b1496ef3ca501d44b4fcc610f170321890d8148"
+          }
+        },
+        {
+          "id": 23,
+          "name": "RICcontrolMessage",
+          "len": 63,
+          "value": {
+            "len": 62,
+            "sha256": "bac0cc51bfe0c752f6253ef99e037b0d0dd03c0c9de9ad1ca41eebe374ba3353"
+          }
+        },
+        {
+          "id": 21,
+          "name": "RICcontrolAckRequest",
+          "len": 1
+        }
+      ],
+      "file": "messages/00019_control_request.aper"
+    },
+    {
+      "index": 20,
+      "frame": 37,
+      "time_epoch": 1794206017.700806,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 22,
+      "sha256": "f41b2b6f89dde730e050c6d5a420624e2449e8b1be1db2e392af8dcf2f6e3c3a",
+      "pdu_type": "successfulOutcome",
+      "procedure_code": 4,
+      "procedure": "control",
+      "role": "control_ack",
+      "criticality": 0,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 1003,
+            "instance": 2
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 300
+        }
+      ],
+      "file": "messages/00020_control_ack.aper"
+    },
+    {
+      "index": 21,
+      "frame": 39,
+      "time_epoch": 1794206020.930528,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 791,
+      "sha256": "980337fb7033b4553cbf26b2d87ac4f8e2b9645e753d25e5a2110f7f28d28898",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 5,
+      "procedure": "indication",
+      "role": "indication",
+      "criticality": 1,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 15,
+          "name": "RICactionID",
+          "len": 1,
+          "value": 1
+        },
+        {
+          "id": 27,
+          "name": "RICindicationSN",
+          "len": 2,
+          "value": 1
+        },
+        {
+          "id": 28,
+          "name": "RICindicationType",
+          "len": 1,
+          "value": "report"
+        },
+        {
+          "id": 25,
+          "name": "RICindicationHeader",
+          "len": 10,
+          "value": {
+            "len": 9,
+            "sha256": "4077a615491e7fbfe7f1fc198a158c125d0b9bfde105ac0b831e2ccd734680a6"
+          }
+        },
+        {
+          "id": 26,
+          "name": "RICindicationMessage",
+          "len": 724,
+          "value": {
+            "len": 722,
+            "sha256": "9c1be7247f854a24881ae8a2d448570f4b2769b54bca9c9b1cf5c167092932da"
+          }
+        },
+        {
+          "id": 20,
+          "name": "RICcallProcessID",
+          "len": 5
+        }
+      ],
+      "received_by_xapp": true,
+      "file": "messages/00021_indication.aper"
+    },
+    {
+      "index": 86,
+      "frame": 174,
+      "time_epoch": 1794206125.698053,
+      "direction": "E2_NODE->RIC",
+      "src": "10.42.0.75:38471",
+      "dst": "10.43.143.195:36422",
+      "sctp_stream": 0,
+      "sctp_ppid": 0,
+      "length": 1553,
+      "sha256": "af7964a1cc9f3cbb32647c4e12cb2719c4e378aa6b5f2862137c582c13876444",
+      "pdu_type": "initiatingMessage",
+      "procedure_code": 5,
+      "procedure": "indication",
+      "role": "indication",
+      "criticality": 1,
+      "ies": [
+        {
+          "id": 29,
+          "name": "RICrequestID",
+          "len": 5,
+          "value": {
+            "requestor": 123,
+            "instance": 123
+          }
+        },
+        {
+          "id": 5,
+          "name": "RANfunctionID",
+          "len": 2,
+          "value": 200
+        },
+        {
+          "id": 15,
+          "name": "RICactionID",
+          "len": 1,
+          "value": 1
+        },
+        {
+          "id": 27,
+          "name": "RICindicationSN",
+          "len": 2,
+          "value": 2
+        },
+        {
+          "id": 28,
+          "name": "RICindicationType",
+          "len": 1,
+          "value": "report"
+        },
+        {
+          "id": 25,
+          "name": "RICindicationHeader",
+          "len": 10,
+          "value": {
+            "len": 9,
+            "sha256": "424d0a1be54767db98d59d366b0ec879a245ba5e658a6019760d806157287cca"
+          }
+        },
+        {
+          "id": 26,
+          "name": "RICindicationMessage",
+          "len": 1486,
+          "value": {
+            "len": 1484,
+            "sha256": "cc489514a4b226020738467f96f4e206dd27779d5c628242c7950bfe90b9bacc"
+          }
+        },
+        {
+          "id": 20,
+          "name": "RICcallProcessID",
+          "len": 5
+        }
+      ],
+      "received_by_xapp": true,
+      "file": "messages/00086_indication.aper"
+    }
+  ],
+  "chain_roles": {
+    "e2_setup": 2,
+    "subscription": 4,
+    "kpm_t0": 16,
+    "control_request": 17,
+    "control_ack": 18,
+    "kpm_t1": 21
+  },
+  "tshark": {
+    "available": true,
+    "version": "TShark (Wireshark) 4.2.2 (Git v4.2.2 packaged as 4.2.2-1.1build3).",
+    "command": "~/.local/tshark-4.2.2/root/usr/bin/tshark -n -r <repo>/experiments/runs/nori_S8_B0_seed5001/raw/e2_sctp.pcap -o sctp.reassembly:TRUE -d sctp.port==36421,e2ap -d sctp.port==36422,e2ap -Y e2ap -T fields -E separator=\t -E occurrence=a -E aggregator=, -e frame.number -e e2ap.E2AP_PDU -e e2ap.procedureCode -e e2ap.ricRequestorID -e e2ap.ricInstanceID -e e2ap.RANfunctionID",
+    "exit_code": 0,
+    "stderr": "ARNING] -- Dissector bug, protocol E2AP, in packet 23: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.685389 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 27: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.685586 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 31: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.685897 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 39: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686082 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 43: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686258 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 47: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686432 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 51: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686602 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 55: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686775 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 59: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.686945 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 63: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.687115 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 67: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.687289 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 71: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.687504 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 77: ./epan/asn1.c:252: failed assertion \"lenN <= 8\"\n ** (tshark:875460) 03:35:31.687677 [Epan WARNING] -- Dissector bug, protocol E2AP, in packet 81: ./epan/asn1.c:252: failed assertion \"lenN <= 8\""
+  },
+  "tshark_comparison": {
+    "checked": true,
+    "agreement": true,
+    "messages_dissector": 86,
+    "messages_tshark": 86,
+    "fields_compared": [
+      "frame",
+      "pdu_type",
+      "procedure_code",
+      "ricRequestorID",
+      "ricInstanceID",
+      "RANfunctionID"
+    ],
+    "mismatches": [],
+    "id_mismatches": [],
+    "id_mismatch_count": 0
+  },
+  "independent_confirmation": true,
+  "xapp_crosscheck": {
+    "events_file": "kpm_probe_events.jsonl",
+    "events_sha256": "a03deeee9c8cf8e88d57814072f6e41d38c2e68501033be35481968da0ea1e64",
+    "xapp_indications": 78,
+    "pcap_indications": 78,
+    "pcap_indications_received_by_xapp": 78,
+    "xapp_indications_not_in_pcap": 0,
+    "chain_roles_received_by_xapp": {
+      "kpm_t0": true,
+      "kpm_t1": true
+    },
+    "subscription_events": [
+      {
+        "t_utc": "2026-11-09T06:33:21.640Z",
+        "event": "subscription_request",
+        "status": 201,
+        "response": {
+          "SubscriptionId": "3LrIwrJhcYDETQlE34hnwrur9eS",
+          "SubscriptionInstances": null
+        }
+      },
+      {
+        "t_utc": "2026-11-09T06:33:21.668Z",
+        "event": "submgr_notification",
+        "body": {
+          "SubscriptionId": "3LrIwrJhcYDETQlE34hnwrur9eS",
+          "SubscriptionInstances": [
+            {
+              "E2EventInstanceId": 123,
+              "ErrorCause": " ",
+              "ErrorSource": "E2Node",
+              "XappEventInstanceId": 1001
+            }
+          ]
+        }
+      }
+    ],
+    "decision": {
+      "xapp_control_requests": 2,
+      "pcap_control_sent_by_xapp": true,
+      "source": "BASELINE_B0",
+      "trigger_kpm_sha256": "98f56a061dd2762044463a119c0b94e0b6e2aa6368f8592d94f7a21b037dcada",
+      "decision_kpm_inputs_sha256": [
+        "0040eadc6e6b133fa4d7f1edd2241ede24c71de3b59aab262669cc7cc0121a29",
+        "98f56a061dd2762044463a119c0b94e0b6e2aa6368f8592d94f7a21b037dcada"
+      ],
+      "trigger_is_kpm_t0": true,
+      "quotas": [
+        {
+          "sst": 1,
+          "max_prb_ratio": 80,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        },
+        {
+          "sst": 2,
+          "max_prb_ratio": 20,
+          "min_prb_ratio": 0,
+          "dedicated_prb_ratio": 0
+        }
+      ],
+      "ack_received_by_xapp": true,
+      "xapp_outcome": "ACK",
+      "xapp_correlated_with_request": true,
+      "xapp_ack_latency_ms": 3.101
+    }
+  }
+}

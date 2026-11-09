@@ -1,0 +1,79 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S8_B0_seed5022",
+  "generated_at_utc": "2026-11-09T10:12:05Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v5-curve-apply",
+  "anchor": "apply",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.2
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "2aaf19ea6ca0b1c17363f2e4af612c0fe8a5c3ec7ff095e31257a68492e741d0",
+  "source_dissection_sha256": "51847abc392dbd32c7813857657799712a71ff500c1ae3d2d3705ccafd65dffd",
+  "control_frame": 36,
+  "control_wall_epoch": 1794219011.295788,
+  "control_sim_time_s": 5.556783991569511,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 25,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 75,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "control_apply_time_s": 17.442451000213623,
+  "calibration": "experiments/calibration/slice_cap_curve_v5.json",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
+  "verdict": "CONSISTENT",
+  "window_before": [
+    13.442451000213623,
+    17.442451000213623
+  ],
+  "window_after": [
+    19.442451000213623,
+    23.442451000213623
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 25.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 95.24,
+      "relative_change": -0.3713,
+      "curve_prediction": {
+        "kind": "interpolated",
+        "predicted_after_mbps": 95.216,
+        "from_levels": [
+          20.0,
+          30.0
+        ]
+      },
+      "expectation": "decrease_to_prediction",
+      "predicted_after_mbps": 95.216,
+      "prediction_error": 0.0003,
+      "met": true
+    },
+    "2": {
+      "cap_max_prb_pct": 75.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "curve_prediction": {
+        "kind": "no_decrease",
+        "threshold_free_pct": 70.0
+      },
+      "expectation": "no_decrease",
+      "met": true
+    }
+  }
+}

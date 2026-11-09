@@ -28,12 +28,12 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 | Gate | Exigência | Veredito |
 | :-: | :-- | :-: |
 | G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilhas nativa e NORI) |
-| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (90 execuções NORI) |
+| G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (249 execuções NORI) |
 | G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
-| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (73 execuções; NORI com patch do lock) |
-| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (53 cadeias: 3 execuções v5 e 20 da campanha S0–S8 pela regra v5; 30 da avaliação v6 pela regra v6, adotada sem efeito retroativo) |
-| G5 | Campanha ≥ 30 sementes pareadas com E2 | NOT_CERTIFIED |
-| G6 | Artefato reproduzível por terceiros | BLOCKED |
+| G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (230 execuções; NORI com patch do lock) |
+| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (84 cadeias decididas pelo H-RDL: 3 da v5 e 20 da campanha S0–S8 pela regra v5; 30 da avaliação v6 e 31 do B3 da campanha do G5 pela regra v6, adotada sem efeito retroativo) |
+| G5 | Campanha ≥ 30 sementes pareadas com E2 | CERTIFIED (S8: 30 pares B0–B3 com E2 real; [pré-registro e resultado](docs/07_preregistro_g5_campanha_s8.md)) |
+| G6 | Artefato reproduzível por terceiros | NOT_CERTIFIED (falta reprodução independente) |
 
 Importante para leitura de resultados antigos:
 

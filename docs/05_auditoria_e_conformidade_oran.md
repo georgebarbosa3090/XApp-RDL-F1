@@ -36,8 +36,8 @@ Definidos em [`reproducibility/provenance_policy.yaml`](../reproducibility/prove
 | G2 | Decisão H-RDL funcional (testes) | LOCAL_ONLY |
 | G3 | RIC Control e ACK/Failure externos correlacionados | CERTIFIED (NORI com o patch `0001-rc-control-ack` do lock) |
 | G4 | Cadeia KPM_t0 → decisão → RC → ACK → KPM_t1 com ordem temporal, Control decidido pelo H-RDL a partir do KPM_t0 (registro da xApp casado com o PCAP) e efeito na RAN coerente com as cotas por regra calibrada (`slice_effect.py`, veredito `CONSISTENT`) | CERTIFIED (3 execuções v5; ressalvas em [`07_preregistro_fase4_v5.md`](07_preregistro_fase4_v5.md)) |
-| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | NOT_CERTIFIED |
-| G6 | G4 e G5 certificados + reprodução independente | BLOCKED |
+| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | CERTIFIED (S8, 30 pares; docs/07, campanha do G5) |
+| G6 | G4 e G5 certificados + reprodução independente | NOT_CERTIFIED (falta a reprodução independente) |
 
 Regras do certificador por execução: manifesto presente; origem explícita e elegível; `run_id` que não corresponda a gerador estatístico; campos obrigatórios do backend; `run_status=SUCCESS` e `exit_code=0`; versões e commits iguais ao perfil do backend no lock; todos os arquivos com hash e hashes conferindo; grupos de evidência bruta exigidos (FlowMonitor e, no NORI, PCAP/RAW); FlowMonitor com fluxos recebidos; artefatos E2 por mensagem e correlação RC/ACK (só NORI); horários coerentes. No NORI, as mensagens E2 vêm da dissecação do PCAP em `experiments/e2_dissection/<run>/` ([`e2_pcap_dissect.py`](../scripts/certification/e2_pcap_dissect.py)): ela só vale se o hash do PCAP conferir, e só conta para G1–G4 quando o tshark concorda com o dissecador do projeto mensagem a mensagem (R14 `PASS`).
 
@@ -94,12 +94,14 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 45 | O repositório guardava dados sintéticos e informações inconsistentes com a evidência atual: 210 execuções `S1_B0..B6` geradas com `numpy.random`, uma "cadeia certificada" montada por script (`certified_closed_loop_chain`), tabelas e conjuntos de dados com números escritos à mão (`experiments/results`, `analysis/`), métricas de "auditoria reproduzida" e relatórios do testbed ZMQ antigo (`artifacts/`), relatórios e auditorias antigos (`docs/historico`, `docs/auditoria`), certificados superados, 177 figuras sem uso, cerca de 60 scripts legados (inclusive commit/push automático), cenários S9–S15 e exploratórios nunca executados, manifestos Kubernetes antigos e arquivos soltos na raiz | removidos em 2026-11-09 (2.005 arquivos; o histórico do git os preserva). Makefile reescrito só com alvos válidos; CI e `docker/Dockerfile` instalam as dependências pelo `pyproject.toml` (`setup.py` e `requirements*.txt` removidos); `deploy_helm.sh` exige o RIC Release I em vez do manifesto de RIC simulado |
 | 46 | Depois de confirmada nas 30 avaliações pré-registradas (H6.1–H6.3), a regra v6 precisava entrar no certificador sem reclassificar execuções antigas | corrigido: o G4 aceita `v6-ratio-apply` só para execuções iniciadas depois do commit do pré-registro v6 (`V6_ADOPTED_FROM_UTC`) e com `slice_effect_v6.json` gravado na coleta; as anteriores mantêm a regra da época. G4: 53 cadeias. Coberto por `tests/unit/test_certify_chain.py` |
 | 47 | Desenho v7 (H6.4 com banda de 50 MHz, sementes 4001–4005): as 30 avaliações saíram `INCONSISTENT` pela regra v6. O teto age em PRBs absolutos da portadora: c % a 50 MHz equivale a c/2 % a 100 MHz (URLLC 20 % → 37,46 Mb/s, igual ao ponto de 10 % da curva; 30 % → 56,25, igual ao de 15 %), e a URLLC ganha vazão quando o teto limita a eMBB | H6.4 refutada para mudança de banda (docs/07 v7, seção 8). A regra v6 vale na banda da calibração; um modelo vazão por PRB × PRBs do teto fica para um novo desenho pré-registrado. Certificador inalterado |
+| 48 | Baselines rápidos (B0, ~1 ms) podem decidir ao receber a Indication de formato 1, antes da de formato 3 do mesmo período, que chega 0,5 ms depois: o KPM_t0 do fio não entra na decisão (semente 5012 do G5) | documentado; o par não conta para o G5 e foi reposto (semente 5031). Correção futura: decidir só com o par de formatos do período |
+| 49 | Durante a campanha do G5, o E2Mgr perdeu o registro da instância do E2Term na RNIB ("E2TInstance not found", 12:01 UTC): sem rota para o E2 Setup, o NORI ficou sem resposta (sementes 5028 e 5029) | contornado: E2Mgr e E2Term reiniciados, registro conferido em `/v1/e2t/list` e execução de verificação `nori_S3_B3_smoke_seed9001`; pares repostos (5032, 5033) |
 
 As auditorias anteriores e os relatórios com números não verificados foram removidos do repositório (achado 45); continuam no histórico do git.
 
 ## 5. Pendências para interoperabilidade
 
-1. G5: campanha com E2 real e ≥ 30 sementes pareadas por baseline B0–B3, com o Control decidido por cada baseline (G4 certificado com o H-RDL na v5).
+1. G5: certificado em 2026-11-09 com o S8 (30 pares B0–B3 com E2 real). Para generalizar, faltam outros cenários com atuação (S0–S2, S6, S7).
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
 3. Propor ao NORI o envio do RIC Control Acknowledge na função E2SM-RC, para dispensar o patch local.
 4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).

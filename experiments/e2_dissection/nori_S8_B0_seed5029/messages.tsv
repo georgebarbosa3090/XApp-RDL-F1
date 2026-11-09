@@ -1,0 +1,2 @@
+index	frame	time_epoch	direction	role	procedure_code	pdu_type	length	sha256	ric_requestor_id	ric_instance_id	ran_function_id	received_by_xapp
+1	5	1794225874.322731	E2_NODE->RIC	e2_setup_request	1	initiatingMessage	1408	d252f5667d7fb667e9d3a39d3f815173b9fd7afc2c1842459d305f6fd1af2d1f				

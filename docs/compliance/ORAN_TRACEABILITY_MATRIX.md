@@ -33,8 +33,8 @@ flowchart LR
 | G2 | Conflito detectado e decisão determinística com Safety Guard | LOCAL_ONLY |
 | G3 | RIC Control e ACK/Failure externos correlacionados | BLOCKED |
 | G4 | KPM_t0 → decisão → RC → ACK → KPM_t1, em ordem e com efeito medido | BLOCKED |
-| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | BLOCKED |
-| G6 | G4 e G5 + reprodução independente | BLOCKED |
+| G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | CERTIFIED (S8, 30 pares) |
+| G6 | G4 e G5 + reprodução independente | NOT_CERTIFIED (falta reprodução independente) |
 
 ## 3. Testbeds planejados
 

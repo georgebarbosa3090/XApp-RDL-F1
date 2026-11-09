@@ -84,3 +84,34 @@ O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pare
 
   A plataforma foi recuperada reiniciando o E2Mgr e o E2Term, com o E2Term registrado de novo e conferido em `/v1/e2t/list`. Uma execução curta de verificação da plataforma, `nori_S3_B3_smoke_seed9001` (S3, sem Control), confirma E2 Setup, Subscription e Indications antes da retomada. Durante a recuperação, o laço da campanha chegou a iniciar o B0 da semente 5030 no pod. Essa execução foi encerrada e apagada antes de qualquer coleta, e nenhum dado dela foi visto.
 - **Reposição:** a semente 5030, que ainda não tinha rodado, roda normalmente, com os quatro baselines. Os três pares perdidos (5012, 5028 e 5029) são repostos pelas sementes **5031, 5032 e 5033**, com os quatro baselines e o mesmo código, sem nenhuma alteração. Se outro par falhar, a próxima semente (5034, 5035...) é declarada aqui antes de rodar.
+
+## 9. Resultado (registrado depois das execuções, 2026-11-09)
+
+A xApp kpm-probe foi implantada a partir do commit do pré-registro (`87d5282`) e rodou o `src/` dele em todas as execuções, inclusive nas de reposição. Resumo completo em [`reports/nori/resumo_campanha_nori_20261109T130646Z.md`](../reports/nori/resumo_campanha_nori_20261109T130646Z.md) e certificado `reports/certification/certificate_20261109T130613Z.md`.
+
+**G5 `CERTIFIED`:** 30 (cenário, semente) pareados nos quatro baselines com E2 real. São as sementes 5001–5033, menos 5012, 5028 e 5029 (seção 8). O certificador contou execuções com cadeia E2 e decisão do próprio baseline: B0 31, B1 32, B2 32 e B3 121 (as de B3 incluem as campanhas anteriores). O G6 passou de `BLOCKED` para `NOT_CERTIFIED` e agora depende só de uma reprodução independente.
+
+- **H8.1 cumprida em todas as execuções válidas.** Cadeia completa, fonte da decisão igual ao baseline, disparo pelo KPM_t0, ACK correlacionado e tshark de acordo. As exceções são as 6 execuções dos desvios declarados na seção 8: a corrida no B0 da 5012 e a perda de registro do E2Term no RIC (5028 B3 e 5029 inteira).
+- **H8.2 cumprida nos 30 pares.**
+
+  | Baseline | Controls no PCAP | Cotas aplicadas |
+  | :-: | :-: | :-: |
+  | B0 | 2 | 25/75 |
+  | B1 | 1 | 80/20 |
+  | B2 | 1 | 25/75 |
+  | B3 | 1 | 80/20 |
+
+- **H8.3 cumprida:** todas as execuções válidas saíram `CONSISTENT` pela regra v6 (B0 31/31, B1 32/32, B2 32/32 e B3 31/31). A regra v5 deu o mesmo resultado.
+
+**Comparação descritiva (30 pares, vazão depois do Control).** O desvio-padrão entre sementes ficou abaixo de 0,01 Mb/s.
+
+| Baseline | eMBB (Mb/s) | URLLC (Mb/s) | Total (Mb/s) |
+| :-: | --: | --: | --: |
+| B0 (sem coordenação) | 95,24 | 151,49 | 246,73 |
+| B1 (FIFO) | 151,49 | 76,45 | 227,93 |
+| B2 (prioridade estática) | 95,24 | 151,49 | 246,73 |
+| B3 (H-RDL) | 151,49 | 76,45 | 227,93 |
+
+Diferença pareada B3 − Bx na vazão total: −18,79 Mb/s contra B0 e B2, e 0,00 contra B1, igual em todas as 30 sementes.
+
+**Leitura.** No S8, o H-RDL escolheu a proposta da embb_throughput (80 %) por utilidade TVS, embora a xslice (25 %) tenha prioridade maior. Isso preserva a vazão da eMBB e restringe a URLLC. A vazão total fica 18,8 Mb/s abaixo da que o B0 e o B2 entregam, porque esses aplicam o teto de 25 % na eMBB e deixam a URLLC livre. O pré-registro não fixou nenhuma hipótese de superioridade, e o resultado não mostra que o H-RDL seja melhor em vazão total neste cenário. O que a campanha certifica é a cadeia closed-loop com E2 real em cada baseline, com 30 sementes pareadas.
