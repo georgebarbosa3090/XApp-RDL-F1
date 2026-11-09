@@ -1,5 +1,0 @@
-Hipótese,Enunciado,Métrica,Valor_Observado,Threshold_Meta,p_valor,Resultado
-H1,H-RDL reduz SLA violation em >= 30 pp,Delta SLA Violations (%),-36.7,-30.0,0.0001,CONFIRMADA (p < 0.001)
-H2,H-RDL reduz Action Churn para < 0.1 act/s,Action Churn (actions/s),0.05,0.1,0.0001,CONFIRMADA (p < 0.001)
-H3,Latência de Decisão H-RDL é sub-milissegundo,T_decision (ms),0.12,1.0,0.0001,CONFIRMADA (0.06% do loop)
-H4,Safe-MAPPO eleva utilidade com zero insegurança,Throughput Gain (%) / Unsafe Applied,4.03,0.0,0.0008,CONFIRMADA (Unsafe == 0)

@@ -58,8 +58,6 @@ experiments/results/ns3_live_*
 experiments/results/rich_closed_loop_*
 *rdl_phase2*
 *phase2*
-!scripts/testbed/
-!scripts/testbed/*
 
 # 4. Notebooks do Google Colab e Análises Locais
 notebooks/
@@ -86,10 +84,6 @@ paper_sbrc/
 *dissertacao*
 !docs/figures/diagrama_sequencia_*
 
-# docs/auditoria: PERMITE ESTRITAMENTE APENAS AUDITORIA_PROFUNDA_INTEGRAL_CONSOLIDADA_2026.md e RELATORIO_TECNICO_HRDL_AUDITORIA_CORRECAO_MODELAGEM.md
-docs/auditoria/*
-!docs/auditoria/AUDITORIA_PROFUNDA_INTEGRAL_CONSOLIDADA_2026.md
-!docs/auditoria/RELATORIO_TECNICO_HRDL_AUDITORIA_CORRECAO_MODELAGEM.md
 
 # 6. Scripts Locais de Experimentos, Benchmarks, Plotagem, Backup e Sincronização
 scripts/compile_dissertation*.py

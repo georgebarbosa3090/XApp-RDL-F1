@@ -1,9 +1,0 @@
-Métrica,B0_Mean,B0_Std,B3_Mean,B3_Std,B6_Mean,B6_Std
-Throughput DL (Mbps),85.94,0.66,102.49,0.54,106.5,0.36
-Packet Latency (ms),17.69,0.21,11.23,0.14,9.62,0.11
-P95 Latency (ms),24.42,0.2,13.72,0.09,11.12,0.07
-SLA Violation Rate (%),36.7,0.0,0.0,0.0,0.0,0.0
-Jain Fairness Index,0.52,0.01,0.94,0.0,0.97,0.0
-Spectral Efficiency (bps/Hz),0.86,0.01,1.02,0.01,1.07,0.0
-Decision Latency (ms),0.0,0.0,0.12,0.01,1.83,0.03
-Action Churn (actions/s),1.0,0.02,0.05,0.0,0.1,0.01

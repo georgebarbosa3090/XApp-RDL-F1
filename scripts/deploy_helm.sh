@@ -93,13 +93,11 @@ echo -e "\n${YELLOW}[3/6] Provisionando plataforma Near-RT RIC (namespace ${NAME
 kubectl create namespace ${NAMESPACE_RIC} --dry-run=client -o yaml | kubectl apply -f -
 kubectl create namespace ${NAMESPACE_XAPP} --dry-run=client -o yaml | kubectl apply -f -
 
-# Subir Redis DBAAS, E2Term e SubMgr no ricplt
-echo " -> Aplicando manifestos do Near-RT RIC (Redis DBAAS, E2Term, SubMgr)..."
-kubectl apply -f deploy/kubernetes/near-rt-ric.yaml
-
-# Aguardar Redis DBAAS estar Running
-echo " -> Aguardando Redis DBAAS atingir estado Ready no ricplt..."
-kubectl rollout status deployment/deployment-ricplt-dbaas-redis -n ${NAMESPACE_RIC} --timeout=60s
+# O Near-RT RIC (O-RAN SC Release I) é implantado à parte: bash scripts/deploy_ric_i_release.sh (docs/02, seção 7.2)
+if ! kubectl get deployment deployment-ricplt-e2term-alpha -n ${NAMESPACE_RIC} >/dev/null 2>&1; then
+    echo " -> Near-RT RIC não encontrado em ${NAMESPACE_RIC}: rode antes 'bash scripts/deploy_ric_i_release.sh'" >&2
+    exit 3
+fi
 
 # 4. Deploy das 3 Reference xApps via Helm (ricxapp)
 echo -e "\n${YELLOW}[4/6] Realizando deploy das 3 Reference xApps via Helm no namespace ${NAMESPACE_XAPP}...${NC}"

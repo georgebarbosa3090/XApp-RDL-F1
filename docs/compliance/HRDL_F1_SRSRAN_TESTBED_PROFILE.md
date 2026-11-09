@@ -25,7 +25,7 @@ decision_window_ms: 200
 | Adaptador de backend | `SrsRanBackendAdapter` em `src/infrastructure/ran_backend_adapter.py` |
 | Adaptador E2 (socket) | `src/e2/backends/srsran_e2_adapter.py` |
 | Configurações de testbed | `configs/testbed_zmq/`, `configs/testbed_sdr/` |
-| Roteiros por fase | `scripts/testbed/run_phase1_zmq_baseline.py`, `run_phase2_e2_telemetry_loop.py`, `run_phase3_closed_loop_rc.py` |
+| Roteiros por fase | removidos em 2026-11-09 (nunca rodaram com proveniência); a reescrever no padrão de `scripts/certification/` |
 
 ## 3. Mapeamento de controle previsto
 
@@ -43,5 +43,5 @@ Com KPM a cada 1 s, a avaliação de uma decisão exige pelo menos três amostra
 ## 5. Pendências
 
 1. Codec E2SM-RC v3.00 normativo.
-2. Executar `scripts/testbed/` com captura PCAP e manifesto pelo mesmo padrão de proveniência (`reproducibility/provenance_policy.yaml`, backend `SRSRAN_OPEN5GS`).
+2. Escrever e executar os roteiros do testbed com captura PCAP e manifesto, pelo mesmo padrão de proveniência (`reproducibility/provenance_policy.yaml`, backend `SRSRAN_OPEN5GS`).
 3. Registrar versões reais de srsRAN, Open5GS e O-RAN SC por execução.

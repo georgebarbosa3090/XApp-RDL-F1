@@ -15,10 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ldconfig
 
 WORKDIR /app
-COPY requirements.txt ./
-# Constrói todos os wheels e dependências transitivas (incluindo hiredis com C extensions)
+COPY pyproject.toml README.md ./
+COPY src/ ./src/
+# Constrói os wheels do projeto e das dependências (pyproject.toml, com o extra oran: ricxappframe)
 RUN pip install --upgrade pip setuptools wheel && \
-    pip wheel --no-cache-dir --wheel-dir /app/wheels -r requirements.txt
+    pip wheel --no-cache-dir --wheel-dir /app/wheels ".[oran]"
 
 # Stage 2: Final runtime image
 FROM python:3.10-slim
@@ -45,9 +46,8 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
 ENV PYTHONPATH=/app
 # Install wheels from builder (system-wide)
 COPY --from=builder /app/wheels /tmp/wheels
-COPY --from=builder /app/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --no-index --find-links=/tmp/wheels -r /tmp/requirements.txt \
-    && rm -rf /tmp/wheels /tmp/requirements.txt
+RUN pip install --no-cache-dir --no-index --find-links=/tmp/wheels "xapp-rdl-f1[oran]" \
+    && rm -rf /tmp/wheels
 
 # Create non-root user
 RUN useradd -m -s /bin/bash xapp

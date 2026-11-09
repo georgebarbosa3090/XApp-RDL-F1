@@ -59,13 +59,13 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 10 | Uma ação insegura vetava ações legítimas no mesmo conflito (S7) | corrigido: Safety Guard por proposta antes da arbitragem |
 | 11 | Conflitos entre células não detectados (S4, S5) | aberto (limitação do desenho) |
 | 12 | Commit NORI `9b64c12` do lock não existe; NORI exige ns-3.42 e E2 v3.01 | corrigido no `versions.lock` (perfis `nori` e `native`) |
-| 13 | 210 execuções `S1_B0..B6` geradas com `numpy.random` e rotuladas como ns-3 | identificado; classificado pelo certificador como sintético |
+| 13 | 210 execuções `S1_B0..B6` geradas com `numpy.random` e rotuladas como ns-3 | identificado; classificado pelo certificador como sintético; removidas do repositório (achado 45) |
 | 14 | Cenários S0–S8 não alteravam a RAN; S0 e S4–S7 sequer anexavam UEs | corrigido para S0–S7 (`rdl-nr-common.h`); S8 removido e redefinido como o closed loop da bancada NORI (achado 39) |
 | 15 | S8 imprime handshake E2 fixo (`TraceLifecycleE2`) | corrigido: `scenario_rdl_closed_loop_nori.cc` removido; o S8 roda só na bancada NORI, com E2 real (achado 39) |
 | 16 | Cenários anulavam `--RngRun` com `SetSeed` próprio: sementes idênticas | corrigido no executor (`--seed`) |
 | 17 | "Hashes divergentes" das execuções antigas eram conversão CRLF do Git | corrigido: `experiments/runs/** -text` |
 | 18 | `scripts/setup_ns3.sh` recai em outras versões silenciosamente | documentado; instalação fixada no guia |
-| 19 | `analysis/export_tables.py` contém resultados escritos à mão (ex.: 103,1 Mbps em S8) | aberto: não usar como fonte |
+| 19 | `analysis/export_tables.py` contém resultados escritos à mão (ex.: 103,1 Mbps em S8) | removido do repositório (achado 45) |
 | 20 | 5G-LENA v5.1 aborta em handover em massa (SRS sobreposto) | contornado com `--disableSrs=true` em S2, S4, S5 |
 | 21 | PCAP E2 do NORI sem dissecação: mensagens não separadas por papel | corrigido: dissecador próprio + confirmação do tshark 4.2.2 (R14) |
 | 22 | Exemplos do NORI instalam FlowMonitor mas não o gravam (R9/R10) | corrigido: variante `nori-rc-slicing-flowmon` gerada em `scratch/` pelo chart |
@@ -91,8 +91,9 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 42 | Com a semente 1005, a vazão máxima por UE do cenário NORI é 75,74 Mb/s (metade das outras sementes) desde o início; a curva v5, em Mb/s absolutos calibrados a 151,49 Mb/s, deixa de valer: 4 execuções `NOT_TESTABLE` e o S6 `INCONSISTENT`. A razão depois/antes por teto é igual nas duas vazões de base (15 % → 0,371; 20 % → 0,505; 25 % → 0,628; 30 % → 0,752) | registrado como exploratório; a curva deveria ser relativa à vazão sem restrição. Desenho v6 pré-registrado (docs/07_preregistro_fase4_v6.md), avaliação pendente |
 | 43 | Em 6 de 45 execuções NORI, a xApp não recebe o primeiro par de Indications: o nó o envia ~2 ms depois do Subscription Response, antes de a rota RMR da subscrição chegar à xApp (78/80 casadas) | documentado; a decisão (12.ª Indication) não é afetada |
 | 44 | O roteiro da campanha NORI no WSL rodava o certificador num venv sem PyYAML: a política de proveniência não era carregada | corrigido: `PyYAML>=6.0.1` na lista de instalação do venv (docs/02) e instalado; a campanha de 2026-11-09 foi certificada de novo com a política |
+| 45 | O repositório guardava dados sintéticos e informações inconsistentes com a evidência atual: 210 execuções `S1_B0..B6` geradas com `numpy.random`, uma "cadeia certificada" montada por script (`certified_closed_loop_chain`), tabelas e conjuntos de dados com números escritos à mão (`experiments/results`, `analysis/`), métricas de "auditoria reproduzida" e relatórios do testbed ZMQ antigo (`artifacts/`), relatórios e auditorias antigos (`docs/historico`, `docs/auditoria`), certificados superados, 177 figuras sem uso, cerca de 60 scripts legados (inclusive commit/push automático), cenários S9–S15 e exploratórios nunca executados, manifestos Kubernetes antigos e arquivos soltos na raiz | removidos em 2026-11-09 (2.005 arquivos; o histórico do git os preserva). Makefile reescrito só com alvos válidos; CI e `docker/Dockerfile` instalam as dependências pelo `pyproject.toml` (`setup.py` e `requirements*.txt` removidos); `deploy_helm.sh` exige o RIC Release I em vez do manifesto de RIC simulado |
 
-As auditorias anteriores estão em [`auditoria/`](auditoria/README.md) como registro histórico; os relatórios com números não verificados, em [`historico/`](historico/README.md).
+As auditorias anteriores e os relatórios com números não verificados foram removidos do repositório (achado 45); continuam no histórico do git.
 
 ## 5. Pendências para interoperabilidade
 

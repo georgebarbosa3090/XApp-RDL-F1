@@ -98,8 +98,6 @@ Cada execução fica em `experiments/runs/<run_id>/` com `execution_manifest.jso
 
 Resultados: [`docs/04_metodologia_experimental_e_resultados.md`](../../docs/04_metodologia_experimental_e_resultados.md).
 
-## 8. Cenários futuros (S9–S15) e scripts legados
+## 8. Arquivos removidos
 
-Os arquivos `scenario_rdl_s9_*` a `scenario_rdl_s15_*`, `scenario_rdl_5ga_*` e `scenario_rdl_6g_*` são esboços para a Fase 2 (NTN, UAV, V2X, IIoT, ISAC, segurança). Não usam `rdl-nr-common.h` nem têm execuções certificadas.
-
-`run_all_s0_s15_simulations.sh` e `run_b0_b6_campaign_30seeds.sh` são legados: não gravam manifesto e fazem `git commit`/`git push` automáticos. Seus resultados não são certificáveis.
+Os esboços S9–S15, os cenários exploratórios 5G-Advanced/6G e os roteiros legados `run_all_s0_s15_simulations.sh` e `run_b0_b6_campaign_30seeds.sh` (sem manifesto, com `git commit`/`git push` automáticos) foram removidos em 2026-11-09 (achado 45 de docs/05). As execuções vêm só de `scripts/certification/run_conflict_experiment.py` (pilha nativa) e `scripts/run_nori_scenario.sh` (bancada NORI).

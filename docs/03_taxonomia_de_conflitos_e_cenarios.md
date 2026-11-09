@@ -42,19 +42,9 @@ O S8 antigo (`scenario_rdl_closed_loop_nori.cc`) não alterava a RAN e só impri
 
 Os cenários S0–S7 também foram portados para a bancada NORI (`src/closed_loop/catalog_loop.py`, xApp kpm-probe em modo `catalog`). Em cada execução, o H-RDL arbitra uma vez as propostas do cenário e só a cota de PRB no gNB 0 é atuada; potência, handover e propostas para outros gNBs são decididas e registradas como não atuáveis. A tabela de decisões por cenário, os comandos e os limites estão em [docs/11](11_observabilidade_e_campanhas.md).
 
-### 2.3 Cenários de pesquisa futura (S9–S15)
+### 2.3 Cenários S9–S15 (removidos)
 
-| ID | Tema | Arquivo |
-| :-: | :-- | :-- |
-| S9 | Handover orbital em NTN (LEO) | `scenario_rdl_s9_ntn_orbital_handover.cc` |
-| S10 | Enxame de UAVs e bateria | `scenario_rdl_s10_uav_swarm_battery.cc` |
-| S11 | Pelotão V2X em rodovia | `scenario_rdl_s11_v2x_highway_platooning.cc` |
-| S12 | IIoT com jitter determinístico | `scenario_rdl_s12_iiot_zero_jitter_slicing.cc` |
-| S13 | SAGIN em resgate | `scenario_rdl_s13_sagin_disaster_rescue.cc` |
-| S14 | ISAC radar + comunicação | `scenario_rdl_s14_isac_radar_comm.cc` |
-| S15 | xApp maliciosa em enlace NTN | `scenario_rdl_s15_rogue_ntn_feeder_hijacking.cc` |
-
-Estes arquivos existem, mas **não usam a camada de atuação** nem estão no catálogo de conflitos; não foram executados com proveniência. Há também três cenários exploratórios (`scenario_rdl_5ga_multicarrier_mimo`, `scenario_rdl_6g_cross_tier_governance`, `scenario_rdl_6g_isac_sensing_coexistence`) na mesma situação.
+Os esboços S9–S15 (NTN, UAV, V2X, IIoT, SAGIN, ISAC, NTN malicioso) e três cenários exploratórios (5G-Advanced e 6G) não usavam a camada de atuação, não estavam no catálogo e nunca rodaram com proveniência. Foram removidos do repositório em 2026-11-09 (achado 45 de docs/05). Esses temas pertencem à Fase 2 (`XApp-RDL-F2`).
 
 ## 3. xApps que geram as propostas
 

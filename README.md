@@ -18,7 +18,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 300 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 297 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). A regra relativa está [pré-registrada (v6)](docs/07_preregistro_fase4_v6.md), com avaliação em sementes novas ainda não rodada | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/11, seção 8](docs/11_observabilidade_e_campanhas.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
@@ -37,8 +37,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 Importante para leitura de resultados antigos:
 
-- As 210 execuções `experiments/runs/S1_B0..B6_seed1001..1030` foram geradas por `scripts/run_b0_b6_campaign_30seeds.py` com gerador aleatório (`numpy.random`). **Não são simulações**; o certificador as classifica como `SYNTHETIC_SUSPECT`.
-- Os relatórios com números anteriores a novembro de 2026 estão em [`docs/historico/`](docs/historico/README.md) e não devem ser usados como evidência.
+- Em 2026-11-09 saíram do repositório os dados sintéticos (as 210 execuções `S1_B0..B6`, geradas com `numpy.random` e não simuladas), as tabelas com números escritos à mão, os relatórios e auditorias antigos com números não verificados, os scripts legados e os cenários S9–S15 nunca executados ([docs/05, achado 45](docs/05_auditoria_e_conformidade_oran.md)). Eles continuam no histórico do git e não devem ser usados como evidência.
 - As afirmações científicas C1–C6 permanecem `NOT_VERIFIED` em [`specs/claims.yaml`](specs/claims.yaml).
 
 ---
@@ -99,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (300)
+uv run pytest -q                         # testes (297)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001
@@ -139,7 +138,7 @@ Variáveis principais: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RA
 | :-- | :-- |
 | `src/` | xApp RDL: `rdl_xapp.py` (orquestração), `core/` (percepção, raciocínio, refinamento), `e2/` (E2AP, KPM, RC, despacho), `infrastructure/` (RMR, SubMgr, SDL), `observability/` |
 | `tests/` | testes unitários, de codec, integração e interoperabilidade local |
-| `simulations/ns3/` | cenários ns-3 (S0–S15), cabeçalho de atuação, catálogo de conflitos |
+| `simulations/ns3/` | cenários ns-3 S0–S7, cabeçalho de atuação, catálogo de conflitos (S0–S8; S8 só na bancada NORI) |
 | `scripts/certification/` | executor com proveniência, driver de experimentos, campanha, análise e certificador |
 | `experiments/runs/` | evidência por execução (manifesto, logs, saídas brutas, hashes) |
 | `reports/` | relatórios gerados (`certification/`, `conflicts/`) |

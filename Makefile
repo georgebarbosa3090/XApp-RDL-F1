@@ -1,28 +1,27 @@
-.PHONY: build build-no-cache test test-pytest reproduce-f1 validate package onboard install status logs smoke-test uninstall helm-deploy helm-deploy-baseline helm-package helm-test helm-uninstall k8s-deploy k8s-deploy-baseline k8s-uninstall k8s-test test-3xapps kiali-install kiali-dashboard inject-traffic start-traffic stop-traffic cluster-create cluster-delete cluster-recreate rancher-start rancher-stop rancher-logs rancher-password rancher-connect setup-ns3 deploy-rdl deploy-baseline run-baseline run-rdl run-scenario1-rdl run-scenario1-baseline run-scenario2-rdl run-scenario2-baseline
+.PHONY: test test-unit test-codec test-integration test-interop generate-golden-vectors verify-no-synthetic \
+        verify-provenance gate1-check check-local-paths certify setup-ns3 conflict-experiment native-campaign \
+        deploy-ric deploy-kpm-probe nori-scenario nori-campaign panel helm-package helm-deploy helm-deploy-baseline \
+        helm-uninstall deploy-reference-xapps build cluster-create cluster-delete cluster-recreate rancher-start \
+        rancher-stop rancher-logs rancher-password rancher-connect kiali-install kiali-dashboard status
 
-
-NS3_DIR ?= $(HOME)/ns3-oran-workspace/ns-3-oran
+# Uso detalhado: docs/02 (instalação, campanhas, certificação) e docs/11 (bancada NORI e observabilidade ao vivo).
+# Os alvos de simulação, RIC e NORI rodam no Ubuntu do WSL.
 
 IMAGE_NAME ?= iqos-xapp-rdl
 IMAGE_TAG ?= 1.1.0
-CHART_DIR ?= deploy/helm/iqos-xapp-rdl
-K8S_DIR ?= deploy/kubernetes
 NAMESPACE_RIC ?= ricplt
 NAMESPACE ?= ricxapp
 RELEASE_NAME ?= ricxapp-iqos-xapp-rdl
 CLUSTER_NAME ?= rancher-lab
+SCENARIO ?= S1
+BASELINE ?= B3
+SEED ?= 1001
 
-build:
-	docker build --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
-
-build-no-cache:
-	docker build --no-cache --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
-
+# -------------------------------------------------------------
+# Testes e verificações
+# -------------------------------------------------------------
 test:
-	pytest tests/ -v
-
-test-pytest:
-	pytest tests/ -v
+	pytest tests/ -q
 
 test-unit:
 	pytest tests/unit/ -v
@@ -48,332 +47,111 @@ verify-provenance: verify-no-synthetic
 gate1-check:
 	python scripts/validate_experiment_tree.py --check-gate1
 
-reproduce-paper: verify-no-synthetic gate1-check
-	python scripts/reproduce_paper_artifacts.py --seeds 30 --output-dir experiments/runs/reproduced_audit_2026
+check-local-paths:
+	python scripts/certification/redact_local_paths.py --check
 
-test-campaign:
-	pytest tests/unit/test_campaign_scenarios.py -v
-
-run-campaign-s0-s8:
-	python scripts/run_full_campaign_s0_s8.py --seeds 30 --output-dir results/campaign_s0_s8
-
-run-3-rounds:
-	python scripts/run_3_consecutive_simulations.py --round all
-
-run-single-round:
-	python scripts/run_single_round_simulation.py --round 3
-
-reproduce-f1:
-	bash scripts/reproduce_f1.sh
-
-
+certify:
+	python scripts/certification/certify_chain.py
 
 # -------------------------------------------------------------
-# Gestão e Ciclo de Vida do Cluster k3d
+# Pilha nativa (ns-3.48 + 5G-LENA v5.1, sem E2)
 # -------------------------------------------------------------
-cluster-create:
-	@echo "Criando cluster k3d $(CLUSTER_NAME) com portas O-RAN..."
-	k3d cluster create $(CLUSTER_NAME) \
-	  --servers 1 \
-	  --agents 0 \
-	  --port "36422:36422/SCTP@server:0" \
-	  --port "8080:8080@server:0" \
-	  --port "8081:8081@server:0" \
-	  --port "8082:8082@server:0" \
-	  --port "8083:8083@server:0" \
-	  --port "8084:8084@server:0" \
-	  --port "8085:8085@server:0" \
-	  --port "8086:8086@server:0" \
-	  --port "8087:8087@server:0" \
-	  --port "4560:4560@server:0" \
-	  --port "4561:4561@server:0"
-	mkdir -p ~/.kube
-	k3d kubeconfig get $(CLUSTER_NAME) > ~/.kube/config
-	chmod 600 ~/.kube/config
+setup-ns3:
+	bash scripts/setup_ns3.sh
 
-cluster-delete:
-	@echo "Removendo cluster k3d $(CLUSTER_NAME)..."
-	k3d cluster delete $(CLUSTER_NAME)
+conflict-experiment:
+	python scripts/certification/run_conflict_experiment.py --scenario $(SCENARIO) --baseline $(BASELINE) --seed $(SEED)
 
-cluster-recreate: cluster-delete cluster-create
-	@echo "Cluster recriado com sucesso!"
-
-rancher-start:
-	@echo "Iniciando contêiner do Rancher Server (rancher-server)..."
-	@if [ "$$(docker ps -a -q -f name=^/rancher-server$$)" ]; then \
-		echo "Contêiner 'rancher-server' já existe. Garantindo inicialização..."; \
-		docker start rancher-server; \
-	else \
-		docker run -d --restart=unless-stopped \
-		  -p 8088:80 -p 8443:443 \
-		  --privileged \
-		  --name rancher-server \
-		  rancher/rancher:v2.8.5; \
-	fi
-	@echo "Aguarde ~60-90 segundos para a inicialização e acesse: https://localhost:8443"
-
-rancher-stop:
-	@echo "Parando e removendo contêiner do Rancher Server..."
-	docker rm -f rancher-server 2>/dev/null || true
-
-rancher-logs:
-	docker logs -f rancher-server
-
-rancher-password:
-	@echo "Obtendo Bootstrap Password do Rancher Server:"
-	@docker logs rancher-server 2>&1 | grep "Bootstrap Password:" || echo "Ainda inicializando ou senha já redefinida."
-
-rancher-connect:
-	@echo "Conectando Rancher Server ao cluster k3d e ajustando agente..."
-	bash scripts/register_rancher.sh "$(URL)"
+native-campaign:
+	bash scripts/run_native_campaign.sh
 
 # -------------------------------------------------------------
-# Pipeline Kubernetes Nativo (K8s Puro / Kustomize)
+# Near-RT RIC Release I, bancada NORI e xApp kpm-probe (E2 real)
 # -------------------------------------------------------------
-k8s-deploy:
-	@echo "Implantando Near-RT RIC + 3 Reference xApps + RDL (Modo Governança)..."
-	bash scripts/deploy_k8s.sh --with-rdl
+deploy-ric:
+	bash scripts/deploy_ric_i_release.sh
 
-k8s-deploy-baseline:
-	@echo "Implantando Near-RT RIC + 3 Reference xApps (Modo Baseline SEM RDL)..."
-	bash scripts/deploy_k8s.sh --baseline
+deploy-kpm-probe:
+	bash scripts/deploy_kpm_probe.sh --set rc.decision=catalog --set rc.afterIndications=12
 
-k8s-uninstall:
-	kubectl delete -k $(K8S_DIR)
+nori-scenario:
+	bash scripts/run_nori_scenario.sh $(SCENARIO) $(SEED)
 
-k8s-test: test-3xapps
+nori-campaign:
+	bash scripts/run_nori_campaign.sh
 
-deploy-reference-xapps:
-	@echo "Implantando Reference xApps no namespace $(NAMESPACE)..."
-	bash scripts/deploy_reference_xapps.sh
+panel:
+	bash scripts/observe/panel.sh
 
 # -------------------------------------------------------------
-# Pipeline Helm Chart (Padrão O-RAN)
+# Charts Helm da xApp RDL e das xApps de referência
 # -------------------------------------------------------------
-helm-deploy:
-	@echo "Implantando Near-RT RIC + 3 Reference xApps + RDL via Helm (Modo Governança)..."
-	bash scripts/deploy_helm.sh --with-rdl
-
-helm-deploy-baseline:
-	@echo "Implantando Near-RT RIC + 3 Reference xApps via Helm (Modo Baseline SEM RDL)..."
-	bash scripts/deploy_helm.sh --baseline
-
-# Deploy Exclusivo RDL Fase 2 (CA-RDL / MARL)
-helm-deploy-f2:
-	@echo "Implantando exclusivamente a xApp RDL Fase 2 (ricxapp-iqos-xapp-rdl-f2)..."
-	bash scripts/deploy_rdl_phase2.sh
-
-helm-uninstall-f2:
-	@echo "Removendo exclusivamente a xApp RDL Fase 2..."
-	helm uninstall ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) || echo "Release ricxapp-iqos-xapp-rdl-f2 nao encontrada."
-
-status-f2:
-	@echo "=== Status das xApps no Namespace $(NAMESPACE) ==="
-	@kubectl get pods -n $(NAMESPACE) -o wide
-	@echo "\n=== Pod da xApp RDL Fase 2 ==="
-	@kubectl get pods -n $(NAMESPACE) -l app=ricxapp-iqos-xapp-rdl-f2 -o wide
-
-logs-f2:
-	kubectl logs -l app=ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) -f
-
-test-f2:
-	@echo "Testando endpoints da xApp RDL Fase 2 (CA-RDL / MARL)..."
-	@curl -i http://localhost:8080/health || true
-	@echo "\nMétricas Prometheus:"
-	@curl -s http://localhost:8081/metrics | grep -E "rdl_|marl_" || true
-
-sync-f1-f2-check:
-	@echo "=== Validação de Sincronização e Compatibilidade H-RDL (F1) <-> CA-RDL (F2) ==="
-	@python scripts/verify_f1_f2_cross_repo_sync.py
-	@python scripts/check_no_synthetic_results.py
-	@python scripts/validate_provenance.py
-	@pytest tests/unit/test_conflict_detection.py tests/unit/test_safety_guards.py -v
-	@echo "[OK] Contrato de Sincronização F1 <-> F2 Validado com Sucesso!"
-
-
 helm-package:
-
-	@echo "Validando e empacotando os 4 Helm Charts..."
 	helm lint deploy/helm/iqos-xapp-rdl
 	helm lint deploy/helm/xapp-qos-xslice
 	helm lint deploy/helm/xapp-energy-saving
 	helm lint deploy/helm/xapp-traffic-steering
-	helm package deploy/helm/iqos-xapp-rdl
-	helm package deploy/helm/xapp-qos-xslice
-	helm package deploy/helm/xapp-energy-saving
-	helm package deploy/helm/xapp-traffic-steering
+	helm lint deploy/helm/xapp-kpm-probe --set srcBundle=x --set srcCommit=x
+	helm lint deploy/helm/nori-ns3
 
-helm-test: test-3xapps
+helm-deploy:
+	bash scripts/deploy_helm.sh --with-rdl
 
-test-3xapps:
-	@echo "Testando endpoints das xApps no Kubernetes..."
-	bash scripts/verify_3_xapps.sh
+helm-deploy-baseline:
+	bash scripts/deploy_helm.sh --baseline
 
 helm-uninstall:
 	helm uninstall ricxapp-qos-xslice -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall ricxapp-energy-saving -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall ricxapp-traffic-steering -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE) 2>/dev/null || true
-	helm uninstall ricxapp-iqos-xapp-rdl-f2 -n $(NAMESPACE) 2>/dev/null || true
+
+deploy-reference-xapps:
+	bash scripts/deploy_reference_xapps.sh
+
+build:
+	docker build --file docker/Dockerfile --tag $(IMAGE_NAME):$(IMAGE_TAG) .
 
 # -------------------------------------------------------------
-# [OPCIONAL] Observabilidade Service Mesh (Kiali / Istio)
+# Cluster k3d e Rancher (opcional)
 # -------------------------------------------------------------
+cluster-create:
+	k3d cluster create $(CLUSTER_NAME) --servers 1 --agents 0 \
+	  --port "36422:36422/SCTP@server:0" \
+	  --port "8080:8080@server:0" --port "8081:8081@server:0" \
+	  --port "4560:4560@server:0" --port "4561:4561@server:0"
+	mkdir -p ~/.kube
+	k3d kubeconfig get $(CLUSTER_NAME) > ~/.kube/config
+	chmod 600 ~/.kube/config
+
+cluster-delete:
+	k3d cluster delete $(CLUSTER_NAME)
+
+cluster-recreate: cluster-delete cluster-create
+
+rancher-start:
+	@if [ "$$(docker ps -a -q -f name=^/rancher-server$$)" ]; then docker start rancher-server; else \
+		docker run -d --restart=unless-stopped -p 8088:80 -p 8443:443 --privileged --name rancher-server rancher/rancher:v2.8.5; fi
+
+rancher-stop:
+	docker rm -f rancher-server 2>/dev/null || true
+
+rancher-logs:
+	docker logs -f rancher-server
+
+rancher-password:
+	@docker logs rancher-server 2>&1 | grep "Bootstrap Password:" || echo "Ainda inicializando ou senha já redefinida."
+
+rancher-connect:
+	bash scripts/register_rancher.sh "$(URL)"
+
 kiali-install:
 	bash scripts/install_kiali.sh
 
 kiali-dashboard:
-	@echo "Abrindo Kiali em http://localhost:20001/kiali (pressione Ctrl+C para parar)..."
 	kubectl port-forward -n istio-system svc/kiali 20001:20001 --address 0.0.0.0
 
-start-traffic:
-	@echo "Iniciando gerador contínuo de tráfego interno no cluster..."
-	kubectl apply -f deploy/kubernetes/traffic-generator.yaml
-	kubectl rollout status deployment/traffic-generator -n $(NAMESPACE) --timeout=60s
-	@echo "Tráfego ATIVO! Atualize o Kiali para ver o fluxo animado."
-
-stop-traffic:
-	@echo "Parando gerador de tráfego..."
-	kubectl delete -f deploy/kubernetes/traffic-generator.yaml --ignore-not-found=true
-
-inject-traffic:
-	bash scripts/inject_traffic.sh
-
-# -------------------------------------------------------------
-# Operações Gerais
-# -------------------------------------------------------------
-validate:
-	echo "Schema Validated"
-
-onboard:
-	dms_cli onboard configs/config-file.json configs/schema.json
-
-install:
-	dms_cli install --xapp-chart-name $(IMAGE_NAME) --version $(IMAGE_TAG) --namespace $(NAMESPACE)
-
 status:
-	@echo "=== Near-RT RIC Platform (ricplt) ==="
 	@kubectl get pods -n $(NAMESPACE_RIC) -o wide
-	@echo "\n=== xApps em Execução (ricxapp) ==="
 	@kubectl get pods -n $(NAMESPACE) -o wide
-
-logs:
-	kubectl logs -l app=$(RELEASE_NAME) -n $(NAMESPACE) -f
-
-smoke-test:
-	docker rm -f xapp-rdl-test 2>/dev/null || true
-	docker run -d --name xapp-rdl-test -p 8090:8080 -p 8091:8081 -e USE_FAKE_SDL=true $(IMAGE_NAME):$(IMAGE_TAG)
-	sleep 3
-	curl -i http://localhost:8090/health
-	curl http://localhost:8091/metrics | grep -E "rdl_|dl_"
-	docker logs xapp-rdl-test
-	docker rm -f xapp-rdl-test
-
-uninstall:
-	kubectl delete -k $(K8S_DIR) || $(MAKE) helm-uninstall
-
-# -------------------------------------------------------------
-# Simulações ns-3 NORI e Pipeline Experimental Modular
-# -------------------------------------------------------------
-setup-ns3:
-	bash scripts/setup_ns3.sh
-
-deploy-rdl: helm-deploy
-
-deploy-baseline: helm-deploy-baseline
-
-run-baseline:
-	$(MAKE) run-scenario1-baseline
-
-run-rdl:
-	@echo " [BLOQUEADO] Não há runner que demonstre E2SM-RC aplicado à RAN; não será reportado como closed-loop."
-	@echo " Execute somente cenários ns-3/5G-LENA disponíveis e mantenha G1/G3/G4 pendentes até validar a integração."
-	@exit 2
-
-run-scenario1:
-	@echo "Executando cenário ns-3/5G-LENA com E2 habilitado; isto não comprova controle RDL closed-loop."
-	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
-		echo ""; \
-		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
-		echo " [DICA] Para instalar e compilar o ns-3 NORI / 5G-LENA automaticamente, execute:"; \
-		echo "        make setup-ns3"; \
-		echo "        ou execute com o caminho personalizado: make run-scenario1 NS3_DIR=/caminho/do/ns-3-oran"; \
-		echo ""; \
-		exit 1; \
-	fi
-	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
-	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_energy_vs_qos --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
-
-run-scenario1-baseline:
-	@echo "Executando Baseline Cenário 1: Energy Saving vs QoS (EEVS) [enableE2=false]..."
-	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
-		echo ""; \
-		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
-		echo " [DICA] Execute 'make setup-ns3' para compilar o ambiente."; \
-		echo ""; \
-		exit 1; \
-	fi
-	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
-	@cp simulations/ns3/scenario_rdl_energy_vs_qos.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlEnergyVsQos=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_energy_vs_qos --enableE2=false --simTime=30"
-
-run-scenario2:
-	@echo "Executando cenário ns-3/5G-LENA com E2 habilitado; isto não comprova controle RDL closed-loop."
-	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
-		echo ""; \
-		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
-		echo " [DICA] Para instalar e compilar o ns-3 NORI / 5G-LENA automaticamente, execute:"; \
-		echo "        make setup-ns3"; \
-		echo "        ou execute com o caminho personalizado: make run-scenario2 NS3_DIR=/caminho/do/ns-3-oran"; \
-		echo ""; \
-		exit 1; \
-	fi
-	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
-	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_tvs_conflict --enableE2=true --ricIp=127.0.0.1 --ricPort=36422 --simTime=30"
-
-run-scenario2-baseline:
-	@echo "Executando Baseline Cenário 2: Traffic Steering vs QoS (TVS) [enableE2=false]..."
-	@if [ ! -d "$(NS3_DIR)" ] || [ ! -f "$(NS3_DIR)/ns3" ]; then \
-		echo ""; \
-		echo " [ERRO] O executável do simulador ns-3 não foi encontrado em: $(NS3_DIR)"; \
-		echo " [DICA] Execute 'make setup-ns3' para compilar o ambiente."; \
-		echo ""; \
-		exit 1; \
-	fi
-	@mkdir -p $(NS3_DIR)/scratch/xapp-rdl-f1
-	@cp simulations/ns3/scenario_rdl_tvs_conflict.cc $(NS3_DIR)/scratch/xapp-rdl-f1/
-	cd $(NS3_DIR) && export NS_LOG="ScenarioRdlTvsConflict=level_all" && ./ns3 run "scratch/xapp-rdl-f1/scenario_rdl_tvs_conflict --enableE2=false --simTime=30"
-
-sync-cross:
-	@echo "Executando sincronização cruzada bidirecional F1 <-> F2..."
-	@if command -v python3 >/dev/null 2>&1; then \
-		python3 scripts/sync_cross_repos.py; \
-	elif [ -f uv ]; then \
-		uv run python scripts/sync_cross_repos.py; \
-	else \
-		python scripts/sync_cross_repos.py; \
-	fi
-
-run-and-sync:
-	bash simulations/ns3/run_all_s0_s15_simulations.sh all
-	@$(MAKE) sync-cross
-
-push-results: sync-cross
-	@echo "Todos os dados, relatórios e figuras de F1 e F2 foram sincronizados!"
-
-# -------------------------------------------------------------
-# Sincronização Automática com GitHub (Auto Git Sync)
-# -------------------------------------------------------------
-auto-sync:
-	@echo "Iniciando Auto Git Sync em primeiro plano (Ctrl+C para encerrar)..."
-	uv run python scripts/auto_git_sync.py
-
-auto-sync-bg:
-	@echo "Iniciando Auto Git Sync em segundo plano via PowerShell..."
-	powershell -ExecutionPolicy Bypass -File scripts/start_auto_sync.ps1
-
-auto-sync-stop:
-	@echo "Parando processos do Auto Git Sync..."
-	powershell -ExecutionPolicy Bypass -File scripts/stop_auto_sync.ps1
+	@kubectl get pods -n ricsim -o wide

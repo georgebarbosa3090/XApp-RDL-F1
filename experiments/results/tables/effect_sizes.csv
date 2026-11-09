@@ -1,7 +1,0 @@
-Cenário,Baseline_Comp,Metric,Cohen_dz,Effect_Size,Rank_Biserial
-S1: Direct PRB Conflict,B3 vs B0,Throughput,25.17,Extremo,1.0
-S1: Direct PRB Conflict,B3 vs B0,Latency,-36.08,Extremo,1.0
-S1: Direct PRB Conflict,B3 vs B0,SLA Violations,-5078251810791033.0,Extremo,1.0
-S1: Direct PRB Conflict,B6 vs B3,Throughput,7.51,Muito Grande,1.0
-S1: Direct PRB Conflict,B6 vs B3,Latency,-10.94,Extremo,1.0
-S5: Ping-Pong Suppression,B3 vs B0,Action Churn,-38.08,Extremo,1.0

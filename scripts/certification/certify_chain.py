@@ -185,9 +185,16 @@ def compare_with_lock(manifest: Dict[str, Any], profile: Dict[str, str], profile
     return PASS, f"[{profile_name}] versões e commits conferem{suffix}"
 
 
+# Geradores sintéticos já removidos do repositório (achado 45 de docs/05): os run_id que produziam continuam
+# sinalizados, para o caso de essas execuções voltarem de uma cópia antiga.
+REMOVED_SYNTHETIC_GENERATORS: List[Tuple[str, str]] = [
+    ("scripts/run_b0_b6_campaign_30seeds.py (removido)", r"^S1_B[0-6]_seed[0-9]+$"),
+]
+
+
 def synthetic_run_id_patterns() -> List[Tuple[str, re.Pattern]]:
     """Extrai dos scripts geradores com RNG os moldes de run_id (f-strings) que eles produzem."""
-    patterns: List[Tuple[str, re.Pattern]] = []
+    patterns: List[Tuple[str, re.Pattern]] = [(name, re.compile(rx)) for name, rx in REMOVED_SYNTHETIC_GENERATORS]
     for script in sorted((ROOT / "scripts").rglob("*.py")):
         if script.parent.name == "certification":
             continue

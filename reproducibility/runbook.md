@@ -5,7 +5,7 @@
 | Item | Versão |
 | :-- | :-- |
 | Sistema | Ubuntu 22.04/24.04 (nativo ou WSL2 com 4,5 GB de memória) |
-| Python | 3.10+ (`pip install -r requirements.txt`) |
+| Python | 3.10+ (`uv sync --extra test` ou `pip install ".[test]"`) |
 | Compilação | CMake 3.25+, Ninja, g++ 11+ |
 | Pilha nativa | ns-3.48 + 5G-LENA v5.1 em `~/ns3-oran-workspace/ns-3-oran` (commits em `versions.lock`, perfil `profile.native`) |
 | Pilha NORI (opcional) | k3s + Helm 3; ns-3.42 + 5G-LENA `78b7179` + NORI `8a30867` compilados no pod (perfil `profile.nori`) |
@@ -74,8 +74,8 @@ Detalhes em [`deploy/helm/nori-ns3/README.md`](../deploy/helm/nori-ns3/README.md
 
 ## 6. Implantação da xApp num Near-RT RIC
 
-Helm (`deploy/helm/iqos-xapp-rdl`) ou manifestos (`deploy/openran-br-v3/`, `deploy/kubernetes/`). Ver [`deploy/openran-br-v3/README.md`](../deploy/openran-br-v3/README.md).
+Helm (`deploy/helm/iqos-xapp-rdl`). A bancada E2 real (Near-RT RIC Release I, NORI e xApp kpm-probe) está em [docs/02, seção 7](../docs/02_guia_operacional_deploy_e_simulacao.md) e [docs/11](../docs/11_observabilidade_e_campanhas.md).
 
 ## 7. Scripts aposentados
 
-`scripts/run_3_consecutive_simulations.py` e os demais simuladores em Python foram desativados: geravam valores estatísticos sem simulação de rede. Os resultados válidos vêm só do ns-3.
+Os antigos simuladores em Python, que geravam valores estatísticos sem simulação de rede, foram removidos do repositório. Os resultados válidos vêm só do ns-3.

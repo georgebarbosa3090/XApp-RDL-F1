@@ -9,16 +9,16 @@ echo "   REPRODUCAO DETERMINISTICA E VALIDACAO — XAPP-RDL-F2 (CA-RDL / MARL)"
 echo "========================================================================"
 
 echo "[1/4] Verificando ambiente Python e dependencias..."
-python3 -c "import pytest, pycrate, pydantic, torch; print('Dependencias OK!')"
+python3 -c "import pytest, pycrate, pydantic; print('Dependencias OK!')"
 
 echo "[2/4] Executando suite completa de testes modulares e MARL..."
 pytest tests/ -v
 
-echo "[3/4] Validando perfil de deploy OpenRAN@Brasil Blueprint v3..."
-test -f deploy/openran-br-v3/deployment.yaml
-test -f deploy/openran-br-v3/config-map.yaml
-test -f deploy/openran-br-v3/service.yaml
-test -f deploy/openran-br-v3/values.yaml
+echo "[3/4] Validando charts Helm (xApp RDL, kpm-probe, NORI) e receita do RIC..."
+test -f deploy/helm/iqos-xapp-rdl/Chart.yaml
+test -f deploy/helm/xapp-kpm-probe/Chart.yaml
+test -f deploy/helm/nori-ns3/Chart.yaml
+test -f deploy/ric/recipe_ric_i_release_e2.yaml
 
 echo "[4/4] Validando cenarios de co-simulacao ns-3 / NORI..."
 # S0–S7: binários da pilha nativa; S8: closed loop só na bancada NORI (scripts/run_nori_scenario.sh)
