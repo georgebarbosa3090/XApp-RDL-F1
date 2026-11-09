@@ -78,3 +78,37 @@ Os vereditos da regra v5 dessas mesmas execuções também entram no relatório,
 - **Vazão de base:** só o NORI decide se uma semente nova muda a vazão de base, e não sabemos de antemão quais mudam. Por isso H6.4 pode ficar não testada.
 - **Mesmas limitações da v5:** cenário único (um gNB, dois UEs), efeito medido no FlowMonitor (o KPM do NORI não mede vazão por UE), NORI com o patch do ACK, decisão única por execução e sinal de congestionamento do NORI sempre verdadeiro.
 - **Tolerância mais estreita (10 %):** a v6 é mais exigente que a v5 (20 %). Um erro sistemático pequeno da curva pode fazer a v6 falhar onde a v5 passaria.
+
+## 7. Resultado (registrado depois das execuções, 2026-11-09)
+
+O pré-registro foi publicado no commit `4af88dc`. A xApp kpm-probe foi implantada a partir desse commit, em modo `catalog`, antes da primeira avaliação, e rodou o `src/` dele em todas as 30.
+
+**Avaliações: as 30 `CONSISTENT` pela regra v6.** Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md) e certificado `reports/certification/certificate_20261109T043932Z.md`.
+
+| Cenário | Cotas eMBB/URLLC | URLLC antes → depois (Mb/s, 5 sementes) | Previsão v6 | Erro máximo | Veredito v6 | Veredito v5 |
+| :-: | :-: | :-- | --: | --: | :-: | :-: |
+| S0 | 80/20 | 151,49 → 76,44–76,45 | 76,45 | < 0,01 % | 5 `CONSISTENT` | 5 `CONSISTENT` |
+| S1 | 75/25 | 151,49 → 95,24 | 95,22 | 0,03 % | 5 `CONSISTENT` | 5 `CONSISTENT` |
+| S2 | 80/20 | 151,49 → 76,44–76,45 | 76,45 | < 0,01 % | 5 `CONSISTENT` | 5 `CONSISTENT` |
+| S6 | 85/15 | 151,49 → 56,25 | 56,25 | < 0,01 % | 5 `CONSISTENT` | 5 `CONSISTENT` |
+| S7 | 70/30 | 151,49 → 113,98 | 113,98 | < 0,01 % | 5 `CONSISTENT` | 5 `INCONSISTENT` |
+| S8 | 80/20 | 151,49 → 76,44–76,45 | 76,45 | < 0,01 % | 5 `CONSISTENT` | 5 `CONSISTENT` |
+
+Em todas as execuções a eMBB não perdeu vazão.
+
+- **H6.1 cumprida nas 30.** Cadeia completa no PCAP, decisão `H_RDL` com o KPM_t0 entre as entradas e ACK correlacionado (1,7 a 13,1 ms). O tshark concordou com o dissecador em todas. A xApp casou 80/80 Indications em 27 execuções; em 2, perdeu o primeiro par (78/80, achado 43), e em 1 o PCAP tinha 78 e ela recebeu as 78.
+- **H6.2 cumprida:** 30 de 30 `CONSISTENT`, acima do mínimo de 27.
+- **H6.3 cumprida:** os cinco S7 (teto de 30 %) saíram `CONSISTENT` pela v6. Pela v5, os mesmos cinco saíram `INCONSISTENT`, o que confirma prospectivamente o achado 41.
+- **H6.4 não testada.** As sementes 2001–2005 deram a mesma vazão de base (151,49 Mb/s) em todas as execuções. A invariância à vazão de base (achado 42) continua apoiada só nos dados exploratórios da semente 1005.
+- **Certificador:** G0, G1 (90 execuções), G3 (73) e G4 (48 cadeias, pela regra v5) `CERTIFIED`. G5 continua `NOT_CERTIFIED` (10 sementes B3; o mínimo é 30).
+
+**Desvio de procedimento.** A primeira tentativa de iniciar a avaliação perdeu as aspas dos argumentos ao passar do PowerShell para o WSL. O roteiro recebeu `--scenarios S0` e as sementes padrão (1001–1005); como essas execuções já existiam, pulou todas sem rodar nenhuma simulação. Ele só implantou a xApp (no commit `4af88dc`) e gerou um certificado e um resumo, que foram descartados sem entrar no repositório. Nenhum dado das sementes 2001–2005 foi gerado ou visto antes da avaliação correta, iniciada em seguida por um arquivo de roteiro, com os argumentos pré-registrados e `--no-deploy`.
+
+**O que o resultado afirma, e o que não afirma.**
+
+- **Afirma:** com sementes novas, a regra relativa previu a vazão da URLLC em quatro tetos (15, 20, 25 e 30 %), com erro de no máximo 0,03 %. A interpolação só entre níveis que restringem corrige a previsão no teto de 30 %.
+- **Não afirma:**
+  - que a razão é invariante à vazão de base: H6.4 não foi testada;
+  - nada fora da configuração da bancada: um gNB, dois UEs, 300 Mb/s oferecidos (saturação), FlowMonitor como medida e NORI com o patch do ACK;
+  - que a decisão responde a variações do KPM: o sinal de congestionamento do NORI continua sempre verdadeiro.
+- **Próximo passo, declarado e separado:** adotar a regra v6 no certificador (G4), sem efeito retroativo, como prevê a seção 5. Testar H6.4 exige um desenho que varie a vazão de base de propósito; por exemplo, a qualidade do canal.

@@ -346,3 +346,16 @@ Três achados, registrados como exploratórios em docs/05:
 - **Achado 43.** Em 6 das 45 execuções, a xApp não recebeu o primeiro par de Indications (78/80): o nó o enviou cerca de 2 ms depois do Subscription Response, antes de a rota RMR da subscrição chegar. A decisão, na 12.ª Indication, não é afetada.
 
 Os vereditos acima são os da regra pré-registrada v5, sem ajuste depois de ver os dados. Uma regra relativa (razão depois/antes por teto) e uma interpolação só entre níveis que restringem exigem um novo desenho pré-registrado antes de serem aplicadas. Esse desenho é o [pré-registro v6](07_preregistro_fase4_v6.md), com avaliação em sementes novas (2001–2005): `bash scripts/run_nori_campaign.sh --scenarios "S0 S1 S2 S6 S7 S8" --seeds "2001 2002 2003 2004 2005"`. A coleta grava o veredito v6 em `slice_effect_v6.json`, e o resumo da campanha mostra as duas colunas.
+
+## 9. Avaliação do desenho v6 (S0, S1, S2, S6, S7, S8 × 2001–2005, 2026-11-09)
+
+As 30 avaliações pré-registradas em [docs/07 v6](07_preregistro_fase4_v6.md) saíram `CONSISTENT` pela regra v6 (previsão relativa à vazão antes do Control), com erro de no máximo 0,03 %. Pela regra v5, 25 saíram `CONSISTENT` e os cinco S7 saíram `INCONSISTENT`.
+
+| Hipótese | Resultado |
+| :-- | :-- |
+| H6.1 (cadeia E2 completa, decisão do H-RDL sobre o KPM_t0, ACK, tshark) | cumprida nas 30 |
+| H6.2 (≥ 27 de 30 `CONSISTENT` pela v6) | cumprida: 30 de 30 |
+| H6.3 (os cinco S7, teto de 30 %, `CONSISTENT`) | cumprida |
+| H6.4 (invariância à vazão de base) | não testada: as cinco sementes deram 151,49 Mb/s |
+
+Resumo em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md). Certificado `certificate_20261109T043932Z`: G0, G1 (90), G3 (73) e G4 (48 cadeias, regra v5) `CERTIFIED`; G5 `NOT_CERTIFIED`.
