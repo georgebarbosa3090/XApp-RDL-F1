@@ -311,3 +311,38 @@ python3 scripts/certification/certify_chain.py          # certificado em reports
 - O NORI tem um único gNB e só atua cota de PRB por fatia. Nos cenários que dependem de potência, handover ou de vários gNBs (S3, S4, S5), ou nas propostas desse tipo dos demais cenários, a decisão do H-RDL é registrada, mas não há efeito na RAN para medir.
 - A decisão é única por execução: não há rearbitragem periódica, como no cronograma da pilha nativa.
 - A previsão de efeito usa a curva v5 (teto → vazão, `experiments/calibration/slice_cap_curve_v5.json`), calibrada com 2 UEs e tráfego de 300 Mb/s. Fora dessa configuração, o veredito de efeito não vale.
+
+## 8. Resultado da campanha NORI (S0–S8 × 1001–1005, 2026-11-09)
+
+A campanha rodou as 45 execuções, todas concluídas. O resumo por execução está em [`reports/nori/resumo_campanha_nori_20261109T015402Z.md`](../reports/nori/resumo_campanha_nori_20261109T015402Z.md) e o certificado em `reports/certification/certificate_20261109T015457Z.md`.
+
+| Cenário | Execuções | Cadeia completa | Efeito `CONSISTENT` | Observação |
+| :-: | --: | --: | --: | :-- |
+| S0, S1, S2, S6, S8 | 5 cada | 5 | 4 | semente 1005: ver achado 42 |
+| S3, S4, S5 | 5 cada | 0 | 0 | sem nada atuável, portanto sem Control (`NOT_TESTABLE`) |
+| S7 | 5 | 5 | 0 | regra de previsão no teto de 30 %: ver achado 41 |
+
+Em todas as 45 execuções o tshark concordou com o dissecador. Em todas as 30 com Control:
+
+- a decisão foi do H-RDL e teve o KPM_t0 entre as entradas;
+- o ACK foi correlacionado;
+- a eMBB não perdeu vazão.
+
+Certificador: G0, G1 (60 execuções), G3 (43) e G4 (23 cadeias: 3 da v5 e 20 desta campanha) `CERTIFIED`. G5 continua `NOT_CERTIFIED`, porque o mínimo é 30 sementes pareadas e a campanha tem 5.
+
+Vazão da URLLC antes e depois do Control (a mesma em todas as sementes de cada linha):
+
+| Teto URLLC | Sementes 1001–1004 (antes → depois, Mb/s) | Previsão v5 | Semente 1005 (antes → depois, Mb/s) | Depois/antes |
+| --: | :-- | --: | :-- | --: |
+| 15 % (S6) | 151,49 → 56,25 | 56,95 | 75,74 → 28,10 | 0,371 |
+| 20 % (S0, S2, S8) | 151,49 → 76,44 | 75,50 | 75,74 → 38,14 | 0,505 |
+| 25 % (S1) | 151,49 → 95,24 | 95,22 | 75,74 → 47,52 | 0,628 |
+| 30 % (S7) | 151,49 → 113,98 | 91,45 | 75,74 → 56,87 | 0,752 |
+
+Três achados, registrados como exploratórios em docs/05:
+
+- **Achado 41.** No S7, a regra v5 erra a previsão para o teto de 30 %. Ela deixa de fora o próprio nível e interpola entre 20 % e 70 %, mas 70 % já não restringe a vazão, que satura por volta de 40 % dos PRBs. A previsão sai 91,45 Mb/s; o medido, 113,98 Mb/s, é igual ao ponto de 30 % da curva.
+- **Achado 42.** Com a semente 1005, cada UE chega no máximo a 75,74 Mb/s, metade das outras sementes, desde o início da execução. A curva v5 está em Mb/s absolutos e foi calibrada a 151,49 Mb/s. Por isso só funciona quando a vazão de base coincide com a da calibração: quatro execuções saíram `NOT_TESTABLE` e o S6 saiu `INCONSISTENT`. A razão depois/antes, porém, é a mesma nas duas vazões de base, para cada teto. Isso indica que o efeito da cota é relativo à vazão sem restrição.
+- **Achado 43.** Em 6 das 45 execuções, a xApp não recebeu o primeiro par de Indications (78/80): o nó o enviou cerca de 2 ms depois do Subscription Response, antes de a rota RMR da subscrição chegar. A decisão, na 12.ª Indication, não é afetada.
+
+Os vereditos acima são os da regra pré-registrada v5, sem ajuste depois de ver os dados. Uma regra relativa (razão depois/antes por teto) e uma interpolação só entre níveis que restringem exigem um novo desenho pré-registrado antes de serem aplicadas.

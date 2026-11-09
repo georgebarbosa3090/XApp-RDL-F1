@@ -380,7 +380,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     L.append("python3 -m venv --without-pip ~/.venvs/xapp-rdl")
     L.append("python3 -m pip --python ~/.venvs/xapp-rdl/bin/python install \"pydantic>=2.0.0\" \"structlog>=23.1.0\" "
              "\"prometheus-client>=0.19.0\" \"pycrate>=0.7.0\" \"requests>=2.31.0\" \"numpy>=1.24.0\" "
-             "\"fastapi>=0.100.0\" \"uvicorn>=0.20.0\"")
+             "\"fastapi>=0.100.0\" \"uvicorn>=0.20.0\" \"PyYAML>=6.0.1\"")
     L.append("```")
     L.append("")
     L.append("**Em cada terminal novo:**")

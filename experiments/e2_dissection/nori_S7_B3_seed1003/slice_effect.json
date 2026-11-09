@@ -1,0 +1,79 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S7_B3_seed1003",
+  "generated_at_utc": "2026-11-09T01:03:25Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v5-curve-apply",
+  "anchor": "apply",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.2
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "91df82f62ebfb1de1cbced6b3f36c94f230800165acdcbd522da5b30e2d43d4a",
+  "source_dissection_sha256": "4be8a0c1a0ebe887697ca8dbc05363594113f796350979ba5da0e527ae90091c",
+  "control_frame": 34,
+  "control_wall_epoch": 1794186084.022096,
+  "control_sim_time_s": 5.8114413041245125,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 70,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 30,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "control_apply_time_s": 22.52446699142456,
+  "calibration": "experiments/calibration/slice_cap_curve_v5.json",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
+  "verdict": "INCONSISTENT",
+  "window_before": [
+    18.52446699142456,
+    22.52446699142456
+  ],
+  "window_after": [
+    24.52446699142456,
+    28.52446699142456
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 70.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.0,
+      "curve_prediction": {
+        "kind": "no_decrease",
+        "threshold_free_pct": 70.0
+      },
+      "expectation": "no_decrease",
+      "met": true
+    },
+    "2": {
+      "cap_max_prb_pct": 30.0,
+      "throughput_before_mbps": 151.488,
+      "throughput_after_mbps": 113.984,
+      "relative_change": -0.2476,
+      "curve_prediction": {
+        "kind": "interpolated",
+        "predicted_after_mbps": 91.454,
+        "from_levels": [
+          20.0,
+          70.0
+        ]
+      },
+      "expectation": "decrease_to_prediction",
+      "predicted_after_mbps": 91.454,
+      "prediction_error": 0.2463,
+      "met": false
+    }
+  }
+}

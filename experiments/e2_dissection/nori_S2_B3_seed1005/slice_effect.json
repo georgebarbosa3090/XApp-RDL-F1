@@ -1,0 +1,77 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S2_B3_seed1005",
+  "generated_at_utc": "2026-11-09T01:38:18Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v5-curve-apply",
+  "anchor": "apply",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.2
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "f774c7a4d8ce081d758a534c90bf0ff3094ca8bbfaae179501017632aacd1f48",
+  "source_dissection_sha256": "c8ac3317d5554e645ab126f7e53ec51f4e373d8f32bd53a43ca657f4ad5d4cae",
+  "control_frame": 34,
+  "control_wall_epoch": 1794188181.312549,
+  "control_sim_time_s": 5.40694760151513,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 80,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 20,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "control_apply_time_s": 15.904017210006714,
+  "calibration": "experiments/calibration/slice_cap_curve_v5.json",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
+  "verdict": "NOT_TESTABLE",
+  "window_before": [
+    11.904017210006714,
+    15.904017210006714
+  ],
+  "window_after": [
+    17.904017210006714,
+    21.904017210006714
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 80.0,
+      "throughput_before_mbps": 75.744,
+      "throughput_after_mbps": 75.744,
+      "relative_change": 0.0,
+      "curve_prediction": {
+        "kind": "no_decrease",
+        "threshold_free_pct": 70.0
+      },
+      "expectation": "no_decrease",
+      "met": true
+    },
+    "2": {
+      "cap_max_prb_pct": 20.0,
+      "throughput_before_mbps": 75.744,
+      "throughput_after_mbps": 38.141,
+      "relative_change": -0.4964,
+      "curve_prediction": {
+        "kind": "interpolated",
+        "predicted_after_mbps": 75.495,
+        "from_levels": [
+          15.0,
+          30.0
+        ]
+      },
+      "expectation": "no_decrease",
+      "met": false
+    }
+  }
+}
