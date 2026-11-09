@@ -18,7 +18,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 307 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 311 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/07_preregistro_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. No desenho [v7](docs/07_preregistro_fase4_v7.md), com a banda reduzida a 50 MHz, as 30 execuções saíram `INCONSISTENT`: o teto age em PRBs absolutos da portadora, e a regra relativa só vale na banda da calibração | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/11, seção 8](docs/11_observabilidade_e_campanhas.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
@@ -98,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (307)
+uv run pytest -q                         # testes (311)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

@@ -85,7 +85,7 @@ A decisão usa as duas mensagens do par. Os sha256 de ambas ficam registrados em
 
 Na execução `nori_S1_B3_seed1001`, o gatilho registrado era a mensagem de formato 1 do par. No fio, porém, a última mensagem antes do Control era a de formato 3, que também entrou na decisão.
 
-Além disso, a xApp aquece o H-RDL antes do primeiro KPM (evento `decision_warm_up`). Isso evita que a importação das bibliotecas atrase o Control na hora da decisão.
+A xApp também só decide quando a Indication recebida completa o par do período (nó e UEs chegados a no máximo 0,5 s um do outro), em qualquer ordem de entrega, para que uma decisão rápida não use os UEs do período anterior (achado 48). Além disso, a xApp aquece o H-RDL antes do primeiro KPM (evento `decision_warm_up`). Isso evita que a importação das bibliotecas atrase o Control na hora da decisão.
 
 ## 2. Painel pronto (tmux)
 

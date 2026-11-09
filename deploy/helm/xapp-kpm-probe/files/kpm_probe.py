@@ -62,11 +62,14 @@ RC_SCENARIO_FILE = ENV.get("RC_SCENARIO_FILE", "/data/rdl_scenario")
 # Baseline da decisão no modo catalog (campanha do G5): B3 = H-RDL; B0/B1/B2 = sem coordenação, FIFO e
 # prioridade estática (src/closed_loop/catalog_loop.decide_baseline). Lido a cada decisão deste arquivo.
 RC_BASELINE_FILE = ENV.get("RC_BASELINE_FILE", "/data/rdl_baseline")
+# A decisão só dispara com o par de KPM do período completo (nó + UEs chegados dentro desta janela; achado 48)
+RC_PAIR_WINDOW_S = float(ENV.get("RC_PAIR_WINDOW_S", "0.5"))
 APP_DIR = ENV.get("XAPP_RDL_APP_DIR", "/data/app")
 SRC_COMMIT = ENV.get("XAPP_RDL_SRC_COMMIT", "")
 
 sys.path.insert(0, APP_DIR)
 from src.e2.v3 import codec  # noqa: E402  (src/e2/v3/codec.py do commit SRC_COMMIT)
+from src.closed_loop.kpm_pairing import pair_complete, pair_gap_s  # noqa: E402
 
 RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILURE",
              12020: "RIC_SUB_DEL_REQ", 12021: "RIC_SUB_DEL_RESP", 12050: "RIC_INDICATION",
@@ -269,13 +272,13 @@ def track_kpm(meid: str, payload: bytes, sha: str) -> None:
         return
     entry = LAST_KPM.setdefault(meid, {})
     if kpm["format"] == 1:
-        entry.update(node=kpm["node"], node_sha256=sha)
+        entry.update(node=kpm["node"], node_sha256=sha, node_at=time.monotonic())
         n = kpm["node"]
         event("kpm", meid=meid, format=1, sha256=sha,
               node={k: n.get(k) for k in ("RRU.PrbUsedDl", "RRU.PrbAvailDl", "DRB.MeanActiveUeDl", "RRC.ConnMean",
                                           "TB.TotNbrDlInitial", "QosFlow.PdcpPduVolumeDL_Filter")})
     elif kpm["format"] == 3:
-        entry.update(ues=kpm["ues"], ues_sha256=sha)
+        entry.update(ues=kpm["ues"], ues_sha256=sha, ues_at=time.monotonic())
         event("kpm", meid=meid, format=3, sha256=sha,
               ues=[{"ue_id": u.get("ue_id"),
                     **{k: (u.get("measurements") or {}).get(k) for k in ("DRB.NetworkSlicing.SST", "RRU.PrbUsedDl",
@@ -322,7 +325,9 @@ def decide(meid: str):
     else:
         from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
         record = decide_slice_quotas(meid, kpm.get("node") or {}, kpm.get("ues") or [])
-    record.update(src_commit=SRC_COMMIT, kpm_node_sha256=kpm.get("node_sha256"), kpm_ues_sha256=kpm.get("ues_sha256"))
+    gap = pair_gap_s(kpm)
+    record.update(src_commit=SRC_COMMIT, kpm_node_sha256=kpm.get("node_sha256"), kpm_ues_sha256=kpm.get("ues_sha256"),
+                  kpm_pair_gap_ms=round(gap * 1000, 3) if gap is not None else None, kpm_pair_window_s=RC_PAIR_WINDOW_S)
     sequence = record.get("control_sequence") or ([record["quotas"]] if record.get("quotas") else [])
     return [_quota_objs(q) for q in sequence], record
 
@@ -449,7 +454,7 @@ def rmr_loop() -> None:
             handle_control_outcome(meid, mtype, payload)
         elif (mtype == 12050 and RC_ENABLED and meid and meid not in CONTROL
               and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS
-              and {"node", "ues"} <= set(LAST_KPM.get(meid, {}))):
+              and pair_complete(LAST_KPM.get(meid, {}), RC_PAIR_WINDOW_S)):
             try:
                 send_control(rmr, ctx, meid, sha, COUNTS[(mtype, sub_id)])
             except Exception as exc:  # noqa: BLE001 - registra e segue recebendo KPM
@@ -470,7 +475,7 @@ def main() -> int:
           e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID,
           rc_control_enabled=RC_ENABLED, rc_ran_function_id=RC_RAN_FUNCTION_ID, rc_requestor_id=RC_REQUESTOR_ID,
           rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, rc_decision=RC_DECISION,
-          rc_scenario_file=RC_SCENARIO_FILE, rc_baseline_file=RC_BASELINE_FILE,
+          rc_scenario_file=RC_SCENARIO_FILE, rc_baseline_file=RC_BASELINE_FILE, rc_pair_window_s=RC_PAIR_WINDOW_S,
           decision_source=DECISION_SOURCE, src_commit=SRC_COMMIT)
     server = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
