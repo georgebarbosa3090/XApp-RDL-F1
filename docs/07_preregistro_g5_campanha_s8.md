@@ -74,3 +74,13 @@ O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pare
 - **Baselines numa janela única:** a pilha nativa repete as propostas periodicamente; na bancada NORI, a decisão é única por execução.
 - **Regra de efeito v6:** confirmada a 100 MHz (desenho v6). Uma semente que mude a vazão de base, como a 1005, pode cair fora do que a regra cobre (desenho v7).
 - **Mesmas limitações das campanhas anteriores:** um gNB, dois UEs, saturação, FlowMonitor como medida, NORI com o patch do ACK e sinal de congestionamento sempre verdadeiro.
+
+## 8. Desvios declarados durante a campanha (2026-11-09, antes das execuções de reposição)
+
+- **Semente 5012, B0:** o B0 decide em ~1 ms e disparou na Indication de formato 1, antes de processar a de formato 3 do mesmo período, que chegou 0,5 ms depois. As duas chegaram antes do Control, no fio. A decisão usou os UEs do período anterior, e o KPM_t0 não está entre as entradas. Cadeia E2 completa, ACKs correlacionados e efeito `CONSISTENT`, mas o par não conta para o G5. Correção futura, fora desta campanha: decidir só com o par de formatos do período.
+- **Sementes 5028 (B3) e 5029 (B0, B1, B2, B3):** a partir das 12:01 UTC, o E2Mgr perdeu o registro da instância do E2Term na RNIB ("E2TInstance not found"). Sem rota para o E2 Setup, o NORI enviou o E2 Setup Request sem resposta. As execuções afetadas ficaram com cadeia vazia (`NOT_TESTABLE`) e não contam:
+  - o B3 da 5028, o B0 e o B1 da 5029 e o B3 da 5029 foram coletados e ficam no repositório;
+  - o B2 da 5029 foi interrompido e está em `experiments/runs_failed/`.
+
+  A plataforma foi recuperada reiniciando o E2Mgr e o E2Term, com o E2Term registrado de novo e conferido em `/v1/e2t/list`. Uma execução curta de verificação da plataforma, `nori_S3_B3_smoke_seed9001` (S3, sem Control), confirma E2 Setup, Subscription e Indications antes da retomada. Durante a recuperação, o laço da campanha chegou a iniciar o B0 da semente 5030 no pod. Essa execução foi encerrada e apagada antes de qualquer coleta, e nenhum dado dela foi visto.
+- **Reposição:** a semente 5030, que ainda não tinha rodado, roda normalmente, com os quatro baselines. Os três pares perdidos (5012, 5028 e 5029) são repostos pelas sementes **5031, 5032 e 5033**, com os quatro baselines e o mesmo código, sem nenhuma alteração. Se outro par falhar, a próxima semente (5034, 5035...) é declarada aqui antes de rodar.
