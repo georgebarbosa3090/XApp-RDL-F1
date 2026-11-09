@@ -7,7 +7,8 @@ Este documento mostra como acompanhar uma execução ao vivo no terminal do Ubun
 - a xApp;
 - o RIC;
 - o Kubernetes;
-- o registro de UEs.
+- o registro de UEs;
+- as séries no InfluxDB e o dashboard do Grafana (seção 2.7), e o Rancher, que não cabe neste ambiente (seção 2.8).
 
 Também explica como rodar as duas campanhas, a da bancada NORI (S0–S8 com E2 real e a cadeia certificável) e a nativa (S0–S7 sem E2), e como certificar o resultado.
 
@@ -40,6 +41,8 @@ bash scripts/observe/panel.sh          # sessão tmux "rdl"; Ctrl-b <número> tr
 | 4 ric | logs do RIC (em cima) e estado dos nós e subscrições (embaixo) |
 | 5 k8s | pods e deployments |
 | 6 ues | registro de UEs |
+| 7 influx | alimentador do InfluxDB (só se o monitoramento estiver instalado, seção 2.7) |
+| 8 grafana | Grafana em http://localhost:3000 (idem) |
 
 Para encerrar o painel: `tmux kill-session -t rdl`.
 
@@ -181,52 +184,197 @@ No início da execução, cada trace aparece como "conectado" ou "indisponível"
 
 ### 2.7 InfluxDB e Grafana: séries das simulações
 
-InfluxDB 2.7.4 e Grafana 12.3.1 rodam via Helm no namespace `monitoring`, com versões fixadas, limites de memória baixos e cerca de 200 MB no total. Implantação, uma vez:
+InfluxDB 2.7.4 e Grafana 12.3.1 rodam via Helm no namespace `monitoring`, com versões fixadas e cerca de 200 MB de memória no total. O InfluxDB guarda as séries no bucket `simulacoes` (org `rdl`, retenção de 90 dias, volume de 2 GiB). O Grafana lê o InfluxDB e mostra o dashboard "xApp RDL — simulações" com acesso anônimo somente de leitura.
 
-```bash
-bash scripts/observe/deploy_observability.sh     # charts influxdata/influxdb2 2.1.2 e grafana/grafana 10.5.15 (cache local, com novas tentativas)
-```
-
-Os valores estão em `deploy/helm/observability/`: `values-influxdb2.yaml`, `values-grafana.yaml` e o dashboard `dashboards/rdl_simulacoes.json`, gerado por `scripts/observe/make_grafana_dashboard.py`. A senha e o token do administrador do InfluxDB são gerados pelo chart no Secret `influxdb2-auth`. O Grafana lê o token de lá e tem acesso anônimo somente de leitura.
-
-Em duas abas:
-
-```bash
-bash scripts/observe/influx_live.sh     # alimentador: abre o port-forward do InfluxDB, lê o token e envia os pontos
-bash scripts/observe/grafana.sh         # Grafana em http://localhost:3000 (abre no navegador do Windows)
-```
-
-O alimentador (`scripts/observe/influx_feeder.py`) só lê, sem alterar nada no repositório ou no cluster. Ele envia ao bucket `simulacoes` (org `rdl`):
-
-| Measurement | Fonte | Conteúdo |
+| Peça | O que é | Onde |
 | :-- | :-- | :-- |
-| `nori_slice` | `raw/slice_series.csv` da execução NORI corrente (a cada 2 s) | vazão (Mb/s) e atraso (ms) por UE/fatia, com o tempo simulado; tags `run`, `scenario`, `baseline`, `condition`, `seed`, `slice` |
-| `xapp_kpm_node`, `xapp_kpm_ue` | eventos `kpm` da kpm-probe | PRBs do nó, UEs ativos e PRBs por UE/fatia |
-| `xapp_indication` | `rmr_message` (RIC Indication) | contagem de Indications |
-| `xapp_control`, `xapp_control_outcome`, `xapp_decision` | `control_request`, `control_outcome`, `control_decision` | cotas por fatia, fonte da decisão, ordem do Control (B0), intervalo do par KPM, latência e correlação do ACK |
-| `campanha_execucao` | `slice_effect*.json` e manifestos no repositório (histórico completo na primeira passada) | veredito por regra (v5, v6), vazões antes e depois, previsão, cotas, disparo pelo KPM_t0 |
-| `certificado` | certificado mais recente | veredito de cada gate |
+| `deploy_observability.sh` | instala ou atualiza InfluxDB e Grafana | `scripts/observe/` |
+| `influx_live.sh` | alimentador: lê NORI, xApp e campanhas e envia ao InfluxDB | `scripts/observe/` (chama `influx_feeder.py`) |
+| `grafana.sh` | port-forward do Grafana para http://localhost:3000 | `scripts/observe/` |
+| valores Helm e dashboard | `values-influxdb2.yaml`, `values-grafana.yaml`, `dashboards/rdl_simulacoes.json` | `deploy/helm/observability/` |
 
-O dashboard "xApp RDL — simulações" tem três blocos:
+#### 2.7.1 Antes de começar
+
+O WSL desliga sozinho quando nenhum terminal o usa, e com ele caem o k3s, o RIC, o NORI e o monitoramento. Deixe aberto um terminal do Windows (PowerShell) que mantém o Ubuntu ligado:
+
+```powershell
+wsl -d Ubuntu -- bash -c 'echo Mantendo o Ubuntu ligado; exec sleep infinity'
+```
+
+Confira disco e memória antes de instalar ou de rodar campanhas. O host tem 7,7 GB de RAM, e com o C: cheio o WSL dá erro de E/S (achado 50 de docs/07):
+
+```powershell
+Get-PSDrive C | Select-Object @{n='LivreGB';e={[math]::Round($_.Free/1GB,1)}}
+```
+
+```bash
+free -m                                    # memória do WSL (limite de 5 GB)
+kubectl -n monitoring get pods             # influxdb2-0 e grafana-... devem estar 1/1 Running
+```
+
+#### 2.7.2 Instalar ou atualizar (uma vez)
+
+```bash
+bash scripts/observe/deploy_observability.sh
+```
+
+O roteiro adiciona os repositórios Helm e baixa os charts `influxdata/influxdb2` 2.1.2 e `grafana/grafana` 10.5.15 para um cache local (`~/.cache/xapp-rdl/charts`, com até 5 tentativas). Depois instala os dois, publica o dashboard no ConfigMap `grafana-dash-rdl` e reinicia o Grafana para relê-lo. Rodar de novo é seguro: atualiza no lugar.
+
+#### 2.7.3 Ligar: alimentador e Grafana (uma aba para cada)
+
+```bash
+bash scripts/observe/influx_live.sh       # alimentador; Ctrl-C encerra
+bash scripts/observe/grafana.sh           # Grafana em http://localhost:3000; Ctrl-C encerra
+```
+
+Abra http://localhost:3000 no navegador do Windows (o WSL2 encaminha o `localhost`). No painel tmux (seção 1), as janelas 7 e 8 já rodam esses dois comandos.
+
+O alimentador abre um port-forward para o InfluxDB, lê o token do Secret `influxdb2-auth` e envia os pontos novos a cada 2 s. Ele só lê: não altera o repositório nem o cluster. Cada linha da aba mostra quantos pontos foram enviados e qual execução está sendo lida, por exemplo `[14:40:53] 59 pontos | execução nori_S3_B3_smoke_seed9004`.
+
+| Opção | Efeito |
+| :-- | :-- |
+| `--once` | envia campanhas e certificado uma vez e sai (carrega o histórico sem execução em andamento) |
+| `--no-campaign` | não envia os vereditos das campanhas, só a execução corrente e a xApp |
+| `--interval 5` | intervalo entre envios, em segundos (padrão 2) |
+| `INFLUX_LOCAL_PORT=18090` | porta local do port-forward do InfluxDB (padrão 18086) |
+| `GRAFANA_LOCAL_PORT=3001` | porta local do Grafana em `grafana.sh` (padrão 3000) |
+
+Exemplo: `INFLUX_LOCAL_PORT=18090 bash scripts/observe/influx_live.sh --no-campaign --interval 5`.
+
+#### 2.7.4 Conferir que está funcionando
+
+```bash
+kubectl -n monitoring get pods                                            # os dois pods 1/1 Running
+curl -s http://localhost:3000/api/health                                  # Grafana: "database": "ok"
+curl -s http://localhost:3000/api/datasources/uid/influxdb-rdl/health     # Grafana -> InfluxDB: "datasource is working"
+curl -s "http://localhost:3000/api/search?type=dash-db"                   # dashboard "xApp RDL — simulações" (uid xapp-rdl-sim)
+```
+
+Medições presentes no InfluxDB, pelo CLI `influx` de dentro do pod:
+
+```bash
+TOK=$(kubectl -n monitoring get secret influxdb2-auth -o jsonpath='{.data.admin-token}' | base64 -d)
+kubectl -n monitoring exec influxdb2-0 -- influx query --org rdl --token "$TOK" --raw \
+  'import "influxdata/influxdb/schema" schema.measurements(bucket:"simulacoes", start:-30d)'
+```
+
+O esperado é `campanha_execucao`, `certificado`, `nori_slice`, `xapp_control`, `xapp_control_outcome`, `xapp_indication`, `xapp_kpm_node` e `xapp_kpm_ue`, além de `xapp_decision` depois de execuções com decisão registrada.
+
+#### 2.7.5 Ver uma execução no dashboard
+
+Os pontos usam a hora da simulação, não a hora do envio. Para uma execução em andamento, use "Last 15 minutes". Para uma execução antiga, escolha o horário dela no seletor de tempo e a execução na variável **Execução**, no alto da página. Pela URL, os horários vão em milissegundos desde 1970:
+
+```bash
+date -d '2026-11-09 14:39:30' +%s000      # hora local -> milissegundos
+# http://localhost:3000/d/xapp-rdl-sim/xapp-rdl-e28094-simulacoes?from=<ms>&to=<ms>&var-run=<execução>
+```
+
+O dashboard tem três blocos:
 
 - **Execução NORI ao vivo:** vazão e atraso por fatia, e a execução escolhida com o tempo simulado no eixo X, onde a queda da fatia restrita aparece no instante de aplicação do Control.
 - **xApp:** KPM do nó, Indications por 10 s, latência do ACK e tabela dos RIC Control. O Control também aparece como anotação nos gráficos.
 - **Campanhas e certificação:** gates do certificado, vereditos por baseline e regra, URLLC antes, depois e prevista, e as execuções mais recentes.
 
-Remover: `helm -n monitoring uninstall grafana influxdb2`.
+Os painéis de RIC Control ficam vazios em execuções sem Control, como as execuções curtas de verificação (`*_smoke_*`).
 
-### 2.8 Rancher (opcional)
+#### 2.7.6 O que o alimentador envia
+
+| Measurement | Fonte | Campos principais | Tags |
+| :-- | :-- | :-- | :-- |
+| `nori_slice` | `raw/slice_series.csv` da execução NORI corrente | `throughput_mbps`, `delay_ms` | `run`, `scenario`, `baseline`, `condition`, `seed`, `ue`, `sst`, `slice` |
+| `xapp_kpm_node` | eventos `kpm` da kpm-probe | `prb_used_dl`, `prb_avail_dl`, UEs ativos | `run` |
+| `xapp_kpm_ue` | eventos `kpm` da kpm-probe | PRBs por UE | `run`, `ue`, `sst` |
+| `xapp_indication` | `rmr_message` (RIC Indication) | `count`, `length` | `run` |
+| `xapp_control` | `control_request` | cotas por fatia, ordem do Control (B0), intervalo do par KPM | `run`, `source`, `rmr_ok` |
+| `xapp_control_outcome` | `control_outcome` | latência e correlação do ACK | `run`, `outcome` |
+| `xapp_decision` | `control_decision` | decisão do H-RDL | `run`, `source` |
+| `campanha_execucao` | `slice_effect*.json` e manifestos (histórico completo na primeira passada) | `verdict_code`, `embb_before_mbps`, `embb_after_mbps`, `urllc_before_mbps`, `urllc_after_mbps`, `urllc_predicted_mbps` | `run`, `rule`, `verdict` |
+| `certificado` | certificado mais recente | `certified`, `verdict_code`, `reason` | `gate`, `verdict`, `certificate` |
+
+#### 2.7.7 Consultar o InfluxDB pela linha de comando
+
+Com `TOK` definido como na seção 2.7.4:
 
 ```bash
-bash scripts/observe/deploy_rancher.sh                # cert-manager v1.14.7 + Rancher 2.8.5, uma réplica
-kubectl -n cattle-system port-forward svc/rancher 8443:443     # https://localhost:8443 (certificado autoassinado)
-kubectl -n cattle-system get secret bootstrap-secret -o jsonpath='{.data.bootstrapPassword}' | base64 -d   # senha inicial
-bash scripts/observe/deploy_rancher.sh --uninstall    # remove
+# vazão média por fatia de uma execução
+kubectl -n monitoring exec influxdb2-0 -- influx query --org rdl --token "$TOK" \
+  'from(bucket:"simulacoes") |> range(start:-30d)
+   |> filter(fn:(r)=> r._measurement=="nori_slice" and r.run=="nori_S3_B3_smoke_seed9004" and r._field=="throughput_mbps")
+   |> group(columns:["slice"]) |> mean()'
+
+# quantas execuções em cada veredito, por regra
+kubectl -n monitoring exec influxdb2-0 -- influx query --org rdl --token "$TOK" \
+  'from(bucket:"simulacoes") |> range(start:-30d)
+   |> filter(fn:(r)=> r._measurement=="campanha_execucao" and r._field=="verdict_code")
+   |> group(columns:["rule","verdict"]) |> count()'
+
+# buckets e retenção
+kubectl -n monitoring exec influxdb2-0 -- influx bucket list --org rdl --token "$TOK"
 ```
 
-O chart do Rancher 2.8.x é o último que aceita o Kubernetes da bancada (k3s v1.26). O roteiro limita o Rancher a 1,25 GiB e informa a memória livre no fim.
+#### 2.7.8 Credenciais
 
-**Não cabe neste ambiente.** Na tentativa de 2026-11-09, o cert-manager subiu, mas a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (cerca de 1,4 GB). A causa foi o disco C: do Windows, que guarda o `ext4.vhdx` do Ubuntu e estava praticamente cheio: o `.vhdx` cresceu até esgotar o C:, e o WSL passou a dar erro de E/S. Os 7,7 GB de RAM do host agravam o problema. A queda derrubou o RIC, o NORI e a xApp, e a recuperação foi manual (achado 50 de docs/07). O Rancher e o cert-manager foram removidos. Por isso o roteiro agora exige 4,5 GB livres por padrão. Para usar o Rancher, rode-o fora deste WSL, em outra máquina ou num WSL com 8 GB ou mais, e importe o cluster k3s por lá. Para acompanhar a bancada, ficam as abas da seção 2 e o Grafana da seção 2.7.
+```bash
+kubectl -n monitoring get secret influxdb2-auth -o jsonpath='{.data.admin-password}' | base64 -d   # InfluxDB, usuário admin
+kubectl -n monitoring get secret influxdb2-auth -o jsonpath='{.data.admin-token}'    | base64 -d   # token da API do InfluxDB
+kubectl -n monitoring get secret grafana        -o jsonpath='{.data.admin-password}' | base64 -d   # Grafana, usuário admin
+```
+
+Para ler o dashboard não é preciso entrar, porque o acesso anônimo é de leitura. A senha do Grafana só é necessária para editar painéis.
+
+#### 2.7.9 Mudar o dashboard
+
+O JSON é gerado; não edite `rdl_simulacoes.json` à mão.
+
+```bash
+python3 scripts/observe/make_grafana_dashboard.py      # regenera deploy/helm/observability/dashboards/rdl_simulacoes.json
+bash scripts/observe/deploy_observability.sh           # republica o ConfigMap e reinicia o Grafana
+```
+
+#### 2.7.10 Desligar e remover
+
+Para desligar, tecle Ctrl-C nas abas do alimentador e do Grafana. Os pods continuam no cluster, com os dados.
+
+```bash
+helm -n monitoring uninstall grafana influxdb2         # remove os dois
+kubectl -n monitoring delete pvc influxdb2             # apaga também os dados do InfluxDB (permanente)
+```
+
+#### 2.7.11 Problemas comuns
+
+| Sintoma | Causa provável | O que fazer |
+| :-- | :-- | :-- |
+| http://localhost:3000 não abre | aba do `grafana.sh` fechada, ou WSL desligado | deixe aberto o terminal da seção 2.7.1 e rode `bash scripts/observe/grafana.sh` |
+| `kubectl` sem resposta ou "Input/output error" | o WSL caiu ou o C: lotou | confira o C: (seção 2.7.1); com o C: perto de zero, rode `wsl --shutdown` e libere espaço antes de religar (achado 50) |
+| painéis com "No data" | janela de tempo errada: os pontos usam a hora da simulação | escolha o horário da execução (seção 2.7.5) |
+| só os painéis de RIC Control vazios | a execução não teve Control | normal em execuções curtas de verificação |
+| alimentador mostra "falha ao enviar" | o port-forward do InfluxDB caiu (pod reiniciado) | Ctrl-C e rode `influx_live.sh` de novo; ele reabre o port-forward |
+| "address already in use" na porta 3000 ou 18086 | um port-forward antigo ainda está aberto | feche a aba antiga ou use `GRAFANA_LOCAL_PORT` / `INFLUX_LOCAL_PORT` |
+| `influxdb2-0` ou `grafana` não ficam prontos depois de religar o WSL | o k3s ainda está subindo | `kubectl -n monitoring get pods -w` e espere 1/1; o RIC também precisa voltar (achado 51 e docs/04 §9) |
+
+### 2.8 Rancher (opcional, fora deste WSL)
+
+**Não instale o Rancher no WSL da bancada.** Na tentativa de 2026-11-09 (cert-manager v1.14.7 + Rancher 2.8.5), a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (cerca de 1,4 GB). A causa foi o disco C: do Windows, que guarda o `ext4.vhdx` do Ubuntu e estava praticamente cheio: o `.vhdx` cresceu até esgotar o C:, e o WSL passou a dar erro de E/S. Os 7,7 GB de RAM do host agravam o problema. A queda derrubou o RIC, o NORI e a xApp, e a recuperação foi manual (achado 50 de docs/07). O Rancher e o cert-manager foram removidos. Para acompanhar a bancada, use as abas da seção 2 e o Grafana da seção 2.7.
+
+O roteiro continua no repositório para um ambiente com folga (outra máquina, ou um WSL com 8 GB ou mais), onde o Rancher roda e importa o cluster k3s:
+
+```bash
+free -m                                                    # o roteiro exige 4,5 GB livres (MemAvailable)
+bash scripts/observe/deploy_rancher.sh                     # instala ou atualiza: cert-manager v1.14.7 + Rancher 2.8.5, uma réplica, limite de 1,25 GiB
+kubectl -n cattle-system port-forward svc/rancher 8443:443 # https://localhost:8443 (certificado autoassinado)
+kubectl -n cattle-system get secret bootstrap-secret -o jsonpath='{.data.bootstrapPassword}' | base64 -d   # senha inicial
+bash scripts/observe/deploy_rancher.sh --uninstall         # remove Rancher e cert-manager
+```
+
+- O chart do Rancher 2.8.x é o último que aceita o Kubernetes da bancada (k3s v1.26).
+- Sem memória suficiente, o roteiro para sem instalar nada (código de saída 3) e mostra quanto há livre. O limite pode ser mudado com `MIN_FREE_MB=<MB>`, mas abaixo de 4.500 MB a bancada corre o risco de cair de novo.
+
+Para conferir que o Rancher não está no cluster da bancada:
+
+```bash
+kubectl get ns | grep -E 'cattle|cert-manager|fleet' || echo "Rancher ausente"
+helm list -A | grep -E 'rancher|cert-manager' || echo "nenhum release do Rancher"
+```
 
 ## 3. Campanha NORI: S0–S8 × 5 sementes, com a cadeia certificada
 
