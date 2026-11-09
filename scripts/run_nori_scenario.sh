@@ -9,7 +9,9 @@
 #   bash scripts/run_nori_scenario.sh S1 1001
 # Pré-requisitos: RIC Release I, bancada NORI e xApp kpm-probe em modo catalog
 #   (bash scripts/deploy_kpm_probe.sh --set rc.decision=catalog).
-# Variáveis: SIM_TIME (40), TRAFFIC_RATE (300Mb/s), E2_PERIOD (1), KUBECONFIG.
+# Variáveis: SIM_TIME (40), TRAFFIC_RATE (300Mb/s), E2_PERIOD (1), KUBECONFIG,
+#   RUN_TAG (condição no run_id: nori_<S>_B3<RUN_TAG>_seed<N>, ex.: _bw50) e SCENARIO_ARGS (argumentos
+#   extras do cenário, ex.: --bandwidth=50e6). Um RUN_TAG só com [a-z0-9_].
 set -uo pipefail
 [ $# -eq 2 ] || { echo "Uso: $0 <S0..S8> <semente>" >&2; exit 64; }
 SCENARIO="$1"; SEED="$2"
@@ -17,7 +19,10 @@ SCENARIO="$1"; SEED="$2"
 [[ "$SEED" =~ ^[0-9]+$ ]] || { echo "semente inválida: $SEED" >&2; exit 64; }
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
-RUN_ID="nori_${SCENARIO}_B3_seed${SEED}"
+RUN_TAG="${RUN_TAG:-}"
+[[ "$RUN_TAG" =~ ^(_[a-z0-9]+)*$ ]] || { echo "RUN_TAG inválido: $RUN_TAG (ex.: _bw50)" >&2; exit 64; }
+RUN_ID="nori_${SCENARIO}_B3${RUN_TAG}_seed${SEED}"
+read -r -a EXTRA <<< "${SCENARIO_ARGS:-}"
 COMMIT="$(cd "$REPO" && git rev-parse HEAD)"
 say() { echo "[$(date +%H:%M:%S)] $*"; }
 
@@ -41,7 +46,7 @@ say "cenário $SCENARIO gravado na xApp; xApp com src/ de $(kubectl -n ricxapp e
 say "=== $RUN_ID: $SCENARIO na bancada NORI, semente $SEED (saída ao vivo) ==="
 kubectl -n ricsim exec -it deploy/nori-ns3 -- env RDL_SCENARIO="$SCENARIO" RDL_BASELINE=B3 \
   bash /scripts/run.sh nori-rc-slicing-flowmon "$RUN_ID" --seed "$SEED" -- \
-  --simTime="${SIM_TIME:-40}" --ns3::E2Interface::E2Periodicity="${E2_PERIOD:-1}" --trafficRate="${TRAFFIC_RATE:-300Mb/s}" \
+  --simTime="${SIM_TIME:-40}" --ns3::E2Interface::E2Periodicity="${E2_PERIOD:-1}" --trafficRate="${TRAFFIC_RATE:-300Mb/s}" "${EXTRA[@]}" \
   | grep --line-buffered -E "Slice [01]|\[t = |\[RDL-UE\]|E2Term|SETUP|Subscription|subscription|RICcontrol|===|E2SimMod"
 bash "$REPO/scripts/collect_nori_run.sh" "$RUN_ID" 2>&1 | grep -E "hashes|Cadeia|tshark \(|xApp:|Control:|Efeito|SST|ERRO"
 sleep 15   # o E2Mgr marca o nó como desconectado e a xApp apaga a subscrição antes da próxima execução

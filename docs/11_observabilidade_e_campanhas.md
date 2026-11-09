@@ -247,6 +247,7 @@ No início da execução, cada trace aparece como "conectado" ou "indisponível"
 bash scripts/run_nori_campaign.sh                                          # 45 execuções, ~3 min cada (~2,5 h)
 bash scripts/run_nori_campaign.sh --scenarios "S1 S7" --seeds "1001 1002"  # subconjunto
 bash scripts/run_nori_campaign.sh --no-deploy                              # reaproveita a xApp já implantada
+bash scripts/run_nori_campaign.sh --tag _bw50 --args "--bandwidth=50e6"   # outra condição do cenário (run_id nori_<S>_B3_bw50_seed<N>)
 ```
 
 O script:

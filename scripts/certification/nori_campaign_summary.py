@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parents[2]
-RUN_RE = re.compile(r"^nori_(S[0-8])_B3_seed(\d+)$")
+RUN_RE = re.compile(r"^nori_(S[0-8])_B3((?:_[a-z0-9]+)*)_seed(\d+)$")
 ROLES = ("e2_setup", "subscription", "kpm_t0", "control_request", "control_ack", "kpm_t1")
 
 
@@ -90,12 +90,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", help="sementes a incluir, ex.: 2001-2005 ou '1001 1003'")
-    seeds = parse_seeds(ap.parse_args(argv).seeds)
+    ap.add_argument("--tag", default="", help="condição do run_id (ex.: _bw50); vazio = condição padrão")
+    args = ap.parse_args(argv)
+    seeds = parse_seeds(args.seeds)
     runs = []
     for d in sorted((ROOT / "experiments" / "runs").iterdir()):
         m = RUN_RE.match(d.name)
-        if m and (d / "hashes.sha256").exists() and (seeds is None or int(m.group(2)) in seeds):
-            runs.append(row(d.name, m.group(1), m.group(2)))
+        if (m and (d / "hashes.sha256").exists() and m.group(2) == args.tag
+                and (seeds is None or int(m.group(3)) in seeds)):
+            runs.append(row(d.name, m.group(1), m.group(3)))
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     lines = [f"# Campanha NORI: cenários de conflito com E2 real ({stamp})", "",
              "Gerado por `scripts/certification/nori_campaign_summary.py`. Papéis da cadeia na ordem "

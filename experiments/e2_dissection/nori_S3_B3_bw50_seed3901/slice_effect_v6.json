@@ -1,0 +1,20 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S3_B3_bw50_seed3901",
+  "generated_at_utc": "2026-11-09T05:13:13Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v6-ratio-apply",
+  "anchor": "control",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.2
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "9e4c7077ee0a5b9f9f5a8915893f9faed75c3b2c8b355087586a53a9002dd624",
+  "source_dissection_sha256": "b420c2ff3c0354ec7fbca71cd7269ceb23ff0e035d0e2a701f8dd8cd2daf575b",
+  "verdict": "NOT_TESTABLE",
+  "reason": "nenhum RIC Control na cadeia do PCAP"
+}
