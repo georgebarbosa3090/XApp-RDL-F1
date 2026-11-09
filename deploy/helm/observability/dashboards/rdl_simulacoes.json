@@ -1,0 +1,597 @@
+{
+  "uid": "xapp-rdl-sim",
+  "title": "xApp RDL — simulações",
+  "tags": [
+    "xapp-rdl",
+    "nori",
+    "o-ran"
+  ],
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": false,
+  "refresh": "5s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "description": "Execução NORI ao vivo, eventos E2 da xApp kpm-probe e vereditos das campanhas (alimentado por scripts/observe/influx_feeder.py).",
+  "templating": {
+    "list": [
+      {
+        "name": "run",
+        "label": "Execução",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb-rdl"
+        },
+        "refresh": 2,
+        "sort": 2,
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: \"simulacoes\", tag: \"run\", predicate: (r) => r._measurement == \"nori_slice\", start: -30d)",
+        "definition": "tagValues run (nori_slice)",
+        "current": {},
+        "options": [],
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "annotations": {
+    "list": [
+      {
+        "name": "RIC Control",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb-rdl"
+        },
+        "enable": true,
+        "iconColor": "orange",
+        "target": {
+          "refId": "Anno",
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"xapp_control\" and r._field == \"embb_cap_pct\")\n  |> map(fn: (r) => ({r with _value: \"Control \" + string(v: r.source) + \" eMBB \" + string(v: r._value) + \" %\"}))"
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Execução NORI ao vivo (FlowMonitor, a cada 0,5 s simulado)",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Vazão por fatia — execuções recentes",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"nori_slice\" and r._field == \"throughput_mbps\")\n  |> group(columns: [\"run\", \"slice\"])\n  |> keep(columns: [\"_time\", \"_value\", \"run\", \"slice\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Vazão por UE/fatia calculada dos contadores acumulados do FlowMonitor da execução NORI em andamento."
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Atraso médio por fatia",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"nori_slice\" and r._field == \"delay_ms\")\n  |> group(columns: [\"run\", \"slice\"])\n  |> keep(columns: [\"_time\", \"_value\", \"run\", \"slice\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "trend",
+      "title": "Vazão por fatia × tempo simulado — execução escolhida (${run})",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"nori_slice\" and r.run == \"${run}\" and (r._field == \"throughput_mbps\" or r._field == \"sim_time_s\"))\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()\n  |> pivot(rowKey: [\"sim_time_s\"], columnKey: [\"slice\"], valueColumn: \"throughput_mbps\")\n  |> keep(columns: [\"sim_time_s\", \"eMBB\", \"URLLC\"])\n  |> sort(columns: [\"sim_time_s\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "showPoints": "never"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sim_time_s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "xField": "sim_time_s",
+        "legend": {
+          "showLegend": true,
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "description": "Eixo X: tempo simulado (s). O Control é aplicado pelo NORI no instante de aplicação (docs/07 v5); a queda da fatia restrita aparece alguns segundos simulados depois."
+    },
+    {
+      "id": 5,
+      "type": "row",
+      "title": "xApp kpm-probe (E2: KPM, decisão, RIC Control, ACK)",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "KPM do nó: PRBs usados e disponíveis",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"xapp_kpm_node\" and (r._field == \"prb_used_dl\" or r._field == \"prb_avail_dl\"))\n  |> group(columns: [\"_field\"])\n  |> keep(columns: [\"_time\", \"_value\", \"_field\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Indications KPM recebidas (por 10 s)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 18,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"xapp_indication\" and r._field == \"count\")\n  |> group()\n  |> aggregateWindow(every: 10s, fn: sum, createEmpty: false)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Latência do ACK do RIC Control",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 18,
+        "w": 8,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"xapp_control_outcome\" and r._field == \"latency_ms\")\n  |> group(columns: [\"outcome\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 8
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "RIC Control enviados (cotas por fatia, fonte da decisão)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 26,
+        "w": 24,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"xapp_control\")\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()\n  |> keep(columns: [\"_time\", \"run\", \"baseline\", \"source\", \"order\", \"embb_cap_pct\", \"urllc_cap_pct\", \"pair_gap_ms\", \"decision_ms\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 50)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "Campanhas e certificação (evidência no repositório)",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 24,
+        "h": 1
+      },
+      "panels": []
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "Gates do certificado mais recente",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"certificado\" and r._field == \"verdict_code\")\n  |> group(columns: [\"gate\"])\n  |> last()\n  |> keep(columns: [\"_time\", \"gate\", \"_value\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "3": {
+                  "text": "CERTIFIED",
+                  "color": "green"
+                },
+                "2": {
+                  "text": "LOCAL_ONLY",
+                  "color": "blue"
+                },
+                "1": {
+                  "text": "NOT_CERTIFIED",
+                  "color": "orange"
+                },
+                "0": {
+                  "text": "BLOCKED",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "displayName": "${__field.labels.gate}"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "textMode": "value_and_name",
+        "graphMode": "none"
+      }
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Vereditos de efeito por baseline e regra (todas as execuções NORI)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 39,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"campanha_execucao\" and r._field == \"verdict_code\")\n  |> group(columns: [\"baseline\", \"rule\", \"verdict\"])\n  |> count()\n  |> group()\n  |> keep(columns: [\"baseline\", \"rule\", \"verdict\", \"_value\"])\n  |> rename(columns: {_value: \"execuções\"})\n  |> sort(columns: [\"rule\", \"baseline\", \"verdict\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "URLLC antes e depois do Control, por execução (regra v6)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 39,
+        "w": 12,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"campanha_execucao\" and r.rule == \"v6-ratio-apply\" and (r._field == \"urllc_before_mbps\" or r._field == \"urllc_after_mbps\" or r._field == \"urllc_predicted_mbps\"))\n  |> map(fn: (r) => ({r with serie: if r._field == \"urllc_before_mbps\" then \"antes\" else if r._field == \"urllc_after_mbps\" then \"depois\" else \"previsto (v6)\"}))\n  |> group(columns: [\"serie\"])\n  |> keep(columns: [\"_time\", \"_value\", \"serie\"])\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Mbits",
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 6
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "timeFrom": "30d"
+    },
+    {
+      "id": 14,
+      "type": "table",
+      "title": "Execuções mais recentes",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb-rdl"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 49,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "influxdb-rdl"
+          },
+          "query": "from(bucket: \"simulacoes\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"campanha_execucao\")\n  |> pivot(rowKey: [\"_time\", \"run\", \"rule\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()\n  |> keep(columns: [\"_time\", \"run\", \"rule\", \"verdict\", \"source\", \"embb_cap_pct\", \"urllc_cap_pct\", \"urllc_before_mbps\", \"urllc_after_mbps\", \"urllc_predicted_mbps\", \"trigger_is_kpm_t0\"])\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 60)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ]
+}

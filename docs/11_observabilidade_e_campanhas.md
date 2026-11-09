@@ -241,6 +241,55 @@ No build otimizado do ns-3, os `NS_LOG` desaparecem, e o NORI não imprime a con
 
 No início da execução, cada trace aparece como "conectado" ou "indisponível". Para mudar a variante, basta recompilá-la (cerca de 20 s, no próprio `run.sh`); o resto do ns-3 não muda.
 
+### 3.7 InfluxDB e Grafana: séries das simulações
+
+InfluxDB 2.7.4 e Grafana 12.3.1 rodam via Helm no namespace `monitoring`, com versões fixadas, limites de memória baixos e cerca de 200 MB no total. Implantação, uma vez:
+
+```bash
+bash scripts/observe/deploy_observability.sh     # charts influxdata/influxdb2 2.1.2 e grafana/grafana 10.5.15 (cache local, com novas tentativas)
+```
+
+Os valores estão em `deploy/helm/observability/`: `values-influxdb2.yaml`, `values-grafana.yaml` e o dashboard `dashboards/rdl_simulacoes.json`, gerado por `scripts/observe/make_grafana_dashboard.py`. A senha e o token do administrador do InfluxDB são gerados pelo chart no Secret `influxdb2-auth`. O Grafana lê o token de lá e tem acesso anônimo somente de leitura.
+
+Em duas abas:
+
+```bash
+bash scripts/observe/influx_live.sh     # alimentador: abre o port-forward do InfluxDB, lê o token e envia os pontos
+bash scripts/observe/grafana.sh         # Grafana em http://localhost:3000 (abre no navegador do Windows)
+```
+
+O alimentador (`scripts/observe/influx_feeder.py`) só lê, sem alterar nada no repositório ou no cluster. Ele envia ao bucket `simulacoes` (org `rdl`):
+
+| Measurement | Fonte | Conteúdo |
+| :-- | :-- | :-- |
+| `nori_slice` | `raw/slice_series.csv` da execução NORI corrente (a cada 2 s) | vazão (Mb/s) e atraso (ms) por UE/fatia, com o tempo simulado; tags `run`, `scenario`, `baseline`, `condition`, `seed`, `slice` |
+| `xapp_kpm_node`, `xapp_kpm_ue` | eventos `kpm` da kpm-probe | PRBs do nó, UEs ativos e PRBs por UE/fatia |
+| `xapp_indication` | `rmr_message` (RIC Indication) | contagem de Indications |
+| `xapp_control`, `xapp_control_outcome`, `xapp_decision` | `control_request`, `control_outcome`, `control_decision` | cotas por fatia, fonte da decisão, ordem do Control (B0), intervalo do par KPM, latência e correlação do ACK |
+| `campanha_execucao` | `slice_effect*.json` e manifestos no repositório (histórico completo na primeira passada) | veredito por regra (v5, v6), vazões antes e depois, previsão, cotas, disparo pelo KPM_t0 |
+| `certificado` | certificado mais recente | veredito de cada gate |
+
+O dashboard "xApp RDL — simulações" tem três blocos:
+
+- **Execução NORI ao vivo:** vazão e atraso por fatia, e a execução escolhida com o tempo simulado no eixo X, onde a queda da fatia restrita aparece no instante de aplicação do Control.
+- **xApp:** KPM do nó, Indications por 10 s, latência do ACK e tabela dos RIC Control. O Control também aparece como anotação nos gráficos.
+- **Campanhas e certificação:** gates do certificado, vereditos por baseline e regra, URLLC antes, depois e prevista, e as execuções mais recentes.
+
+Remover: `helm -n monitoring uninstall grafana influxdb2`.
+
+### 3.8 Rancher (opcional)
+
+```bash
+bash scripts/observe/deploy_rancher.sh                # cert-manager v1.14.7 + Rancher 2.8.5, uma réplica
+kubectl -n cattle-system port-forward svc/rancher 8443:443     # https://localhost:8443 (certificado autoassinado)
+kubectl -n cattle-system get secret bootstrap-secret -o jsonpath='{.data.bootstrapPassword}' | base64 -d   # senha inicial
+bash scripts/observe/deploy_rancher.sh --uninstall    # remove
+```
+
+O chart do Rancher 2.8.x é o último que aceita o Kubernetes da bancada (k3s v1.26). O roteiro limita o Rancher a 1,25 GiB e informa a memória livre no fim.
+
+**Não cabe neste WSL de 5 GB.** Na tentativa de 2026-11-09, o cert-manager subiu, mas a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (cerca de 1,4 GB), com 2,9 GB livres. A queda derrubou o RIC, o NORI e a xApp, e a recuperação foi manual (achado 50 de docs/05). O Rancher e o cert-manager foram removidos. Por isso o roteiro agora exige 4,5 GB livres por padrão. Para usar o Rancher, rode-o fora deste WSL, em outra máquina ou num WSL com 8 GB ou mais, e importe o cluster k3s por lá. Para acompanhar a bancada, ficam as abas da seção 3 e o Grafana da seção 3.7.
+
 ## 4. Campanha NORI: S0–S8 × 5 sementes, com a cadeia certificada
 
 ```bash

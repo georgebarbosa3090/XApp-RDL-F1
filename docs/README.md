@@ -16,7 +16,7 @@
 | [07 — Pré-registro da fase 4, desenho v6](07_preregistro_fase4_v6.md) | Efeito da cota relativo à vazão sem restrição (achados 41 e 42), interpolação só entre níveis que restringem, hipóteses H6.1–H6.4 e avaliação em sementes novas (2001–2005), registrados antes das execuções; resultado: 30/30 `CONSISTENT`, H6.4 não testada |
 | [07 — Pré-registro da fase 4, desenho v7](07_preregistro_fase4_v7.md) | Teste da H6.4: a razão da cota com outra vazão de base (banda de 50 MHz, URLLC a ~40 Mb/s no piloto), sementes 4001–4005, registrado antes das execuções; resultado: 30/30 `INCONSISTENT`, H6.4 refutada para mudança de banda (teto em PRBs absolutos) |
 | [07 — Pré-registro da campanha do G5](07_preregistro_g5_campanha_s8.md) | S8 × B0–B3 × sementes 5001–5030 com E2 real: baselines na xApp, critério do G5 no certificador, hipóteses H8.1–H8.3, registrado antes das execuções; resultado: G5 certificado (30 pares), desvios e reposições declarados |
-| [11 — Observabilidade ao vivo e campanhas](11_observabilidade_e_campanhas.md) | Porte dos cenários S0–S8 para a bancada NORI, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), painel tmux, campanhas NORI e nativa, certificação |
+| [11 — Observabilidade ao vivo e campanhas](11_observabilidade_e_campanhas.md) | Porte dos cenários S0–S8 para a bancada NORI, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), InfluxDB e Grafana com o dashboard das simulações, Rancher opcional, painel tmux, campanhas NORI e nativa, certificação |
 | [23 — Fluxo de mensagens](23_diagrama_sequencia_fluxo_closed_loop_hrdl_fase1.md) | Diagrama de sequência do ciclo subscrição → decisão → controle → ACK |
 
 ## Referência

@@ -1,0 +1,72 @@
+# Grafana para a observabilidade das simulações (chart grafana/grafana 10.5.15, Grafana 12.3.1).
+# Implantado por scripts/observe/deploy_observability.sh no namespace monitoring.
+# Acesso: bash scripts/observe/grafana.sh  (port-forward em http://localhost:3000; leitura anônima, sem login)
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    memory: 384Mi
+
+persistence:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Token do InfluxDB lido do Secret gerado pelo chart do InfluxDB (mesmo namespace)
+envValueFrom:
+  INFLUX_TOKEN:
+    secretKeyRef:
+      name: influxdb2-auth
+      key: admin-token
+
+grafana.ini:
+  analytics:
+    reporting_enabled: false
+    check_for_updates: false
+    check_for_plugin_updates: false
+  auth.anonymous:
+    enabled: true
+    org_role: Viewer
+  dashboards:
+    default_home_dashboard_path: /var/lib/grafana/dashboards/rdl/rdl_simulacoes.json
+  users:
+    allow_sign_up: false
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: InfluxDB-RDL
+        uid: influxdb-rdl
+        type: influxdb
+        access: proxy
+        url: http://influxdb2.monitoring.svc.cluster.local
+        isDefault: true
+        jsonData:
+          version: Flux
+          organization: rdl
+          defaultBucket: simulacoes
+          tlsSkipVerify: true
+        secureJsonData:
+          token: $INFLUX_TOKEN
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: rdl
+        orgId: 1
+        folder: xApp RDL
+        type: file
+        disableDeletion: true
+        editable: false
+        options:
+          path: /var/lib/grafana/dashboards/rdl
+
+# Dashboard vem do ConfigMap grafana-dash-rdl (deploy/helm/observability/dashboards/rdl_simulacoes.json),
+# criado pelo roteiro de implantação
+dashboardsConfigMaps:
+  rdl: grafana-dash-rdl

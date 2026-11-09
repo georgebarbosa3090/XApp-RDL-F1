@@ -7,6 +7,8 @@
 #   4 ric        logs filtrados de E2Term, E2Mgr, SubMgr e RtMgr (painel de cima) e estado do RIC (embaixo)
 #   5 k8s        deployments e pods de ricplt, ricxapp e ricsim
 #   6 ues        registro de UEs ([RDL-UE])
+#   7 influx     alimentador do InfluxDB (NORI, xApp e campanhas -> Grafana); exige deploy_observability.sh
+#   8 grafana    port-forward do Grafana em http://localhost:3000
 # Uso (Ubuntu do WSL): bash scripts/observe/panel.sh     Navegação: Ctrl-b <número>; sair: Ctrl-b d
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -26,5 +28,9 @@ tmux new-window -t "$S" -n ric -c "$REPO" "bash $O/ric_live.sh"
 tmux split-window -t "$S:ric" -v -l 12 -c "$REPO" "bash $O/ric_nodes.sh"
 tmux new-window -t "$S" -n k8s -c "$REPO" "bash $O/k8s_live.sh"
 tmux new-window -t "$S" -n ues -c "$REPO" "bash $O/ue_live.sh"
+if kubectl -n monitoring get svc influxdb2 grafana >/dev/null 2>&1; then
+  tmux new-window -t "$S" -n influx -c "$REPO" "bash $O/influx_live.sh"
+  tmux new-window -t "$S" -n grafana -c "$REPO" "bash $O/grafana.sh"
+fi
 tmux select-window -t "$S:campanha"
 exec tmux attach -t "$S"

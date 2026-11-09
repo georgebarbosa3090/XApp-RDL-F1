@@ -120,6 +120,7 @@ bash scripts/run_nori_scenario.sh S1 1001
 bash scripts/run_nori_campaign.sh
 bash scripts/run_native_campaign.sh        # campanha nativa S0–S7 × B0–B3 + análise, certificação e relatório
 bash scripts/observe/panel.sh              # painel tmux: NORI, E2AP, xApp, RIC, Kubernetes, UEs (docs/11)
+bash scripts/observe/deploy_observability.sh   # InfluxDB + Grafana (Helm); depois influx_live.sh e grafana.sh -> http://localhost:3000
 ```
 
 Executar a xApp (modo local, sem RIC):

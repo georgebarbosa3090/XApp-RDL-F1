@@ -1,0 +1,30 @@
+# InfluxDB 2 para a observabilidade das simulações (chart influxdata/influxdb2 2.1.2, InfluxDB 2.7.4).
+# Implantado por scripts/observe/deploy_observability.sh no namespace monitoring.
+# A senha e o token do administrador são gerados pelo chart no Secret "influxdb2-auth"
+# (chaves admin-password e admin-token); o alimentador e o Grafana leem o token de lá.
+adminUser:
+  organization: rdl
+  bucket: simulacoes
+  user: admin
+  retention_policy: "90d"
+
+persistence:
+  enabled: true
+  storageClass: local-path
+  size: 2Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Sem envio de telemetria para a InfluxData
+env:
+  - name: INFLUXD_REPORTING_DISABLED
+    value: "true"
