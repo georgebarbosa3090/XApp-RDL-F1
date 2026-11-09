@@ -57,7 +57,12 @@ def fmt(ev: dict, show_indications: bool) -> None:
         res = ", ".join(f"{r['conflict_type']}->{r['strategy']}" for r in d.get("resolutions", [])) or "sem conflito"
         sel = "; ".join(f"{s.get('xapp_id')} {s.get('parameter')} {s.get('value')} @{str(s.get('target', '')).rsplit('#', 1)[-1]}"
                         for s in d.get("selected") or []) if isinstance(d.get("selected"), list) else str(d.get("selected"))
-        out("dec", t, f"decisão {ev.get('decision_source')} | cenário {d.get('scenario', '-')} | {res} | selecionadas: {sel or '—'}")
+        base = f" | baseline {d['baseline']}" if d.get("baseline") else ""
+        if kind == "control_request" and (ev.get("control_order") or 1) > 1:
+            pass   # B0: a decisão já foi mostrada no primeiro Control da sequência
+        else:
+            out("dec", t, f"decisão {ev.get('decision_source')}{base} | cenário {d.get('scenario', '-')} | {res} | "
+                          f"selecionadas: {sel or '—'}")
         for s in d.get("not_actuated") or []:
             out("dec", t, f"   não atuável no NORI: {s.get('xapp_id')} {s.get('parameter')} -> {s.get('reason')}")
         if d.get("not_selected"):

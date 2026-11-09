@@ -296,6 +296,9 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
     backend = str(manifest.get("backend", ""))
     report.facts["backend"] = backend
     report.facts["scenario"] = manifest.get("scenario")
+    report.facts["conflict_scenario"] = manifest.get("conflict_scenario")
+    _cond = re.match(r"^nori_S[0-8]_B[0-9]((?:_[a-z0-9]+)*)_seed[0-9]+$", run_dir.name)
+    report.facts["condition"] = _cond.group(1) if _cond else ""
     report.facts["baseline"] = manifest.get("baseline")
     report.facts["seed"] = manifest.get("seed")
     report.facts["started_at_utc"] = manifest.get("started_at_utc")
@@ -427,6 +430,25 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
 # que valia quando rodaram (slice_effect.json: v5, v4 ou v2).
 V6_ADOPTED_FROM_UTC = "2026-11-09T02:51:46Z"
 G4_EFFECT_RULES = ("v2-calibrated", "v4-curve", "v5-curve-apply", "v6-ratio-apply")
+
+
+G5_BASELINES = ("B0", "B1", "B2", "B3")
+G5_MIN_PAIRED = 30
+G5_DECISION_SOURCE = {"B0": "BASELINE_B0", "B1": "BASELINE_B1", "B2": "BASELINE_B2", "B3": "H_RDL"}
+
+
+def g5_paired_units(complete: List["RunReport"], decision) -> Dict[Tuple[Any, Any], set]:
+    """(cenário, semente) -> baselines com cadeia E2 completa, Control decidido pelo próprio baseline
+    (fonte registrada pela xApp, ligada ao PCAP por sha256) e disparado pelo KPM_t0."""
+    units: Dict[Tuple[Any, Any], set] = {}
+    for r in complete:
+        b = str(r.facts.get("baseline"))
+        d = decision(r)
+        if (b in G5_DECISION_SOURCE and d.get("source") == G5_DECISION_SOURCE[b] and d.get("trigger_is_kpm_t0")
+                and d.get("pcap_control_sent_by_xapp") and r.facts.get("backend") == "NORI_NS3"):
+            key = (r.facts.get("conflict_scenario") or r.facts.get("scenario"), r.facts.get("seed"), r.facts.get("condition"))
+            units.setdefault(key, set()).add(b)
+    return units
 
 
 def effect_file_for(ddir: Path, started_at_utc: Optional[str]) -> str:
@@ -657,12 +679,17 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
         g4_reason = "nenhuma cadeia closed-loop elegível (fixtures e execuções sintéticas não contam)"
     gates["G4"] = {"verdict": (CERTIFIED if g4_ok else NOT_CERTIFIED) if gates["G3"]["verdict"] == CERTIFIED else BLOCKED,
                    "reason": g4_reason}
-    per_baseline: Dict[str, set] = {}
-    for r in eligible:
-        per_baseline.setdefault(str(r.facts.get("baseline")), set()).add(r.facts.get("seed"))
-    paired = all(len(per_baseline.get(b, set())) >= 30 for b in ("B0", "B1", "B2", "B3"))
-    gates["G5"] = {"verdict": (CERTIFIED if paired else NOT_CERTIFIED) if gates["G4"]["verdict"] == CERTIFIED else BLOCKED,
-                   "reason": f"sementes elegíveis por baseline: { {b: len(s) for b, s in sorted(per_baseline.items())} }"}
+    # G5 (docs/05): campanha com E2 real, >= 30 sementes pareadas por baseline B0–B3, com o Control decidido
+    # por cada baseline. Conta só execuções com a cadeia E2 completa no PCAP e cuja fonte da decisão registrada
+    # pela xApp corresponde ao baseline do manifesto; o par é (cenário, semente) presente nos quatro baselines.
+    g5_units = g5_paired_units(complete, decision)
+    per_baseline = {b: sum(1 for bs in g5_units.values() if b in bs) for b in G5_BASELINES}
+    paired = [k for k, bs in g5_units.items() if set(G5_BASELINES) <= bs]
+    gates["G5"] = {"verdict": (CERTIFIED if len(paired) >= G5_MIN_PAIRED else NOT_CERTIFIED)
+                   if gates["G4"]["verdict"] == CERTIFIED else BLOCKED,
+                   "reason": (f"{len(paired)} (cenário, semente) pareados nos quatro baselines com E2 real "
+                              f"(mínimo {G5_MIN_PAIRED}); execuções com cadeia E2 e decisão do próprio baseline: "
+                              f"{per_baseline}")}
     gates["G6"] = {"verdict": BLOCKED if CERTIFIED not in (gates["G4"]["verdict"], gates["G5"]["verdict"]) or
                    gates["G5"]["verdict"] != CERTIFIED else NOT_CERTIFIED,
                    "reason": "requer G4 e G5 certificados e reprodução independente"}

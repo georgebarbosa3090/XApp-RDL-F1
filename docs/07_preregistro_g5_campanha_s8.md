@@ -1,0 +1,76 @@
+# Pré-registro — campanha do G5: S8 × B0–B3 × 30 sementes com E2 real
+
+Registrado em 2026-11-09, **antes** das execuções descritas aqui, no mesmo commit dos baselines na xApp e do critério do G5 no certificador. Qualquer desvio será relatado junto com os resultados.
+
+## 1. Objetivo
+
+O gate G5 (docs/05) exige uma campanha com E2 real e pelo menos 30 sementes pareadas por baseline B0–B3, com o RIC Control decidido por cada baseline. Até aqui, a bancada NORI só tinha o B3 (H-RDL), e os baselines B0–B2 existiam só na pilha nativa, sem E2.
+
+## 2. O que muda no código (neste commit)
+
+- **Baselines na xApp kpm-probe**, em modo `catalog`: o baseline é lido de `/data/rdl_baseline`. A implementação é `src/closed_loop/catalog_loop.decide_baseline`, com a mesma semântica da pilha nativa (`run_conflict_experiment.py`), numa janela única por execução:
+  - **B0** (sem coordenação): toda proposta atuável vai à RAN na ordem de chegada (instante e, no empate, o identificador da proposta); vale a última.
+  - **B1** (FIFO): por alvo, a primeira a chegar.
+  - **B2** (prioridade estática): por alvo, a de maior prioridade.
+  - **B3:** o H-RDL, como na campanha S0–S8.
+- **Fonte da decisão** registrada pela xApp: `BASELINE_B0`, `BASELINE_B1`, `BASELINE_B2` ou `H_RDL`. O B0 envia um Control por proposta, em sequência, e o ACK de cada um é correlacionado pelo `RICInstanceID`.
+- **Efeito na RAN:** quando há mais de um Control antes do KPM_t1 (só no B0), vale o último, que é o que fica aplicado. Com um único Control, nada muda.
+- **G5 no certificador:** passa a seguir a definição do docs/05. Conta só execuções da bancada NORI que cumprem as três condições:
+  - cadeia E2 completa no PCAP;
+  - Control decidido pelo próprio baseline do manifesto (fonte registrada pela xApp, ligada ao PCAP por sha256);
+  - disparo pelo KPM_t0.
+
+  O par é (cenário, semente, condição) presente nos quatro baselines, e o mínimo é 30 pares. Antes, o certificador contava execuções de qualquer pilha, sem exigir E2.
+
+## 3. Desenho
+
+- **Cenário:** S8, o closed loop do NORI. A xslice pede cota de PRB 25 % (prioridade 90) e a embb_throughput pede 80 % (prioridade 60), no mesmo alvo.
+- **Baselines:** B0, B1, B2 e B3.
+- **Sementes:** **5001 a 5030**, nunca rodadas; as mesmas para os quatro baselines, o que dá 120 execuções.
+- **Condição:** a padrão, 100 MHz: `--simTime=40 --ns3::E2Interface::E2Periodicity=1 --trafficRate=300Mb/s`.
+- **Ordem:** por semente, os quatro baselines em sequência (B0, B1, B2, B3). Cada semente concluída forma um conjunto pareado.
+- **Regra de efeito:** a que o certificador aplica a execuções novas, `v6-ratio-apply` (previsão relativa, curva v5 a 100 MHz).
+
+  Ressalva: o desenho v7 está em andamento e indica que, com outra banda, o teto age em PRBs absolutos. Esta campanha roda na banda da calibração.
+
+## 4. Hipóteses e critérios
+
+- **H8.1 (cadeia e fonte):** em cada uma das 120 execuções há E2 Setup, Subscription, KPM_t0, RIC Control, ACK correlacionado e KPM_t1. A fonte da decisão corresponde ao baseline e o tshark concorda com o dissecador.
+- **H8.2 (decisões):**
+
+  | Baseline | Controls (eMBB/URLLC) | Cota final |
+  | :-: | :-- | :-: |
+  | B0 | 80/20, depois 25/75 | 25/75 |
+  | B1 | 80/20 (embb_throughput chega primeiro pelo identificador) | 80/20 |
+  | B2 | 25/75 (xslice tem prioridade maior) | 25/75 |
+  | B3 | 80/20 (H-RDL, TVS) | 80/20 |
+
+- **H8.3 (efeito, regra v6):** em cada baseline, pelo menos 27 das 30 execuções são `CONSISTENT`. As previsões:
+  - **B1 e B3:** URLLC = 0,5046 × vazão antes, e a eMBB sem queda.
+  - **B0 e B2:** eMBB = 0,6285 × vazão antes (teto de 25 %), e a URLLC sem queda (teto de 75 %, acima do nível livre).
+- **G5:** `CERTIFIED` se o certificador encontrar pelo menos 30 (cenário, semente, condição) pareados nos quatro baselines com G4 certificado.
+- **Comparação descritiva, sem hipótese de superioridade:** vazão por fatia e vazão total depois do Control, por baseline, e diferenças pareadas B3 − Bx por semente.
+
+## 5. Procedimento
+
+1. **Pré-registro:** este documento, os baselines na xApp, o efeito com mais de um Control, o G5 no certificador, os roteiros com `--baselines` e os testes entram no mesmo commit.
+2. **Execução:** ao vivo, em primeiro plano, com a xApp implantada a partir desse commit:
+
+   ```bash
+   bash scripts/run_nori_campaign.sh --scenarios "S8" --baselines "B0 B1 B2 B3" --seeds "$(seq -s ' ' 5001 5030)"
+   ```
+
+3. **Análise:** a coleta por execução, depois o certificador e o resumo, com `--baselines "B0 B1 B2 B3"`.
+
+## 6. Como os resultados serão relatados
+
+- Todas as execuções entram no relatório. Uma falha técnica fica registrada e não é repetida em silêncio; repetição só com nova semente, declarada.
+- O G5 é relatado como o certificador o calcular. Se faltarem pares por falha, o relatório diz quantos faltam.
+- Regras e critérios não serão ajustados depois de ver os resultados.
+
+## 7. Ameaças à validade conhecidas
+
+- **Um cenário (S8) e uma condição (100 MHz):** o G5 certifica a campanha com E2 real, mas não generaliza para outros cenários.
+- **Baselines numa janela única:** a pilha nativa repete as propostas periodicamente; na bancada NORI, a decisão é única por execução.
+- **Regra de efeito v6:** confirmada a 100 MHz (desenho v6). Uma semente que mude a vazão de base, como a 1005, pode cair fora do que a regra cobre (desenho v7).
+- **Mesmas limitações das campanhas anteriores:** um gNB, dois UEs, saturação, FlowMonitor como medida, NORI com o patch do ACK e sinal de congestionamento sempre verdadeiro.

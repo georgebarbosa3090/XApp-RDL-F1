@@ -125,6 +125,12 @@ def control_quotas(dissection: Dict[str, Any], ddir: Path) -> Tuple[Optional[Dic
     ctrl = by_index.get(roles.get("control_request") or -1)
     if not ctrl or not ctrl.get("file"):
         return None, []
+    # Baseline B0 (sem coordenação) envia um Control por proposta, em sequência: vale o último antes do
+    # KPM_t1 (é ele que fica aplicado na RAN). Com um único Control, é o próprio Control da cadeia.
+    t1 = roles.get("kpm_t1") or float("inf")
+    burst = [m for m in dissection.get("messages", []) if m.get("role") == "control_request"
+             and m.get("direction") == "RIC->E2_NODE" and ctrl["index"] <= m["index"] < t1 and m.get("file")]
+    ctrl = max(burst, key=lambda m: m["index"]) if burst else ctrl
     from src.e2.v3 import codec
     pdu = codec.decode_e2ap_pdu((ddir / ctrl["file"]).read_bytes())
     quotas = codec.E2smCodec().rc_decode_slice_quotas(pdu["control_message"])

@@ -150,3 +150,28 @@ def test_v6_effect_rule_is_adopted_without_retroactive_effect(tmp_path, started,
         (tmp_path / "slice_effect_v6.json").write_text("{}", encoding="utf-8")
     assert cert.effect_file_for(tmp_path, started) == expected
     assert "v6-ratio-apply" in cert.G4_EFFECT_RULES and "v1-throughput-share" not in cert.G4_EFFECT_RULES
+
+
+class _FakeReport:
+    def __init__(self, scenario, seed, baseline, source, backend="NORI_NS3", condition="", kpm_t0=True):
+        self.facts = {"conflict_scenario": scenario, "scenario": "nori-rc-slicing-flowmon", "seed": seed,
+                      "baseline": baseline, "backend": backend, "condition": condition,
+                      "decision": {"source": source, "trigger_is_kpm_t0": kpm_t0, "pcap_control_sent_by_xapp": True}}
+
+
+def _decision(r):
+    return r.facts["decision"]
+
+
+def test_g5_pairs_only_e2_runs_decided_by_their_own_baseline():
+    src = cert.G5_DECISION_SOURCE
+    runs = [_FakeReport("S8", s, b, src[b]) for s in range(5001, 5031) for b in cert.G5_BASELINES]
+    units = cert.g5_paired_units(runs, _decision)
+    assert sum(1 for bs in units.values() if set(cert.G5_BASELINES) <= bs) == 30
+    # Fonte errada (Control fixo rotulado de B1), pilha nativa ou outra condição não formam par
+    bad = [_FakeReport("S8", 6001, "B0", src["B0"]), _FakeReport("S8", 6001, "B1", "FIXED_PROBE"),
+           _FakeReport("S8", 6001, "B2", src["B2"]), _FakeReport("S8", 6001, "B3", src["B3"], backend="NS3_5GLENA"),
+           _FakeReport("S8", 6002, "B0", src["B0"]), _FakeReport("S8", 6002, "B1", src["B1"]),
+           _FakeReport("S8", 6002, "B2", src["B2"]), _FakeReport("S8", 6002, "B3", src["B3"], condition="_bw50")]
+    units = cert.g5_paired_units(bad, _decision)
+    assert not any(set(cert.G5_BASELINES) <= bs for bs in units.values())

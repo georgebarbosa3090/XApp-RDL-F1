@@ -106,3 +106,34 @@ def test_native_campaign_rejects_nori_only_s8(capsys):
     with pytest.raises(SystemExit):
         camp.main(["--scenarios", "S8", "--seeds", "1001"])
     assert "só da bancada NORI" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("baseline,sequence,final", [
+    ("B0", [80.0, 25.0], [25, 75]),   # sem coordenação: as duas, na ordem de chegada (desempate pelo id); vale a última
+    ("B1", [80.0], [80, 20]),         # FIFO: a primeira a chegar (embb_throughput, pelo id)
+    ("B2", [25.0], [25, 75]),         # prioridade estática: xslice (90) sobre embb_throughput (60)
+])
+def test_baselines_on_s8_follow_the_native_semantics(baseline, sequence, final):
+    r = cl.decide_baseline("S8", baseline, "gnb", NODE, UES, CATALOG)
+    assert r["decision_source"] == f"BASELINE_{baseline}" and r["baseline"] == baseline
+    assert [a["value"] for a in r["actuated_sequence"]] == sequence
+    assert len(r["control_sequence"]) == len(sequence)
+    assert [q["max_prb_ratio"] for q in r["quotas"]] == final
+
+
+def test_baselines_match_the_native_driver_on_the_first_window():
+    drv = _load("run_conflict_experiment", "scripts/certification/run_conflict_experiment.py")
+    for scenario in ("S1", "S7"):
+        spec = CATALOG["scenarios"][scenario]
+        events = drv.expand_proposals(spec)
+        first_t = events[0]["t"]
+        for baseline, fn in (("B1", drv.baseline_b1), ("B2", drv.baseline_b2)):
+            schedule, _ = fn([e for e in events if e["t"] < first_t + 0.2], 0.2)
+            native = [s["value"] for s in schedule if s["parameter"] == "PRB_QUOTA" and s["gnb"] == 0]
+            ours = [a["value"] for a in cl.decide_baseline(scenario, baseline, "gnb", NODE, UES, CATALOG)["actuated_sequence"]]
+            assert ours == native[:1], (scenario, baseline, ours, native)
+
+
+def test_unknown_baseline_is_rejected():
+    with pytest.raises(ValueError):
+        cl.decide_baseline("S8", "B9", "gnb", NODE, UES, CATALOG)

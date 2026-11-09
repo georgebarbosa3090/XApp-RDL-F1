@@ -59,6 +59,9 @@ DECISION_SOURCE = "FIXED_PROBE" if RC_DECISION == "fixed" else "H_RDL"
 # roteiro antes de cada execução), ou de RC_SCENARIO
 RC_SCENARIO = ENV.get("RC_SCENARIO", "S8")
 RC_SCENARIO_FILE = ENV.get("RC_SCENARIO_FILE", "/data/rdl_scenario")
+# Baseline da decisão no modo catalog (campanha do G5): B3 = H-RDL; B0/B1/B2 = sem coordenação, FIFO e
+# prioridade estática (src/closed_loop/catalog_loop.decide_baseline). Lido a cada decisão deste arquivo.
+RC_BASELINE_FILE = ENV.get("RC_BASELINE_FILE", "/data/rdl_baseline")
 APP_DIR = ENV.get("XAPP_RDL_APP_DIR", "/data/app")
 SRC_COMMIT = ENV.get("XAPP_RDL_SRC_COMMIT", "")
 
@@ -250,7 +253,8 @@ def unsubscribe(sub_id: str, meid: str) -> None:
 
 COUNTS = {}
 PLMN = {}            # meid -> PLMN Identity (bytes) lido do E2Mgr
-CONTROL = {}         # meid -> estado do Control enviado neste ciclo de conexão
+CONTROL = {}         # meid -> estado do último Control enviado neste ciclo de conexão
+PENDING = {}         # ric_instance_id -> estado de cada Control enviado (o B0 envia mais de um)
 LAST_KPM = {}        # meid -> {"node": ..., "node_sha256": ..., "ues": ..., "ues_sha256": ...}
 _control_instance = [0]
 
@@ -287,22 +291,40 @@ def current_scenario() -> str:
         return RC_SCENARIO
 
 
+def current_baseline() -> str:
+    try:
+        value = open(RC_BASELINE_FILE, encoding="utf-8").read().strip().upper()
+        return value if value in ("B0", "B1", "B2", "B3") else "B3"
+    except OSError:
+        return "B3"
+
+
+def _quota_objs(spec):
+    return [codec.SlicePrbQuota(q["sst"], q["max_prb_ratio"], q["min_prb_ratio"], q["dedicated_prb_ratio"]) for q in spec]
+
+
 def decide(meid: str):
-    """Cotas a enviar e registro da decisão (H-RDL sobre o KPM_t0, ou cota fixa)."""
+    """Cotas de cada RIC Control a enviar (na ordem) e registro da decisão (H-RDL sobre o KPM_t0, baseline
+    do G5 ou cota fixa). Só o B0 produz mais de um Control."""
     if RC_DECISION == "fixed":
-        return parse_quotas(RC_QUOTAS), {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
+        return [parse_quotas(RC_QUOTAS)], {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
     kpm = LAST_KPM.get(meid) or {}
     if RC_DECISION == "catalog":
-        from src.closed_loop.catalog_loop import decide_catalog, load_catalog
+        from src.closed_loop.catalog_loop import decide_baseline, decide_catalog, load_catalog
         catalog = load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json"))
-        record = decide_catalog(current_scenario(), meid, kpm.get("node") or {}, kpm.get("ues") or [], catalog)
+        baseline = current_baseline()
+        if baseline == "B3":
+            record = decide_catalog(current_scenario(), meid, kpm.get("node") or {}, kpm.get("ues") or [], catalog)
+            record["baseline"] = "B3"
+        else:
+            record = decide_baseline(current_scenario(), baseline, meid, kpm.get("node") or {}, kpm.get("ues") or [],
+                                     catalog)
     else:
         from src.closed_loop.hrdl_slice_loop import decide_slice_quotas
         record = decide_slice_quotas(meid, kpm.get("node") or {}, kpm.get("ues") or [])
     record.update(src_commit=SRC_COMMIT, kpm_node_sha256=kpm.get("node_sha256"), kpm_ues_sha256=kpm.get("ues_sha256"))
-    quotas = [codec.SlicePrbQuota(q["sst"], q["max_prb_ratio"], q["min_prb_ratio"], q["dedicated_prb_ratio"])
-              for q in record["quotas"]]
-    return quotas, record
+    sequence = record.get("control_sequence") or ([record["quotas"]] if record.get("quotas") else [])
+    return [_quota_objs(q) for q in sequence], record
 
 
 def warm_up_decision() -> None:
@@ -329,13 +351,19 @@ def warm_up_decision() -> None:
 
 
 def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> None:
-    """Decide e envia um RIC Control; registra o pedido (bytes, decisão e KPM que o disparou)."""
-    quotas, decision = decide(meid)
-    if not quotas:
+    """Decide e envia os RIC Control da decisão, na ordem; registra cada pedido (bytes, decisão, KPM)."""
+    quota_sets, decision = decide(meid)
+    source = decision.get("decision_source", DECISION_SOURCE)
+    if not quota_sets:
         CONTROL[meid] = {"skipped": decision.get("reason")}
-        event("control_decision", meid=meid, sent=False, decision_source=DECISION_SOURCE, decision=decision,
+        event("control_decision", meid=meid, sent=False, decision_source=source, decision=decision,
               trigger_kpm_sha256=trigger_sha, trigger_kpm_seq=trigger_seq)
         return
+    for order, quotas in enumerate(quota_sets, start=1):
+        _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, trigger_seq, order, len(quota_sets))
+
+
+def _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, trigger_seq, order, total) -> None:
     _control_instance[0] += 1
     instance = _control_instance[0]
     header = E2SM.rc_slice_quota_header(PLMN.get(meid, b"\x00\xf1\x10"))
@@ -354,12 +382,13 @@ def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> Non
     rmr.rmr_free_msg(sbuf)
     CONTROL[meid] = {"requestor": RC_REQUESTOR_ID, "instance": instance, "ran_function_id": RC_RAN_FUNCTION_ID,
                      "sent_at": time.monotonic(), "outcome": None}
+    PENDING[instance] = CONTROL[meid]
     event("control_request", meid=meid, rmr_state=state, rmr_ok=state == rmr.RMR_OK,
           ric_requestor_id=RC_REQUESTOR_ID, ric_instance_id=instance, ran_function_id=RC_RAN_FUNCTION_ID,
           quotas=[q.__dict__ for q in quotas], control_header_hex=header.hex(), control_message_hex=message.hex(),
           length=len(pdu), sha256=hashlib.sha256(pdu).hexdigest(), pdu_hex=pdu.hex(),
-          decision_source=DECISION_SOURCE, decision=decision, trigger_kpm_sha256=trigger_sha,
-          trigger_kpm_seq=trigger_seq)
+          decision_source=source, decision=decision, trigger_kpm_sha256=trigger_sha,
+          trigger_kpm_seq=trigger_seq, control_order=order, control_total=total)
 
 
 def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
@@ -368,7 +397,8 @@ def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
     except codec.CodecError as exc:
         event("control_outcome", meid=meid, mtype=mtype, decode_error=str(exc), sha256=hashlib.sha256(payload).hexdigest())
         return
-    pending = CONTROL.get(meid) or next((c for c in CONTROL.values() if c.get("instance") == out.get("ric_instance_id")), None)
+    pending = (PENDING.get(out.get("ric_instance_id")) or CONTROL.get(meid)
+               or next((c for c in CONTROL.values() if c.get("instance") == out.get("ric_instance_id")), None))
     correlated = bool(pending) and (pending["requestor"], pending["instance"], pending["ran_function_id"]) == (
         out.get("ric_requestor_id"), out.get("ric_instance_id"), out.get("ran_function_id"))
     latency = round((time.monotonic() - pending["sent_at"]) * 1000, 3) if pending else None
@@ -440,7 +470,7 @@ def main() -> int:
           e2mgr=E2MGR, submgr=SUBMGR, appmgr=APPMGR, ran_function_id=RAN_FUNCTION_ID,
           rc_control_enabled=RC_ENABLED, rc_ran_function_id=RC_RAN_FUNCTION_ID, rc_requestor_id=RC_REQUESTOR_ID,
           rc_after_indications=RC_AFTER_INDICATIONS, rc_slice_quotas=RC_QUOTAS, rc_decision=RC_DECISION,
-          rc_scenario_file=RC_SCENARIO_FILE,
+          rc_scenario_file=RC_SCENARIO_FILE, rc_baseline_file=RC_BASELINE_FILE,
           decision_source=DECISION_SOURCE, src_commit=SRC_COMMIT)
     server = ThreadingHTTPServer(("0.0.0.0", HTTP_PORT), Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()

@@ -8,11 +8,12 @@
 #   bash scripts/run_nori_campaign.sh --scenarios "S1 S7" --seeds "1001 1002"
 #   bash scripts/run_nori_campaign.sh --no-deploy                       # reaproveita a xApp já implantada
 #   bash scripts/run_nori_campaign.sh --tag _bw50 --args "--bandwidth=50e6"   # condição extra (run_id nori_<S>_B3_bw50_seed<N>)
+#   bash scripts/run_nori_campaign.sh --scenarios S8 --baselines "B0 B1 B2 B3" --seeds "$(seq -s ' ' 5001 5030)"   # G5
 # Execuções já existentes no repositório são puladas (retomável). Cada execução leva ~3 min.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"
-SCENARIOS="S0 S1 S2 S3 S4 S5 S6 S7 S8"; SEEDS="1001 1002 1003 1004 1005"; DEPLOY=1; TAG=""; ARGS=""
+SCENARIOS="S0 S1 S2 S3 S4 S5 S6 S7 S8"; SEEDS="1001 1002 1003 1004 1005"; DEPLOY=1; TAG=""; ARGS=""; BASELINES="B3"
 while [ $# -gt 0 ]; do
   case "$1" in
     --scenarios) SCENARIOS="$2"; shift 2 ;;
@@ -20,6 +21,7 @@ while [ $# -gt 0 ]; do
     --no-deploy) DEPLOY=0; shift ;;
     --tag) TAG="$2"; shift 2 ;;
     --args) ARGS="$2"; shift 2 ;;
+    --baselines) BASELINES="$2"; shift 2 ;;
     *) echo "opção desconhecida: $1" >&2; exit 64 ;;
   esac
 done
@@ -30,15 +32,18 @@ if [ "$DEPLOY" = 1 ]; then
   say "implantando a xApp kpm-probe em modo catalog"
   bash "$REPO/scripts/deploy_kpm_probe.sh" --set rc.decision=catalog --set rc.afterIndications=12 | tail -1 || exit 3
 fi
-total=0; for s in $SEEDS; do for c in $SCENARIOS; do total=$((total + 1)); done; done
+total=0; for s in $SEEDS; do for c in $SCENARIOS; do for b in $BASELINES; do total=$((total + 1)); done; done; done
 n=0
-for seed in $SEEDS; do                 # por semente: cada semente concluída forma um conjunto completo
+for seed in $SEEDS; do                 # por semente: cada semente concluída forma um conjunto completo (pareado)
   for sc in $SCENARIOS; do
-    n=$((n + 1))
-    say "################ [$n/$total] $sc semente $seed ################"
-    RUN_TAG="$TAG" SCENARIO_ARGS="$ARGS" bash "$REPO/scripts/run_nori_scenario.sh" "$sc" "$seed" || say "falha em $sc/$seed (registrada; seguindo)"
+    for bl in $BASELINES; do
+      n=$((n + 1))
+      say "################ [$n/$total] $sc $bl semente $seed ################"
+      BASELINE="$bl" RUN_TAG="$TAG" SCENARIO_ARGS="$ARGS" bash "$REPO/scripts/run_nori_scenario.sh" "$sc" "$seed" \
+        || say "falha em $sc/$bl/$seed (registrada; seguindo)"
+    done
   done
 done
 say "certificação e resumo da campanha NORI"
 ( cd "$REPO" && "$PY" scripts/certification/certify_chain.py | tail -9 )
-( cd "$REPO" && "$PY" scripts/certification/nori_campaign_summary.py --seeds "$SEEDS" --tag "$TAG" )
+( cd "$REPO" && "$PY" scripts/certification/nori_campaign_summary.py --seeds "$SEEDS" --tag "$TAG" --baselines "$BASELINES" )

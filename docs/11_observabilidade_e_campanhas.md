@@ -248,6 +248,7 @@ bash scripts/run_nori_campaign.sh                                          # 45 
 bash scripts/run_nori_campaign.sh --scenarios "S1 S7" --seeds "1001 1002"  # subconjunto
 bash scripts/run_nori_campaign.sh --no-deploy                              # reaproveita a xApp já implantada
 bash scripts/run_nori_campaign.sh --tag _bw50 --args "--bandwidth=50e6"   # outra condição do cenário (run_id nori_<S>_B3_bw50_seed<N>)
+bash scripts/run_nori_campaign.sh --scenarios S8 --baselines "B0 B1 B2 B3" --seeds "$(seq -s ' ' 5001 5030)"   # campanha do G5
 ```
 
 O script:
@@ -273,7 +274,7 @@ Cada execução fica em três lugares:
 - `experiments/xapp_logs/<run>/`: eventos da xApp recortados;
 - `experiments/e2_dissection/<run>/`: dissecação E2 e `slice_effect.json`.
 
-Na bancada NORI, o baseline é sempre B3, porque quem decide é o H-RDL real. Os baselines B0–B2 só existem na pilha nativa.
+Na bancada NORI, o baseline padrão é o B3 (H-RDL real). Para a campanha do G5, a xApp também decide como B0 (sem coordenação: toda proposta atuável vai à RAN na ordem de chegada, vale a última), B1 (FIFO por alvo) e B2 (prioridade estática por alvo), com a mesma semântica da pilha nativa (`src/closed_loop/catalog_loop.decide_baseline`). O baseline é escolhido com `--baselines` ou `BASELINE=B0..B3`, gravado em `/data/rdl_baseline` e no `run_id` (`nori_<S>_<B>_seed<N>`). A fonte da decisão registrada é `BASELINE_B0`, `BASELINE_B1`, `BASELINE_B2` ou `H_RDL` ([pré-registro do G5](07_preregistro_g5_campanha_s8.md)).
 
 Para acompanhar a campanha ao vivo, abra o painel (seção 2) ou as abas da seção 3. Rode a campanha em primeiro plano em uma delas.
 
@@ -305,7 +306,7 @@ python3 scripts/certification/certify_chain.py          # certificado em reports
 | G1 | KPM_t0 e Subscription no PCAP de uma execução NORI |
 | G3 | RIC Control e ACK no PCAP, enviados e recebidos pela xApp |
 | G4 | cadeia completa, decisão `H_RDL` cujas entradas incluem o KPM_t0, e efeito na RAN `CONSISTENT`: regra v6 (previsão relativa) nas execuções iniciadas depois do pré-registro v6; regra v5 nas anteriores, sem efeito retroativo |
-| G5 | não certificado (fora do escopo desta bancada) |
+| G5 | ≥ 30 (cenário, semente) pareados nos quatro baselines B0–B3, cada um com cadeia E2 completa, Control decidido pelo próprio baseline e disparado pelo KPM_t0 (só bancada NORI) |
 
 ## 7. Limites
 
@@ -360,3 +361,7 @@ As 30 avaliações pré-registradas em [docs/07 v6](07_preregistro_fase4_v6.md) 
 | H6.4 (invariância à vazão de base) | não testada: as cinco sementes deram 151,49 Mb/s |
 
 Resumo em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md). Certificado `certificate_20261109T043932Z`: G0, G1 (90), G3 (73) e G4 (48 cadeias, regra v5) `CERTIFIED`; G5 `NOT_CERTIFIED`. Com a v6 adotada no certificador, sem efeito retroativo, o G4 passou a 53 cadeias (`certificate_20261109T045007Z`).
+
+## 10. Avaliação do desenho v7 (banda de 50 MHz, sementes 4001–4005, 2026-11-09)
+
+O [pré-registro v7](07_preregistro_fase4_v7.md) testou a H6.4 reduzindo a banda para 50 MHz (URLLC com vazão de base de 40 Mb/s). As 30 avaliações saíram `INCONSISTENT` pela regra v6, todas com cadeia E2 completa: **H6.4 refutada para mudança de banda.** Pela análise exploratória, o teto age em PRBs absolutos da portadora. Por exemplo, URLLC a 20 % de 50 MHz → 37,46 Mb/s, igual a 10 % de 100 MHz. A regra v6 continua válida na banda da calibração (100 MHz), onde foi confirmada.
