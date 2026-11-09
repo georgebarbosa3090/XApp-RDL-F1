@@ -288,7 +288,7 @@ bash scripts/observe/deploy_rancher.sh --uninstall    # remove
 
 O chart do Rancher 2.8.x é o último que aceita o Kubernetes da bancada (k3s v1.26). O roteiro limita o Rancher a 1,25 GiB e informa a memória livre no fim.
 
-**Não cabe neste WSL de 5 GB.** Na tentativa de 2026-11-09, o cert-manager subiu, mas a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (cerca de 1,4 GB), com 2,9 GB livres. A queda derrubou o RIC, o NORI e a xApp, e a recuperação foi manual (achado 50 de docs/05). O Rancher e o cert-manager foram removidos. Por isso o roteiro agora exige 4,5 GB livres por padrão. Para usar o Rancher, rode-o fora deste WSL, em outra máquina ou num WSL com 8 GB ou mais, e importe o cluster k3s por lá. Para acompanhar a bancada, ficam as abas da seção 3 e o Grafana da seção 3.7.
+**Não cabe neste ambiente.** Na tentativa de 2026-11-09, o cert-manager subiu, mas a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (cerca de 1,4 GB). A causa foi o disco C: do Windows, que guarda o `ext4.vhdx` do Ubuntu e estava praticamente cheio: o `.vhdx` cresceu até esgotar o C:, e o WSL passou a dar erro de E/S. Os 7,7 GB de RAM do host agravam o problema. A queda derrubou o RIC, o NORI e a xApp, e a recuperação foi manual (achado 50 de docs/05). O Rancher e o cert-manager foram removidos. Por isso o roteiro agora exige 4,5 GB livres por padrão. Para usar o Rancher, rode-o fora deste WSL, em outra máquina ou num WSL com 8 GB ou mais, e importe o cluster k3s por lá. Para acompanhar a bancada, ficam as abas da seção 3 e o Grafana da seção 3.7.
 
 ## 4. Campanha NORI: S0–S8 × 5 sementes, com a cadeia certificada
 
