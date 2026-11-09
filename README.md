@@ -18,7 +18,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 297 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 301 testes unitários passando | `tests/` |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/07_preregistro_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. A invariância à vazão de base não foi testada, porque nenhuma semente nova a alterou | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/11, seção 8](docs/11_observabilidade_e_campanhas.md) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/04`](docs/04_metodologia_experimental_e_resultados.md#4-resultados) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
@@ -31,7 +31,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 | G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (90 execuções NORI) |
 | G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
 | G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (73 execuções; NORI com patch do lock) |
-| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (48 cadeias pela regra v5: 3 execuções v5, 20 da campanha S0–S8 e 25 da avaliação v6) |
+| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (53 cadeias: 3 execuções v5 e 20 da campanha S0–S8 pela regra v5; 30 da avaliação v6 pela regra v6, adotada sem efeito retroativo) |
 | G5 | Campanha ≥ 30 sementes pareadas com E2 | NOT_CERTIFIED |
 | G6 | Artefato reproduzível por terceiros | BLOCKED |
 
@@ -98,7 +98,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (297)
+uv run pytest -q                         # testes (301)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

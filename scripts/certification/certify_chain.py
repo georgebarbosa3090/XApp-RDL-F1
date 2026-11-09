@@ -298,6 +298,7 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
     report.facts["scenario"] = manifest.get("scenario")
     report.facts["baseline"] = manifest.get("baseline")
     report.facts["seed"] = manifest.get("seed")
+    report.facts["started_at_utc"] = manifest.get("started_at_utc")
 
     rules = policy.get("backend_evidence_rules", {})
     rule_key = next((k for k in rules if backend.upper().startswith(k)), None)
@@ -420,6 +421,20 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
 
 
 
+# Regra do efeito no G4. A v6 (previsão relativa, docs/07_preregistro_fase4_v6.md) foi adotada depois de confirmada
+# nas avaliações pré-registradas, sem efeito retroativo: vale só para execuções iniciadas depois do commit do
+# pré-registro v6 (4af88dc) e que tenham o slice_effect_v6.json gravado na coleta. As anteriores seguem com a regra
+# que valia quando rodaram (slice_effect.json: v5, v4 ou v2).
+V6_ADOPTED_FROM_UTC = "2026-11-09T02:51:46Z"
+G4_EFFECT_RULES = ("v2-calibrated", "v4-curve", "v5-curve-apply", "v6-ratio-apply")
+
+
+def effect_file_for(ddir: Path, started_at_utc: Optional[str]) -> str:
+    if started_at_utc and str(started_at_utc) >= V6_ADOPTED_FROM_UTC and (ddir / "slice_effect_v6.json").is_file():
+        return "slice_effect_v6.json"
+    return "slice_effect.json"
+
+
 def _certify_pcap_dissection(run_dir: Path, pcaps: List[Path], dissection_root: Path, report: RunReport) -> None:
     """R14/R11/R12 a partir de experiments/e2_dissection/<run>/ (scripts/certification/e2_pcap_dissect.py).
 
@@ -491,7 +506,7 @@ def _certify_pcap_dissection(run_dir: Path, pcaps: List[Path], dissection_root: 
                   for r in E2_RAW_ROLES}
     report.facts["e2_roles"] = role_files
     # Efeito do Control na RAN (slice_effect.py): só vale se o CSV e a dissecação de origem conferirem.
-    effect = load_json(ddir / "slice_effect.json")
+    effect = load_json(ddir / effect_file_for(ddir, report.facts.get("started_at_utc")))
     if effect is not None:
         csv_path = run_dir / "raw" / "slice_series.csv"
         csv_ok = csv_path.is_file() and sha256_file(csv_path) == effect.get("source_csv_sha256")
@@ -619,11 +634,11 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
                 if all(r.facts.get("e2_roles", {}).get(k) for k in ("kpm_t0", "control_request", "control_ack", "kpm_t1"))]
     decided = [r for r in complete if decision(r).get("source") == "H_RDL" and decision(r).get("trigger_is_kpm_t0")
                and decision(r).get("pcap_control_sent_by_xapp")]
-    # Efeito causal medido na RAN (slice_series.csv) por regra calibrada (v2: parte de PRB calibrada; v4:
-    # curva teto -> vazão com interpolação deixa-um-fora, docs/07_preregistro_fase4_v4.md). A regra v1
-    # tomava a parte da vazão como parte dos PRBs e foi superada (docs/07_preregistro_fase4_v2.md).
+    # Efeito causal medido na RAN (slice_series.csv) por regra calibrada (v2: parte de PRB calibrada; v4/v5:
+    # curva teto -> vazão; v6: previsão relativa, só para execuções posteriores ao pré-registro v6, ver
+    # effect_file_for). A regra v1 tomava a parte da vazão como parte dos PRBs e foi superada.
     g4 = [r for r in decided if (r.facts.get("slice_effect") or {}).get("verdict") == "CONSISTENT"
-          and (r.facts.get("slice_effect") or {}).get("rule") in ("v2-calibrated", "v4-curve", "v5-curve-apply")]
+          and (r.facts.get("slice_effect") or {}).get("rule") in G4_EFFECT_RULES]
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
     if g4_ok:

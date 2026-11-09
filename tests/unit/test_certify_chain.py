@@ -136,3 +136,17 @@ def test_restricted_source_is_not_publishable(tmp_path, policy, lock):
     ), {"raw/flowmonitor.xml": FLOWMONITOR})
     report = cert.certify_run(run_dir, policy, lock, [])
     assert report.classification == "NON_PUBLICATION_SOURCE"
+
+
+@pytest.mark.parametrize("started,has_v6,expected", [
+    ("2026-11-09T03:21:49Z", True, "slice_effect_v6.json"),   # avaliação v6: depois do pré-registro
+    ("2026-11-09T00:13:38Z", True, "slice_effect.json"),      # antes do pré-registro: sem efeito retroativo
+    ("2026-11-09T03:21:49Z", False, "slice_effect.json"),     # sem arquivo v6 gravado na coleta
+    (None, True, "slice_effect.json"),
+])
+def test_v6_effect_rule_is_adopted_without_retroactive_effect(tmp_path, started, has_v6, expected):
+    (tmp_path / "slice_effect.json").write_text("{}", encoding="utf-8")
+    if has_v6:
+        (tmp_path / "slice_effect_v6.json").write_text("{}", encoding="utf-8")
+    assert cert.effect_file_for(tmp_path, started) == expected
+    assert "v6-ratio-apply" in cert.G4_EFFECT_RULES and "v1-throughput-share" not in cert.G4_EFFECT_RULES

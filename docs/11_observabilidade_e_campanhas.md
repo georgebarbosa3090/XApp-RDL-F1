@@ -303,7 +303,7 @@ python3 scripts/certification/certify_chain.py          # certificado em reports
 | G0 | execuções nativas e NORI com manifesto e hashes íntegros |
 | G1 | KPM_t0 e Subscription no PCAP de uma execução NORI |
 | G3 | RIC Control e ACK no PCAP, enviados e recebidos pela xApp |
-| G4 | cadeia completa, decisão `H_RDL` cujas entradas incluem o KPM_t0, e efeito na RAN `CONSISTENT` com a previsão da curva v5 |
+| G4 | cadeia completa, decisão `H_RDL` cujas entradas incluem o KPM_t0, e efeito na RAN `CONSISTENT`: regra v6 (previsão relativa) nas execuções iniciadas depois do pré-registro v6; regra v5 nas anteriores, sem efeito retroativo |
 | G5 | não certificado (fora do escopo desta bancada) |
 
 ## 7. Limites
@@ -358,4 +358,4 @@ As 30 avaliações pré-registradas em [docs/07 v6](07_preregistro_fase4_v6.md) 
 | H6.3 (os cinco S7, teto de 30 %, `CONSISTENT`) | cumprida |
 | H6.4 (invariância à vazão de base) | não testada: as cinco sementes deram 151,49 Mb/s |
 
-Resumo em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md). Certificado `certificate_20261109T043932Z`: G0, G1 (90), G3 (73) e G4 (48 cadeias, regra v5) `CERTIFIED`; G5 `NOT_CERTIFIED`.
+Resumo em [`reports/nori/resumo_campanha_nori_20261109T043933Z.md`](../reports/nori/resumo_campanha_nori_20261109T043933Z.md). Certificado `certificate_20261109T043932Z`: G0, G1 (90), G3 (73) e G4 (48 cadeias, regra v5) `CERTIFIED`; G5 `NOT_CERTIFIED`. Com a v6 adotada no certificador, sem efeito retroativo, o G4 passou a 53 cadeias (`certificate_20261109T045007Z`).

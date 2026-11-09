@@ -111,4 +111,5 @@ Em todas as execuções a eMBB não perdeu vazão.
   - que a razão é invariante à vazão de base: H6.4 não foi testada;
   - nada fora da configuração da bancada: um gNB, dois UEs, 300 Mb/s oferecidos (saturação), FlowMonitor como medida e NORI com o patch do ACK;
   - que a decisão responde a variações do KPM: o sinal de congestionamento do NORI continua sempre verdadeiro.
-- **Próximo passo, declarado e separado:** adotar a regra v6 no certificador (G4), sem efeito retroativo, como prevê a seção 5. Testar H6.4 exige um desenho que varie a vazão de base de propósito; por exemplo, a qualidade do canal.
+- **Adoção no certificador (2026-11-09, mudança separada, como prevê a seção 5):** o G4 passa a aceitar a regra `v6-ratio-apply`, sem efeito retroativo. Ela vale só para execuções iniciadas depois do commit deste pré-registro (`V6_ADOPTED_FROM_UTC = 2026-11-09T02:51:46Z` em `certify_chain.py`) e que tenham o `slice_effect_v6.json` gravado na coleta. As execuções anteriores, inclusive os S7 e a semente 1005 da campanha 1001–1005, seguem com a regra que valia quando rodaram. Com isso, o G4 passou de 48 para 53 cadeias (certificado `certificate_20261109T045007Z`).
+- **Ainda em aberto:** testar H6.4 exige um desenho que varie a vazão de base de propósito; por exemplo, a qualidade do canal.
