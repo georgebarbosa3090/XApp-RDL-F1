@@ -70,3 +70,38 @@ Com 50 MHz, só a URLLC muda: a vazão de base cai 74 %, estável do segundo 4 a
 - **Uma única condição de banda (50 MHz):** se H7.2 se cumprir, a invariância está mostrada para essa redução de banda, não para qualquer variação da vazão de base.
 - **Só a URLLC muda de vazão de base:** a eMBB fica igual. A invariância é testada numa fatia.
 - **Mesmas limitações da v6:** um gNB, dois UEs, saturação, FlowMonitor como medida, NORI com o patch do ACK, decisão única por execução e sinal de congestionamento do NORI sempre verdadeiro.
+
+## 8. Resultado (registrado depois das execuções, 2026-11-09)
+
+O pré-registro foi publicado no commit `b7da55e`. A xApp kpm-probe foi implantada a partir desse commit, em modo `catalog`, e rodou o `src/` dele nas 30 avaliações. Resumo por execução em [`reports/nori/resumo_campanha_nori_20261109T062838Z.md`](../reports/nori/resumo_campanha_nori_20261109T062838Z.md) e certificado `reports/certification/certificate_20261109T062838Z.md`.
+
+**H7.2 (= H6.4) refutada: as 30 avaliações saíram `INCONSISTENT` pela regra v6.** A vazão depois do Control foi a mesma nas cinco sementes de cada cenário:
+
+| Cenário | Cotas eMBB/URLLC | URLLC antes → depois (Mb/s) | Previsão v6 da URLLC | eMBB antes → depois (Mb/s) |
+| :-: | :-: | :-- | --: | :-- |
+| S0, S2, S8 | 80/20 | 40,02 → 37,46 | 20,20 | 151,49 → 151,28–151,49 |
+| S1 | 75/25 | 40,02 → 47,59 | 25,16 | 151,49 → 142,87 |
+| S6 | 85/15 | 40,02 → 27,35 | 14,86 | 151,49 → 151,49 |
+| S7 | 70/30 | 40,02 → 56,25 | 30,12 | 151,49 → 134,18 |
+
+- **H7.1 cumprida nas 30:** cadeia completa, decisão `H_RDL` com o KPM_t0 entre as entradas, ACK correlacionado (1,5 a 4,2 ms) e concordância do tshark. A xApp casou 80/80 Indications em 21 execuções e 78/80 em 8, porque perdeu o primeiro par (achado 43); em 1, o PCAP tinha 78 e a xApp recebeu as 78.
+- **A regra v5** (Mb/s absolutos) deu `NOT_TESTABLE` nas 30.
+- **Certificador:** G0, G1 (121 execuções), G3 (103) e G4 `CERTIFIED`. O G4 continua com 53 cadeias, porque as avaliações `INCONSISTENT` não entram. O G5 continua `NOT_CERTIFIED`.
+
+**Análise exploratória, depois de ver os dados (não é teste).** Os valores batem com um teto que age em **PRBs absolutos da portadora**, e não em proporção da vazão de base. Com 50 MHz, um teto de c % equivale a c/2 % da portadora de 100 MHz, e a vazão sai da curva absoluta medida a 100 MHz (~3,76 Mb/s por ponto percentual de PRB da portadora de 100 MHz):
+
+| Teto a 50 MHz | Equivalente a 100 MHz | Curva a 100 MHz | Medido |
+| --: | --: | --: | --: |
+| URLLC 15 % | 7,5 % | ~28,1 (extrapolação 10–15 %) | 27,35 |
+| URLLC 20 % | 10 % | 37,46 | 37,46 |
+| URLLC 25 % | 12,5 % | 46,85 (interpolação 10–15 %) | 47,59 |
+| URLLC 30 % | 15 % | 56,25 | 56,25 |
+| eMBB 70 % | 35 % | ~132,8 (linear) | 134,18 |
+| eMBB 75 % | 37,5 % | ~142,1 (linear) | 142,87 |
+| eMBB 80–85 % | 40–42,5 % | sem restrição (~40 %) | 151,49 |
+
+Sem Control, a URLLC ficava em 40 Mb/s porque a eMBB ocupava a maior parte da portadora de 50 MHz. Quando o teto limita a eMBB (70 % e 75 %), a URLLC ganha vazão: 47,6 e 56,3 Mb/s.
+
+A semente 1005 (achado 42) é compatível com esse modelo. Lá, os dois UEs caíram pela metade com a mesma banda, o que indica uma vazão por PRB menor. Por isso a razão coincidiu. Ou seja, a razão vale quando a vazão por PRB muda e a banda não muda, e falha quando muda a banda.
+
+Um modelo preditivo geral, com vazão por PRB × PRBs do teto, exige um novo desenho pré-registrado antes de ser adotado. A regra do certificador não muda.
