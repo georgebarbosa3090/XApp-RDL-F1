@@ -7,8 +7,11 @@ do tshark, Indications casadas com a xApp, decisão do H-RDL (estratégias, aç�
 atuadas e não atuáveis no NORI), Control/ACK, efeito na RAN (``slice_effect.json``) e o veredito
 do certificador por execução. Saída: ``reports/nori/resumo_campanha_nori_<UTC>.md``.
 
+Com ``slice_effect_v6.json`` (regra v6, docs/07_preregistro_fase4_v6.md), mostra também o veredito v6.
+
 Uso:
     python scripts/certification/nori_campaign_summary.py
+    python scripts/certification/nori_campaign_summary.py --seeds 2001-2005    # só essas sementes
 """
 
 from __future__ import annotations
@@ -51,6 +54,7 @@ def row(run_id: str, scenario: str, seed: str) -> Dict[str, Any]:
     ddir = ROOT / "experiments" / "e2_dissection" / run_id
     diss = load(ddir / "e2_messages.json") or {}
     eff = load(ddir / "slice_effect.json") or {}
+    eff6 = load(ddir / "slice_effect_v6.json") or {}
     ev = control_decision(run_id) or {}
     dec = ev.get("decision") or {}
     roles = diss.get("chain_roles") or {}
@@ -68,14 +72,29 @@ def row(run_id: str, scenario: str, seed: str) -> Dict[str, Any]:
                                   for s in dec.get("not_actuated", [])) or "—",
         "blocked": ", ".join(dec.get("not_selected", [])) or "—",
         "effect": eff.get("verdict", "—"),
+        "effect_v6": eff6.get("verdict", "—"),
     }
 
 
-def main() -> int:
+def parse_seeds(spec: Optional[str]) -> Optional[set]:
+    if not spec:
+        return None
+    out = set()
+    for part in spec.replace(",", " ").split():
+        lo, _, hi = part.partition("-")
+        out.update(range(int(lo), int(hi or lo) + 1))
+    return out
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seeds", help="sementes a incluir, ex.: 2001-2005 ou '1001 1003'")
+    seeds = parse_seeds(ap.parse_args(argv).seeds)
     runs = []
     for d in sorted((ROOT / "experiments" / "runs").iterdir()):
         m = RUN_RE.match(d.name)
-        if m and (d / "hashes.sha256").exists():
+        if m and (d / "hashes.sha256").exists() and (seeds is None or int(m.group(2)) in seeds):
             runs.append(row(d.name, m.group(1), m.group(2)))
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     lines = [f"# Campanha NORI: cenários de conflito com E2 real ({stamp})", "",
@@ -84,18 +103,18 @@ def main() -> int:
              "Só PRB_QUOTA no gNB 0 é atuável no NORI; potência, handover e ações em outros gNBs são decididas "
              "pelo H-RDL e registradas, sem Control.", "",
              "| Execução | Cadeia | tshark | Msgs | Indications xApp | Estratégias H-RDL | Atuado (E2SM-RC) | "
-             "Decidido, não atuável no NORI | Não selecionadas | Efeito |",
-             "| :-- | :-: | :-: | --: | :-: | :-- | :-- | :-- | :-- | :-: |"]
+             "Decidido, não atuável no NORI | Não selecionadas | Efeito (certificador) | Efeito v6 |",
+             "| :-- | :-: | :-: | --: | :-: | :-- | :-- | :-- | :-- | :-: | :-: |"]
     for r in runs:
         lines.append(f"| `{r['run']}` | {r['roles']} | {'✓' if r['tshark'] else '✗'} | {r['messages']} | {r['ind']} | "
-                     f"{r['strategies']} | {r['actuated']} | {r['not_actuated']} | {r['blocked']} | {r['effect']} |")
+                     f"{r['strategies']} | {r['actuated']} | {r['not_actuated']} | {r['blocked']} | {r['effect']} | {r['effect_v6']} |")
     by_sc: Dict[str, List[Dict[str, Any]]] = {}
     for r in runs:
         by_sc.setdefault(r["scenario"], []).append(r)
-    lines += ["", "## Por cenário", "", "| Cenário | Execuções | Cadeia completa | Efeito CONSISTENT |", "| :-: | --: | --: | --: |"]
+    lines += ["", "## Por cenário", "", "| Cenário | Execuções | Cadeia completa | Efeito CONSISTENT | Efeito v6 CONSISTENT |", "| :-: | --: | --: | --: | --: |"]
     for sc, rs in sorted(by_sc.items()):
         lines.append(f"| {sc} | {len(rs)} | {sum(r['roles'] == '✓' * 6 for r in rs)} | "
-                     f"{sum(r['effect'] == 'CONSISTENT' for r in rs)} |")
+                     f"{sum(r['effect'] == 'CONSISTENT' for r in rs)} | {sum(r['effect_v6'] == 'CONSISTENT' for r in rs)} |")
     out = ROOT / "reports" / "nori" / f"resumo_campanha_nori_{stamp}.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))

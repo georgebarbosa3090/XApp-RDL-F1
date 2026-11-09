@@ -29,6 +29,18 @@ cada fatia usava vem da calibração (k_s, Mb/s por ponto percentual de PRB), n�
      TOLERÂNCIA (relativa) da previsão teto·k_s;
    - caso contrário: a vazão não pode cair mais que QUEDA_MIN.
 
+Regra v6 (com ``--rule v6 --curve <curva v5>``, pré-registro docs/07_preregistro_fase4_v6.md): a curva da
+calibração vira razão r(teto) = vazão_depois / vazão_antes, e a previsão é vazão_antes × r(teto):
+
+   - teto >= menor nível livre acima dos que restringem: sem queda esperada;
+   - teto igual a um nível que restringe: r desse nível (as avaliações são execuções novas, fora da curva);
+   - teto entre dois níveis que restringem: r por interpolação linear entre eles (níveis livres não entram);
+   - outro teto (abaixo do menor nível ou entre o maior nível que restringe e o nível livre): não testável;
+   - fatia com previsão abaixo de (1 − QUEDA_MIN)·antes: deve cair ≥ QUEDA_MIN e ficar a no máximo
+     TOLERÂNCIA_V6 (10 %) da previsão.
+
+   A saída vai para ``slice_effect_v6.json`` (o ``slice_effect.json`` continua com a regra do certificador).
+
 Saída: ``experiments/e2_dissection/<run>/slice_effect.json`` (hashes do CSV, da dissecação e, na
 regra v2, da calibração).
 
@@ -57,6 +69,7 @@ SETTLE_S = 2.0       # S
 MARGIN_PP = 5.0      # pontos percentuais
 MIN_DROP = 0.05      # 5 %
 TOLERANCE = 0.20     # regra v2: |vazão_depois − teto·k| / (teto·k) <= 20 % nas fatias restritas
+TOLERANCE_V6 = 0.10  # regra v6: |vazão_depois − antes·r(teto)| / (antes·r(teto)) <= 10 %
 SCHEMA = "xapp-rdl/slice-effect/v1"
 
 
@@ -210,6 +223,71 @@ def predict(curve_pts: List[Dict[str, Any]], cap: float) -> Dict[str, Any]:
             "from_levels": [lo["cap_max_prb_pct"], hi["cap_max_prb_pct"]]}
 
 
+def predict_ratio(curve_pts: List[Dict[str, Any]], cap: float) -> Dict[str, Any]:
+    """Regra v6: razão r(teto) = depois/antes da curva, interpolada só entre níveis que restringem."""
+    binding = sorted((p for p in curve_pts if p["binding"] and p["throughput_before_mbps"] > 0),
+                     key=lambda p: p["cap_max_prb_pct"])
+    highest_binding = binding[-1]["cap_max_prb_pct"] if binding else float("-inf")
+    free = [p["cap_max_prb_pct"] for p in curve_pts if not p["binding"] and p["cap_max_prb_pct"] > highest_binding]
+    if free and cap >= min(free):
+        return {"kind": "no_decrease", "threshold_free_pct": min(free)}
+    ratio = {p["cap_max_prb_pct"]: p["throughput_after_mbps"] / p["throughput_before_mbps"] for p in binding}
+    for level, r in ratio.items():
+        if abs(level - cap) < 1e-9:
+            return {"kind": "ratio", "ratio": r, "from_levels": [level]}
+    lower = [lv for lv in ratio if lv < cap]
+    upper = [lv for lv in ratio if lv > cap]
+    if not lower or not upper:
+        levels = ", ".join(f"{lv:.0f}" for lv in ratio)
+        return {"kind": "not_testable", "reason": f"teto {cap:.0f} % fora dos níveis que restringem ({levels} %)"}
+    lo, hi = max(lower), min(upper)
+    r = ratio[lo] + (cap - lo) / (hi - lo) * (ratio[hi] - ratio[lo])
+    return {"kind": "ratio", "ratio": r, "from_levels": [lo, hi]}
+
+
+def evaluate_ratio(series: Dict[int, List[Tuple[float, float, float]]], t_control: float,
+                   quotas: List[Dict[str, Any]], curve: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+    """Regra v6: previsão relativa à vazão antes do Control (janelas ancoradas na aplicação)."""
+    before_w = (t_control - WINDOW_S, t_control)
+    after_w = (t_control + SETTLE_S, t_control + SETTLE_S + WINDOW_S)
+    caps = {int(q["sst"]): float(q["max_prb_ratio"]) for q in quotas}
+    before = {sst: throughput_mbps(rows, *before_w) for sst, rows in series.items()}
+    after = {sst: throughput_mbps(rows, *after_w) for sst, rows in series.items()}
+    if any(v is None for v in list(before.values()) + list(after.values())) or not caps:
+        return {"verdict": "NOT_TESTABLE", "reason": "série não cobre as janelas ou Control sem cotas",
+                "window_before": before_w, "window_after": after_w}
+    stats: Dict[str, Dict[str, Any]] = {}
+    binding_any, all_ok, untestable = False, True, []
+    for sst in sorted(series):
+        cap = caps.get(sst, 100.0)
+        change = (after[sst] - before[sst]) / before[sst] if before[sst] > 0 else 0.0
+        pred = predict_ratio(curve.get(str(sst), []), cap)
+        entry = {"cap_max_prb_pct": cap, "throughput_before_mbps": round(before[sst], 3),
+                 "throughput_after_mbps": round(after[sst], 3), "relative_change": round(change, 4),
+                 "curve_prediction": {k: (round(v, 4) if isinstance(v, float) else v) for k, v in pred.items()}}
+        if pred["kind"] == "not_testable":
+            untestable.append(sst)
+            entry.update(expectation="not_testable", met=None)
+        elif pred["kind"] == "ratio" and pred["ratio"] < 1 - MIN_DROP:
+            predicted = before[sst] * pred["ratio"]
+            error = abs(after[sst] - predicted) / predicted if predicted > 0 else float("inf")
+            ok = change <= -MIN_DROP and error <= TOLERANCE_V6
+            entry.update(expectation="decrease_to_prediction", predicted_after_mbps=round(predicted, 3),
+                         prediction_error=round(error, 4), met=ok)
+            binding_any = True
+            all_ok &= ok
+        else:
+            ok = change >= -MIN_DROP
+            entry.update(expectation="no_decrease", met=ok)
+            all_ok &= ok
+        stats[str(sst)] = entry
+    if untestable:
+        verdict = "NOT_TESTABLE"
+    else:
+        verdict = "NOT_TESTABLE" if not binding_any else ("CONSISTENT" if all_ok else "INCONSISTENT")
+    return {"verdict": verdict, "window_before": before_w, "window_after": after_w, "slices": stats}
+
+
 def evaluate_curve(series: Dict[int, List[Tuple[float, float, float]]], t_control: float,
                    quotas: List[Dict[str, Any]], curve: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
     """Regra v4: previsão pela curva teto -> vazão medida (interpolação deixando de fora o próprio nível)."""
@@ -254,7 +332,10 @@ def evaluate_curve(series: Dict[int, List[Tuple[float, float, float]]], t_contro
 
 def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
             dissection_root: Path = ROOT / "experiments" / "e2_dissection",
-            calibration: Optional[Path] = None, curve: Optional[Path] = None) -> Dict[str, Any]:
+            calibration: Optional[Path] = None, curve: Optional[Path] = None,
+            rule: Optional[str] = None) -> Dict[str, Any]:
+    if rule == "v6" and not curve:
+        raise ValueError("a regra v6 exige --curve (curva v5, âncora apply)")
     run_dir, ddir = runs_dir / run_id, dissection_root / run_id
     csv_path = run_dir / "raw" / "slice_series.csv"
     dissection = json.loads((ddir / "e2_messages.json").read_text(encoding="utf-8"))
@@ -297,7 +378,11 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                 if cv.get("valid") is not True:
                     out.update(verdict="NOT_TESTABLE", reason="curva teto -> vazão inválida")
                 else:
-                    out.update(evaluate_curve(series, t_c, quotas, cv["curve"]))
+                    if rule == "v6":
+                        out.update(rule="v6-ratio-apply", constants={**out["constants"], "tolerance": TOLERANCE_V6})
+                        out.update(evaluate_ratio(series, t_c, quotas, cv["curve"]))
+                    else:
+                        out.update(evaluate_curve(series, t_c, quotas, cv["curve"]))
             elif calibration:
                 cal = json.loads(Path(calibration).read_text(encoding="utf-8"))
                 try:
@@ -312,13 +397,16 @@ def analyze(run_id: str, runs_dir: Path = ROOT / "experiments" / "runs",
                     out.update(evaluate_v2(series, t_c, quotas, k))
             else:
                 out.update(evaluate(series, t_c, quotas))
+    if rule == "v6" and not out["rule"].startswith("v6"):
+        out["rule"] = "v6-ratio-apply"   # sem Control ou sem série: o arquivo v6 registra o motivo
+    name = "slice_effect_v6.json" if rule == "v6" else "slice_effect.json"
     data = (json.dumps(out, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
-    (ddir / "slice_effect.json").write_bytes(data)
+    (ddir / name).write_bytes(data)
     # Mantém o hashes.sha256 da dissecação completo (a dissecação o grava antes desta análise).
     hashes = ddir / "hashes.sha256"
     if hashes.exists():
-        lines = [l for l in hashes.read_text(encoding="utf-8").splitlines() if not l.endswith("  slice_effect.json")]
-        lines.append(f"{hashlib.sha256(data).hexdigest()}  slice_effect.json")
+        lines = [l for l in hashes.read_text(encoding="utf-8").splitlines() if not l.endswith(f"  {name}")]
+        lines.append(f"{hashlib.sha256(data).hexdigest()}  {name}")
         hashes.write_bytes(("\n".join(lines) + "\n").encode("utf-8"))
     return out
 
@@ -327,11 +415,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--run", required=True)
     parser.add_argument("--calibration", help="calibração (calibrate_slice_capacity.py): ativa a regra v2")
-    parser.add_argument("--curve", help="curva teto -> vazão (slice_cap_curve.py): ativa a regra v4")
+    parser.add_argument("--curve", help="curva teto -> vazão (slice_cap_curve.py): ativa a regra v4 (v5 com âncora apply)")
+    parser.add_argument("--rule", choices=["v6"], help="v6: previsão relativa (razão da curva); grava slice_effect_v6.json")
     args = parser.parse_args(argv)
     r = analyze(args.run, calibration=Path(args.calibration) if args.calibration else None,
-                curve=Path(args.curve) if args.curve else None)
-    print(f"Efeito do Control ({args.run}): {r['verdict']}" + (f" — {r['reason']}" if r.get("reason") else ""))
+                curve=Path(args.curve) if args.curve else None, rule=args.rule)
+    print(f"Efeito do Control ({args.run}, regra {r['rule']}): {r['verdict']}" + (f" — {r['reason']}" if r.get("reason") else ""))
     if r.get("control_sim_time_s") is not None:
         print(f"  Control no quadro {r['control_frame']}, t_sim = {r['control_sim_time_s']:.2f} s; cotas do PCAP: {r['quotas_from_pcap']}")
     for sst, s in (r.get("slices") or {}).items():

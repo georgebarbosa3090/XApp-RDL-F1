@@ -71,4 +71,8 @@ if [ -f "$DEST/raw/slice_series.csv" ]; then
     CAL_ARGS=(--calibration "$CAL")
   fi
   ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" "${CAL_ARGS[@]}" ) || true
+  # Regra v6 (docs/07_preregistro_fase4_v6.md): previsão relativa, gravada à parte em slice_effect_v6.json
+  if [ "${#CAL_ARGS[@]}" -gt 0 ] && [ "${CAL_ARGS[0]}" = "--curve" ]; then
+    ( cd "$REPO" && "$PY" scripts/certification/slice_effect.py --run "$RUN_ID" "${CAL_ARGS[@]}" --rule v6 ) || true
+  fi
 fi

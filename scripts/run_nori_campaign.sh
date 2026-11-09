@@ -38,4 +38,4 @@ for seed in $SEEDS; do                 # por semente: cada semente concluída fo
 done
 say "certificação e resumo da campanha NORI"
 ( cd "$REPO" && "$PY" scripts/certification/certify_chain.py | tail -9 )
-( cd "$REPO" && "$PY" scripts/certification/nori_campaign_summary.py )
+( cd "$REPO" && "$PY" scripts/certification/nori_campaign_summary.py --seeds "$SEEDS" )
