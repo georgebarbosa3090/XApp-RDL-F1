@@ -58,7 +58,7 @@ flowchart LR
     end
 
     NORI <-->|"SCTP 36422<br/>E2AP v3.01"| E2T
-    TCP -. captura .- NORI
+    TCP -.-|"captura"| NORI
     E2T <-->|RMR| E2M
     E2T <-->|RMR| SUB
     E2T <-->|RMR| XA
@@ -71,8 +71,8 @@ flowchart LR
     NORI -->|"PCAP, FlowMonitor,<br/>manifesto"| COL
     XA -->|"eventos JSONL"| COL
     COL --> DIS --> EFF --> CER
-    NORI -. slice_series.csv .-> INF
-    XA -. eventos .-> INF
+    NORI -.->|"slice_series.csv"| INF
+    XA -.->|"eventos"| INF
     INF --> GRA
 ```
 
@@ -521,7 +521,7 @@ sequenceDiagram
     and
         X->>R: Energy Saving: PRB_QUOTA 30 %, prioridade 65
     end
-    Note over R: janela de 200 ms (fecha antes se prioridade ≥ 80);<br/>Safety Guard → Perception → TVS → EEVS → Refinement
+    Note over R: janela de 200 ms (fecha antes se prioridade ≥ 80)<br/>Safety Guard → Perception → TVS → EEVS → Refinement
     R->>T: RMR 12040 com MEID
     T->>N: RIC Control Request
     alt aceito
