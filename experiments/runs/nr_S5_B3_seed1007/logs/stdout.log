@@ -1,0 +1,34 @@
+[RDL-ACT] 4 ações agendadas a partir de <repo>/experiments/runs/nr_S5_B3_seed1007/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=3.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=4.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=5.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=6.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=7.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=8.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=9.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=10.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=11.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=12.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=13.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=14.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=15.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=16.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=17.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-KPI] t=18.0s vazao=9.83 Mbps atraso=5.64 ms
+[RDL-ACT] t=18.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-18.000 -> APPLIED (12 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=19.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=20.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-ACT] t=20.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-20.000 -> NO_EFFECT (0 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=21.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=22.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-ACT] t=22.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-22.000 -> NO_EFFECT (0 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=23.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=24.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-ACT] t=24.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-24.000 -> NO_EFFECT (0 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=25.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=26.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=27.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=28.0s vazao=9.83 Mbps atraso=5.14 ms
+[RDL-KPI] t=29.0s vazao=9.83 Mbps atraso=5.14 ms

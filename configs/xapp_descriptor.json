@@ -10,7 +10,10 @@
         "name": "muriloavlis/iqos-xapp-rdl",
         "tag": "1.1.0"
       },
-      "command": ["python", "src/main.py"],
+      "command": [
+        "python",
+        "src/main.py"
+      ],
       "resources": {
         "requests": {
           "memory": "512Mi",
@@ -29,8 +32,21 @@
         "name": "rmr-data",
         "container": "iqos-xapp-rdl",
         "port": 4560,
-        "rxMessages": ["RIC_INDICATION", "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE", "RIC_SUB_RESP", "RIC_SUB_FAILURE", "RDL_ACTION_PROPOSAL"],
-        "txMessages": ["RIC_CONTROL_REQ", "RIC_SUB_REQ"]
+        "rxMessages": [
+          "RIC_INDICATION",
+          "RIC_CONTROL_ACK",
+          "RIC_CONTROL_FAILURE",
+          "RIC_SUB_RESP",
+          "RIC_SUB_FAILURE",
+          "RDL_ACTION_PROPOSAL",
+          "A1_POLICY_REQ"
+        ],
+        "txMessages": [
+          "RIC_CONTROL_REQ",
+          "RIC_SUB_REQ",
+          "A1_POLICY_RESP",
+          "A1_POLICY_QUERY"
+        ]
       },
       {
         "name": "rmr-route",
@@ -53,8 +69,21 @@
     "protPort": "tcp:4560",
     "maxSize": 65536,
     "numWorkers": 1,
-    "txMessages": ["RIC_CONTROL_REQ", "RIC_SUB_REQ"],
-    "rxMessages": ["RIC_INDICATION", "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE", "RIC_SUB_RESP", "RIC_SUB_FAILURE", "RDL_ACTION_PROPOSAL"]
+    "txMessages": [
+      "RIC_CONTROL_REQ",
+      "RIC_SUB_REQ",
+      "A1_POLICY_RESP",
+      "A1_POLICY_QUERY"
+    ],
+    "rxMessages": [
+      "RIC_INDICATION",
+      "RIC_CONTROL_ACK",
+      "RIC_CONTROL_FAILURE",
+      "RIC_SUB_RESP",
+      "RIC_SUB_FAILURE",
+      "RDL_ACTION_PROPOSAL",
+      "A1_POLICY_REQ"
+    ]
   },
   "metrics": [
     {
@@ -88,5 +117,10 @@
     },
     "initialDelaySeconds": 10,
     "periodSeconds": 15
-  }
+  },
+  "policies": [
+    20000,
+    20001,
+    20002
+  ]
 }

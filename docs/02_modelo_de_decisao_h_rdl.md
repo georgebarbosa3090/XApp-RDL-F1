@@ -57,6 +57,18 @@ Validação na entrada (`RDLxApp._action_proposal_handler`): payload em bytes de
 
 O campo `xapp_id` é declarado pelo cliente e **não é credencial**; por isso o modo estrito rejeita propostas externas.
 
+### 3.1 Classes de urgência e janela adaptativa
+
+Desde 2026-11-10 (`src/core/decision_window.py`; motivação e alternativas fora da RDL no [doc 09 §2](09_frameworks_e_acoes_criticas.md)):
+
+| Classe | Critério | Tratamento |
+| :-- | :-- | :-- |
+| `CRITICAL` | prioridade ≥ 95 (`RDL_CRITICAL_PRIORITY`) ou (xApp, parâmetro) marcado como crítico | **caminho rápido**: decidida assim que chega, junto com as propostas pendentes para o mesmo nó ou para nós vizinhos (que saem da janela para competir com ela); passa pelo Safety Guard, pela histerese e pela arbitragem normalmente |
+| `URGENT` | prioridade ≥ 80 | janela fixa: fecha a janela na hora (comportamento anterior); janela adaptativa: espera no máximo 20 ms |
+| `NORMAL` | demais | 200 ms; com `RDL_ADAPTIVE_WINDOW=true`, o tempo para acumular 8 propostas à taxa de chegada recente, entre 50 e 500 ms |
+
+A janela adaptativa está **desligada por padrão**: nenhuma campanha a usou ainda.
+
 ## 4. Pipeline de decisão
 
 Implementado em `RDLxApp._process_action_group`. A cada fechamento de janela (200 ms após a primeira proposta, ou antes, se chegar proposta com prioridade ≥ 80):
@@ -142,11 +154,23 @@ Confiança registrada: 0,92 (TVS), 0,88 (EEVS exato), 0,70 (EEVS guloso). A reso
 - limites e formato (seção 5);
 - **histerese**: no máximo um controle por alvo a cada 1000 ms (`minimum_control_interval_ms`);
 - **slew-rate** (desligado por padrão): variação máxima de 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado pela RAN, lido da Perception. Ligado sem fonte de estado confirmado, falha fechado.
+- **destino de HANDOVER**: com topologia configurada, o destino tem de ser uma célula conhecida; um handover para fora da topologia é rejeitado (cenário S15);
 - **restrições de política A1** (seção 7.1): teto de `PRB_QUOTA` (`max_cell_prb_limit`), proibição de desligar células (`energy_saving_allowed = false`) e intervalo mínimo de controle (`cooling_lockout_ms`). Uma política só restringe dentro dos limites físicos, nunca os amplia.
 
 Os carimbos de tempo da histerese só são gravados depois que o lote inteiro é decidido.
 
-### 4.5 Seleção e despacho
+### 4.5 Grafo de conhecimento
+
+`src/core/knowledge_graph.py`: grafo de propriedades em memória, sem dependências externas, compartilhado com a Fase 2. Guarda:
+
+- células e vizinhança (`NEIGHBOR_OF`);
+- parâmetros e os KPIs que afetam (`AFFECTS`);
+- propostas (`PROPOSED`, `TARGETS`);
+- conflitos (`INVOLVES`) e decisões (`RESOLVED_BY`, `SELECTED`), com a política A1 efetiva no momento (`GOVERNS`).
+
+A Percepção o preenche com a topologia e o grafo parâmetro → KPI. A `RDLxApp` registra cada conflito e cada decisão; eventos antigos saem com as arestas depois de `RDL_KG_MAX_EVENTS` (padrão 5000). Consulta: `GET /kg` (contagens) e `GET /kg?full=true` (grafo em JSON) na porta 8080. Na Fase 2, `context_features` dá ao MAPPO o histórico de conflitos e decisões por alvo.
+
+### 4.6 Seleção e despacho
 
 Uma ação por alvo é selecionada: o vencedor arbitrado ou, sem conflito, a proposta de maior prioridade (convergentes têm o mesmo valor). A `RDLDecision` é formalizada antes do despacho e cada ação gera um `RIC_CONTROL_REQUEST`.
 
@@ -213,7 +237,9 @@ O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, co
 
 ### 7.1 Políticas A1
 
-O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e, desde 2026-11-10, está ligado à decisão: a cada criação, atualização ou remoção, a `RDLxApp` aplica a **política efetiva** (união das políticas ativas; a mais recente prevalece por campo) sobre a configuração de base. Remover todas as políticas restaura a base. O servidor HTTP só sobe com `A1_RECEIVER_PORT` e só aceita *loopback* (não tem autenticação).
+O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e, desde 2026-11-10, está ligado à decisão: a cada criação, atualização ou remoção, a `RDLxApp` aplica a **política efetiva** (união das políticas ativas; a mais recente prevalece por campo) sobre a configuração de base. Remover todas as políticas restaura a base. O servidor HTTP só sobe com `A1_RECEIVER_PORT` e só aceita *loopback* (não tem autenticação); serve para testes locais.
+
+**Caminho O-RAN** (`src/interfaces/a1_rmr.py`, doc 10): o A1-PMS do Non-RT RIC cria a instância no A1 Mediator, que a entrega à xApp por RMR `A1_POLICY_REQUEST` (20010); a xApp aplica e responde `A1_POLICY_RESPONSE` (20011). Na partida, pede as instâncias existentes com `A1_POLICY_QUERY` (20012). Os tipos são registrados no mediador por `scripts/a1/register_policy_types.py`.
 
 | Tipo | Campo | Efeito |
 | :-- | :-- | :-- |
@@ -225,6 +251,7 @@ O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e,
 | | `sla_weight` (0,1–0,8) | peso de SLA no TVS e de QoS no EEVS |
 | | `allow_neighbor_sleep` (bool) | desliga a regra `NEIGHBOR_SLEEP` |
 | | `low_power_threshold_dbm` (−10 a 43) | limiar de potência reduzida das regras entre células |
+| 20002 `CARDL_Model_Policy` | `marl_enabled` (bool), `min_confidence` (0–1) | só a CA-RDL (Fase 2) usa: liga o MAPPO e define a confiança mínima; a H-RDL armazena e ignora |
 
 O tipo 20001 é o ponto de contato previsto com o rApp-ResourceOptimizer do GreenRAN (ver [`compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`](compliance/GREENRAN_UFPA_TESTBED_PROFILE.md)); os campos são uma proposta a combinar com a equipe do rApp.
 

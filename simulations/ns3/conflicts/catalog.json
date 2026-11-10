@@ -1,5 +1,5 @@
 {
-  "description": "Catálogo de conflitos multi-xApp aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1). Cada proposta é reafirmada pela xApp a cada 'period' segundos entre 'start' e 'end' (period=0: uma única vez). gnb e o valor de HANDOVER são índices de gNB (0..N-1); ue=-1 significa todos os UEs servidos pelo gNB de origem. S0–S7 rodam na pilha nativa e na bancada NORI; S8 (backend NORI_NS3, ns3=null) só na bancada NORI.",
+  "description": "Catálogo de conflitos multi-xApp aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1). Cada proposta é reafirmada pela xApp a cada 'period' segundos entre 'start' e 'end' (period=0: uma única vez). gnb e o valor de HANDOVER são índices de gNB (0..N-1); ue=-1 significa todos os UEs servidos pelo gNB de origem. S0–S7 rodam na pilha nativa e na bancada NORI; S8 (backend NORI_NS3, ns3=null) só na bancada NORI. S9–S15 e G1–G2 (desde 2026-11-10) usam o cenário paramétrico scenario_rdl_multicell (NR em todos; NTN com o canal 3GPP do 5G-LENA); 'topology' fixa a vizinhança usada pelas regras entre células do B3. CELL_STATE=0 é emulado com potência mínima.",
   "decision_window_s": 0.2,
   "scenarios": {
     "S0": {
@@ -371,6 +371,436 @@
           "priority": 60,
           "start": 0.0,
           "end": 0.1,
+          "period": 0
+        }
+      ]
+    },
+    "S9": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=NTN-Rural",
+        "--centralFreq=2e9",
+        "--bandwidth=20e6",
+        "--txPowerDbm=77",
+        "--gnbs=0,0,600000;40000,0,600000",
+        "--ueGroups=20,0,0,0,15000,100,0,0,1.5;20,40000,0,0,15000,100,0,0,1.5",
+        "--packetSize=200"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ]
+        }
+      },
+      "summary": "NTN direct-to-cell (GreenRAN: sensores rurais via satélite LEO a 600 km, canal 3GPP NTN-Rural, 2 GHz): Traffic Steering move os sensores do feixe 0 para o feixe 1 enquanto o Energy Saving desliga o feixe 1 (CELL_STATE=0) — conflito entre células.",
+      "proposals": [
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 15.0,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "CELL_STATE",
+          "value": 0,
+          "priority": 65,
+          "start": 15.05,
+          "end": 25.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "S10": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=UMa",
+        "--gnbs=0,0,25;300,0,100",
+        "--ueGroups=30,0,0,10,120,8,0,0,1.5;10,300,0,10,120,20,0,0,1.5"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ]
+        }
+      },
+      "summary": "gNB em UAV a 100 m com bateria limitada: Energy Saving reduz a potência do UAV a 5 dBm para poupar bateria enquanto o Traffic Steering descarrega a macro congestionada no UAV — conflito entre células.",
+      "proposals": [
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 15.0,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "TX_POWER",
+          "value": 5,
+          "priority": 70,
+          "start": 15.05,
+          "end": 25.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "S11": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=RMa",
+        "--gnbs=0,0,35;600,0,35;1200,0,35",
+        "--ueGroups=20,0,0,0,50,10,33,0,1.5;10,1200,0,10,100,20,0,0,1.5"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ],
+          "gnb_1": [
+            "gnb_2"
+          ]
+        }
+      },
+      "summary": "Rodovia (V2X por Uu, 120 km/h): veículos andam da gNB0 para a gNB1; Traffic Steering antecipa o handover 0→1 e o Load Balancer devolve 1→0 a cada 2 s — ping-pong entre células. Sem sidelink (o NR V2X do 5G-LENA é outro ramo).",
+      "proposals": [
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 16.0,
+          "end": 24.0,
+          "period": 2.0
+        },
+        {
+          "xapp_id": "load_balancer",
+          "gnb": 1,
+          "parameter": "HANDOVER",
+          "value": 0,
+          "priority": 70,
+          "start": 17.0,
+          "end": 25.0,
+          "period": 2.0
+        }
+      ]
+    },
+    "S12": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=25",
+        "--channel=InH-OfficeMixed",
+        "--gnbs=0,0,3",
+        "--ueGroups=20,0,0,2,30,2,0,0,1.0;10,0,0,2,30,1,0,0,1.0",
+        "--packetSize=128"
+      ],
+      "conflict_window_s": [
+        12.0,
+        20.0
+      ],
+      "summary": "Fábrica (IIoT, canal InH): sensores críticos a 2 ms e câmeras a 1 ms disputam PRBs; xSlice reserva 80 % e o Energy Saving pede 30 % na mesma célula — conflito direto. Mede-se o atraso dos sensores; TSN não é modelado.",
+      "proposals": [
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 80,
+          "priority": 90,
+          "start": 12.0,
+          "end": 20.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 30,
+          "priority": 65,
+          "start": 12.05,
+          "end": 20.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "S13": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=RMa",
+        "--gnbs=0,0,30;800,0,30;400,700,30",
+        "--ueGroups=25,0,0,10,300,10,0,0,1.5;15,800,0,10,300,20,0,0,1.5;10,400,700,10,300,20,0,0,1.5"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1",
+            "gnb_2"
+          ],
+          "gnb_1": [
+            "gnb_2"
+          ]
+        }
+      },
+      "summary": "Desastre rural: a gNB0 falha (CELL_STATE=0 pelo injetor de falhas, prioridade 100); o Traffic Steering move os UEs dela para a gNB1 enquanto o Energy Saving quer desligar a gNB1 por baixa carga — conflito entre células com prioridade de emergência.",
+      "proposals": [
+        {
+          "xapp_id": "fault_injector",
+          "gnb": 0,
+          "parameter": "CELL_STATE",
+          "value": 0,
+          "priority": 100,
+          "start": 15.0,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 85,
+          "start": 15.0,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 1,
+          "parameter": "CELL_STATE",
+          "value": 0,
+          "priority": 65,
+          "start": 15.05,
+          "end": 25.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "S14": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=25",
+        "--channel=UMi-StreetCanyon",
+        "--gnbs=0,0,10",
+        "--ueGroups=30,0,0,10,100,5,0,0,1.5"
+      ],
+      "conflict_window_s": [
+        12.0,
+        20.0
+      ],
+      "summary": "ISAC como disputa de recursos: a xApp de sensoriamento pede teto de 40 % de PRB para comunicação (reservando o resto ao radar) e a xSlice pede 80 % — conflito direto. O sensoriamento em si não é modelado no 5G-LENA; só a perda de recursos de comunicação.",
+      "proposals": [
+        {
+          "xapp_id": "isac_radar",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 40,
+          "priority": 85,
+          "start": 12.0,
+          "end": 20.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "xslice",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 80,
+          "priority": 90,
+          "start": 12.05,
+          "end": 20.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "S15": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=NTN-Rural",
+        "--centralFreq=2e9",
+        "--bandwidth=20e6",
+        "--txPowerDbm=77",
+        "--gnbs=0,0,600000;40000,0,600000",
+        "--ueGroups=20,0,0,0,15000,100,0,0,1.5;20,40000,0,0,15000,100,0,0,1.5",
+        "--packetSize=200"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "summary": "xApp maliciosa em NTN: pede handover para um feixe inexistente (célula 7) e potência fora dos limites (90 dBm), junto com propostas legítimas de Traffic Steering e Energy Saving. O Safety Guard e a topologia devem barrar as maliciosas sem vetar as legítimas.",
+      "proposals": [
+        {
+          "xapp_id": "rogue_xapp",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 7,
+          "priority": 95,
+          "start": 15.0,
+          "end": 25.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "rogue_xapp",
+          "gnb": 1,
+          "parameter": "TX_POWER",
+          "value": 90,
+          "priority": 95,
+          "start": 15.02,
+          "end": 25.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 15.04,
+          "end": 15.1,
+          "period": 0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 50,
+          "priority": 65,
+          "start": 15.06,
+          "end": 25.0,
+          "period": 1.0
+        }
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ]
+        }
+      }
+    },
+    "G1": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=UMi-StreetCanyon",
+        "--gnbs=0,0,10;150,0,10",
+        "--ueGroups=6,0,0,20,60,0.4,0,0,3;30,75,0,10,120,1000,0,0,0.5",
+        "--packetSize=1250"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ]
+        }
+      },
+      "summary": "GreenRAN campus (App1-Vigilância × App2-Monitoramento): 6 câmeras a 25 Mb/s na RU 0 e 30 sensores de baixa taxa; o RANSlicer reserva 80 % de PRB na RU 0 e o EnergySaver pede 30 % (economia de PRBs ativos) — conflito direto na fatia de câmeras.",
+      "proposals": [
+        {
+          "xapp_id": "ranslicer",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 80,
+          "priority": 90,
+          "start": 15.0,
+          "end": 25.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "energy_saving",
+          "gnb": 0,
+          "parameter": "PRB_QUOTA",
+          "value": 30,
+          "priority": 65,
+          "start": 15.05,
+          "end": 25.0,
+          "period": 1.0
+        }
+      ]
+    },
+    "G2": {
+      "ns3": "scenario_rdl_multicell",
+      "args": [
+        "--simTime=30",
+        "--channel=UMi-StreetCanyon",
+        "--gnbs=0,0,10;150,0,10",
+        "--ueGroups=10,75,0,0,30,50,0,0,1.5;4,0,0,10,40,200,0,0,1.5"
+      ],
+      "conflict_window_s": [
+        15.0,
+        25.0
+      ],
+      "topology": {
+        "neighbors": {
+          "gnb_0": [
+            "gnb_1"
+          ]
+        }
+      },
+      "summary": "GreenRAN noite (baixa demanda, UEs na borda entre duas RUs): o EnergySaver da RU 0 e o da RU 1 querem desligar as duas células vizinhas, e o Traffic Steering move os UEs da RU 0 para a RU 1 — sleep de vizinhas e handover para célula desligada.",
+      "proposals": [
+        {
+          "xapp_id": "energy_saving_ru0",
+          "gnb": 0,
+          "parameter": "CELL_STATE",
+          "value": 0,
+          "priority": 65,
+          "start": 15.0,
+          "end": 25.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "energy_saving_ru1",
+          "gnb": 1,
+          "parameter": "CELL_STATE",
+          "value": 0,
+          "priority": 60,
+          "start": 15.02,
+          "end": 25.0,
+          "period": 1.0
+        },
+        {
+          "xapp_id": "traffic_steering",
+          "gnb": 0,
+          "parameter": "HANDOVER",
+          "value": 1,
+          "priority": 80,
+          "start": 15.04,
+          "end": 15.1,
           "period": 0
         }
       ]

@@ -1,8 +1,9 @@
 """
 Rogue Stress Reference xApp (6G Cross-Tier Governance & Security Evaluation)
 Papel no RDL: Emuladora de xApp de terceiro descalibrada ou maliciosa.
-Injeta propostas de alta frequencia com alternancia continua de valores de TX_POWER e PRB_QUOTA
-para validar a resiliencia do Lockout Cooling Window (5s) e o Safety Guard deterministico da RDL.
+Escrita para este projeto. Alterna TX_POWER entre 45 dBm (fora do limite) e 5 dBm a cada
+0,5 s para exercitar o Safety Guard e a histerese da RDL. Não gera PRB_QUOTA inválida (a
+proposta insegura de PRB está no cenário S7 do catálogo) e não envia as propostas à RDL.
 """
 
 import time

@@ -54,7 +54,10 @@ from src.core.perception import Perception
 from src.core.reasoning import Reasoning
 from src.core.refinement import Refinement
 from src.core.inter_cell import InterCellRules, load_inter_cell_config
+from src.core.knowledge_graph import KnowledgeGraph
+from src.core.decision_window import AdaptiveDecisionWindow, Urgency, WindowConfig
 from src.interfaces.a1_policy_receiver import A1PolicyHttpHandler, A1PolicyManager, A1PolicyReceiverServer
+from src.interfaces.a1_rmr import A1_POLICY_QUERY, A1_POLICY_REQUEST, A1_POLICY_RESPONSE, handle_policy_request, query_messages
 from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
@@ -132,13 +135,15 @@ class RDLxApp:
 
         # Regras entre células compartilhadas pela percepção (detecção) e pelo raciocínio (EEVS)
         self.inter_cell_rules = InterCellRules.from_config(load_inter_cell_config())
-        self.perception = Perception(inter_cell_rules=self.inter_cell_rules)
+        self.knowledge_graph = KnowledgeGraph(max_events=int(os.getenv("RDL_KG_MAX_EVENTS", "5000")))
+        self.perception = Perception(inter_cell_rules=self.inter_cell_rules, knowledge_graph=self.knowledge_graph)
         self.reasoning = Reasoning(self.memory, config={}, inter_cell_rules=self.inter_cell_rules)
         self.refinement = Refinement(
             self.memory,
             strict_capabilities=self.oran_strict,
             committed_action_lookup=self.perception.get_committed_action,
         )
+        self.refinement.handover_target_check = self._handover_target_known
 
         # Políticas A1 (Non-RT RIC / rApp): ajustam pesos, limites e regras entre células.
         # Sem política ativa, vale a configuração de base; remover a política a restaura.
@@ -157,6 +162,9 @@ class RDLxApp:
             self.a1_server = A1PolicyReceiverServer(host="127.0.0.1", port=int(a1_port))
             self.a1_server.start()
         self.health = HealthServer(port=8080)
+        self.health.knowledge_graph_provider = (
+            lambda full=False: self.knowledge_graph.to_dict() if full else self.knowledge_graph.stats()
+        )
         self.health.set_state(AppState.STARTING)
         self.health.run()
         self.metrics = MetricsServer(port=8081)
@@ -184,6 +192,15 @@ class RDLxApp:
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
         self.MAX_PROPOSALS = 4096
+        # Classes de urgência e janela adaptativa (doc 09 §2.2). Sem RDL_ADAPTIVE_WINDOW=true a janela
+        # fica fixa em 200 ms e propostas com prioridade >= 80 antecipam o fechamento, como antes.
+        self.decision_window = AdaptiveDecisionWindow(WindowConfig(
+            base_window_ms=float(self.WINDOW_DURATION_MS),
+            adaptive=os.getenv("RDL_ADAPTIVE_WINDOW", "false").lower() in ("true", "1", "yes"),
+            critical_priority=int(os.getenv("RDL_CRITICAL_PRIORITY", "95")),
+        ))
+        self.critical_queue: List[XAppAction] = []
+        self.buffer_deadline_ms: float = float(self.WINDOW_DURATION_MS)
 
         # ACK & Transaction Tracking (suporta UUID string e tuple RICrequestId)
         self.pending_actions_by_id: Dict[str, XAppAction] = {}
@@ -232,6 +249,7 @@ class RDLxApp:
         self.xapp.register_callback(self._control_failure_handler, RIC_CONTROL_FAILURE)
         self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
         self.xapp.register_callback(self._subscription_failure_handler, RIC_SUB_FAILURE)
+        self.xapp.register_callback(self._a1_policy_request_handler, A1_POLICY_REQUEST)
 
     def _safe_rmr_free(self, xapp_instance: Any, sbuf: Any):
         """Libera buffer RMR com segurança, ignorando objetos mock ou inválidos."""
@@ -280,12 +298,39 @@ class RDLxApp:
         )
         logger.info("Política A1 efetiva aplicada", policy=policy)
 
+    def _handover_target_known(self, action: XAppAction) -> bool:
+        """Com topologia configurada, o destino do HANDOVER precisa ser uma célula conhecida."""
+        known = set(self.inter_cell_rules.neighbors)
+        if not known:
+            return True
+        return self.inter_cell_rules.handover_target(action) in known
+
+    def _a1_policy_request_handler(self, xapp_instance, summary: Dict[str, Any], sbuf: Any):
+        """A1 Mediator -> xApp (RMR 20010): aplica a instância e responde 20011."""
+        response, ok = handle_policy_request(self.a1_policies, summary.get("payload") or b"", handler_id="iqos-xapp-rdl")
+        try:
+            self.xapp.rmr_send(json.dumps(response).encode("utf-8"), A1_POLICY_RESPONSE)
+        except Exception as exc:
+            logger.error("Falha ao responder A1_POLICY_RESPONSE", error=str(exc))
+        logger.info("Política A1 recebida pelo A1 Mediator", status=response.get("status"),
+                    policy_type_id=response.get("policy_type_id"), policy_instance_id=response.get("policy_instance_id"))
+        self._safe_rmr_free(xapp_instance, sbuf)
+
+    def _query_a1_policies(self) -> None:
+        """Na partida, pede ao A1 Mediator as instâncias existentes (RMR 20012)."""
+        for body in query_messages(list(self.a1_policies.policy_types)):
+            try:
+                self.xapp.rmr_send(body, A1_POLICY_QUERY)
+            except Exception as exc:
+                logger.warning("Falha ao consultar políticas A1", error=str(exc))
+
     def _default_handler(self, xapp_instance, summary, sbuf):
         logger.debug("Mensagem RMR nao mapeada recebida", mtype=summary.get("mtype"))
         self._safe_rmr_free(xapp_instance, sbuf)
 
     def _entrypoint(self, xapp_instance):
         logger.info(f"xApp Framework Ready (Modo {self.mode} | Backend {self.backend.metadata.backend_id})")
+        self._query_a1_policies()
         if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
             self.health.set_state(AppState.ERROR)
             self.metrics.ready_state.set(0)
@@ -514,16 +559,10 @@ class RDLxApp:
                     value=value,
                     priority=priority
                 )
-                with self.buffer_lock:
-                    if len(self.proposal_buffer) >= self.MAX_PROPOSALS:
-                        logger.error("Proposal buffer limit reached; incoming action rejected.")
-                    else:
-                        if not self.proposal_buffer:
-                            self.window_start = now_ts()
-                        self.proposal_buffer.append(action)
-                        if action.priority >= 80:
-                            self.urgent_event.set()
-                        logger.debug(f"Action buffered. Queue size: {len(self.proposal_buffer)}")
+                try:
+                    self._enqueue(action)
+                except OverflowError:
+                    logger.error("Proposal buffer limit reached; incoming action rejected.")
             except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as e:
                 logger.error("Erro ao processar RDL_ACTION_PROPOSAL", error=str(e))
         self._safe_rmr_free(xapp_instance, sbuf)
@@ -568,14 +607,55 @@ class RDLxApp:
 
     def inject_xapp_action(self, action: XAppAction):
         """API publica para injecao de acoes simuladas (usada em testes)"""
+        self._enqueue(action)
+
+    def _enqueue(self, action: XAppAction) -> Urgency:
+        """Classifica a proposta e a coloca na fila crítica ou na janela de decisão."""
+        urgency = self.decision_window.classify(action)
         with self.buffer_lock:
-            if len(self.proposal_buffer) >= self.MAX_PROPOSALS:
+            if len(self.proposal_buffer) + len(self.critical_queue) >= self.MAX_PROPOSALS:
                 raise OverflowError("Proposal buffer limit reached")
+            self.decision_window.observe_arrival()
+            if urgency == Urgency.CRITICAL:
+                self.critical_queue.append(action)
+                self.urgent_event.set()
+                return urgency
             if not self.proposal_buffer:
                 self.window_start = now_ts()
-            self.proposal_buffer.append(action)
-            if getattr(action, "priority", 50) >= 80:
+                self.buffer_deadline_ms = self.decision_window.window_ms()
+            if urgency == Urgency.URGENT:
+                # Janela fixa: fecha na hora (fast-flush); adaptativa: espera urgent_window_ms
+                urgent_ms = self.decision_window.deadline_ms(urgency) if self.decision_window.config.adaptive else 0.0
+                self.buffer_deadline_ms = min(self.buffer_deadline_ms, urgent_ms)
                 self.urgent_event.set()
+            self.proposal_buffer.append(action)
+        return urgency
+
+    def _take_ready_actions(self) -> Tuple[List[XAppAction], List[XAppAction]]:
+        """(grupo crítico, lote da janela). O grupo crítico leva junto as propostas pendentes para
+        o mesmo nó ou para nós vizinhos, que competem com ele na mesma arbitragem."""
+        with self.buffer_lock:
+            critical: List[XAppAction] = []
+            if self.critical_queue:
+                critical = list(self.critical_queue)
+                self.critical_queue.clear()
+                nodes = {a.node_id for a in critical}
+                for node in list(nodes):
+                    nodes |= self.inter_cell_rules.neighbors.get(node, set())
+                related = [a for a in self.proposal_buffer if a.node_id in nodes]
+                if related:
+                    critical += related
+                    self.proposal_buffer = [a for a in self.proposal_buffer if a.node_id not in nodes]
+                    if not self.proposal_buffer:
+                        self.window_start = 0.0
+            batch: List[XAppAction] = []
+            if self.proposal_buffer:
+                elapsed_ms = (now_ts() - self.window_start) * 1000
+                if elapsed_ms >= self.buffer_deadline_ms:
+                    batch = list(self.proposal_buffer)
+                    self.proposal_buffer.clear()
+                    self.window_start = 0.0
+            return critical, batch
 
     def _process_action_group(self, actions: List[XAppAction]):
         """
@@ -617,6 +697,11 @@ class RDLxApp:
 
         conflicts = self.perception.detect_action_group(actions)
         self.metrics.update_active_xapps(len(self.perception.get_active_xapps()))
+        for conflict in conflicts:
+            try:
+                self.knowledge_graph.record_conflict(conflict)
+            except Exception as exc:  # o grafo nunca bloqueia a decisão
+                logger.warning("Falha ao registrar conflito no grafo de conhecimento", error=str(exc))
 
         def target_of(act: XAppAction) -> Tuple[str, str]:
             return (act.node_id, act.parameter)
@@ -724,9 +809,15 @@ class RDLxApp:
                 strategy_names.append(resolution.strategy_used.name)
             else:
                 logger.warning("Resolucao Rejeitada ou Lote Vazio", reason=reason, conflict=conflict.conflict_id)
+            incumbents = {target_of(act): act for act in reduced if is_incumbent(act)}
             for target in sorted(targets):
                 winner = winners_by_target.get(target)
-                if winner is None:
+                if winner is None and target in incumbents:
+                    # Sem vencedor (resolução rejeitada, p. ex. pela histerese): o alvo de uma ação já
+                    # confirmada continua representado por ela e segue como oposição nos conflitos
+                    # seguintes. Bloqueá-lo deixava a proposta concorrente passar sem oposição (achado 53).
+                    admit(target, incumbents[target], conflict.conflict_id)
+                elif winner is None:
                     blocked_targets.add(target)
                     causal_tracker.record_safety_validation(intervention=True)
                 else:
@@ -777,6 +868,13 @@ class RDLxApp:
             previous_safe_value=None,
         )
         logger.info("RDLDecision Formalizada", decision_id=decision.decision_id, strategy=decision.strategy_used, selected_count=len(all_selected))
+        try:
+            source = getattr(getattr(self.reasoning, "last_decision", None), "source", "H_RDL")
+            self.knowledge_graph.record_decision(decision.decision_id, decision.strategy_used, all_selected,
+                                                 [c.conflict_id for c in conflicts],
+                                                 policy=self.a1_policies.effective_policy() or None, source=source)
+        except Exception as exc:
+            logger.warning("Falha ao registrar decisão no grafo de conhecimento", error=str(exc))
 
         # 5. Despacho de Controle para Ações Admitidas via ControlDispatcher
         dispatched_actions = []
@@ -837,18 +935,14 @@ class RDLxApp:
                 self.dispatcher.prune_finalized(now=now)
                 last_cleanup = now
 
-            actions_to_process = []
-            with self.buffer_lock:
-                if self.proposal_buffer:
-                    elapsed_ms = (now_ts() - self.window_start) * 1000
-                    if elapsed_ms >= self.WINDOW_DURATION_MS or triggered:
-                        # Flush Window (por expiração de 200ms ou Fast-Flush URLLC)
-                        actions_to_process = list(self.proposal_buffer)
-                        self.proposal_buffer.clear()
-                        self.window_start = 0.0
-                        logger.info(f"Decision Window Flushed. Processing batch of {len(actions_to_process)} actions.")
-            if actions_to_process:
-                self._process_action_group(actions_to_process)
+            critical, batch = self._take_ready_actions()
+            if critical:
+                # Caminho rápido: ação crítica decidida sem esperar a janela (doc 09 §2.2)
+                logger.info("Caminho crítico", actions=len(critical))
+                self._process_action_group(critical)
+            if batch:
+                logger.info(f"Decision Window Flushed. Processing batch of {len(batch)} actions.")
+                self._process_action_group(batch)
 
     def _send_control(
         self,

@@ -1,7 +1,7 @@
 """
-Bouncer Reference xApp (O-RAN SC Standard b-xapp)
-Papel no RDL: Benchmarking de Latencia de Loopback E2 e Mensageria RMR.
-Gera propostas para PING_INTERVAL e E2_LOOPBACK_FLAG (Prioridade: 40).
+Bouncer (teste de latência, escrito para este projeto; não é a b-xapp do O-RAN SC)
+Gera propostas de PING_INTERVAL (prioridade 40) com valor fixo; não envia as propostas à RDL.
+PING_INTERVAL não está no catálogo de parâmetros da RDL, então o Safety Guard a rejeita.
 """
 
 import time

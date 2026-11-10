@@ -40,13 +40,35 @@ Observações dos experimentos:
 
 O S8 é o closed loop da bancada NORI: xslice pede cota de PRB 25 % (prioridade 90) e embb_throughput pede 80 % (prioridade 60) no mesmo alvo. Os cenários S0–S7 também rodam na bancada NORI, com E2 real. O que cada um atua lá está na [seção 4](#4-cenários-na-bancada-nori-porte-de-s0s8-com-e2-real).
 
-### 2.3 Cenários S9–S15 (removidos)
+### 2.3 Cenários S9–S15 e GreenRAN (G1, G2)
 
-Os esboços S9–S15 (NTN, UAV, V2X, IIoT, SAGIN, ISAC, NTN malicioso) e três cenários exploratórios (5G-Advanced e 6G) não usavam a camada de atuação, não estavam no catálogo e nunca rodaram com proveniência. Foram removidos do repositório em 2026-11-09 (achado 45 de docs/07). Esses temas pertencem à Fase 2 (`XApp-RDL-F2`).
+Os esboços S9–S15 antigos foram removidos em 2026-11-09 (achado 45). A avaliação de 2026-11-10, no repositório da Fase 2, mostrou que eles ligavam satélites, UAVs e veículos aos UEs por cabo ponto a ponto, sem rádio NR nem handover ([relatório de adequação, seção 7.2](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md)).
+
+Desde 2026-11-10 eles foram **reconstruídos** sobre o harness dos S0–S7, num único cenário paramétrico, `simulations/ns3/scenario_rdl_multicell.cc` (NR em todos os casos, EPC, X2, handover, atuação). Cada entrada do catálogo fixa a topologia, o canal 3GPP do 5G-LENA, o tráfego, as propostas e a vizinhança (`topology`) usada pelas regras entre células.
+
+| Id | Tema | Canal / topologia | Conflito | Decisão do B3 (cronograma) |
+| :-: | :-- | :-- | :-- | :-- |
+| S9 | NTN *direct-to-cell* (sensores rurais via LEO, caso Skylo do GreenRAN) | `NTN-Rural`, 2 GHz, 2 feixes a 600 km, 77 dBm (EIRP aproximado com antena isotrópica) | handover para o feixe 1 × Energy Saving desliga o feixe 1 | só o handover |
+| S10 | gNB em UAV com bateria | UMa; macro a 25 m e UAV a 100 m | handover para o UAV × UAV a 5 dBm para poupar bateria | só o handover |
+| S11 | Rodovia (V2X por Uu, 120 km/h) | RMa; 3 gNBs a cada 600 m | ping-pong 0↔1 entre Traffic Steering e Load Balancer | os 4 handovers do Traffic Steering |
+| S12 | Fábrica (IIoT) | InH-OfficeMixed; 1 gNB | xSlice 80 % × Energy Saving 30 % de PRB | xSlice |
+| S13 | Desastre rural | RMa; 3 gNBs | gNB0 falha (CELL_STATE 0, prioridade 100) × handover dos UEs para a gNB1 × Energy Saving desliga a gNB1 | só a falha; o handover de evacuação **não** é admitido (achado 55) |
+| S14 | ISAC como disputa de recursos | UMi; 1 gNB | sensoriamento pede teto de 40 % × xSlice 80 % | xSlice |
+| S15 | xApp maliciosa em NTN | `NTN-Rural`, 2 feixes | handover para célula inexistente e 90 dBm × propostas legítimas | só o handover legítimo |
+| G1 | GreenRAN campus: câmeras × sensores | UMi; 2 RUs; 6 câmeras a 25 Mb/s e 30 sensores | RANSlicer 80 % × EnergySaver 30 % de PRB na RU 0 | RANSlicer |
+| G2 | GreenRAN noite, UEs na borda de duas RUs | UMi; 2 RUs | as duas RUs pedem sleep × handover da RU 0 para a RU 1 | RU 0 dorme e seus UEs vão para a RU 1; a RU 1 nunca é desligada |
+
+Limites de modelagem, declarados no catálogo:
+- `CELL_STATE = 0` é emulado com potência mínima (−30 dBm): o 5G-LENA v5.1 não desliga a célula nem dispara RLF.
+- V2X usa a interface Uu: o NR V2X do 5G-LENA é outro ramo.
+- O sensoriamento ISAC e o TSN não são modelados; só a disputa de recursos.
+- A bateria do UAV é representada pela proposta de economia, não por um modelo de energia.
+
+Situação: compilação e teste curto de cada cenário em 2026-11-10 (seção 2.4); campanhas pareadas ainda não rodadas.
 
 ## 3. xApps que geram as propostas
 
-As propostas do catálogo representam os papéis das xApps de [`reference-xapps/`](../reference-xapps/README.md): xSlice (QoS/fatias), Energy Saving, Traffic Steering, Load Balancer, Beamformer, ISAC Radar e uma xApp maliciosa de teste. Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes.
+As propostas do catálogo representam os papéis das xApps de [`reference-xapps/`](../reference-xapps/README.md): xSlice (QoS/fatias), Energy Saving, Traffic Steering, Load Balancer, Beamformer, ISAC Radar e uma xApp maliciosa de teste. Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes. A avaliação das xApps (origem, parâmetros aceitos pela RDL, entrega das propostas) está na [seção 7.1 do relatório de adequação](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md): as xApps próprias propõem parâmetros fora do catálogo da RDL e nenhuma xApp de referência entrega propostas à RDL implantada.
 
 ## 4. Cenários na bancada NORI (porte de S0–S8 com E2 real)
 

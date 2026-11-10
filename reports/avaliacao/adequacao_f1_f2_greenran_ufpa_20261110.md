@@ -192,7 +192,79 @@ Consequência: nenhum número da Fase 2 pode ser usado em relatório do GreenRAN
 
 ---
 
-## 7. Referências internas
+## 7. Avaliação das xApps de referência e dos cenários S9–S15 (2026-11-10)
+
+### 7.1 xApps de referência (`reference-xapps/`)
+
+Origem declarada e o que cada xApp de fato faz. Nenhuma lê KPM: todas geram propostas a partir de valores de configuração.
+
+| xApp | Origem | Parâmetro proposto | Aceito pela RDL (default-deny) | Entrega a proposta à RDL? |
+| :-- | :-- | :-- | :-: | :-- |
+| xSlice | inspirada em Yan et al. (`peihaoY/xslice-oran`), sem código dele | `PRB_QUOTA` | sim | HTTP para `RDL_HTTP_URL`, mas a RDL só recebe propostas por RMR (mtype 30000): **não chega** |
+| Energy Saving | inspirada em Wadud et al. (`xapp_es_with_cell_util`), sem código dele | `TX_POWER` | sim | idem: **não chega** |
+| Traffic Steering | inspirada no papel da `o-ran-sc/ric-app-ts`, sem código dela | `HANDOVER` | sim | idem: **não chega** |
+| Beamformer | **própria** | `VERTICAL_DOWNTILT` | **não** (fora do catálogo) | não envia |
+| ISAC Radar | **própria** | `SENSING_RATIO` | **não** | não envia |
+| Load Balancer | **própria** (a docstring dizia "O-RAN SC Standard lb-xapp") | `LOAD_THRESHOLD` | **não** | não envia |
+| Bouncer | **própria** (a docstring dizia "O-RAN SC Standard b-xapp") | `PING_INTERVAL` | **não** | não envia |
+| Rogue | **própria** | `TX_POWER` 45/5 dBm alternados | 5 dBm sim, 45 dBm não | não envia |
+| kpm-probe (`deploy/helm/xapp-kpm-probe`) | **própria** | assina KPM e envia RIC Control | — | é a única que fala E2 com o RIC (G1, G3, G4, G5) |
+
+Constatações:
+
+1. **As xApps próprias não são adequadas como geradoras de conflito real.** Quatro das cinco propõem parâmetros que a RDL rejeita por *default-deny*, nenhuma envia propostas, nenhuma lê KPM, e todas emitem um valor fixo em laço. Servem hoje só como exemplos de formato. A Rogue é a exceção útil: exercita o Safety Guard, mas também não envia.
+2. **Nos experimentos, as propostas vêm do catálogo** (`simulations/ns3/conflicts/catalog.json`), não destes processos (docs/03 §3). Os resultados de S0–S8 não dependem das xApps de referência.
+3. **Contrato do `HANDOVER` incoerente** (corrigido): o Traffic Steering enviava `value = 1.0` ("disparo") e o destino em `target_node`, que a RDL ignora. A RDL e as regras entre células tratam `value` como índice da célula de destino. Agora `value` sai do sufixo de `target_node` (`gnb_02` → 2), e o resolvedor preserva o zero à esquerda (`gnb_01` + 2 → `gnb_02`).
+4. **Descrições corrigidas:**
+   - Load Balancer e Bouncer se apresentavam como xApps padrão do O-RAN SC.
+   - Beamformer e ISAC anunciavam parâmetros não implementados (`BEAM_WEIGHTS`, `RADAR_BURST_PERIOD`).
+   - A Rogue anunciava `PRB_QUOTA` inválida, que não gera.
+5. **Para o GreenRAN**, as xApps que importam são o xApp1-RANSlicer (UFRGS) e o xApp2-EnergySaver (UFPA), que ainda não existem. As xSlice e Energy Saving locais cobrem esses papéis só no formato.
+   - **Para servir de stand-ins no testbed:** enviar por RMR 30000 (ou a RDL ganhar um endpoint HTTP de propostas) e ler KPM.
+   - **Energy Saving:** propor `CELL_STATE` além de `TX_POWER`.
+   - **Própria ISAC/Beamformer:** não têm papel no GreenRAN.
+
+O teste `tests/integration/test_all_reference_xapps.py::test_reference_xapps_contract_with_rdl_safety_guard` fixa o que a RDL aceita de cada xApp.
+
+### 7.2 Cenários S9–S15
+
+Os arquivos estão só no repositório da Fase 2 (`simulations/ns3/scenario_rdl_s9…s15*.cc`); na Fase 1 foram removidos em 2026-11-09 (achado 45), sem nunca terem rodado com proveniência.
+
+| Cenário | Declara | O que o código faz |
+| :-- | :-- | :-- |
+| S9 NTN Orbital Handover | handover LEO com Doppler | nós "satélite" e "gNB" ligados aos UEs por **cabo ponto a ponto** (100 Mb/s, 20 ms) com UDP; sem canal NTN, sem handover; `--enableE2` declarado e não usado |
+| S10 UAV Swarm | handover de emergência por bateria | ponto a ponto + UDP; sem bateria, sem handover |
+| S11 V2X Platooning | handover preditivo a 120 km/h | veículos em movimento, mas ligados por cabo ponto a ponto: o movimento não afeta nada |
+| S12 IIoT | fatiamento com jitter < 0,8 ms | ponto a ponto + UDP; jitter e TSN só nos comentários |
+| S13 SAGIN | resgate multidomínio | ponto a ponto + UDP |
+| S14 ISAC | radar × comunicação | ponto a ponto + UDP; alvos móveis sem sensoriamento |
+| S15 Rogue NTN | sequestro de *feeder link* | ponto a ponto + UDP |
+
+Em todos os sete:
+
+- nenhum usa o rádio NR (`NrHelper`);
+- nenhum aplica ações da RDL (não usam `rdl-nr-common.h` nem o catálogo);
+- nenhum controla a semente;
+- todos terminam imprimindo "executado com sucesso".
+
+**Avaliação:** não modelam o fenômeno que declaram e não exercitam a RDL. Rodá-los produziria FlowMonitor de enlaces cabeados, sem valor como evidência; por isso não foram executados.
+
+**Aderência ao GreenRAN** (verticais Agro e Campus; casos eMBB de câmeras e mMTC de sensores):
+
+| Cenário | Aderência | Motivo |
+| :-- | :-- | :-- |
+| S9 (NTN) | parcial | a proposta prevê NTN *direct-to-cell* (Skylo) para mMTC rural, mas como enlace de sensores, não como handover LEO |
+| S13 (resiliência) | parcial | conectividade rural |
+| S15 | parcial | segurança (atividade A1.11) |
+| S10, S11, S12, S14 | nenhuma | UAV, V2X, IIoT/TSN e ISAC não fazem parte da proposta |
+
+**Recomendação:** não portar S9–S15 como estão. Substituí-los por cenários GreenRAN no padrão de S0–S8 (5G-LENA, catálogo, atuação, sementes):
+
+- **G1:** fatia eMBB de câmeras × fatia mMTC de sensores (RANSlicer × EnergySaver na mesma célula, cota de PRB).
+- **G2:** baixa demanda noturna com UEs na borda entre duas RUs (desligamento × handover, regra entre células; exige atuar `CELL_STATE` em `rdl-nr-common.h`).
+- **G3, opcional:** sensores mMTC por enlace NTN, se o ns-3 da pilha tiver o modelo de propagação NTN do 3GPP TR 38.811 utilizável com o 5G-LENA.
+
+## 8. Referências internas
 
 - Fase 1: `README.md`, `docs/07_certificacao_e_achados.md` (achados 1, 11, 12, 25, 45, 50, 51), `docs/compliance/OPENRAN_BRASIL_INTEGRATION.md`, `docs/compliance/HRDL_F1_SRSRAN_TESTBED_PROFILE.md`, `docs/compliance/PHASE1_PHASE2_SYNC_CONTRACT.md`, `specs/claims.yaml`.
 - Fase 2: `README.md`, `specs/claims.yaml`, `src/agents/marl/{mappo_agent,mappo_trainer,intent_classifier}.py`, `src/agents/marl/environments/nori_ran_environment.py`, `src/e2/rc/capability_registry.py`, `src/e2/backends/srsran_e2_adapter.py`, `src/coordination/control_dispatcher.py`, `experiments/runs/S1_B6_seed1001/`, `experiments/runs/certified_closed_loop_chain/`, `experiments/training/seed_042/training_manifest.json`, `.github/workflows/`.

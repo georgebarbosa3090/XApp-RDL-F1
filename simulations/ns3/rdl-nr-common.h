@@ -12,6 +12,8 @@
  *        PRB_QUOTA -> máscara de RBGs do escalonador (SetDlNotchedRbgMask)
  *        TX_POWER  -> potência de transmissão do gNB (NrGnbPhy::SetTxPower)
  *        HANDOVER  -> handover X2 dos UEs servidos pelo gNB de origem (NrHelper::HandoverRequest)
+ *        CELL_STATE-> 0: célula "desligada", emulada com potência mínima (-30 dBm), porque o
+ *                     5G-LENA v5.1 não desliga a célula nem dispara RLF; 1: restaura a potência
  *      Não há lógica de decisão nem de segurança aqui: o cronograma vem do baseline
  *      avaliado (B0..B3). Cada ação aplicada é registrada em rdl_actuation_log.csv.
  *   3. RdlKpiSampler: série temporal de vazão e atraso por célula, medida nos UdpServer
@@ -64,7 +66,11 @@ struct RdlNrNetwork
  * A mobilidade dos nós deve estar instalada antes.
  */
 inline RdlNrNetwork
-RdlBuildNrNetwork(NodeContainer gnbNodes, NodeContainer ueNodes, double centralFreq, double bandwidth)
+RdlBuildNrNetwork(NodeContainer gnbNodes,
+                  NodeContainer ueNodes,
+                  double centralFreq,
+                  double bandwidth,
+                  const std::string& channelScenario = "")
 {
     RdlNrNetwork net;
     net.epcHelper = CreateObject<NrPointToPointEpcHelper>();
@@ -85,6 +91,12 @@ RdlBuildNrNetwork(NodeContainer gnbNodes, NodeContainer ueNodes, double centralF
     CcBwpCreator::SimpleOperationBandConf bandConf(centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc(bandConf);
     Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper>();
+    if (!channelScenario.empty())
+    {
+        // Cenário 3GPP do 5G-LENA (UMa, UMi-StreetCanyon, RMa, InH-*, NTN-Rural, NTN-Urban...).
+        // Vazio: as fábricas padrão, como nos cenários S0–S7.
+        channelHelper->ConfigureFactories(channelScenario, "Default", "ThreeGpp");
+    }
     channelHelper->AssignChannelsToBands({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps({band});
 
@@ -322,12 +334,47 @@ class RdlActuation
               << kHandoverSpacing.GetMilliSeconds() << " ms)";
             Record(a, moved > 0 ? "APPLIED" : "NO_EFFECT", d.str());
         }
+        else if (a.parameter == "CELL_STATE")
+        {
+            std::ostringstream d;
+            if (a.value == 0.0)
+            {
+                if (m_savedTxPower.find(a.gnb) == m_savedTxPower.end())
+                {
+                    m_savedTxPower[a.gnb] = NrHelper::GetGnbPhy(gnb, 0)->GetTxPower();
+                }
+                for (uint32_t b = 0; b < nBwp; ++b)
+                {
+                    NrHelper::GetGnbPhy(gnb, b)->SetTxPower(kSleepTxPowerDbm);
+                }
+                d << "sleep emulado: TxPower=" << kSleepTxPowerDbm << " dBm";
+                Record(a, "APPLIED", d.str());
+            }
+            else
+            {
+                auto it = m_savedTxPower.find(a.gnb);
+                if (it == m_savedTxPower.end())
+                {
+                    Record(a, "NO_EFFECT", "célula já ativa");
+                    return;
+                }
+                for (uint32_t b = 0; b < nBwp; ++b)
+                {
+                    NrHelper::GetGnbPhy(gnb, b)->SetTxPower(it->second);
+                }
+                d << "ativa: TxPower=" << it->second << " dBm";
+                m_savedTxPower.erase(it);
+                Record(a, "APPLIED", d.str());
+            }
+        }
         else
         {
             Record(a, "UNSUPPORTED", "parâmetro sem mapeamento na RAN simulada");
         }
     }
 
+    const double kSleepTxPowerDbm = -30.0;
+    std::map<uint32_t, double> m_savedTxPower;
     const Time kHandoverSpacing = MilliSeconds(10);
     Ptr<NrHelper> m_nrHelper;
     NetDeviceContainer m_gnbDevs;

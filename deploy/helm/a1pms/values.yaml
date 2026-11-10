@@ -1,0 +1,28 @@
+# Imagem oficial do O-RAN SC (it/dep l-release 0671fb2, nonrtric/helm/policymanagementservice)
+image:
+  repository: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-plt-a1policymanagementservice
+  tag: "2.8.0"
+  pullPolicy: IfNotPresent
+
+# Near-RT RICs que o A1-PMS gerencia (A1 direto, sem controlador SDNC)
+rics:
+  - name: ric1
+    # Via adaptador (oscAdapter): o A1 Mediator 3.2.2 usa os caminhos do A1AP v2, mas devolve o
+    # tipo de política no formato OSC (create_schema), que o cliente A1AP v2 do A1-PMS não lê.
+    baseUrl: http://a1pms-osc-adapter.nonrtric:10000
+    managedElementIds:
+      - gnb_268_341_00000001
+
+service:
+  httpPort: 8081
+
+# A bancada tem 5 GB no WSL: limita o heap da JVM
+javaOptions: "-Xms128m -Xmx384m"
+resources:
+  requests: {cpu: 100m, memory: 384Mi}
+  limits: {cpu: "1", memory: 640Mi}
+
+oscAdapter:
+  enabled: true
+  image: python:3.10-slim-bookworm
+  upstream: http://service-ricplt-a1mediator-http.ricplt:10000

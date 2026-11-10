@@ -47,7 +47,10 @@ def default_handover_target(action: XAppAction) -> Optional[str]:
     match = _TRAILING_INDEX.match(str(action.node_id))
     if not match:
         return None
-    return f"{match.group(1)}{int(value)}"
+    digits = match.group(2)
+    # Mantém o preenchimento com zeros do nó de origem (gnb_01 com valor 2 -> gnb_02)
+    width = len(digits) if digits.startswith("0") and len(digits) > 1 else 1
+    return f"{match.group(1)}{int(value):0{width}d}"
 
 
 def load_inter_cell_config(path: Optional[str] = None) -> dict:

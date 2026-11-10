@@ -36,9 +36,9 @@ def _two_xapp_spec():
     }
 
 
-def test_catalog_covers_s0_to_s8(catalog):
-    # S0–S7: pilha nativa (binário ns-3.48) e bancada NORI; S8: só bancada NORI (ns3 = null)
-    assert set(catalog["scenarios"]) == {f"S{i}" for i in range(9)}
+def test_catalog_covers_all_scenarios(catalog):
+    # S0–S7, S9–S15, G1–G2: pilha nativa (ns-3.48); S8: só bancada NORI (ns3 = null)
+    assert sorted(catalog["scenarios"]) == sorted([f"S{i}" for i in range(16)] + ["G1", "G2"])
     for sid, spec in catalog["scenarios"].items():
         if sid == "S8":
             assert spec["ns3"] is None and spec["backend"] == "NORI_NS3"

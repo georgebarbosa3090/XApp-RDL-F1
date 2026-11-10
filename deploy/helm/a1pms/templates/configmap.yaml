@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  application_configuration.json: |
+    {{- $rics := list }}
+    {{- range .Values.rics }}
+    {{- $ric := dict "name" .name "baseUrl" .baseUrl "managedElementIds" .managedElementIds }}
+    {{- if .customAdapterClass }}{{- $_ := set $ric "customAdapterClass" .customAdapterClass }}{{- end }}
+    {{- $rics = append $rics $ric }}
+    {{- end }}
+    {{ dict "config" (dict "ric" $rics) | toJson }}
+  # Cópia do application.yaml oficial (it/dep l-release 0671fb2), com database-enabled: false
+  application.yaml: |
+{{ .Files.Get "files/application.yaml" | indent 4 }}

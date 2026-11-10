@@ -1,0 +1,6 @@
+apiVersion: v2
+name: a1pms
+description: Non-RT RIC leve da bancada — A1 Policy Management Service do O-RAN SC (imagem oficial) ligado ao A1 Mediator do Near-RT RIC (doc 10)
+type: application
+version: 0.1.0
+appVersion: "2.8.0"

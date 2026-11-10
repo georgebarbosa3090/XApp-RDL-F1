@@ -25,10 +25,10 @@ def decide(scenario):
     return cl.decide_catalog(scenario, "gnb_268_341_00000001", NODE, UES, CATALOG)
 
 
-def test_catalog_has_s0_to_s8_and_s8_is_nori_only():
-    assert sorted(CATALOG["scenarios"]) == [f"S{i}" for i in range(9)]
+def test_catalog_scenarios_and_s8_is_nori_only():
+    assert sorted(CATALOG["scenarios"]) == sorted([f"S{i}" for i in range(16)] + ["G1", "G2"])
     assert CATALOG["scenarios"]["S8"]["ns3"] is None and CATALOG["scenarios"]["S8"]["backend"] == "NORI_NS3"
-    assert all(CATALOG["scenarios"][f"S{i}"]["ns3"] for i in range(8))
+    assert all(spec["ns3"] for sid, spec in CATALOG["scenarios"].items() if sid != "S8")
 
 
 def test_actions_keep_the_source_gnb_in_the_target():

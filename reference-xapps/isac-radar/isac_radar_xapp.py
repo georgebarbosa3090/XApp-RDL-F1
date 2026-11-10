@@ -1,7 +1,9 @@
 """
 ISAC Radar Reference xApp (6G Integrated Sensing and Communication)
-Papel no RDL: Controladora de Sensoriamento Ambiental e Radar.
-Gera propostas para SENSING_RATIO e RADAR_BURST_PERIOD (Prioridade: 85, Fatia: SENSING).
+Escrita para este projeto (experimental).
+Gera propostas de SENSING_RATIO (prioridade 85) com valor fixo; não lê KPM e não envia as
+propostas à RDL. SENSING_RATIO não está no catálogo de parâmetros da RDL, então o Safety
+Guard a rejeita; RADAR_BURST_PERIOD não é implementado.
 """
 
 import time

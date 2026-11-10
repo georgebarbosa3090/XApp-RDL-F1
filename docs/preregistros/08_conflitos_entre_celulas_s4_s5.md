@@ -36,3 +36,26 @@ Até 2026-11-10 a H-RDL não detectava conflitos entre células (achado 11), e a
 - Execução com falha do ns-3 é repetida uma vez com a mesma semente; se falhar de novo, entra como falha no relato.
 - H9.1 e H9.2 se aplicam por execução; o relato lista as que não cumprirem.
 - Nada fixado aqui é alterado depois de ver os dados.
+
+## 6. Resultados (anexados em 2026-11-10, depois das execuções)
+
+Execuções: `experiments/runs/nr_{S4,S5}_{B0..B3}_seed1006..1010` (40, todas concluídas), commit `08a67474`. Análise: `reports/conflicts/conflict_analysis_20261110T222136Z.json`.
+
+| Hipótese | Resultado |
+| :-- | :-- |
+| **H9.1** (cronograma do B3) | **Confirmada em 10/10.** S4: um único handover em 15,2 s e nenhum `TX_POWER` na gNB1. S5: os 4 handovers do Traffic Steering e nenhum do Load Balancer. |
+| **H9.2** (ações aplicadas = cronograma) | **Confirmada em 35/40, refutada em 5/5 do S5/B3.** No S5/B3, dos 4 handovers agendados só 1 ou 2 têm efeito (`APPLIED`); os outros saem `NO_EFFECT`, porque sem o handover de volta os UEs já não estão na gNB0. A hipótese não previu isso. |
+| **H9.3** (S4: vazão do B3 > B0 em ≥ 4/5) | **Refutada (0/5).** Vazão na janela de conflito: B3 21,89 Mb/s nas cinco sementes; B0 23,60–24,30 Mb/s. Manter a gNB1 em potência plena com os UEs recebidos não aumentou a vazão agregada; o mecanismo não foi investigado (exploratório). |
+
+Descritivo (sem hipótese):
+
+| Cenário | Métrica na janela de conflito | B0 | B1 = B2 | B3 |
+| :-- | :-- | :-- | :-- | :-- |
+| S4 | vazão (Mb/s) | 23,60–24,30 | 23,61–24,06 | 21,89 |
+| S4 | atraso (ms) | 152,4–154,9 | 150,0–151,0 | 150,4 |
+| S5 | vazão (Mb/s) | 7,43–9,16 | 7,45–9,15 | **9,47–9,82** |
+| S5 | atraso (ms) | 22,6–97,1 | 22,2–96,2 | **5,3–23,2** |
+
+No S5, suprimir o ping-pong melhorou vazão e atraso em 5/5 sementes pareadas.
+
+**Desvio de desenho (achado 54 do docs/07):** no S4, a semente não altera a topologia nem o tráfego (vazão antes do conflito idêntica, 32,36 Mb/s, em todas as sementes). Ela só pesa quando a potência cai e o canal entra em regime de erro. Sem corte de potência, o B3 é determinístico, e as cinco sementes do S4/B3 não são réplicas independentes.

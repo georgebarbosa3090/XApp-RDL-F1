@@ -1,7 +1,9 @@
 """
 Beamformer Reference xApp (5G-Advanced Massive MIMO & Downtilt Optimizer)
-Papel no RDL: Otimizadora de Feixes e Inclinacao Eletrica Vertical (Vertical Downtilt).
-Gera propostas para VERTICAL_DOWNTILT e BEAM_WEIGHTS (Prioridade: 75).
+Escrita para este projeto (experimental).
+Gera propostas de VERTICAL_DOWNTILT (prioridade 75) com valor fixo; não lê KPM e não envia
+as propostas à RDL. VERTICAL_DOWNTILT não está no catálogo de parâmetros da RDL, então o
+Safety Guard a rejeita; BEAM_WEIGHTS não é implementado.
 """
 
 import time

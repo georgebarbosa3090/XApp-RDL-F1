@@ -38,6 +38,8 @@ class Refinement:
         # Restrições de política A1 (ver apply_policy); None = sem restrição adicional
         self.policy_max_prb_quota: Optional[float] = None
         self.policy_allow_cell_sleep: bool = True
+        # Verificação opcional do destino de HANDOVER contra a topologia conhecida (grafo de conhecimento)
+        self.handover_target_check: Optional[Callable[[XAppAction], bool]] = None
 
     def apply_policy(
         self,
@@ -137,6 +139,9 @@ class Refinement:
             return False, f"PRB_QUOTA above A1 policy limit ({self.policy_max_prb_quota:g})"
         if action.parameter == "CELL_STATE" and value == 0 and not self.policy_allow_cell_sleep:
             return False, "Cell sleep not allowed by A1 policy"
+        if action.parameter == "HANDOVER" and self.handover_target_check is not None \
+                and not self.handover_target_check(action):
+            return False, "HANDOVER target cell is outside the known topology"
 
         if self.config.get("enforce_slew_rate", False):
             get_committed = self.committed_action_lookup or getattr(self.memory, "get_committed_action", None)

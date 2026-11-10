@@ -1,7 +1,8 @@
 """
-Load Balancer Reference xApp (O-RAN SC Standard lb-xapp)
-Papel no RDL: Balanceamento de Carga entre Portadoras e Estacoes-Base Vizinhas.
-Gera propostas para LOAD_THRESHOLD e CARRIER_PRB_ALLOCATION (Prioridade: 70).
+Load Balancer (experimental, escrito para este projeto; não é uma xApp do O-RAN SC)
+Gera propostas de LOAD_THRESHOLD (prioridade 70) com valor fixo de configuração; não lê KPM
+e não envia as propostas à RDL. LOAD_THRESHOLD não está no catálogo de parâmetros da RDL
+(src/e2/rc/control_parameter.py), então o Safety Guard a rejeita (default-deny).
 """
 
 import time

@@ -41,6 +41,8 @@ class HealthServer:
         self.server_thread = None
         # Callback(body) -> bool | None para notificações assíncronas do SubMgr.
         self.subscription_callback = None
+        # Callable(full: bool) -> dict com o grafo de conhecimento (GET /kg)
+        self.knowledge_graph_provider = None
 
         if HAS_FASTAPI:
             self.app = FastAPI(title="RDL xApp Health Server")
@@ -73,6 +75,15 @@ class HealthServer:
                     response.status_code = 404
                     return {"error": "unknown subscription"}
                 return {}
+
+            @self.app.get("/kg")
+            def knowledge_graph(full: bool = False, response: Response = None):
+                provider = self.knowledge_graph_provider
+                if provider is None:
+                    if response is not None:
+                        response.status_code = 404
+                    return {"error": "knowledge graph unavailable"}
+                return provider(full)
 
             @self.app.get("/status")
             def get_status():

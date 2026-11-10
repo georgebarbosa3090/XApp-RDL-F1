@@ -32,7 +32,7 @@ class A1PolicyManager:
         self.policy_types: Dict[str, Dict[str, Any]] = {
             "20000": {
                 "name": "ORAN_RDL_Governance_Policy",
-                "description": "Diretrizes de priorização e cotas globais para xApp RDL",
+                "description": "Diretrizes de priorizacao e cotas globais para a xApp RDL",
                 "schema": {
                     "type": "object",
                     "properties": {
@@ -47,7 +47,7 @@ class A1PolicyManager:
             # repassa à coordenação Near-RT entre xApp1-RANSlicer e xApp2-EnergySaver.
             "20001": {
                 "name": "GreenRAN_Intent_Policy",
-                "description": "Peso de energia e de SLA na arbitragem e regras de economia entre células",
+                "description": "Peso de energia e de SLA na arbitragem e regras de economia entre celulas",
                 "schema": {
                     "type": "object",
                     "properties": {
@@ -55,6 +55,18 @@ class A1PolicyManager:
                         "sla_weight": {"type": "number", "minimum": 0.1, "maximum": 0.8},
                         "allow_neighbor_sleep": {"type": "boolean"},
                         "low_power_threshold_dbm": {"type": "number", "minimum": -10, "maximum": 43}
+                    }
+                }
+            },
+            # CA-RDL (Fase 2): liga/desliga a arbitragem MAPPO; a H-RDL só armazena e ignora
+            "20002": {
+                "name": "CARDL_Model_Policy",
+                "description": "Liga ou desliga a arbitragem MAPPO da CA-RDL e ajusta a confianca minima (reserva: H-RDL)",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "marl_enabled": {"type": "boolean"},
+                        "min_confidence": {"type": "number", "minimum": 0, "maximum": 1}
                     }
                 }
             }

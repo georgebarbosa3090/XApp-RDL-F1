@@ -1,0 +1,55 @@
+{{- if .Values.oscAdapter.enabled }}
+# Adaptador entre o A1-PMS e o A1 Mediator do O-RAN SC (ver files/a1_osc_adapter.py)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-osc-adapter
+data:
+  a1_osc_adapter.py: |
+{{ .Files.Get "files/a1_osc_adapter.py" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-osc-adapter
+  labels: {app: {{ .Release.Name }}-osc-adapter}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: {{ .Release.Name }}-osc-adapter}
+  template:
+    metadata:
+      labels: {app: {{ .Release.Name }}-osc-adapter}
+      annotations:
+        checksum/code: {{ .Files.Get "files/a1_osc_adapter.py" | sha256sum }}
+    spec:
+      containers:
+        - name: adapter
+          image: {{ .Values.oscAdapter.image }}
+          command: ["python", "/app/a1_osc_adapter.py"]
+          env:
+            - {name: A1_UPSTREAM, value: {{ .Values.oscAdapter.upstream | quote }}}
+            - {name: PORT, value: "10000"}
+          ports:
+            - {name: http, containerPort: 10000}
+          readinessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 5
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {cpu: 200m, memory: 96Mi}
+          volumeMounts:
+            - {name: code, mountPath: /app}
+      volumes:
+        - name: code
+          configMap: {name: {{ .Release.Name }}-osc-adapter}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-osc-adapter
+spec:
+  selector: {app: {{ .Release.Name }}-osc-adapter}
+  ports:
+    - {name: http, port: 10000, targetPort: http}
+{{- end }}

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels: {app: {{ .Release.Name }}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: {{ .Release.Name }}}
+  template:
+    metadata:
+      labels: {app: {{ .Release.Name }}}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      initContainers:
+        # O A1-PMS reescreve o arquivo de configuração: copia a versão inicial para um volume gravável
+        - name: copy-config
+          image: busybox:1.36
+          command: ["sh", "-c", "cp /initial/application_configuration.json /var/policy-management-service/ && chmod 666 /var/policy-management-service/application_configuration.json"]
+          volumeMounts:
+            - {name: config, mountPath: /initial}
+            - {name: vardata, mountPath: /var/policy-management-service}
+      containers:
+        - name: a1pms
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - {name: JAVA_TOOL_OPTIONS, value: {{ .Values.javaOptions | quote }}}
+          ports:
+            - {name: http, containerPort: {{ .Values.service.httpPort }}}
+          # Mesmas sondas do chart oficial (it/dep nonrtric/helm/policymanagementservice)
+          readinessProbe:
+            tcpSocket: {port: http}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /status, port: http}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - {name: vardata, mountPath: /var/policy-management-service}
+            - {name: config, mountPath: /opt/app/policy-agent/config/application.yaml, subPath: application.yaml}
+      volumes:
+        - name: config
+          configMap: {name: {{ .Release.Name }}-config}
+        - name: vardata
+          emptyDir: {}

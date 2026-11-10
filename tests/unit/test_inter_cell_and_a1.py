@@ -252,3 +252,8 @@ def test_handover_hold_limits_protection():
     p = Perception(inter_cell_rules=InterCellRules(handover_hold_s=30.0))
     p.commit_actions([act("traffic_steering", "gnb_0", "HANDOVER", 1, 80, ts=time.time() - 60.0)])
     assert inter_cell(p.detect_action_group([act("energy_saving", "gnb_1", "TX_POWER", 0, 65)])) == []
+
+
+def test_handover_target_keeps_zero_padding():
+    assert default_handover_target(act("ts", "gnb_01", "HANDOVER", 2, 80)) == "gnb_02"
+    assert default_handover_target(act("ts", "gnb_0", "HANDOVER", 12, 80)) == "gnb_12"

@@ -211,7 +211,25 @@ def decide(scenario_id: str, baseline: str, catalog: Dict[str, Any]):
     spec = catalog["scenarios"][scenario_id]
     events = expand_proposals(spec)
     window = float(catalog.get("decision_window_s", 0.2))
-    schedule, log = DECIDERS[baseline](events, window)
+    # Topologia do cenário (vizinhança entre gNBs) para as regras entre células do B3
+    topology_file = None
+    if spec.get("topology"):
+        import tempfile
+        fd, topology_file = tempfile.mkstemp(suffix=".json", prefix="rdl_topology_")
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(spec["topology"], fh)
+    previous = os.environ.get("RDL_TOPOLOGY_FILE")
+    if topology_file:
+        os.environ["RDL_TOPOLOGY_FILE"] = topology_file
+    try:
+        schedule, log = DECIDERS[baseline](events, window)
+    finally:
+        if topology_file:
+            os.remove(topology_file)
+            if previous is None:
+                os.environ.pop("RDL_TOPOLOGY_FILE", None)
+            else:
+                os.environ["RDL_TOPOLOGY_FILE"] = previous
     schedule.sort(key=lambda r: (r["time_s"], r["action_id"]))
     return spec, events, schedule, log
 

@@ -24,7 +24,9 @@
 | 05 | [Observabilidade e campanhas](05_observabilidade_e_campanhas.md) | Painel tmux, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), InfluxDB e Grafana, campanhas NORI e nativa |
 | 06 | [Metodologia e resultados](06_metodologia_e_resultados.md) | Pergunta, desenho, métricas, proveniência, resultados da pilha nativa e da bancada com E2 real (fases 1–4, campanha S0–S8, v6, v7, G5), ameaças à validade |
 | 07 | [Certificação, conformidade e achados](07_certificacao_e_achados.md) | Versões de especificação, estado por interface, gates G0–G6, registro de achados e correções |
-| — | [Pré-registros](preregistros/README.md) | Desenhos v2–v7 da fase 4 e campanha do G5, cada um com o resultado registrado depois |
+| 09 | [Frameworks e ações críticas](09_frameworks_e_acoes_criticas.md) | Frameworks avaliados para o GreenRAN; classes de urgência e alternativas fora da RDL (dApps, E2SM-RC Policy, guarda na DU, A1) |
+| 10 | [SMO, Non-RT RIC e rApp](10_smo_non_rt_ric_e_rapp.md) | A1-PMS do O-RAN SC na bancada, A1 via RMR, fluxo de ML do MAPPO, passo a passo do SMO completo |
+| — | [Pré-registros](preregistros/README.md) | Desenhos v2–v7 da fase 4, campanha do G5 e conflitos entre células (08), cada um com o resultado registrado depois |
 
 ## Glossário curto
 

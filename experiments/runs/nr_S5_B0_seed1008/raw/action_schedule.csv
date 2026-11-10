@@ -1,0 +1,9 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+18.0,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-18.000
+19.0,1,HANDOVER,0.0,-1,load_balancer,load_balancer-g1-HANDOVER-19.000
+20.0,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-20.000
+21.0,1,HANDOVER,0.0,-1,load_balancer,load_balancer-g1-HANDOVER-21.000
+22.0,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-22.000
+23.0,1,HANDOVER,0.0,-1,load_balancer,load_balancer-g1-HANDOVER-23.000
+24.0,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-24.000
+25.0,1,HANDOVER,0.0,-1,load_balancer,load_balancer-g1-HANDOVER-25.000

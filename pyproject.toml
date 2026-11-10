@@ -40,3 +40,9 @@ test = [
 
 [tool.pyright]
 extraPaths = ["."]
+
+[tool.setuptools.packages.find]
+# O pacote se chama "src" (importado como src.core, src.e2...). Sem isto o setuptools trata
+# src/ como raiz de layout e instala os subpacotes soltos, e a Fase 2 não consegue importá-lo.
+where = ["."]
+include = ["src", "src.*"]

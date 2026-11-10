@@ -3,12 +3,12 @@ Suíte de Testes de Integração para as 8 Reference xApps e o H-RDL
 Testa:
   1. qos-xslice (PRB_QUOTA, SCHEDULER_WEIGHT)
   2. energy-saving (TX_POWER, SLEEP_MODE)
-  3. traffic-steering (HANDOVER, CIO_OFFSET)
+  3. traffic-steering (HANDOVER)
   4. beamformer (VERTICAL_DOWNTILT, BEAM_WEIGHTS)
   5. isac-radar (SENSING_RATIO, RADAR_PERIOD)
-  6. rogue-xapp (TX_POWER Flapping, PRB_QUOTA Inseguro)
-  7. load-balancer (LOAD_THRESHOLD, CARRIER_PRB_ALLOCATION)
-  8. bouncer (PING_INTERVAL, E2_LOOPBACK_FLAG)
+  6. rogue-xapp (TX_POWER alternando 45/5 dBm)
+  7. load-balancer (LOAD_THRESHOLD)
+  8. bouncer (PING_INTERVAL)
 """
 
 import pytest
@@ -99,3 +99,47 @@ def test_retired_discrete_event_simulator_is_disabled():
     """Ensures the former local simulator cannot be run as experimental evidence."""
     with pytest.raises(RuntimeError, match="disabled.*ns-3 and 5G-LENA"):
         DiscreteEventRANSimulator(seed=42)
+
+
+def test_reference_xapps_contract_with_rdl_safety_guard():
+    """Adequação (2026-11-10): que propostas das xApps de referência a RDL aceita (default-deny).
+
+    As xApps derivadas de trabalhos (xSlice, Energy Saving, Traffic Steering) usam parâmetros do
+    catálogo da RDL; as escritas para este projeto (Beamformer, ISAC, Load Balancer, Bouncer)
+    propõem parâmetros fora do catálogo e são rejeitadas antes da arbitragem.
+    """
+    from src.core.inter_cell import default_handover_target
+
+    xapps = {
+        "xslice": XSliceXApp(http_port=19182, metrics_port=19183).generate_action_proposal(node_id="gnb_01", prb_quota=85.0),
+        "es": EnergySavingXApp(http_port=19184, metrics_port=19185).generate_action_proposal(node_id="gnb_01", tx_power=15.0),
+        "ts": TrafficSteeringXApp(http_port=19186, metrics_port=19187).generate_action_proposal(
+            source_node="gnb_01", target_node="gnb_02", target_ue="UE-01"),
+        "bf": BeamformerXApp(http_port=19188, metrics_port=19189).generate_action_proposal(node_id="gnb_01", downtilt=7.5),
+        "isac": ISACRadarXApp(http_port=19190, metrics_port=19191).generate_action_proposal(node_id="gnb_01", sensing_ratio=0.35),
+        "lb": LoadBalancerXApp(http_port=19194, metrics_port=19195).generate_action_proposal(node_id="gnb_01", threshold=0.80),
+        "bouncer": BouncerXApp(http_port=19196, metrics_port=19197).generate_action_proposal(node_id="gnb_01", interval_ms=100.0),
+    }
+    guard = Refinement(MemoryModule())
+    accepted = {}
+    actions = {}
+    for name, p in xapps.items():
+        action = XAppAction(xapp_id=p["xapp_id"], node_id=p["node_id"], parameter=p["parameter"],
+                            value=float(p["value"]), priority=int(p["priority"]))
+        actions[name] = action
+        accepted[name] = guard.check_bounds(action)[0]
+    assert accepted == {"xslice": True, "es": True, "ts": True,
+                        "bf": False, "isac": False, "lb": False, "bouncer": False}
+
+    # HANDOVER: value é o índice da célula de destino, coerente com target_node
+    assert xapps["ts"]["value"] == 2.0
+    assert default_handover_target(actions["ts"]) == "gnb_02"
+
+    # Rogue alterna 45 dBm (rejeitada) e 5 dBm (aceita)
+    rogue = RogueXApp(http_port=19192, metrics_port=19193)
+    results = []
+    for _ in range(2):
+        p = rogue.generate_action_proposal(node_id="gnb_01")
+        results.append(guard.check_bounds(XAppAction(xapp_id=p["xapp_id"], node_id="gnb_01", parameter=p["parameter"],
+                                                     value=float(p["value"]), priority=int(p["priority"])))[0])
+    assert sorted(results) == [False, True]

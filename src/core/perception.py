@@ -2,6 +2,7 @@ import time
 from typing import Dict, List, Optional, Tuple
 from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
 from src.core.inter_cell import HANDOVER_INTO_REDUCED_CELL, InterCellRules
+from src.core.knowledge_graph import KnowledgeGraph
 
 
 class Perception:
@@ -11,10 +12,13 @@ class Perception:
     manutenção do grafo de dependência de KPIs e detecção determinística de
     colisões e conflitos multi-xApp, inclusive entre células vizinhas.
     """
-    def __init__(self, kpm_ttl_s: float = 1.0, inter_cell_rules: Optional[InterCellRules] = None):
+    def __init__(self, kpm_ttl_s: float = 1.0, inter_cell_rules: Optional[InterCellRules] = None,
+                 knowledge_graph: Optional[KnowledgeGraph] = None):
         self.kpm_ttl_s = kpm_ttl_s
         # Regras e topologia (vizinhança entre células) para conflitos entre células
         self.inter_cell_rules = inter_cell_rules or InterCellRules()
+        # Grafo de conhecimento: topologia, parâmetro -> KPIs e histórico de conflitos/decisões
+        self.knowledge_graph = knowledge_graph or KnowledgeGraph()
         # Grafo de dependências KPI modelando as relações lógicas da rede
         self.kpi_dependency_graph = {
             "PRB_QUOTA": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
@@ -28,6 +32,11 @@ class Perception:
             "PING_INTERVAL": ["DRB.RlcSduDelayDl"],
             "CELL_STATE": ["DRB.UEThpDl", "RRU.PrbUsedDl", "L1M.DL-sinr"],
         }
+        for parameter, kpis in self.kpi_dependency_graph.items():
+            self.knowledge_graph.add_parameter(parameter, kpis)
+        for node, adjacent in self.inter_cell_rules.neighbors.items():
+            for other in adjacent:
+                self.knowledge_graph.add_neighbors(node, other)
         # Registro das últimas ações: node_id -> parameter -> XAppAction
         self._action_registry: Dict[str, Dict[str, XAppAction]] = {}
         self.latest_kpm: Optional[KPMReport] = None

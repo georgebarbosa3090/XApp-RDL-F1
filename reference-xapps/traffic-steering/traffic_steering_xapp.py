@@ -1,8 +1,10 @@
 """
-Traffic Steering Reference xApp (Mobility & Load Balancing Optimizer)
-Baseado em: o-ran-sc/ric-app-ts / natanzi/ts-xapp (O-RAN Software Community)
-Papel no RDL: Controladora de Mobilidade, Handover e Balanceamento de Tráfego.
-Gera propostas de alta prioridade (Prio: 80) para HANDOVER e TX_POWER boost.
+Traffic Steering (implementação local, escrita para este projeto)
+Inspira-se no papel da o-ran-sc/ric-app-ts, sem conter código dela.
+Papel no RDL: gera propostas de HANDOVER (prioridade 80) com valor fixo de configuração;
+não lê KPM, e as cargas exportadas nas métricas são constantes.
+Contrato com a RDL: ``value`` é o índice da célula de destino (o mesmo do catálogo de
+cenários e das regras entre células); ``target_node`` é só informativo.
 """
 
 import time
@@ -65,12 +67,15 @@ class TrafficSteeringXApp:
         self.priority = 80
 
     def generate_action_proposal(self, source_node: str = "gnb_01", target_node: str = "gnb_02", target_ue: str = "UE-07") -> Dict[str, Any]:
-        """Gera proposta estruturada de Handover compatível com o componente Perception da xApp RDL."""
+        """Gera proposta de Handover: ``value`` = índice da célula de destino (sufixo numérico de target_node)."""
+        digits = "".join(ch for ch in reversed(target_node) if ch.isdigit())[::-1]
+        if not digits or not target_node.endswith(digits):
+            raise ValueError(f"target_node sem índice numérico final: {target_node!r}")
         proposal = {
             "xapp_id": self.xapp_id,
             "node_id": source_node,
             "parameter": "HANDOVER",
-            "value": 1.0,
+            "value": float(int(digits)),
             "target_node": target_node,
             "target_ue": target_ue,
             "priority": self.priority,

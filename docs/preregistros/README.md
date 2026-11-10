@@ -18,4 +18,4 @@ O resultado é anexado depois, sem alterar o que foi fixado. A ordem é cronoló
 | 05 | [Fase 4, desenho v6](05_fase4_v6.md) | efeito relativo à vazão sem restrição (achados 41 e 42), H6.1–H6.4, sementes 2001–2005 | 30/30 `CONSISTENT`; regra adotada no G4 |
 | 06 | [Fase 4, desenho v7](06_fase4_v7.md) | teste da H6.4: outra vazão de base (50 MHz), sementes 4001–4005 | 30/30 `INCONSISTENT`; H6.4 refutada para mudança de banda (teto em PRBs absolutos) |
 | 07 | [Campanha do G5](07_campanha_g5_s8.md) | S8 × B0–B3 × sementes 5001–5030 com E2 real, H8.1–H8.3 | G5 certificado (30 pares); desvios e reposições declarados |
-| 08 | [Conflitos entre células: S4 e S5](08_conflitos_entre_celulas_s4_s5.md) | decisão `INTER_CELL` do B3 na RAN simulada, S4/S5 × B0–B3 × sementes 1006–1010, H9.1–H9.3 | em execução |
+| 08 | [Conflitos entre células: S4 e S5](08_conflitos_entre_celulas_s4_s5.md) | decisão `INTER_CELL` do B3 na RAN simulada, S4/S5 × B0–B3 × sementes 1006–1010, H9.1–H9.3 | H9.1 confirmada (10/10); H9.2 refutada no S5/B3 (handovers sem UEs); H9.3 refutada (vazão do S4 menor no B3); S5: ping-pong suprimido melhorou vazão e atraso |
