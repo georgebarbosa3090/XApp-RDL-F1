@@ -7,5 +7,6 @@
   },
   "low_power_threshold_dbm": 10,
   "pingpong_window_s": 5,
+  "handover_hold_s": null,
   "allow_neighbor_sleep": false
 }

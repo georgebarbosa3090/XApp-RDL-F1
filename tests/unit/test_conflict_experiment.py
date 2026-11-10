@@ -172,3 +172,16 @@ def test_rdl_xapp_drops_unsafe_proposal_before_arbitration():
         assert [a.xapp_id for a in dispatched] == ["xslice"]
     finally:
         app.stop()
+
+
+def test_b3_inter_cell_schedules_for_s4_and_s5(catalog):
+    """Pré-registro 08, H9.1: cronograma determinístico do B3 nos conflitos entre células."""
+    _, _, s4, _ = driver.decide("S4", "B3", catalog)
+    assert [(e["gnb"], e["parameter"], e["time_s"]) for e in s4] == [(0, "HANDOVER", 15.2)]
+    _, _, s4_b0, _ = driver.decide("S4", "B0", catalog)
+    assert sum(1 for e in s4_b0 if e["parameter"] == "TX_POWER" and e["gnb"] == 1) == 10
+
+    _, _, s5, _ = driver.decide("S5", "B3", catalog)
+    assert [(e["xapp_id"], e["time_s"]) for e in s5] == [("traffic_steering", t) for t in (18.2, 20.2, 22.2, 24.2)]
+    _, _, s5_b0, _ = driver.decide("S5", "B0", catalog)
+    assert len(s5_b0) == 8

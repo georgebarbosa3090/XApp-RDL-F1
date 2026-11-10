@@ -18,7 +18,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 338 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 341 testes unitários passando | `tests/` |
 | Adequação ao testbed UFPA do GreenRAN (OpenRAN@Brasil) | implementado no código em 2026-11-10, sem execução no testbed: conflitos **entre células** (handover × célula desligada/reduzida, ping-pong, vizinhas dormindo), parâmetro `CELL_STATE` (despacho fail-closed até o nó anunciá-lo), políticas A1 ligadas à decisão (tipo 20001 `GreenRAN_Intent_Policy`). Gates TB0–TB10 e GR1–GR4 pendentes | [perfil](docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md), [relatório de adequação](reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md), [docs/07, achado 52](docs/07_certificacao_e_achados.md) |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/preregistros/05_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. No desenho [v7](docs/preregistros/06_fase4_v7.md), com a banda reduzida a 50 MHz, as 30 execuções saíram `INCONSISTENT`: o teto age em PRBs absolutos da portadora, e a regra relativa só vale na banda da calibração | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/06, seção 5.5](docs/06_metodologia_e_resultados.md#55-campanha-nori-s0s8--10011005-2026-11-09) |
@@ -99,7 +99,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (338)
+uv run pytest -q                         # testes (341)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

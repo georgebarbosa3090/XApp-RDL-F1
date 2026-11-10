@@ -142,12 +142,17 @@ def baseline_b3(events, window):
     os.environ.setdefault("USE_FAKE_SDL", "True")
     os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
     from src.conflict_types import XAppAction
+    import src.core.perception as perception_module
     import src.core.refinement as refinement_module
     from src.rdl_xapp import RDLxApp
 
     clock = _SimClock()
+    # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
+    # as janelas são decididas em sequência, em milissegundos de tempo real.
     original_time = refinement_module.time
+    original_perception_time = perception_module.time
     refinement_module.time = types.SimpleNamespace(time=clock.time)
+    perception_module.time = types.SimpleNamespace(time=clock.time)
     logging.disable(logging.INFO)  # mantém a saída ao vivo legível; avisos continuam visíveis
     app = RDLxApp()
     by_id = {e["id"]: e for e in events}
@@ -180,7 +185,8 @@ def baseline_b3(events, window):
             t_close = (k + 1) * window
             clock.now = t_close
             actions = [XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
-                                  value=e["value"], priority=e["priority"], action_id=e["id"]) for e in group]
+                                  value=e["value"], priority=e["priority"], action_id=e["id"],
+                                  timestamp=t_close) for e in group]
             before, res_before = len(dispatched), len(resolutions)
             started = _time.perf_counter()
             app._process_action_group(actions)
@@ -192,6 +198,7 @@ def baseline_b3(events, window):
                         "decision_wall_ms": round(latency_ms, 3), "rule": "hrdl-pipeline"})
     finally:
         refinement_module.time = original_time
+        perception_module.time = original_perception_time
         logging.disable(logging.NOTSET)
         app.stop()
     return schedule, log

@@ -144,7 +144,8 @@ class Perception:
 
         Considera as propostas da janela e, para alvos sem proposta, a última ação
         confirmada pela RAN: estados persistentes (célula desligada, potência reduzida)
-        sempre; handovers confirmados só dentro de ``pingpong_window_s``. Só as ações
+        sempre; handovers confirmados até serem substituídos (ou por ``handover_hold_s``),
+        com o ping-pong limitado a ``pingpong_window_s`` entre os dois handovers. Só as ações
         relevantes (HANDOVER, CELL_STATE e TX_POWER abaixo do limiar) são indexadas,
         e um evento é gerado por (regra, par de nós).
         """
@@ -161,7 +162,7 @@ class Perception:
                 if (node_id, parameter) in targets_with_proposal:
                     continue
                 if parameter == "HANDOVER":
-                    if now - float(committed.timestamp) <= rules.pingpong_window_s:
+                    if rules.handover_hold_s is None or now - float(committed.timestamp) <= rules.handover_hold_s:
                         relevant.append(committed)
                 elif rules.reduces_cell(committed):
                     relevant.append(committed)

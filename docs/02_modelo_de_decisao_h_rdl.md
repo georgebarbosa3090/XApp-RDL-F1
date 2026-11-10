@@ -95,7 +95,8 @@ Motivo: antes desse passo, uma ação insegura que conflitasse com uma legítima
 | `NEIGHBOR_SLEEP` | duas células vizinhas desligadas por xApps diferentes na mesma decisão; só com topologia configurada e `allow_neighbor_sleep = false` | MEDIUM |
 
 - A célula de destino de um `HANDOVER` é obtida trocando o índice final do nó de origem pelo valor (`gnb_0` com valor 1 → `gnb_1`; `…#g0` → `…#g1`), como no catálogo de cenários.
-- Para alvos sem proposta na janela entra a última ação confirmada pela RAN: estados persistentes (célula desligada, potência reduzida) sempre; handovers confirmados só dentro de `pingpong_window_s`.
+- Para alvos sem proposta na janela entra a última ação confirmada pela RAN: estados persistentes (célula desligada, potência reduzida) sempre. O handover é um evento, mas seu efeito (UEs servidos pela célula de destino) persiste: um handover confirmado protege a célula de destino até ser substituído por outro handover do mesmo nó de origem, ou por `handover_hold_s` segundos quando configurado. O ping-pong exige os dois handovers a até `pingpong_window_s` um do outro.
+- No experimento nativo (B3), a Percepção e o Refinement usam o relógio simulado e cada proposta recebe o instante simulado do fechamento da janela (`scripts/certification/run_conflict_experiment.py`).
 - A topologia (vizinhança) e os parâmetros vêm de um JSON em `RDL_TOPOLOGY_FILE` (exemplo em `configs/testbed_ufpa/topology.example.json`). Sem arquivo, as duas regras de handover continuam ativas e a de vizinhas dormindo fica inativa.
 - **Limitação:** quando a incumbente perde a arbitragem (por exemplo, a potência reduzida já aplicada numa célula para a qual um handover vence), a H-RDL não a reverte por conta própria: só arbitra propostas. Restaurar a célula exige uma proposta de outra xApp.
 

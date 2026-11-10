@@ -8,6 +8,9 @@ subconjuntos fisicamente incompatíveis na arbitragem (EEVS):
 
 - HANDOVER_INTO_REDUCED_CELL: uma xApp move UEs para uma célula enquanto outra
   desliga essa célula (``CELL_STATE = 0``) ou reduz sua potência abaixo de um limiar.
+  O handover é um evento, mas seu efeito (UEs servidos pela célula de destino) persiste:
+  um handover confirmado continua valendo até ser substituído por outro do mesmo nó de
+  origem, ou por ``handover_hold_s`` segundos quando configurado.
 - HANDOVER_PING_PONG: handovers em sentidos opostos entre o mesmo par de células,
   vindos de xApps diferentes, dentro de uma janela de tempo.
 - NEIGHBOR_SLEEP: duas células vizinhas desligadas por xApps diferentes na mesma
@@ -68,6 +71,8 @@ class InterCellRules:
     neighbors: Dict[str, Set[str]] = field(default_factory=dict)
     low_power_threshold_dbm: float = 10.0
     pingpong_window_s: float = 5.0
+    # None: um handover confirmado protege a célula de destino até ser substituído
+    handover_hold_s: Optional[float] = None
     allow_neighbor_sleep: bool = False
     handover_target: Callable[[XAppAction], Optional[str]] = default_handover_target
 
@@ -83,6 +88,7 @@ class InterCellRules:
             neighbors=neighbors,
             low_power_threshold_dbm=float(config.get("low_power_threshold_dbm", 10.0)),
             pingpong_window_s=float(config.get("pingpong_window_s", 5.0)),
+            handover_hold_s=(float(config["handover_hold_s"]) if config.get("handover_hold_s") is not None else None),
             allow_neighbor_sleep=bool(config.get("allow_neighbor_sleep", False)),
         )
 

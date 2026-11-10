@@ -237,3 +237,18 @@ def test_example_topology_file_loads(monkeypatch):
     assert rules.are_neighbors("ufpa_ru_int_1", "ufpa_ru_ext_1")  # vizinhança simétrica
     assert not rules.are_neighbors("ufpa_ru_ext_0", "ufpa_ru_int_1")
     assert rules.allow_neighbor_sleep is False
+
+
+def test_committed_handover_keeps_protecting_target_until_replaced():
+    p = Perception(inter_cell_rules=InterCellRules(pingpong_window_s=5.0))
+    p.commit_actions([act("traffic_steering", "gnb_0", "HANDOVER", 1, 80, ts=time.time() - 60.0)])
+    assert reasons(p.detect_action_group([act("energy_saving", "gnb_1", "TX_POWER", 0, 65)])) == [HANDOVER_INTO_REDUCED_CELL]
+    # Novo handover do mesmo nó de origem para outra célula substitui o anterior
+    p.commit_actions([act("traffic_steering", "gnb_0", "HANDOVER", 2, 80)])
+    assert inter_cell(p.detect_action_group([act("energy_saving", "gnb_1", "TX_POWER", 0, 65)])) == []
+
+
+def test_handover_hold_limits_protection():
+    p = Perception(inter_cell_rules=InterCellRules(handover_hold_s=30.0))
+    p.commit_actions([act("traffic_steering", "gnb_0", "HANDOVER", 1, 80, ts=time.time() - 60.0)])
+    assert inter_cell(p.detect_action_group([act("energy_saving", "gnb_1", "TX_POWER", 0, 65)])) == []
