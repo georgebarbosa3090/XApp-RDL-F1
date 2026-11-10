@@ -13,7 +13,11 @@
  *                                        grupos de UEs: quantidade, centro e raio do disco,
  *                                        intervalo entre pacotes (ms), velocidade constante
  *                                        (m/s; 0,0 = parado) e altura (m)
- *   --channel=UMa|UMi-StreetCanyon|RMa|InH|NTN-Rural|NTN-Suburban|NTN-Urban|NTN-DenseUrban
+ *   --channel=UMa|UMi|RMa|InH|InH-OfficeMixed|NTN-Rural|NTN-Suburban|NTN-Urban|NTN-DenseUrban
+ *                                        Nos cenários NTN-*, o modelo de canal do 5G-LENA exige posições
+ *                                        geocêntricas: --gnbs passa a ser "lat,lon,alt_m" e o centro de cada
+ *                                        grupo de UEs (cx, cy) passa a ser lat, lon; rmin/rmax seguem em
+ *                                        metros e a velocidade é ignorada (terminais fixos).
  *   --txPowerDbm=43                       potência inicial de todos os gNBs
  *   --centralFreq, --bandwidth, --packetSize, --simTime, --seed, --run, --disableSrs
  *   --actionSchedule, --kpiPeriod         atuação e KPIs (rdl-nr-common.h)
@@ -24,6 +28,7 @@
  * =========================================================================================
  */
 
+#include "ns3/antenna-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/flow-monitor-module.h"
@@ -40,6 +45,7 @@
 #define HAS_NR_MODULE 0
 #endif
 
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -125,25 +131,58 @@ main(int argc, char* argv[])
     auto gnbTable = ParseTable(gnbs, 3, "--gnbs");
     auto ueTable = ParseTable(ueGroups, 9, "--ueGroups");
 
+    const bool ntn = channel.rfind("NTN", 0) == 0;
     NodeContainer gnbNodes;
     gnbNodes.Create(gnbTable.size());
-    Ptr<ListPositionAllocator> gnbPos = CreateObject<ListPositionAllocator>();
-    for (const auto& g : gnbTable)
+    if (ntn)
     {
-        gnbPos->Add(Vector(g[0], g[1], g[2]));
+        // Satélite fixo na posição geográfica dada (instantâneo de um feixe LEO)
+        for (uint32_t i = 0; i < gnbNodes.GetN(); ++i)
+        {
+            Ptr<GeocentricConstantPositionMobilityModel> m = CreateObject<GeocentricConstantPositionMobilityModel>();
+            m->SetGeographicPosition(Vector(gnbTable[i][0], gnbTable[i][1], gnbTable[i][2]));
+            gnbNodes.Get(i)->AggregateObject(m);
+        }
     }
-    MobilityHelper gnbMobility;
-    gnbMobility.SetPositionAllocator(gnbPos);
-    gnbMobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
-    gnbMobility.Install(gnbNodes);
+    else
+    {
+        Ptr<ListPositionAllocator> gnbPos = CreateObject<ListPositionAllocator>();
+        for (const auto& g : gnbTable)
+        {
+            gnbPos->Add(Vector(g[0], g[1], g[2]));
+        }
+        MobilityHelper gnbMobility;
+        gnbMobility.SetPositionAllocator(gnbPos);
+        gnbMobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+        gnbMobility.Install(gnbNodes);
+    }
 
     NodeContainer ueNodes;
     std::vector<double> ueInterval;
+    Ptr<UniformRandomVariable> uni = CreateObject<UniformRandomVariable>();
     for (const auto& grp : ueTable)
     {
         uint32_t n = static_cast<uint32_t>(grp[0]);
         NodeContainer group;
         group.Create(n);
+        if (ntn)
+        {
+            // Terminais em terra, num disco de raio [rmin, rmax] m ao redor de (lat, lon)
+            const double kMetersPerDegLat = 111320.0;
+            for (uint32_t i = 0; i < n; ++i)
+            {
+                double r = uni->GetValue(grp[3], grp[4]);
+                double theta = uni->GetValue(0.0, 2 * M_PI);
+                double lat = grp[1] + r * std::cos(theta) / kMetersPerDegLat;
+                double lon = grp[2] + r * std::sin(theta) / (kMetersPerDegLat * std::cos(grp[1] * M_PI / 180.0));
+                Ptr<GeocentricConstantPositionMobilityModel> m = CreateObject<GeocentricConstantPositionMobilityModel>();
+                m->SetGeographicPosition(Vector(lat, lon, grp[8]));
+                group.Get(i)->AggregateObject(m);
+                ueInterval.push_back(grp[5]);
+            }
+            ueNodes.Add(group);
+            continue;
+        }
         MobilityHelper m;
         std::ostringstream rho;
         rho << "ns3::UniformRandomVariable[Min=" << grp[3] << "|Max=" << grp[4] << "]";

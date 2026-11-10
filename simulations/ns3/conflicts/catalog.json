@@ -383,9 +383,9 @@
         "--centralFreq=2e9",
         "--bandwidth=20e6",
         "--txPowerDbm=77",
-        "--gnbs=0,0,600000;40000,0,600000",
-        "--ueGroups=20,0,0,0,15000,100,0,0,1.5;20,40000,0,0,15000,100,0,0,1.5",
-        "--packetSize=200"
+        "--packetSize=200",
+        "--gnbs=-1.45,-48.49,600000;-1.10,-48.49,600000",
+        "--ueGroups=20,-1.45,-48.49,0,15000,100,0,0,1.5;20,-1.10,-48.49,0,15000,100,0,0,1.5"
       ],
       "conflict_window_s": [
         15.0,
@@ -398,7 +398,7 @@
           ]
         }
       },
-      "summary": "NTN direct-to-cell (GreenRAN: sensores rurais via satélite LEO a 600 km, canal 3GPP NTN-Rural, 2 GHz): Traffic Steering move os sensores do feixe 0 para o feixe 1 enquanto o Energy Saving desliga o feixe 1 (CELL_STATE=0) — conflito entre células.",
+      "summary": "NTN direct-to-cell (GreenRAN: sensores rurais via satélite LEO a 600 km, canal 3GPP NTN-Rural, 2 GHz, feixes sobre Belém em posições geocêntricas): Traffic Steering move os sensores do feixe 0 para o feixe 1 enquanto o Energy Saving desliga o feixe 1 (CELL_STATE=0) — conflito entre células.",
       "proposals": [
         {
           "xapp_id": "traffic_steering",
@@ -609,7 +609,7 @@
       "ns3": "scenario_rdl_multicell",
       "args": [
         "--simTime=25",
-        "--channel=UMi-StreetCanyon",
+        "--channel=UMi",
         "--gnbs=0,0,10",
         "--ueGroups=30,0,0,10,100,5,0,0,1.5"
       ],
@@ -649,9 +649,9 @@
         "--centralFreq=2e9",
         "--bandwidth=20e6",
         "--txPowerDbm=77",
-        "--gnbs=0,0,600000;40000,0,600000",
-        "--ueGroups=20,0,0,0,15000,100,0,0,1.5;20,40000,0,0,15000,100,0,0,1.5",
-        "--packetSize=200"
+        "--packetSize=200",
+        "--gnbs=-1.45,-48.49,600000;-1.10,-48.49,600000",
+        "--ueGroups=20,-1.45,-48.49,0,15000,100,0,0,1.5;20,-1.10,-48.49,0,15000,100,0,0,1.5"
       ],
       "conflict_window_s": [
         15.0,
@@ -712,9 +712,10 @@
       "ns3": "scenario_rdl_multicell",
       "args": [
         "--simTime=30",
-        "--channel=UMi-StreetCanyon",
+        "--channel=UMi",
+        "--bandwidth=20e6",
         "--gnbs=0,0,10;150,0,10",
-        "--ueGroups=6,0,0,20,60,0.4,0,0,3;30,75,0,10,120,1000,0,0,0.5",
+        "--ueGroups=6,0,0,20,60,2,0,0,3;30,75,0,10,120,1000,0,0,1.5",
         "--packetSize=1250"
       ],
       "conflict_window_s": [
@@ -728,7 +729,7 @@
           ]
         }
       },
-      "summary": "GreenRAN campus (App1-Vigilância × App2-Monitoramento): 6 câmeras a 25 Mb/s na RU 0 e 30 sensores de baixa taxa; o RANSlicer reserva 80 % de PRB na RU 0 e o EnergySaver pede 30 % (economia de PRBs ativos) — conflito direto na fatia de câmeras.",
+      "summary": "GreenRAN campus (App1-Vigilância × App2-Monitoramento), em escala reduzida: 6 câmeras HD a 5 Mb/s numa portadora de 20 MHz (as câmeras 4K a 25 Mb/s da proposta custariam mais de 45 min de parede por execução) e 30 sensores de baixa taxa; o RANSlicer reserva 80 % de PRB na RU 0 e o EnergySaver pede 30 % (economia de PRBs ativos) — conflito direto na fatia de câmeras.",
       "proposals": [
         {
           "xapp_id": "ranslicer",
@@ -756,7 +757,7 @@
       "ns3": "scenario_rdl_multicell",
       "args": [
         "--simTime=30",
-        "--channel=UMi-StreetCanyon",
+        "--channel=UMi",
         "--gnbs=0,0,10;150,0,10",
         "--ueGroups=10,75,0,0,30,50,0,0,1.5;4,0,0,10,40,200,0,0,1.5"
       ],

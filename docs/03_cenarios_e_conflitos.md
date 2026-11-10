@@ -48,14 +48,14 @@ Desde 2026-11-10 eles foram **reconstruídos** sobre o harness dos S0–S7, num 
 
 | Id | Tema | Canal / topologia | Conflito | Decisão do B3 (cronograma) |
 | :-: | :-- | :-- | :-- | :-- |
-| S9 | NTN *direct-to-cell* (sensores rurais via LEO, caso Skylo do GreenRAN) | `NTN-Rural`, 2 GHz, 2 feixes a 600 km, 77 dBm (EIRP aproximado com antena isotrópica) | handover para o feixe 1 × Energy Saving desliga o feixe 1 | só o handover |
+| S9 | NTN *direct-to-cell* (sensores rurais via LEO, caso Skylo do GreenRAN) | `NTN-Rural`, 2 GHz, 20 MHz, 2 feixes a 600 km sobre Belém em posições geocêntricas (o canal NTN do 5G-LENA exige), 77 dBm (EIRP aproximado com antena isotrópica) | handover para o feixe 1 × Energy Saving desliga o feixe 1 | só o handover |
 | S10 | gNB em UAV com bateria | UMa; macro a 25 m e UAV a 100 m | handover para o UAV × UAV a 5 dBm para poupar bateria | só o handover |
 | S11 | Rodovia (V2X por Uu, 120 km/h) | RMa; 3 gNBs a cada 600 m | ping-pong 0↔1 entre Traffic Steering e Load Balancer | os 4 handovers do Traffic Steering |
 | S12 | Fábrica (IIoT) | InH-OfficeMixed; 1 gNB | xSlice 80 % × Energy Saving 30 % de PRB | xSlice |
 | S13 | Desastre rural | RMa; 3 gNBs | gNB0 falha (CELL_STATE 0, prioridade 100) × handover dos UEs para a gNB1 × Energy Saving desliga a gNB1 | só a falha; o handover de evacuação **não** é admitido (achado 55) |
 | S14 | ISAC como disputa de recursos | UMi; 1 gNB | sensoriamento pede teto de 40 % × xSlice 80 % | xSlice |
 | S15 | xApp maliciosa em NTN | `NTN-Rural`, 2 feixes | handover para célula inexistente e 90 dBm × propostas legítimas | só o handover legítimo |
-| G1 | GreenRAN campus: câmeras × sensores | UMi; 2 RUs; 6 câmeras a 25 Mb/s e 30 sensores | RANSlicer 80 % × EnergySaver 30 % de PRB na RU 0 | RANSlicer |
+| G1 | GreenRAN campus: câmeras × sensores | UMi, 20 MHz; 2 RUs; 6 câmeras HD a 5 Mb/s (escala reduzida; 4K a 25 Mb/s custaria > 45 min por execução) e 30 sensores | RANSlicer 80 % × EnergySaver 30 % de PRB na RU 0 | RANSlicer |
 | G2 | GreenRAN noite, UEs na borda de duas RUs | UMi; 2 RUs | as duas RUs pedem sleep × handover da RU 0 para a RU 1 | RU 0 dorme e seus UEs vão para a RU 1; a RU 1 nunca é desligada |
 
 Limites de modelagem, declarados no catálogo:

@@ -24,6 +24,7 @@
 #ifndef RDL_NR_COMMON_H
 #define RDL_NR_COMMON_H
 
+#include "ns3/antenna-module.h"
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
