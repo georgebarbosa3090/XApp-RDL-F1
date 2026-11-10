@@ -54,6 +54,18 @@ RAN_PARAMETERS: Dict[str, RANParameterDefinition] = {
         max_value=65535.0,
         unit="cell_id",
         description="Identificador da célula alvo para migração de UE"
+    ),
+    # Economia de energia (GreenRAN, atividade A1.3). Sem Control Style padrão no E2SM-RC:
+    # o caminho normativo provável é o E2SM-CCC. Não há capacidade padrão registrada, então
+    # o despacho só ocorre depois que o nó anunciar o parâmetro (fail-closed).
+    "CELL_STATE": RANParameterDefinition(
+        param_id=5,
+        param_name="CELL_STATE",
+        param_type="INTEGER",
+        min_value=0.0,
+        max_value=1.0,
+        unit="state",
+        description="Estado da célula: 0 = desligada (sleep), 1 = ativa"
     )
 }
 
@@ -76,7 +88,7 @@ def validate_ran_parameter(param_name: str, value: float) -> Tuple[bool, int, st
         return False, 99, f"Valor não finito para o parâmetro E2SM-RC: {param_name}"
 
     defn = RAN_PARAMETERS[param_name]
-    if param_name in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER") and not numeric_value.is_integer():
+    if param_name in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER", "CELL_STATE") and not numeric_value.is_integer():
         return False, defn.param_id, f"Valor {numeric_value} deve ser inteiro para {param_name}"
     if param_name == "TX_POWER" and not (numeric_value * 10).is_integer():
         return False, defn.param_id, "TX_POWER aceita no máximo uma casa decimal"

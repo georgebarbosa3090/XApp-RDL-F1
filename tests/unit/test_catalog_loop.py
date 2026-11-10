@@ -62,7 +62,19 @@ def test_non_actuable_reasons():
     assert "E2SM-RC do NORI" in s3["not_actuated"][0]["reason"]
     s5 = decide("S5")
     reasons = {x["target"].rsplit("#", 1)[-1]: x["reason"] for x in s5["not_actuated"]}
-    assert "log" in reasons["g0"] and "gNB 1 não existe" in reasons["g1"]
+    assert "log" in reasons["g0"]
+    # Ping-pong entre células (regra HANDOVER_PING_PONG): o handover de volta do Load
+    # Balancer perde para o do Traffic Steering (prioridade 80 > 70) e nem chega ao NORI.
+    assert "g1" not in reasons
+    assert s5["not_selected"] == ["S5-load_balancer-g1-HANDOVER"]
+
+
+def test_inter_cell_conflict_in_s4_blocks_power_cut_on_handover_target():
+    # Regra HANDOVER_INTO_REDUCED_CELL: o Energy Saving derrubaria a potência da gNB 1
+    # (0 dBm) enquanto o Traffic Steering move UEs para ela; vence o handover (80 > 65).
+    s4 = decide("S4")
+    assert s4["not_selected"] == ["S4-energy_saving-g1-TX_POWER"]
+    assert [x["parameter"] for x in s4["not_actuated"]] == ["HANDOVER"]
 
 
 def test_safety_guard_blocks_rogue_xapp_in_s7():

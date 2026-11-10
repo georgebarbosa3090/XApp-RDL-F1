@@ -1,6 +1,6 @@
 # Integração no testbed OpenRAN@Brasil (planejada)
 
-**Situação:** planejamento. Nenhum gate abaixo foi executado. Depende do perfil srsRAN + Open5GS ([HRDL_F1_SRSRAN_TESTBED_PROFILE.md](HRDL_F1_SRSRAN_TESTBED_PROFILE.md)) e de um codec E2SM-RC normativo.
+**Situação:** planejamento. Nenhum gate abaixo foi executado. Depende do perfil srsRAN + Open5GS ([HRDL_F1_SRSRAN_TESTBED_PROFILE.md](HRDL_F1_SRSRAN_TESTBED_PROFILE.md)) e de um codec E2SM-RC normativo. Para o testbed UFPA do projeto GreenRAN, a pilha (OAI ou srsRAN) ainda será confirmada; o perfil específico, com os gates GR1–GR4, está em [GREENRAN_UFPA_TESTBED_PROFILE.md](GREENRAN_UFPA_TESTBED_PROFILE.md).
 
 ## 1. Arquitetura prevista
 

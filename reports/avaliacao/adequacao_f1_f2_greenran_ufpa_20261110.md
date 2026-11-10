@@ -148,6 +148,14 @@ Consequência: nenhum número da Fase 2 pode ser usado em relatório do GreenRAN
 
 ## 6. Recomendações e roteiro
 
+> **Atualização (2026-11-10):** feitos no código da Fase 1, sem execução no testbed (achado 52 de `docs/07`):
+> - **6.3, item 7:** conflitos entre células detectados e respeitados pelo EEVS.
+> - **6.3, item 8:** política A1 ligada à decisão, com o tipo 20001 `GreenRAN_Intent_Policy`.
+> - **6.2, item 6, parcial:** parâmetro `CELL_STATE`, com despacho *fail-closed* até o nó anunciar a capacidade.
+> - **6.3, item 1, só o modelo:** `configs/testbed_ufpa/profile.yaml`.
+>
+> As perguntas ao hospedeiro e os gates GR1–GR4 estão em `docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`. Ainda faltam a métrica de energia (6.3, item 9) e tudo o que depende do testbed (TB1–TB10).
+
 ### 6.1 Imediato (antes de qualquer apresentação ao GreenRAN)
 
 1. **Sanear a Fase 2**: aplicar o mesmo procedimento do achado 45 da Fase 1 (remover `experiments/runs/S1_*`, `certified_closed_loop_chain`, `experiments/results`, tabelas manuais, `scratch/`), voltar C1–C6 para `NOT_VERIFIED`, retirar do README "Validada Experimentalmente (N=30)", "homologado OpenRAN@Brasil", credenciais e o link do Drive; adicionar `LICENSE`; consertar ou remover os passos do CI que chamam scripts inexistentes.

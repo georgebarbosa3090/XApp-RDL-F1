@@ -84,8 +84,20 @@ Motivo: antes desse passo, uma ação insegura que conflitasse com uma legítima
 | `VERTICAL_DOWNTILT`, `BEAM_WEIGHTS` | `L1M.DL-sinr`, `DRB.UEThpDl` |
 | `SENSING_RATIO`, `LOAD_THRESHOLD` | `RRU.PrbUsedDl`, `DRB.UEThpDl` |
 | `PING_INTERVAL` | `DRB.RlcSduDelayDl` |
+| `CELL_STATE` | `DRB.UEThpDl`, `RRU.PrbUsedDl`, `L1M.DL-sinr` |
 
-**Limitação:** os conflitos são agrupados por `node_id`. Conflitos entre células — por exemplo, Traffic Steering movendo UEs para uma célula que o Energy Saving desliga, ou ping-pong de handover entre duas células — não são detectados.
+**Conflitos entre células** (`ConflictType.INTER_CELL`, desde 2026-11-10; regras em `src/core/inter_cell.py`). Os conflitos acima são agrupados por `node_id`; os entre células são detectados à parte, indexando só as ações relevantes (`HANDOVER`, `CELL_STATE` e `TX_POWER` abaixo do limiar) e gerando um evento por (regra, par de nós). Só valem entre xApps diferentes e nós diferentes:
+
+| Regra | Condição | Severidade |
+| :-- | :-- | :-: |
+| `HANDOVER_INTO_REDUCED_CELL` | uma xApp move UEs para a célula X enquanto outra desliga X (`CELL_STATE = 0`) ou reduz a potência de X para ≤ `low_power_threshold_dbm` (padrão 10 dBm) | HIGH |
+| `HANDOVER_PING_PONG` | handovers em sentidos opostos entre o mesmo par de células, de xApps diferentes, a até `pingpong_window_s` (padrão 5 s) um do outro | MEDIUM |
+| `NEIGHBOR_SLEEP` | duas células vizinhas desligadas por xApps diferentes na mesma decisão; só com topologia configurada e `allow_neighbor_sleep = false` | MEDIUM |
+
+- A célula de destino de um `HANDOVER` é obtida trocando o índice final do nó de origem pelo valor (`gnb_0` com valor 1 → `gnb_1`; `…#g0` → `…#g1`), como no catálogo de cenários.
+- Para alvos sem proposta na janela entra a última ação confirmada pela RAN: estados persistentes (célula desligada, potência reduzida) sempre; handovers confirmados só dentro de `pingpong_window_s`.
+- A topologia (vizinhança) e os parâmetros vêm de um JSON em `RDL_TOPOLOGY_FILE` (exemplo em `configs/testbed_ufpa/topology.example.json`). Sem arquivo, as duas regras de handover continuam ativas e a de vizinhas dormindo fica inativa.
+- **Limitação:** quando a incumbente perde a arbitragem (por exemplo, a potência reduzida já aplicada numa célula para a qual um handover vence), a H-RDL não a reverte por conta própria: só arbitra propostas. Restaurar a célula exige uma proposta de outra xApp.
 
 ### 4.2 Estágio 1 — TVS (conflitos diretos)
 
@@ -101,7 +113,11 @@ com desempate determinístico por (utilidade, prioridade, menor |valor|, `action
 | $s_{SLA}$ | prioridade ≥ 90: 0,98 se PRB ≥ 70, 0,45 se potência < 15 dBm, senão 0,85; ≥ 75: 0,82; ≥ 60: 0,75; senão 0,65. Zera para xApps de energia quando o KPM do nó indica atraso acima de 5 ms. |
 | $s_{energia}$ | `TX_POWER`: modelo linear de potência (4 TRX, P₀ = 130 W, ΔP = 4,7) normalizado entre consumo mínimo e máximo; `PRB_QUOTA`: max(0,2; 1 − v/150); demais: 0,60 |
 | $s_{estab}$ | 0,75 para `HANDOVER`, 0,90 para os demais |
-| $s_{prio}$ | prioridade/100 limitada a [0,1; 1] |
+| $s_{prio}$ | (prioridade + reforço A1)/100 limitada a [0,1; 1]; o reforço (`urllc_priority_boost`) só vale para prioridade ≥ 90 |
+
+Para `CELL_STATE`: $s_{vazão}$ = 0,20 (desligada) ou 0,80 (ativa); $s_{energia}$ = 1 − P_sleep/P₀ ≈ 0,97 (desligada) ou 0,30 (ativa); o $s_{SLA}$ de um desligamento zera quando o KPM do nó indica atraso acima do limite, como para as xApps de energia.
+
+Os pesos de TVS e EEVS podem ser ajustados por política A1 (seção 7.1).
 
 ### 4.3 Estágio 2 — EEVS (conflitos indiretos)
 
@@ -110,7 +126,7 @@ Os conflitos indiretos são resolvidos só entre os vencedores do estágio 1 (pe
 $$U_{EEVS}(S) = 0{,}45\,QoS(S) + 0{,}20\,\overline{energia}(S) + 0{,}15\,J(S) - 0{,}35\,viol(S)$$
 
 - $QoS$: SLA médio ponderado pela prioridade; $J$: índice de Jain sobre os SLAs; $viol$: (prioridade máxima do conflito − prioridade máxima de S)/30, mais 0,20 se S combina uma xApp de energia com uma ação de prioridade ≥ 90.
-- Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro) valem −∞.
+- Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro), ou que violam uma regra entre células (seção 4.1), valem −∞. Os conflitos `INTER_CELL` são resolvidos pelo EEVS depois dos indiretos, com a mesma redução aos vencedores do estágio 1.
 - A busca exata enumera só subconjuntos compatíveis (no máximo uma ação por alvo): $\prod_k (n_k+1) - 1$ combinações. Acima de `max_exact_subsets` (padrão $2^{16}-1$) usa-se uma heurística gulosa determinística, sem garantia de ótimo.
 - Alvos sem vencedor no EEVS são bloqueados no lote.
 
@@ -125,6 +141,7 @@ Confiança registrada: 0,92 (TVS), 0,88 (EEVS exato), 0,70 (EEVS guloso). A reso
 - limites e formato (seção 5);
 - **histerese**: no máximo um controle por alvo a cada 1000 ms (`minimum_control_interval_ms`);
 - **slew-rate** (desligado por padrão): variação máxima de 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado pela RAN, lido da Perception. Ligado sem fonte de estado confirmado, falha fechado.
+- **restrições de política A1** (seção 7.1): teto de `PRB_QUOTA` (`max_cell_prb_limit`), proibição de desligar células (`energy_saving_allowed = false`) e intervalo mínimo de controle (`cooling_lockout_ms`). Uma política só restringe dentro dos limites físicos, nunca os amplia.
 
 Os carimbos de tempo da histerese só são gravados depois que o lote inteiro é decidido.
 
@@ -142,6 +159,9 @@ Catálogo canônico (`src/e2/rc/control_parameter.py`); outros parâmetros são 
 | `SCHEDULER_WEIGHT` | 2 | 1–100 | peso |
 | `TX_POWER` | 3 | −10 a 43 (ou o máximo anunciado pela capacidade do nó) | dBm |
 | `HANDOVER` | 4 | 0–65535 | ID da célula de destino |
+| `CELL_STATE` | 5 | 0 (desligada) ou 1 (ativa) | estado |
+
+`CELL_STATE` atende à economia de energia por desligamento de células do GreenRAN (atividade A1.3 da proposta). O E2SM-RC não tem um Control Style padrão para isso; o caminho normativo provável é o E2SM-CCC (Cell Configuration and Control). Por isso não há capacidade padrão registrada: a H-RDL decide sobre `CELL_STATE`, mas o despacho falha fechado até que o nó anuncie a capacidade.
 
 ## 6. Integração E2
 
@@ -190,13 +210,28 @@ Um E2 Node conforme rejeitaria os controles. O NORI oficial usa E2AP/E2SM **v3.0
 
 O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, conflitos, decisões e respostas de controle por correlação.
 
-O receptor A1 (`src/interfaces/a1_policy_receiver.py`) valida e armazena políticas, mas **não está conectado ao pipeline de decisão**.
+### 7.1 Políticas A1
+
+O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e, desde 2026-11-10, está ligado à decisão: a cada criação, atualização ou remoção, a `RDLxApp` aplica a **política efetiva** (união das políticas ativas; a mais recente prevalece por campo) sobre a configuração de base. Remover todas as políticas restaura a base. O servidor HTTP só sobe com `A1_RECEIVER_PORT` e só aceita *loopback* (não tem autenticação).
+
+| Tipo | Campo | Efeito |
+| :-- | :-- | :-- |
+| 20000 `ORAN_RDL_Governance_Policy` | `urllc_priority_boost` (0–50) | soma à prioridade de ações com prioridade ≥ 90 no $s_{prio}$ |
+| | `energy_saving_allowed` (bool) | `false` bloqueia `CELL_STATE = 0` no Refinement |
+| | `max_cell_prb_limit` (10–100) | teto de `PRB_QUOTA` no Refinement |
+| | `cooling_lockout_ms` (100–5000) | intervalo mínimo de controle por alvo |
+| 20001 `GreenRAN_Intent_Policy` | `energy_weight` (0–0,6) | peso de energia no TVS e no EEVS |
+| | `sla_weight` (0,1–0,8) | peso de SLA no TVS e de QoS no EEVS |
+| | `allow_neighbor_sleep` (bool) | desliga a regra `NEIGHBOR_SLEEP` |
+| | `low_power_threshold_dbm` (−10 a 43) | limiar de potência reduzida das regras entre células |
+
+O tipo 20001 é o ponto de contato previsto com o rApp-ResourceOptimizer do GreenRAN (ver [`compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`](compliance/GREENRAN_UFPA_TESTBED_PROFILE.md)); os campos são uma proposta a combinar com a equipe do rApp.
 
 ## 8. Limitações conhecidas
 
 1. Interoperabilidade E2 não demonstrada; codecs não normativos (seção 6.4).
-2. Conflitos entre células não detectados (seção 4.1).
+2. Conflitos entre células: detectados para handover × célula desligada/reduzida, ping-pong e vizinhas dormindo (seção 4.1), sem reverter a incumbente que perde; outros acoplamentos entre células (interferência, balanceamento de carga) não são modelados.
 3. Identidade das xApps não autenticada no transporte de propostas.
 4. As utilidades TVS/EEVS são heurísticas com pesos fixos, sem calibração experimental publicada.
 5. Descoberta E2 (RAN Function Definition) não implementada: no modo estrito a xApp não obtém os IDs de função e permanece fora de `READY`.
-6. Políticas A1 não influenciam a decisão.
+6. Políticas A1 ligadas à decisão (seção 7.1), mas o receptor não tem autenticação e o tipo 20001 ainda não foi combinado com o rApp do GreenRAN.

@@ -13,7 +13,7 @@ import json
 import logging
 import math
 import ipaddress
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Callable, Dict, Any, Optional, Tuple, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
 
@@ -42,8 +42,44 @@ class A1PolicyManager:
                         "cooling_lockout_ms": {"type": "number", "minimum": 100, "maximum": 5000}
                     }
                 }
+            },
+            # GreenRAN (OpenRAN@Brasil, UFPA): objetivos que o rApp-ResourceOptimizer
+            # repassa à coordenação Near-RT entre xApp1-RANSlicer e xApp2-EnergySaver.
+            "20001": {
+                "name": "GreenRAN_Intent_Policy",
+                "description": "Peso de energia e de SLA na arbitragem e regras de economia entre células",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "energy_weight": {"type": "number", "minimum": 0, "maximum": 0.6},
+                        "sla_weight": {"type": "number", "minimum": 0.1, "maximum": 0.8},
+                        "allow_neighbor_sleep": {"type": "boolean"},
+                        "low_power_threshold_dbm": {"type": "number", "minimum": -10, "maximum": 43}
+                    }
+                }
             }
         }
+        self._listeners: List[Callable[[Dict[str, Any]], None]] = []
+
+    def add_listener(self, callback: Callable[[Dict[str, Any]], None]) -> None:
+        """Registra quem aplica a política efetiva; é chamado a cada criação, atualização ou remoção."""
+        self._listeners.append(callback)
+        callback(self.effective_policy())
+
+    def effective_policy(self) -> Dict[str, Any]:
+        """União das políticas ativas, na ordem de chegada (a mais recente prevalece por campo)."""
+        merged: Dict[str, Any] = {}
+        for policy in self.active_policies.values():
+            merged.update(policy)
+        return merged
+
+    def _notify(self) -> None:
+        effective = self.effective_policy()
+        for callback in self._listeners:
+            try:
+                callback(effective)
+            except Exception as exc:  # um ouvinte com erro não derruba o receptor
+                logger.error(f"[A1-P] Falha ao aplicar política efetiva: {exc}")
 
     def put_policy(self, policy_type_id: str, policy_id: str, policy_data: Dict[str, Any]) -> Tuple[bool, str]:
         """Adiciona ou atualiza uma política A1-P."""
@@ -72,8 +108,11 @@ class A1PolicyManager:
             if value < definition["minimum"] or value > definition["maximum"]:
                 return False, f"{key} {value} out of bounds [{definition['minimum']}, {definition['maximum']}]"
 
-        self.active_policies[f"{policy_type_id}:{policy_id}"] = policy_data
+        key = f"{policy_type_id}:{policy_id}"
+        self.active_policies.pop(key, None)  # reinsere no fim: a atualização passa a prevalecer
+        self.active_policies[key] = policy_data
         logger.info(f"[A1-P] Política {policy_type_id}:{policy_id} registrada com sucesso: {policy_data}")
+        self._notify()
         return True, "Policy created/updated successfully"
 
     def get_policy(self, policy_type_id: str, policy_id: str) -> Optional[Dict[str, Any]]:
@@ -86,6 +125,7 @@ class A1PolicyManager:
         if key in self.active_policies:
             del self.active_policies[key]
             logger.info(f"[A1-P] Política {key} removida")
+            self._notify()
             return True
         return False
 

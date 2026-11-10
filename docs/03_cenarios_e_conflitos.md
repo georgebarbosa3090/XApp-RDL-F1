@@ -6,8 +6,8 @@
 | :-- | :-- | :-- | :-- |
 | Direto | Duas xApps pedem valores diferentes para o mesmo parâmetro do mesmo nó | xSlice pede 75 % de PRB, Energy Saving pede 30 % | detectado; TVS escolhe um vencedor |
 | Indireto | Parâmetros diferentes do mesmo nó que afetam os mesmos KPIs | redução de potência junto com reserva de PRB | detectado pelo grafo de KPIs; EEVS escolhe o subconjunto |
-| Temporal | Alternância de valores no mesmo alvo ao longo do tempo | ping-pong de handover | parcialmente: histerese de 1 s por alvo; **não detectado quando as ações estão em células diferentes** |
-| Entre células | Ações em nós diferentes que interferem entre si | handover para uma célula que outra xApp desliga | **não detectado** (conflitos são agrupados por nó) |
+| Temporal | Alternância de valores no mesmo alvo ao longo do tempo | ping-pong de handover | histerese de 1 s por alvo; entre células, ping-pong de handover detectado (`HANDOVER_PING_PONG`, desde 2026-11-10) |
+| Entre células | Ações em nós diferentes que interferem entre si | handover para uma célula que outra xApp desliga | detectado desde 2026-11-10 (`INTER_CELL`: handover × célula desligada/reduzida, ping-pong, vizinhas dormindo); EEVS escolhe o subconjunto compatível ([02 §4.1](02_modelo_de_decisao_h_rdl.md#41-percepção-conflitos-agrupados-por-alvo)) |
 | Ação insegura | Valor fora dos limites físicos ou inválido | 60 dBm, PRB 150 % | descartada pelo Safety Guard antes da arbitragem |
 | Tempestade | Muitas propostas concorrentes na mesma janela | várias xApps em vários nós | eventos agrupados por alvo (custo limitado por O(P²) por nó) |
 
@@ -34,7 +34,7 @@ Observações dos experimentos:
 
 - S2, S4 e S5 rodam com `--disableSrs=true`: o 5G-LENA v5.1 aborta em handover em massa por SRS sobrepostos no gNB de destino.
 - A rede de base do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
-- No S4 e no S5 os conflitos ocorrem entre células e não são detectados pela H-RDL.
+- No S4 e no S5 os conflitos ocorrem entre células. Até 2026-11-10 a H-RDL não os detectava, e as campanhas registradas até essa data (nativa de 2026-11-08 e NORI de 2026-11-09) refletem isso. Desde então o B3 detecta os dois: no S4 a redução de potência da gNB1 perde para o handover (`HANDOVER_INTO_REDUCED_CELL`, prioridade 80 > 65); no S5 o handover de volta do Load Balancer perde para o do Traffic Steering (`HANDOVER_PING_PONG`, 80 > 70). Execuções novas desses cenários não são comparáveis às anteriores sem declarar a mudança.
 
 ### 2.2 Cenário S8 e o porte para a bancada NORI
 
@@ -82,8 +82,8 @@ Cada execução faz uma única decisão. Ela usa a primeira ocorrência de cada 
 | S1 | conflito direto → TVS escolhe xslice 75 | 75/25 |
 | S2 | conflito indireto → EEVS escolhe xslice 80; `HANDOVER` não selecionado | 80/20 |
 | S3 | TVS escolhe `TX_POWER` (não atuável) | nenhum |
-| S4 | sem conflito (pass-through): `HANDOVER` no gNB 0 (só registrado em log pelo NORI) e `TX_POWER` no gNB 1 (inexistente no NORI) | nenhum |
-| S5 | sem conflito (pass-through): `HANDOVER` nos gNBs 0 e 1, nenhum atuável | nenhum |
+| S4 | conflito entre células desde 2026-11-10: `TX_POWER` no gNB 1 não é selecionado; `HANDOVER` no gNB 0 vence (só registrado em log pelo NORI) | nenhum |
+| S5 | ping-pong entre células desde 2026-11-10: o `HANDOVER` do gNB 1 não é selecionado; o do gNB 0 vence (não atuável) | nenhum |
 | S6 | xslice 85 | 85/15 |
 | S7 | Safety Guard bloqueia `rogue_xapp` (`TX_POWER` 60 e `PRB_QUOTA` 150); xslice 70 | 70/30 |
 | S8 | conflito direto xslice 25 × embb_throughput 80 → H-RDL escolhe embb_throughput 80 | 80/20 |

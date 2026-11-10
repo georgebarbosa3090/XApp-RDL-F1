@@ -53,6 +53,8 @@ from src.infrastructure.memory_module import MemoryModule
 from src.core.perception import Perception
 from src.core.reasoning import Reasoning
 from src.core.refinement import Refinement
+from src.core.inter_cell import InterCellRules, load_inter_cell_config
+from src.interfaces.a1_policy_receiver import A1PolicyHttpHandler, A1PolicyManager, A1PolicyReceiverServer
 from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
 from src.e2.rc_encoder import RCEncoder
@@ -128,13 +130,32 @@ class RDLxApp:
                 logger.warning("SDL indisponível no ambiente local. Utilizando MemoryModule.")
                 self.memory = MemoryModule()
 
-        self.perception = Perception()
-        self.reasoning = Reasoning(self.memory, config={})
+        # Regras entre células compartilhadas pela percepção (detecção) e pelo raciocínio (EEVS)
+        self.inter_cell_rules = InterCellRules.from_config(load_inter_cell_config())
+        self.perception = Perception(inter_cell_rules=self.inter_cell_rules)
+        self.reasoning = Reasoning(self.memory, config={}, inter_cell_rules=self.inter_cell_rules)
         self.refinement = Refinement(
             self.memory,
             strict_capabilities=self.oran_strict,
             committed_action_lookup=self.perception.get_committed_action,
         )
+
+        # Políticas A1 (Non-RT RIC / rApp): ajustam pesos, limites e regras entre células.
+        # Sem política ativa, vale a configuração de base; remover a política a restaura.
+        self._a1_baseline = {
+            "weights": {name: getattr(self.reasoning, name) for name in Reasoning._A1_WEIGHTS},
+            "minimum_control_interval_ms": self.refinement.config["minimum_control_interval_ms"],
+            "allow_neighbor_sleep": self.inter_cell_rules.allow_neighbor_sleep,
+            "low_power_threshold_dbm": self.inter_cell_rules.low_power_threshold_dbm,
+        }
+        self.a1_policies = A1PolicyManager()
+        self.a1_policies.add_listener(self._apply_a1_policy)
+        A1PolicyHttpHandler.policy_manager = self.a1_policies
+        self.a1_server: Optional[A1PolicyReceiverServer] = None
+        a1_port = os.getenv("A1_RECEIVER_PORT")
+        if a1_port:
+            self.a1_server = A1PolicyReceiverServer(host="127.0.0.1", port=int(a1_port))
+            self.a1_server.start()
         self.health = HealthServer(port=8080)
         self.health.set_state(AppState.STARTING)
         self.health.run()
@@ -235,7 +256,29 @@ class RDLxApp:
         self.running = False
         self.urgent_event.set()
         self.health.set_state(AppState.STOPPED)
+        if getattr(self, "a1_server", None) is not None:
+            self.a1_server.stop()
         self.xapp.stop()
+
+    def _apply_a1_policy(self, policy: Dict[str, Any]) -> None:
+        """Aplica a política A1 efetiva (tipos 20000 e 20001) sobre a configuração de base."""
+        base = self._a1_baseline
+        weights = dict(base["weights"])
+        if "energy_weight" in policy:
+            weights["w_energy"] = weights["w_energy_ind"] = float(policy["energy_weight"])
+        if "sla_weight" in policy:
+            weights["w_sla"] = weights["w_qos_ind"] = float(policy["sla_weight"])
+        self.reasoning.apply_policy(weights, urllc_priority_boost=float(policy.get("urllc_priority_boost", 0.0)))
+        self.refinement.apply_policy(
+            max_prb_quota=policy.get("max_cell_prb_limit"),
+            allow_cell_sleep=bool(policy.get("energy_saving_allowed", True)),
+            minimum_control_interval_ms=policy.get("cooling_lockout_ms", base["minimum_control_interval_ms"]),
+        )
+        self.inter_cell_rules.allow_neighbor_sleep = bool(policy.get("allow_neighbor_sleep", base["allow_neighbor_sleep"]))
+        self.inter_cell_rules.low_power_threshold_dbm = float(
+            policy.get("low_power_threshold_dbm", base["low_power_threshold_dbm"])
+        )
+        logger.info("Política A1 efetiva aplicada", policy=policy)
 
     def _default_handler(self, xapp_instance, summary, sbuf):
         logger.debug("Mensagem RMR nao mapeada recebida", mtype=summary.get("mtype"))
@@ -645,8 +688,12 @@ class RDLxApp:
                 for _ in conflict.involved_xapps:
                     causal_tracker.record_safety_validation(intervention=True)
 
-        # 2. Estágio INDIRETO: EEVS apenas entre os candidatos que sobreviveram ao estágio direto
-        for conflict in (c for c in conflicts if c.conflict_type == ConflictType.INDIRECT):
+        # 2. Estágio INDIRETO e ENTRE CÉLULAS: EEVS apenas entre os candidatos que sobreviveram
+        # ao estágio direto; os conflitos entre células vêm depois dos indiretos do mesmo nó.
+        for conflict in (
+            c for kind in (ConflictType.INDIRECT, ConflictType.INTER_CELL)
+            for c in conflicts if c.conflict_type == kind
+        ):
             register(conflict)
             reduced = [
                 act for act in conflict.involved_xapps
@@ -661,7 +708,7 @@ class RDLxApp:
             ):
                 continue  # a oposição foi eliminada no estágio direto
             sub_conflict = ConflictEvent(
-                conflict_type=ConflictType.INDIRECT,
+                conflict_type=conflict.conflict_type,
                 severity=conflict.severity,
                 involved_xapps=reduced,
                 affected_kpis=conflict.affected_kpis,

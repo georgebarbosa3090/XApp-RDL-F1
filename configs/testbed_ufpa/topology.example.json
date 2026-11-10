@@ -1,0 +1,11 @@
+{
+  "_comment": "Exemplo para RDL_TOPOLOGY_FILE. Os nomes dos nós são provisórios: troque pelos IDs de E2 Node (ou nós lógicos usados pela xApp) do testbed UFPA quando a equipe do hospedeiro os informar. A proposta GreenRAN descreve duas RUs externas e duas internas; aqui supõe-se vizinhança entre as externas, entre as internas e entre cada externa e a interna mais próxima.",
+  "neighbors": {
+    "ufpa_ru_ext_0": ["ufpa_ru_ext_1", "ufpa_ru_int_0"],
+    "ufpa_ru_ext_1": ["ufpa_ru_ext_0", "ufpa_ru_int_1"],
+    "ufpa_ru_int_0": ["ufpa_ru_int_1"]
+  },
+  "low_power_threshold_dbm": 10,
+  "pingpong_window_s": 5,
+  "allow_neighbor_sleep": false
+}

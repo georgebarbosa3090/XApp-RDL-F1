@@ -1,0 +1,56 @@
+# Perfil do testbed UFPA (Rede-5G-Green, projeto GreenRAN / OpenRAN@Brasil) — gate TB0
+#
+# Modelo a preencher com a equipe do hospedeiro (POP-PA / UFPA). Enquanto houver
+# campos "A_CONFIRMAR", nenhum gate de testbed pode ser avaliado: o TB0 exige
+# versões e commits congelados (ver docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md).
+
+profile: HRDL_F1_GREENRAN_UFPA
+status: A_CONFIRMAR
+
+ran:
+  cu_du_stack: A_CONFIRMAR          # OpenAirInterface ou srsRAN (a proposta cita os dois)
+  cu_du_version: A_CONFIRMAR        # tag e commit
+  ran_code_updates: A_CONFIRMAR     # repositório/commit do RAN-CodeUpdates (atividades 1.1–1.4)
+  e2_agent: A_CONFIRMAR             # ex.: agente E2 do OAI/FlexRIC ou do srsRAN
+  e2ap_version: A_CONFIRMAR
+  e2sm_kpm_version: A_CONFIRMAR
+  e2sm_rc_version: A_CONFIRMAR
+  e2sm_ccc_available: A_CONFIRMAR   # caminho provável para desligar células (CELL_STATE)
+  radio_units:
+    external: 2                     # segundo a proposta
+    internal: 2                     # segundo a proposta
+    model: A_CONFIRMAR
+  band: A_CONFIRMAR
+  bandwidth_mhz: A_CONFIRMAR
+  sdm_layers: A_CONFIRMAR           # desligamento de "layers" (atividade 1.3)
+
+core:
+  implementation: A_CONFIRMAR       # ex.: Open5GS
+  version: A_CONFIRMAR
+  slices:                           # fatias previstas na proposta (seções 6.3, PT2 e PT3)
+    - name: embb_vigilancia
+      service: App1-Vigilância (câmeras 4K)
+      throughput_per_camera_mbps: 25
+      latency_budget_ms: 100
+      sst: A_CONFIRMAR
+    - name: mmtc_sensores
+      service: App2-Monitoramento (sensores de solo e ambientais)
+      traffic: intermitente, baixa taxa
+      sst: A_CONFIRMAR
+
+ric:
+  near_rt_ric: A_CONFIRMAR          # ex.: O-RAN SC (a bancada da Fase 1 usa a Release I, ric-dep 0a6f18e)
+  near_rt_ric_release: A_CONFIRMAR
+  non_rt_ric: A_CONFIRMAR           # onde roda o rApp-ResourceOptimizer
+  a1_policy_types:                  # tipos que a H-RDL aceita hoje (src/interfaces/a1_policy_receiver.py)
+    - 20000                         # ORAN_RDL_Governance_Policy
+    - 20001                         # GreenRAN_Intent_Policy (proposta, a combinar com a UFRGS)
+  smo: A_CONFIRMAR
+
+xapps:
+  rdl: XApp-RDL-F1                  # commit a registrar por execução
+  xapp1_ranslicer: A_CONFIRMAR      # UFRGS
+  xapp2_energysaver: A_CONFIRMAR    # UFPA
+  rmr_message_type_proposals: 30000 # RDL_ACTION_PROPOSAL (contrato de entrada das propostas)
+
+topology_file: configs/testbed_ufpa/topology.example.json   # trocar pelo arquivo real (RDL_TOPOLOGY_FILE)

@@ -35,6 +35,24 @@ class Refinement:
             self.config.update(config)
         self.last_control_time: Dict[str, float] = {}
         self.node_capabilities: Dict[str, Dict[str, Any]] = {}
+        # Restrições de política A1 (ver apply_policy); None = sem restrição adicional
+        self.policy_max_prb_quota: Optional[float] = None
+        self.policy_allow_cell_sleep: bool = True
+
+    def apply_policy(
+        self,
+        max_prb_quota: Optional[float] = None,
+        allow_cell_sleep: bool = True,
+        minimum_control_interval_ms: Optional[float] = None,
+    ) -> None:
+        """Aplica a política A1 efetiva: teto de cota de PRB, permissão de sleep e intervalo mínimo.
+
+        Uma política só restringe dentro dos limites físicos; nunca os amplia.
+        """
+        self.policy_max_prb_quota = float(max_prb_quota) if max_prb_quota is not None else None
+        self.policy_allow_cell_sleep = bool(allow_cell_sleep)
+        if minimum_control_interval_ms is not None:
+            self.config["minimum_control_interval_ms"] = float(minimum_control_interval_ms)
 
     def _get_max_tx_power(self, node_id: str) -> Optional[float]:
         """Obtém o teto de potência de transmissão (dBm) para o nó específico ou padrão."""
@@ -84,7 +102,7 @@ class Refinement:
             return False, f"{action.parameter} value must be finite"
         if isinstance(action.priority, bool) or not isinstance(action.priority, int) or not 0 <= action.priority <= 100:
             return False, "Action priority must be an integer in [0, 100]"
-        if action.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER") and not value.is_integer():
+        if action.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER", "CELL_STATE") and not value.is_integer():
             return False, f"{action.parameter} value must be an integer"
         if action.parameter == "TX_POWER" and not (value * 10).is_integer():
             return False, "TX_POWER supports at most one decimal place"
@@ -114,6 +132,11 @@ class Refinement:
             if action.parameter == "TX_POWER":
                 return False, f"TX Power out of bounds ({min_value}-{max_value} dBm)"
             return False, f"{action.parameter} out of bounds ({min_value}-{max_value})"
+
+        if action.parameter == "PRB_QUOTA" and self.policy_max_prb_quota is not None and value > self.policy_max_prb_quota:
+            return False, f"PRB_QUOTA above A1 policy limit ({self.policy_max_prb_quota:g})"
+        if action.parameter == "CELL_STATE" and value == 0 and not self.policy_allow_cell_sleep:
+            return False, "Cell sleep not allowed by A1 policy"
 
         if self.config.get("enforce_slew_rate", False):
             get_committed = self.committed_action_lookup or getattr(self.memory, "get_committed_action", None)

@@ -1,6 +1,7 @@
 import time
 from typing import Dict, List, Optional, Tuple
 from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
+from src.core.inter_cell import HANDOVER_INTO_REDUCED_CELL, InterCellRules
 
 
 class Perception:
@@ -8,16 +9,12 @@ class Perception:
     Componente de Percepção da H-RDL (Núcleo / Core).
     Responsável pela ingestão de telemetria E2SM-KPM com verificação de TTL,
     manutenção do grafo de dependência de KPIs e detecção determinística de
-    colisões e conflitos multi-xApp.
+    colisões e conflitos multi-xApp, inclusive entre células vizinhas.
     """
-    def __init__(self, kpm_ttl_s: float = 1.0):
+    def __init__(self, kpm_ttl_s: float = 1.0, inter_cell_rules: Optional[InterCellRules] = None):
         self.kpm_ttl_s = kpm_ttl_s
-        # Grafo de topologia multi-gNB padrão (Eixo 3)
-        self.topology_graph = {
-            "gnb_01": ["gnb_02"],
-            "gnb_02": ["gnb_01", "gnb_03"],
-            "gnb_03": ["gnb_02"],
-        }
+        # Regras e topologia (vizinhança entre células) para conflitos entre células
+        self.inter_cell_rules = inter_cell_rules or InterCellRules()
         # Grafo de dependências KPI modelando as relações lógicas da rede
         self.kpi_dependency_graph = {
             "PRB_QUOTA": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
@@ -29,6 +26,7 @@ class Perception:
             "SENSING_RATIO": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
             "LOAD_THRESHOLD": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
             "PING_INTERVAL": ["DRB.RlcSduDelayDl"],
+            "CELL_STATE": ["DRB.UEThpDl", "RRU.PrbUsedDl", "L1M.DL-sinr"],
         }
         # Registro das últimas ações: node_id -> parameter -> XAppAction
         self._action_registry: Dict[str, Dict[str, XAppAction]] = {}
@@ -71,7 +69,8 @@ class Perception:
         Detecta conflitos da Decision Window sem tratar propostas não selecionadas como estado ativo.
 
         Os conflitos são agrupados por alvo, e não por par de ações, para que o custo
-        cresça linearmente com o número de propostas:
+        cresça linearmente com o número de propostas (os conflitos entre células são
+        detectados em ``_detect_inter_cell``):
 
         - propostas repetidas de uma mesma xApp para o mesmo (nó, parâmetro) são
           deduplicadas, valendo a mais recente;
@@ -136,6 +135,89 @@ class Perception:
                         description=f"Indirect conflict on KPIs {sorted(common_kpis)} via params {param_a} and {param_b}"
                     ))
 
+        conflicts.extend(self._detect_inter_cell(proposals_by_node))
+        return conflicts
+
+    def _detect_inter_cell(self, proposals_by_node: Dict[str, Dict[str, List[XAppAction]]]) -> List[ConflictEvent]:
+        """
+        Conflitos entre células (regras em ``src/core/inter_cell.py``).
+
+        Considera as propostas da janela e, para alvos sem proposta, a última ação
+        confirmada pela RAN: estados persistentes (célula desligada, potência reduzida)
+        sempre; handovers confirmados só dentro de ``pingpong_window_s``. Só as ações
+        relevantes (HANDOVER, CELL_STATE e TX_POWER abaixo do limiar) são indexadas,
+        e um evento é gerado por (regra, par de nós).
+        """
+        rules = self.inter_cell_rules
+        now = time.time()
+        relevant: List[XAppAction] = []
+        targets_with_proposal = set()
+        for node_id, by_param in proposals_by_node.items():
+            for parameter, proposals in by_param.items():
+                targets_with_proposal.add((node_id, parameter))
+                relevant.extend(p for p in proposals if p.parameter == "HANDOVER" or rules.reduces_cell(p))
+        for node_id, by_param in self._action_registry.items():
+            for parameter, committed in by_param.items():
+                if (node_id, parameter) in targets_with_proposal:
+                    continue
+                if parameter == "HANDOVER":
+                    if now - float(committed.timestamp) <= rules.pingpong_window_s:
+                        relevant.append(committed)
+                elif rules.reduces_cell(committed):
+                    relevant.append(committed)
+        if len(relevant) < 2:
+            return []
+
+        handovers_by_target: Dict[str, List[XAppAction]] = {}
+        reducing_by_node: Dict[str, List[XAppAction]] = {}
+        for act in relevant:
+            if act.parameter == "HANDOVER":
+                target = rules.handover_target(act)
+                if target is not None:
+                    handovers_by_target.setdefault(target, []).append(act)
+            else:
+                reducing_by_node.setdefault(act.node_id, []).append(act)
+
+        events: Dict[Tuple[str, Tuple[str, str]], List[XAppAction]] = {}
+
+        def add(reason: str, a: XAppAction, b: XAppAction) -> None:
+            key = (reason, tuple(sorted((a.node_id, b.node_id))))
+            members = events.setdefault(key, [])
+            for act in (a, b):
+                if all(m is not act for m in members):
+                    members.append(act)
+
+        for target, handovers in handovers_by_target.items():
+            for ho in handovers:
+                for reducer in reducing_by_node.get(target, []):
+                    reason = rules.pair_conflict(ho, reducer)
+                    if reason is not None:
+                        add(reason, ho, reducer)
+                for reverse in handovers_by_target.get(ho.node_id, []):
+                    if reverse.node_id == target:
+                        reason = rules.pair_conflict(ho, reverse, check_time=True)
+                        if reason is not None:
+                            add(reason, ho, reverse)
+        for node_id, reducers in reducing_by_node.items():
+            for neighbor in rules.neighbors.get(node_id, set()):
+                if neighbor <= node_id:
+                    continue
+                for a in reducers:
+                    for b in reducing_by_node.get(neighbor, []):
+                        reason = rules.pair_conflict(a, b)
+                        if reason is not None:
+                            add(reason, a, b)
+
+        conflicts: List[ConflictEvent] = []
+        for (reason, nodes), members in sorted(events.items()):
+            kpis = sorted({kpi for m in members for kpi in self.kpi_dependency_graph.get(m.parameter, [])})
+            conflicts.append(ConflictEvent(
+                conflict_type=ConflictType.INTER_CELL,
+                severity=ConflictSeverity.HIGH if reason == HANDOVER_INTO_REDUCED_CELL else ConflictSeverity.MEDIUM,
+                involved_xapps=members,
+                affected_kpis=kpis,
+                description=f"Inter-cell conflict {reason} between {nodes[0]} and {nodes[1]}",
+            ))
         return conflicts
 
     def commit_actions(self, actions: List[XAppAction]) -> None:

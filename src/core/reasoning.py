@@ -1,6 +1,7 @@
 from typing import List, Tuple, Dict, Any, Optional
 from src.conflict_types import ConflictEvent, ResolutionAction, ResolutionStrategy, XAppAction, KPMReport
 from src.infrastructure.sdl_repository import SdlRepository
+from src.core.inter_cell import InterCellRules
 import math
 import itertools
 
@@ -15,9 +16,13 @@ class Reasoning:
     - Barreira de Estabilidade e Penalidade de Oscilação (Ping-Pong);
     - Priorização estrita de fatias de missão crítica (URLLC > TS > eMBB > ES > mMTC).
     """
-    def __init__(self, memory: Any, config: Optional[dict] = None):
+    def __init__(self, memory: Any, config: Optional[dict] = None, inter_cell_rules: Optional[InterCellRules] = None):
         self.memory = memory
         self.config = config or {}
+        # Regras entre células: subconjuntos que as violam são fisicamente incompatíveis no EEVS
+        self.inter_cell_rules = inter_cell_rules or InterCellRules()
+        # Ajuste de prioridade vindo de política A1 (urllc_priority_boost), aplicado a ações com prioridade >= 90
+        self.urllc_priority_boost = float(self.config.get("urllc_priority_boost", 0.0))
 
         # Pesos Multiobjetivo para Conflito DIRETO (TVS)
         self.w_sla = self.config.get("w_sla", 0.40)
@@ -198,7 +203,18 @@ class Reasoning:
             if key in param_targets and param_targets[key] != act.value:
                 return True
             param_targets[key] = act.value
-        return False
+        return not self.inter_cell_rules.subset_is_compatible(subset)
+
+    # Pesos que uma política A1 pode ajustar (ver src/interfaces/a1_policy_receiver.py)
+    _A1_WEIGHTS = ("w_sla", "w_throughput", "w_energy", "w_stability", "w_priority",
+                   "w_qos_ind", "w_energy_ind", "w_fairness_ind", "w_viol_ind")
+
+    def apply_policy(self, weights: Dict[str, float], urllc_priority_boost: float = 0.0) -> None:
+        """Aplica pesos e reforço de prioridade vindos de uma política A1 efetiva."""
+        for name in self._A1_WEIGHTS:
+            if name in weights:
+                setattr(self, name, float(weights[name]))
+        self.urllc_priority_boost = float(urllc_priority_boost)
 
     def _get_max_tx_power(self, node_id: str) -> float:
         """Obtém o teto de potência do nó consultando o capability registry ou configuração."""
@@ -225,6 +241,8 @@ class Reasoning:
             min_pwr = -10.0
             norm_power = (val - min_pwr) / max(1.0, max_pwr - min_pwr)
             tput_score = max(0.1, min(1.0, 0.4 + 0.6 * norm_power))
+        elif param == "CELL_STATE":
+            tput_score = 0.20 if val == 0 else 0.80
         else:
             tput_score = 0.70
 
@@ -254,6 +272,9 @@ class Reasoning:
             energy_score = max(0.0, min(1.0, 1.0 - (p_total - p_min) / (p_max - p_min + 1e-6)))
         elif param == "PRB_QUOTA":
             energy_score = max(0.2, 1.0 - (val / 150.0))
+        elif param == "CELL_STATE":
+            # Célula em sleep: consumo P_SLEEP contra o estático do Earth Model
+            energy_score = 1.0 - (self.P_SLEEP_W / self.P0_W) if val == 0 else 0.30
         else:
             energy_score = 0.60
 
@@ -263,8 +284,9 @@ class Reasoning:
         else:
             stability_score = 0.90
 
-        # 5. Priority Score Normalizado (0.0 a 1.0)
-        priority_score = max(0.1, min(1.0, prio / 100.0))
+        # 5. Priority Score Normalizado (0.0 a 1.0), com reforço A1 para URLLC
+        boost = self.urllc_priority_boost if prio >= 90 else 0.0
+        priority_score = max(0.1, min(1.0, (prio + boost) / 100.0))
 
         report = self.kpm_by_node.get(act.node_id, self.latest_kpm)
         if (
@@ -272,7 +294,7 @@ class Reasoning:
             and report.node_id == act.node_id
             and report.drb_delay_dl is not None
             and report.drb_delay_dl > self.sla_latency_limit_ms
-            and act.xapp_id.casefold().startswith("energy")
+            and (act.xapp_id.casefold().startswith("energy") or (param == "CELL_STATE" and val == 0))
         ):
             sla_score = 0.0
 

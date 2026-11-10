@@ -7,6 +7,8 @@ import time
 class ConflictType(Enum):
     DIRECT = "DIRECT"
     INDIRECT = "INDIRECT"
+    # Entre células: handover para célula desligada/reduzida, ping-pong, vizinhas dormindo
+    INTER_CELL = "INTER_CELL"
 
 class ConflictSeverity(Enum):
     LOW = "LOW"

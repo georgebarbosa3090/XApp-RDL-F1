@@ -30,7 +30,7 @@ def test_encode_control_parts_param_id_override():
 def test_encode_control_parts_default_id():
     encoder = RCEncoder()
     for param_name, defn in RAN_PARAMETERS.items():
-        val = 10.0 if param_name != "TX_POWER" else 20.0
+        val = 20.0 if param_name == "TX_POWER" else min(10.0, defn.max_value)
         encoded = encoder.encode_control_parts(
             node_id="gnb_01",
             parameter=param_name,

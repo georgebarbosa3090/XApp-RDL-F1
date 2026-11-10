@@ -20,7 +20,7 @@ As versões da xApp são **alvos de compatibilidade**, não certificações. A d
 | RIC Control (RC) | codec local **não normativo**; envio RMR com MEID | testes com RMR simulado; um E2 Node conforme rejeitaria o formato |
 | ACK / Failure / timeout | correlação por (nó, RAN Function, requestor, instância); rollback só em timeout | testes unitários |
 | Descoberta E2 (RAN Function Definition) | não implementada | — |
-| A1 | receptor de políticas não conectado à decisão | testes unitários |
+| A1 | receptor de políticas ligado à decisão (pesos TVS/EEVS, limites do Refinement, regras entre células); tipos 20000 e 20001 (GreenRAN) | testes unitários; sem Non-RT RIC real |
 | SDL | wrapper sobre `sdl_set`/`sdl_get` do `ricxappframe` | testes unitários |
 
 O modo `O_RAN_INTEROP` bloqueia despacho e readiness enquanto o backend não declarar `protocol_interoperability_verified`.
@@ -57,7 +57,7 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 8 | Rollback reaproveitava RICrequestID, ignorava o backend e disparava após `RIC_CONTROL_FAILURE` | corrigido |
 | 9 | Vencedor final escolhido por prioridade, sobrepondo a utilidade TVS; incumbente reenviada | corrigido: arbitragem em dois estágios |
 | 10 | Uma ação insegura vetava ações legítimas no mesmo conflito (S7) | corrigido: Safety Guard por proposta antes da arbitragem |
-| 11 | Conflitos entre células não detectados (S4, S5) | aberto (limitação do desenho) |
+| 11 | Conflitos entre células não detectados (S4, S5) | corrigido na decisão em 2026-11-10 (achado 52); sem execução nova de S4/S5 |
 | 12 | Commit NORI `9b64c12` do lock não existe; NORI exige ns-3.42 e E2 v3.01 | corrigido no `versions.lock` (perfis `nori` e `native`) |
 | 13 | 210 execuções `S1_B0..B6` geradas com `numpy.random` e rotuladas como ns-3 | identificado; classificado pelo certificador como sintético; removidas do repositório (achado 45) |
 | 14 | Cenários S0–S8 não alteravam a RAN; S0 e S4–S7 sequer anexavam UEs | corrigido para S0–S7 (`rdl-nr-common.h`); S8 removido e redefinido como o closed loop da bancada NORI (achado 39) |
@@ -98,6 +98,7 @@ O que **não** conta como evidência: origens `SYNTHETIC`, `MOCK`, `CODEC_TEST`,
 | 49 | Durante a campanha do G5, o E2Mgr perdeu o registro da instância do E2Term na RNIB ("E2TInstance not found", 12:01 UTC): sem rota para o E2 Setup, o NORI ficou sem resposta (sementes 5028 e 5029) | contornado: E2Mgr e E2Term reiniciados, registro conferido em `/v1/e2t/list` e execução de verificação `nori_S3_B3_smoke_seed9001`; pares repostos (5032, 5033) |
 | 50 | Tentativa de instalar o Rancher 2.8.5 (Helm, com cert-manager v1.14.7) no k3s da bancada: com 2,9 GB livres no WSL de 5 GB, a máquina virtual do WSL reiniciou durante o download e a descompactação da imagem do Rancher (~1,4 GB), derrubando RIC, NORI e xApp | Causa: o disco C: do Windows, onde fica o `ext4.vhdx` do Ubuntu (~80 GB), estava praticamente cheio; o download da imagem do Rancher fez o `.vhdx` crescer até esgotar o C:, e o WSL passou a dar erro de E/S (EIO) e a reiniciar (o host tem 7,7 GB de RAM, o que agrava). Rancher e cert-manager removidos; `scripts/observe/deploy_rancher.sh` passou a exigir 4,5 GB livres de memória. A bancada só volta com espaço livre no C: (o WSL foi desligado com 0,07 GB livres para evitar corrupção). A observabilidade usa InfluxDB + Grafana (~200 MB) |
 | 51 | Depois dos reinícios do WSL (achado 50), os pods do RIC subiram fora de ordem: o E2Mgr e o E2Term ficaram prontos antes do RtMgr (17 reinícios), que não conseguia distribuir as tabelas de rota ("Updating Routes to Endpoint ... failed"). O E2Mgr registrava o E2Term em `/v1/e2t/list`, mas falhava ao avisar o RtMgr ("routing manager failure", HTTP 400) e não tinha rota para a mensagem 1101; o E2 Setup do NORI ficou sem resposta (`nori_S3_B3_smoke_seed9003`: só o E2 Setup Request no PCAP; a 9002 foi abortada sem dados). Reiniciar só E2Mgr e E2Term não bastou | contornado: `kubectl -n ricplt rollout restart` em ordem — RtMgr, esperar pronto, E2Mgr, E2Term — e conferência de que o E2Mgr recebeu o `E2_TERM_INIT` sem erros e de que o RtMgr não registra falhas de rota. Validação `nori_S3_B3_smoke_seed9004`: E2 Setup Request/Response, Subscription Request/Response e 30 Indications no PCAP; a xApp recebeu 28 — o primeiro par, enviado 15 ms depois do Subscription Response, chegou antes de a rota da xApp ficar ativa; dali em diante todas chegaram. A 9003 foi movida para `experiments/runs_failed/nori_S3_B3_smoke_seed9003__sem_rota_e2_20261109/`. Com pouca RAM livre no Windows (7,7 GB no host, 5 GB para o WSL), a VM do WSL chegou a ser recriada a cada poucos minutos |
+| 52 | Adequação ao testbed UFPA do GreenRAN (relatório `reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md`): o xApp2-EnergySaver da proposta atua justamente sobre células vizinhas, caso que a percepção por nó não via (achado 11); o A1 não chegava à decisão; não havia parâmetro de desligamento de célula | corrigido no código, sem execução nova: `ConflictType.INTER_CELL` com as regras `HANDOVER_INTO_REDUCED_CELL`, `HANDOVER_PING_PONG` e `NEIGHBOR_SLEEP` (`src/core/inter_cell.py`), detectadas na Perception e respeitadas pelo EEVS; parâmetro `CELL_STATE` (0/1), sem capacidade padrão, logo o despacho falha fechado até o nó anunciá-lo (E2SM-CCC provável); política A1 efetiva aplicada pela `RDLxApp` (tipo 20000 e novo tipo 20001 `GreenRAN_Intent_Policy`). Na bancada NORI, S4 e S5 passam a ter conflito detectado (`tests/unit/test_catalog_loop.py`); as campanhas anteriores não refletem isso. Perfil do testbed em `docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`. 338 testes |
 
 As auditorias anteriores e os relatórios com números não verificados foram removidos do repositório (achado 45); continuam no histórico do git.
 
@@ -106,5 +107,6 @@ As auditorias anteriores e os relatórios com números não verificados foram re
 1. G5: certificado em 2026-11-09 com o S8 (30 pares B0–B3 com E2 real). Para generalizar, faltam outros cenários com atuação (S0–S2, S6, S7).
 2. Implementar a descoberta E2 (RAN Function Definition) para o modo estrito.
 3. Propor ao NORI o envio do RIC Control Acknowledge na função E2SM-RC, para dispensar o patch local.
-4. Fechar o loop KPM → decisão → RC com efeito medido no KPM (G4).
-5. Autenticar a identidade das xApps no transporte de propostas.
+4. Medir o efeito do closed loop no próprio KPM (o G4 está certificado com o efeito medido no FlowMonitor, porque o KPM do NORI não mede vazão por UE; achado 30).
+5. Autenticar a identidade das xApps no transporte de propostas e o receptor A1.
+6. Testbed UFPA (GreenRAN): gates TB0–TB10 e GR1–GR4 de [`compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`](compliance/GREENRAN_UFPA_TESTBED_PROFILE.md); nenhum executado.
