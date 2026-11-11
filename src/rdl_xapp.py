@@ -41,6 +41,9 @@ class MockRMRXapp:
         return self.rmr_send(payload, mtype)
     def rmr_free(self, sbuf):
         pass
+    def rmr_rts(self, sbuf, new_payload=None, new_mtype=None, retries=100):
+        logger.warning("Mock RMR cannot return messages to sender.")
+        return False
 
 
 Xapp = _RealXapp if _RealXapp is not None else MockRMRXapp
@@ -58,6 +61,9 @@ from src.core.knowledge_graph import KnowledgeGraph
 from src.core.decision_window import AdaptiveDecisionWindow, Urgency, WindowConfig, parse_critical_targets
 from src.core import proposal_registry as preg
 from src.core.proposal_registry import ProposalRegistry
+from src.core.implicit_conflict import ImplicitConflictDetector
+from src.governance import interception as icpt
+from src.governance.xapp_registry import ON_DEMAND, QUARANTINED, XAppRegistry, parse_pairs
 from src.interfaces.a1_policy_receiver import A1PolicyHttpHandler, A1PolicyManager, A1PolicyReceiverServer
 from src.interfaces.a1_rmr import A1_POLICY_QUERY, A1_POLICY_REQUEST, A1_POLICY_RESPONSE, handle_policy_request, query_messages
 from src.observability.metrics import MetricsServer
@@ -78,6 +84,7 @@ from src.e2.e2ap.constants import (
     RIC_INDICATION,
     RDL_ACTION_PROPOSAL,
     RDL_ACTION_RESULT,
+    RIC_CONTROL_REQ,
     ID_RIC_CONTROL,
     ID_RIC_SUBSCRIPTION,
     ID_RIC_INDICATION,
@@ -196,11 +203,11 @@ class RDLxApp:
         self.window_start: float = 0.0
         self.WINDOW_DURATION_MS = 200
         self.MAX_PROPOSALS = 4096
-        # Classes de urgência e janela adaptativa (doc 09 §2.2). Sem RDL_ADAPTIVE_WINDOW=true a janela
-        # fica fixa em 200 ms e propostas com prioridade >= 80 antecipam o fechamento, como antes.
+        # Classes de urgência e janela adaptativa (doc 09 §2.2), ligada por padrão desde 2026-11-11;
+        # RDL_ADAPTIVE_WINDOW=false volta à janela fixa de 200 ms (prioridade >= 80 antecipa o fechamento).
         self.decision_window = AdaptiveDecisionWindow(WindowConfig(
             base_window_ms=float(self.WINDOW_DURATION_MS),
-            adaptive=os.getenv("RDL_ADAPTIVE_WINDOW", "false").lower() in ("true", "1", "yes"),
+            adaptive=os.getenv("RDL_ADAPTIVE_WINDOW", "true").lower() in ("true", "1", "yes"),
             critical_priority=int(os.getenv("RDL_CRITICAL_PRIORITY", "95")),
         ))
         window_cfg = self.decision_window.config
@@ -209,6 +216,21 @@ class RDLxApp:
         window_cfg.proposal_max_age_ms = float(os.getenv("RDL_PROPOSAL_MAX_AGE_MS", "1000"))
         window_cfg.defer_max_ttl_ms = float(os.getenv("RDL_DEFER_MAX_TTL_MS", "3000"))
         self._critical_targets_baseline = set(window_cfg.critical_targets)
+        # Governança (doc 11): registro de xApps, modo sob demanda, interceptação e conflito implícito
+        self.xapp_registry = XAppRegistry.from_env()
+        self.on_demand_queue: List[XAppAction] = []
+        self.on_demand_lookback_s = float(os.getenv("RDL_ON_DEMAND_LOOKBACK_S", "2.0"))
+        self._recent_proposers: Dict[str, Dict[str, float]] = {}
+        self._intercepts: Dict[str, Tuple[Any, Any, Any, float]] = {}
+        self._intercept_history: Dict[str, Dict[str, float]] = {}
+        self._intercept_lock = threading.Lock()
+        self.implicit = ImplicitConflictDetector(
+            self.perception.get_committed_action,
+            grace_s=float(os.getenv("RDL_IMPLICIT_GRACE_S", "2.0")),
+            persistence=int(os.getenv("RDL_IMPLICIT_PERSISTENCE", "3")),
+        )
+        from collections import deque
+        self.implicit_findings = deque(maxlen=500)
         self._apply_a1_policy(self.a1_policies.effective_policy())
         self.critical_queue: List[XAppAction] = []
         self.buffer_deadline_ms: float = float(self.WINDOW_DURATION_MS)
@@ -253,6 +275,7 @@ class RDLxApp:
         self.proposals = ProposalRegistry(max_entries=int(os.getenv("RDL_REJECTION_LOG_SIZE", "5000")),
                                           store=self.memory)
         self.health.rejections_provider = self._rejections_view
+        self.health.governance_provider = self._governance_view
 
         from src.e2.control_dispatcher import ControlDispatcher
         self.dispatcher = ControlDispatcher(
@@ -269,6 +292,8 @@ class RDLxApp:
         self.xapp.register_callback(self._subscription_response_handler, RIC_SUB_RESP)
         self.xapp.register_callback(self._subscription_failure_handler, RIC_SUB_FAILURE)
         self.xapp.register_callback(self._a1_policy_request_handler, A1_POLICY_REQUEST)
+        # Nível 2: RIC Control de xApps de terceiros roteado para a RDL (interceptação por rota)
+        self.xapp.register_callback(self._intercepted_control_handler, RIC_CONTROL_REQ)
 
     def _safe_rmr_free(self, xapp_instance: Any, sbuf: Any):
         """Libera buffer RMR com segurança, ignorando objetos mock ou inválidos."""
@@ -313,6 +338,12 @@ class RDLxApp:
             critical_control_interval_ms=policy.get("critical_control_interval_ms",
                                                     base["critical_control_interval_ms"]),
         )
+        registry = getattr(self, "xapp_registry", None)
+        if registry is not None:
+            registry.apply_policy(
+                modes=parse_pairs(policy.get("xapp_modes", [])),
+                caps={k: int(v) for k, v in parse_pairs(policy.get("xapp_priority_caps", [])).items()},
+            )
         window = getattr(self, "decision_window", None)
         if window is not None:  # o primeiro aviso do A1PolicyManager chega antes da janela existir
             window.config.critical_targets = (
@@ -537,6 +568,8 @@ class RDLxApp:
                     )
                     self.perception.update_kpm_report(report)
                     self.reasoning.update_kpm_report(report)
+                    self.observe_kpm_metrics(report.node_id, {"drb_thp_dl": report.drb_thp_dl,
+                                                              "prb_used_dl": report.prb_used_dl})
             else:
                 self.metrics.kpm_decode_err.inc()
         self._safe_rmr_free(xapp_instance, sbuf)
@@ -544,13 +577,14 @@ class RDLxApp:
     def _action_proposal_handler(self, xapp_instance: Xapp, summary: Dict[str, Any], sbuf: Any):
         """Recebe acoes propostas por outras xApps via RMR e enfileira na janela temporal."""
         payload = summary.get("payload")
-        if self.oran_strict:
+        if self.oran_strict and not self.xapp_registry.configured:
             logger.error(
-                "Proposta externa rejeitada: o transporte atual não fornece identidade de xApp "
-                "autenticada para autorização."
+                "Proposta externa rejeitada: modo estrito sem registro de xApps (RDL_XAPP_REGISTRY); "
+                "sem registro não há como autorizar a origem."
             )
             self._safe_rmr_free(xapp_instance, sbuf)
             return
+        source = self._rmr_source(summary)
         if payload:
             try:
                 if not isinstance(payload, bytes) or len(payload) > 65536:
@@ -595,6 +629,12 @@ class RDLxApp:
                     defer_ok=defer_ok,
                     ttl_ms=None if ttl_ms is None else float(ttl_ms),
                 )
+                allowed, why = self.xapp_registry.authorize(xapp_id, source, strict=self.oran_strict)
+                if not allowed:
+                    logger.warning("Proposta recusada pelo registro de xApps", xapp=xapp_id, reason=why)
+                    self._reject(action, preg.UNAUTHORIZED, why)
+                    self._safe_rmr_free(xapp_instance, sbuf)
+                    return
                 try:
                     self._enqueue(action)
                 except OverflowError:
@@ -618,6 +658,8 @@ class RDLxApp:
                 if action is not None:
                     action.t_ack = now_ts()
                     self.perception.commit_actions([action])
+                    if action.intercepted:
+                        self._finish_intercept(action.action_id, ok=True)
                 self.metrics.ctrl_ack.inc()
                 logger.info(
                     "RIC_CONTROL_ACK correlacionado",
@@ -636,7 +678,9 @@ class RDLxApp:
             fail_info = self.dispatcher.handle_failure(payload, node_id=summary.get("meid"))
             if fail_info:
                 self.metrics.ctrl_fail.inc()
-                self._pop_pending(fail_info.get("action_id"))
+                failed = self._pop_pending(fail_info.get("action_id"))
+                if failed is not None and failed.intercepted:
+                    self._finish_intercept(failed.action_id, ok=False)
             else:
                 logger.warning("RIC_CONTROL_FAILURE recebido sem transação ativa correlacionada.")
         self._safe_rmr_free(xapp_instance, sbuf)
@@ -649,8 +693,19 @@ class RDLxApp:
         """API publica para injecao de acoes simuladas (usada em testes)"""
         self._enqueue(action)
 
-    def _enqueue(self, action: XAppAction) -> Urgency:
-        """Classifica a proposta e a coloca na fila crítica ou na janela de decisão."""
+    def _enqueue(self, action: XAppAction) -> Optional[Urgency]:
+        """Classifica a proposta e a coloca na fila crítica, na fila sob demanda ou na janela de decisão.
+
+        Devolve ``None`` quando a xApp está em quarentena (proposta recusada como ``UNAUTHORIZED``)."""
+        mode = self.xapp_registry.mode(action.xapp_id)
+        if mode == QUARANTINED:
+            self._reject(action, preg.UNAUTHORIZED, f"xApp {action.xapp_id} em quarentena")
+            return None
+        cap = self.xapp_registry.priority_cap(action.xapp_id)
+        if action.priority > cap:
+            if action.requested_priority is None:
+                action.requested_priority = action.priority
+            action.priority = cap
         with self.buffer_lock:
             full = len(self.proposal_buffer) + len(self.critical_queue) + len(self.deferred) >= self.MAX_PROPOSALS
             if not full:
@@ -666,6 +721,14 @@ class RDLxApp:
             raise OverflowError("Proposal buffer limit reached")
         with self.buffer_lock:
             self.decision_window.observe_arrival()
+            now = time.time()
+            contended = mode == ON_DEMAND and urgency != Urgency.CRITICAL and self._contended(action, now)
+            self._recent_proposers.setdefault(action.node_id, {})[action.xapp_id] = now
+            if mode == ON_DEMAND and urgency != Urgency.CRITICAL and not contended:
+                # Supervisão sob demanda: sem disputa, decide na chegada, sozinha
+                self.on_demand_queue.append(action)
+                self.urgent_event.set()
+                return urgency
             if urgency == Urgency.CRITICAL:
                 self.critical_queue.append(action)
                 self.urgent_event.set()
@@ -717,6 +780,34 @@ class RDLxApp:
             batch = [a for a in batch if a.action_id not in stale_ids]
         return critical, batch
 
+    def _contended(self, action: XAppAction, now: float) -> bool:
+        """Há disputa recente no nó ou em vizinho? (outra xApp propôs, proposta pendente ou conflito no grafo).
+        Chamada com ``buffer_lock``."""
+        nodes = {action.node_id} | set(self.inter_cell_rules.neighbors.get(action.node_id, set()))
+        since = now - self.on_demand_lookback_s
+        for node in nodes:
+            if any(x != action.xapp_id and t >= since for x, t in self._recent_proposers.get(node, {}).items()):
+                return True
+        if any(a.node_id in nodes for a in self.proposal_buffer + self.critical_queue + self.on_demand_queue):
+            return True
+        try:
+            return self.knowledge_graph.context_features(action.node_id, action.parameter, since=since)["recent_conflicts"] > 0
+        except Exception:
+            return False
+
+    def _take_on_demand(self) -> List[XAppAction]:
+        """Propostas sob demanda prontas (cada uma é decidida sozinha), já sem as vencidas."""
+        with self.buffer_lock:
+            ready, self.on_demand_queue = self.on_demand_queue, []
+        now = time.perf_counter()
+        fresh = []
+        for action in ready:
+            if self.decision_window.remaining_ms(action, now) < 0:
+                self._reject(action, preg.STALE, "on-demand proposal expired before decision")
+            else:
+                fresh.append(action)
+        return fresh
+
     def _release_deferred(self, now: Optional[float] = None) -> int:
         """Devolve à janela as propostas adiadas cujo bloqueio já expirou (são reavaliadas do zero)."""
         now = time.perf_counter() if now is None else now
@@ -747,8 +838,134 @@ class RDLxApp:
         entry = self.proposals.record(action, reason, detail, decision_id=decision_id, winner=winner,
                                       retry_after_ms=retry_after_ms, deferred=deferred)
         self.metrics.proposals_rejected.labels(reason=reason).inc()
-        self._notify_xapp(entry)
+        if action.intercepted:
+            self._finish_intercept(action.action_id, ok=False)
+        else:
+            self._notify_xapp(entry)
         return entry
+
+    # ------------------------------------------------------------------ nível 2: interceptação
+    @staticmethod
+    def _rmr_source(summary: Dict[str, Any]) -> Optional[str]:
+        """Origem RMR do remetente (``hostname:porta``), se o transporte a informar."""
+        for key in ("message source", "msg_source", "source"):
+            value = summary.get(key) if isinstance(summary, dict) else None
+            if value:
+                return value.decode("utf-8", "replace") if isinstance(value, bytes) else str(value)
+        return None
+
+    def _intercepted_control_handler(self, xapp_instance: Any, summary: Dict[str, Any], sbuf: Any):
+        """RIC Control Request (12040) de xApp de terceiros, roteado para a RDL: vira proposta."""
+        payload = summary.get("payload") or b""
+        try:
+            ctl = icpt.decode_intercepted_control(payload)
+        except icpt.InterceptionError as exc:
+            logger.warning("RIC Control interceptado não reconhecido", error=str(exc))
+            self.metrics.intercepted.labels(outcome="UNDECODABLE").inc()
+            try:
+                ids = icpt.v3.decode_e2ap_pdu(payload)
+                failure = icpt.build_control_failure(ids["ric_requestor_id"], ids["ric_instance_id"],
+                                                     ids.get("ran_function_id", 0))
+                xapp_instance.rmr_rts(sbuf, new_payload=failure, new_mtype=RIC_CONTROL_FAILURE)
+            except Exception:
+                pass
+            self._safe_rmr_free(xapp_instance, sbuf)
+            return
+        entry = self.xapp_registry.by_requestor(ctl.requestor_id)
+        node_id = summary.get("meid") or "unknown"
+        if isinstance(node_id, bytes):
+            node_id = node_id.decode("utf-8", "replace")
+        action = XAppAction(
+            xapp_id=entry.xapp_id if entry else f"requestor:{ctl.requestor_id}",
+            node_id=node_id, parameter=ctl.parameter, value=ctl.value,
+            priority=entry.default_priority if entry else 0,
+        )
+        action.intercepted = True
+        with self._intercept_lock:
+            self._intercepts[action.action_id] = (xapp_instance, sbuf, ctl, time.time())
+            self._intercept_history.setdefault(node_id, {})[action.xapp_id] = time.time()
+        self.metrics.intercepted.labels(outcome="RECEIVED").inc()
+        if entry is None:
+            self._reject(action, preg.UNAUTHORIZED, f"RICrequestorID {ctl.requestor_id} sem xApp registrada")
+            return
+        try:
+            self._enqueue(action)
+        except OverflowError:
+            pass  # _reject já respondeu FAILURE
+
+    def _finish_intercept(self, action_id: Optional[str], ok: bool,
+                          cause: int = icpt.CAUSE_CONTROL_FAILED_TO_EXECUTE) -> bool:
+        """Responde à xApp de origem (ACK ou FAILURE) com os IDs que ela usou e libera o buffer RMR."""
+        if not action_id:
+            return False
+        with self._intercept_lock:
+            held = self._intercepts.pop(action_id, None)
+        if held is None:
+            return False
+        xapp_instance, sbuf, ctl, _ = held
+        try:
+            if ok:
+                pdu = icpt.build_control_ack(ctl.requestor_id, ctl.instance_id, ctl.ran_function_id)
+                xapp_instance.rmr_rts(sbuf, new_payload=pdu, new_mtype=RIC_CONTROL_ACK)
+            else:
+                pdu = icpt.build_control_failure(ctl.requestor_id, ctl.instance_id, ctl.ran_function_id, cause)
+                xapp_instance.rmr_rts(sbuf, new_payload=pdu, new_mtype=RIC_CONTROL_FAILURE)
+            self.metrics.intercepted.labels(outcome="ACK" if ok else "FAILURE").inc()
+        except Exception as exc:
+            logger.warning("Falha ao responder à xApp interceptada", error=str(exc))
+        finally:
+            self._safe_rmr_free(xapp_instance, sbuf)
+        return True
+
+    def _expire_intercepts(self, max_age_s: float = 10.0) -> int:
+        """Controles interceptados sem desfecho há mais de ``max_age_s`` recebem FAILURE."""
+        now = time.time()
+        with self._intercept_lock:
+            old = [aid for aid, (_, _, _, t) in self._intercepts.items() if now - t > max_age_s]
+        for aid in old:
+            self._finish_intercept(aid, ok=False, cause=icpt.CAUSE_UNSPECIFIED)
+        return len(old)
+
+    # ------------------------------------------------------------------ nível 3: conflito implícito
+    def observe_kpm_metrics(self, node_id: str, metrics: Dict[str, Optional[float]]) -> List[Dict[str, Any]]:
+        """Confere o KPM do nó contra as ações confirmadas; registra os conflitos implícitos novos."""
+        out = []
+        for finding, committed in self.implicit.observe(node_id, metrics):
+            window_start = time.time() - 30.0
+            with self._intercept_lock:
+                recent = {x for x, t in self._intercept_history.get(node_id, {}).items() if t >= window_start}
+            recent |= {x for x, t in self._recent_proposers.get(node_id, {}).items() if t >= window_start}
+            finding.suspects = sorted(recent - {committed.xapp_id}) or ["out-of-band"]
+            conflict = finding.to_conflict(committed)
+            try:
+                self.knowledge_graph.record_conflict(conflict)
+            except Exception as exc:
+                logger.warning("Falha ao registrar conflito implícito no grafo", error=str(exc))
+            self.metrics.record_conflict(conflict)
+            self.metrics.implicit.labels(parameter=finding.parameter).inc()
+            record = {**finding.to_dict(), "conflict_id": conflict.conflict_id}
+            self.implicit_findings.append(record)
+            logger.warning("Conflito implícito", **{k: v for k, v in record.items() if k != "observed"})
+            out.append(record)
+        return out
+
+    # ------------------------------------------------------------------ nível 4: relatório ao SMO
+    def _governance_view(self) -> Dict[str, Any]:
+        cfg = self.decision_window.config
+        with self._intercept_lock:
+            pending = len(self._intercepts)
+        with self.buffer_lock:
+            deferred = len(self.deferred)
+        return {
+            "generated_at": time.time(),
+            "rejections": {**self.proposals.summary(), "deferred_pending": deferred},
+            "implicit_conflicts": list(self.implicit_findings)[-100:],
+            "critical_downgrades_by_xapp": dict(self.decision_window.downgraded_by_xapp),
+            "xapps": self.xapp_registry.snapshot(),
+            "intercepts_pending": pending,
+            "window": {"adaptive": cfg.adaptive, "base_window_ms": cfg.base_window_ms,
+                       "critical_targets": sorted(f"{x}:{p}" for x, p in cfg.critical_targets)},
+        }
 
     def _notify_xapp(self, entry: Dict[str, Any]) -> None:
         """RDL_ACTION_RESULT (30001) para as xApps; cada uma filtra pelo próprio xapp_id."""
@@ -771,7 +988,7 @@ class RDLxApp:
                 "entries": self.proposals.query(xapp_id=xapp_id, node_id=node_id, reason=reason,
                                                 since=since, limit=limit)}
 
-    def _process_action_group(self, actions: List[XAppAction], fast_path: bool = False):
+    def _process_action_group(self, actions: List[XAppAction], fast_path: bool = False, on_demand: bool = False):
         """
         Processa todas as acoes acumuladas na Decision Window (Feature 2):
         1. Identifica conflitos diretos (por alvo) e indiretos (por par de parâmetros);
@@ -995,7 +1212,7 @@ class RDLxApp:
             conflicts=conflicts,
             safety_result={"admitted_count": len(all_selected), "rejected_count": max(0, len(actions) - len(all_selected))},
             selected_actions=all_selected,
-            reason="CRITICAL_FAST_PATH" if fast_path else "RESOLVED_AND_PASSTHROUGH",
+            reason="CRITICAL_FAST_PATH" if fast_path else ("ON_DEMAND" if on_demand else "RESOLVED_AND_PASSTHROUGH"),
             strategy_used=",".join(strategy_names) if strategy_names else "PASS_THROUGH",
             affected_node=all_selected[0].node_id if all_selected else "gnb_01",
             affected_cell=getattr(all_selected[0], "cell_id", "cell_01") if all_selected else "cell_01",
@@ -1073,11 +1290,19 @@ class RDLxApp:
                 for request_id in expired:
                     self.metrics.ctrl_timeout.inc()
                     request_info = self.dispatcher.pending_requests.get(request_id, {})
-                    self._pop_pending(request_info.get("action_id"))
+                    expired_action = self._pop_pending(request_info.get("action_id"))
+                    if expired_action is not None and expired_action.intercepted:
+                        self._finish_intercept(expired_action.action_id, ok=False,
+                                               cause=icpt.CAUSE_UNSPECIFIED)
+                self._expire_intercepts()
                 self.dispatcher.prune_finalized(now=now)
                 last_cleanup = now
 
             self._release_deferred()
+            for action in self._take_on_demand():
+                # Supervisão sob demanda: sem disputa, a proposta é decidida sozinha (doc 11 §3)
+                self.metrics.on_demand.inc()
+                self._process_action_group([action], on_demand=True)
             critical, batch = self._take_ready_actions()
             if critical:
                 # Caminho rápido: ação crítica decidida sem esperar a janela (doc 09 §2.2)

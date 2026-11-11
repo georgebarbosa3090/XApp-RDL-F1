@@ -1,0 +1,26 @@
+{{- if .Values.routes.enabled }}
+# Tabela de rotas RMR (RMR_SEED_RT) para as xApps proponentes e para a interceptação por rota.
+# Sintaxe RMR: mse|<mtype>[,<origem>]|<subid>|<endpoints>; uma entrada com origem vale só para esse remetente.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rdl-governance-routes
+  namespace: {{ .Values.ricxapp.namespace }}
+  labels: {app.kubernetes.io/part-of: rdl-governance}
+data:
+  routes.rt: |
+    newrt|start
+    # propostas das xApps -> RDL
+    mse|30000|-1|{{ .Values.routes.rdlEndpoint }}
+    {{- if .Values.routes.proposers }}
+    # resultado das propostas (motivo e retry_after_ms) -> xApps proponentes
+    mse|30001|-1|{{ join ";" .Values.routes.proposers }}
+    {{- end }}
+    {{- range .Values.routes.intercepted }}
+    # interceptação: o RIC Control desta xApp de terceiros vai para a RDL, não para o E2Term
+    mse|12040,{{ . }}|-1|{{ $.Values.routes.rdlEndpoint }}
+    {{- end }}
+    # RIC Control da RDL -> E2Term
+    mse|12040|-1|{{ .Values.routes.e2termEndpoint }}
+    newrt|end
+{{- end }}

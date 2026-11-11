@@ -44,7 +44,12 @@ class A1PolicyManager:
                         # Janela de decisão: o que é crítico e o intervalo mínimo da classe crítica
                         "critical_targets": {"type": "array", "maxItems": 32,
                                              "items": {"type": "string", "pattern": "^[^:]+:[A-Z_]+$"}},
-                        "critical_control_interval_ms": {"type": "number", "minimum": 20, "maximum": 1000}
+                        "critical_control_interval_ms": {"type": "number", "minimum": 20, "maximum": 1000},
+                        # Governança (rApp de governança): modo de supervisão e teto de prioridade por xApp
+                        "xapp_modes": {"type": "array", "maxItems": 64,
+                                       "items": {"type": "string", "pattern": "^[^:]+:(MANAGED|ON_DEMAND|QUARANTINED)$"}},
+                        "xapp_priority_caps": {"type": "array", "maxItems": 64,
+                                               "items": {"type": "string", "pattern": "^[^:]+:(100|[1-9]?[0-9])$"}}
                     }
                 }
             },

@@ -4,6 +4,7 @@ from src.infrastructure.sdl_repository import SdlRepository
 from src.core.inter_cell import InterCellRules
 import math
 import itertools
+import os
 
 
 class Reasoning:
@@ -36,6 +37,13 @@ class Reasoning:
         self.w_energy_ind = self.config.get("w_energy_ind", 0.20)
         self.w_fairness_ind = self.config.get("w_fairness_ind", 0.15)
         self.w_viol_ind = self.config.get("w_viol_ind", 0.35)
+        # Agregação do EEVS (achado 55): "mean" (padrão, decisões já medidas) divide QoS e energia pelo
+        # tamanho do subconjunto, então uma ação compatível com energia menor baixa a média; "additive"
+        # divide pelos alvos do conflito, e acrescentar uma ação compatível nunca baixa esses termos.
+        self.eevs_aggregation = str(self.config.get("eevs_aggregation") or os.getenv("RDL_EEVS_AGGREGATION", "mean")).lower()
+        if self.eevs_aggregation not in ("mean", "additive"):
+            raise ValueError(f"RDL_EEVS_AGGREGATION inválido: {self.eevs_aggregation}")
+        self._eevs_targets: Dict[Tuple[str, str], float] = {}
         self.max_exact_actions = min(16, max(1, int(self.config.get("max_exact_actions", 16))))
         # Limite de subconjuntos compatíveis avaliados exatamente pelo EEVS antes do guloso.
         self.max_exact_subsets = max(1, int(self.config.get("max_exact_subsets", 2 ** self.max_exact_actions - 1)))
@@ -125,6 +133,12 @@ class Reasoning:
         options_by_target: Dict[Tuple[str, str], List[XAppAction]] = {}
         for act in actions:
             options_by_target.setdefault((act.node_id, act.parameter), []).append(act)
+        # Para a agregação aditiva: maior prioridade de cada alvo do conflito (denominador fixo)
+        if self.eevs_aggregation == "additive":
+            self._eevs_targets = {t: max(self._calculate_action_scores(a)["priority"] for a in opts)
+                                  for t, opts in options_by_target.items()}
+        else:
+            self._eevs_targets = {}
         n_subsets = 1
         for options in options_by_target.values():
             n_subsets *= len(options) + 1
@@ -312,15 +326,20 @@ class Reasoning:
 
         individual_scores = [self._calculate_action_scores(act) for act in subset]
 
+        additive = self.eevs_aggregation == "additive" and bool(self._eevs_targets)
         # QoS Ponderado pela prioridade
         total_prio = sum(s["priority"] for s in individual_scores)
-        if total_prio > 0:
+        if additive:
+            # denominador = alvos do conflito (ponderados pela maior prioridade de cada um)
+            norm = sum(self._eevs_targets.values()) or float(len(self._eevs_targets))
+            qos_joint = sum(s["sla"] * s["priority"] for s in individual_scores) / norm
+        elif total_prio > 0:
             qos_joint = sum(s["sla"] * s["priority"] for s in individual_scores) / total_prio
         else:
             qos_joint = sum(s["sla"] for s in individual_scores) / len(subset)
 
-        # Eficiência Energética Média
-        energy_joint = sum(s["energy"] for s in individual_scores) / len(subset)
+        # Eficiência Energética: média do subconjunto ("mean") ou soma sobre os alvos do conflito ("additive")
+        energy_joint = sum(s["energy"] for s in individual_scores) / (len(self._eevs_targets) if additive else len(subset))
 
         # Equidade de Jain entre os ganhos de QoS
         sla_values = [s["sla"] for s in individual_scores]

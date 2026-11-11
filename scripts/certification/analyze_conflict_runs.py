@@ -38,7 +38,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "certification"))
 import certify_chain  # noqa: E402
 
-RUN_PATTERN = re.compile(r"^nr_(S\d+)_(B\d)_seed(\d+)$")
+# S0–S15 e G1–G2; B0–B3 e variantes do B3 (B3A: EEVS aditivo, pré-registro 09)
+RUN_PATTERN = re.compile(r"^nr_([SG]\d+)_(B\d[A-Z]?)_seed(\d+)$")
 TX_POWER_RANGE = (-10.0, 43.0)
 T_975 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262,
          10: 2.228, 14: 2.145, 19: 2.093, 29: 2.045}

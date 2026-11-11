@@ -46,7 +46,8 @@ if str(ROOT) not in sys.path:
 
 CATALOG = ROOT / "simulations" / "ns3" / "conflicts" / "catalog.json"
 RUNNER = ROOT / "scripts" / "certification" / "run_ns3_certified.sh"
-BASELINES = ("B0", "B1", "B2", "B3")
+# B3A: o mesmo H-RDL do B3 com o EEVS aditivo (RDL_EEVS_AGGREGATION=additive; pré-registro 09)
+BASELINES = ("B0", "B1", "B2", "B3", "B3A")
 SCHEDULE_FIELDS = ["time_s", "gnb", "parameter", "value", "ue", "xapp_id", "action_id"]
 
 
@@ -204,7 +205,25 @@ def baseline_b3(events, window):
     return schedule, log
 
 
-DECIDERS = {"B0": baseline_b0, "B1": baseline_b1, "B2": baseline_b2, "B3": baseline_b3}
+def _with_eevs(mode: str):
+    """B3 com a agregação do EEVS fixada (o B3 usa sempre "mean", como nas campanhas anteriores)."""
+    def decider(events, window):
+        previous = os.environ.get("RDL_EEVS_AGGREGATION")
+        os.environ["RDL_EEVS_AGGREGATION"] = mode
+        try:
+            return baseline_b3(events, window)
+        finally:
+            if previous is None:
+                os.environ.pop("RDL_EEVS_AGGREGATION", None)
+            else:
+                os.environ["RDL_EEVS_AGGREGATION"] = previous
+    decider.__doc__ = f"H-RDL (RDLxApp._process_action_group) com EEVS {mode}"
+    return decider
+
+
+EEVS_BY_BASELINE = {"B3": "mean", "B3A": "additive"}
+DECIDERS = {"B0": baseline_b0, "B1": baseline_b1, "B2": baseline_b2,
+            "B3": _with_eevs("mean"), "B3A": _with_eevs("additive")}
 
 
 def decide(scenario_id: str, baseline: str, catalog: Dict[str, Any]):
@@ -260,7 +279,8 @@ def write_outputs(directory: Path, scenario_id, baseline, spec, events, schedule
     decision = {
         "scenario": scenario_id, "baseline": baseline, "ns3_scenario": spec["ns3"],
         "summary": spec.get("summary"), "conflict_window_s": spec.get("conflict_window_s"),
-        "engine": "src/rdl_xapp.py RDLxApp._process_action_group" if baseline == "B3" else DECIDERS[baseline].__doc__,
+        "engine": "src/rdl_xapp.py RDLxApp._process_action_group" if baseline in EEVS_BY_BASELINE else DECIDERS[baseline].__doc__,
+        "eevs_aggregation": EEVS_BY_BASELINE.get(baseline),
         "repo_git_sha": git_sha, "proposals": events, "windows": log, "schedule": schedule,
     }
     decision_path = directory / "decision_log.json"
@@ -312,7 +332,7 @@ def main(argv=None) -> int:
         cmd = ["bash", to_wsl(RUNNER), "--scenario", spec["ns3"], "--seed", str(args.seed),
                "--baseline", args.baseline, "--run-id", run_id,
                "--action-schedule", to_wsl(schedule_path), "--attach", to_wsl(decision_path)]
-        if args.baseline == "B3":
+        if args.baseline in EEVS_BY_BASELINE:
             cmd += ["--extra-source", "HRDL_RUNTIME"]
         if args.no_build:
             cmd += ["--no-build"]

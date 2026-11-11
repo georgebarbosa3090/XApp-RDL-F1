@@ -13,6 +13,7 @@ Motivos:
 - ``STALE``: ficou mais tempo que a validade (``RDL_PROPOSAL_MAX_AGE_MS`` ou ``ttl_ms``) antes de ser decidida.
 - ``OVERFLOW``: fila cheia na chegada.
 - ``DISPATCH_FAILED``: admitida, mas o envio do RIC Control falhou.
+- ``UNAUTHORIZED``: xApp não registrada (modo estrito), origem RMR que não confere ou em quarentena.
 
 O registro é limitado (``max_entries``) e, se a memória da RDL souber guardar recusas
 (``save_rejection``: SDL na implantação), cada entrada também é persistida lá.
@@ -29,7 +30,8 @@ LOST_ARBITRATION = "LOST_ARBITRATION"
 STALE = "STALE"
 OVERFLOW = "OVERFLOW"
 DISPATCH_FAILED = "DISPATCH_FAILED"
-REASONS = (SAFETY, HYSTERESIS, LOST_ARBITRATION, STALE, OVERFLOW, DISPATCH_FAILED)
+UNAUTHORIZED = "UNAUTHORIZED"
+REASONS = (SAFETY, HYSTERESIS, LOST_ARBITRATION, STALE, OVERFLOW, DISPATCH_FAILED, UNAUTHORIZED)
 
 _HYSTERESIS_MARK = "Control frequency exceeded"
 

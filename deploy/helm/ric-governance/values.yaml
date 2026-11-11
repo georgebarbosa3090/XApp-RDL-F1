@@ -1,0 +1,44 @@
+# Namespaces do O-RAN SC Release I
+ricplt:
+  namespace: ricplt
+  e2termPodLabels: {app: ricplt-e2term-alpha}
+  e2termRmrDataPort: 38000
+  # Portas do E2Term que continuam abertas a qualquer origem (E2 Setup SCTP dos nós, métricas)
+  openPorts:
+    - {port: 36422, protocol: SCTP}
+    - {port: 8088, protocol: TCP}
+  # Rota RMR (4561) vem do RtMgr, no próprio ricplt (coberto pela regra do namespace)
+  # Namespaces de nós E2 dentro do cluster (NORI): todas as portas, sem depender de a
+  # implementação de NetworkPolicy reconhecer SCTP
+  e2NodeNamespaces: [ricsim]
+
+ricxapp:
+  namespace: ricxapp
+  # Quem pode mandar RIC Control (RMR de dados) ao E2Term além da plataforma
+  e2Controllers:
+    - {app: ricxapp-iqos-xapp-rdl}               # a RDL
+    - {app.kubernetes.io/name: kpm-probe}        # bancada NORI: a kpm-probe embute o H-RDL (modo catálogo)
+  rdl:
+    podLabels: {app: ricxapp-iqos-xapp-rdl}
+    rmrDataPort: 4560
+    # xApps que podem propor à RDL (RMR 30000): rótulo aplicado no Deployment de cada xApp registrada
+    proposerLabel: {rdl.governance/proposer: "true"}
+
+# Política na porta RMR de dados do E2Term (o que torna a RDL obrigatória)
+e2termPolicy:
+  enabled: true
+# Política na porta RMR de dados da RDL (só a plataforma e as xApps proponentes)
+rdlPolicy:
+  enabled: true
+
+# Tabela de rotas RMR estática (RMR_SEED_RT) para xApps proponentes e interceptação
+routes:
+  enabled: true
+  rdlEndpoint: service-ricxapp-iqos-xapp-rdl-rmr.ricxapp:4560
+  e2termEndpoint: service-ricplt-e2term-rmr-alpha.ricplt:38000
+  # Endpoints das xApps que recebem RDL_ACTION_RESULT (30001); cada uma filtra pelo próprio xapp_id
+  proposers: []
+  #   - service-ricxapp-xslice-rmr.ricxapp:4560
+  # xApps de terceiros interceptadas: origem RMR (hostname:porta do remetente) cujo 12040 vai para a RDL
+  intercepted: []
+  #   - ricxapp-thirdparty-ts-0:4560

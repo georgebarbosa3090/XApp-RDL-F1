@@ -77,3 +77,51 @@ def test_xslice_and_energy_saving_conflict_is_resolved():
     resolution = Reasoning(memory, config={}).resolve(conflicts[0])
     assert resolution.winning_actions == [xslice]
     assert Refinement(memory).validate(resolution, conflicts[0])[0]
+
+
+def test_rmr_contract_between_reference_xapps_and_rdl(monkeypatch):
+    """A proposta da xApp entra pelo handler RMR 30000 da RDL; a recusa (30001) volta e a xApp a entende."""
+    import json
+    sys.path.insert(0, str(root_dir / "reference-xapps" / "common"))
+    from rdl_transport import RdlTransport
+    from src.rdl_xapp import RDLxApp
+
+    es = EnergySavingXApp(http_port=19384, metrics_port=19385)
+    assert es.transport.start() in ("none", "rmr")
+    sent = []
+    es.transport.mode = "rmr"
+    es.transport._rmr = type("R", (), {"rmr_send": lambda self, payload, mtype: sent.append((payload, mtype)) or True,
+                                       "stop": lambda self: None})()
+    proposal = es.generate_action_proposal(node_id="gnb_0", tx_power=15.0)
+    assert es._dispatch_proposal(proposal) and sent[0][1] == 30000 and es.transport.sent == 1
+
+    app = RDLxApp()
+    try:
+        notices = []
+        app.xapp = type("X", (), {"rmr_send": lambda self, p, m: notices.append((json.loads(p), m)) or True,
+                                  "rmr_free": lambda self, s: None, "stop": lambda self: None})()
+        app.dispatcher.dispatch_control = lambda decision, **_: "req"
+        app._action_proposal_handler(None, {"payload": sent[0][0]}, None)
+        (queued,) = app.proposal_buffer
+        assert (queued.xapp_id, queued.parameter, queued.value) == (es.xapp_id, "TX_POWER", 15.0)
+        rival = XAppAction(xapp_id="xslice_oran", node_id="gnb_0", parameter="TX_POWER", value=30.0, priority=95)
+        app._process_action_group([queued, rival])
+        (notice, mtype), = notices
+        assert mtype == 30001 and notice["xapp_id"] == es.xapp_id
+        got = []
+        es.transport.on_result = got.append
+        assert es.transport.handle_result(json.dumps(notice).encode()) == notice and got == [notice]
+        assert es.transport.handle_result(json.dumps({**notice, "xapp_id": "other"}).encode()) is None
+        assert es.transport.handle_result(b"not json") is None
+    finally:
+        app.stop()
+
+
+def test_transport_modes_without_rmr():
+    sys.path.insert(0, str(root_dir / "reference-xapps" / "common"))
+    from rdl_transport import RdlTransport
+    t = RdlTransport("x", mode="none")
+    assert t.start() == "none" and t.send({"a": 1}) is False and t.stats()["failed"] == 1
+    h = RdlTransport("x", mode="http")
+    h.http_url = "http://127.0.0.1:9/nowhere"
+    assert h.start() == "http" and h.send({"a": 1}) is False

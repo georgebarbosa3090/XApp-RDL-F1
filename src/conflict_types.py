@@ -9,6 +9,8 @@ class ConflictType(Enum):
     INDIRECT = "INDIRECT"
     # Entre células: handover para célula desligada/reduzida, ping-pong, vizinhas dormindo
     INTER_CELL = "INTER_CELL"
+    # Implícito: o KPM contradiz a ação confirmada (alguém agiu por fora da RDL)
+    IMPLICIT = "IMPLICIT"
 
 class ConflictSeverity(Enum):
     LOW = "LOW"
@@ -45,6 +47,9 @@ class XAppAction:
     urgency: str = "NORMAL"
     defer_ok: bool = False
     ttl_ms: Optional[float] = None
+    # Governança: prioridade pedida antes do teto do registro/A1 e origem interceptada (nível 2)
+    requested_priority: Optional[int] = None
+    intercepted: bool = False
 
     def __post_init__(self):
         if self.t_arrival == 0.0:

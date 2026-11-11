@@ -17,6 +17,10 @@ import json
 import logging
 from typing import Dict, Any, Optional
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "common"))
+from rdl_transport import RdlTransport  # noqa: E402  entrega por RMR 30000 / resultado 30001
+
 try:
     from fastapi import FastAPI
     from uvicorn import Config, Server
@@ -62,6 +66,7 @@ class XSliceXApp:
         self.http_port = int(os.getenv("HTTP_PORT", str(http_port)))
         self.metrics_port = int(os.getenv("METRICS_PORT", str(metrics_port)))
         self.rmr_port = int(os.getenv("RMR_PORT", str(rmr_port)))
+        self.transport = RdlTransport(self.xapp_id, rmr_port=self.rmr_port)
         self.running = False
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
@@ -146,20 +151,9 @@ class XSliceXApp:
         
         return proposal
 
-    def _dispatch_proposal(self, proposal: Dict[str, Any]):
-        """Despacha a proposta ativamente para a xApp RDL via HTTP Webhook se configurado."""
-        if self.rdl_endpoint:
-            try:
-                import urllib.request
-                req = urllib.request.Request(
-                    self.rdl_endpoint,
-                    data=json.dumps(proposal).encode("utf-8"),
-                    headers={"Content-Type": "application/json"}
-                )
-                with urllib.request.urlopen(req, timeout=1.0) as resp:
-                    pass
-            except Exception as e:
-                logger.debug(f"[xSlice] Falha ao despachar via HTTP para {self.rdl_endpoint}: {e}")
+    def _dispatch_proposal(self, proposal: Dict[str, Any]) -> bool:
+        """Entrega a proposta à RDL (RMR 30000; ver reference-xapps/common/rdl_transport.py)."""
+        return self.transport.send(proposal)
 
     def _run_http(self):
         """Servidor FastAPI para /health, /ready e /metrics."""
@@ -211,6 +205,7 @@ class XSliceXApp:
 
     def start(self):
         self.running = True
+        self.transport.start()
         t_http = threading.Thread(target=self._run_http, daemon=True)
         t_http.start()
 
@@ -220,6 +215,7 @@ class XSliceXApp:
 
     def stop(self):
         self.running = False
+        self.transport.stop()
         if self.http_server:
             self.http_server.should_exit = True
         logger.info("xSlice xApp finalizada.")

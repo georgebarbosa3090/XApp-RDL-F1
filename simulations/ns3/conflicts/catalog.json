@@ -515,6 +515,7 @@
       "ns3": "scenario_rdl_multicell",
       "args": [
         "--simTime=25",
+        "--bandwidth=10e6",
         "--channel=InH-OfficeMixed",
         "--gnbs=0,0,3",
         "--ueGroups=20,0,0,2,30,2,0,0,1.0;10,0,0,2,30,1,0,0,1.0",
@@ -546,7 +547,8 @@
           "end": 20.0,
           "period": 1.0
         }
-      ]
+      ],
+      "load_note": "portadora reduzida em 2026-11-11 (achado 57b) para o teto de PRB restringir; validar com rodada curta antes de campanha"
     },
     "S13": {
       "ns3": "scenario_rdl_multicell",
@@ -609,6 +611,7 @@
       "ns3": "scenario_rdl_multicell",
       "args": [
         "--simTime=25",
+        "--bandwidth=50e6",
         "--channel=UMi",
         "--gnbs=0,0,10",
         "--ueGroups=30,0,0,10,100,5,0,0,1.5"
@@ -639,7 +642,8 @@
           "end": 20.0,
           "period": 1.0
         }
-      ]
+      ],
+      "load_note": "portadora reduzida em 2026-11-11 (achado 57b) para o teto de PRB restringir; validar com rodada curta antes de campanha"
     },
     "S15": {
       "ns3": "scenario_rdl_multicell",

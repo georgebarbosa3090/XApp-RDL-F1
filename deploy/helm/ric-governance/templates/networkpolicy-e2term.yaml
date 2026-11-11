@@ -1,0 +1,39 @@
+{{- if .Values.e2termPolicy.enabled }}
+# Só a plataforma (ricplt) e os controladores autorizados (a RDL) alcançam a porta RMR de dados do E2Term.
+# Uma xApp que forje a própria tabela de rotas para mandar RIC Control (12040) direto ao E2Term fica sem conexão.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: e2term-rmr-data-rdl-only
+  namespace: {{ .Values.ricplt.namespace }}
+  labels: {app.kubernetes.io/part-of: rdl-governance}
+spec:
+  podSelector:
+    matchLabels:
+      {{- toYaml .Values.ricplt.e2termPodLabels | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    # componentes da plataforma (E2Mgr, SubMgr, RtMgr, A1 Mediator...): todas as portas
+    - from:
+        - podSelector: {}
+    # RMR de dados: só os controladores autorizados no namespace das xApps
+    - from:
+        {{- range .Values.ricxapp.e2Controllers }}
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ $.Values.ricxapp.namespace }}}
+          podSelector:
+            matchLabels:
+              {{- toYaml . | nindent 14 }}
+        {{- end }}
+      ports:
+        - {port: {{ .Values.ricplt.e2termRmrDataPort }}, protocol: TCP}
+    {{- range .Values.ricplt.e2NodeNamespaces }}
+    # nós E2 no cluster (NORI): todas as portas
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ . }}}
+    {{- end }}
+    # E2 Setup dos nós externos (SCTP, NodePort) e métricas: qualquer origem
+    - ports:
+        {{- toYaml .Values.ricplt.openPorts | nindent 8 }}
+{{- end }}

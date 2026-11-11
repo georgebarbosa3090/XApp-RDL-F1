@@ -8,9 +8,15 @@ Cada xApp expõe `/health`, `/ready` e `/metrics` (FastAPI + Prometheus) e gera 
 {"xapp_id": "...", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 66.0, "priority": 90}
 ```
 
-Campos opcionais aceitos pela RDL: `defer_ok` (reavaliar a proposta quando o bloqueio de histerese do alvo expirar) e `ttl_ms` (validade pedida, até 3000 ms). A RDL responde às propostas recusadas com RMR `RDL_ACTION_RESULT` (30001: motivo e `retry_after_ms`) e as registra em `GET /rejections` ([docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md)). Nenhuma das xApps abaixo trata essa resposta ainda.
+**Entrega (desde 2026-11-11):** xSlice, Energy Saving, Traffic Steering e Rogue enviam a proposta por RMR `RDL_ACTION_PROPOSAL` (30000) e recebem `RDL_ACTION_RESULT` (30001) com o motivo da recusa e `retry_after_ms`. O módulo comum é [`common/rdl_transport.py`](common/rdl_transport.py), e `RDL_TRANSPORT` escolhe o modo:
 
-**Entrega:** xSlice, Energy Saving e Traffic Steering enviam a proposta por HTTP para `RDL_HTTP_URL`, mas a xApp RDL só recebe propostas por RMR (`RDL_ACTION_PROPOSAL`, mtype 30000). Na implantação, portanto, as propostas não chegam à RDL; a Rogue só gera e registra. Ligar isso exige enviar por RMR 30000 (ou a RDL ganhar um endpoint HTTP de propostas). Avaliação completa: [relatório de adequação, seção 7.1](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md).
+- `rmr`: padrão nos charts;
+- `http`: POST para `RDL_HTTP_URL`, que a RDL não recebe; serve só a um coletor de testes;
+- `none`: só registra localmente.
+
+Os charts aplicam o rótulo `rdl.governance/proposer: "true"`, exigido pela NetworkPolicy da RDL ([doc 11](../docs/11_governanca_hierarquica_xapps.md)). No modo estrito, a xApp também precisa estar no registro da RDL (`RDL_XAPP_REGISTRY`; exemplo em [`configs/xapp_registry.example.json`](../configs/xapp_registry.example.json)). **Não verificado com RMR real.**
+
+Campos opcionais da proposta: `defer_ok` (reavaliar a proposta quando o bloqueio de histerese do alvo expirar) e `ttl_ms` (validade pedida, até 3000 ms). Ver [docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md).
 
 ## 1. Catálogo
 

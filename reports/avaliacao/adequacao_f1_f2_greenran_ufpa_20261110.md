@@ -323,9 +323,9 @@ Ações que não cabem no Near-RT RIC (dApps no DU/CU, política E2SM-RC, guarda
 **Pendências que bloqueiam o uso no GreenRAN:**
 
 1. Validação pré-registrada CA-RDL × H-RDL no NORI, com critério de seleção de semente fixado antes.
-2. Campanha pareada de S9–S15/G1–G2, com mais carga em S12 e S14.
-3. Correção pré-registrada da utilidade do EEVS (achado 55).
-4. Entrega de propostas das xApps por RMR 30000.
+2. Campanha pareada de S9–S15/G1–G2: pré-registrada ([pré-registro 10](../../docs/preregistros/10_campanha_s9_s15_g1_g2.md)) e agendada para 2026-11-12; S12 e S14 com portadora reduzida, a validar.
+3. Correção da utilidade do EEVS (achado 55): opção aditiva e baseline B3A implementados; campanha pré-registrada ([pré-registro 09](../../docs/preregistros/09_eevs_aditivo.md)), não executada.
+4. Entrega de propostas das xApps por RMR 30000: implementada nas xApps de referência (2026-11-11), não verificada com RMR real; governança hierárquica das xApps em [doc 11](../../docs/11_governanca_hierarquica_xapps.md).
 5. GR1 com o kpm-probe implantado.
 6. Execução no testbed UFPA.
 

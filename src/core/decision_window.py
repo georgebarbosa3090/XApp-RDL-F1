@@ -77,6 +77,7 @@ class AdaptiveDecisionWindow:
         self._last_arrival: Optional[float] = None
         self._critical_times: Dict[str, Deque[float]] = {}
         self.downgraded_count = 0
+        self.downgraded_by_xapp: Dict[str, int] = {}
 
     def classify(self, action) -> Urgency:
         cfg = self.config
@@ -99,6 +100,7 @@ class AdaptiveDecisionWindow:
             times.popleft()
         if len(times) >= self.config.critical_max_per_s:
             self.downgraded_count += 1
+            self.downgraded_by_xapp[action.xapp_id] = self.downgraded_by_xapp.get(action.xapp_id, 0) + 1
             return Urgency.URGENT
         times.append(now)
         return Urgency.CRITICAL

@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: {{ include "xapp-traffic-steering.fullname" . }}
+        # xApp proponente: a NetworkPolicy da RDL (deploy/helm/ric-governance) só aceita RMR destas
+        rdl.governance/proposer: "true"
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -23,6 +25,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: RDL_TRANSPORT          # propostas por RMR 30000, resultado por 30001
+              value: "{{ .Values.env.rdlTransport | default "rmr" }}"
             - name: XAPP_ROLE
               value: "{{ .Values.env.xappRole }}"
             - name: HTTP_PORT

@@ -81,6 +81,12 @@ Uma semente (9101), B0 e B3, 18 execuções em `experiments/runs/nr_{S9..S15,G1,
 | S15 | 0,64 / 6,9 | 0,61 / 15,5 | o B0 aplica 90 dBm no satélite e tenta handover para a célula 7 (rejeitado pela RAN); o B3 barra os dois |
 | S12, S14 | 20,5 / 5,4 e 49,2 / 5,4 | iguais | a carga oferecida não chega ao teto de PRB: o conflito não restringe (achado 57) |
 
+**Desde 2026-11-11:**
+
+- **S12 e S14:** portadora reduzida (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir. Validação por rodada curta com a semente 9102 antes da campanha pareada ([pré-registro 10](preregistros/10_campanha_s9_s15_g1_g2.md)).
+- **Baseline `B3A`:** o mesmo H-RDL do B3 com o EEVS aditivo ([pré-registro 09](preregistros/09_eevs_aditivo.md)). Muda a decisão só em S2, S13 (admite o handover de evacuação, achado 55) e S15.
+- **Análise:** o analisador passou a incluir G1, G2 e o B3A. Antes, o padrão de nome de execução os descartava (achado 61); por isso o relatório de análise de 2026-11-11 não tem G1 nem G2.
+
 ## 3. xApps que geram as propostas
 
 As propostas do catálogo representam os papéis das xApps (xSlice/RANSlicer, Energy Saving, Traffic Steering, Load Balancer, ISAC, injetor de falhas e uma xApp maliciosa de teste). Em [`reference-xapps/`](../reference-xapps/README.md) restam xSlice, Energy Saving, Traffic Steering e Rogue; Beamformer, ISAC Radar, Load Balancer e Bouncer saíram em 2026-11-10 (achado 58). Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes. A avaliação das xApps (origem, parâmetros aceitos pela RDL, entrega das propostas) está na [seção 7.1 do relatório de adequação](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md): as xApps próprias propõem parâmetros fora do catálogo da RDL e nenhuma xApp de referência entrega propostas à RDL implantada.

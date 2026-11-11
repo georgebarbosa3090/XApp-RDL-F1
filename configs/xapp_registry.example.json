@@ -1,0 +1,10 @@
+{
+  "_comment": "Registro de xApps sob a RDL (RDL_XAPP_REGISTRY; doc 11). sources: regex da origem RMR (hostname:porta do remetente). mode: MANAGED | ON_DEMAND | QUARANTINED. max_priority: teto. intercept_requestor_ids: RICrequestorIDs de xApp de terceiros cujo RIC Control (12040) é roteado para a RDL.",
+  "xapps": {
+    "xslice_oran": {"sources": ["^ricxapp-qos-xslice-"], "mode": "MANAGED", "max_priority": 90},
+    "energy_saving_orange": {"sources": ["^ricxapp-energy-saving-"], "mode": "ON_DEMAND", "max_priority": 70},
+    "traffic_steering_oransc": {"sources": ["^ricxapp-traffic-steering-"], "mode": "MANAGED", "max_priority": 80},
+    "rogue_vendor_stress_6g": {"sources": ["^ricxapp-rogue-"], "mode": "MANAGED", "max_priority": 50},
+    "thirdparty_ts": {"intercept_requestor_ids": [1010], "default_priority": 70, "mode": "MANAGED"}
+  }
+}

@@ -69,7 +69,7 @@ Desde 2026-11-10 (`src/core/decision_window.py`; motivação e alternativas fora
 | `URGENT` | prioridade ≥ 80 | janela fixa: fecha a janela na hora (comportamento anterior); janela adaptativa: espera no máximo 20 ms |
 | `NORMAL` | demais | 200 ms; com `RDL_ADAPTIVE_WINDOW=true`, o tempo para acumular 8 propostas à taxa de chegada recente, entre 50 e 500 ms |
 
-A janela adaptativa está **desligada por padrão**: nenhuma campanha a usou ainda. O laço de decisão acorda a cada 50 ms ou na hora, quando chega uma proposta `CRITICAL` ou `URGENT`; a janela normal de 200 ms fecha, portanto, entre 200 e 250 ms.
+A janela adaptativa está **ligada por padrão desde 2026-11-11** (`RDL_ADAPTIVE_WINDOW=false` volta à janela fixa). As campanhas nativas e NORI não passam por ela: o harness chama o pipeline direto, por janela do catálogo. O laço de decisão acorda a cada 50 ms ou na hora, quando chega uma proposta `CRITICAL` ou `URGENT`; a janela normal de 200 ms fecha, portanto, entre 200 e 250 ms.
 
 ### 3.2 Propostas não atendidas: registro, aviso, adiamento e validade
 
@@ -83,8 +83,9 @@ Desde 2026-11-11 (`src/core/proposal_registry.py`; doc 09 §2.4). Toda proposta 
 | `STALE` | esperou mais que a validade antes de ser decidida (`RDL_PROPOSAL_MAX_AGE_MS`, 1000 ms) |
 | `OVERFLOW` | fila cheia na chegada |
 | `DISPATCH_FAILED` | admitida, mas o RIC Control não foi enviado |
+| `UNAUTHORIZED` | xApp fora do registro no modo estrito, origem RMR que não confere ou xApp em quarentena ([doc 11](11_governanca_hierarquica_xapps.md)) |
 
-- **Consulta:** `GET /rejections?xapp_id=&node_id=&reason=&since=&limit=` (porta 8080) devolve as entradas mais recentes e o resumo por motivo e por xApp. O registro guarda `RDL_REJECTION_LOG_SIZE` (5000) entradas; cada uma também vai para a memória da RDL (`save_rejection`: SDL na implantação, `MemoryModule` em teste).
+- **Consulta:** `GET /rejections?xapp_id=&node_id=&reason=&since=&limit=` (porta 8080) devolve as entradas mais recentes e o resumo por motivo e por xApp; `GET /decisions?node=&since=` é o atalho por nó. O registro guarda `RDL_REJECTION_LOG_SIZE` (5000) entradas; cada uma também vai para a memória da RDL (`save_rejection`: SDL na implantação, `MemoryModule` em teste).
 - **Aviso à xApp:** RMR `RDL_ACTION_RESULT` (mtype 30001), JSON com `status = REJECTED`, motivo, `retry_after_ms`, `deferred` e a xApp vencedora. Cada xApp filtra pelo próprio `xapp_id`; a rota do 30001 tem de chegar a todas as xApps que propõem. Desligável com `RDL_NOTIFY_XAPPS=false`.
 - **Adiamento:** só para `HYSTERESIS` e só se a xApp pediu (`defer_ok`). A proposta volta para a janela quando o bloqueio expira, se ainda estiver na validade (padrão 2000 ms, máximo `RDL_DEFER_MAX_TTL_MS` = 3000 ms), e é reavaliada do zero, contra o estado atual. A RDL não executa depois uma ação decidida antes.
 - **Validade:** medida no relógio monotônico da RDL, desde a chegada. A idade não usa o relógio de quem enviou.
@@ -251,7 +252,7 @@ Um E2 Node conforme rejeitaria os controles. O NORI oficial usa E2AP/E2SM **v3.0
 
 | Interface | Porta | Conteúdo |
 | :-- | :-: | :-- |
-| HTTP (`/health`, `/ready`, `/status`, `/ric/v1/subscriptions/response`, `/kg`, `/rejections`) | 8080 | saúde, callback do SubMgr, grafo de conhecimento e propostas não atendidas |
+| HTTP (`/health`, `/ready`, `/status`, `/ric/v1/subscriptions/response`, `/kg`, `/rejections`, `/decisions`, `/governance`) | 8080 | saúde, callback do SubMgr, grafo de conhecimento, propostas não atendidas e relatório de governança para o SMO ([doc 11](11_governanca_hierarquica_xapps.md)) |
 | Prometheus | 8081 | contadores de KPM, conflitos, resoluções, controles, ACKs, falhas, timeouts, recusas por motivo, adiamentos e caminho crítico |
 
 O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, conflitos, decisões e respostas de controle por correlação.
@@ -270,6 +271,8 @@ O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e,
 | | `cooling_lockout_ms` (100–5000) | intervalo mínimo de controle por alvo |
 | | `critical_targets` (lista `xapp:PARAM` ou `*:PARAM`, até 32) | marca alvos como `CRITICAL` (substitui `RDL_CRITICAL_TARGETS` enquanto a política vale) |
 | | `critical_control_interval_ms` (20–1000) | intervalo mínimo da classe `CRITICAL` |
+| | `xapp_modes` (lista `xapp:MANAGED\|ON_DEMAND\|QUARANTINED`) | modo de supervisão por xApp ([doc 11 §3](11_governanca_hierarquica_xapps.md)) |
+| | `xapp_priority_caps` (lista `xapp:N`) | teto de prioridade por xApp |
 | 20001 `GreenRAN_Intent_Policy` | `energy_weight` (0–0,6) | peso de energia no TVS e no EEVS |
 | | `sla_weight` (0,1–0,8) | peso de SLA no TVS e de QoS no EEVS |
 | | `allow_neighbor_sleep` (bool) | desliga a regra `NEIGHBOR_SLEEP` |

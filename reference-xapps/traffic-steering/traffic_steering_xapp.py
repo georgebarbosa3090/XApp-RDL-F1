@@ -14,6 +14,10 @@ import json
 import logging
 from typing import Dict, Any, Optional
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "common"))
+from rdl_transport import RdlTransport  # noqa: E402  entrega por RMR 30000 / resultado 30001
+
 try:
     from fastapi import FastAPI
     from uvicorn import Config, Server
@@ -56,6 +60,7 @@ class TrafficSteeringXApp:
         self.http_port = int(os.getenv("HTTP_PORT", str(http_port)))
         self.metrics_port = int(os.getenv("METRICS_PORT", str(metrics_port)))
         self.rmr_port = int(os.getenv("RMR_PORT", str(rmr_port)))
+        self.transport = RdlTransport(self.xapp_id, rmr_port=self.rmr_port)
         self.running = False
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
@@ -126,17 +131,12 @@ class TrafficSteeringXApp:
                 target_ue=self.target_ue
             )
             logger.debug(f"[TrafficSteering Proposal] Emitida: {proposal}")
-            rdl_url = os.getenv("RDL_HTTP_URL", "")
-            if rdl_url:
-                try:
-                    import requests
-                    requests.post(rdl_url, json=proposal, timeout=1.5)
-                except Exception as exc:
-                    logger.debug(f"[TrafficSteering] Falha ao enviar proposta HTTP: {exc}")
+            self.transport.send(proposal)
             time.sleep(3.0)
 
     def start(self):
         self.running = True
+        self.transport.start()
         # Iniciar HTTP em background
         t_http = threading.Thread(target=self._run_http, daemon=True)
         t_http.start()
@@ -148,6 +148,7 @@ class TrafficSteeringXApp:
 
     def stop(self):
         self.running = False
+        self.transport.stop()
         if self.http_server:
             self.http_server.should_exit = True
         logger.info("Traffic Steering xApp finalizada.")

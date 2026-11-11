@@ -84,13 +84,19 @@ As escalas do O-RAN são: tempo real (DU/CU) abaixo de 10 ms, Near-RT RIC de 10 
 
 **O que falta:** a exportação ativa para o SMO (O1/VES ou R1) não existe; hoje o rApp tem de ler `GET /rejections` e as métricas Prometheus. O rApp de exemplo (`rapps/greenran_resource_optimizer.py`) ainda não lê esse resumo.
 
-### 2.6 xApps fora do "guarda-chuva" da RDL
+### 2.6 xApps fora do "guarda-chuva" da RDL (implementado em 2026-11-11)
 
-Uma xApp que manda RIC Control (12040) direto ao E2Term passa por fora da RDL, e a RDL não a vê. Opções, da mais forte à mais fraca:
+Uma xApp que manda RIC Control (12040) direto ao E2Term passa por fora da RDL. Desde 2026-11-11 a governança é hierárquica, em quatro níveis, descrita no [doc 11](11_governanca_hierarquica_xapps.md):
 
-1. **Bloqueio na plataforma (recomendado para o testbed).** Só o descritor da RDL declara `RIC_CONTROL_REQ` em `txMessages`; as demais xApps declaram `RDL_ACTION_PROPOSAL` e recebem `RDL_ACTION_RESULT`. As rotas do RMR seguem os descritores, mas uma xApp pode forjar a própria tabela de rotas. Por isso o reforço é uma `NetworkPolicy` do Kubernetes em que a porta RMR de dados do E2Term só aceita a RDL e os componentes da plataforma (submgr, e2mgr).
-2. **Interceptação por rota.** Para xApps de terceiros que não podem ser alteradas, a tabela de rotas manda o 12040 delas para a RDL em vez do E2Term. A RDL decodifica o E2SM-RC como proposta, arbitra e responde com ACK ou FAILURE. A xApp não muda, mas a RDL precisa decodificar os tipos de controle que ela usa (hoje só codifica a cota de PRB). **Não implementado.**
-3. **Detecção de conflito implícito.** Comparar o KPM medido com o esperado pelas ações que a RDL confirmou; uma mudança sem explicação vira conflito `IMPLICIT`, registrada no grafo e reportada ao SMO. **Não implementado.**
-4. **Gestão pelo Non-RT/SMO.** Com esse relatório, o operador ou um rApp rebaixa a prioridade da xApp por A1 ou a retira (undeploy). É lento, mas fecha o ciclo.
+1. **Plataforma:**
+   - registro de xApps (identidade pela origem RMR);
+   - `NetworkPolicy` que só deixa a RDL e a plataforma alcançarem a porta RMR de dados do E2Term (verificada no cluster da bancada);
+   - porta RMR da RDL restrita às xApps proponentes;
+   - tabela de rotas.
+2. **Interceptação por rota:** o RIC Control de xApps de terceiros vira proposta, e a RDL responde ACK ou Failure.
+3. **Conflito implícito:** KPM incoerente com a ação confirmada vira `IMPLICIT`, com suspeitas.
+4. **Non-RT/SMO:** o rApp de governança põe a xApp em quarentena ou limita a prioridade dela por A1, ou recomenda retirá-la.
 
-No GreenRAN, o xApp1-RANSlicer e o xApp2-EnergySaver são do próprio projeto: bastam o bloqueio (1) e as propostas por RMR 30000. A interceptação (2) só é necessária para xApps prontas de terceiros.
+O doc 11 também traz a supervisão sob demanda (modo `ON_DEMAND`) e onde ficam o dbaas, o NetworkX e o Neo4j.
+
+No GreenRAN, o xApp1-RANSlicer e o xApp2-EnergySaver são do próprio projeto: bastam o nível 1 e as propostas por RMR 30000. A interceptação só é necessária para xApps prontas de terceiros.

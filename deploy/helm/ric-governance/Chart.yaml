@@ -1,0 +1,6 @@
+apiVersion: v2
+name: ric-governance
+description: Nível 1 da governança das xApps sob a RDL — NetworkPolicy que só deixa a RDL (e a plataforma) enviar RIC Control ao E2Term, porta RMR da RDL restrita às xApps proponentes e tabela de rotas RMR com interceptação (doc 11)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

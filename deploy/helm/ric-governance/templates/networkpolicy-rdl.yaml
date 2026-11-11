@@ -1,0 +1,29 @@
+{{- if .Values.rdlPolicy.enabled }}
+# A porta RMR de dados da RDL só recebe da plataforma (Indications, ACKs, A1) e das xApps proponentes
+# rotuladas; a origem RMR declarada na mensagem é conferida depois pelo registro de xApps da RDL.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rdl-rmr-data-proposers-only
+  namespace: {{ .Values.ricxapp.namespace }}
+  labels: {app.kubernetes.io/part-of: rdl-governance}
+spec:
+  podSelector:
+    matchLabels:
+      {{- toYaml .Values.ricxapp.rdl.podLabels | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.ricplt.namespace }}}
+        - podSelector:
+            matchLabels:
+              {{- toYaml .Values.ricxapp.rdl.proposerLabel | nindent 14 }}
+      ports:
+        - {port: {{ .Values.ricxapp.rdl.rmrDataPort }}, protocol: TCP}
+    # Demais portas da RDL (rota RMR 4561, HTTP 8080, métricas 8081): sem restrição adicional
+    - ports:
+        - {port: 4561, protocol: TCP}
+        - {port: 8080, protocol: TCP}
+        - {port: 8081, protocol: TCP}
+{{- end }}

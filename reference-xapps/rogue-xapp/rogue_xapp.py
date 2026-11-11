@@ -12,6 +12,10 @@ import threading
 import logging
 from typing import Dict, Any, Optional
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "common"))
+from rdl_transport import RdlTransport  # noqa: E402  entrega por RMR 30000 / resultado 30001
+
 try:
     from fastapi import FastAPI
     from uvicorn import Config, Server
@@ -42,6 +46,7 @@ class RogueXApp:
         self.http_port = int(os.getenv("HTTP_PORT", str(http_port)))
         self.metrics_port = int(os.getenv("METRICS_PORT", str(metrics_port)))
         self.rmr_port = int(os.getenv("RMR_PORT", str(rmr_port)))
+        self.transport = RdlTransport(self.xapp_id, rmr_port=self.rmr_port)
         self.running = False
         self.http_server: Optional[Any] = None
         self.worker_thread: Optional[threading.Thread] = None
@@ -100,10 +105,12 @@ class RogueXApp:
             for node in self.target_nodes:
                 proposal = self.generate_action_proposal(node_id=node)
                 logger.debug(f"[Rogue Proposal] Injetada: {proposal}")
+                self.transport.send(proposal)       # chega à RDL para exercitar o Safety Guard
             time.sleep(0.5)
 
     def start(self):
         self.running = True
+        self.transport.start()
         t_http = threading.Thread(target=self._run_http, daemon=True)
         t_http.start()
         self.worker_thread = threading.Thread(target=self._loop, daemon=True)
@@ -112,6 +119,7 @@ class RogueXApp:
 
     def stop(self):
         self.running = False
+        self.transport.stop()
         if self.http_server:
             self.http_server.should_exit = True
         logger.info("Rogue xApp finalizada.")

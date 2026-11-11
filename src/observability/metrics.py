@@ -61,6 +61,9 @@ class MetricsServer:
         self.proposals_rejected = _get_or_create(Counter, 'rdl_proposals_rejected_total', 'Proposals not turned into control, by reason', labelnames=['reason'], registry=reg)
         self.proposals_deferred = _get_or_create(Counter, 'rdl_proposals_deferred_total', 'Proposals deferred until the target lockout expires', registry=reg)
         self.critical_path = _get_or_create(Counter, 'rdl_critical_path_decisions_total', 'Decisions taken on the critical fast path', registry=reg)
+        self.on_demand = _get_or_create(Counter, 'rdl_on_demand_decisions_total', 'Proposals of ON_DEMAND xApps decided on arrival, without the window', registry=reg)
+        self.intercepted = _get_or_create(Counter, 'rdl_intercepted_controls_total', 'RIC Control requests of third-party xApps intercepted by route', labelnames=['outcome'], registry=reg)
+        self.implicit = _get_or_create(Counter, 'rdl_implicit_conflicts_total', 'Implicit conflicts (KPM inconsistent with the committed action)', labelnames=['parameter'], registry=reg)
         self.critical_downgraded = _get_or_create(Counter, 'rdl_critical_downgraded_total', 'Critical proposals downgraded to URGENT by the per-xApp quota', registry=reg)
         
         # Control

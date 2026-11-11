@@ -39,7 +39,8 @@
           "RIC_SUB_RESP",
           "RIC_SUB_FAILURE",
           "RDL_ACTION_PROPOSAL",
-          "A1_POLICY_REQ"
+          "A1_POLICY_REQ",
+          "RIC_CONTROL_REQ"
         ],
         "txMessages": [
           "RIC_CONTROL_REQ",
@@ -84,7 +85,8 @@
       "RIC_SUB_RESP",
       "RIC_SUB_FAILURE",
       "RDL_ACTION_PROPOSAL",
-      "A1_POLICY_REQ"
+      "A1_POLICY_REQ",
+      "RIC_CONTROL_REQ"
     ]
   },
   "metrics": [
