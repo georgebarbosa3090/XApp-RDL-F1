@@ -9,7 +9,7 @@ Os cenários S9–S15 e os GreenRAN G1 e G2 foram reconstruídos sobre o rádio 
 ## 2. Estado do código
 
 - Commit em que este pré-registro entra (o mesmo da execução; o executor grava `repo_git_sha` em cada manifesto).
-- **S12 e S14:** portadora reduzida em 2026-11-11 (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir (achado 57b). Uma rodada curta (semente 9102, B0 e B3) roda antes, em 2026-11-11. Se ela mostrar que o teto ainda não restringe (vazão igual entre B0 e B3 na janela de conflito), o S12 e/ou o S14 saem desta campanha. A saída é registrada como desvio, antes das 9h de 2026-11-12.
+- **S12 e S14:** portadora reduzida em 2026-11-11 (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir (achado 57b). Uma rodada curta (semente 9102, B0 e B3) roda antes, em 2026-11-11. O critério de exclusão foi fixado antes do resultado: o teto não restringe se a vazão do B3 na janela de conflito (`thp_conflict`) diferir da do B0 em menos de 1 %. Nesse caso, o cenário sai desta campanha. Se a rodada curta de um cenário não terminar, ele também sai. A exclusão é registrada como desvio neste arquivo, num commit feito antes do início da campanha.
 - O B3 usa o EEVS com agregação `mean` (o padrão; o pré-registro 09 testa a aditiva à parte).
 
 ## 3. Desenho
