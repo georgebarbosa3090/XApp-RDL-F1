@@ -71,12 +71,24 @@ sys.path.insert(0, APP_DIR)
 from src.e2.v3 import codec  # noqa: E402  (src/e2/v3/codec.py do commit SRC_COMMIT)
 from src.closed_loop.kpm_pairing import pair_complete, pair_gap_s  # noqa: E402
 
+# Políticas A1 entregues pelo A1 Mediator (RMR 20010) e aplicadas na decisão H-RDL (docs/10).
+# Importação tolerante: commits anteriores a a0cb21eb não têm src/interfaces/a1_rmr.py.
+try:
+    from src.interfaces.a1_policy_receiver import A1PolicyManager  # noqa: E402
+    from src.interfaces.a1_rmr import (A1_POLICY_QUERY, A1_POLICY_REQUEST, A1_POLICY_RESPONSE,  # noqa: E402
+                                       handle_policy_request, query_messages)
+    A1 = A1PolicyManager()
+except ImportError:  # pragma: no cover
+    A1 = None
+
 RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILURE",
              12020: "RIC_SUB_DEL_REQ", 12021: "RIC_SUB_DEL_RESP", 12050: "RIC_INDICATION",
-             12040: "RIC_CONTROL_REQ", 12041: "RIC_CONTROL_ACK", 12042: "RIC_CONTROL_FAILURE"}
+             12040: "RIC_CONTROL_REQ", 12041: "RIC_CONTROL_ACK", 12042: "RIC_CONTROL_FAILURE",
+             20010: "A1_POLICY_REQ", 20011: "A1_POLICY_RESP", 20012: "A1_POLICY_QUERY"}
 RX = ["RIC_SUB_RESP", "RIC_SUB_FAILURE", "RIC_SUB_DEL_RESP", "RIC_INDICATION",
-      "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"]
-TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"]
+      "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"] + (["A1_POLICY_REQ"] if A1 is not None else [])
+TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"] + (["A1_POLICY_RESP", "A1_POLICY_QUERY"] if A1 is not None else [])
+POLICIES = [int(t) for t in sorted(A1.policy_types)] if A1 is not None else []
 
 STOP = threading.Event()
 READY = threading.Event()
@@ -161,11 +173,11 @@ def xapp_config() -> dict:
         "messaging": {"ports": [
             {"name": "http", "container": NAME, "port": HTTP_PORT, "description": "http"},
             {"name": "rmr-data", "container": NAME, "port": RMR_PORT, "rxMessages": RX, "txMessages": TX,
-             "policies": [], "description": "rmr data"},
+             "policies": POLICIES, "description": "rmr data"},
             {"name": "rmr-route", "container": NAME, "port": 4561, "description": "rmr route"},
         ]},
         "rmr": {"protPort": f"tcp:{RMR_PORT}", "maxSize": 65536, "numWorkers": 1,
-                "rxMessages": RX, "txMessages": TX, "policies": []},
+                "rxMessages": RX, "txMessages": TX, "policies": POLICIES},
     }
 
 
@@ -317,7 +329,9 @@ def decide(meid: str):
         catalog = load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json"))
         baseline = current_baseline()
         if baseline == "B3":
-            record = decide_catalog(current_scenario(), meid, kpm.get("node") or {}, kpm.get("ues") or [], catalog)
+            policies = dict(A1.active_policies) if A1 is not None else {}
+            record = decide_catalog(current_scenario(), meid, kpm.get("node") or {}, kpm.get("ues") or [], catalog,
+                                    a1_policies=policies or None)
             record["baseline"] = "B3"
         else:
             record = decide_baseline(current_scenario(), baseline, meid, kpm.get("node") or {}, kpm.get("ues") or [],
@@ -428,6 +442,16 @@ def rmr_loop() -> None:
         time.sleep(1)
     event("rmr_ready", ready=bool(rmr.rmr_ready(ctx)), port=RMR_PORT)
     READY.set()
+    if A1 is not None:
+        # Instâncias já existentes no A1 Mediator (chegam como 20010); as rotas podem levar alguns segundos
+        def query_a1():
+            STOP.wait(15)
+            for body in query_messages(list(A1.policy_types)):
+                qbuf = rmr.rmr_alloc_msg(ctx, len(body), payload=body, gen_transaction_id=True, mtype=A1_POLICY_QUERY)
+                qbuf = rmr.rmr_send_msg(ctx, qbuf)
+                event("a1_query", body=body.decode(), rmr_state=rmr.message_summary(qbuf)[rmr.RMR_MS_MSG_STATE])
+                rmr.rmr_free_msg(qbuf)
+        threading.Thread(target=query_a1, daemon=True).start()
     # rmr_torcv_msg precisa de um buffer alocado (com None devolve ponteiro nulo); o mesmo
     # buffer é reaproveitado a cada recepção, como no laço do ricxappframe.
     mbuf = rmr.rmr_alloc_msg(ctx, 4096)
@@ -448,6 +472,17 @@ def rmr_loop() -> None:
         sha = hashlib.sha256(payload).hexdigest()
         event("rmr_message", mtype=mtype, mtype_name=RMR_TYPES.get(mtype, "?"), sub_id=sub_id, meid=meid,
               length=len(payload), sha256=sha, seq=COUNTS[(mtype, sub_id)], source=s[rmr.RMR_MS_MSG_SOURCE])
+        if mtype == 20010 and A1 is not None:
+            response, ok = handle_policy_request(A1, payload, NAME)
+            body = json.dumps(response).encode("utf-8")
+            sbuf = rmr.rmr_alloc_msg(ctx, len(body), payload=body, gen_transaction_id=True, mtype=A1_POLICY_RESPONSE)
+            sbuf = rmr.rmr_send_msg(ctx, sbuf)
+            sent_state = rmr.message_summary(sbuf)[rmr.RMR_MS_MSG_STATE]
+            rmr.rmr_free_msg(sbuf)
+            event("a1_policy", status=response.get("status"), policy_type_id=response.get("policy_type_id"),
+                  policy_instance_id=response.get("policy_instance_id"), applied=ok, response_rmr_state=sent_state,
+                  effective=A1.effective_policy())
+            continue
         if mtype == 12050 and meid:
             track_kpm(meid, payload, sha)
         if mtype in (12041, 12042):

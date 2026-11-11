@@ -1,0 +1,12 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.000,APPLIED,30 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+15.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-15.050,APPLIED,TxPower=5 dBm
+16.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-16.050,APPLIED,TxPower=5 dBm
+17.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-17.050,APPLIED,TxPower=5 dBm
+18.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-18.050,APPLIED,TxPower=5 dBm
+19.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-19.050,APPLIED,TxPower=5 dBm
+20.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-20.050,APPLIED,TxPower=5 dBm
+21.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-21.050,APPLIED,TxPower=5 dBm
+22.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-22.050,APPLIED,TxPower=5 dBm
+23.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-23.050,APPLIED,TxPower=5 dBm
+24.05,1,2,TX_POWER,5,-1,energy_saving,energy_saving-g1-TX_POWER-24.050,APPLIED,TxPower=5 dBm

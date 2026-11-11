@@ -13,7 +13,9 @@
  *        TX_POWER  -> potência de transmissão do gNB (NrGnbPhy::SetTxPower)
  *        HANDOVER  -> handover X2 dos UEs servidos pelo gNB de origem (NrHelper::HandoverRequest)
  *        CELL_STATE-> 0: célula "desligada", emulada com potência mínima (-30 dBm), porque o
- *                     5G-LENA v5.1 não desliga a célula nem dispara RLF; 1: restaura a potência
+ *                     5G-LENA v5.1 não tem desligamento de célula; os UEs dela entram em falha
+ *                     de enlace (RLF, T310/N310) e se reconectam à célula vizinha mais forte.
+ *                     1: restaura a potência
  *      Não há lógica de decisão nem de segurança aqui: o cronograma vem do baseline
  *      avaliado (B0..B3). Cada ação aplicada é registrada em rdl_actuation_log.csv.
  *   3. RdlKpiSampler: série temporal de vazão e atraso por célula, medida nos UdpServer

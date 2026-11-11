@@ -18,12 +18,12 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 354 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 349 testes unitários passando | `tests/` |
 | Adequação ao testbed UFPA do GreenRAN (OpenRAN@Brasil) | implementado no código em 2026-11-10, sem execução no testbed: conflitos **entre células** (handover × célula desligada/reduzida, ping-pong, vizinhas dormindo), parâmetro `CELL_STATE` (despacho fail-closed até o nó anunciá-lo), políticas A1 ligadas à decisão (tipo 20001 `GreenRAN_Intent_Policy`). Gates TB0–TB10 e GR1–GR4 pendentes | [perfil](docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md), [relatório de adequação](reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md), [docs/07, achado 52](docs/07_certificacao_e_achados.md) |
 | Conflitos entre células na RAN simulada (S4, S5) | campanha pré-registrada, 40 execuções (sementes 1006–1010): cronograma do B3 como previsto em 10/10; no S5 o ping-pong suprimido melhora vazão e atraso em 5/5; no S4 a vazão do B3 ficou **menor** que a do B0 (H9.3 refutada) | [pré-registro 08](docs/preregistros/08_conflitos_entre_celulas_s4_s5.md) |
 | Grafo de conhecimento, janela adaptativa e caminho crítico | implementados (testes); janela adaptativa desligada por padrão | [docs/02 §3.1 e §4.5](docs/02_modelo_de_decisao_h_rdl.md), [docs/09](docs/09_frameworks_e_acoes_criticas.md) |
 | SMO / Non-RT RIC | A1-PMS do O-RAN SC no k3s com adaptador para o A1 Mediator da Release I; rApp → A1-PMS → A1 Mediator verificado; a xApp com E2 real ainda não trata o RMR 20010 | [docs/10](docs/10_smo_non_rt_ric_e_rapp.md) |
-| Cenários S9–S15 e GreenRAN (G1, G2) | reconstruídos com NR (inclusive canal NTN do 3GPP); sem campanha pareada | [docs/03 §2.3](docs/03_cenarios_e_conflitos.md) |
+| Cenários S9–S15 e GreenRAN (G1, G2) | reconstruídos com NR (inclusive canal NTN do 3GPP com posições geocêntricas); teste curto de uma semente: no G2 o B3 evita a queda de serviço que o B0 causa ao desligar as duas RUs, e no G1 protege as câmeras; sem campanha pareada | [docs/03 §2.3](docs/03_cenarios_e_conflitos.md) |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
 | Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/preregistros/05_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. No desenho [v7](docs/preregistros/06_fase4_v7.md), com a banda reduzida a 50 MHz, as 30 execuções saíram `INCONSISTENT`: o teto age em PRBs absolutos da portadora, e a regra relativa só vale na banda da calibração | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/06, seção 5.5](docs/06_metodologia_e_resultados.md#55-campanha-nori-s0s8--10011005-2026-11-09) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/06`](docs/06_metodologia_e_resultados.md#4-resultados-da-pilha-nativa-malha-aberta-sem-e2) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
@@ -103,7 +103,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (354)
+uv run pytest -q                         # testes (349)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

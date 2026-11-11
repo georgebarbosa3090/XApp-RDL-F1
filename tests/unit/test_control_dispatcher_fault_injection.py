@@ -6,7 +6,7 @@ Valida o comportamento do ControlDispatcher sob condições normais, falhas E2AP
 import pytest
 import time
 import uuid
-from src.coordination.control_dispatcher import ControlDispatcher
+from src.e2.control_dispatcher import ControlDispatcher
 from src.conflict_types import RDLDecision, XAppAction
 from src.e2.e2ap.control import (
     RICcontrolAcknowledge,

@@ -149,3 +149,16 @@ def test_baselines_match_the_native_driver_on_the_first_window():
 def test_unknown_baseline_is_rejected():
     with pytest.raises(ValueError):
         cl.decide_baseline("S8", "B9", "gnb", NODE, UES, CATALOG)
+
+
+def test_a1_policy_changes_hrdl_decision_in_catalog_mode():
+    """GR1 (lógica): a mesma proposta com e sem política A1 leva a decisões diferentes, registradas."""
+    node = {"RRU.PrbUsedDl": 100, "RRU.PrbAvailDl": 100}
+    ues = [{"ue_id": 1, "measurements": {"DRB.NetworkSlicing.SST": 1}},
+           {"ue_id": 2, "measurements": {"DRB.NetworkSlicing.SST": 2}}]
+    plain = cl.decide_catalog("S8", "gnb", node, ues, CATALOG)
+    assert plain["actuated"]["value"] == 80.0 and "a1_policy" not in plain
+    capped = cl.decide_catalog("S8", "gnb", node, ues, CATALOG,
+                               a1_policies={"20000:gov": {"max_cell_prb_limit": 60}})
+    assert capped["a1_policy"] == {"max_cell_prb_limit": 60}
+    assert capped["actuated"]["value"] != 80.0

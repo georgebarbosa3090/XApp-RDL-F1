@@ -177,15 +177,8 @@ def test_causal_tracker_full_cycle():
 # 3. TESTES DO REFINEMENT AGENT (SAFETY GUARDS)
 # ============================================================================
 
-def test_retired_discrete_event_simulator_is_disabled():
-    from src.simulation.discrete_event_ran_simulator import DiscreteEventRANSimulator
-
-    with pytest.raises(RuntimeError, match="disabled.*ns-3 and 5G-LENA"):
-        DiscreteEventRANSimulator(seed=42)
-
-
 def test_control_dispatcher_full():
-    from src.coordination.control_dispatcher import ControlDispatcher
+    from src.e2.control_dispatcher import ControlDispatcher
     
     class MockRmr:
         def __init__(self):
@@ -320,7 +313,7 @@ def test_rdlxapp_advanced_pipeline_and_decision_loop():
     app._process_action_group([act, act_clean])
 
     # 3. Control Dispatcher Full Execution
-    from src.coordination.control_dispatcher import ControlDispatcher
+    from src.e2.control_dispatcher import ControlDispatcher
     class MockRmr:
         def __init__(self):
             self.sent = []
@@ -452,12 +445,7 @@ def test_health_server_routes():
                 elif route.path == "/status":
                     res = route.endpoint()
                     assert res["state"] == AppState.READY
-def test_main_and_domain_import(monkeypatch):
-    import src.domain
-    assert hasattr(src.domain, "XAppAction")
-    assert hasattr(src.domain, "ConflictType")
-    assert hasattr(src.domain, "ResolutionStrategy")
-
+def test_main_import(monkeypatch):
     import importlib
     import src.main
     assert src.main.root_dir is not None

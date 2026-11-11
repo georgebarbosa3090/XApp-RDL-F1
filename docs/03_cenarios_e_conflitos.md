@@ -59,16 +59,31 @@ Desde 2026-11-10 eles foram **reconstruídos** sobre o harness dos S0–S7, num 
 | G2 | GreenRAN noite, UEs na borda de duas RUs | UMi; 2 RUs | as duas RUs pedem sleep × handover da RU 0 para a RU 1 | RU 0 dorme e seus UEs vão para a RU 1; a RU 1 nunca é desligada |
 
 Limites de modelagem, declarados no catálogo:
-- `CELL_STATE = 0` é emulado com potência mínima (−30 dBm): o 5G-LENA v5.1 não desliga a célula nem dispara RLF.
+- `CELL_STATE = 0` é emulado com potência mínima (−30 dBm): o 5G-LENA v5.1 não tem desligamento de célula. Os UEs dela entram em falha de enlace (RLF, T310/N310) e se reconectam à vizinha mais forte; não há handover automático (o algoritmo padrão é `NrNoOpHandoverAlgorithm`).
 - V2X usa a interface Uu: o NR V2X do 5G-LENA é outro ramo.
 - O sensoriamento ISAC e o TSN não são modelados; só a disputa de recursos.
 - A bateria do UAV é representada pela proposta de economia, não por um modelo de energia.
 
 Situação: compilação e teste curto de cada cenário em 2026-11-10 (seção 2.4); campanhas pareadas ainda não rodadas.
 
+### 2.4 Teste curto de S9–S15, G1 e G2 (2026-11-10, exploratório)
+
+Uma semente (9101), B0 e B3, 18 execuções em `experiments/runs/nr_{S9..S15,G1,G2}_{B0,B3}_seed9101`, commit `48fab8eb`. Não há pré-registro nem réplicas: os números servem para verificar que os cenários rodam e indicar onde vale uma campanha.
+
+| Cenário | B0: vazão / atraso na janela de conflito | B3: vazão / atraso | Observação |
+| :-: | :-- | :-- | :-- |
+| G2 | 0,04 Mb/s / 14 ms | 1,80 Mb/s / 5,1 ms | o B0 desliga as duas RUs vizinhas e derruba o serviço; o B3 mantém a RU 1 |
+| G1 | 23,3 Mb/s / 22,8 ms | 30,3 Mb/s / 5,5 ms | o B3 protege a fatia de câmeras (teto de 80 %) |
+| S13 | 23,7 / 7,8 | 26,0 / 6,3 | o B3 não evacua os UEs da célula em falha (achado 55), mas evita desligar a vizinha |
+| S11 | 19,6 / 22,4 | 20,0 / 11,1 | ping-pong suprimido; 2 dos 4 handovers do B3 sem efeito (UEs já movidos) |
+| S9 | 0,51 / 6,2 | 0,61 / 15,5 | no B0, os sensores do feixe desligado entram em RLF e se reconectam ao outro feixe |
+| S10 | 31,0 / 7,9 | 31,5 / 36,7 | o B3 mantém o UAV em potência plena com os UEs recebidos e ele congestiona |
+| S15 | 0,64 / 6,9 | 0,61 / 15,5 | o B0 aplica 90 dBm no satélite e tenta handover para a célula 7 (rejeitado pela RAN); o B3 barra os dois |
+| S12, S14 | 20,5 / 5,4 e 49,2 / 5,4 | iguais | a carga oferecida não chega ao teto de PRB: o conflito não restringe (achado 57) |
+
 ## 3. xApps que geram as propostas
 
-As propostas do catálogo representam os papéis das xApps de [`reference-xapps/`](../reference-xapps/README.md): xSlice (QoS/fatias), Energy Saving, Traffic Steering, Load Balancer, Beamformer, ISAC Radar e uma xApp maliciosa de teste. Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes. A avaliação das xApps (origem, parâmetros aceitos pela RDL, entrega das propostas) está na [seção 7.1 do relatório de adequação](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md): as xApps próprias propõem parâmetros fora do catálogo da RDL e nenhuma xApp de referência entrega propostas à RDL implantada.
+As propostas do catálogo representam os papéis das xApps (xSlice/RANSlicer, Energy Saving, Traffic Steering, Load Balancer, ISAC, injetor de falhas e uma xApp maliciosa de teste). Em [`reference-xapps/`](../reference-xapps/README.md) restam xSlice, Energy Saving, Traffic Steering e Rogue; Beamformer, ISAC Radar, Load Balancer e Bouncer saíram em 2026-11-10 (achado 58). Nos experimentos de simulação as propostas vêm do catálogo, não dos processos das xApps; isso torna a carga de conflito idêntica entre baselines e sementes. A avaliação das xApps (origem, parâmetros aceitos pela RDL, entrega das propostas) está na [seção 7.1 do relatório de adequação](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md): as xApps próprias propõem parâmetros fora do catálogo da RDL e nenhuma xApp de referência entrega propostas à RDL implantada.
 
 ## 4. Cenários na bancada NORI (porte de S0–S8 com E2 real)
 

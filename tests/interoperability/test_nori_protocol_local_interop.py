@@ -105,7 +105,7 @@ def test_nori_rc_control_failure_with_cause_and_rollback():
     Valida o fluxo do Gate 3 quando um comando inválido ou rejeitado dispara RICcontrolFailure (12042)
     com causa normativa id-Cause=1 e aciona o mecanismo de compensação/rollback.
     """
-    from src.coordination.control_dispatcher import ControlDispatcher
+    from src.e2.control_dispatcher import ControlDispatcher
     from src.infrastructure.memory_module import MemoryModule
     
     sdl_mock = MemoryModule()

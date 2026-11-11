@@ -65,8 +65,12 @@ def actuation_of(action: Any) -> Dict[str, Any]:
 
 
 def decide_catalog(scenario: str, node_id: str, node: Dict[str, Any], ues: Sequence[Dict[str, Any]],
-                   catalog: Dict[str, Any], decider: Optional[HrdlDecider] = None) -> Dict[str, Any]:
-    """Decisão do H-RDL sobre as propostas do cenário; ``quotas`` vazio se nada for atuável."""
+                   catalog: Dict[str, Any], decider: Optional[HrdlDecider] = None,
+                   a1_policies: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, Any]:
+    """Decisão do H-RDL sobre as propostas do cenário; ``quotas`` vazio se nada for atuável.
+
+    ``a1_policies``: instâncias A1 ativas (``"tipo:id" -> corpo``), aplicadas à RDLxApp antes da decisão;
+    a política efetiva fica registrada em ``a1_policy``."""
     proposals = catalog_actions(catalog, scenario, node_id)
     record: Dict[str, Any] = {
         "decision_source": "H_RDL", "engine": ENGINE, "mode": "catalog", "scenario": scenario,
@@ -80,6 +84,12 @@ def decide_catalog(scenario: str, node_id: str, node: Dict[str, Any], ues: Seque
     own = decider is None
     decider = decider or HrdlDecider()
     try:
+        if a1_policies:
+            manager = decider.app.a1_policies
+            for key, body in a1_policies.items():
+                type_id, _, instance_id = key.partition(":")
+                manager.put_policy(type_id, instance_id, body)
+            record["a1_policy"] = manager.effective_policy()
         out = decider.decide(proposals)
     finally:
         if own:

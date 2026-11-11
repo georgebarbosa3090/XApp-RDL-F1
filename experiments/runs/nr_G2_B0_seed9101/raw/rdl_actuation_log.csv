@@ -1,0 +1,22 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-15.000,APPLIED,sleep emulado: TxPower=-30 dBm
+15.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-15.020,APPLIED,sleep emulado: TxPower=-30 dBm
+15.04,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.040,APPLIED,7 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+16,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-16.000,APPLIED,sleep emulado: TxPower=-30 dBm
+16.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-16.020,APPLIED,sleep emulado: TxPower=-30 dBm
+17,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-17.000,APPLIED,sleep emulado: TxPower=-30 dBm
+17.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-17.020,APPLIED,sleep emulado: TxPower=-30 dBm
+18,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-18.000,APPLIED,sleep emulado: TxPower=-30 dBm
+18.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-18.020,APPLIED,sleep emulado: TxPower=-30 dBm
+19,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-19.000,APPLIED,sleep emulado: TxPower=-30 dBm
+19.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-19.020,APPLIED,sleep emulado: TxPower=-30 dBm
+20,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-20.000,APPLIED,sleep emulado: TxPower=-30 dBm
+20.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-20.020,APPLIED,sleep emulado: TxPower=-30 dBm
+21,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-21.000,APPLIED,sleep emulado: TxPower=-30 dBm
+21.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-21.020,APPLIED,sleep emulado: TxPower=-30 dBm
+22,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-22.000,APPLIED,sleep emulado: TxPower=-30 dBm
+22.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-22.020,APPLIED,sleep emulado: TxPower=-30 dBm
+23,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-23.000,APPLIED,sleep emulado: TxPower=-30 dBm
+23.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-23.020,APPLIED,sleep emulado: TxPower=-30 dBm
+24,0,1,CELL_STATE,0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-24.000,APPLIED,sleep emulado: TxPower=-30 dBm
+24.02,1,2,CELL_STATE,0,-1,energy_saving_ru1,energy_saving_ru1-g1-CELL_STATE-24.020,APPLIED,sleep emulado: TxPower=-30 dBm
