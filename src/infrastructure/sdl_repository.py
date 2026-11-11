@@ -81,6 +81,9 @@ class SdlRepository:
     def save_action_proposal(self, proposal_id: str, data: dict):
         self._set(f"action_proposals:{proposal_id}", data)
 
+    def save_rejection(self, rejection_id: str, data: dict):
+        self._set(f"rejection:{rejection_id}", data)
+
     def save_decision(self, decision_id: str, data: dict):
         self._set(f"decisions:{decision_id}", data)
 

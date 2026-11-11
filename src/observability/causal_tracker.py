@@ -97,6 +97,11 @@ class CausalTracker:
         self.decision_latencies_ms: List[float] = []
         self.ack_latency_ms: List[float] = []
         self.sla_violations: List[Any] = []
+        self.fast_path_decisions: Dict[str, List[str]] = {}
+
+    def record_fast_path(self, decision_id: str, action_ids: List[str]) -> None:
+        """Decisão tomada pelo caminho crítico, sem esperar a janela (auditoria)."""
+        self.fast_path_decisions[decision_id] = list(action_ids)
 
     def reset(self):
         self.records.clear()
@@ -113,6 +118,7 @@ class CausalTracker:
         self.decision_latencies_ms.clear()
         self.ack_latency_ms.clear()
         self.sla_violations.clear()
+        self.fast_path_decisions.clear()
 
     def register_conflict_event(
         self,

@@ -57,6 +57,11 @@ class MetricsServer:
         self.action_proposals = _get_or_create(Counter, 'rdl_action_proposals_total', 'Total action proposals received', registry=reg)
         self.conflicts = _get_or_create(Counter, 'rdl_conflicts_detected_total', 'Total conflicts detected', labelnames=['type'], registry=reg)
         self.decisions = _get_or_create(Counter, 'rdl_decisions_total', 'Total decisions made', labelnames=['strategy'], registry=reg)
+        # Janela de decisão: propostas não atendidas, adiadas e caminho crítico (doc 09 §2.4)
+        self.proposals_rejected = _get_or_create(Counter, 'rdl_proposals_rejected_total', 'Proposals not turned into control, by reason', labelnames=['reason'], registry=reg)
+        self.proposals_deferred = _get_or_create(Counter, 'rdl_proposals_deferred_total', 'Proposals deferred until the target lockout expires', registry=reg)
+        self.critical_path = _get_or_create(Counter, 'rdl_critical_path_decisions_total', 'Decisions taken on the critical fast path', registry=reg)
+        self.critical_downgraded = _get_or_create(Counter, 'rdl_critical_downgraded_total', 'Critical proposals downgraded to URGENT by the per-xApp quota', registry=reg)
         
         # Control
         self.ctrl_req = _get_or_create(Counter, 'rdl_control_requests_total', 'Total control requests sent', registry=reg)

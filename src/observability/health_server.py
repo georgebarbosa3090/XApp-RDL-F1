@@ -43,6 +43,8 @@ class HealthServer:
         self.subscription_callback = None
         # Callable(full: bool) -> dict com o grafo de conhecimento (GET /kg)
         self.knowledge_graph_provider = None
+        # Callable(**filtros) -> dict com as propostas não atendidas (GET /rejections)
+        self.rejections_provider = None
 
         if HAS_FASTAPI:
             self.app = FastAPI(title="RDL xApp Health Server")
@@ -84,6 +86,17 @@ class HealthServer:
                         response.status_code = 404
                     return {"error": "knowledge graph unavailable"}
                 return provider(full)
+
+            @self.app.get("/rejections")
+            def rejections(xapp_id: str = None, node_id: str = None, reason: str = None,
+                           since: float = 0.0, limit: int = 100, response: Response = None):
+                provider = self.rejections_provider
+                if provider is None:
+                    if response is not None:
+                        response.status_code = 404
+                    return {"error": "rejection registry unavailable"}
+                return provider(xapp_id=xapp_id, node_id=node_id, reason=reason, since=since,
+                                limit=max(1, min(int(limit), 1000)))
 
             @self.app.get("/status")
             def get_status():

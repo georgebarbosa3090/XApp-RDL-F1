@@ -12,6 +12,7 @@ Descrição: Implementa o servidor de gerenciamento de políticas A1-P do Non-RT
 import json
 import logging
 import math
+import re
 import ipaddress
 from typing import Callable, Dict, Any, Optional, Tuple, List
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -39,7 +40,11 @@ class A1PolicyManager:
                         "urllc_priority_boost": {"type": "number", "minimum": 0, "maximum": 50},
                         "energy_saving_allowed": {"type": "boolean"},
                         "max_cell_prb_limit": {"type": "number", "minimum": 10, "maximum": 100},
-                        "cooling_lockout_ms": {"type": "number", "minimum": 100, "maximum": 5000}
+                        "cooling_lockout_ms": {"type": "number", "minimum": 100, "maximum": 5000},
+                        # Janela de decisão: o que é crítico e o intervalo mínimo da classe crítica
+                        "critical_targets": {"type": "array", "maxItems": 32,
+                                             "items": {"type": "string", "pattern": "^[^:]+:[A-Z_]+$"}},
+                        "critical_control_interval_ms": {"type": "number", "minimum": 20, "maximum": 1000}
                     }
                 }
             },
@@ -108,6 +113,13 @@ class A1PolicyManager:
             if definition["type"] == "boolean":
                 if not isinstance(value, bool):
                     return False, f"{key} must be a boolean"
+                continue
+            if definition["type"] == "array":
+                if not isinstance(value, list) or len(value) > definition.get("maxItems", 64):
+                    return False, f"{key} must be a list with at most {definition.get('maxItems', 64)} items"
+                pattern = re.compile(definition["items"]["pattern"])
+                if not all(isinstance(item, str) and pattern.match(item) for item in value):
+                    return False, f"{key} items must match {definition['items']['pattern']}"
                 continue
             if isinstance(value, bool) or not isinstance(value, (int, float)):
                 return False, f"{key} must be a finite number"

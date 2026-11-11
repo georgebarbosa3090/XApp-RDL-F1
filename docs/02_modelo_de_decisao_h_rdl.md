@@ -53,7 +53,9 @@ As propostas chegam por RMR (`RDL_ACTION_PROPOSAL`, mtype 30000) como JSON:
 {"xapp_id": "xslice", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 75, "priority": 90}
 ```
 
-Validação na entrada (`RDLxApp._action_proposal_handler`): payload em bytes de até 64 KiB, objeto JSON, `xapp_id`/`node_id` não vazios de até 128 caracteres, `value` numérico finito (constantes como `NaN` são rejeitadas), `priority` inteiro em [0, 100]. O buffer da janela aceita até 4096 propostas.
+Validação na entrada (`RDLxApp._action_proposal_handler`): payload em bytes de até 64 KiB, objeto JSON, `xapp_id`/`node_id` não vazios de até 128 caracteres, `value` numérico finito (constantes como `NaN` são rejeitadas), `priority` inteiro em [0, 100]. O buffer da janela aceita até 4096 propostas (somadas às adiadas).
+
+Campos opcionais (desde 2026-11-11): `defer_ok` (bool) pede que a proposta recusada só pela histerese seja reavaliada quando o bloqueio expirar; `ttl_ms` (até 60000) pede validade maior, limitada por `RDL_DEFER_MAX_TTL_MS` (seção 3.2).
 
 O campo `xapp_id` é declarado pelo cliente e **não é credencial**; por isso o modo estrito rejeita propostas externas.
 
@@ -63,11 +65,30 @@ Desde 2026-11-10 (`src/core/decision_window.py`; motivação e alternativas fora
 
 | Classe | Critério | Tratamento |
 | :-- | :-- | :-- |
-| `CRITICAL` | prioridade ≥ 95 (`RDL_CRITICAL_PRIORITY`) ou (xApp, parâmetro) marcado como crítico | **caminho rápido**: decidida assim que chega, junto com as propostas pendentes para o mesmo nó ou para nós vizinhos (que saem da janela para competir com ela); passa pelo Safety Guard, pela histerese e pela arbitragem normalmente |
+| `CRITICAL` | prioridade ≥ 95 (`RDL_CRITICAL_PRIORITY`) ou (xApp, parâmetro) marcado como crítico (`RDL_CRITICAL_TARGETS="xapp:PARAM,*:PARAM"` ou política A1 `critical_targets`) | **caminho rápido**: decidida assim que chega, junto com as propostas pendentes para o mesmo nó ou para nós vizinhos (que saem da janela para competir com ela); passa pelo Safety Guard e pela arbitragem normalmente, com intervalo mínimo próprio de 100 ms no alvo (`critical_control_interval_ms`), não o de 1000 ms. Cota de `RDL_CRITICAL_MAX_PER_S` (5) críticas por segundo por xApp; o excedente vira `URGENT`. A decisão sai com `reason = CRITICAL_FAST_PATH` e fica no `CausalTracker` (`fast_path_decisions`) |
 | `URGENT` | prioridade ≥ 80 | janela fixa: fecha a janela na hora (comportamento anterior); janela adaptativa: espera no máximo 20 ms |
 | `NORMAL` | demais | 200 ms; com `RDL_ADAPTIVE_WINDOW=true`, o tempo para acumular 8 propostas à taxa de chegada recente, entre 50 e 500 ms |
 
-A janela adaptativa está **desligada por padrão**: nenhuma campanha a usou ainda.
+A janela adaptativa está **desligada por padrão**: nenhuma campanha a usou ainda. O laço de decisão acorda a cada 50 ms ou na hora, quando chega uma proposta `CRITICAL` ou `URGENT`; a janela normal de 200 ms fecha, portanto, entre 200 e 250 ms.
+
+### 3.2 Propostas não atendidas: registro, aviso, adiamento e validade
+
+Desde 2026-11-11 (`src/core/proposal_registry.py`; doc 09 §2.4). Toda proposta que não vira RIC Control é registrada com o motivo:
+
+| Motivo | Quando |
+| :-- | :-- |
+| `SAFETY` | Safety Guard: limites físicos, política A1, destino de handover fora da topologia |
+| `HYSTERESIS` | o alvo recebeu controle há menos que o intervalo mínimo; vem com `retry_after_ms` |
+| `LOST_ARBITRATION` | perdeu no TVS/EEVS ou para a ação já confirmada; vem com a vencedora |
+| `STALE` | esperou mais que a validade antes de ser decidida (`RDL_PROPOSAL_MAX_AGE_MS`, 1000 ms) |
+| `OVERFLOW` | fila cheia na chegada |
+| `DISPATCH_FAILED` | admitida, mas o RIC Control não foi enviado |
+
+- **Consulta:** `GET /rejections?xapp_id=&node_id=&reason=&since=&limit=` (porta 8080) devolve as entradas mais recentes e o resumo por motivo e por xApp. O registro guarda `RDL_REJECTION_LOG_SIZE` (5000) entradas; cada uma também vai para a memória da RDL (`save_rejection`: SDL na implantação, `MemoryModule` em teste).
+- **Aviso à xApp:** RMR `RDL_ACTION_RESULT` (mtype 30001), JSON com `status = REJECTED`, motivo, `retry_after_ms`, `deferred` e a xApp vencedora. Cada xApp filtra pelo próprio `xapp_id`; a rota do 30001 tem de chegar a todas as xApps que propõem. Desligável com `RDL_NOTIFY_XAPPS=false`.
+- **Adiamento:** só para `HYSTERESIS` e só se a xApp pediu (`defer_ok`). A proposta volta para a janela quando o bloqueio expira, se ainda estiver na validade (padrão 2000 ms, máximo `RDL_DEFER_MAX_TTL_MS` = 3000 ms), e é reavaliada do zero, contra o estado atual. A RDL não executa depois uma ação decidida antes.
+- **Validade:** medida no relógio monotônico da RDL, desde a chegada. A idade não usa o relógio de quem enviou.
+- **Métricas:** `rdl_proposals_rejected_total{reason}`, `rdl_proposals_deferred_total`, `rdl_critical_path_decisions_total`, `rdl_critical_downgraded_total`.
 
 ## 4. Pipeline de decisão
 
@@ -152,7 +173,7 @@ Confiança registrada: 0,92 (TVS), 0,88 (EEVS exato), 0,70 (EEVS guloso). A reso
 `Refinement.validate` (resoluções) e `validate_single_action` (propostas sem conflito) verificam:
 
 - limites e formato (seção 5);
-- **histerese**: no máximo um controle por alvo a cada 1000 ms (`minimum_control_interval_ms`);
+- **histerese**: no máximo um controle por alvo a cada 1000 ms (`minimum_control_interval_ms`); para ações da classe `CRITICAL`, 100 ms (`critical_control_interval_ms`);
 - **slew-rate** (desligado por padrão): variação máxima de 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado pela RAN, lido da Perception. Ligado sem fonte de estado confirmado, falha fechado.
 - **destino de HANDOVER**: com topologia configurada, o destino tem de ser uma célula conhecida; um handover para fora da topologia é rejeitado (cenário S15);
 - **restrições de política A1** (seção 7.1): teto de `PRB_QUOTA` (`max_cell_prb_limit`), proibição de desligar células (`energy_saving_allowed = false`) e intervalo mínimo de controle (`cooling_lockout_ms`). Uma política só restringe dentro dos limites físicos, nunca os amplia.
@@ -230,8 +251,8 @@ Um E2 Node conforme rejeitaria os controles. O NORI oficial usa E2AP/E2SM **v3.0
 
 | Interface | Porta | Conteúdo |
 | :-- | :-: | :-- |
-| HTTP (`/health`, `/ready`, `/status`, `/ric/v1/subscriptions/response`) | 8080 | saúde e callback do SubMgr |
-| Prometheus | 8081 | contadores de KPM, conflitos, resoluções, controles, ACKs, falhas e timeouts |
+| HTTP (`/health`, `/ready`, `/status`, `/ric/v1/subscriptions/response`, `/kg`, `/rejections`) | 8080 | saúde, callback do SubMgr, grafo de conhecimento e propostas não atendidas |
+| Prometheus | 8081 | contadores de KPM, conflitos, resoluções, controles, ACKs, falhas, timeouts, recusas por motivo, adiamentos e caminho crítico |
 
 O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, conflitos, decisões e respostas de controle por correlação.
 
@@ -247,6 +268,8 @@ O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e,
 | | `energy_saving_allowed` (bool) | `false` bloqueia `CELL_STATE = 0` no Refinement |
 | | `max_cell_prb_limit` (10–100) | teto de `PRB_QUOTA` no Refinement |
 | | `cooling_lockout_ms` (100–5000) | intervalo mínimo de controle por alvo |
+| | `critical_targets` (lista `xapp:PARAM` ou `*:PARAM`, até 32) | marca alvos como `CRITICAL` (substitui `RDL_CRITICAL_TARGETS` enquanto a política vale) |
+| | `critical_control_interval_ms` (20–1000) | intervalo mínimo da classe `CRITICAL` |
 | 20001 `GreenRAN_Intent_Policy` | `energy_weight` (0–0,6) | peso de energia no TVS e no EEVS |
 | | `sla_weight` (0,1–0,8) | peso de SLA no TVS e de QoS no EEVS |
 | | `allow_neighbor_sleep` (bool) | desliga a regra `NEIGHBOR_SLEEP` |

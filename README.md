@@ -18,10 +18,11 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 349 testes unitários passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 365 testes unitários passando | `tests/` |
 | Adequação ao testbed UFPA do GreenRAN (OpenRAN@Brasil) | implementado no código em 2026-11-10, sem execução no testbed: conflitos **entre células** (handover × célula desligada/reduzida, ping-pong, vizinhas dormindo), parâmetro `CELL_STATE` (despacho fail-closed até o nó anunciá-lo), políticas A1 ligadas à decisão (tipo 20001 `GreenRAN_Intent_Policy`). Gates TB0–TB10 e GR1–GR4 pendentes | [perfil](docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md), [relatório de adequação](reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md), [docs/07, achado 52](docs/07_certificacao_e_achados.md) |
 | Conflitos entre células na RAN simulada (S4, S5) | campanha pré-registrada, 40 execuções (sementes 1006–1010): cronograma do B3 como previsto em 10/10; no S5 o ping-pong suprimido melhora vazão e atraso em 5/5; no S4 a vazão do B3 ficou **menor** que a do B0 (H9.3 refutada) | [pré-registro 08](docs/preregistros/08_conflitos_entre_celulas_s4_s5.md) |
 | Grafo de conhecimento, janela adaptativa e caminho crítico | implementados (testes); janela adaptativa desligada por padrão | [docs/02 §3.1 e §4.5](docs/02_modelo_de_decisao_h_rdl.md), [docs/09](docs/09_frameworks_e_acoes_criticas.md) |
+| Propostas não atendidas: registro com motivo (`GET /rejections`), aviso RMR 30001, adiamento opcional e validade | implementados (testes), sem execução ao vivo | [docs/02 §3.2](docs/02_modelo_de_decisao_h_rdl.md), [docs/09 §2.4](docs/09_frameworks_e_acoes_criticas.md) |
 | SMO / Non-RT RIC | A1-PMS do O-RAN SC no k3s com adaptador para o A1 Mediator da Release I; rApp → A1-PMS → A1 Mediator verificado; a xApp com E2 real ainda não trata o RMR 20010 | [docs/10](docs/10_smo_non_rt_ric_e_rapp.md) |
 | Cenários S9–S15 e GreenRAN (G1, G2) | reconstruídos com NR (inclusive canal NTN do 3GPP com posições geocêntricas); teste curto de uma semente: no G2 o B3 evita a queda de serviço que o B0 causa ao desligar as duas RUs, e no G1 protege as câmeras; sem campanha pareada | [docs/03 §2.3](docs/03_cenarios_e_conflitos.md) |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
@@ -103,7 +104,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (349)
+uv run pytest -q                         # testes (365)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

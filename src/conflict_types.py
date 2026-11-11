@@ -41,6 +41,10 @@ class XAppAction:
     arrival_monotonic: float = 0.0
     context_features: Optional[dict] = None
     confidence_score: Optional[float] = None
+    # Janela de decisão: classe de urgência atribuída na chegada e pedido de adiamento da xApp
+    urgency: str = "NORMAL"
+    defer_ok: bool = False
+    ttl_ms: Optional[float] = None
 
     def __post_init__(self):
         if self.t_arrival == 0.0:

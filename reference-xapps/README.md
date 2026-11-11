@@ -8,6 +8,8 @@ Cada xApp expõe `/health`, `/ready` e `/metrics` (FastAPI + Prometheus) e gera 
 {"xapp_id": "...", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 66.0, "priority": 90}
 ```
 
+Campos opcionais aceitos pela RDL: `defer_ok` (reavaliar a proposta quando o bloqueio de histerese do alvo expirar) e `ttl_ms` (validade pedida, até 3000 ms). A RDL responde às propostas recusadas com RMR `RDL_ACTION_RESULT` (30001: motivo e `retry_after_ms`) e as registra em `GET /rejections` ([docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md)). Nenhuma das xApps abaixo trata essa resposta ainda.
+
 **Entrega:** xSlice, Energy Saving e Traffic Steering enviam a proposta por HTTP para `RDL_HTTP_URL`, mas a xApp RDL só recebe propostas por RMR (`RDL_ACTION_PROPOSAL`, mtype 30000). Na implantação, portanto, as propostas não chegam à RDL; a Rogue só gera e registra. Ligar isso exige enviar por RMR 30000 (ou a RDL ganhar um endpoint HTTP de propostas). Avaliação completa: [relatório de adequação, seção 7.1](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md).
 
 ## 1. Catálogo

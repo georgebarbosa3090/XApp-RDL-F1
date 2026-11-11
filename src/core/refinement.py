@@ -27,6 +27,8 @@ class Refinement:
         self.config = {
             "enabled": True,
             "minimum_control_interval_ms": 1000,
+            # Classe CRITICAL (janela de decisão): intervalo próprio, menor, no mesmo alvo
+            "critical_control_interval_ms": 100,
             "enforce_slew_rate": False,
             "max_tx_power_slew_db": 3.0,
             "max_prb_slew_pct": 30.0,
@@ -46,8 +48,9 @@ class Refinement:
         max_prb_quota: Optional[float] = None,
         allow_cell_sleep: bool = True,
         minimum_control_interval_ms: Optional[float] = None,
+        critical_control_interval_ms: Optional[float] = None,
     ) -> None:
-        """Aplica a política A1 efetiva: teto de cota de PRB, permissão de sleep e intervalo mínimo.
+        """Aplica a política A1 efetiva: teto de cota de PRB, permissão de sleep e intervalos mínimos.
 
         Uma política só restringe dentro dos limites físicos; nunca os amplia.
         """
@@ -55,6 +58,21 @@ class Refinement:
         self.policy_allow_cell_sleep = bool(allow_cell_sleep)
         if minimum_control_interval_ms is not None:
             self.config["minimum_control_interval_ms"] = float(minimum_control_interval_ms)
+        if critical_control_interval_ms is not None:
+            self.config["critical_control_interval_ms"] = float(critical_control_interval_ms)
+
+    def min_interval_ms(self, action: XAppAction) -> float:
+        """Intervalo mínimo entre controles no alvo da ação; menor para a classe CRITICAL."""
+        normal = float(self.config.get("minimum_control_interval_ms", 1000))
+        if getattr(action, "urgency", "NORMAL") == "CRITICAL":
+            return min(normal, float(self.config.get("critical_control_interval_ms", normal)))
+        return normal
+
+    def remaining_lockout_ms(self, action: XAppAction, now_ms: Optional[float] = None) -> float:
+        """Quanto falta para o alvo aceitar novo controle desta ação (0 = já aceita)."""
+        now_ms = time.time() * 1000 if now_ms is None else now_ms
+        last_time = self.last_control_time.get(f"{action.node_id}_{action.parameter}", 0)
+        return max(0.0, self.min_interval_ms(action) - (now_ms - last_time))
 
     def _get_max_tx_power(self, node_id: str) -> Optional[float]:
         """Obtém o teto de potência de transmissão (dBm) para o nó específico ou padrão."""
@@ -189,7 +207,7 @@ class Refinement:
 
         # 1. Validade temporal (histerese / frequência máxima de controle para o mesmo alvo)
         last_time = self.last_control_time.get(target_key, 0)
-        if (now - last_time) < self.config.get("minimum_control_interval_ms", 1000):
+        if (now - last_time) < self.min_interval_ms(action):
             return False, 1, f"Control frequency exceeded for {target_key}"
 
         # 2. Barreiras físicas de limites de rádio (Default-Deny)
@@ -226,7 +244,7 @@ class Refinement:
 
             # 1. Validade temporal (frequência máxima de controle no mesmo parâmetro/nó)
             last_time = self.last_control_time.get(target_key, 0)
-            if (now - last_time) < self.config.get("minimum_control_interval_ms", 1000):
+            if (now - last_time) < self.min_interval_ms(action):
                 return False, 1, f"Control frequency exceeded for {target_key}"
 
             # 2. Valores negativos ou fora de escopo para parâmetros conhecidos (Default-Deny)

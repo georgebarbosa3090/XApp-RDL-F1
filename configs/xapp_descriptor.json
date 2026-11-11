@@ -45,7 +45,8 @@
           "RIC_CONTROL_REQ",
           "RIC_SUB_REQ",
           "A1_POLICY_RESP",
-          "A1_POLICY_QUERY"
+          "A1_POLICY_QUERY",
+          "RDL_ACTION_RESULT"
         ]
       },
       {
@@ -73,7 +74,8 @@
       "RIC_CONTROL_REQ",
       "RIC_SUB_REQ",
       "A1_POLICY_RESP",
-      "A1_POLICY_QUERY"
+      "A1_POLICY_QUERY",
+      "RDL_ACTION_RESULT"
     ],
     "rxMessages": [
       "RIC_INDICATION",

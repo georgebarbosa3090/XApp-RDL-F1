@@ -43,6 +43,15 @@ class MemoryModule:
         # Retorna vazio por padrão para acionar as políticas determinísticas TVS/EEVS
         return []
 
+    def save_rejection(self, rejection_id: str, data: dict):
+        """Proposta não atendida (registro de recusas); janela limitada como o restante."""
+        rejections = getattr(self, "_rejections", None)
+        if rejections is None:
+            rejections = self._rejections = {}
+        rejections[rejection_id] = dict(data)
+        while len(rejections) > self.MAX_HISTORY:
+            rejections.pop(next(iter(rejections)))
+
     def get_recent_actions(self, n=50) -> list:
         return self._actions[-n:]
 

@@ -21,29 +21,27 @@ Avaliação feita em 2026-11-10 para o projeto GreenRAN (testbed UFPA). Para cad
 
 ## 2. Ações críticas que não podem esperar a janela de 200 ms
 
-### 2.1 O que existe hoje
+### 2.1 Antes de 2026-11-10
 
-A janela de decisão é de 200 ms. Uma proposta com prioridade ≥ 80 já antecipa o fechamento da janela (*fast-flush*, doc 02 §3). Mas ela ainda passa pela arbitragem do lote, e a decisão espera o resto do pipeline.
+A janela de decisão era de 200 ms. Uma proposta com prioridade ≥ 80 antecipava o fechamento da janela (*fast-flush*, doc 02 §3), mas ainda passava pela arbitragem do lote inteiro.
 
-### 2.2 Mecanismo proposto dentro da RDL: classes de urgência
+### 2.2 Classes de urgência (implementado)
 
-Cada proposta é classificada:
+Cada proposta é classificada na chegada (`src/core/decision_window.py`, `RDLxApp._enqueue`):
 
 | Classe | Critério | Tratamento |
 | :-- | :-- | :-- |
-| `CRITICAL` | prioridade ≥ 95, ou parâmetro/xApp marcado como crítico por política A1 | **caminho rápido**: despacho imediato, sem esperar a janela, depois do Safety Guard por proposta e de uma verificação de conflito só contra o estado confirmado e as ações em voo no mesmo alvo e nas células vizinhas |
-| `URGENT` | 80 ≤ prioridade < 95 | janela encurtada (`urgent_window_ms`, padrão 20 ms) |
-| `NORMAL` | demais | janela normal (200 ms), ajustável |
+| `CRITICAL` | prioridade ≥ 95, ou (xApp, parâmetro) marcado como crítico em `RDL_CRITICAL_TARGETS` ou na política A1 20000 (`critical_targets`) | **caminho rápido**: o laço acorda na hora e decide a crítica junto com as propostas pendentes do mesmo nó e das células vizinhas, sem esperar a janela |
+| `URGENT` | 80 ≤ prioridade < 95, ou crítica acima da cota | janela fixa: fecha na hora; janela adaptativa: espera no máximo 20 ms |
+| `NORMAL` | demais | janela de 200 ms (fecha entre 200 e 250 ms, porque o laço acorda a cada 50 ms); adaptativa: 50–500 ms pela taxa de chegada |
 
-**Janela adaptativa** para `NORMAL`: o tamanho é escolhido entre um mínimo e um máximo (50–500 ms) pela taxa de chegada de propostas e pelo tempo desde o último KPM. Muitas propostas por segundo pedem janela maior, para agrupar conflitos. KPM novo e pouca concorrência pedem janela menor.
+**Garantias e limites do caminho rápido:**
 
-**Garantias:**
-
-- O caminho rápido não pula o Safety Guard nem a histerese.
-- Uma ação `CRITICAL` que conflite com outra `CRITICAL` no mesmo alvo dentro de `critical_guard_ms` é decidida por TVS entre as duas, sem esperar mais ninguém.
-- Toda ação do caminho rápido é registrada como tal no `CausalTracker` para auditoria.
-
-A implementação fica em `src/core/decision_window.py` (doc 02 §3).
+- **Safety Guard e arbitragem valem.** Duas críticas no mesmo alvo caem no mesmo grupo e são decididas pelo TVS.
+- **Intervalo mínimo próprio.** No alvo, vale `critical_control_interval_ms` (100 ms; ajustável pela política A1), não os 1000 ms da classe normal. Sem isso, uma ação crítica numa célula controlada há menos de 1 s seria recusada.
+- **Cota por xApp.** No máximo `RDL_CRITICAL_MAX_PER_S` (5) críticas por segundo; o excedente vira `URGENT`. Isso impede uma xApp de se declarar crítica o tempo todo para furar a fila.
+- **Auditoria.** A decisão sai com `reason = CRITICAL_FAST_PATH`, fica em `CausalTracker.fast_path_decisions` e conta em `rdl_critical_path_decisions_total`.
+- **Medida.** A latência de decisão do pipeline H-RDL é de milissegundos; o que domina o tempo até a RAN é o E2 (RIC Control → ACK). Uma ação abaixo de 10 ms não cabe no Near-RT RIC (seção 2.3).
 
 ### 2.3 Alternativas fora da RDL
 
@@ -60,3 +58,39 @@ A implementação fica em `src/core/decision_window.py` (doc 02 §3).
 1. Caminho rápido `CRITICAL` na RDL, para não depender de nada novo no testbed.
 2. Piso de PRB da fatia crítica no escalonador da DU, junto com as atividades 1.1 e 1.2.
 3. dApp, se o testbed usar OAI, para ações abaixo de 10 ms (por exemplo, desligar *layer* SDM quando a carga zera).
+
+### 2.4 Propostas que não cabem na janela: registro, aviso e adiamento (implementado)
+
+Nenhuma proposta some sem rastro: toda proposta que não vira RIC Control é registrada com o motivo (`SAFETY`, `HYSTERESIS`, `LOST_ARBITRATION`, `STALE`, `OVERFLOW`, `DISPATCH_FAILED`). Detalhes em doc 02 §3.2.
+
+| Mecanismo | O que faz | Interface |
+| :-- | :-- | :-- |
+| Registro consultável | entrada com motivo, detalhe, vencedora, decisão e `retry_after_ms` | `GET /rejections`; SDL (`save_rejection`) na implantação |
+| Aviso à xApp | resultado da proposta, para a xApp decidir se repropõe | RMR `RDL_ACTION_RESULT` (30001) |
+| Adiamento | só para `HYSTERESIS` e só com `defer_ok`; volta à janela quando o bloqueio expira, se ainda estiver na validade, e é reavaliada contra o estado atual | campos `defer_ok` e `ttl_ms` da proposta |
+| Validade | proposta mais velha que a validade é descartada como `STALE` antes da decisão | `RDL_PROPOSAL_MAX_AGE_MS` (1000 ms) |
+
+**Princípio:** guardar para consultar, sempre; executar depois, só com validade curta e nova avaliação. Uma ação de RAN decidida sobre um estado velho é pior do que nenhuma ação. Por isso o adiamento é opcional, limitado a 3 s (`RDL_DEFER_MAX_TTL_MS`) e restrito à histerese. Uma proposta que perdeu a arbitragem não volta sozinha: quem decide repropor é a xApp, com dados novos.
+
+### 2.5 Acima de 1000 ms: Non-RT RIC e SMO
+
+As escalas do O-RAN são: tempo real (DU/CU) abaixo de 10 ms, Near-RT RIC de 10 ms a 1 s, Non-RT RIC acima de 1 s. Com a histerese de 1000 ms, a RDL muda cada alvo no máximo uma vez por segundo (fora da classe crítica): está no teto do Near-RT.
+
+| O que | Onde deve ficar | Por quê |
+| :-- | :-- | :-- |
+| Intenção com horizonte maior que 1 s (desligar células à noite, trocar prioridades por período, metas de energia) | rApp → política A1 (20001 para objetivos, 20000 para regras) | a RDL aplica a política como parâmetro de cada decisão; virar proposta de 200 ms em 200 ms só gera recusas por histerese |
+| O que é crítico, a cota e os intervalos mínimos | rApp → política A1 20000 (`critical_targets`, `critical_control_interval_ms`, `cooling_lockout_ms`) | configurar o caminho rápido é decisão de operação, não de cada xApp |
+| Aprendizado sobre os conflitos (quem briga com quem, onde, quantas recusas por histerese) | Non-RT RIC (rApp ou *data lake* do SMO) | lê `GET /rejections` (resumo) e as métricas Prometheus e ajusta a política em segundos ou minutos |
+
+**O que falta:** a exportação ativa para o SMO (O1/VES ou R1) não existe; hoje o rApp tem de ler `GET /rejections` e as métricas Prometheus. O rApp de exemplo (`rapps/greenran_resource_optimizer.py`) ainda não lê esse resumo.
+
+### 2.6 xApps fora do "guarda-chuva" da RDL
+
+Uma xApp que manda RIC Control (12040) direto ao E2Term passa por fora da RDL, e a RDL não a vê. Opções, da mais forte à mais fraca:
+
+1. **Bloqueio na plataforma (recomendado para o testbed).** Só o descritor da RDL declara `RIC_CONTROL_REQ` em `txMessages`; as demais xApps declaram `RDL_ACTION_PROPOSAL` e recebem `RDL_ACTION_RESULT`. As rotas do RMR seguem os descritores, mas uma xApp pode forjar a própria tabela de rotas. Por isso o reforço é uma `NetworkPolicy` do Kubernetes em que a porta RMR de dados do E2Term só aceita a RDL e os componentes da plataforma (submgr, e2mgr).
+2. **Interceptação por rota.** Para xApps de terceiros que não podem ser alteradas, a tabela de rotas manda o 12040 delas para a RDL em vez do E2Term. A RDL decodifica o E2SM-RC como proposta, arbitra e responde com ACK ou FAILURE. A xApp não muda, mas a RDL precisa decodificar os tipos de controle que ela usa (hoje só codifica a cota de PRB). **Não implementado.**
+3. **Detecção de conflito implícito.** Comparar o KPM medido com o esperado pelas ações que a RDL confirmou; uma mudança sem explicação vira conflito `IMPLICIT`, registrada no grafo e reportada ao SMO. **Não implementado.**
+4. **Gestão pelo Non-RT/SMO.** Com esse relatório, o operador ou um rApp rebaixa a prioridade da xApp por A1 ou a retira (undeploy). É lento, mas fecha o ciclo.
+
+No GreenRAN, o xApp1-RANSlicer e o xApp2-EnergySaver são do próprio projeto: bastam o bloqueio (1) e as propostas por RMR 30000. A interceptação (2) só é necessária para xApps prontas de terceiros.

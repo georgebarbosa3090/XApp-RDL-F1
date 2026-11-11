@@ -21,6 +21,8 @@ RIC_CONTROL_FAILURE = 12042
 # RMR Message Types para E2 Indication e Mensagens Internas RDL
 RIC_INDICATION = 12050
 RDL_ACTION_PROPOSAL = 30000
+# Resultado de uma proposta não atendida (motivo e retry_after_ms), da RDL para as xApps
+RDL_ACTION_RESULT = 30001
 
 # ==============================================================================
 # 2. E2AP Procedure Codes Normativos (O-RAN.WG3.E2AP & ETSI TS 104 039)

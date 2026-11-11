@@ -52,5 +52,6 @@ xapps:
   xapp1_ranslicer: A_CONFIRMAR      # UFRGS
   xapp2_energysaver: A_CONFIRMAR    # UFPA
   rmr_message_type_proposals: 30000 # RDL_ACTION_PROPOSAL (contrato de entrada das propostas)
+  rmr_message_type_results: 30001   # RDL_ACTION_RESULT (propostas recusadas: motivo e retry_after_ms)
 
 topology_file: configs/testbed_ufpa/topology.example.json   # trocar pelo arquivo real (RDL_TOPOLOGY_FILE)
