@@ -86,8 +86,11 @@ def test_rmr_contract_between_reference_xapps_and_rdl(monkeypatch):
     from rdl_transport import RdlTransport
     from src.rdl_xapp import RDLxApp
 
+    # Sem RMR real no teste: com o ricxappframe instalado (CI), o modo "auto" abriria um RMR com
+    # thread não daemon e o pytest não terminaria.
+    monkeypatch.setenv("RDL_TRANSPORT", "none")
     es = EnergySavingXApp(http_port=19384, metrics_port=19385)
-    assert es.transport.start() in ("none", "rmr")
+    assert es.transport.start() == "none"
     sent = []
     es.transport.mode = "rmr"
     es.transport._rmr = type("R", (), {"rmr_send": lambda self, payload, mtype: sent.append((payload, mtype)) or True,
