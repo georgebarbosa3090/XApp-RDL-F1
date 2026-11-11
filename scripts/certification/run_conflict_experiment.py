@@ -269,7 +269,11 @@ def write_outputs(directory: Path, scenario_id, baseline, spec, events, schedule
 
 
 def to_wsl(path: Path) -> str:
-    p = str(path.resolve()).replace("\\", "/")
+    """Caminho do Windows (C:/...) para o WSL (/mnt/c/...); no Linux, um caminho C:/ não é resolvido."""
+    raw = str(path).replace("\\", "/")
+    if len(raw) > 1 and raw[1] == ":":
+        return f"/mnt/{raw[0].lower()}{raw[2:]}"
+    p = str(Path(path).resolve()).replace("\\", "/")
     if len(p) > 1 and p[1] == ":":
         return f"/mnt/{p[0].lower()}{p[2:]}"
     return p
