@@ -18,7 +18,7 @@ Nenhum experimento novo foi executado para este levantamento. As constatações 
 > **Atualização (2026-11-11):** o estado depois das correções está na [seção 7.3](#73-estado-em-2026-11-11). Em resumo:
 > - a Fase 1 passou a detectar conflitos entre células e a atuar `CELL_STATE`;
 > - S9–S15, G1 e G2 rodam no rádio NR;
-> - a Fase 2 foi reconstruída sobre a Fase 1, no ramo `fase2-sobre-fase1`, ainda sem merge.
+> - a Fase 2 foi reconstruída sobre a Fase 1 e está na `main` (`19822d8`, núcleo fixado em `b68ac8f5`, CI verde).
 >
 > Os vereditos de "pronta para o testbed" não mudam: nada rodou no testbed UFPA.
 
@@ -273,7 +273,7 @@ Em todos os sete:
 
 ### 7.3 Estado em 2026-11-11
 
-O que mudou depois desta avaliação. Commits: Fase 1 `a0cb21eb`, `48fab8eb` e `4924e7e4` (`main`); Fase 2 `c7dab7e` (ramo `fase2-sobre-fase1`).
+O que mudou depois desta avaliação. Commits: Fase 1 `a0cb21eb`, `48fab8eb` e `4924e7e4` (`main`); Fase 2 `19822d8` (`main`, merge do ramo `fase2-sobre-fase1` em 2026-11-11).
 
 **Cenários S9–S15 e GreenRAN G1–G2.** Os sete cenários foram reescritos no padrão de S0–S8, com:
 
@@ -327,12 +327,11 @@ Ações que não cabem no Near-RT RIC (dApps no DU/CU, política E2SM-RC, guarda
 3. Correção pré-registrada da utilidade do EEVS (achado 55).
 4. Entrega de propostas das xApps por RMR 30000.
 5. GR1 com o kpm-probe implantado.
-6. Merge do ramo `fase2-sobre-fase1` na `main` da Fase 2.
-7. Execução no testbed UFPA.
+6. Execução no testbed UFPA.
 
 ## 8. Referências internas
 
 - Fase 1: `README.md`, `docs/07_certificacao_e_achados.md` (achados 1, 11, 12, 25, 45, 50, 51), `docs/compliance/OPENRAN_BRASIL_INTEGRATION.md`, `docs/compliance/HRDL_F1_SRSRAN_TESTBED_PROFILE.md`, `docs/compliance/PHASE1_PHASE2_SYNC_CONTRACT.md`, `specs/claims.yaml`.
 - Fase 2: `README.md`, `specs/claims.yaml`, `src/agents/marl/{mappo_agent,mappo_trainer,intent_classifier}.py`, `src/agents/marl/environments/nori_ran_environment.py`, `src/e2/rc/capability_registry.py`, `src/e2/backends/srsran_e2_adapter.py`, `src/coordination/control_dispatcher.py`, `experiments/runs/S1_B6_seed1001/`, `experiments/runs/certified_closed_loop_chain/`, `experiments/training/seed_042/training_manifest.json`, `.github/workflows/`. Esses caminhos descrevem a `main` de 2026-09-30, lida para as seções 1–6.
-- Fase 2 reconstruída (ramo `fase2-sobre-fase1`): `cardl/engine.py`, `cardl/marl/{calibration,env,mappo,baselines,train}.py`, `experiments/training/mappo_seed{101,102,103}/`, `docs/15_treino_mappo_calibrado.md`.
+- Fase 2 reconstruída (`main` desde `19822d8`): `cardl/engine.py`, `cardl/marl/{calibration,env,mappo,baselines,train}.py`, `experiments/training/mappo_seed{101,102,103}/`, `docs/15_treino_mappo_calibrado.md`.
 - Proposta: *GreenRAN*, Anexo II, Programa OpenRAN@Brasil Etapa 2, 24/10/2025, seções 6.1–7.3.
