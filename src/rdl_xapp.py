@@ -614,7 +614,7 @@ class RDLxApp:
             ack_info = self.dispatcher.handle_ack(payload, node_id=summary.get("meid"))
             if ack_info:
                 action_id = ack_info.get("action_id")
-                action = self.pending_actions_by_id.pop(action_id, None)
+                action = self._pop_pending(action_id)
                 if action is not None:
                     action.t_ack = now_ts()
                     self.perception.commit_actions([action])
@@ -636,10 +636,14 @@ class RDLxApp:
             fail_info = self.dispatcher.handle_failure(payload, node_id=summary.get("meid"))
             if fail_info:
                 self.metrics.ctrl_fail.inc()
-                self.pending_actions_by_id.pop(fail_info.get("action_id"), None)
+                self._pop_pending(fail_info.get("action_id"))
             else:
                 logger.warning("RIC_CONTROL_FAILURE recebido sem transação ativa correlacionada.")
         self._safe_rmr_free(xapp_instance, sbuf)
+
+    def _pop_pending(self, action_id: Optional[str]) -> Optional[XAppAction]:
+        """Remove a ação em voo correlacionada a um ACK, FAILURE ou timeout (sem chave, nada a remover)."""
+        return self.pending_actions_by_id.pop(action_id, None) if action_id else None
 
     def inject_xapp_action(self, action: XAppAction):
         """API publica para injecao de acoes simuladas (usada em testes)"""
@@ -1069,7 +1073,7 @@ class RDLxApp:
                 for request_id in expired:
                     self.metrics.ctrl_timeout.inc()
                     request_info = self.dispatcher.pending_requests.get(request_id, {})
-                    self.pending_actions_by_id.pop(request_info.get("action_id"), None)
+                    self._pop_pending(request_info.get("action_id"))
                 self.dispatcher.prune_finalized(now=now)
                 last_cleanup = now
 

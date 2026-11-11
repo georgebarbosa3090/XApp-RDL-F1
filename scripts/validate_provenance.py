@@ -111,9 +111,20 @@ def validate_run_directory(run_dir: str) -> bool:
     source = manifest.get("source", manifest.get("provenance_category", ""))
     raw_backend = manifest.get("backend", manifest.get("backend_id", ""))
     raw_backend_str = str(raw_backend).upper() if raw_backend else ""
-    if not isinstance(source, str) or not source:
+
+    # Os manifestos dos drivers atuais declaram a lista de fontes de evidência
+    # (ex.: ["NS3_FLOWMONITOR", "NORI_E2", "E2_PCAP"]); todas precisam estar na política.
+    if isinstance(source, list):
+        if not source or not all(isinstance(s, str) and s for s in source):
+            print("  [PROVENANCE_INVALID] Lista 'source' vazia ou com itens inválidos.")
+            return False
+        sources = list(source)
+    elif isinstance(source, str) and source:
+        sources = [source]
+    else:
         print("  [PROVENANCE_INVALID] Campo 'source'/'provenance_category' explícito ausente.")
         return False
+    source = "+".join(sources)
 
     is_pub_eligible = manifest.get("publication_eligible")
     if not isinstance(is_pub_eligible, bool):
@@ -121,7 +132,7 @@ def validate_run_directory(run_dir: str) -> bool:
         return False
 
     # Se a fonte for restrita a desenvolvimento/testes
-    if source in banned_sources or any(banned in str(source) for banned in banned_sources):
+    if any(s in banned_sources for s in sources):
         if is_pub_eligible:
             print(f"  [PROVENANCE_INVALID] Conflito de política: Fonte '{source}' é proibida para publicação, mas foi marcada como elegível.")
             return False
@@ -129,8 +140,9 @@ def validate_run_directory(run_dir: str) -> bool:
             print(f"  [DEV/LOCAL] Execução/fixture local detectada (fonte: '{source}'). Não elegível para publicação científica.")
             return True
 
-    if source not in allowed_sources:
-        print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: '{source}'")
+    unknown = [s for s in sources if s not in allowed_sources]
+    if unknown:
+        print(f"  [PROVENANCE_INVALID] Fonte de evidência desconhecida e não registrada na política: {unknown}")
         return False
 
     if not is_pub_eligible:
@@ -140,6 +152,8 @@ def validate_run_directory(run_dir: str) -> bool:
     # 2. Resolve only declared backend identifiers; never infer from free-form text.
     if raw_backend_str in ("NORI_NS3", "NORI_NS3_5GLENA"):
         backend_id = "NORI_NS3"
+    elif raw_backend_str in ("NS3_5GLENA",):
+        backend_id = "NS3_5GLENA"
     elif raw_backend_str in ("SRSRAN_OPEN5GS",):
         backend_id = "SRSRAN_OPEN5GS"
     elif raw_backend_str in ("OPENRANBR_PHYSICAL",):
@@ -175,6 +189,10 @@ def validate_run_directory(run_dir: str) -> bool:
     found_raw_files = []
     for root, _, files in os.walk(run_dir):
         found_raw_files.extend(os.path.join(root, name) for name in files)
+    # O FlowMonitor (.xml) só é exigido de execuções que declaram essa fonte; uma execução só de E2
+    # (ex.: nori_rc_demo) declara NORI_E2/E2_PCAP e é auditada pelas evidências que declara.
+    if "NS3_FLOWMONITOR" not in sources:
+        required_groups = [g for g in required_groups if [ext.lower() for ext in g] != [".xml"]]
     missing_groups = [
         group for group in required_groups
         if not any(path.lower().endswith(tuple(ext.lower() for ext in group)) for path in found_raw_files)
@@ -219,6 +237,7 @@ def validate_run_directory(run_dir: str) -> bool:
         untracked_evidence = [
             os.path.normcase(os.path.realpath(path)) for path in found_raw_files
             if os.path.normcase(os.path.realpath(path)) not in hashed_paths
+            and os.path.basename(path) != "hashes.sha256"   # o arquivo de hashes não contém o próprio hash
         ]
         if untracked_evidence:
             print(f"  [PROVENANCE_INVALID] Evidências brutas sem hash: {untracked_evidence}")

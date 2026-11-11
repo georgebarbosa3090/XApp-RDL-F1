@@ -27,8 +27,8 @@ def validate_gate1() -> bool:
     
     gate1_runs_dir = os.path.join(BASE_DIR, "experiments", "runs", "gate1")
     if not os.path.exists(gate1_runs_dir):
-        print("  [Gate 1: PENDENTE] Diretório experiments/runs/gate1/ ausente.")
-        return False
+        print("  [Gate 1] Diretório legado experiments/runs/gate1/ ausente; recalculando o G1 com o certificador.")
+        return validate_gate1_with_certifier()
 
     # Procura um run_dir válido dentro de gate1_runs_dir
     run_dirs = [os.path.join(gate1_runs_dir, d) for d in os.listdir(gate1_runs_dir) if os.path.isdir(os.path.join(gate1_runs_dir, d))]
@@ -120,6 +120,27 @@ def validate_gate1() -> bool:
 
     print("  [Gate 1: OK] Todos os 7 critérios formais de interoperabilidade KPM validados!")
     return True
+
+def validate_gate1_with_certifier() -> bool:
+    """G1 do certificador (scripts/certification/certify_chain.py), recalculado sobre experiments/runs."""
+    from pathlib import Path
+    from scripts.certification import certify_chain as cc
+    runs_dir = Path(BASE_DIR) / "experiments" / "runs"
+    if not runs_dir.is_dir():
+        print("  [Gate 1: PENDENTE] experiments/runs/ ausente.")
+        return False
+    policy, lock, patterns = cc.load_policy(), cc.load_versions_lock(), cc.synthetic_run_id_patterns()
+    reports = [cc.certify_run(p, policy, lock, patterns, cc.DEFAULT_DISSECTION_ROOT)
+               for p in sorted(runs_dir.iterdir()) if p.is_dir()]
+    gates = cc.evaluate_gates(reports, lock)
+    g1 = gates.get("G1", {})
+    print(f"  - G1 (certificador): {g1.get('verdict')} — {g1.get('reason')}")
+    if g1.get("verdict") != cc.CERTIFIED:
+        print("  [Gate 1: PENDENTE / FAIL] O certificador não certifica o G1.")
+        return False
+    print("  [Gate 1: OK] G1 certificado pelo certificador a partir das execuções do repositório.")
+    return True
+
 
 def main():
     print("=" * 80)

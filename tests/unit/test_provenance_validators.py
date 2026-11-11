@@ -59,10 +59,29 @@ def test_provenance_rejects_unsuccessful_run(tmp_path):
 
 def test_provenance_requires_each_raw_evidence_class(tmp_path):
     (tmp_path / "indication.raw").write_bytes(b"raw")
-    _write_manifest(tmp_path)
+    _write_manifest(tmp_path, source=["NS3_FLOWMONITOR", "NORI_E2"])   # declara FlowMonitor sem o .xml
     _write_hashes(tmp_path)
 
     assert not validate_run_directory(str(tmp_path))
+
+
+def test_e2_only_run_is_audited_by_the_evidence_it_declares(tmp_path):
+    (tmp_path / "indication.raw").write_bytes(b"raw")
+    _write_manifest(tmp_path, source=["NORI_E2", "E2_PCAP"])
+    _write_hashes(tmp_path)
+    assert validate_run_directory(str(tmp_path))
+    (tmp_path / "indication.raw").write_bytes(b"tampered")              # hash divergente
+    assert not validate_run_directory(str(tmp_path))
+
+
+def test_source_list_must_be_registered(tmp_path):
+    (tmp_path / "evidence.xml").write_text("<FlowMonitor/>", encoding="utf-8")
+    (tmp_path / "indication.raw").write_bytes(b"raw")
+    _write_manifest(tmp_path, source=["NS3_FLOWMONITOR", "SOMETHING_ELSE"])
+    _write_hashes(tmp_path)
+    assert not validate_run_directory(str(tmp_path))
+    _write_manifest(tmp_path, source=["NS3_FLOWMONITOR", "MOCK"], publication_eligible=True)
+    assert not validate_run_directory(str(tmp_path))                     # fonte proibida marcada elegível
 
 
 def test_local_fixture_is_never_publication_eligible(tmp_path):

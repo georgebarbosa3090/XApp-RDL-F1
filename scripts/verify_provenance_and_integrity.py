@@ -87,9 +87,12 @@ def audit_datasets_provenance() -> Tuple[bool, bool]:
     
     paper_csv = os.path.join(RESULTS_DIR, "reproduced_audit_2026", "statistics", "paper_table.csv")
     if not os.path.exists(paper_csv):
-        print(f"[ERRO] paper_table.csv ausente: nenhuma tabela científica foi validada: {paper_csv}")
-        print("  Status: PUBLICATION_DATA_MISSING")
-        return False, False
+        # As tabelas antigas foram removidas (achado 45 de docs/07): os resultados de campanha
+        # ficam nos relatórios gerados a partir de experiments/runs, auditados por
+        # validate_provenance.py e pelo certificador. Sem tabela, não há fonte a conferir aqui.
+        print("[OK] Nenhuma tabela de publicação (paper_table.csv) no repositório; nada a auditar nesta etapa.")
+        print("  Status: NO_PUBLICATION_TABLE (a proveniência das execuções é auditada por validate_provenance.py)")
+        return True, False
 
     with open(paper_csv, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -149,7 +152,7 @@ def main():
     if table_audited:
         print(" [OK] Fontes declaradas da tabela passaram pelas verificações configuradas; proveniência externa ainda exige auditoria.")
     else:
-        print(" [FALHA] Nenhum dado de publicação disponível para validação.")
+        print(" [OK] Código sem geradores sintéticos; nenhuma tabela de publicação a auditar.")
     print("=" * 80)
     sys.exit(0)
 
