@@ -15,6 +15,13 @@ Nenhum experimento novo foi executado para este levantamento. As constatações 
 | Fase 2 (CA-RDL) no estado atual | **Inadequada** | Evidência sintética ainda publicada e rotulada como verificada; MAPPO não treinado na inferência; GNN/grafo de conhecimento não implementados; CI falhando; código anterior às 51 correções da Fase 1. |
 | Fase 2 como conceito | **Muito aderente** | Safe-RL, intenção e agentes coincidem com O1.2–O1.4 do GreenRAN (Nagib 2025, Nahum 2023/2025, Agentic-AI-Green). Precisa ser reconstruída sobre a Fase 1. |
 
+> **Atualização (2026-11-11):** o estado depois das correções está na [seção 7.3](#73-estado-em-2026-11-11). Em resumo:
+> - a Fase 1 passou a detectar conflitos entre células e a atuar `CELL_STATE`;
+> - S9–S15, G1 e G2 rodam no rádio NR;
+> - a Fase 2 foi reconstruída sobre a Fase 1, no ramo `fase2-sobre-fase1`, ainda sem merge.
+>
+> Os vereditos de "pronta para o testbed" não mudam: nada rodou no testbed UFPA.
+
 ---
 
 ## 2. O que o GreenRAN exige do lado RAN/RIC
@@ -264,8 +271,68 @@ Em todos os sete:
 - **G2:** baixa demanda noturna com UEs na borda entre duas RUs (desligamento × handover, regra entre células; exige atuar `CELL_STATE` em `rdl-nr-common.h`).
 - **G3, opcional:** sensores mMTC por enlace NTN, se o ns-3 da pilha tiver o modelo de propagação NTN do 3GPP TR 38.811 utilizável com o 5G-LENA.
 
+### 7.3 Estado em 2026-11-11
+
+O que mudou depois desta avaliação. Commits: Fase 1 `a0cb21eb`, `48fab8eb` e `4924e7e4` (`main`); Fase 2 `c7dab7e` (ramo `fase2-sobre-fase1`).
+
+**Cenários S9–S15 e GreenRAN G1–G2.** Os sete cenários foram reescritos no padrão de S0–S8, com:
+
+- rádio NR do 5G-LENA, num cenário multicélula paramétrico (`simulations/ns3/scenario_rdl_multicell.cc`);
+- propostas e topologia no catálogo, atuação das ações da RDL e semente controlada;
+- canal NTN-Rural com posição geocêntrica em S9 e S15.
+
+O teste curto (uma semente, B0 e B3) está em `docs/03` §2.4. Os números servem para mostrar que os cenários rodam, não como evidência:
+
+- **G2:** o B3 evita derrubar o serviço (1,80 contra 0,04 Mb/s).
+- **G1:** o B3 protege a fatia de câmeras.
+- **Pioras do B3:** S10 (atraso maior) e S13 (não evacua a célula em falha, achado 55).
+- **Sem conflito efetivo:** S12 e S14, cuja carga não chega ao teto de PRB (achado 57).
+
+**xApps de referência:**
+
+- Beamformer, ISAC Radar, Load Balancer e Bouncer foram removidas (achado 58).
+- Restam xSlice, Energy Saving, Traffic Steering e Rogue. Nenhuma entrega propostas à RDL implantada: falta enviar por RMR 30000.
+
+**Gates do GreenRAN.** Lógica implementada e testada, sem execução no testbed:
+
+| Gate | Implementado | Falta |
+| :-- | :-- | :-- |
+| GR1 (política A1 muda a decisão) | caminho A1-PMS → adaptador → A1 Mediator → RMR → xApp; o kpm-probe responde 20010/20011, consulta 20012 e repassa a política ao B3 | implantar o kpm-probe novo e ver a política `ENFORCED` mudar um RIC Control real |
+| GR2 (conflito entre células) | regras `HANDOVER_INTO_REDUCED_CELL`, `HANDOVER_PING_PONG` e `NEIGHBOR_SLEEP`; campanha 08 (S4/S5, 10/10 detecções) | H9.2 e H9.3 refutadas: detectar não bastou para ganhar em S4 |
+| GR3 (`CELL_STATE`) | atuação no ns-3 (−30 dBm; os UEs entram em RLF e se reconectam) | nó E2 real que aceite o parâmetro (OAI/srsRAN do testbed) |
+| GR4 (testbed) | perfil em `docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md` | tudo: depende do acesso ao testbed |
+
+**Grafo de conhecimento.** Implementado na Fase 1 (`src/core/knowledge_graph.py`, alimentado pela Percepção e exposto em `GET /kg`). A Fase 2 usa o mesmo grafo pela `RDLxApp` e registra no `DecisionRecord` o contexto que dele extrai.
+
+**Janela de decisão.** `src/core/decision_window.py` define três classes de urgência:
+
+- **CRITICAL:** age sem esperar os 200 ms;
+- **URGENT:** janela curta;
+- **NORMAL:** janela padrão.
+
+Ações que não cabem no Near-RT RIC (dApps no DU/CU, política E2SM-RC, guarda no DU) estão descritas como alternativa em `docs/09_frameworks_e_acoes_criticas.md`.
+
+**SMO.** O O-RAN SC A1-PMS 2.8.0 roda por Helm (`deploy/helm/a1pms`) com um adaptador próprio (achado 56) e um rApp de exemplo (`rapps/greenran_resource_optimizer.py`). O SMO completo (ONAP/OSC) ficou documentado como passo a passo para o testbed UFPA (`docs/10_smo_non_rt_ric_e_rapp.md`): não cabe nesta máquina.
+
+**MAPPO da Fase 2.** Treinado num ambiente calibrado pela curva medida no NORI (`XApp-RDL-F2/docs/15_treino_mappo_calibrado.md`):
+
+- duas de três sementes trocam SLA por energia dentro do limite do CMDP;
+- a terceira não converge para uma política segura (34 % de violações);
+- não é evidência de RAN (`publication_eligible: false`).
+
+**Pendências que bloqueiam o uso no GreenRAN:**
+
+1. Validação pré-registrada CA-RDL × H-RDL no NORI, com critério de seleção de semente fixado antes.
+2. Campanha pareada de S9–S15/G1–G2, com mais carga em S12 e S14.
+3. Correção pré-registrada da utilidade do EEVS (achado 55).
+4. Entrega de propostas das xApps por RMR 30000.
+5. GR1 com o kpm-probe implantado.
+6. Merge do ramo `fase2-sobre-fase1` na `main` da Fase 2.
+7. Execução no testbed UFPA.
+
 ## 8. Referências internas
 
 - Fase 1: `README.md`, `docs/07_certificacao_e_achados.md` (achados 1, 11, 12, 25, 45, 50, 51), `docs/compliance/OPENRAN_BRASIL_INTEGRATION.md`, `docs/compliance/HRDL_F1_SRSRAN_TESTBED_PROFILE.md`, `docs/compliance/PHASE1_PHASE2_SYNC_CONTRACT.md`, `specs/claims.yaml`.
-- Fase 2: `README.md`, `specs/claims.yaml`, `src/agents/marl/{mappo_agent,mappo_trainer,intent_classifier}.py`, `src/agents/marl/environments/nori_ran_environment.py`, `src/e2/rc/capability_registry.py`, `src/e2/backends/srsran_e2_adapter.py`, `src/coordination/control_dispatcher.py`, `experiments/runs/S1_B6_seed1001/`, `experiments/runs/certified_closed_loop_chain/`, `experiments/training/seed_042/training_manifest.json`, `.github/workflows/`.
+- Fase 2: `README.md`, `specs/claims.yaml`, `src/agents/marl/{mappo_agent,mappo_trainer,intent_classifier}.py`, `src/agents/marl/environments/nori_ran_environment.py`, `src/e2/rc/capability_registry.py`, `src/e2/backends/srsran_e2_adapter.py`, `src/coordination/control_dispatcher.py`, `experiments/runs/S1_B6_seed1001/`, `experiments/runs/certified_closed_loop_chain/`, `experiments/training/seed_042/training_manifest.json`, `.github/workflows/`. Esses caminhos descrevem a `main` de 2026-09-30, lida para as seções 1–6.
+- Fase 2 reconstruída (ramo `fase2-sobre-fase1`): `cardl/engine.py`, `cardl/marl/{calibration,env,mappo,baselines,train}.py`, `experiments/training/mappo_seed{101,102,103}/`, `docs/15_treino_mappo_calibrado.md`.
 - Proposta: *GreenRAN*, Anexo II, Programa OpenRAN@Brasil Etapa 2, 24/10/2025, seções 6.1–7.3.
