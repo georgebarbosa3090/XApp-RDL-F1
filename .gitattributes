@@ -6,3 +6,6 @@ experiments/runs_failed/** -text
 experiments/e2_dissection/** -text
 experiments/xapp_logs/** -text
 *.patch text eol=lf
+
+# Código de terceiros copiado sem modificação: bytes preservados (sha256 em SOURCE.md)
+third_party/** -text

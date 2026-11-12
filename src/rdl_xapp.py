@@ -1,3 +1,5 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 import time
 import threading
 import json
@@ -64,7 +66,7 @@ from src.core.proposal_registry import ProposalRegistry
 from src.core.implicit_conflict import ImplicitConflictDetector
 from src.governance import interception as icpt
 from src.governance.xapp_registry import ON_DEMAND, QUARANTINED, XAppRegistry, parse_pairs
-from src.interfaces.a1_policy_receiver import A1PolicyHttpHandler, A1PolicyManager, A1PolicyReceiverServer
+from src.interfaces.a1_policy_receiver import RDL_POLICY_TYPES, A1PolicyHttpHandler, A1PolicyManager, A1PolicyReceiverServer
 from src.interfaces.a1_rmr import A1_POLICY_QUERY, A1_POLICY_REQUEST, A1_POLICY_RESPONSE, handle_policy_request, query_messages
 from src.observability.metrics import MetricsServer
 from src.e2.kpm_decoder import KpmDecoder
@@ -389,7 +391,7 @@ class RDLxApp:
 
     def _query_a1_policies(self) -> None:
         """Na partida, pede ao A1 Mediator as instâncias existentes (RMR 20012)."""
-        for body in query_messages(list(self.a1_policies.policy_types)):
+        for body in query_messages(list(RDL_POLICY_TYPES)):
             try:
                 self.xapp.rmr_send(body, A1_POLICY_QUERY)
             except Exception as exc:

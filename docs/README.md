@@ -27,6 +27,7 @@
 | 09 | [Frameworks e ações críticas](09_frameworks_e_acoes_criticas.md) | Frameworks avaliados para o GreenRAN; classes de urgência e alternativas fora da RDL (dApps, E2SM-RC Policy, guarda na DU, A1) |
 | 10 | [SMO, Non-RT RIC e rApp](10_smo_non_rt_ric_e_rapp.md) | A1-PMS do O-RAN SC na bancada, A1 via RMR, fluxo de ML do MAPPO, passo a passo do SMO completo |
 | 11 | [Governança hierárquica das xApps](11_governanca_hierarquica_xapps.md) | Registro e NetworkPolicy, interceptação por rota, conflito implícito, rApp de governança, supervisão sob demanda; onde ficam dbaas, NetworkX e Neo4j |
+| 12 | [xApps do GreenRAN, rApp e testbed](12_greenran_xapps_rapp_e_testbed.md) | xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer; perfis srsRAN (GERCOM) e OAI (LACIS) |
 | — | [Pré-registros](preregistros/README.md) | Desenhos v2–v7 da fase 4, campanha do G5 e conflitos entre células (08), cada um com o resultado registrado depois |
 
 ## Glossário curto

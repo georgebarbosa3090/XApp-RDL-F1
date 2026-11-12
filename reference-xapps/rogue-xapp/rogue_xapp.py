@@ -1,3 +1,5 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
 Rogue Stress Reference xApp (6G Cross-Tier Governance & Security Evaluation)
 Papel no RDL: Emuladora de xApp de terceiro descalibrada ou maliciosa.

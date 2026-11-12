@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
 rApp de governança (nível 4 da governança hierárquica; doc 11).
 

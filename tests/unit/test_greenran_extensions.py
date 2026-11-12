@@ -98,11 +98,12 @@ def test_a1_rmr_create_update_delete_and_errors():
 
 
 def test_a1_rmr_query_and_type_definitions_include_cardl_type():
+    from src.interfaces.a1_policy_receiver import RDL_POLICY_TYPES
     mgr = A1PolicyManager()
-    assert [json.loads(m) for m in query_messages(list(mgr.policy_types))] == [
+    assert [json.loads(m) for m in query_messages(list(RDL_POLICY_TYPES))] == [
         {"policy_type_id": 20000}, {"policy_type_id": 20001}, {"policy_type_id": 20002}]
     defs = {d["policy_type_id"]: d for d in policy_type_definitions(mgr)}
-    assert set(defs) == {20000, 20001, 20002}
+    assert set(defs) == {20000, 20001, 20002, 21000, 21001}      # 21000/21001: xApps do GreenRAN
     assert defs[20002]["create_schema"]["properties"]["marl_enabled"] == {"type": "boolean"}
     assert all(d["create_schema"]["additionalProperties"] is False for d in defs.values())
 

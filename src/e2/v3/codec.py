@@ -56,6 +56,10 @@ RC_STYLE_RADIO_RESOURCE_ALLOCATION = 2
 RC_ACTION_SLICE_PRB_QUOTA = 6
 RC_PARAM_RRM_POLICY_RATIO_LIST = 1
 RC_PARAM_SST, RC_PARAM_MAX_PRB, RC_PARAM_MIN_PRB, RC_PARAM_DEDICATED_PRB = 3, 4, 5, 6
+# IDs dos RAN Parameters da cota de PRB por fatia no leiaute plano do NORI; outro E2 Agent (srsRAN, OAI)
+# pode usar outros IDs: o perfil do backend os sobrepõe (src/e2/backends/testbed_profiles.py)
+NORI_RC_SLICE_IDS = {"list": RC_PARAM_RRM_POLICY_RATIO_LIST, "sst": RC_PARAM_SST, "max": RC_PARAM_MAX_PRB,
+                     "min": RC_PARAM_MIN_PRB, "dedicated": RC_PARAM_DEDICATED_PRB}
 
 
 class CodecError(ValueError):
@@ -407,7 +411,8 @@ class E2smCodec:
             header["ric-ControlDecision"] = "accept" if decision_accept else "reject"
         return self.rc.encode("E2SM-RC-ControlHeader", {"ric-controlHeader-formats": ("controlHeader-Format1", header)})
 
-    def rc_slice_quota_message(self, quotas: Sequence[SlicePrbQuota]) -> bytes:
+    def rc_slice_quota_message(self, quotas: Sequence[SlicePrbQuota], param_ids: Optional[Dict[str, int]] = None) -> bytes:
+        ids = {**NORI_RC_SLICE_IDS, **(param_ids or {})}
         if not quotas:
             raise CodecError("ao menos uma cota de fatia")
         structures = []
@@ -419,13 +424,13 @@ class E2smCodec:
                         "ranParameter-valueType": ("ranP-Choice-ElementFalse", {"ranParameter-value": value})}
 
             structures.append({"sequence-of-ranParameters": [
-                element(RC_PARAM_SST, ("valueOctS", bytes([q.sst]))),
-                element(RC_PARAM_MAX_PRB, ("valueInt", q.max_prb_ratio)),
-                element(RC_PARAM_MIN_PRB, ("valueInt", q.min_prb_ratio)),
-                element(RC_PARAM_DEDICATED_PRB, ("valueInt", q.dedicated_prb_ratio)),
+                element(ids["sst"], ("valueOctS", bytes([q.sst]))),
+                element(ids["max"], ("valueInt", q.max_prb_ratio)),
+                element(ids["min"], ("valueInt", q.min_prb_ratio)),
+                element(ids["dedicated"], ("valueInt", q.dedicated_prb_ratio)),
             ]})
         message = {"ranP-List": [{
-            "ranParameter-ID": RC_PARAM_RRM_POLICY_RATIO_LIST,
+            "ranParameter-ID": ids["list"],
             "ranParameter-valueType": ("ranP-Choice-List", {"ranParameter-List": {"list-of-ranParameter": structures}}),
         }]}
         return self.rc.encode("E2SM-RC-ControlMessage", {"ric-controlMessage-formats": ("controlMessage-Format1", message)})
@@ -433,8 +438,9 @@ class E2smCodec:
     def rc_decode_header(self, data: bytes) -> Dict[str, Any]:
         return self.rc.decode("E2SM-RC-ControlHeader", data)
 
-    def rc_decode_slice_quotas(self, data: bytes) -> List[SlicePrbQuota]:
+    def rc_decode_slice_quotas(self, data: bytes, param_ids: Optional[Dict[str, int]] = None) -> List[SlicePrbQuota]:
         """Lê as cotas como o NORI lê (ric-control-message.cc), para verificação do que foi enviado."""
+        ids = {**NORI_RC_SLICE_IDS, **(param_ids or {})}
         decoded = self.rc.decode("E2SM-RC-ControlMessage", data)
         fmt, body = decoded["ric-controlMessage-formats"]
         if fmt != "controlMessage-Format1":
@@ -442,7 +448,7 @@ class E2smCodec:
         quotas = []
         for item in body["ranP-List"]:
             kind, value = item["ranParameter-valueType"]
-            if item["ranParameter-ID"] != RC_PARAM_RRM_POLICY_RATIO_LIST or kind != "ranP-Choice-List":
+            if item["ranParameter-ID"] != ids["list"] or kind != "ranP-Choice-List":
                 continue
             for struct in value["ranParameter-List"]["list-of-ranParameter"]:
                 fields = {}
@@ -450,8 +456,8 @@ class E2smCodec:
                     _, element = p["ranParameter-valueType"]
                     vkind, v = element.get("ranParameter-value", (None, None))
                     fields[p["ranParameter-ID"]] = v[0] if vkind == "valueOctS" else v
-                quotas.append(SlicePrbQuota(fields.get(RC_PARAM_SST, 0), fields.get(RC_PARAM_MAX_PRB, 100),
-                                            fields.get(RC_PARAM_MIN_PRB, 0), fields.get(RC_PARAM_DEDICATED_PRB, 0)))
+                quotas.append(SlicePrbQuota(fields.get(ids["sst"], 0), fields.get(ids["max"], 100),
+                                            fields.get(ids["min"], 0), fields.get(ids["dedicated"], 0)))
         return quotas
 
 

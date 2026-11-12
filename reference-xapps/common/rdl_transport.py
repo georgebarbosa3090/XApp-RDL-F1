@@ -1,3 +1,5 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
 Entrega das propostas das xApps de referência à xApp RDL.
 

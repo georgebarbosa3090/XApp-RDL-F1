@@ -1,6 +1,10 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
+# Reimplementação própria em Python, inspirada em Energy Saving com utilização de célula (Orange, FlexRIC); nenhum trecho do código original
+# foi copiado. O código original, com a licença dele, está em third_party/xapps/flexric-orange-es/ (SOURCE.md).
 """
 Energy Saving Reference xApp (Green RAN & Cell Sleep Optimizer - GreenRAN Edition)
-Baseado em: Orange-OpenSource/ns-O-RAN-flexric (xapp_es_with_cell_util)
+Inspirada em: xapp_es_with_cell_util (Orange, FlexRIC; código original em third_party/xapps/flexric-orange-es)
 Adaptado para o Projeto GreenRAN (UFPA / OpenRAN@Brasil - Agro 4.0 e Smart Campus)
 
 Papel no RDL / GreenRAN:

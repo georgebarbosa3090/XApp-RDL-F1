@@ -1,0 +1,24 @@
+# Perfil de referência: bancada NORI (ns-3.42 + 5G-LENA + E2 real) — o único verificado (G1–G5)
+backend: NORI_NS3
+lab: bancada local (Fase 1)
+stack: NORI (lasseufpa/nori) sobre ns-3.42 + 5G-LENA
+verified: true
+e2:
+  e2ap_version: "v03.01"
+  agent: E2SIM do NORI
+kpm:
+  version: "v03.00"
+  ran_function_id: 200
+  metrics:
+    prb_used: RRU.PrbUsedDl
+    prb_avail: RRU.PrbAvailDl
+    ue_thp_kbps: DRB.UEThpDl
+    ue_delay_ms: DRB.RlcSduDelayDl
+    ue_sst: DRB.NetworkSlicing.SST
+    ue_prb: RRU.PrbUsedDl
+rc:
+  version: "v03.01"
+  ran_function_id: 300
+  prb_quota: {style: 2, action: 6, layout: nori_flat, param_ids: {list: 1, sst: 3, max: 4, min: 5, dedicated: 6}}
+  tx_power: nao_suportado
+  cell_state: nao_suportado   # o NORI anuncia E2SM-CCC (achado 25), sem uso pela RDL

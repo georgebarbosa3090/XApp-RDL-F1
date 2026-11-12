@@ -1,0 +1,35 @@
+# Perfil OpenAirInterface — laboratório LACIS (UFPA). Modelo a preencher com a equipe do laboratório.
+# Enquanto houver "A_CONFIRMAR", o gate TB0 não passa (src/e2/backends/testbed_profiles.py).
+backend: OAI_FLEXRIC
+lab: LACIS (UFPA)
+stack: OpenAirInterface (gNB/CU/DU) com agente E2 do FlexRIC + núcleo 5G (OAI CN ou Open5GS)
+verified: false
+versions:
+  oai_gnb: A_CONFIRMAR             # tag e commit; inclui o RAN-CodeUpdates do GreenRAN?
+  flexric_agent: A_CONFIRMAR
+  core: A_CONFIRMAR
+  near_rt_ric: A_CONFIRMAR         # O-RAN SC ou o RIC do FlexRIC (muda a interface com as xApps)
+e2:
+  e2ap_version: A_CONFIRMAR
+  agent: agente E2 do FlexRIC embutido no gNB do OAI
+  e2term_address: A_CONFIRMAR
+kpm:
+  version: A_CONFIRMAR
+  ran_function_id: A_CONFIRMAR
+  metrics:
+    prb_used: RRU.PrbUsedDl
+    prb_avail: RRU.PrbAvailDl
+    ue_thp_kbps: DRB.UEThpDl
+    ue_delay_ms: DRB.RlcSduDelayDl
+    ue_sst: A_CONFIRMAR
+    ue_prb: RRU.PrbUsedDl
+rc:
+  version: A_CONFIRMAR
+  ran_function_id: A_CONFIRMAR
+  prb_quota:
+    style: 2
+    action: 6
+    layout: A_CONFIRMAR             # RC Style 2/Action 6 ou o modelo de serviço de fatiamento próprio do FlexRIC
+    param_ids: A_CONFIRMAR
+  tx_power: A_CONFIRMAR
+  cell_state: A_CONFIRMAR

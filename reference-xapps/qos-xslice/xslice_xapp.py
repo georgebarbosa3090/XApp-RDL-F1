@@ -1,6 +1,10 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
+# Reimplementação própria em Python, inspirada em xSlice (Yan et al., peihaoY/xslice-oran); nenhum trecho do código original
+# foi copiado. O código original, com a licença dele, está em third_party/xapps/xslice-oran/ (SOURCE.md).
 """
 xSlice Reference xApp (QoS & Slicing Optimizer - GreenRAN Edition)
-Baseado em: peihaoY/xslice-oran (Near-Real-Time Resource Slicing for QoS Optimization in 5G O-RAN)
+Inspirada em: peihaoY/xslice-oran (código original em third_party/xapps/xslice-oran) (Near-Real-Time Resource Slicing for QoS Optimization in 5G O-RAN)
 Adaptado para o Projeto GreenRAN (UFPA / OpenRAN@Brasil - Agro 4.0 e Smart Campus)
 
 Papel no RDL / GreenRAN:

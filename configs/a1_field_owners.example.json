@@ -1,23 +1,112 @@
 {
   "_comment": "Dono e precedência por campo da política A1 (RDL_A1_FIELD_OWNERS; doc 11 §5.1). Para cada tipo e campo, padrões (glob) de policy_instance_id em ordem de precedência: o primeiro vence. O A1 Mediator só repassa o ID da instância (o policy_id dado pelo rApp no A1-PMS), não o serviço. Convenção: instâncias do operador começam com 'operator'. Campo fora do mapa: livre, vale a escrita mais recente.",
   "20000": {
-    "urllc_priority_boost": ["operator*"],
-    "energy_saving_allowed": ["operator*", "greenran*"],
-    "max_cell_prb_limit": ["operator*"],
-    "cooling_lockout_ms": ["operator*"],
-    "critical_targets": ["operator*"],
-    "critical_control_interval_ms": ["operator*"],
-    "xapp_modes": ["operator*", "rdl-governance"],
-    "xapp_priority_caps": ["operator*", "rdl-governance"]
+    "urllc_priority_boost": [
+      "operator*"
+    ],
+    "energy_saving_allowed": [
+      "operator*",
+      "greenran*"
+    ],
+    "max_cell_prb_limit": [
+      "operator*"
+    ],
+    "cooling_lockout_ms": [
+      "operator*"
+    ],
+    "critical_targets": [
+      "operator*"
+    ],
+    "critical_control_interval_ms": [
+      "operator*"
+    ],
+    "xapp_modes": [
+      "operator*",
+      "rdl-governance"
+    ],
+    "xapp_priority_caps": [
+      "operator*",
+      "rdl-governance"
+    ]
   },
   "20001": {
-    "energy_weight": ["operator*", "greenran*"],
-    "sla_weight": ["operator*", "greenran*"],
-    "allow_neighbor_sleep": ["operator*", "greenran*"],
-    "low_power_threshold_dbm": ["operator*", "greenran*"]
+    "energy_weight": [
+      "operator*",
+      "greenran*"
+    ],
+    "sla_weight": [
+      "operator*",
+      "greenran*"
+    ],
+    "allow_neighbor_sleep": [
+      "operator*",
+      "greenran*"
+    ],
+    "low_power_threshold_dbm": [
+      "operator*",
+      "greenran*"
+    ]
   },
   "20002": {
-    "marl_enabled": ["operator*", "cardl*"],
-    "min_confidence": ["operator*", "cardl*"]
+    "marl_enabled": [
+      "operator*",
+      "cardl*"
+    ],
+    "min_confidence": [
+      "operator*",
+      "cardl*"
+    ]
+  },
+  "21000": {
+    "embb_min_thp_mbps": [
+      "operator*",
+      "greenran*"
+    ],
+    "embb_max_delay_ms": [
+      "operator*",
+      "greenran*"
+    ],
+    "mmtc_min_prb_pct": [
+      "operator*",
+      "greenran*"
+    ],
+    "slice_safety_margin": [
+      "operator*",
+      "greenran*"
+    ],
+    "ranslicer_learned_policy": [
+      "operator*",
+      "greenran*"
+    ]
+  },
+  "21001": {
+    "es_sleep_threshold_pct": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_wake_threshold_pct": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_min_active_cells": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_sleep_start_hour": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_sleep_end_hour": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_tx_power_reduction": [
+      "operator*",
+      "greenran*"
+    ],
+    "es_reduced_tx_power_dbm": [
+      "operator*",
+      "greenran*"
+    ]
   }
 }

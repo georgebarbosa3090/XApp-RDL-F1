@@ -21,6 +21,14 @@ Nenhum experimento novo foi executado para este levantamento. As constatações 
 > - a Fase 2 foi reconstruída sobre a Fase 1 e está na `main` (`19822d8`, núcleo fixado em `b68ac8f5`, CI verde).
 >
 > Os vereditos de "pronta para o testbed" não mudam: nada rodou no testbed UFPA.
+>
+> **Atualização (2026-11-11, noite):** a [seção 9](#9-estado-em-2026-11-11-noite-requisitos-gates-ca-rdl-e-lacunas-do-testbed) traz o estado por requisito, gate e problema da CA-RDL. Novidades:
+> - xApp1-RANSlicer, xApp2-EnergySaver e rApp-ResourceOptimizer implementados;
+> - perfis de backend para srsRAN (GERCOM) e OAI (LACIS);
+> - seleção de modelo da CA-RDL;
+> - código de terceiros com procedência e autoria do software próprio.
+>
+> A Fase 2 passa a **adequada como protótipo de pesquisa**. "Pronta para o testbed" continua **não**: faltam o perfil confirmado de cada laboratório, a execução dos gates TB e GR e a métrica de energia.
 
 ---
 
@@ -328,6 +336,79 @@ Ações que não cabem no Near-RT RIC (dApps no DU/CU, política E2SM-RC, guarda
 4. Entrega de propostas das xApps por RMR 30000: implementada nas xApps de referência (2026-11-11), não verificada com RMR real; governança hierárquica das xApps em [doc 11](../../docs/11_governanca_hierarquica_xapps.md).
 5. GR1 com o kpm-probe implantado.
 6. Execução no testbed UFPA.
+
+## 9. Estado em 2026-11-11 (noite): requisitos, gates, CA-RDL e lacunas do testbed
+
+Commits: Fase 1 `main` posterior a `083c8e69`; Fase 2 `main` posterior a `12e4ed9`. Legenda das seções 3 e 7: ✅ verificado com evidência; 🟡 implementado e testado, sem verificação em RAN real; ❌ ausente.
+
+### 9.1 Requisitos do GreenRAN (seção 2) × estado
+
+| Ref. | Requisito | Antes (seção 3) | Agora | O que falta e onde |
+| :-- | :-- | :-- | :-- | :-- |
+| A1.1 | PRB por fatia via E2 | ✅ NORI | ✅ NORI (G3–G5). 🟡 testbed: perfis srsRAN (GERCOM) e OAI (LACIS); IDs de RC configuráveis no codec; a kpm-probe falha fechado sem IDs confirmados (doc 12 §5) | confirmar com cada laboratório o leiaute e os IDs da cota (TB0) e executar TB5–TB6 |
+| A1.2 | Potência via E2 | 🟡 só ns-3 | 🟡 decidida e atuada no ns-3; o EnergySaver propõe `TX_POWER` | canal E2 da potência por laboratório (perfil `rc.tx_power`) |
+| A1.3 | Desligamento de RU/célula | ❌ | 🟡 `CELL_STATE` atuado no ns-3 (−30 dBm, RLF); o EnergySaver desliga em dois passos (evacuação, sleep) e religa; a RDL protege a célula que recebe UEs | canal E2 por laboratório (E2SM-CCC, RC próprio ou O1; perfil `rc.cell_state`); GR3 |
+| A1.4 | KPM de energia | ❌ | ❌ medida. A energia segue só modelada (modelo EARTH no EEVS) | métrica de consumo do testbed (KPM PEE ou O1); sem ela, o GR4 não fecha |
+| A1.5 | xApp1-RANSlicer | ❌ | 🟡 `src/greenran/xapp1_ranslicer.py`: intenção por A1 21000, eficiência medida e escudo de segurança para política aprendida | versão definitiva da UFRGS no mesmo contrato; execução com KPM real |
+| A1.6 | xApp2-EnergySaver | ❌ | 🟡 `src/greenran/xapp2_energysaver.py`: padrão sazonal por célula, borda entre duas RUs, religamento, A1 21001 | versão definitiva da UFPA; execução com KPM real |
+| A1.7 | rApp-ResourceOptimizer | ❌ | 🟡 `rapps/greenran_resource_optimizer.py`: três políticas (20001 à RDL, 21000 ao xApp1, 21001 ao xApp2), regras por período, intenção, risco de SLA, arbitragem perdida e conflito implícito; A1-PMS na bancada | GR1 com a política aplicada pela xApp no RIC; SMO completo do testbed (doc 10) |
+| A1.8/1.9 | Agent-AI | ❌ | ❌. Há só o analisador de palavras-chave do rApp | entregável da UNICAMP; o rApp aceita a intenção estruturada |
+| A1.10 | App1-Vigilância e App2-Monitoramento | 🟡 | 🟡 cenário G1 (câmeras × sensores, em escala reduzida); alvos do RANSlicer por câmera | tráfego real das aplicações no testbed (GR4) |
+| A1.11 | Robustez e segurança | 🟡 | 🟡 Safety Guard, governança em quatro níveis mais conflito entre rApps (doc 11), quarentena, NetworkPolicy verificada no cluster | defesa contra ataques de evasão a modelos de ML (O1.5) não tratada |
+| E4.3 | Código aberto | 🟡 | 🟡 LICENSE, `AUTHORS.md`, código de terceiros com licença e procedência em `third_party/`; CI verde nas duas fases | reprodução independente (G6) |
+
+### 9.2 Lacunas da seção 5.2 (Fase 1)
+
+| # | Lacuna | Estado |
+| :-: | :-- | :-- |
+| 1 | Só NORI | **Aberta**, preparada: perfis srsRAN/OAI, passo a passo por laboratório (doc 12 §5) |
+| 2 | Só PRB atuável no E2 real | **Aberta**: potência e desligamento dependem das atividades 1.2/1.3 dos laboratórios |
+| 3 | Conflito entre células | **Resolvida no código** (achado 52; campanha 08) |
+| 4 | A1 desconectado | **Resolvida no código**: A1 → decisão, A1 por RMR, precedência por campo (achado 64); GR1 no cluster pendente |
+| 5 | Energia não medida | **Aberta** (9.1, A1.4) |
+| 6 | G6 e claims `NOT_VERIFIED` | **Aberta** |
+| 7 | Recursos da bancada | **Aberta**: o testbed precisa de servidor dedicado; a bancada roda com 5 GB no WSL |
+| 8 | Inconsistências de documentação | **Resolvida** (docs 02/07/README revistos; CI das auditorias corrigido, achado 60) |
+
+### 9.3 Gates do GreenRAN
+
+| Gate | Estado | Falta |
+| :-: | :-- | :-- |
+| GR1 | 🟡 lógica e caminho A1-PMS → mediador → xApp por RMR prontos e testados; o rApp publica as três políticas | ver uma política `ENFORCED` mudar um RIC Control real (kpm-probe nova implantada com NORI, ou testbed) |
+| GR2 | 🟡 regras entre células com 10/10 detecções (campanha 08); o EnergySaver respeita a regra (recusa → volta a ativo) | RUs reais |
+| GR3 | ❌ em RAN real; 🟡 no ns-3 | canal E2 do `CELL_STATE` no laboratório |
+| GR4 | ❌ | testbed, tráfego das aplicações e energia medida |
+
+### 9.4 CA-RDL (seção 4) — problemas e estado
+
+| Problema (seção 4) | Estado |
+| :-- | :-- |
+| Evidência sintética publicada | **Resolvido** (saneamento de 2026-11-10) |
+| MAPPO sem checkpoint na inferência; confiança forçada | **Resolvido**: checkpoint carregado com sha256 conferido; confiança mínima configurável por A1 20002 |
+| Treino com observações aleatórias; `NoriRanEnvironment` de tabela fixa | **Resolvido**: ambiente calibrado pela curva medida no NORI (`docs/15`) |
+| Semente que não converge (34 % de violações) | **Resolvido**: critério de seleção fixado antes (validação 8001–8010, violação ≤ limite do CMDP); 101 selecionada, 103 excluída (`docs/15` §4) |
+| Treino não determinístico | **Resolvido no código** (`set_determinism`); retreino para conferir a reprodução bit a bit pendente |
+| GNN / grafo de conhecimento | grafo **implementado** (Fase 1, usado pela CA-RDL); GNN não implementada nem alegada |
+| Janela adaptativa ausente | **Resolvido**: implementada e ligada por padrão (Fase 1) |
+| Reserva determinística não verificada | **Resolvido**: gate de reserva testado (decisão sempre presente; MAPPO só dentro do orçamento) |
+| Código anterior às correções da Fase 1; E2 fora da norma | **Resolvido**: a CA-RDL usa o núcleo da Fase 1 fixado por commit |
+| Validação com E2 real | **Aberta**: pré-registro e execução na bancada NORI (a semente vem do critério de seleção) |
+
+Veredito da Fase 2 atualizado: **reconstruída e adequada como protótipo de pesquisa**, com reserva H-RDL e seleção de modelo. Continua sem evidência de RAN (`publication_eligible: false`) até a validação com E2 real.
+
+### 9.5 O que só se resolve no testbed UFPA
+
+1. Preencher e congelar o perfil do laboratório escolhido (GERCOM/srsRAN ou LACIS/OAI): TB0.
+2. Ligar o agente E2 ao Near-RT RIC: E2 Setup, subscrição e KPM (TB1–TB4).
+3. Confirmar o leiaute da cota de PRB. Se não for o plano do NORI, estender o codec com o agente real e executar TB5–TB6.
+4. Definir os canais de potência e desligamento (atividades 1.2/1.3) e executar GR3.
+5. Disponibilizar uma métrica de energia (KPM ou O1) e executar o cenário GreenRAN pré-registrado (GR4).
+6. Implantar o SMO do testbed (A1-PMS ou ONAP), o rApp e as xApps, e executar GR1 e TB7–TB9.
+7. Servidor dedicado para RIC, xApps e SMO.
+
+### 9.6 Procedência e autoria
+
+As xApps de referência inspiradas em trabalhos de terceiros (xSlice, Energy Saving, Traffic Steering) são reimplementações próprias, sem código copiado. O código original de cada uma está em `third_party/xapps/`, sem modificação, com a licença original (Apache-2.0, OAI Public License v1.1 e CSSL v1.0) e o registro de repositório, commit e sha256. O software próprio está marcado com o autor George Barbosa ([`AUTHORS.md`](../../AUTHORS.md)).
 
 ## 8. Referências internas
 

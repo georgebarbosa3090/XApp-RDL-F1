@@ -1,0 +1,34 @@
+# Perfil srsRAN Project — laboratório GERCOM (UFPA). Modelo a preencher com a equipe do laboratório.
+# Enquanto houver "A_CONFIRMAR", o gate TB0 não passa (src/e2/backends/testbed_profiles.py).
+backend: SRSRAN_PROJECT
+lab: GERCOM (UFPA)
+stack: srsRAN Project (gNB com agente E2 próprio) + Open5GS
+verified: false
+versions:
+  srsran_project: A_CONFIRMAR      # tag e commit
+  open5gs: A_CONFIRMAR
+  near_rt_ric: A_CONFIRMAR         # O-RAN SC (a bancada usa a Release I)
+e2:
+  e2ap_version: A_CONFIRMAR
+  agent: agente E2 nativo do gNB do srsRAN Project (parâmetros e2 no gnb.yml)
+  e2term_address: A_CONFIRMAR      # ex.: service-ricplt-e2term-sctp-alpha.ricplt:36422
+kpm:
+  version: A_CONFIRMAR
+  ran_function_id: A_CONFIRMAR     # anunciado no E2 Setup (RANFunctionDefinition)
+  metrics:                          # nomes 3GPP TS 28.552; conferir quais o gNB exporta e por fatia
+    prb_used: RRU.PrbUsedDl
+    prb_avail: RRU.PrbAvailDl
+    ue_thp_kbps: DRB.UEThpDl
+    ue_delay_ms: DRB.RlcSduDelayDl
+    ue_sst: A_CONFIRMAR             # como o gNB identifica a fatia do UE no KPM
+    ue_prb: RRU.PrbUsedDl
+rc:
+  version: A_CONFIRMAR
+  ran_function_id: A_CONFIRMAR
+  prb_quota:
+    style: 2
+    action: 6                       # Slice-level PRB quota (E2SM-RC)
+    layout: A_CONFIRMAR             # nori_flat (aceito hoje pelo codec) ou o leiaute aninhado da norma
+    param_ids: A_CONFIRMAR          # IDs dos RAN Parameters que o gNB espera
+  tx_power: A_CONFIRMAR             # atividade A1.2 do GreenRAN
+  cell_state: A_CONFIRMAR           # atividade A1.3 (E2SM-CCC, RC próprio ou O1)

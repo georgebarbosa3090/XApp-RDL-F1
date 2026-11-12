@@ -1,3 +1,5 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 import os
 import sys
 import logging
@@ -31,6 +33,16 @@ def main():
         from traffic_steering_xapp import TrafficSteeringXApp
         logger.info("Iniciando Reference xApp: Traffic Steering (O-RAN SC)...")
         app = TrafficSteeringXApp()
+
+    elif role in ("xapp1", "ranslicer", "xapp1-ranslicer"):
+        from src.greenran.xapp1_ranslicer import RanSlicer
+        logger.info("Iniciando GreenRAN xApp1-RANSlicer...")
+        app = RanSlicer(rmr_port=int(os.getenv("RMR_PORT", "4560")))
+
+    elif role in ("xapp2", "energysaver", "xapp2-energysaver"):
+        from src.greenran.xapp2_energysaver import EnergySaver
+        logger.info("Iniciando GreenRAN xApp2-EnergySaver...")
+        app = EnergySaver(rmr_port=int(os.getenv("RMR_PORT", "4560")))
 
     else:
         logger.info("Iniciando xApp RDL (Resource and Decision Layer - Fase 1: H-RDL)...")

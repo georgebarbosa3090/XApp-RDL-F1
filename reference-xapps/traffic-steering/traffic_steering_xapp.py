@@ -1,3 +1,7 @@
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
+# Reimplementação própria em Python, inspirada em Traffic Steering do O-RAN SC (o-ran-sc/ric-app-ts); nenhum trecho do código original
+# foi copiado. O código original, com a licença dele, está em third_party/xapps/ric-app-ts/ (SOURCE.md).
 """
 Traffic Steering (implementação local, escrita para este projeto)
 Inspira-se no papel da o-ran-sc/ric-app-ts, sem conter código dela.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Autor: George Barbosa
+# Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
 xApp kpm-probe — assina E2SM-KPM v3.00 e envia RIC Control E2SM-RC v3.01 (Near-RT RIC Release I).
 
@@ -54,6 +56,9 @@ RC_REQUESTOR_ID = int(ENV.get("RC_REQUESTOR_ID", "1003"))
 RC_AFTER_INDICATIONS = int(ENV.get("RC_AFTER_INDICATIONS", "4"))
 RC_QUOTAS = ENV.get("RC_SLICE_QUOTAS", "1:70:10:5,2:30:10:5")   # sst:max:min:dedicated (%)
 RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | catalog | fixed
+# Perfil do backend do testbed (NORI, srsRAN do GERCOM, OAI do LACIS; doc 12 §4). Sem perfil: leiaute do NORI.
+BACKEND_PROFILE = ENV.get("RDL_BACKEND_PROFILE", "")
+RC_PARAM_IDS = None
 DECISION_SOURCE = "FIXED_PROBE" if RC_DECISION == "fixed" else "H_RDL"
 # Modo catalog (porte S0–S8 para o NORI): cenário lido a cada decisão deste arquivo (escrito pelo
 # roteiro antes de cada execução), ou de RC_SCENARIO
@@ -88,7 +93,7 @@ RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILUR
 RX = ["RIC_SUB_RESP", "RIC_SUB_FAILURE", "RIC_SUB_DEL_RESP", "RIC_INDICATION",
       "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"] + (["A1_POLICY_REQ"] if A1 is not None else [])
 TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"] + (["A1_POLICY_RESP", "A1_POLICY_QUERY"] if A1 is not None else [])
-POLICIES = [int(t) for t in sorted(A1.policy_types)] if A1 is not None else []
+POLICIES = [int(t) for t in ("20000", "20001", "20002")] if A1 is not None else []  # tipos da RDL
 
 STOP = threading.Event()
 READY = threading.Event()
@@ -385,8 +390,12 @@ def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> Non
 def _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, trigger_seq, order, total) -> None:
     _control_instance[0] += 1
     instance = _control_instance[0]
+    if BACKEND_PROFILE and RC_PARAM_IDS is None:
+        # perfil sem IDs de RC confirmados com a equipe do laboratório: falha fechado
+        event("control_blocked", meid=meid, reason=f"perfil {BACKEND_PROFILE} sem IDs de RC confirmados")
+        return
     header = E2SM.rc_slice_quota_header(PLMN.get(meid, b"\x00\xf1\x10"))
-    message = E2SM.rc_slice_quota_message(quotas)
+    message = E2SM.rc_slice_quota_message(quotas, param_ids=RC_PARAM_IDS)
     pdu = codec.encode_ric_control_request(RC_REQUESTOR_ID, instance, RC_RAN_FUNCTION_ID, header, message,
                                            ack_request=True)
     sbuf = rmr.rmr_alloc_msg(ctx, len(pdu), payload=pdu, gen_transaction_id=True, mtype=12040,
@@ -446,7 +455,7 @@ def rmr_loop() -> None:
         # Instâncias já existentes no A1 Mediator (chegam como 20010); as rotas podem levar alguns segundos
         def query_a1():
             STOP.wait(15)
-            for body in query_messages(list(A1.policy_types)):
+            for body in query_messages([str(t) for t in POLICIES]):
                 qbuf = rmr.rmr_alloc_msg(ctx, len(body), payload=body, gen_transaction_id=True, mtype=A1_POLICY_QUERY)
                 qbuf = rmr.rmr_send_msg(ctx, qbuf)
                 event("a1_query", body=body.decode(), rmr_state=rmr.message_summary(qbuf)[rmr.RMR_MS_MSG_STATE])
@@ -503,7 +512,18 @@ def rmr_loop() -> None:
 # Laço principal: nós E2 no E2Mgr
 # ---------------------------------------------------------------------------
 
+def load_backend_profile() -> None:
+    global RC_PARAM_IDS
+    if not BACKEND_PROFILE:
+        return
+    from src.e2.backends.testbed_profiles import load_profile, rc_slice_param_ids, summary
+    profile = load_profile(BACKEND_PROFILE)
+    RC_PARAM_IDS = rc_slice_param_ids(profile)
+    event("backend_profile", **summary(profile))
+
+
 def main() -> int:
+    load_backend_profile()
     signal.signal(signal.SIGTERM, lambda *_: STOP.set())
     signal.signal(signal.SIGINT, lambda *_: STOP.set())
     event("start", name=NAME, version=VERSION, http_host=HTTP_HOST, rmr_host=RMR_HOST,

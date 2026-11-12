@@ -25,6 +25,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 | Propostas não atendidas: registro com motivo (`GET /rejections`, `/decisions`), aviso RMR 30001, adiamento opcional e validade | implementados (testes), sem execução ao vivo | [docs/02 §3.2](docs/02_modelo_de_decisao_h_rdl.md), [docs/09 §2.4](docs/09_frameworks_e_acoes_criticas.md) |
 | Governança hierárquica das xApps (registro, NetworkPolicy, interceptação do 12040, conflito implícito, rApp de governança, modo sob demanda) | implementada (testes); NetworkPolicy verificada no cluster; interceptação com RMR real não verificada | [docs/11](docs/11_governanca_hierarquica_xapps.md) |
 | Conflito entre rApps na A1 (dono e precedência por campo, quinto aspecto da governança) | implementado (testes) | [docs/11 §5.1](docs/11_governanca_hierarquica_xapps.md) |
+| GreenRAN: xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer (A1 20001/21000/21001) e perfis srsRAN (GERCOM) / OAI (LACIS) | implementados (testes); sem RAN real | [docs/12](docs/12_greenran_xapps_rapp_e_testbed.md) |
 | Histórico do grafo no SMO (Neo4j leve + CronJob de exportação a cada minuto) | chart `kg-neo4j` verificado na bancada com grafo de teste (531 nós, exportação idempotente) | [docs/11 §6.1](docs/11_governanca_hierarquica_xapps.md) |
 | SMO / Non-RT RIC | A1-PMS do O-RAN SC no k3s com adaptador para o A1 Mediator da Release I; rApp → A1-PMS → A1 Mediator verificado; a xApp com E2 real ainda não trata o RMR 20010 | [docs/10](docs/10_smo_non_rt_ric_e_rapp.md) |
 | Cenários S9–S15 e GreenRAN (G1, G2) | reconstruídos com NR (inclusive canal NTN do 3GPP com posições geocêntricas); teste curto de uma semente: no G2 o B3 evita a queda de serviço que o B0 causa ao desligar as duas RUs, e no G1 protege as câmeras; sem campanha pareada | [docs/03 §2.3](docs/03_cenarios_e_conflitos.md) |
@@ -175,10 +176,14 @@ Comece pelo [índice](docs/README.md). Os documentos são numerados na ordem de 
 | 09 | [Frameworks e ações críticas](docs/09_frameworks_e_acoes_criticas.md) | frameworks avaliados; ações que não podem esperar a janela (dentro e fora da RDL) |
 | 10 | [SMO, Non-RT RIC e rApp](docs/10_smo_non_rt_ric_e_rapp.md) | A1-PMS na bancada, fluxo de ML do MAPPO, passo a passo do SMO completo para o testbed |
 | 11 | [Governança hierárquica das xApps](docs/11_governanca_hierarquica_xapps.md) | registro e NetworkPolicy, interceptação por rota, conflito implícito, rApp de governança, supervisão sob demanda; dbaas, NetworkX e Neo4j |
+| 12 | [xApps do GreenRAN, rApp e testbed](docs/12_greenran_xapps_rapp_e_testbed.md) | xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer, backends srsRAN (GERCOM) e OAI (LACIS), passo a passo por laboratório |
 | — | [Pré-registros](docs/preregistros/README.md) | desenhos da fase 4 (v2–v7), campanha do G5 e conflitos entre células (08), fixados antes das execuções |
 
 ---
 
-## Licença
+## Licença e autoria
+
+Autor: George Barbosa. Software próprio e código de terceiros (com licença e procedência) em [`AUTHORS.md`](AUTHORS.md).
+
 
 Apache License 2.0 — ver [`LICENSE`](LICENSE).

@@ -26,6 +26,10 @@ def _reject_json_constant(value: str):
     raise ValueError(f"Invalid JSON numeric constant: {value}")
 
 
+# Tipos A1 que a xApp RDL trata (descritor: "policies"); 21000/21001 são das xApps do GreenRAN
+RDL_POLICY_TYPES = ("20000", "20001", "20002")
+
+
 class A1PolicyManager:
     """
     Gerenciador de Estado e Validador de Políticas A1-P O-RAN WG2.
@@ -67,6 +71,38 @@ class A1PolicyManager:
                         "sla_weight": {"type": "number", "minimum": 0.1, "maximum": 0.8},
                         "allow_neighbor_sleep": {"type": "boolean"},
                         "low_power_threshold_dbm": {"type": "number", "minimum": -10, "maximum": 43}
+                    }
+                }
+            },
+            # GreenRAN: intenção do rApp-ResourceOptimizer para o xApp1-RANSlicer (src/greenran; doc 12)
+            "21000": {
+                "name": "GreenRAN_RANSlicer_Intent",
+                "description": "Alvos de SLA da fatia eMBB (cameras) e piso da fatia mMTC (sensores) para o xApp1-RANSlicer",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "embb_min_thp_mbps": {"type": "number", "minimum": 1, "maximum": 1000},
+                        "embb_max_delay_ms": {"type": "number", "minimum": 1, "maximum": 1000},
+                        "mmtc_min_prb_pct": {"type": "number", "minimum": 0, "maximum": 50},
+                        "slice_safety_margin": {"type": "number", "minimum": 0, "maximum": 1},
+                        "ranslicer_learned_policy": {"type": "boolean"}
+                    }
+                }
+            },
+            # GreenRAN: política do rApp-ResourceOptimizer para o xApp2-EnergySaver
+            "21001": {
+                "name": "GreenRAN_EnergySaver_Policy",
+                "description": "Janela de economia, limiares de desligamento e religamento e celulas minimas ativas para o xApp2-EnergySaver",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "es_sleep_threshold_pct": {"type": "number", "minimum": 0, "maximum": 100},
+                        "es_wake_threshold_pct": {"type": "number", "minimum": 0, "maximum": 100},
+                        "es_min_active_cells": {"type": "number", "minimum": 0, "maximum": 64},
+                        "es_sleep_start_hour": {"type": "number", "minimum": 0, "maximum": 23},
+                        "es_sleep_end_hour": {"type": "number", "minimum": 0, "maximum": 23},
+                        "es_tx_power_reduction": {"type": "boolean"},
+                        "es_reduced_tx_power_dbm": {"type": "number", "minimum": -10, "maximum": 43}
                     }
                 }
             },
