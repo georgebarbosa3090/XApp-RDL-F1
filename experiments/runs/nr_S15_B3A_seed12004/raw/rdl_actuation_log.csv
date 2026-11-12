@@ -1,0 +1,11 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-15.060,APPLIED,RBG 53/106
+15.2,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.040,APPLIED,19 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+17.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-17.060,APPLIED,RBG 53/106
+18.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-18.060,APPLIED,RBG 53/106
+19.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-19.060,APPLIED,RBG 53/106
+20.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-20.060,APPLIED,RBG 53/106
+21.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-21.060,APPLIED,RBG 53/106
+22.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-22.060,APPLIED,RBG 53/106
+23.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-23.060,APPLIED,RBG 53/106
+24.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-24.060,APPLIED,RBG 53/106

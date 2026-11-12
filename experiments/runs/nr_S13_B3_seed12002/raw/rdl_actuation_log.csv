@@ -1,0 +1,2 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15.2,0,1,CELL_STATE,0,-1,fault_injector,fault_injector-g0-CELL_STATE-15.000,APPLIED,sleep emulado: TxPower=-30 dBm

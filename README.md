@@ -18,7 +18,7 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 416 testes passando | `tests/` |
+| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 428 testes passando | `tests/` |
 | Adequação ao testbed UFPA do GreenRAN (OpenRAN@Brasil) | implementado no código em 2026-11-10, sem execução no testbed: conflitos **entre células** (handover × célula desligada/reduzida, ping-pong, vizinhas dormindo), parâmetro `CELL_STATE` (despacho fail-closed até o nó anunciá-lo), políticas A1 ligadas à decisão (tipo 20001 `GreenRAN_Intent_Policy`). Gates TB0–TB10 e GR1–GR4 pendentes | [perfil](docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md), [relatório de adequação](reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md), [docs/07, achado 52](docs/07_certificacao_e_achados.md) |
 | Conflitos entre células na RAN simulada (S4, S5) | campanha pré-registrada, 40 execuções (sementes 1006–1010): cronograma do B3 como previsto em 10/10; no S5 o ping-pong suprimido melhora vazão e atraso em 5/5; no S4 a vazão do B3 ficou **menor** que a do B0 (H9.3 refutada) | [pré-registro 08](docs/preregistros/08_conflitos_entre_celulas_s4_s5.md) |
 | Grafo de conhecimento, janela adaptativa e caminho crítico | implementados (testes); janela adaptativa ligada por padrão desde 2026-11-11; exportação para NetworkX e Neo4j (`scripts/kg/export_kg.py`) | [docs/02 §3.1 e §4.5](docs/02_modelo_de_decisao_h_rdl.md), [docs/09](docs/09_frameworks_e_acoes_criticas.md) |
@@ -108,7 +108,7 @@ Pré-requisitos: Python 3.10+, [`uv`](https://docs.astral.sh/uv/), WSL2/Ubuntu c
 
 ```bash
 uv sync --extra test                     # dependências
-uv run pytest -q                         # testes (416)
+uv run pytest -q                         # testes (428)
 
 # Um experimento de conflito, com saída ao vivo e evidência em experiments/runs/
 python scripts/certification/run_conflict_experiment.py --scenario S1 --baseline B3 --seed 1001

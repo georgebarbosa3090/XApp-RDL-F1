@@ -1,0 +1,11 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+15.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-15.060
+15.2,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.040
+17.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-17.060
+18.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-18.060
+19.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-19.060
+20.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-20.060
+21.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-21.060
+22.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-22.060
+23.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-23.060
+24.2,0,PRB_QUOTA,50.0,-1,energy_saving,energy_saving-g0-PRB_QUOTA-24.060

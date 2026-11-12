@@ -396,6 +396,8 @@ Commits: Fase 1 `main` posterior a `083c8e69`; Fase 2 `main` posterior a `12e4ed
 
 Veredito da Fase 2 atualizado: **reconstruída e adequada como protótipo de pesquisa**, com reserva H-RDL e seleção de modelo. Continua sem evidência de RAN (`publication_eligible: false`) até a validação com E2 real.
 
+**EEVS aditivo (achado 55):** o pré-registro 09 foi executado e as três hipóteses foram confirmadas: no S13, o B3A evacua a célula em falha e eleva a vazão em 5/5 sementes. A troca do padrão está proposta, a aplicar depois da campanha 10.
+
 ### 9.5 O que só se resolve no testbed UFPA
 
 1. Preencher e congelar o perfil do laboratório escolhido (GERCOM/srsRAN ou LACIS/OAI): TB0.

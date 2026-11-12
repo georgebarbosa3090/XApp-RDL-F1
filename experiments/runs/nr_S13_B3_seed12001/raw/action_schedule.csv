@@ -1,0 +1,2 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+15.2,0,CELL_STATE,0.0,-1,fault_injector,fault_injector-g0-CELL_STATE-15.000

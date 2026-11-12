@@ -1,0 +1,8 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+12.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-12.050
+13.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-13.050
+14.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-14.050
+15.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-15.050
+17.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-17.050
+18.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-18.050
+19.2,0,PRB_QUOTA,80.0,-1,xslice,xslice-g0-PRB_QUOTA-19.050

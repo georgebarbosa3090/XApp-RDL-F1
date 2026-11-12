@@ -1,0 +1,689 @@
+{
+  "scenario": "S15",
+  "baseline": "B3A",
+  "ns3_scenario": "scenario_rdl_multicell",
+  "summary": "xApp maliciosa em NTN: pede handover para um feixe inexistente (célula 7) e potência fora dos limites (90 dBm), junto com propostas legítimas de Traffic Steering e Energy Saving. O Safety Guard e a topologia devem barrar as maliciosas sem vetar as legítimas.",
+  "conflict_window_s": [
+    15.0,
+    25.0
+  ],
+  "engine": "src/rdl_xapp.py RDLxApp._process_action_group",
+  "eevs_aggregation": "additive",
+  "repo_git_sha": "cddf572a",
+  "proposals": [
+    {
+      "t": 15.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-15.000"
+    },
+    {
+      "t": 15.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-15.020"
+    },
+    {
+      "t": 15.04,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-15.040"
+    },
+    {
+      "t": 15.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-15.060"
+    },
+    {
+      "t": 16.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-16.000"
+    },
+    {
+      "t": 16.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-16.020"
+    },
+    {
+      "t": 16.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-16.060"
+    },
+    {
+      "t": 17.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-17.000"
+    },
+    {
+      "t": 17.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-17.020"
+    },
+    {
+      "t": 17.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-17.060"
+    },
+    {
+      "t": 18.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-18.000"
+    },
+    {
+      "t": 18.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-18.020"
+    },
+    {
+      "t": 18.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-18.060"
+    },
+    {
+      "t": 19.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-19.000"
+    },
+    {
+      "t": 19.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-19.020"
+    },
+    {
+      "t": 19.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-19.060"
+    },
+    {
+      "t": 20.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-20.000"
+    },
+    {
+      "t": 20.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-20.020"
+    },
+    {
+      "t": 20.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-20.060"
+    },
+    {
+      "t": 21.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-21.000"
+    },
+    {
+      "t": 21.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-21.020"
+    },
+    {
+      "t": 21.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-21.060"
+    },
+    {
+      "t": 22.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-22.000"
+    },
+    {
+      "t": 22.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-22.020"
+    },
+    {
+      "t": 22.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-22.060"
+    },
+    {
+      "t": 23.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-23.000"
+    },
+    {
+      "t": 23.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-23.020"
+    },
+    {
+      "t": 23.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-23.060"
+    },
+    {
+      "t": 24.0,
+      "xapp_id": "rogue_xapp",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 7.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g0-HANDOVER-24.000"
+    },
+    {
+      "t": 24.02,
+      "xapp_id": "rogue_xapp",
+      "gnb": 1,
+      "parameter": "TX_POWER",
+      "value": 90.0,
+      "priority": 95,
+      "ue": -1,
+      "id": "rogue_xapp-g1-TX_POWER-24.020"
+    },
+    {
+      "t": 24.06,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-24.060"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 15.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-15.000",
+        "rogue_xapp-g1-TX_POWER-15.020",
+        "traffic_steering-g0-HANDOVER-15.040",
+        "energy_saving-g0-PRB_QUOTA-15.060"
+      ],
+      "selected": [
+        "traffic_steering-g0-HANDOVER-15.040",
+        "energy_saving-g0-PRB_QUOTA-15.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-15.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-15.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 2.183,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 16.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-16.000",
+        "rogue_xapp-g1-TX_POWER-16.020",
+        "energy_saving-g0-PRB_QUOTA-16.060"
+      ],
+      "selected": [],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-16.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-16.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 1.303,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 17.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-17.000",
+        "rogue_xapp-g1-TX_POWER-17.020",
+        "energy_saving-g0-PRB_QUOTA-17.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-17.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-17.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-17.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 1.234,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 18.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-18.000",
+        "rogue_xapp-g1-TX_POWER-18.020",
+        "energy_saving-g0-PRB_QUOTA-18.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-18.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-18.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-18.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.8,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 19.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-19.000",
+        "rogue_xapp-g1-TX_POWER-19.020",
+        "energy_saving-g0-PRB_QUOTA-19.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-19.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-19.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-19.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.753,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 20.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-20.000",
+        "rogue_xapp-g1-TX_POWER-20.020",
+        "energy_saving-g0-PRB_QUOTA-20.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-20.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-20.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-20.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.747,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 21.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-21.000",
+        "rogue_xapp-g1-TX_POWER-21.020",
+        "energy_saving-g0-PRB_QUOTA-21.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-21.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-21.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-21.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.549,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 22.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-22.000",
+        "rogue_xapp-g1-TX_POWER-22.020",
+        "energy_saving-g0-PRB_QUOTA-22.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-22.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-22.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-22.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.513,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 23.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-23.000",
+        "rogue_xapp-g1-TX_POWER-23.020",
+        "energy_saving-g0-PRB_QUOTA-23.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-23.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-23.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-23.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.62,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 24.2,
+      "proposal_ids": [
+        "rogue_xapp-g0-HANDOVER-24.000",
+        "rogue_xapp-g1-TX_POWER-24.020",
+        "energy_saving-g0-PRB_QUOTA-24.060"
+      ],
+      "selected": [
+        "energy_saving-g0-PRB_QUOTA-24.060"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-24.060"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-15.040",
+            "energy_saving-g0-PRB_QUOTA-24.060"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.791,
+      "rule": "hrdl-pipeline"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-15.060"
+    },
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-15.040"
+    },
+    {
+      "time_s": 17.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-17.060"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-18.060"
+    },
+    {
+      "time_s": 19.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-19.060"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-20.060"
+    },
+    {
+      "time_s": 21.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-21.060"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-22.060"
+    },
+    {
+      "time_s": 23.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-23.060"
+    },
+    {
+      "time_s": 24.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 50.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g0-PRB_QUOTA-24.060"
+    }
+  ]
+}

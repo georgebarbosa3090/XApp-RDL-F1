@@ -46,3 +46,40 @@ A agregação aditiva divide pelos alvos do conflito. Com ela, acrescentar uma a
 - Execução com falha do ns-3 é repetida uma vez com a mesma semente; se falhar de novo, entra como falha.
 - A troca do padrão de `mean` para `additive` só é proposta se H10.2 e H10.3 forem confirmadas. Mesmo nesse caso, as campanhas anteriores continuam valendo com `mean`, e a troca exige um novo commit com o motivo.
 - Nada fixado aqui é alterado depois de ver os dados.
+
+## 6. Resultados (anexados em 2026-11-11, depois das execuções)
+
+Execuções: `experiments/runs/nr_{S2,S13,S15}_{B3,B3A}_seed12001..12005` (30, todas `SUCCESS`).
+
+**Desvio:** houve commits durante a campanha, e o executor grava o HEAD no início de cada execução. Por isso os manifestos registram quatro commits: `5ae0232` (2), `cddf572` (4), `35eded2` (18) e `083c8e6` (6). Entre eles mudaram:
+
+- o chart do Neo4j e as figuras;
+- um teste do CI;
+- a precedência por campo da política A1 (`_apply_a1_policy` e o relatório `/governance`), que o harness não usa, porque não há política A1 nas execuções nativas.
+
+O pipeline de decisão (Percepção, TVS/EEVS, Refinement), o harness e os cenários não mudaram. Análise: métricas de `scripts/certification/analyze_conflict_runs.py` por execução, na janela de conflito do catálogo.
+
+| Hipótese | Resultado |
+| :-- | :-- |
+| **H10.1** (cronogramas) | **Confirmada em 30/30**: os cronogramas do B3 e do B3A são os da seção 2 em todas as sementes. |
+| **H10.2** (S13, `thp_conflict` B3A > B3 em ≥ 4/5) | **Confirmada (5/5).** B3 25,26–25,94 Mb/s; B3A 27,40–28,15 Mb/s. O handover de evacuação leva os UEs da célula em falha à vizinha antes da RLF. |
+| **H10.3** (S2 e S15, não inferioridade) | **Confirmada nos dois.** S2: vazão +5,8 % (186,77 → 197,66 Mb/s) e atraso −64 % (22,53 → 8,05 ms). S15: vazão +6,0 % (0,595 → 0,630 Mb/s) e atraso −63 % (19,99 → 7,31 ms). |
+
+Descritivo (sem hipótese):
+
+| Cenário | Baseline | Vazão na janela de conflito (Mb/s) | Atraso (ms) | Ações aplicadas |
+| :-- | :-- | :-- | :-- | :-: |
+| S2 | B3 | 179,5–197,5 | 6,7–36,9 | 5 |
+| S2 | B3A | 197,0–198,3 | 6,7–8,5 | 6 |
+| S13 | B3 | 25,3–25,9 | 5,5–11,6 | 1 |
+| S13 | B3A | 27,4–28,1 | 5,6–12,1 | 2 |
+| S15 | B3 | 0,56–0,62 | 19,2–21,0 | 1 |
+| S15 | B3A | 0,61–0,64 | 7,0–7,7 | 10 |
+
+**Consequência (regra da seção 5).** H10.2 e H10.3 foram confirmadas, então a troca do padrão de `mean` para `additive` pode ser **proposta**. Ela não foi feita aqui, por três motivos:
+
+1. A regra exige um commit próprio com o motivo.
+2. A campanha pré-registrada 10, agendada para 2026-11-12, fixa o B3 com `mean`.
+3. As campanhas anteriores continuam valendo com `mean`.
+
+Resultado em ambiente simulado (ns-3/5G-LENA, sem E2), com cinco sementes por par cenário × baseline.

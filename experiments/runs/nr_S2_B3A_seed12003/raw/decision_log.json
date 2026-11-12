@@ -1,0 +1,260 @@
+{
+  "scenario": "S2",
+  "baseline": "B3A",
+  "ns3_scenario": "scenario_rdl_tvs_conflict",
+  "summary": "Conflito indireto TVS: xSlice reserva PRB na célula macro enquanto o Traffic Steering move os UEs dela para a small cell.",
+  "conflict_window_s": [
+    10.0,
+    15.0
+  ],
+  "engine": "src/rdl_xapp.py RDLxApp._process_action_group",
+  "eevs_aggregation": "additive",
+  "repo_git_sha": "35eded2e",
+  "proposals": [
+    {
+      "t": 10.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-10.000"
+    },
+    {
+      "t": 10.1,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-10.100"
+    },
+    {
+      "t": 11.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-11.000"
+    },
+    {
+      "t": 12.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-12.000"
+    },
+    {
+      "t": 13.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-13.000"
+    },
+    {
+      "t": 14.0,
+      "xapp_id": "xslice",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "xslice-g0-PRB_QUOTA-14.000"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 10.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-10.000",
+        "traffic_steering-g0-HANDOVER-10.100"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-10.000",
+        "traffic_steering-g0-HANDOVER-10.100"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-10.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-10.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.748,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 11.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-11.000"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-11.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-11.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-11.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.32,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 12.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-12.000"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-12.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-12.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-12.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.333,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 13.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-13.000"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-13.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-13.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-13.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.273,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 14.2,
+      "proposal_ids": [
+        "xslice-g0-PRB_QUOTA-14.000"
+      ],
+      "selected": [
+        "xslice-g0-PRB_QUOTA-14.000"
+      ],
+      "resolutions": [
+        {
+          "conflict_type": "INDIRECT",
+          "involved": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-14.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-10.100",
+            "xslice-g0-PRB_QUOTA-14.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.311,
+      "rule": "hrdl-pipeline"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 10.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-10.100"
+    },
+    {
+      "time_s": 10.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-10.000"
+    },
+    {
+      "time_s": 11.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-11.000"
+    },
+    {
+      "time_s": 12.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-12.000"
+    },
+    {
+      "time_s": 13.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-13.000"
+    },
+    {
+      "time_s": 14.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "xslice",
+      "action_id": "xslice-g0-PRB_QUOTA-14.000"
+    }
+  ]
+}
