@@ -83,3 +83,5 @@ Descritivo (sem hipótese):
 3. As campanhas anteriores continuam valendo com `mean`.
 
 Resultado em ambiente simulado (ns-3/5G-LENA, sem E2), com cinco sementes por par cenário × baseline.
+
+**Troca do padrão (achado 66).** Aprovada pelo responsável para depois da campanha 10. Foi preparada no ramo `eevs-aditivo-padrao` e entra na `main` só depois do fim daquela campanha, para não mudar o código durante as execuções. A partir dela, `B3` usa o EEVS aditivo e `B3M` reproduz o B3 por média.

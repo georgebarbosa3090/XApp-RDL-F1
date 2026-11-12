@@ -37,10 +37,11 @@ class Reasoning:
         self.w_energy_ind = self.config.get("w_energy_ind", 0.20)
         self.w_fairness_ind = self.config.get("w_fairness_ind", 0.15)
         self.w_viol_ind = self.config.get("w_viol_ind", 0.35)
-        # Agregação do EEVS (achado 55): "mean" (padrão, decisões já medidas) divide QoS e energia pelo
-        # tamanho do subconjunto, então uma ação compatível com energia menor baixa a média; "additive"
-        # divide pelos alvos do conflito, e acrescentar uma ação compatível nunca baixa esses termos.
-        self.eevs_aggregation = str(self.config.get("eevs_aggregation") or os.getenv("RDL_EEVS_AGGREGATION", "mean")).lower()
+        # Agregação do EEVS (achado 55): "additive" (padrão desde a troca proposta no pré-registro 09, com
+        # H10.1–H10.3 confirmadas) divide QoS e energia pelos alvos do conflito, e acrescentar uma ação
+        # compatível nunca baixa esses termos; "mean" (padrão até a campanha do pré-registro 10) divide pelo
+        # tamanho do subconjunto e reproduz as campanhas anteriores (baseline B3M).
+        self.eevs_aggregation = str(self.config.get("eevs_aggregation") or os.getenv("RDL_EEVS_AGGREGATION", "additive")).lower()
         if self.eevs_aggregation not in ("mean", "additive"):
             raise ValueError(f"RDL_EEVS_AGGREGATION inválido: {self.eevs_aggregation}")
         self._eevs_targets: Dict[Tuple[str, str], float] = {}

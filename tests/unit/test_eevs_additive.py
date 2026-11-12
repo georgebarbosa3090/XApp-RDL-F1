@@ -21,6 +21,8 @@ def _driver():
 
 
 def test_invalid_aggregation_is_rejected(monkeypatch):
+    monkeypatch.delenv("RDL_EEVS_AGGREGATION", raising=False)
+    assert Reasoning(MemoryModule()).eevs_aggregation == "additive"                  # padrão desde o pré-registro 09
     with pytest.raises(ValueError):
         Reasoning(MemoryModule(), config={"eevs_aggregation": "median"})
     monkeypatch.setenv("RDL_EEVS_AGGREGATION", "additive")
@@ -32,12 +34,14 @@ def test_b3a_admits_the_evacuation_handover_in_s13(monkeypatch):
     drv = _driver()
     catalog = json.loads((ROOT / "simulations/ns3/conflicts/catalog.json").read_text(encoding="utf-8"))
     params = lambda sched: sorted({(r["parameter"], r["xapp_id"]) for r in sched})
-    _, _, mean, _ = drv.decide("S13", "B3", catalog)
-    _, _, additive, _ = drv.decide("S13", "B3A", catalog)
+    _, _, mean, _ = drv.decide("S13", "B3M", catalog)
+    _, _, additive, _ = drv.decide("S13", "B3", catalog)
+    _, _, alias, _ = drv.decide("S13", "B3A", catalog)
+    assert params(alias) == params(additive)                                         # B3A = apelido do B3
     assert params(mean) == [("CELL_STATE", "fault_injector")]                      # achado 55
     assert params(additive) == [("CELL_STATE", "fault_injector"), ("HANDOVER", "traffic_steering")]
-    _, _, s0_mean, _ = drv.decide("S0", "B3", catalog)
-    _, _, s0_add, _ = drv.decide("S0", "B3A", catalog)
+    _, _, s0_mean, _ = drv.decide("S0", "B3M", catalog)
+    _, _, s0_add, _ = drv.decide("S0", "B3", catalog)
     assert params(s0_mean) == params(s0_add)                                       # conflito direto: TVS, igual
     import os
     assert "RDL_EEVS_AGGREGATION" not in os.environ                                # o decisor restaura o ambiente
