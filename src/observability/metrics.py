@@ -80,6 +80,7 @@ class MetricsServer:
         # Gauges
         self.active_e2_nodes = _get_or_create(Gauge, 'rdl_active_e2_nodes', 'Active E2 nodes', registry=reg)
         self.active_xapps = _get_or_create(Gauge, 'rdl_active_xapps', 'Active xApps', registry=reg)
+        self.a1_field_conflicts = _get_or_create(Gauge, 'rdl_a1_field_conflicts', 'A1 policy fields written by two or more instances with different values', registry=reg)
         self.active_subs = _get_or_create(Gauge, 'rdl_active_subscriptions', 'Active subscriptions', registry=reg)
         self.ready_state = _get_or_create(Gauge, 'rdl_ready', 'Is RDL ready (1 or 0)', registry=reg)
 

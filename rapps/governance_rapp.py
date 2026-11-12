@@ -12,6 +12,7 @@ rebaixamentos de ações críticas, registro de xApps) e decide, por regras fixa
 | xApp com ≥ ``--critical-abuse`` ações críticas rebaixadas pela cota | teto de prioridade 94 por A1 (deixa de ser crítica pela prioridade) |
 | xApp registrada suspeita em conflito implícito | ``QUARANTINED`` por A1 e recomendação de retirada |
 | xApp não registrada suspeita, ou conflito ``out-of-band`` | recomendação: retirar a xApp ou investigar (operador) |
+| dois rApps escrevendo o mesmo campo da A1 com valores diferentes (``rapp_conflicts``) | recomendação ao operador; a RDL já aplica a precedência por campo |
 
 As ações sobre a RDL saem como **uma** instância da política A1 20000 (``rdl-governance``, campos
 ``xapp_modes`` e ``xapp_priority_caps``) publicada no A1-PMS. Retirar uma xApp (undeploy) só
@@ -70,6 +71,12 @@ def decide(report: Dict[str, Any], quarantine_safety: int = 5, quarantine_unauth
             else:
                 recommendations.append({"action": "UNDEPLOY", "xapp": suspect, "target": where,
                                         "detail": "xApp fora do registro agindo sobre o nó"})
+
+    for c in report.get("rapp_conflicts") or []:
+        # Conflito entre rApps na A1: a RDL já aplica a precedência; a decisão de quem fica é do operador
+        recommendations.append({"action": "RESOLVE_A1_FIELD_CONFLICT", "field": c.get("field"),
+                                "rule": c.get("rule"), "winner": c.get("winner"),
+                                "writers": [w.get("policy") for w in c.get("writers") or []]})
 
     policy_data = {"xapp_modes": sorted(f"{x}:{m}" for x, m in modes.items()),
                    "xapp_priority_caps": sorted(f"{x}:{c}" for x, c in caps.items())}

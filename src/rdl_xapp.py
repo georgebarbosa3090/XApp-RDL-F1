@@ -165,6 +165,10 @@ class RDLxApp:
             "low_power_threshold_dbm": self.inter_cell_rules.low_power_threshold_dbm,
         }
         self.a1_policies = A1PolicyManager()
+        owners_file = os.getenv("RDL_A1_FIELD_OWNERS")
+        if owners_file:  # dono e precedência por campo da A1 (doc 11 §5.1)
+            with open(owners_file, "r", encoding="utf-8") as fh:
+                self.a1_policies.set_field_owners(json.load(fh))
         self.a1_policies.add_listener(self._apply_a1_policy)
         A1PolicyHttpHandler.policy_manager = self.a1_policies
         self.a1_server: Optional[A1PolicyReceiverServer] = None
@@ -354,6 +358,15 @@ class RDLxApp:
         self.inter_cell_rules.low_power_threshold_dbm = float(
             policy.get("low_power_threshold_dbm", base["low_power_threshold_dbm"])
         )
+        manager = getattr(self, "a1_policies", None)
+        if manager is not None:
+            conflicts = manager.conflicts()
+            metrics = getattr(self, "metrics", None)  # o primeiro aviso chega antes das métricas existirem
+            if metrics is not None:
+                metrics.a1_field_conflicts.set(len(conflicts))
+            for c in conflicts:
+                logger.warning("Conflito entre rApps na política A1", field=c["field"], rule=c["rule"],
+                               winner=c["winner"], writers=[w["policy"] for w in c["writers"]])
         logger.info("Política A1 efetiva aplicada", policy=policy)
 
     def _handover_target_known(self, action: XAppAction) -> bool:
@@ -961,6 +974,9 @@ class RDLxApp:
             "rejections": {**self.proposals.summary(), "deferred_pending": deferred},
             "implicit_conflicts": list(self.implicit_findings)[-100:],
             "critical_downgrades_by_xapp": dict(self.decision_window.downgraded_by_xapp),
+            # Quinto aspecto: rApps que escrevem o mesmo campo da A1 com valores diferentes
+            "rapp_conflicts": self.a1_policies.conflicts(),
+            "a1_field_owners": self.a1_policies.field_owners_view(),
             "xapps": self.xapp_registry.snapshot(),
             "intercepts_pending": pending,
             "window": {"adaptive": cfg.adaptive, "base_window_ms": cfg.base_window_ms,

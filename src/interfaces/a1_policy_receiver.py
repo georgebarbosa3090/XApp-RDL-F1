@@ -9,6 +9,8 @@ Descrição: Implementa o servidor de gerenciamento de políticas A1-P do Non-RT
 ========================================================================================
 """
 
+import fnmatch
+import itertools
 import json
 import logging
 import math
@@ -82,6 +84,84 @@ class A1PolicyManager:
             }
         }
         self._listeners: List[Callable[[Dict[str, Any]], None]] = []
+        # Dono e precedência por campo (doc 11 §5.1): (tipo, campo) -> padrões de policy_instance_id em
+        # ordem de precedência (o primeiro vence). Campo fora do mapa: livre, vale a escrita mais recente.
+        self.field_owners: Dict[Tuple[str, str], List[str]] = {}
+        self._written_seq: Dict[str, int] = {}
+        self._seq = itertools.count(1)
+
+    # ------------------------------------------------------------------ dono e precedência por campo
+    def set_field_owners(self, owners: Dict[str, Dict[str, List[str]]]) -> None:
+        """``{"20000": {"cooling_lockout_ms": ["operator*", "rdl-governance"]}}``; padrões estilo glob sobre
+        o policy_instance_id (o A1 Mediator não repassa o serviço do A1-PMS, só o ID da instância)."""
+        parsed: Dict[Tuple[str, str], List[str]] = {}
+        for type_id, fields in (owners or {}).items():
+            if str(type_id).startswith("_"):
+                continue
+            type_id = str(type_id)
+            if type_id not in self.policy_types:
+                raise ValueError(f"tipo de política desconhecido no mapa de donos: {type_id}")
+            schema = self.policy_types[type_id]["schema"]["properties"]
+            for field, patterns in fields.items():
+                if field not in schema:
+                    raise ValueError(f"campo {field} não existe no tipo {type_id}")
+                if not isinstance(patterns, list) or not patterns or not all(isinstance(x, str) and x for x in patterns):
+                    raise ValueError(f"donos de {type_id}.{field} devem ser uma lista não vazia de padrões")
+                parsed[(type_id, field)] = list(patterns)
+        self.field_owners = parsed
+        self._notify()
+
+    def _owner_rank(self, type_id: str, field: str, instance_id: str) -> Optional[int]:
+        """Posição do dono na precedência (0 = maior); ``None`` = instância sem direito ao campo."""
+        owners = self.field_owners.get((type_id, field))
+        if owners is None:
+            return 0
+        for rank, pattern in enumerate(owners):
+            if fnmatch.fnmatchcase(instance_id, pattern):
+                return rank
+        return None
+
+    def _rank_or_last(self, type_id: str, field: str, instance_id: str) -> int:
+        """Precedência de uma instância já gravada; sem direito (mapa de donos mudou depois) fica por último."""
+        rank = self._owner_rank(type_id, field, instance_id)
+        return rank if rank is not None else 1_000_000
+
+    def _candidates(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Por campo: as instâncias ativas que o definem, com valor, precedência e ordem de escrita."""
+        out: Dict[str, List[Dict[str, Any]]] = {}
+        for key, policy in self.active_policies.items():
+            type_id, _, instance_id = key.partition(":")
+            for field, value in policy.items():
+                out.setdefault(field, []).append({
+                    "policy": key, "type": type_id, "instance": instance_id, "value": value,
+                    "rank": self._rank_or_last(type_id, field, instance_id),
+                    "seq": self._written_seq.get(key, 0),
+                })
+        return out
+
+    def conflicts(self) -> List[Dict[str, Any]]:
+        """Campos definidos por duas ou mais instâncias com valores diferentes (conflito entre rApps)."""
+        found = []
+        for field, cands in sorted(self._candidates().items()):
+            values = {json.dumps(c["value"], sort_keys=True) for c in cands}
+            if len(cands) < 2 or len(values) < 2:
+                continue
+            winner = min(cands, key=lambda c: (c["rank"], -c["seq"]))
+            owned = any((c["type"], field) in self.field_owners for c in cands)
+            found.append({
+                "field": field,
+                "rule": "owner_precedence" if owned else "most_recent",
+                "winner": winner["policy"], "effective_value": winner["value"],
+                "writers": [{"policy": c["policy"], "value": c["value"], "rank": c["rank"]}
+                            for c in sorted(cands, key=lambda c: (c["rank"], -c["seq"]))],
+            })
+        return found
+
+    def field_owners_view(self) -> Dict[str, Dict[str, List[str]]]:
+        view: Dict[str, Dict[str, List[str]]] = {}
+        for (type_id, field), patterns in sorted(self.field_owners.items()):
+            view.setdefault(type_id, {})[field] = list(patterns)
+        return view
 
     def add_listener(self, callback: Callable[[Dict[str, Any]], None]) -> None:
         """Registra quem aplica a política efetiva; é chamado a cada criação, atualização ou remoção."""
@@ -89,10 +169,11 @@ class A1PolicyManager:
         callback(self.effective_policy())
 
     def effective_policy(self) -> Dict[str, Any]:
-        """União das políticas ativas, na ordem de chegada (a mais recente prevalece por campo)."""
+        """Política efetiva, campo a campo: vence o dono de maior precedência; entre iguais (ou em campo
+        sem dono definido), a escrita mais recente."""
         merged: Dict[str, Any] = {}
-        for policy in self.active_policies.values():
-            merged.update(policy)
+        for field, cands in self._candidates().items():
+            merged[field] = min(cands, key=lambda c: (c["rank"], -c["seq"]))["value"]
         return merged
 
     def _notify(self) -> None:
@@ -137,9 +218,16 @@ class A1PolicyManager:
             if value < definition["minimum"] or value > definition["maximum"]:
                 return False, f"{key} {value} out of bounds [{definition['minimum']}, {definition['maximum']}]"
 
+        for field in policy_data:
+            if self._owner_rank(policy_type_id, field, policy_id) is None:
+                owners = self.field_owners[(policy_type_id, field)]
+                return False, (f"Field {field} of type {policy_type_id} is owned by {owners}; "
+                               f"instance {policy_id} may not write it")
+
         key = f"{policy_type_id}:{policy_id}"
-        self.active_policies.pop(key, None)  # reinsere no fim: a atualização passa a prevalecer
+        self.active_policies.pop(key, None)
         self.active_policies[key] = policy_data
+        self._written_seq[key] = next(self._seq)  # ordem de escrita: desempate entre donos iguais
         logger.info(f"[A1-P] Política {policy_type_id}:{policy_id} registrada com sucesso: {policy_data}")
         self._notify()
         return True, "Policy created/updated successfully"
@@ -153,6 +241,7 @@ class A1PolicyManager:
         key = f"{policy_type_id}:{policy_id}"
         if key in self.active_policies:
             del self.active_policies[key]
+            self._written_seq.pop(key, None)
             logger.info(f"[A1-P] Política {key} removida")
             self._notify()
             return True

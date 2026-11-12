@@ -5,7 +5,7 @@ Implementado em 2026-11-11 (achado 62 de [`07`](07_certificacao_e_achados.md)). 
 1. Como garantir que nenhuma xApp mande RIC Control por fora da RDL?
 2. Como supervisionar uma xApp só quando é preciso?
 
-A governança tem quatro níveis. Cada nível cobre o que o anterior não alcança, e o mais lento fica no Non-RT RIC.
+A governança tem quatro níveis. Cada nível cobre o que o anterior não alcança, e o mais lento fica no Non-RT RIC. Um quinto aspecto trata do conflito entre **rApps** (seção 5.1): dois rApps, ou um rApp e o operador, escrevendo o mesmo campo da política A1.
 
 | Nível | Onde atua | Mecanismo | Escala de tempo | Código |
 | :-: | :-- | :-- | :-- | :-- |
@@ -13,6 +13,7 @@ A governança tem quatro níveis. Cada nível cobre o que o anterior não alcan�
 | 2 | Near-RT RIC (RMR) | interceptação por rota do RIC Control de xApps de terceiros | ms | `src/governance/interception.py` |
 | 3 | Near-RT RIC (KPM) | conflito implícito: KPM incoerente com a ação confirmada | segundos | `src/core/implicit_conflict.py` |
 | 4 | Non-RT RIC / SMO | rApp de governança: quarentena e teto de prioridade por A1, recomendação de retirada | segundos a minutos | `rapps/governance_rapp.py` |
+| 5.º aspecto | A1 (entre Non-RT e Near-RT) | dono e precedência por campo da política A1; conflito entre rApps detectado e reportado | a cada escrita A1 | `src/interfaces/a1_policy_receiver.py` |
 
 ### Figuras
 
@@ -152,6 +153,30 @@ O [`rapps/governance_rapp.py`](../rapps/governance_rapp.py) lê esse relatório 
 
 As ações sobre a RDL saem numa única instância A1 20000 (`rdl-governance`), publicada no A1-PMS. A retirada (`DELETE /ric/v1/xapps/{nome}` no AppMgr) só acontece com `--undeploy`; sem isso, a recomendação é só impressa. **Sair da quarentena é decisão do operador.** Perder arbitragem não é falta: o rApp não pune quem perde.
 
+### 5.1 Quinto aspecto: conflito entre rApps na política A1
+
+Antes de 2026-11-11, a RDL juntava as instâncias A1 ativas e, num mesmo campo, valia a escrita mais recente. Se dois rApps, ou um rApp e o operador, ajustassem o mesmo campo (por exemplo `cooling_lockout_ms` ou `energy_weight`), vencia quem escreveu por último, sem aviso (achado 64). É o conflito **horizontal** entre rApps; o tratamento dele no SMO ainda é pouco padronizado (relatório [`reports/avaliacao/relatorio_tecnico_rapps_governanca_20261111.md`](../reports/avaliacao/relatorio_tecnico_rapps_governanca_20261111.md)).
+
+**Mapa de donos** (`RDL_A1_FIELD_OWNERS`, exemplo em [`configs/a1_field_owners.example.json`](../configs/a1_field_owners.example.json)):
+
+- **Formato:** para cada tipo e campo, uma lista de padrões (glob) de `policy_instance_id`, em ordem de precedência.
+- **Identidade:** o A1 Mediator repassa à xApp só o ID da instância, que é o `policy_id` dado pelo rApp no A1-PMS, e não o serviço do A1-PMS. Por isso o dono é identificado pelo ID da instância. Convenção: instâncias do operador começam com `operator`.
+
+| Situação | O que a RDL faz |
+| :-- | :-- |
+| instância fora da lista de donos escreve o campo | recusa a instância inteira (`put_policy` falso; resposta A1 20011 com `status = ERROR` e o motivo, o que deixa a política `NOT_ENFORCED` no A1-PMS) |
+| dois donos escrevem o mesmo campo | vence o de maior precedência (o primeiro da lista), mesmo que tenha escrito antes; entre donos de mesma precedência, a escrita mais recente |
+| campo fora do mapa | livre; vale a escrita mais recente, como antes |
+| duas instâncias com valores diferentes no mesmo campo | **conflito entre rApps**: aparece em `GET /governance` (`rapp_conflicts`: campo, regra aplicada, vencedor, valor efetivo e escritores em ordem de precedência), no log e em `rdl_a1_field_conflicts` |
+| a instância vencedora é removida | a próxima na precedência passa a valer; o conflito some se sobrar um só valor |
+
+O rApp de governança transforma cada `rapp_conflicts` numa recomendação `RESOLVE_A1_FIELD_CONFLICT` para o operador. Ele não decide quem fica: a RDL já aplica a precedência, e mudar o mapa de donos é decisão de operação.
+
+**Limites:**
+
+- A identidade é o ID da instância, que o rApp escolhe. Um rApp que use o nome de outra instância a sobrescreve. Isso só se fecha no SMO, com a autorização da R1 (CAPIF) no testbed, e não na RDL.
+- Os campos de tipos diferentes são juntados por nome. Hoje 20000, 20001 e 20002 não compartilham nomes de campo.
+
 ## 6. Onde ficam o estado e o grafo
 
 | Pergunta | Resposta |
@@ -199,5 +224,6 @@ helm upgrade --install kg-neo4j deploy/helm/kg-neo4j -n nonrtric --set testSourc
 | `RDL_ADAPTIVE_WINDOW` | `true` (desde 2026-11-11) | janela adaptativa; `false` volta à janela fixa de 200 ms |
 | `RDL_ON_DEMAND_LOOKBACK_S` | 2,0 | quanto tempo uma disputa mantém a xApp `ON_DEMAND` na janela |
 | `RDL_IMPLICIT_GRACE_S` / `RDL_IMPLICIT_PERSISTENCE` | 2,0 / 3 | período de graça e persistência do conflito implícito |
+| `RDL_A1_FIELD_OWNERS` | — | mapa de donos e precedência por campo da A1 (seção 5.1) |
 
 Na política A1 20000, os campos `xapp_modes` (lista `xapp:MODO`) e `xapp_priority_caps` (lista `xapp:N`) sobrepõem o registro enquanto a política vale.

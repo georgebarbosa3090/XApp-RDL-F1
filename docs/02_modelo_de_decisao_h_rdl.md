@@ -259,7 +259,7 @@ O `CausalTracker` (`src/observability/causal_tracker.py`) registra propostas, co
 
 ### 7.1 Políticas A1
 
-O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e, desde 2026-11-10, está ligado à decisão: a cada criação, atualização ou remoção, a `RDLxApp` aplica a **política efetiva** (união das políticas ativas; a mais recente prevalece por campo) sobre a configuração de base. Remover todas as políticas restaura a base. O servidor HTTP só sobe com `A1_RECEIVER_PORT` e só aceita *loopback* (não tem autenticação); serve para testes locais.
+O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e, desde 2026-11-10, está ligado à decisão: a cada criação, atualização ou remoção, a `RDLxApp` aplica a **política efetiva** sobre a configuração de base. A política efetiva é a união das políticas ativas: em cada campo vence o dono de maior precedência do mapa `RDL_A1_FIELD_OWNERS`, e, entre iguais ou em campo sem dono, a escrita mais recente. Escritas concorrentes com valores diferentes são reportadas como conflito entre rApps ([doc 11 §5.1](11_governanca_hierarquica_xapps.md)). Remover todas as políticas restaura a base. O servidor HTTP só sobe com `A1_RECEIVER_PORT` e só aceita *loopback* (não tem autenticação); serve para testes locais.
 
 **Caminho O-RAN** (`src/interfaces/a1_rmr.py`, doc 10): o A1-PMS do Non-RT RIC cria a instância no A1 Mediator, que a entrega à xApp por RMR `A1_POLICY_REQUEST` (20010); a xApp aplica e responde `A1_POLICY_RESPONSE` (20011). Na partida, pede as instâncias existentes com `A1_POLICY_QUERY` (20012). Os tipos são registrados no mediador por `scripts/a1/register_policy_types.py`.
 
