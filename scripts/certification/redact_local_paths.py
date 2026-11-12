@@ -61,6 +61,7 @@ def _dynamic_rules() -> List[Tuple[str, str, str]]:
 
 # Identificações já gravadas em evidências antigas (máquinas e clones anteriores). A ordem importa.
 STATIC_RULES: List[Tuple[str, str, str]] = [
+    # clone anterior do repositório (até 2026-11-12); o atual, em C:/Users/georg/RDL, é coberto pela regra dinâmica
     ("repo-windows", _path_pattern("C:/Users/georg/.antigravity-ide/XApp-RDL-F1"), "<repo>"),
     ("repo-antigo", _path_pattern("C:/Users/georg/.antigravity-ide/iqos-xapp-rdl-phase1"), "<repo-antigo>"),
     ("repo-antigo", _path_pattern("C:/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1"),
@@ -80,7 +81,10 @@ _COMPILED: List[Tuple[str, "re.Pattern[str]", str]] = []
 
 def _rules() -> List[Tuple[str, "re.Pattern[str]", str]]:
     if not _COMPILED:
-        for name, pattern, repl in _dynamic_rules() + STATIC_RULES + GENERIC_RULES:
+        dynamic = _dynamic_rules()
+        # clone atual, depois os clones antigos (estão dentro do HOME), depois o HOME e as regras genéricas
+        ordered = [r for r in dynamic if r[0] == "repo"] + STATIC_RULES + [r for r in dynamic if r[0] != "repo"]
+        for name, pattern, repl in ordered + GENERIC_RULES:
             _COMPILED.append((name, re.compile(pattern), repl))
     return _COMPILED
 
