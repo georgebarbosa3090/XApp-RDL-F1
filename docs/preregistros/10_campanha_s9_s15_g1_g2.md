@@ -11,6 +11,14 @@ Os cenários S9–S15 e os GreenRAN G1 e G2 foram reconstruídos sobre o rádio 
 - Commit em que este pré-registro entra (o mesmo da execução; o executor grava `repo_git_sha` em cada manifesto).
 - **S12 e S14:** portadora reduzida em 2026-11-11 (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir (achado 57b). Uma rodada curta (semente 9102, B0 e B3) roda antes, em 2026-11-11. O critério de exclusão foi fixado antes do resultado: o teto não restringe se a vazão do B3 na janela de conflito (`thp_conflict`) diferir da do B0 em menos de 1 %. Nesse caso, o cenário sai desta campanha. Se a rodada curta de um cenário não terminar, ele também sai. A exclusão é registrada como desvio neste arquivo, num commit feito antes do início da campanha.
 - O B3 usa o EEVS com agregação `mean` (o padrão; o pré-registro 09 testa a aditiva à parte).
+- **Desvio (registrado em 2026-11-12 às 10h05, antes do início da campanha):** as quatro execuções curtas da semente 9102 terminaram com `SUCCESS` e hashes. A vazão na janela de conflito (`thp_conflict`, `scripts/certification/analyze_conflict_runs.py`) foi a seguinte:
+
+  | Cenário | B0 (Mb/s) | B3 (Mb/s) | Diferença | Decisão |
+  | :-- | :-: | :-: | :-: | :-- |
+  | S12 | 9,406 | 18,254 | +94,1 % | **fica na campanha** |
+  | S14 | 49,152 | 49,152 | 0,0 % | **sai da campanha** (o teto não restringe) |
+
+  A campanha roda com S9, S10, S11, S12, S13, S15, G1 e G2. O início também atrasou cerca de uma hora em relação às 9h previstas: a tarefa agendada apontava para a pasta antiga do repositório, removida depois da mudança para `C:\Users\georg\RDL`. Nada do que este pré-registro fixa foi alterado.
 
 ## 3. Desenho
 
