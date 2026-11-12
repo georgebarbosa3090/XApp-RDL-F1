@@ -1,0 +1,38 @@
+# Instalar no namespace do SMO / Non-RT RIC da bancada: helm upgrade --install kg-neo4j deploy/helm/kg-neo4j -n nonrtric
+
+neo4j:
+  image: neo4j:5.26.0-community
+  # Bancada com WSL de 5 GB: heap 256 MiB + page cache 64 MiB; o contêiner fica abaixo de 768 MiB
+  heapMax: 256m
+  heapInitial: 128m
+  pageCache: 64m
+  resources:
+    requests: {cpu: 100m, memory: 512Mi}
+    limits: {memory: 768Mi}
+  persistence:
+    enabled: false          # true: PVC (local-path no k3s); false: emptyDir, apagado com o pod
+    size: 1Gi
+    storageClass: local-path
+
+# Senha do usuário neo4j: gerada na primeira instalação e mantida nas atualizações (Secret kg-neo4j-auth)
+auth:
+  password: ""
+
+exporter:
+  schedule: "* * * * *"
+  image: python:3.12.8-alpine3.21
+  database: neo4j
+  resources:
+    requests: {cpu: 20m, memory: 32Mi}
+    limits: {memory: 128Mi}
+
+# De onde o CronJob lê o grafo (GET <url>/kg?full=true): a RDL no namespace das xApps
+source:
+  url: http://service-ricxapp-iqos-xapp-rdl-http.ricxapp:8080
+
+# Fonte de teste para a bancada sem RDL implantada: serve um grafo gravado em arquivo
+# (gerado por scripts/kg/dump_catalog_kg.py a partir das decisões reais do H-RDL no catálogo).
+# Uso: --set testSource.enabled=true --set-file testSource.kgJson=<arquivo.json>
+testSource:
+  enabled: false
+  kgJson: ""

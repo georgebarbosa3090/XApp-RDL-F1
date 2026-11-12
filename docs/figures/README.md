@@ -14,6 +14,15 @@ O mesmo fluxo em três formatos, alinhado ao código e sem valores medidos (a tr
 
 `01_arquitetura_e_governanca/` e `01_arquitetura_e_modelagem/` contêm diagramas ilustrativos (pipeline, componentes, infraestrutura, observabilidade, roadmap). Eles representam a arquitetura pretendida; quando divergirem do código, vale a descrição de [`../02_modelo_de_decisao_h_rdl.md`](../02_modelo_de_decisao_h_rdl.md). Em particular, figuras que mostram conformidade O-RAN ou integração E2 retratam objetivos, não interoperabilidade verificada.
 
+### Governança hierárquica das xApps (2026-11-11)
+
+Descritas no [doc 11](../11_governanca_hierarquica_xapps.md) e alinhadas ao código de 2026-11-11. São SVG autônomos, com cores fixas e fundo branco.
+
+| Arquivo | Conteúdo |
+| :-- | :-- |
+| [`01_arquitetura_e_modelagem/governanca_4_niveis_arquitetura.svg`](01_arquitetura_e_modelagem/governanca_4_niveis_arquitetura.svg) | onde ficam os níveis 1 a 4: SMO/Non-RT RIC, Near-RT RIC com a RDL, NetworkPolicy no E2Term, RAN |
+| [`01_arquitetura_e_modelagem/governanca_caminho_da_proposta.svg`](01_arquitetura_e_modelagem/governanca_caminho_da_proposta.svg) | caminho de uma proposta: autorização, teto, sob demanda, janela, arbitragem, RIC Control, KPM |
+
 ## Topologias de cenários
 
 `02_cenarios_e_topologias/` contém ilustrações espaciais dos cenários. Parte dos arquivos usa uma numeração antiga (por exemplo, `scenario_1_eevs_*`, `scenario_3_5ga_*`) que não corresponde aos identificadores S0–S15 atuais; a correspondência válida está em [`../03_cenarios_e_conflitos.md`](../03_cenarios_e_conflitos.md).

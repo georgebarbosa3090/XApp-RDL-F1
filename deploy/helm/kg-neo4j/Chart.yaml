@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kg-neo4j
+description: Histórico do grafo de conhecimento da RDL no SMO — Neo4j Community com memória limitada e CronJob que exporta GET /kg da RDL a cada minuto (doc 11 §6)
+type: application
+version: 0.1.0
+appVersion: "5.26.0"

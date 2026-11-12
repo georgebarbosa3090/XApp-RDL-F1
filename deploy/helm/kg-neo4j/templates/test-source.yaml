@@ -1,0 +1,42 @@
+{{- if .Values.testSource.enabled }}
+{{- if not .Values.testSource.kgJson }}{{ fail "testSource.enabled exige --set-file testSource.kgJson=<arquivo.json>" }}{{ end }}
+# Fonte de teste: serve um grafo gravado em GET /kg (o http.server ignora a query ?full=true)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kg-test-source
+  labels: {app.kubernetes.io/part-of: rdl-kg}
+data:
+  kg: {{ .Values.testSource.kgJson | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kg-test-source
+  labels: {app: kg-test-source, app.kubernetes.io/part-of: rdl-kg}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: kg-test-source}}
+  template:
+    metadata:
+      labels: {app: kg-test-source}
+    spec:
+      containers:
+        - name: http
+          image: {{ .Values.exporter.image }}
+          command: ["python", "-m", "http.server", "8080", "-d", "/srv"]
+          ports: [{containerPort: 8080}]
+          resources: {requests: {cpu: 10m, memory: 24Mi}, limits: {memory: 64Mi}}
+          volumeMounts: [{name: kg, mountPath: /srv}]
+      volumes:
+        - name: kg
+          configMap: {name: kg-test-source}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kg-test-source
+spec:
+  selector: {app: kg-test-source}
+  ports: [{port: 8080, targetPort: 8080}]
+{{- end }}

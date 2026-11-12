@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="680" viewBox="0 0 680 770" role="img">
+<title>Caminho de uma proposta pela governança da RDL</title>
+<desc>A proposta é autorizada pelo registro, limitada pelo teto de prioridade, decidida sozinha se a xApp é sob demanda e não há disputa, ou passa pela janela; depois arbitragem e Safety Guard, RIC Control e conferência do KPM.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><style>
+text{font-family:"Segoe UI",Helvetica,Arial,sans-serif}
+.t{font-size:14px;font-weight:400;fill:#3d3d3a}.ts{font-size:12px;font-weight:400;fill:#5f5e5a}.th{font-size:14px;font-weight:500;fill:#2c2c2a}
+.box{fill:#f8f7f3;stroke:#888780}.arr{stroke:#5f5e5a;stroke-width:1.2;fill:none}
+.c-purple>rect{fill:#EEEDFE;stroke:#534AB7}.c-purple>.th{fill:#3C3489}.c-purple>.ts{fill:#534AB7}
+.c-teal>rect{fill:#E1F5EE;stroke:#0F6E56}.c-teal>.th{fill:#085041}.c-teal>.ts{fill:#0F6E56}
+.c-coral>rect{fill:#FAECE7;stroke:#993C1D}.c-coral>.th{fill:#712B13}.c-coral>.ts{fill:#993C1D}
+.c-gray>rect{fill:#F1EFE8;stroke:#5F5E5A}.c-gray>.th{fill:#444441}.c-gray>.ts{fill:#5F5E5A}
+</style><rect x="0" y="0" width="680" height="770" fill="#ffffff"/>
+<g class="c-gray">
+<rect x="230" y="30" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="48" text-anchor="middle" dominant-baseline="central">Proposta da xApp</text>
+<text class="ts" x="350" y="68" text-anchor="middle" dominant-baseline="central">RMR 30000 ou 12040</text>
+</g>
+<line x1="350" y1="86" x2="350" y2="118" class="arr" marker-end="url(#arrow)"/>
+<g class="c-teal">
+<rect x="230" y="120" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="138" text-anchor="middle" dominant-baseline="central">Autorizada?</text>
+<text class="ts" x="350" y="158" text-anchor="middle" dominant-baseline="central">registro, origem, quarentena</text>
+</g>
+<line x1="470" y1="148" x2="488" y2="148" class="arr" marker-end="url(#arrow)"/>
+<g class="c-coral">
+<rect x="490" y="120" width="150" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="565" y="138" text-anchor="middle" dominant-baseline="central">UNAUTHORIZED</text>
+<text class="ts" x="565" y="158" text-anchor="middle" dominant-baseline="central">não: recusada</text>
+</g>
+<line x1="350" y1="176" x2="350" y2="208" class="arr" marker-end="url(#arrow)"/>
+<g class="c-gray">
+<rect x="230" y="210" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="228" text-anchor="middle" dominant-baseline="central">Teto de prioridade</text>
+<text class="ts" x="350" y="248" text-anchor="middle" dominant-baseline="central">registro ou A1</text>
+</g>
+<line x1="350" y1="266" x2="350" y2="298" class="arr" marker-end="url(#arrow)"/>
+<g class="c-teal">
+<rect x="230" y="300" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="318" text-anchor="middle" dominant-baseline="central">ON_DEMAND sem disputa?</text>
+<text class="ts" x="350" y="338" text-anchor="middle" dominant-baseline="central">mesmo nó e vizinhos</text>
+</g>
+<line x1="470" y1="328" x2="488" y2="328" class="arr" marker-end="url(#arrow)"/>
+<g class="c-gray">
+<rect x="490" y="300" width="150" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="565" y="318" text-anchor="middle" dominant-baseline="central">Decide sozinha</text>
+<text class="ts" x="565" y="338" text-anchor="middle" dominant-baseline="central">sim: sem janela</text>
+</g>
+<line x1="350" y1="356" x2="350" y2="388" class="arr" marker-end="url(#arrow)"/>
+<g class="c-gray">
+<rect x="230" y="390" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="408" text-anchor="middle" dominant-baseline="central">Janela de decisão</text>
+<text class="ts" x="350" y="428" text-anchor="middle" dominant-baseline="central">CRITICAL, URGENT, NORMAL</text>
+</g>
+<line x1="350" y1="446" x2="350" y2="478" class="arr" marker-end="url(#arrow)"/>
+<path d="M565 356 L565 508 L472 508" fill="none" class="arr" marker-end="url(#arrow)"/>
+<g class="c-teal">
+<rect x="230" y="480" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="498" text-anchor="middle" dominant-baseline="central">Arbitragem e Safety Guard</text>
+<text class="ts" x="350" y="518" text-anchor="middle" dominant-baseline="central">TVS, EEVS, histerese</text>
+</g>
+<line x1="230" y1="508" x2="202" y2="508" class="arr" marker-end="url(#arrow)"/>
+<g class="c-coral">
+<rect x="40" y="480" width="160" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="120" y="498" text-anchor="middle" dominant-baseline="central">Recusa com motivo</text>
+<text class="ts" x="120" y="518" text-anchor="middle" dominant-baseline="central">aviso RMR 30001</text>
+</g>
+<line x1="350" y1="536" x2="350" y2="568" class="arr" marker-end="url(#arrow)"/>
+<g class="c-gray">
+<rect x="230" y="570" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="588" text-anchor="middle" dominant-baseline="central">RIC Control ao nó</text>
+<text class="ts" x="350" y="608" text-anchor="middle" dominant-baseline="central">terceiros: ACK ou Failure</text>
+</g>
+<line x1="350" y1="626" x2="350" y2="658" class="arr" marker-end="url(#arrow)"/>
+<g class="c-teal">
+<rect x="230" y="660" width="240" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="350" y="678" text-anchor="middle" dominant-baseline="central">KPM coerente com a ação?</text>
+<text class="ts" x="350" y="698" text-anchor="middle" dominant-baseline="central">não: IMPLICIT ao rApp</text>
+</g>
+<text class="ts" x="350" y="742" text-anchor="middle" dominant-baseline="central">↻ o rApp ajusta a política A1, que volta ao primeiro passo</text>
+</svg>
+

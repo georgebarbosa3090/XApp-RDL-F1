@@ -77,3 +77,69 @@ def test_export_script_writes_cypher(tmp_path):
     gml = tmp_path / "kg.graphml"
     if pytest.importorskip("networkx"):
         assert mod.main(["--input", str(src), "--format", "graphml", "--out", str(gml)]) == 0 and gml.stat().st_size > 0
+
+
+def _job_module():
+    import importlib.util
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[2] / "deploy" / "helm" / "kg-neo4j" / "files" / "export_kg_job.py"
+    spec = importlib.util.spec_from_file_location("export_kg_job", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_cronjob_exporter_matches_library_schema():
+    """O exportador do CronJob (só stdlib) gera os mesmos comandos que src/core/kg_export.py."""
+    job = _job_module()
+    data = sample()
+    assert job.neo4j_batches(data) == neo4j_batches(data)
+
+
+def test_cronjob_exporter_posts_to_neo4j_http_api():
+    import base64
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    job = _job_module()
+    data = sample()
+    seen = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = json.dumps(data).encode()
+            self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+            self.wfile.write(body)
+
+        def do_POST(self):
+            payload = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+            seen.append((self.path, self.headers["Authorization"], payload))
+            fail = any("BOOM" in s["statement"] for s in payload["statements"])
+            body = json.dumps({"results": [], "errors": [{"message": "x"}] if fail else []}).encode()
+            self.send_response(200); self.end_headers(); self.wfile.write(body)
+
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_port}"
+    try:
+        summary = job.export_once(base, base, "neo4j", "neo4j", "segredo")
+        assert summary == {"nodes": len(data["nodes"]), "edges": len(data["edges"]), "statements": len(neo4j_batches(data))}
+        (p1, auth, first), (p2, _, second) = seen
+        assert p1 == p2 == "/db/neo4j/tx/commit"
+        assert auth == "Basic " + base64.b64encode(b"neo4j:segredo").decode()
+        assert first["statements"] == [{"statement": job.CONSTRAINT}]          # esquema em transação própria
+        assert len(second["statements"]) == len(neo4j_batches(data))
+        with pytest.raises(RuntimeError):
+            job._post(f"{base}/db/neo4j/tx/commit", "neo4j", "x", [{"statement": "BOOM"}])
+    finally:
+        srv.shutdown()
+
+
+def test_cronjob_exporter_main_reports_failure(monkeypatch, capsys):
+    job = _job_module()
+    monkeypatch.setenv("SOURCE_URL", "http://127.0.0.1:9")
+    monkeypatch.setenv("NEO4J_PASSWORD", "x")
+    assert job.main() == 1
+    assert '"status": "FAILED"' in capsys.readouterr().out

@@ -14,6 +14,25 @@ A governança tem quatro níveis. Cada nível cobre o que o anterior não alcan�
 | 3 | Near-RT RIC (KPM) | conflito implícito: KPM incoerente com a ação confirmada | segundos | `src/core/implicit_conflict.py` |
 | 4 | Non-RT RIC / SMO | rApp de governança: quarentena e teto de prioridade por A1, recomendação de retirada | segundos a minutos | `rapps/governance_rapp.py` |
 
+### Figuras
+
+**Onde cada nível fica na arquitetura:**
+
+- **Nível 1:** a barreira em volta do E2Term; o RIC Control direto de uma xApp de terceiros é cortado ali.
+- **Nível 2:** o 12040 interceptado chega à RDL.
+- **Nível 3:** dentro da RDL, alimentado pelo KPM que volta da RAN.
+- **Nível 4:** o rApp, que lê `GET /governance` e responde com a política A1 20000.
+
+![Arquitetura da governança em quatro níveis](figures/01_arquitetura_e_modelagem/governanca_4_niveis_arquitetura.svg)
+
+**O que acontece com uma proposta:**
+
+- **Ordem das verificações:** a do código (`RDLxApp._action_proposal_handler` → `_enqueue` → `_process_action_group`).
+- **Teto de prioridade antes da urgência:** é aplicado antes da classificação, então uma xApp com teto abaixo de 95 não chega ao caminho crítico.
+- **`ON_DEMAND` sem disputa:** pula só a janela; a arbitragem e o Safety Guard continuam valendo.
+
+![Caminho de uma proposta pelas verificações da governança](figures/01_arquitetura_e_modelagem/governanca_caminho_da_proposta.svg)
+
 ## 1. Nível 1 — plataforma: a RDL é o único caminho de RIC Control
 
 **Registro de xApps** (`RDL_XAPP_REGISTRY`, exemplo em [`configs/xapp_registry.example.json`](../configs/xapp_registry.example.json)). Para cada xApp:
@@ -38,6 +57,12 @@ Como o registro decide se uma proposta entra:
 | `ConfigMap rdl-governance-routes` | tabela de rotas RMR (`RMR_SEED_RT`): 30000 → RDL, 30001 → xApps proponentes, 12040 de cada xApp interceptada → RDL, 12040 da RDL → E2Term |
 
 O descritor da RDL ([`configs/xapp_descriptor.json`](../configs/xapp_descriptor.json)) é o único que declara `RIC_CONTROL_REQ` em `txMessages`. Ele também recebe `RIC_CONTROL_REQ`, por causa da interceptação.
+
+**Modo catálogo (kpm-probe da bancada NORI) e a NetworkPolicy.** A kpm-probe embute o H-RDL e envia o RIC Control ela mesma. Por isso ela está na lista de controladores autorizados do E2Term (`ricxapp.e2Controllers`), e o teste no cluster confirmou o acesso (tabela abaixo).
+
+- **O catálogo não é tráfego de rede.** As propostas vêm de `simulations/ns3/conflicts/catalog.json`, dentro do processo da kpm-probe; o cenário e o baseline vêm de arquivos no volume dela. A NetworkPolicy não se aplica a eles.
+- **Não passam pelos níveis 1 e 3 da RDL.** As propostas do catálogo não passam pelo RMR 30000 nem pelo registro de xApps: `decide_catalog` chama o pipeline direto. Assim, também não há recusa `UNAUTHORIZED` nem modo `ON_DEMAND` no modo catálogo.
+- **O que a NetworkPolicy garante na bancada:** só a RDL e a kpm-probe alcançam a porta RMR de dados do E2Term. A kpm-probe não tem política própria; ela recebe as Indications e o A1 da plataforma sem restrição adicional.
 
 **Verificado no cluster da bancada** (k3s, O-RAN SC Release I), em 2026-11-11:
 
@@ -135,7 +160,36 @@ As ações sobre a RDL saem numa única instância A1 20000 (`rdl-governance`), 
 | O modo catálogo fica no dbaas? | **Não.** O cenário e o baseline da kpm-probe ficam em arquivos no volume dela (`/data/rdl_scenario`, `/data/rdl_baseline`). No modo `O_RAN_INTEROP`, a RDL grava no SDL (dbaas) os pedidos de controle, as decisões e as recusas (`rejection:<id>`). |
 | Onde atua o grafo de conhecimento próprio? | Dentro da RDL, no Near-RT RIC: em memória, consultado a cada decisão (contexto da CA-RDL, disputa do modo sob demanda) e exposto em `GET /kg`. |
 | Onde atua o NetworkX? | **Fora do laço de decisão:** análise do grafo exportado (centralidade, componentes, caminhos de conflito) num notebook, num teste ou no rApp (`src/core/kg_export.py: to_networkx`; extra `kg`). |
-| Onde atua o Neo4j? | **No SMO / Non-RT RIC:** histórico persistente, que sobrevive ao reinício da RDL e é consultado pelos rApps. A RDL não depende dele. Exportação por `scripts/kg/export_kg.py` (Cypher para `cypher-shell`, ou gravação direta com `--neo4j-uri` e senha em `NEO4J_PASSWORD`). Um banco de grafos externo no caminho de cada decisão poria latência de rede dentro da janela de 200 ms. |
+| Onde atua o Neo4j? | **No SMO / Non-RT RIC:** histórico persistente, que sobrevive ao reinício da RDL e é consultado pelos rApps. A RDL não depende dele. Um banco de grafos externo no caminho de cada decisão poria latência de rede dentro da janela de 200 ms. Na bancada, roda pelo chart `kg-neo4j` (seção 6.1); para uma exportação avulsa, há `scripts/kg/export_kg.py` (Cypher para `cypher-shell`, ou gravação direta com `--neo4j-uri` e senha em `NEO4J_PASSWORD`). |
+
+### 6.1 Histórico no Neo4j: chart `kg-neo4j`
+
+O chart [`deploy/helm/kg-neo4j`](../deploy/helm/kg-neo4j) instala, no namespace do SMO (`nonrtric` na bancada):
+
+| Objeto | Função |
+| :-- | :-- |
+| Deployment `kg-neo4j` | Neo4j 5.26 Community: heap de 256 MiB, page cache de 64 MiB, limite de 768 MiB; `emptyDir` por padrão (`neo4j.persistence.enabled=true` usa PVC `local-path`) |
+| Secret `kg-neo4j-auth` | senha do usuário `neo4j`, gerada na primeira instalação e mantida nas atualizações |
+| CronJob `kg-neo4j-export` | a cada minuto, lê `GET /kg?full=true` da RDL e grava pela API HTTP transacional do Neo4j. Usa `python:alpine` e só a biblioteca padrão; o script é `files/export_kg_job.py`, com os mesmos comandos de `src/core/kg_export.py`, o que um teste garante |
+| `kg-test-source` (opcional) | para a bancada sem RDL implantada: serve um grafo gravado por `scripts/kg/dump_catalog_kg.py`, produzido pelo H-RDL real decidindo o catálogo (sem ns-3). Não é evidência experimental, e as células de cenários diferentes se fundem |
+
+```bash
+python scripts/kg/dump_catalog_kg.py --out kg_catalogo.json
+helm upgrade --install kg-neo4j deploy/helm/kg-neo4j -n nonrtric --set testSource.enabled=true --set-file testSource.kgJson=kg_catalogo.json
+# com a RDL implantada: sem testSource; o CronJob lê service-ricxapp-iqos-xapp-rdl-http.ricxapp:8080
+```
+
+**Verificado na bancada em 2026-11-11:**
+
+- **Primeira exportação:** gravou os 531 nós (198 ações, 167 conflitos, 138 decisões, 10 xApps, 10 parâmetros, 4 células, 4 KPIs) e as 1016 arestas do grafo de teste, em 8,3 s.
+- **Idempotência:** a exportação seguinte não duplicou nada (531 / 1016).
+- **Memória:** o Neo4j ocupou 376 MiB.
+- **Arranque:** as duas primeiras execuções do CronJob falharam com `Connection refused`, enquanto o Neo4j subia. O CronJob não tenta de novo na mesma execução e se recupera na seguinte.
+
+**Limites:**
+
+- **Cópias, não sincronia contínua.** Um evento que entra e sai da RDL entre duas exportações (mais de `RDL_KG_MAX_EVENTS` eventos num minuto) não chega ao Neo4j.
+- **Nada é apagado.** O histórico cresce sem limite. Com `emptyDir`, ele se perde quando o pod do Neo4j é recriado.
 
 ## 7. Configuração
 
