@@ -28,7 +28,8 @@ Regras de coordenação:
    desligamento menor, mais células ativas).
 2. **Noite sem risco:** prioriza energia, dentro dos limites do esquema A1.
 3. **EnergySaver perdendo a arbitragem à noite sem risco de SLA** (≥ 70 % das propostas dele recusadas
-   como ``LOST_ARBITRATION``): sobe mais o peso de energia na RDL.
+   como ``LOST_ARBITRATION``): sobe mais o peso de energia na RDL. Recusas ``SLA_PROTECTION`` (guarda de
+   SLA, doc 18 §4.4) ficam fora da conta: proteger o SLA não é perder a arbitragem.
 4. **Conflito implícito** reportado pela RDL: suspende os desligamentos até o operador analisar.
 
 Uso:
@@ -114,7 +115,8 @@ def plan(intent: Dict[str, Any], hour: int, report: Optional[Dict[str, Any]] = N
         reasons.append("SLA da fatia de câmeras em risco: prioriza SLA")
     else:
         lost = ((report.get("rejections") or {}).get("by_xapp") or {}).get("xapp2_energysaver") or {}
-        total = sum(lost.values())
+        # Recusas pela guarda de SLA (SLA_PROTECTION, doc 18 §4.4) não contam: não são derrota na arbitragem
+        total = sum(n for reason, n in lost.items() if reason != "SLA_PROTECTION")
         if night and total >= 10 and lost.get("LOST_ARBITRATION", 0) >= 0.7 * total:
             rdl["energy_weight"] = min(0.6, rdl["energy_weight"] + 0.1)
             reasons.append("EnergySaver perde a arbitragem à noite sem risco de SLA: mais peso de energia")

@@ -10,6 +10,9 @@ Motivos:
 - ``SAFETY``: barrada pelo Safety Guard (limites físicos, política A1, topologia).
 - ``HYSTERESIS``: o alvo recebeu controle há menos que o intervalo mínimo; vem com ``retry_after_ms``.
 - ``LOST_ARBITRATION``: perdeu para outra proposta ou para a ação já confirmada (``winner_*``).
+- ``SLA_PROTECTION``: inelegível pela guarda de SLA (doc 18 §4.4): a previsão do modelo de efeito leva uma
+  fatia com SLA abaixo do requisito, e outra candidata não leva (``winner_*``). Fica fora de
+  ``LOST_ARBITRATION`` para não alimentar regras do Non-RT RIC sobre derrotas na arbitragem.
 - ``STALE``: ficou mais tempo que a validade (``RDL_PROPOSAL_MAX_AGE_MS`` ou ``ttl_ms``) antes de ser decidida.
 - ``OVERFLOW``: fila cheia na chegada.
 - ``DISPATCH_FAILED``: admitida, mas o envio do RIC Control falhou.
@@ -27,11 +30,12 @@ from typing import Any, Deque, Dict, List, Optional
 SAFETY = "SAFETY"
 HYSTERESIS = "HYSTERESIS"
 LOST_ARBITRATION = "LOST_ARBITRATION"
+SLA_PROTECTION = "SLA_PROTECTION"
 STALE = "STALE"
 OVERFLOW = "OVERFLOW"
 DISPATCH_FAILED = "DISPATCH_FAILED"
 UNAUTHORIZED = "UNAUTHORIZED"
-REASONS = (SAFETY, HYSTERESIS, LOST_ARBITRATION, STALE, OVERFLOW, DISPATCH_FAILED, UNAUTHORIZED)
+REASONS = (SAFETY, HYSTERESIS, LOST_ARBITRATION, SLA_PROTECTION, STALE, OVERFLOW, DISPATCH_FAILED, UNAUTHORIZED)
 
 _HYSTERESIS_MARK = "Control frequency exceeded"
 

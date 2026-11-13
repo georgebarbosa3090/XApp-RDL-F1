@@ -102,6 +102,7 @@ from src.conflict_types import (
 )
 
 from src.infrastructure.ran_backend_factory import get_ran_backend_adapter
+from src.e2.backends.testbed_profiles import apply_scope_defaults, scope_defaults
 from src.infrastructure.ric_request_id_allocator import get_ric_request_id_allocator
 
 logger = setup_logger("rdl_xapp")
@@ -190,6 +191,10 @@ class RDLxApp:
         self.rc_encoder = RCEncoder()
         self.rc_mapper = RCMapper(ran_function_id=3)
         self.backend = get_ran_backend_adapter(os.getenv("RAN_BACKEND"))
+        # Padrão de scope/slice_sst/ratio_kind das propostas que não os declaram (doc 18 §4.1): declarado
+        # pelo perfil do backend em RDL_BACKEND_PROFILE (o mesmo da kpm-probe; NS3_NATIVE, NORI_NS3, ...),
+        # nunca inferido do RAN_BACKEND.
+        self.scope_defaults = scope_defaults(os.getenv("RDL_BACKEND_PROFILE", "").strip())
         self.allocator = get_ric_request_id_allocator()
 
         # Subscrição E2 via API REST do SubMgr (O-RAN SC). Em modo estrito usa o endereço
@@ -635,6 +640,12 @@ class RDLxApp:
                 if ttl_ms is not None and (isinstance(ttl_ms, bool) or not isinstance(ttl_ms, (int, float))
                                            or not math.isfinite(float(ttl_ms)) or not 0 < float(ttl_ms) <= 60000):
                     raise ValueError("ttl_ms must be a number in (0, 60000]")
+                # Escopo do efeito (doc 18 §4.1); a validação de valores fica no XAppAction
+                scope, slice_sst, ratio_kind = data.get("scope"), data.get("slice_sst"), data.get("ratio_kind")
+                if scope is not None and not isinstance(scope, str):
+                    raise ValueError("scope must be a string")
+                if ratio_kind is not None and not isinstance(ratio_kind, str):
+                    raise ValueError("ratio_kind must be a string")
                 action = XAppAction(
                     xapp_id=xapp_id,
                     node_id=node_id,
@@ -643,7 +654,11 @@ class RDLxApp:
                     priority=priority,
                     defer_ok=defer_ok,
                     ttl_ms=None if ttl_ms is None else float(ttl_ms),
+                    scope=scope,
+                    slice_sst=slice_sst,
+                    ratio_kind=ratio_kind,
                 )
+                apply_scope_defaults(action, self.scope_defaults)
                 allowed, why = self.xapp_registry.authorize(xapp_id, source, strict=self.oran_strict)
                 if not allowed:
                     logger.warning("Proposta recusada pelo registro de xApps", xapp=xapp_id, reason=why)
@@ -1100,6 +1115,8 @@ class RDLxApp:
         block_reason: Dict[Tuple[str, str], Tuple[str, str, Optional[XAppAction]]] = {}
         validated_ids: set = set()
         strategy_names: List[str] = []
+        # Guarda de SLA (doc 18 §4.4): candidatas inelegíveis viram SLA_PROTECTION, não LOST_ARBITRATION
+        sla_excluded: Dict[str, str] = {}
         action_conflicts: Dict[str, List[str]] = {}
 
         def admit(target: Tuple[str, str], act: XAppAction, conflict_id: str) -> None:
@@ -1117,6 +1134,7 @@ class RDLxApp:
             resolution, is_valid, reason = arbitrate(conflict)
             winner = resolution.winning_actions[0] if resolution.winning_actions else None
             if is_valid and winner is not None:
+                sla_excluded.update(resolution.sla_excluded)
                 admit(target, winner, conflict.conflict_id)
                 strategy_names.append(resolution.strategy_used.name)
                 logger.info("Conflito Resolvido", conflict=conflict.conflict_id, strategy=resolution.strategy_used.name, action=winner.parameter)
@@ -1189,7 +1207,11 @@ class RDLxApp:
 
         def serve_none(proposals: List[XAppAction], reason: str, detail: str, winner: Optional[XAppAction]) -> None:
             for p in proposals:
-                if p is not winner:
+                if p is winner:
+                    continue
+                if reason == preg.LOST_ARBITRATION and p.action_id in sla_excluded:
+                    not_served[p.action_id] = (p, preg.SLA_PROTECTION, sla_excluded[p.action_id], winner)
+                else:
                     not_served[p.action_id] = (p, reason, detail, winner)
 
         all_selected: List[XAppAction] = []

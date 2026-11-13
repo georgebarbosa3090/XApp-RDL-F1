@@ -32,3 +32,7 @@ rc:
     param_ids: A_CONFIRMAR          # IDs dos RAN Parameters que o gNB espera
   tx_power: A_CONFIRMAR             # atividade A1.2 do GreenRAN
   cell_state: A_CONFIRMAR           # atividade A1.3 (E2SM-CCC, RC próprio ou O1)
+proposal_scope:                   # padrão de scope/slice_sst/ratio_kind das propostas (doc 18 §4.1)
+  scope: A_CONFIRMAR              # a cota de PRB do gNB é por fatia? (TB0)
+  slice_sst: A_CONFIRMAR
+  ratio_kind: A_CONFIRMAR

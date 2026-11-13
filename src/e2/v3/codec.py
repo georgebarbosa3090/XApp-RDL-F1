@@ -312,6 +312,35 @@ class SlicePrbQuota:
             raise CodecError("min_prb_ratio > max_prb_ratio")
 
 
+def quotas_for_proposal(value: float, slice_sst: int, ratio_kind: str = "max",
+                        complement_sst: Optional[int] = None) -> List[SlicePrbQuota]:
+    """Cotas do RRM Policy Ratio para uma proposta ``PRB_QUOTA`` com ``scope = slice`` (doc 18 §4.1).
+
+    ``ratio_kind`` diz qual campo o valor ocupa na fatia ``slice_sst``:
+
+    - ``max``: teto (``max_prb_ratio`` = valor); com ``complement_sst``, essa fatia recebe o teto
+      ``100 − valor``, como ``quotas_for`` do NORI (SST 1 com o valor, SST 2 com o complemento);
+    - ``min``: piso garantido (``min_prb_ratio`` = valor, teto 100);
+    - ``dedicated``: PRBs reservados (``dedicated_prb_ratio`` = ``min_prb_ratio`` = valor, teto 100).
+
+    O complemento só existe para ``max``: para piso e reserva, a outra fatia fica sem cota nova.
+    """
+    v = int(round(float(value)))
+    if ratio_kind == "max":
+        quotas = [SlicePrbQuota(int(slice_sst), v, 0, 0)]
+        if complement_sst is not None:
+            quotas.append(SlicePrbQuota(int(complement_sst), 100 - v, 0, 0))
+    elif ratio_kind == "min":
+        quotas = [SlicePrbQuota(int(slice_sst), 100, v, 0)]
+    elif ratio_kind == "dedicated":
+        quotas = [SlicePrbQuota(int(slice_sst), 100, v, v)]
+    else:
+        raise CodecError(f"ratio_kind desconhecido: {ratio_kind}")
+    for q in quotas:
+        q.validate()
+    return quotas
+
+
 class E2smCodec:
     """E2SM-KPM v03.00 e E2SM-RC v03.01 compilados do ASN.1 do NORI."""
 

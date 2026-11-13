@@ -30,7 +30,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional, Sequence
 
-from src.e2.v3.codec import SlicePrbQuota
+from src.e2.v3.codec import SlicePrbQuota, quotas_for_proposal
 
 CONGESTION_RATIO = 0.95       # congestionada: PRB usados >= 95 % dos disponíveis (KPM do nó)
 SST_EMBB, SST_URLLC = 1, 2
@@ -60,14 +60,15 @@ def reference_proposals(state: Dict[str, Any], node_id: str) -> List[Any]:
     present = {int(k) for k in state["ues_by_sst"]}
     if not state["congested"] or not {SST_EMBB, SST_URLLC} <= present:
         return []
+    # Escopo declarado pelo perfil do NORI (doc 18 §4.1): teto da fatia eMBB (SST 1), complemento na URLLC
     return [XAppAction(xapp_id=xapp, node_id=node_id, parameter="PRB_QUOTA", value=float(value), priority=prio,
-                       action_id=f"{xapp}-{node_id}-PRB_QUOTA")
+                       action_id=f"{xapp}-{node_id}-PRB_QUOTA", scope="slice", slice_sst=SST_EMBB, ratio_kind="max")
             for xapp, prio, value, _ in POLICIES]
 
 
 def quotas_for(prb_quota_embb: float) -> List[SlicePrbQuota]:
-    embb = int(round(prb_quota_embb))
-    return [SlicePrbQuota(SST_EMBB, embb, 0, 0), SlicePrbQuota(SST_URLLC, 100 - embb, 0, 0)]
+    """Teto da eMBB = valor, URLLC = 100 − valor: ``scope = slice``, SST 1, ``ratio_kind = max`` (doc 18 §4.1)."""
+    return quotas_for_proposal(prb_quota_embb, SST_EMBB, "max", complement_sst=SST_URLLC)
 
 
 class HrdlDecider:
@@ -106,6 +107,9 @@ class HrdlDecider:
                 "winners": [a.action_id for a in resolution.winning_actions],
                 "strategy": resolution.strategy_used.name,
                 "confidence": resolution.confidence,
+                # doc 18 §4.5: modelo de efeito usado e candidatas barradas pela guarda de SLA
+                "effect_model": resolution.effect_model,
+                "sla_excluded": dict(resolution.sla_excluded),
             })
             return resolution
 

@@ -1,6 +1,6 @@
 # 18. Calibração dos pesos da arbitragem (TVS/EEVS) com dados
 
-Status: **desenho**, escrito em 2026-11-12 durante a campanha 10. Nada aqui está implementado. Este arquivo só entra no git depois da campanha 10, porque o executor grava o HEAD em cada execução.
+Status: **desenho**, escrito em 2026-11-12 durante a campanha 10. Desde 2026-11-13, depois da campanha 10, parte da Parte A está implementada (seção 4.7): os campos `scope`, `slice_sst` e `ratio_kind`, o modelo de efeito, a guarda de SLA e o motivo `SLA_PROTECTION`. Os escores do §4.3 ficam como gancho, fora da utilidade do TVS. A Parte B (calibração) não começou.
 
 **Decisões do autor (2026-11-12):**
 - Aprovados, para depois da campanha 10:
@@ -128,7 +128,7 @@ Nenhum vetor de pesos faz a decisão certa pelo motivo certo. Por isso a Parte A
 
 - **Regra:** uma candidata cuja previsão leva uma fatia com SLA abaixo do requisito (s_SLA < 1) é inelegível se outra candidata do mesmo conflito mantém s_SLA = 1.
 - **Se todas violam:** vence a de maior s_SLA.
-- **Motivo de recusa novo:** `SLA_PROTECTION`. Hoje são 7 motivos (`REASONS`, `src/core/proposal_registry.py`).
+- **Motivo de recusa novo:** `SLA_PROTECTION`. Eram 7 motivos (`REASONS`, `src/core/proposal_registry.py`); com ele, são 8 (seção 4.7).
   - A recusa não pode ser contada como `LOST_ARBITRATION`. O rApp aumenta o peso de energia quando o EnergySaver perde arbitragens à noite (`greenran_resource_optimizer.py`), e uma recusa por proteção de SLA não deve alimentar essa regra.
 - **Analogia com a Fase 2:** é a restrição de custo do CMDP da CA-RDL (`cost_limit` = 0,05 em `cardl/marl/mappo.py`) levada à heurística. A diferença é que a guarda é uma regra determinística, não um multiplicador de Lagrange.
 
@@ -154,6 +154,54 @@ Nenhum vetor de pesos faz a decisão certa pelo motivo certo. Por isso a Parte A
 - **com os pesos padrão, o TVS ainda escolhe o xSlice** por +0,0145, e só o termo de prioridade (+0,03) supera a perda de vazão prevista (−0,0155). O custo previsto é de 18,74 Mb/s.
 
 O S8b mostra o que a Parte A não resolve: o termo de prioridade continua favorecendo quem tem prioridade maior mesmo quando o pedido dela não protege nada. Esse é um papel da Parte B, testado fora da calibração.
+
+### 4.7 Implementação (2026-11-13) e decisão sobre os escores do §4.3
+
+Feito depois da campanha 10, como aprovado. Uso e exemplos no [docs/02 §3.2](02_modelo_de_decisao_h_rdl.md).
+
+| Item | Onde | Estado |
+| :-- | :-- | :-- |
+| campos `scope`, `slice_sst` e `ratio_kind` (§4.1) | `XAppAction` e `validate_scope_fields` (`src/conflict_types.py`); RMR 30000 (`RDLxApp._action_proposal_handler`) | feito |
+| padrão por backend (§4.1) | chave `proposal_scope` dos perfis em `configs/testbed_ufpa/backends/`, lida por `RDL_BACKEND_PROFILE`; `NS3_NATIVE` (`scope = cell`) embutido em `src/e2/backends/testbed_profiles.py` | feito; srsRAN e OAI `A_CONFIRMAR` (TB0) |
+| codec (§4.1) | `quotas_for_proposal` (`src/e2/v3/codec.py`); `quotas_for` do NORI passa por ele | feito |
+| modelo de efeito (§4.2) | `src/core/effect_model.py`: porte do `CapCurve` da Fase 2, curva v5 com sha256 conferido | feito, **desligado por padrão** |
+| s_vazão e s_SLA (§4.3) | `SliceEffectModel.scores`, `Reasoning.effect_scores` | calculados; usados só pela guarda |
+| s_energia (§4.3) e troca dos escores no TVS | gancho `Reasoning._tvs_scores` | **não entra** (decisão abaixo) |
+| guarda de SLA (§4.4) | `sla_guard`, chamada em `Reasoning._resolve_direct_conflict` antes da utilidade | feito, age só com o modelo ligado |
+| motivo `SLA_PROTECTION` (§4.4) | `REASONS`, pipeline (`serve_none`), RMR 30001; o rApp não o conta como derrota | feito |
+| `effect_model` no log (§4.5) | `ResolutionAction.effect_model` e `sla_excluded`; log de decisão do NORI (`hrdl_slice_loop.py`) | feito; o log do executor nativo não mudou |
+| baselines `B3S` e `B3C`; S8 reprocessado com os KPM gravados (gate da W1) | — | pendentes |
+
+**Decisão: os escores novos do §4.3 não entram na utilidade do TVS.** A regra era incluí-los só se este desenho os fixasse sem depender da calibração do pré-registro 13.
+
+- s_vazão e s_SLA estão fixados: dependem só da curva v5, medida e validada antes (§4.2), e de T_s^req.
+- s_energia não está fixado aqui. O §4.3 o remete ao modelo do docs/17 (pré-registro 12), a partir da ocupação Σ_s min(teto_s, demanda_s). No NORI, a demanda por fatia não é medida (`DRB.UEThpDl` sai 0).
+- Trocar só s_vazão e s_SLA deixaria no TVS o s_energia heurístico, o erro 3 da seção 3: ele dá 0,833 a 25/75 e 0,467 a 80/20, que ativam os mesmos PRBs. A decisão seria uma mistura que nenhum braço do pré-registro 13 descreve.
+- **Gancho:** `Reasoning._tvs_scores` devolve hoje os escores heurísticos. A troca entra quando o docs/17 fixar s_energia, com um baseline próprio (`B3S`), e não como padrão do B3.
+
+**A guarda entra**, porque o §4.4 a fixa como regra determinística. A entrada dela é o s_SLA, que não tem peso a calibrar.
+
+**Desligada por padrão** (`RDL_EFFECT_MODEL=heuristic`). Pela regra de adoção (seção 9, §4), a Parte A só vira padrão com H14.0–H14.3 confirmadas, e o B3 continua sendo o H-RDL atual. Com `RDL_EFFECT_MODEL=curve`, ligar o modelo é declarar a condição calibrada (NORI, 100 MHz, 300 Mb/s).
+
+**Escolhas onde o desenho deixava aberto:**
+
+1. **Fatias com SLA.** O padrão é o SST 2 (URLLC), com T_s^req = T_s^livre. Foi a leitura de "prioridade ≥ 90" como a fatia de missão crítica. `RDL_SLA_SLICES` muda a lista e fixa requisitos (`"2:120,1:40"`, em Mb/s). O `embb_min_thp_mbps` da política A1 21000 ainda não é lido.
+2. **Candidatas sem previsão.** A guarda não age se alguma candidata do conflito está fora do modelo (sem escopo, `cell`, outro `ratio_kind` ou SST fora do par 1–2).
+3. **`ratio_kind`.** Só `max` é modelado, porque a curva mede teto. `min` e `dedicated` caem no modo heurístico.
+4. **sha256 da curva.** É calculado com finais de linha LF, o conteúdo do git, porque o checkout no Windows traz CRLF.
+
+**Verificação (2026-11-13):**
+
+- **Cronogramas em malha aberta**, com `decide()` de `run_conflict_experiment.py`, sem ns-3: o sha256 do `action_schedule.csv` antes e depois das mudanças é idêntico nos 36 pares, isto é, S0–S15, G1 e G2, cada um com B3 e B3M. Com os padrões dos campos novos (`cell` no nativo), nenhum cronograma muda. O resultado é o mesmo com `RDL_BACKEND_PROFILE=NS3_NATIVE` e com `RDL_EFFECT_MODEL=curve`: no nativo, as propostas têm `scope = cell`, e a guarda não age. É a parte determinística da H14.0 para o B3.
+- **S8 com o modelo ligado**, com as propostas de referência do NORI:
+
+  | Cota eMBB/URLLC | T̂ eMBB (Mb/s) | T̂ URLLC (Mb/s) | Total previsto | s_vazão | s_SLA |
+  | :-: | --: | --: | --: | --: | --: |
+  | 25/75 | 95,22 | 151,49 | 246,70 | 0,8143 | 1,0 |
+  | 80/20 | 151,49 | 76,45 | 227,93 | 0,7523 | 0,5046 |
+
+  A guarda elimina 80/20 (`SLA_PROTECTION` para o eMBB), e o xSlice vence. Com o modelo desligado, o eMBB vence, como hoje, por 0,0125 de utilidade, e o xSlice recebe `LOST_ARBITRATION`. Os previstos batem com os medidos no pré-registro 07 (246,73 e 227,93 Mb/s), com a ressalva do §4.6: são os mesmos dados que motivaram a correção.
+- **S8b**, pela curva: 35/65 dá 284,24 Mb/s e 55/45 dá 302,98 Mb/s. As duas opções têm s_SLA = 1, e a guarda não age, como previsto no §4.6.
 
 ## 5. Parte B: calibração dos pesos
 
@@ -237,7 +285,7 @@ As métricas vêm de `analyze_conflict_runs.py`, na janela de conflito do catál
 | Etapa | Entrega | Gate |
 | :-- | :-- | :-- |
 | W0 | campanha 10 concluída e analisada; merge de `eevs-aditivo-padrao` decidido | — |
-| W1 | Parte A: campos `scope`, `slice_sst` e `ratio_kind`; `effect_model.py`; escores novos; guarda; motivo `SLA_PROTECTION`; perfil de backend; baselines `B3S` e `B3C` no driver nativo e no NORI | testes de unidade; S8 com os KPM gravados do pré-registro 07, reprocessados offline, dá 25/75 |
+| W1 | Parte A: campos `scope`, `slice_sst` e `ratio_kind`; `effect_model.py`; escores novos; guarda; motivo `SLA_PROTECTION`; perfil de backend; baselines `B3S` e `B3C` no driver nativo e no NORI | testes de unidade; S8 com os KPM gravados do pré-registro 07, reprocessados offline, dá 25/75. **Em 2026-11-13** (seção 4.7): feitos os campos, o perfil, `effect_model.py`, a guarda e o motivo; os escores novos ficam como gancho; pendentes `B3S`, `B3C` e o reprocessamento do S8 |
 | W2 | `decision_regions.py`; mapa de regiões; tabela H14.0 | ponto fixo atingido; B3S = B3 em todos os cenários do ns-3 |
 | W3 | rodadas de calibração (seção 5.4) | orçamento respeitado; todas as execuções `SUCCESS` ou relatadas |
 | W4 | `weights_selection.json` | regra aplicada sem intervenção manual |

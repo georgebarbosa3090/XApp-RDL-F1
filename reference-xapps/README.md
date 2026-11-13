@@ -16,7 +16,15 @@ Cada xApp expõe `/health`, `/ready` e `/metrics` (FastAPI + Prometheus) e gera 
 
 Os charts aplicam o rótulo `rdl.governance/proposer: "true"`, exigido pela NetworkPolicy da RDL ([doc 11](../docs/11_governanca_hierarquica_xapps.md)). No modo estrito, a xApp também precisa estar no registro da RDL (`RDL_XAPP_REGISTRY`; exemplo em [`configs/xapp_registry.example.json`](../configs/xapp_registry.example.json)). **Não verificado com RMR real.**
 
-Campos opcionais da proposta: `defer_ok` (reavaliar a proposta quando o bloqueio de histerese do alvo expirar) e `ttl_ms` (validade pedida, até 3000 ms). Ver [docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md).
+Campos opcionais da proposta:
+
+- `defer_ok`: reavaliar a proposta quando o bloqueio de histerese do alvo expirar;
+- `ttl_ms`: validade pedida, até 3000 ms;
+- `scope`: `cell` (qualquer parâmetro) ou `slice` (só `PRB_QUOTA`), o escopo do efeito;
+- `slice_sst`: a fatia (SST, 0–255) que recebe o valor, só com `scope = slice`;
+- `ratio_kind`: `max`, `min` ou `dedicated`, o campo do RRM Policy Ratio que o valor ocupa, só com `scope = slice`.
+
+O que a xApp não declara vem do perfil do backend da RDL (`RDL_BACKEND_PROFILE`: `cell` no ns-3 nativo; `slice`, SST 1, `max` no NORI). Uma recusa pode chegar no 30001 com o motivo `SLA_PROTECTION` (guarda de SLA, só com o modelo de efeito ligado), separado de `LOST_ARBITRATION`. Ver [docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md).
 
 **Autoria e procedência.** As quatro xApps são software próprio (autor: George Barbosa; [`AUTHORS.md`](../AUTHORS.md)). xSlice, Energy Saving e Traffic Steering são reimplementações em Python inspiradas em trabalhos de terceiros, sem código copiado. O código original de cada fonte, sem modificação, com a licença e o registro de procedência, está em [`third_party/xapps/`](../third_party/xapps/). As xApps do GreenRAN (xApp1-RANSlicer e xApp2-EnergySaver) ficam em [`src/greenran/`](../src/greenran/) (doc 12).
 

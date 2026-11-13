@@ -2,6 +2,7 @@ from typing import List, Tuple, Dict, Any, Optional
 from src.conflict_types import ConflictEvent, ResolutionAction, ResolutionStrategy, XAppAction, KPMReport
 from src.infrastructure.sdl_repository import SdlRepository
 from src.core.inter_cell import InterCellRules
+from src.core.effect_model import build_effect_model, sla_guard
 import math
 import itertools
 import os
@@ -60,6 +61,9 @@ class Reasoning:
         self.sla_latency_limit_ms = float(self.config.get("sla_latency_limit_ms", 5.0))
         self.latest_kpm: Optional[KPMReport] = None
         self.kpm_by_node: Dict[str, KPMReport] = {}
+        # Modelo de efeito por fatia (doc 18 §4.2): None = modo heurístico (padrão, RDL_EFFECT_MODEL=heuristic).
+        # Com ele, a guarda de SLA (§4.4) age nos conflitos diretos entre propostas com scope = slice.
+        self.effect_model = build_effect_model(self.config)
 
     def update_kpm_report(self, report: KPMReport) -> None:
         self.latest_kpm = report
@@ -90,13 +94,32 @@ class Reasoning:
         # 3. Conflito INDIRETO (impacto cruzado em KPIs) -> Heurística EEVS
         return self._resolve_indirect_conflict(conflict)
 
+    @property
+    def effect_model_tag(self) -> str:
+        """``heuristic`` ou ``curve:<sha256>`` (doc 18 §4.5), para o log de decisão."""
+        return self.effect_model.tag if self.effect_model is not None else "heuristic"
+
+    def effect_scores(self, act: XAppAction) -> Optional[Dict[str, float]]:
+        """s_vazão e s_SLA do modelo de efeito (doc 18 §4.3), ou None fora do modelo."""
+        return self.effect_model.scores(act) if self.effect_model is not None else None
+
+    def _tvs_scores(self, act: XAppAction) -> Dict[str, float]:
+        """Escores que entram na utilidade do TVS.
+
+        Gancho do doc 18 §4.3: os escores novos de ``PRB_QUOTA`` com ``scope = slice`` substituiriam os
+        heurísticos aqui. Ainda não substituem, porque o s_energia do §4.3 depende do modelo do docs/17
+        (pré-registro 12) e o doc 18 não o fixa (decisão registrada no doc 18 §4.7).
+        """
+        return self._calculate_action_scores(act)
+
     def _resolve_direct_conflict(self, conflict: ConflictEvent) -> ResolutionAction:
-        actions = conflict.involved_xapps
+        # Guarda de SLA (doc 18 §4.4): restrição antes da utilidade, não um peso dentro dela
+        actions, sla_excluded = sla_guard(conflict.involved_xapps, self.effect_model)
         best_key = (-float("inf"), -float("inf"), -float("inf"), "")
         best_action = None
 
         for act in actions:
-            scores = self._calculate_action_scores(act)
+            scores = self._tvs_scores(act)
 
             # Função de Utilidade Global TVS
             u_a = (self.w_sla * scores["sla"] +
@@ -122,7 +145,9 @@ class Reasoning:
             winning_actions=[best_action] if best_action else [],
             modified_value=best_action.value if best_action else None,
             confidence=0.92,
-            validation_level=0
+            validation_level=0,
+            sla_excluded=sla_excluded,
+            effect_model=self.effect_model_tag,
         )
 
     def _resolve_indirect_conflict(self, conflict: ConflictEvent) -> ResolutionAction:

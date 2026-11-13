@@ -77,3 +77,58 @@ def summary(profile: Dict[str, Any]) -> Dict[str, Any]:
     pend = pending_fields(profile)
     return {"backend": profile["backend"], "lab": profile.get("lab"), "verified": bool(profile.get("verified")),
             "tb0_ready": not pend, "pending": pend, "rc_slice_param_ids": rc_slice_param_ids(profile)}
+
+
+# ------------------------------------------------------------------ escopo das propostas (doc 18 §4.1)
+# Padrão dos campos opcionais ``scope``, ``slice_sst`` e ``ratio_kind`` de uma proposta que não os declara.
+# Fica no perfil (chave ``proposal_scope``), não é inferido do backend: o executor nativo do ns-3 usa
+# ``RAN_BACKEND=NORI_NS3`` só para instanciar a RDL, mas lá o ``PRB_QUOTA`` é a máscara de RBG da célula
+# inteira (``RdlActuation::Apply``). O ns-3 nativo não tem arquivo de perfil; o padrão dele fica aqui.
+NS3_NATIVE = "NS3_NATIVE"
+BUILTIN_SCOPE_DEFAULTS = {NS3_NATIVE: {"scope": "cell"}}
+_SCOPE_KEYS = ("scope", "slice_sst", "ratio_kind")
+
+
+def scope_defaults(name_or_profile: Any) -> Dict[str, Any]:
+    """Padrão de escopo do backend: ``{}`` sem declaração ou com campo ``A_CONFIRMAR`` (vale a heurística).
+
+    Aceita o nome de um perfil (``NS3_NATIVE``, ``NORI_NS3``, ``SRSRAN_PROJECT``, ``OAI_FLEXRIC``), um
+    caminho de YAML ou o dicionário já carregado. ``complement_sst`` (fatia que recebe 100 − valor) vem junto.
+    """
+    if not name_or_profile:
+        return {}
+    if isinstance(name_or_profile, str) and name_or_profile.upper() in BUILTIN_SCOPE_DEFAULTS:
+        return dict(BUILTIN_SCOPE_DEFAULTS[name_or_profile.upper()])
+    profile = name_or_profile if isinstance(name_or_profile, dict) else load_profile(str(name_or_profile))
+    declared = profile.get("proposal_scope")
+    if not isinstance(declared, dict) or PENDING in declared.values():
+        return {}
+    from src.conflict_types import validate_scope_fields
+    out = {k: declared[k] for k in (*_SCOPE_KEYS, "complement_sst") if declared.get(k) is not None}
+    validate_scope_fields("PRB_QUOTA", out.get("scope"), out.get("slice_sst"), out.get("ratio_kind"))
+    return out
+
+
+def apply_scope_defaults(action: Any, defaults: Dict[str, Any]) -> Any:
+    """Preenche, na proposta, os campos de escopo não declarados com o padrão do backend.
+
+    Só o que falta é preenchido; o que a xApp declarou prevalece. ``scope = slice`` só é aplicado por
+    padrão a parâmetros com efeito por fatia (``PRB_QUOTA``); os demais ficam sem escopo declarado.
+    """
+    from src.conflict_types import SLICE_SCOPED_PARAMETERS, validate_scope_fields
+    if not defaults:
+        return action
+    scope = action.scope
+    if scope is None and action.slice_sst is None and action.ratio_kind is None:
+        wanted = defaults.get("scope")
+        if wanted == "cell" or (wanted == "slice" and action.parameter in SLICE_SCOPED_PARAMETERS):
+            scope = wanted
+    elif scope is None:
+        scope = "slice"   # slice_sst ou ratio_kind declarados implicam escopo de fatia
+    slice_sst, ratio_kind = action.slice_sst, action.ratio_kind
+    if scope == "slice" and defaults.get("scope") == "slice":
+        slice_sst = defaults.get("slice_sst") if slice_sst is None else slice_sst
+        ratio_kind = defaults.get("ratio_kind") if ratio_kind is None else ratio_kind
+    validate_scope_fields(action.parameter, scope, slice_sst, ratio_kind)
+    action.scope, action.slice_sst, action.ratio_kind = scope, slice_sst, ratio_kind
+    return action

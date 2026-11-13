@@ -22,3 +22,8 @@ rc:
   prb_quota: {style: 2, action: 6, layout: nori_flat, param_ids: {list: 1, sst: 3, max: 4, min: 5, dedicated: 6}}
   tx_power: nao_suportado
   cell_state: nao_suportado   # o NORI anuncia E2SM-CCC (achado 25), sem uso pela RDL
+proposal_scope:                 # padrão de scope/slice_sst/ratio_kind das propostas (doc 18 §4.1)
+  scope: slice                  # PRB_QUOTA = teto da fatia eMBB (quotas_for em src/closed_loop/hrdl_slice_loop.py)
+  slice_sst: 1
+  ratio_kind: max
+  complement_sst: 2             # a URLLC (SST 2) recebe 100 − valor

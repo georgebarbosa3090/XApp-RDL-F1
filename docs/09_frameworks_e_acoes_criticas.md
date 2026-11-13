@@ -61,7 +61,7 @@ Cada proposta é classificada na chegada (`src/core/decision_window.py`, `RDLxAp
 
 ### 2.4 Propostas que não cabem na janela: registro, aviso e adiamento (implementado)
 
-Nenhuma proposta some sem rastro: toda proposta que não vira RIC Control é registrada com o motivo (`SAFETY`, `HYSTERESIS`, `LOST_ARBITRATION`, `STALE`, `OVERFLOW`, `DISPATCH_FAILED`). Detalhes em doc 02 §3.2.
+Nenhuma proposta some sem rastro: toda proposta que não vira RIC Control é registrada com o motivo (`SAFETY`, `HYSTERESIS`, `LOST_ARBITRATION`, `SLA_PROTECTION`, `STALE`, `OVERFLOW`, `DISPATCH_FAILED`, `UNAUTHORIZED`). Detalhes em doc 02 §3.2.
 
 | Mecanismo | O que faz | Interface |
 | :-- | :-- | :-- |

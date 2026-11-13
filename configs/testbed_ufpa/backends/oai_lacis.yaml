@@ -33,3 +33,7 @@ rc:
     param_ids: A_CONFIRMAR
   tx_power: A_CONFIRMAR
   cell_state: A_CONFIRMAR
+proposal_scope:                   # padrão de scope/slice_sst/ratio_kind das propostas (doc 18 §4.1)
+  scope: A_CONFIRMAR              # a cota de PRB do gNB é por fatia? (TB0)
+  slice_sst: A_CONFIRMAR
+  ratio_kind: A_CONFIRMAR

@@ -144,11 +144,13 @@ def baseline_b3(events, window):
     os.environ.setdefault("USE_FAKE_SDL", "True")
     os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
     from src.conflict_types import XAppAction
+    from src.e2.backends.testbed_profiles import NS3_NATIVE, apply_scope_defaults, scope_defaults
     import src.core.perception as perception_module
     import src.core.refinement as refinement_module
     from src.rdl_xapp import RDLxApp
 
     clock = _SimClock()
+    native_scope = scope_defaults(NS3_NATIVE)
     # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
     # as janelas são decididas em sequência, em milissegundos de tempo real.
     original_time = refinement_module.time
@@ -186,9 +188,11 @@ def baseline_b3(events, window):
         for k, group in _windows(events, window).items():
             t_close = (k + 1) * window
             clock.now = t_close
-            actions = [XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
-                                  value=e["value"], priority=e["priority"], action_id=e["id"],
-                                  timestamp=t_close) for e in group]
+            # ns-3 nativo: PRB_QUOTA é a máscara de RBG da célula inteira, scope = cell (doc 18 §4.1)
+            actions = [apply_scope_defaults(
+                XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
+                           value=e["value"], priority=e["priority"], action_id=e["id"], timestamp=t_close),
+                native_scope) for e in group]
             before, res_before = len(dispatched), len(resolutions)
             started = _time.perf_counter()
             app._process_action_group(actions)

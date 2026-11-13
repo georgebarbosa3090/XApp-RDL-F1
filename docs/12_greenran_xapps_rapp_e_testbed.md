@@ -59,7 +59,7 @@ As escalas de tempo se dividem assim:
 | período (noite × dia) | noite prioriza energia; dia prioriza SLA |
 | intenção (`energy_priority`, câmeras × Mb/s, atraso, células mínimas) | alvos do RANSlicer e janela/limiares do EnergySaver |
 | SLA da fatia de câmeras em risco (`--kpi-url`/`--kpi-file`) | sobe o peso de SLA, proíbe desligar vizinhas, aumenta a margem do RANSlicer e torna o EnergySaver conservador |
-| EnergySaver perdendo a arbitragem à noite sem risco de SLA (relatório da RDL) | mais peso de energia na RDL |
+| EnergySaver perdendo a arbitragem à noite sem risco de SLA (relatório da RDL: ≥ 70 % das recusas como `LOST_ARBITRATION`; recusas `SLA_PROTECTION` da guarda de SLA ficam fora da conta) | mais peso de energia na RDL |
 | conflito implícito reportado pela RDL | suspende os desligamentos |
 
 A intenção em texto passa por um analisador de palavras-chave (`parse_intent_text`). A tradução de linguagem natural do GreenRAN (Agent-AI) é entregável da UNICAMP.
@@ -71,13 +71,14 @@ Os dois laboratórios usam pilhas diferentes, e a escolha fica para depois da im
 | Perfil | Pilha | Estado |
 | :-- | :-- | :-- |
 | `nori_ns3.yaml` | NORI (ns-3.42 + 5G-LENA + E2 real) | verificado (G1–G5); pronto para o TB0 |
-| `srsran_gercom.yaml` | srsRAN Project (gNB com agente E2 próprio) + Open5GS | 14 campos `A_CONFIRMAR` |
-| `oai_lacis.yaml` | OpenAirInterface com agente E2 do FlexRIC | 15 campos `A_CONFIRMAR` |
+| `srsran_gercom.yaml` | srsRAN Project (gNB com agente E2 próprio) + Open5GS | 17 campos `A_CONFIRMAR` |
+| `oai_lacis.yaml` | OpenAirInterface com agente E2 do FlexRIC | 18 campos `A_CONFIRMAR` |
 
 O carregador ([`src/e2/backends/testbed_profiles.py`](../src/e2/backends/testbed_profiles.py)) fornece:
 
 - os nomes das métricas KPM;
 - os IDs dos RAN Parameters da cota de PRB;
+- o padrão de `scope`, `slice_sst` e `ratio_kind` das propostas que não os declaram (chave `proposal_scope`, [doc 18 §4.1](18_calibracao_de_pesos.md); a RDL o lê por `RDL_BACKEND_PROFILE`): `slice`, SST 1, `max` no NORI; `A_CONFIRMAR` no srsRAN e no OAI, onde a cota de PRB por fatia depende do TB0 (e o testbed não terá fatiamento, abaixo);
 - a lista de pendências: com qualquer `A_CONFIRMAR`, o TB0 não passa.
 
 A kpm-probe lê o perfil por `RDL_BACKEND_PROFILE`. Sem IDs de RC confirmados, ela **não envia** o controle (evento `control_blocked`).

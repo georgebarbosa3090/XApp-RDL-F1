@@ -55,7 +55,7 @@ As propostas chegam por RMR (`RDL_ACTION_PROPOSAL`, mtype 30000) como JSON:
 
 Validação na entrada (`RDLxApp._action_proposal_handler`): payload em bytes de até 64 KiB, objeto JSON, `xapp_id`/`node_id` não vazios de até 128 caracteres, `value` numérico finito (constantes como `NaN` são rejeitadas), `priority` inteiro em [0, 100]. O buffer da janela aceita até 4096 propostas (somadas às adiadas).
 
-Campos opcionais (desde 2026-11-11): `defer_ok` (bool) pede que a proposta recusada só pela histerese seja reavaliada quando o bloqueio expirar; `ttl_ms` (até 60000) pede validade maior, limitada por `RDL_DEFER_MAX_TTL_MS` (seção 3.2).
+Campos opcionais (desde 2026-11-11): `defer_ok` (bool) pede que a proposta recusada só pela histerese seja reavaliada quando o bloqueio expirar; `ttl_ms` (até 60000) pede validade maior, limitada por `RDL_DEFER_MAX_TTL_MS` (seção 3.2). Desde 2026-11-13: `scope`, `slice_sst` e `ratio_kind`, o escopo do efeito da proposta (seção 3.2, [doc 18 §4.1](18_calibracao_de_pesos.md)).
 
 O campo `xapp_id` é declarado pelo cliente e **não é credencial**; por isso o modo estrito rejeita propostas externas.
 
@@ -80,6 +80,7 @@ Desde 2026-11-11 (`src/core/proposal_registry.py`; doc 09 §2.4). Toda proposta 
 | `SAFETY` | Safety Guard: limites físicos, política A1, destino de handover fora da topologia |
 | `HYSTERESIS` | o alvo recebeu controle há menos que o intervalo mínimo; vem com `retry_after_ms` |
 | `LOST_ARBITRATION` | perdeu no TVS/EEVS ou para a ação já confirmada; vem com a vencedora |
+| `SLA_PROTECTION` | inelegível pela guarda de SLA (desde 2026-11-13): a previsão do modelo de efeito leva uma fatia com SLA abaixo do requisito, e outra candidata do mesmo conflito não leva; vem com a vencedora. Só ocorre com `RDL_EFFECT_MODEL=curve` (abaixo) |
 | `STALE` | esperou mais que a validade antes de ser decidida (`RDL_PROPOSAL_MAX_AGE_MS`, 1000 ms) |
 | `OVERFLOW` | fila cheia na chegada |
 | `DISPATCH_FAILED` | admitida, mas o RIC Control não foi enviado |
@@ -90,6 +91,34 @@ Desde 2026-11-11 (`src/core/proposal_registry.py`; doc 09 §2.4). Toda proposta 
 - **Adiamento:** só para `HYSTERESIS` e só se a xApp pediu (`defer_ok`). A proposta volta para a janela quando o bloqueio expira, se ainda estiver na validade (padrão 2000 ms, máximo `RDL_DEFER_MAX_TTL_MS` = 3000 ms), e é reavaliada do zero, contra o estado atual. A RDL não executa depois uma ação decidida antes.
 - **Validade:** medida no relógio monotônico da RDL, desde a chegada. A idade não usa o relógio de quem enviou.
 - **Métricas:** `rdl_proposals_rejected_total{reason}`, `rdl_proposals_deferred_total`, `rdl_critical_path_decisions_total`, `rdl_critical_downgraded_total`.
+- **`SLA_PROTECTION` não é derrota na arbitragem:** o rApp-ResourceOptimizer sobe o peso de energia quando o EnergySaver perde ≥ 70 % das propostas como `LOST_ARBITRATION` à noite ([doc 12 §4](12_greenran_xapps_rapp_e_testbed.md)); as recusas `SLA_PROTECTION` ficam fora dessa conta, no numerador e no total.
+
+**Escopo da proposta** (desde 2026-11-13; [doc 18 §4.1](18_calibracao_de_pesos.md)). A mesma `PRB_QUOTA = v` é a máscara de RBG da célula inteira no ns-3 nativo e o teto da fatia eMBB no NORI. Três campos opcionais dizem qual:
+
+| Campo | Valores | Regra |
+| :-- | :-- | :-- |
+| `scope` | `cell` ou `slice` | `cell` vale para qualquer parâmetro; `slice` só para `PRB_QUOTA` |
+| `slice_sst` | inteiro em [0, 255] | fatia (SST) cujo campo recebe o valor; só com `scope = slice` |
+| `ratio_kind` | `max`, `min` ou `dedicated` | campo do RRM Policy Ratio que o valor ocupa (`max_prb_ratio`, `min_prb_ratio` ou `dedicated_prb_ratio`); só com `scope = slice` |
+
+```json
+{"xapp_id": "xslice", "node_id": "gnb_01", "parameter": "PRB_QUOTA", "value": 25, "priority": 90,
+ "scope": "slice", "slice_sst": 1, "ratio_kind": "max"}
+```
+
+- **Validação:** no `XAppAction` (`validate_scope_fields`, `src/conflict_types.py`), usada também pelo RMR 30000. Tipo ou combinação inválida (por exemplo, `scope = cell` com `slice_sst`, ou `scope = slice` em `TX_POWER`) descarta a proposta, como os demais erros de esquema.
+- **Padrão do backend:** o que a xApp não declara vem do perfil do backend em `RDL_BACKEND_PROFILE` (o mesmo da kpm-probe), chave `proposal_scope`; o declarado prevalece. O padrão é declarado, nunca inferido do `RAN_BACKEND` (o executor nativo do ns-3 instancia a RDL com `NORI_NS3`).
+
+  | Perfil | Padrão | Onde |
+  | :-- | :-- | :-- |
+  | `NS3_NATIVE` | `scope = cell` | embutido em `src/e2/backends/testbed_profiles.py`; o executor em malha aberta (`run_conflict_experiment.py`, B3) o aplica |
+  | `NORI_NS3` | `scope = slice`, SST 1, `max`; complemento no SST 2 | `configs/testbed_ufpa/backends/nori_ns3.yaml`; as propostas de referência de `hrdl_slice_loop.py` o declaram |
+  | `SRSRAN_PROJECT`, `OAI_FLEXRIC` | `A_CONFIRMAR` (TB0): sem padrão | perfis do testbed |
+
+  Sem perfil declarado, os campos ficam vazios e a decisão é a de antes.
+- **Codec:** `quotas_for_proposal(valor, slice_sst, ratio_kind, complement_sst)` em `src/e2/v3/codec.py` monta as `SlicePrbQuota`. `max` dá o teto à fatia e, com complemento, `100 − valor` à outra (é o `quotas_for` do NORI); `min` dá o piso com teto 100; `dedicated` dá reserva e piso iguais ao valor, com teto 100.
+- **Guarda de SLA** ([doc 18 §4.4](18_calibracao_de_pesos.md)): com `RDL_EFFECT_MODEL=curve`, num conflito direto entre propostas `PRB_QUOTA` com `scope = slice` e `ratio_kind = max`, a RDL prevê a vazão de cada fatia pela curva teto → vazão do NORI (`experiments/calibration/slice_cap_curve_v5.json`, sha256 conferido na carga). A candidata que leva uma fatia com SLA (`RDL_SLA_SLICES`, padrão `2`, a URLLC; `"2:120"` fixa o requisito em Mb/s) abaixo do requisito sai antes do TVS se outra candidata não leva, e é recusada com `SLA_PROTECTION`. Se todas levam, ficam só as de maior s_SLA. É restrição, não peso. Se alguma candidata está fora do modelo (sem escopo, `cell`, outro `ratio_kind`), a guarda não age.
+- **Padrão: desligado** (`RDL_EFFECT_MODEL=heuristic`). A curva só vale na condição calibrada (NORI, 100 MHz, 300 Mb/s); ligar o modelo é declarar essa condição. Desligado, nenhuma decisão muda: os cronogramas em malha aberta de S0–S15, G1 e G2 com B3 e B3M são idênticos aos de antes dos campos novos. O modelo usado vai no log de decisão do NORI (`effect_model`: `heuristic` ou `curve:<sha256>`, e `sla_excluded`).
 
 ## 4. Pipeline de decisão
 
@@ -140,7 +169,7 @@ Para cada conflito direto, `Reasoning._resolve_direct_conflict` escolhe **um** v
 
 $$U_{TVS}(a) = 0{,}40\,s_{SLA} + 0{,}25\,s_{vazão} + 0{,}15\,s_{energia} + 0{,}10\,s_{estab} + 0{,}10\,s_{prio}$$
 
-com desempate determinístico por (utilidade, prioridade, menor |valor|, `action_id`). As componentes são heurísticas calibradas à mão, não modelos analíticos completos:
+com desempate determinístico por (utilidade, prioridade, menor |valor|, `action_id`). Com o modelo de efeito ligado, a guarda de SLA (seção 3.2) tira as candidatas inelegíveis antes desse máximo. As componentes são heurísticas calibradas à mão, não modelos analíticos completos (os escores por fatia do doc 18 §4.3 ainda não as substituem; ver doc 18 §4.7):
 
 | Componente | Regra no código |
 | :-- | :-- |

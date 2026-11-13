@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Dict, List, Optional
 import uuid
 import time
 
@@ -24,6 +24,36 @@ class ResolutionStrategy(Enum):
     TVS = "TVS"
     EEVS = "EEVS"
     MARL_AGENT = "MARL_AGENT"
+
+
+# Escopo do efeito de uma proposta (doc 18 §4.1). ``None`` = não declarado: vale o padrão do backend,
+# e sem padrão a RDL usa os escores heurísticos de sempre.
+SCOPES = ("cell", "slice")
+# Os três campos do RRM Policy Ratio (``SlicePrbQuota`` em src/e2/v3/codec.py) que o valor ocupa.
+RATIO_KINDS = ("max", "min", "dedicated")
+SLICE_SCOPED_PARAMETERS = ("PRB_QUOTA",)
+
+
+def validate_scope_fields(parameter: str, scope: Optional[str], slice_sst: Optional[int],
+                          ratio_kind: Optional[str]) -> None:
+    """Valida ``scope``, ``slice_sst`` e ``ratio_kind`` de uma proposta (ValueError se inválidos).
+
+    - ``scope``: ``cell`` (qualquer parâmetro) ou ``slice`` (só ``PRB_QUOTA``);
+    - ``slice_sst``: inteiro em [0, 255], só com ``scope = slice`` ou sem ``scope`` em ``PRB_QUOTA``;
+    - ``ratio_kind``: ``max``, ``min`` ou ``dedicated``, com as mesmas condições do ``slice_sst``.
+    """
+    if scope is not None and scope not in SCOPES:
+        raise ValueError(f"scope must be one of {list(SCOPES)}")
+    if slice_sst is not None and (isinstance(slice_sst, bool) or not isinstance(slice_sst, int)
+                                  or not 0 <= slice_sst <= 255):
+        raise ValueError("slice_sst must be an integer in [0, 255]")
+    if ratio_kind is not None and ratio_kind not in RATIO_KINDS:
+        raise ValueError(f"ratio_kind must be one of {list(RATIO_KINDS)}")
+    slice_fields = slice_sst is not None or ratio_kind is not None
+    if scope == "cell" and slice_fields:
+        raise ValueError("slice_sst and ratio_kind require scope 'slice'")
+    if (scope == "slice" or slice_fields) and parameter not in SLICE_SCOPED_PARAMETERS:
+        raise ValueError(f"slice scope applies only to {list(SLICE_SCOPED_PARAMETERS)}")
 
 @dataclass
 class XAppAction:
@@ -50,8 +80,14 @@ class XAppAction:
     # Governança: prioridade pedida antes do teto do registro/A1 e origem interceptada (nível 2)
     requested_priority: Optional[int] = None
     intercepted: bool = False
+    # Escopo do efeito (doc 18 §4.1): ``cell`` ou ``slice``; com ``slice``, a fatia (SST) e o campo do
+    # RRM Policy Ratio que o valor ocupa. Opcionais; o padrão vem do perfil do backend (``scope_defaults``).
+    scope: Optional[str] = None
+    slice_sst: Optional[int] = None
+    ratio_kind: Optional[str] = None
 
     def __post_init__(self):
+        validate_scope_fields(self.parameter, self.scope, self.slice_sst, self.ratio_kind)
         if self.t_arrival == 0.0:
             now = time.perf_counter()
             self.t_arrival = now
@@ -105,6 +141,11 @@ class ResolutionAction:
     confidence: float
     validation_level: int
     resolved_at: float = field(default_factory=time.time)
+    # Guarda de SLA (doc 18 §4.4): action_id -> detalhe das candidatas declaradas inelegíveis
+    # (recusa ``SLA_PROTECTION``, não ``LOST_ARBITRATION``).
+    sla_excluded: Dict[str, str] = field(default_factory=dict)
+    # Modelo de efeito usado (doc 18 §4.5): "heuristic" ou "curve:<sha256>".
+    effect_model: str = "heuristic"
 
 @dataclass
 class KPMReport:
