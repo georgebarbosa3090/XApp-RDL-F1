@@ -18,7 +18,7 @@ Os cenários S9–S15 e os GreenRAN G1 e G2 foram reconstruídos sobre o rádio 
   | S12 | 9,406 | 18,254 | +94,1 % | **fica na campanha** |
   | S14 | 49,152 | 49,152 | 0,0 % | **sai da campanha** (o teto não restringe) |
 
-  A campanha roda com S9, S10, S11, S12, S13, S15, G1 e G2. O início também atrasou cerca de uma hora em relação às 9h previstas: a tarefa agendada apontava para a pasta antiga do repositório, removida depois da mudança para `C:\Users\georg\RDL`. Nada do que este pré-registro fixa foi alterado.
+  A campanha roda com S9, S10, S11, S12, S13, S15, G1 e G2. O início também atrasou cerca de uma hora em relação às 9h previstas: a tarefa agendada apontava para a pasta antiga do repositório, removida depois que o repositório mudou de pasta. Nada do que este pré-registro fixa foi alterado.
 
 - **Interrupção (registrada em 2026-11-12 às 18h50, durante a campanha):** às 17h25, a atualização automática do app que hospedava o terminal fechou o processo da campanha. Às 17h26, o WSL desligou. Até então havia 58 de 160 execuções concluídas, todas com `SUCCESS`. Duas execuções do G1 com a semente 11002, `nr_G1_B2_seed11002` e `nr_G1_B3_seed11002`, ficaram incompletas. Às 18h48, a campanha foi retomada com o mesmo comando, como manda a seção 5. O executor removeu as duas execuções incompletas e as refez desde o início. O código, o commit e a configuração não mudaram.
 
