@@ -122,6 +122,62 @@ def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str) -
 CLOSED_LOOP_CFG = ROOT / "simulations" / "ns3" / "conflicts" / "closed_loop.json"
 
 
+class RAppStep:
+    """
+    rApp-ResourceOptimizer na malha fechada (Non-RT, A1): a cada ``period_s`` simulados planeja as três
+    políticas (``rapps/greenran_resource_optimizer.plan``) com a intenção do cenário e o KPI da fatia de
+    câmeras (SST 1) medido no KPM, e as entrega como chegariam pelo A1:
+      - 20001 (RDL): ao gerenciador A1 da xApp RDL (B3*), que reaplica pesos e regras;
+      - 21000 / 21001: às xApps RANSlicer-GreenRAN e EnergySaver-GreenRAN (mensagem 20010).
+    """
+
+    INSTANCES = {"20001": "greenran-rdl", "21000": "greenran-ranslicer", "21001": "greenran-energysaver"}
+
+    def __init__(self, drivers: List[XAppDriver], baseline: "WindowBaseline", intent: Dict[str, Any], hour: int,
+                 ue_sst: Dict[int, int], period_s: float = 10.0):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("greenran_resource_optimizer",
+                                                      ROOT / "rapps" / "greenran_resource_optimizer.py")
+        self.rapp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.rapp)
+        self.apps = {getattr(d, "app", None).XAPP_ID: d.app for d in drivers if getattr(d, "app", None) is not None}
+        self.baseline, self.intent, self.hour, self.ue_sst, self.period_s = baseline, intent, hour, ue_sst, period_s
+        self.next_t = 0.0
+
+    def _kpi(self, kpm: Dict[str, Any]) -> Dict[str, Any]:
+        thp, delays = 0.0, []
+        for u in kpm.get("ues", []):
+            if u.get("connected") and self.ue_sst.get(int(u["ue"]), 1) == 1:
+                thp += float(u.get("thp_mbps") or 0.0)
+                if isinstance(u.get("delay_ms"), (int, float)):
+                    delays.append(float(u["delay_ms"]))
+        return {"camera_thp_mbps": thp, "camera_delay_ms": max(delays) if delays else None}
+
+    def step(self, kpm: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        t = float(kpm["t"])
+        if t + 1e-9 < self.next_t:
+            return None
+        self.next_t = t + self.period_s
+        kpi = self._kpi(kpm)
+        out = self.rapp.plan(self.intent, self.hour, kpi={"thp_mbps": kpi["camera_thp_mbps"],
+                                                           "delay_ms": kpi["camera_delay_ms"]})
+        delivered = []
+        stream = getattr(self.baseline, "stream", None)
+        for type_id, body in out["policies"].items():
+            if type_id == "20001":
+                if stream is not None:
+                    stream.app.a1_policies.put_policy("20001", self.INSTANCES[type_id], body)
+                    delivered.append("20001->RDL")
+                continue
+            target = {"21000": "ranslicer_greenran", "21001": "energysaver_greenran"}[type_id]
+            app = self.apps.get(target)
+            if app is not None:
+                app.handle_a1(json.dumps({"operation": "CREATE", "policy_type_id": int(type_id),
+                                          "policy_instance_id": self.INSTANCES[type_id], "payload": body}).encode())
+                delivered.append(f"{type_id}->{target}")
+        return {"t": t, "kpi": kpi, "policies": out["policies"], "reasons": out["reasons"], "delivered": delivered}
+
+
 def ue_sst_map(spec: Dict[str, Any], groups_sst: List[int]) -> Dict[int, int]:
     """Índice do UE -> SST, pelos tamanhos dos grupos em --ueGroups (na ordem)."""
     arg = next((a for a in spec.get("args", []) if a.startswith("--ueGroups=")), "")
@@ -208,6 +264,12 @@ def run(args) -> int:
 
     baseline = WindowBaseline(args.baseline)
     drivers = build_drivers(args.xapps, spec, window, run_id)
+    rapp = None
+    if args.xapps == "completo":
+        cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
+        sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(args.scenario, {})}
+        rapp = RAppStep(drivers, baseline, sc_cfg.get("intent", {}), int(sc_cfg.get("hour", 2)),
+                        ue_sst_map(spec, sc_cfg.get("ue_sst_groups", [])))
     log_fh = None
     n_windows = n_props = n_actions = 0
     try:
@@ -235,6 +297,7 @@ def run(args) -> int:
             if msg is None or msg.get("type") == "end":
                 break
             t = float(msg["t"])
+            a1_event = rapp.step(msg) if rapp is not None else None
             proposals: List[Dict[str, Any]] = []
             notes: List[Dict[str, Any]] = []
             for d in drivers:
@@ -248,7 +311,7 @@ def run(args) -> int:
             chosen = {a["id"] for a in actions}
             for d in drivers:
                 d.on_decision(chosen)
-            log_fh.write(json.dumps({"type": "window", "t": t, "kpm": msg, "proposals": proposals,
+            log_fh.write(json.dumps({"type": "window", "t": t, "kpm": msg, "a1": a1_event, "proposals": proposals,
                                      "xapp_controls": notes, "decision": entry, "actions": actions},
                                     ensure_ascii=False) + "\n")
             log_fh.flush()

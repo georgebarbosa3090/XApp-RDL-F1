@@ -60,3 +60,22 @@ def test_ue_sst_map_from_groups():
     spec = CAT["scenarios"]["G1"]
     m = orc.ue_sst_map(spec, [1, 2])
     assert m[0] == 1 and m[5] == 1 and m[6] == 2 and len(m) == 36
+
+
+def test_rapp_delivers_a1_policies_to_rdl_and_greenran_xapps(monkeypatch, tmp_path):
+    spec = dict(CAT["scenarios"]["G1"], _id="G1")
+    topo = tmp_path / "topo.json"
+    topo.write_text(json.dumps(spec["topology"]), encoding="utf-8")
+    monkeypatch.setenv("RDL_TOPOLOGY_FILE", str(topo))
+    drivers = orc.build_full_drivers(spec)
+    baseline = orc.WindowBaseline("B3")
+    try:
+        rapp = orc.RAppStep(drivers, baseline, {}, 2, orc.ue_sst_map(spec, [1, 2]))
+        ev = rapp.step(_kpm(0.2, spec, cells=2))
+        assert sorted(ev["delivered"]) == ["20001->RDL", "21000->ranslicer_greenran", "21001->energysaver_greenran"]
+        assert rapp.step(_kpm(0.4, spec, cells=2)) is None            # próximo passo só depois de 10 s
+        saver = next(d.app for d in drivers if getattr(d, "app", None) and d.app.XAPP_ID == "energysaver_greenran")
+        assert saver.policy()["es_sleep_start_hour"] == 22               # política 21001 aplicada
+        assert "energy_weight" in str(ev["policies"]["20001"])
+    finally:
+        baseline.close()
