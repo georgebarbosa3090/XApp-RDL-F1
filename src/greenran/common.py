@@ -76,10 +76,14 @@ class CellSample:
         return any(len(u.rsrp_dbm) > 1 for u in self.ues)
 
 
-def samples_from_closed_loop(kpm: Dict[str, Any]) -> Dict[str, CellSample]:
+def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int]] = None) -> Dict[str, CellSample]:
     """
     Amostras por célula a partir do KPM da malha fechada (ns-3, ``rdl-nr-common.h``; docs/16 §3.1).
     As células são nomeadas ``gnb_<índice>``, como nos ``node_id`` das propostas.
+
+    ``ue_sst`` (índice do UE -> SST) separa os UEs em fatias. O ns-3 não mede PRB por UE: a parcela de PRB
+    de cada fatia (``SliceKpi.prb_used``) é aproximada pela vazão da fatia, ou seja, supõe a mesma
+    eficiência espectral entre as fatias da célula (docs/16).
     """
     t = float(kpm["t"])
     gnb_of_cell = {int(c["cell_id"]): int(c["gnb"]) for c in kpm.get("cells", [])}
@@ -94,8 +98,16 @@ def samples_from_closed_loop(kpm: Dict[str, Any]) -> Dict[str, CellSample]:
             continue
         rsrp = {f"gnb_{gnb_of_cell[int(c)]}": float(v) for c, v in (u.get("rsrp_dbm") or {}).items()
                 if int(c) in gnb_of_cell and v is not None}
-        out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp,
-                                         float(u.get("thp_mbps") or 0.0)))
+        thp = float(u.get("thp_mbps") or 0.0)
+        out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp, thp))
+        if ue_sst is not None:
+            s = out[f"gnb_{g}"].slices.setdefault(int(ue_sst.get(int(u["ue"]), 1)), SliceKpi())
+            s.ues += 1
+            s.thp_mbps += thp
+            s.prb_used += thp                                  # parcela de PRB proporcional à vazão
+            d = u.get("delay_ms")
+            if isinstance(d, (int, float)):
+                s.delay_ms = max(s.delay_ms or 0.0, float(d))
     return out
 
 

@@ -1,0 +1,29 @@
+{
+  "_doc": "Configuração dos cenários em malha fechada (docs/16). Complementa o catalog.json sem alterá-lo: o catálogo continua fixando topologia, tráfego e papéis das xApps; aqui ficam as xApps que fazem cada papel na malha fechada, a fatia (SST) de cada grupo de UEs (--ueGroups, na ordem) e a hora do dia vista pelas xApps de energia. Papel de energia: EnergySaver-GreenRAN em todos os cenários (decisão de 2026-11-13; o ES Orange original tem o defeito do contador). xSlice e Traffic Steering usam as derivadas até a integração dos originais (xSlice: GNNRL e estatísticas de MAC; TS: etapa E3), e as execuções registram xapp_impl.",
+  "roles": {
+    "xslice": {"module": "src.xapps.derivadas", "class": "XSliceDerivada", "xapp_impl": "derivado"},
+    "traffic_steering": {"module": "src.xapps.derivadas", "class": "TrafficSteeringDerivada", "xapp_impl": "derivado"},
+    "energy_saving": {"module": "src.greenran.energysaver_greenran", "class": "EnergySaver", "xapp_impl": "propria"},
+    "energy_saving_ru0": {"same_as": "energy_saving"},
+    "energy_saving_ru1": {"same_as": "energy_saving"},
+    "ranslicer": {"module": "src.greenran.ranslicer_greenran", "class": "RanSlicer", "xapp_impl": "propria"},
+    "load_balancer": {"module": "src.xapps.proprias", "class": "LoadBalancer", "xapp_impl": "propria"},
+    "beamformer": {"module": "src.xapps.proprias", "class": "Beamformer", "xapp_impl": "propria"},
+    "isac_radar": {"module": "src.xapps.proprias", "class": "IsacRadar", "xapp_impl": "propria"},
+    "embb_throughput": {"module": "src.xapps.proprias", "class": "EmbbThroughput", "xapp_impl": "propria"},
+    "rogue_xapp": {"module": "src.xapps.derivadas", "class": "RogueDerivada", "xapp_impl": "propria"},
+    "fault_injector": {"replay_catalog": true}
+  },
+  "defaults": {"hour": 2},
+  "scenarios": {
+    "S9": {"ue_sst_groups": [1, 1]},
+    "S10": {"ue_sst_groups": [1, 1]},
+    "S11": {"ue_sst_groups": [1, 1]},
+    "S12": {"ue_sst_groups": [1, 2]},
+    "S13": {"ue_sst_groups": [1, 1, 1]},
+    "S14": {"ue_sst_groups": [1]},
+    "S15": {"ue_sst_groups": [1, 1]},
+    "G1": {"ue_sst_groups": [1, 2]},
+    "G2": {"ue_sst_groups": [1, 1]}
+  }
+}

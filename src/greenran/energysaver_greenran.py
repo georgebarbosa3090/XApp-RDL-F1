@@ -64,6 +64,8 @@ class EnergySaver(GreenRanXApp):
         "es_tx_power_hysteresis_pct": 5.0,
         "es_nominal_tx_power_dbm": None,
         "es_utc_offset_h": -3,
+        # observação mínima da célula antes de agir (no início, a carga ainda não reflete o tráfego)
+        "es_min_observation_s": 5.0,
     }
 
     def __init__(self, *args, neighbors: Optional[Dict[str, List[str]]] = None, hour_of=None, **kwargs):
@@ -77,6 +79,7 @@ class EnergySaver(GreenRanXApp):
         self.tx_reduced: Dict[str, bool] = {}
         self.decisions: List[Dict[str, Any]] = []  # motivos (auditoria e testes)
         self._now: Optional[float] = None           # último instante de decisão (simulado na malha fechada)
+        self.first_seen: Dict[str, float] = {}      # primeira observação de cada célula
         self.hour_of = hour_of or self._hour_utc_offset
 
     # ------------------------------------------------------------------ tempo
@@ -98,6 +101,7 @@ class EnergySaver(GreenRanXApp):
     def observe(self, sample: CellSample) -> None:
         super().observe(sample)
         self.state.setdefault(sample.cell_id, ACTIVE)
+        self.first_seen.setdefault(sample.cell_id, sample.t)
         if sample.load_pct is not None and self.state[sample.cell_id] == ACTIVE:
             self.profile.update(sample.cell_id, self.hour_of(sample.t), sample.load_pct)
 
@@ -186,7 +190,8 @@ class EnergySaver(GreenRanXApp):
         if in_window and len(active) > int(pol["es_min_active_cells"]):
             for cell in sorted(active, key=self._load):
                 if self.state.get(cell) != ACTIVE or not self._dwell_ok(cell, now, pol) \
-                        or now < self.retry_after.get(cell, float("-inf")):
+                        or now < self.retry_after.get(cell, float("-inf")) \
+                        or now - self.first_seen.get(cell, now) < float(pol["es_min_observation_s"]):
                     continue
                 load = self._load(cell)
                 expected = self.profile.expected(cell, nxt, default=load) or 0.0
@@ -212,7 +217,8 @@ class EnergySaver(GreenRanXApp):
             hyst = float(pol["es_tx_power_hysteresis_pct"])
             nominal = pol.get("es_nominal_tx_power_dbm")
             for cell in active:
-                if self.state.get(cell) != ACTIVE:
+                if self.state.get(cell) != ACTIVE \
+                        or now - self.first_seen.get(cell, now) < float(pol["es_min_observation_s"]):
                     continue
                 load = self._load(cell)
                 if not self.tx_reduced.get(cell) and sleep_thr <= load < 2 * sleep_thr:

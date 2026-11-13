@@ -14,6 +14,9 @@ from src.conflict_types import XAppAction  # noqa: E402
 from src.greenran.common import CellSample, SeasonalProfile, SliceKpi, normalize_kpm  # noqa: E402
 from src.greenran.ranslicer_greenran import RanSlicer  # noqa: E402
 from src.greenran.energysaver_greenran import ACTIVE, EVACUATING, SLEEP, EnergySaver  # noqa: E402
+
+# as regras testadas aqui são as de decisão; a observação mínima tem teste próprio (test_energysaver_greenran_melhorias)
+EnergySaver.DEFAULTS = {**EnergySaver.DEFAULTS, "es_min_observation_s": 0.0}
 from src.interfaces.a1_policy_receiver import A1PolicyManager  # noqa: E402
 
 

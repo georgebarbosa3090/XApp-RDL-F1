@@ -74,7 +74,9 @@ class Refinement:
     def remaining_lockout_ms(self, action: XAppAction, now_ms: Optional[float] = None) -> float:
         """Quanto falta para o alvo aceitar novo controle desta ação (0 = já aceita)."""
         now_ms = self.clock() * 1000 if now_ms is None else now_ms
-        last_time = self.last_control_time.get(f"{action.node_id}_{action.parameter}", 0)
+        last_time = self.last_control_time.get(f"{action.node_id}_{action.parameter}")
+        if last_time is None:                       # alvo nunca controlado: não há bloqueio
+            return 0.0
         return max(0.0, self.min_interval_ms(action) - (now_ms - last_time))
 
     def _get_max_tx_power(self, node_id: str) -> Optional[float]:
@@ -209,8 +211,10 @@ class Refinement:
         target_key = f"{action.node_id}_{action.parameter}"
 
         # 1. Validade temporal (histerese / frequência máxima de controle para o mesmo alvo)
-        last_time = self.last_control_time.get(target_key, 0)
-        if (now - last_time) < self.min_interval_ms(action):
+        # Alvo nunca controlado não tem bloqueio (antes, o padrão 0 recusava controles no primeiro intervalo
+        # quando o relógio começa em zero, como o relógio simulado da malha fechada).
+        last_time = self.last_control_time.get(target_key)
+        if last_time is not None and (now - last_time) < self.min_interval_ms(action):
             return False, 1, f"Control frequency exceeded for {target_key}"
 
         # 2. Barreiras físicas de limites de rádio (Default-Deny)
@@ -246,8 +250,8 @@ class Refinement:
             target_key = f"{action.node_id}_{action.parameter}"
 
             # 1. Validade temporal (frequência máxima de controle no mesmo parâmetro/nó)
-            last_time = self.last_control_time.get(target_key, 0)
-            if (now - last_time) < self.min_interval_ms(action):
+            last_time = self.last_control_time.get(target_key)
+            if last_time is not None and (now - last_time) < self.min_interval_ms(action):
                 return False, 1, f"Control frequency exceeded for {target_key}"
 
             # 2. Valores negativos ou fora de escopo para parâmetros conhecidos (Default-Deny)

@@ -37,7 +37,7 @@ class _Transport:
 
 def saver(**pol):
     x = EnergySaver(transport=_Transport(), neighbors=NEIGH, hour_of=lambda t: 2)
-    x.DEFAULTS = {**EnergySaver.DEFAULTS, **pol}
+    x.DEFAULTS = {**EnergySaver.DEFAULTS, "es_min_observation_s": 0.0, **pol}
     return x
 
 
@@ -143,3 +143,13 @@ def test_samples_from_closed_loop_kpm():
     assert s["gnb_1"].load_pct == 50.0 and s["gnb_0"].load_pct == 2.0
     assert s["gnb_1"].total_ues == 1 and s["gnb_0"].total_ues == 0
     assert s["gnb_1"].ues[0].rsrp_dbm == {"gnb_0": -112.07, "gnb_1": -109.77} and s["gnb_1"].has_ue_signal
+
+
+def test_min_observation_before_acting():
+    x = EnergySaver(transport=_Transport(), neighbors=NEIGH, hour_of=lambda t: 2)
+    x.DEFAULTS = {**EnergySaver.DEFAULTS, "es_min_observation_s": 5.0, "es_min_dwell_s": 0.0}
+    x.observe(cell("gnb_0", 30, t=0.0))
+    x.observe(cell("gnb_2", 25, t=0.0))
+    x.observe(cell("gnb_1", 0, ues=2, t=0.0))
+    assert x.step(now=0.2) == []                       # carga zero logo no início: ainda observando
+    assert [p["parameter"] for p in x.step(now=6.0)] == ["HANDOVER"]

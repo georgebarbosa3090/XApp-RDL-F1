@@ -114,12 +114,69 @@ def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str) -
         work = os.path.join(tempfile.gettempdir(), f"rdl_xapp_es_{run_id}")
         return [FlexricXAppDriver("es-orange", "energy_saving", os.path.join(SHIM_BUILD, "xapp_es_with_cell_util_rdl"),
                                   "es", priority=60, workdir=work)]
-    raise SystemExit(f"--xapps {kind}: ainda não implementado (docs/16, etapas E3–E4)")
+    if kind == "completo":
+        return build_full_drivers(spec)
+    raise SystemExit(f"--xapps {kind}: desconhecido (replay | es-orange | completo)")
+
+
+CLOSED_LOOP_CFG = ROOT / "simulations" / "ns3" / "conflicts" / "closed_loop.json"
+
+
+def ue_sst_map(spec: Dict[str, Any], groups_sst: List[int]) -> Dict[int, int]:
+    """Índice do UE -> SST, pelos tamanhos dos grupos em --ueGroups (na ordem)."""
+    arg = next((a for a in spec.get("args", []) if a.startswith("--ueGroups=")), "")
+    sizes = [int(g.split(",")[0]) for g in arg.split("=", 1)[1].split(";")] if arg else []
+    out, u = {}, 0
+    for k, n in enumerate(sizes):
+        for _ in range(n):
+            out[u] = int(groups_sst[k]) if k < len(groups_sst) else 1
+            u += 1
+    return out
+
+
+def build_full_drivers(spec: Dict[str, Any]) -> List[XAppDriver]:
+    """Todas as xApps do cenário em malha fechada, pelo papel no catálogo e pelo closed_loop.json."""
+    import importlib
+    from scripts.closed_loop.drivers import PythonXAppDriver
+    from src.greenran.common import load_neighbors
+
+    cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
+    sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(spec.get("_id", ""), {})}
+    ue_sst = ue_sst_map(spec, sc_cfg.get("ue_sst_groups", []))
+    hour = int(sc_cfg.get("hour", 2))
+    roles = sorted({p["xapp_id"] for p in spec["proposals"]})
+    drivers: List[XAppDriver] = []
+    made = set()
+    for role in roles:
+        rc = cfg["roles"].get(role)
+        if rc is None:
+            raise SystemExit(f"papel {role} sem xApp no closed_loop.json")
+        if rc.get("same_as"):
+            role, rc = rc["same_as"], cfg["roles"][rc["same_as"]]
+        if role in made:
+            continue
+        made.add(role)
+        if rc.get("replay_catalog"):
+            events = [e for e in rce.expand_proposals(spec) if e["xapp_id"] == role]
+            drv = ReplayDriver(events, float(rce.load_catalog().get("decision_window_s", 0.2)))
+            drv.name = f"replay:{role}"
+            drivers.append(drv)
+            continue
+        cls = getattr(importlib.import_module(rc["module"]), rc["class"])
+        from scripts.closed_loop.drivers import _NullTransport
+        kwargs: Dict[str, Any] = {"transport": _NullTransport()}
+        if rc["class"] in ("EnergySaver", "LoadBalancer"):
+            kwargs["neighbors"] = load_neighbors()
+        if rc["class"] == "EnergySaver":
+            kwargs["hour_of"] = lambda t, h=hour: h
+        app = cls(**kwargs)
+        drivers.append(PythonXAppDriver(f"{rc['xapp_impl']}:{app.XAPP_ID}", app, ue_sst, rc["xapp_impl"]))
+    return drivers
 
 
 def run(args) -> int:
     catalog = rce.load_catalog()
-    spec = catalog["scenarios"][args.scenario]
+    spec = dict(catalog["scenarios"][args.scenario], _id=args.scenario)
     window = float(catalog.get("decision_window_s", 0.2))
     run_id = args.run_id or f"cl_{args.scenario}_{args.baseline}_{args.xapps}_seed{args.seed}"
     run_dir = RUNS / run_id
@@ -188,6 +245,9 @@ def run(args) -> int:
                     dlog.clear()
             proposals.sort(key=lambda e: (e["t"], e["id"]))
             actions, entry = baseline.decide(proposals, t)
+            chosen = {a["id"] for a in actions}
+            for d in drivers:
+                d.on_decision(chosen)
             log_fh.write(json.dumps({"type": "window", "t": t, "kpm": msg, "proposals": proposals,
                                      "xapp_controls": notes, "decision": entry, "actions": actions},
                                     ensure_ascii=False) + "\n")
