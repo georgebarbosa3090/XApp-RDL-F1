@@ -21,6 +21,13 @@
  *   --txPowerDbm=43                       potência inicial de todos os gNBs
  *   --centralFreq, --bandwidth, --packetSize, --simTime, --seed, --run, --disableSrs
  *   --actionSchedule, --kpiPeriod         atuação e KPIs (rdl-nr-common.h)
+ *   --powerAllocation=used|bw             alocação de potência do 5G-LENA (docs/17 §2.3). Padrão
+ *                                        "used" (UniformPowerAllocUsed, como nas campanhas
+ *                                        anteriores); "bw" = UniformPowerAllocBw (PSD constante)
+ *
+ * Saídas: rdl_kpi_timeseries.csv (vazão e atraso por célula com pacotes na janela),
+ * rdl_cell_state.csv (ocupação, potência e estado de todas as células por janela, docs/17 §3.2)
+ * e rdl_actuation_log.csv.
  *
  * Toda a pilha de rádio é NR (NrHelper), com EPC, attach ao gNB mais próximo, X2 entre gNBs
  * e handover; as ações do baseline (PRB_QUOTA, TX_POWER, HANDOVER, CELL_STATE) são aplicadas
@@ -102,6 +109,7 @@ main(int argc, char* argv[])
     std::string actionSchedule = "";
     double kpiPeriod = 0.1;
     bool disableSrs = true;
+    std::string powerAllocation = "used";
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("gnbs", "Posicoes dos gNBs: x,y,z;x,y,z", gnbs);
@@ -117,6 +125,8 @@ main(int argc, char* argv[])
     cmd.AddValue("actionSchedule", "CSV de acoes aplicadas na RAN (baseline)", actionSchedule);
     cmd.AddValue("kpiPeriod", "Periodo da serie de KPIs (s)", kpiPeriod);
     cmd.AddValue("disableSrs", "Desativar SRS (contorno do 5G-LENA v5.1 em handover)", disableSrs);
+    cmd.AddValue("powerAllocation", "Alocacao de potencia: used (padrao do 5G-LENA) ou bw (PSD constante)",
+                 powerAllocation);
     cmd.Parse(argc, argv);
 
     if (disableSrs)
@@ -212,6 +222,7 @@ main(int argc, char* argv[])
               << ", " << txPowerDbm << " dBm" << std::endl;
 
 #if HAS_NR_MODULE
+    RdlSetPowerAllocation(powerAllocation); // antes de instalar os dispositivos
     RdlNrNetwork net = RdlBuildNrNetwork(gnbNodes, ueNodes, centralFreq, bandwidth, channel);
     for (uint32_t g = 0; g < net.gnbDevs.GetN(); ++g)
     {
@@ -228,6 +239,7 @@ main(int argc, char* argv[])
     RdlActuation actuation(net.nrHelper, net.gnbDevs, net.ueDevs);
     actuation.Load(actionSchedule);
     RdlKpiSampler kpi(net.ueDevs, kpiPeriod, simTime);
+    RdlCellEnergySampler cellState(net.gnbDevs, net.ueDevs, kpiPeriod, simTime);
 #else
     NS_FATAL_ERROR("Este cenario requer o modulo 5G-LENA (nr).");
     ApplicationContainer serverApps;

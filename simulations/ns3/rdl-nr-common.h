@@ -23,6 +23,24 @@
  * Saídas em std::cout (NS_LOG é removido no perfil otimizado).
  * =========================================================================================
  */
+/**
+ * Energia e leitura dos arquivos (docs/17; docs/03 §2.5):
+ *   - RdlCellEnergySampler (seção "Energia (docs/17)", depois do RdlKpiSampler): contadores por
+ *     célula e janela de ocupação de REG e símbolos, potência de TX, sono emulado, bytes de TB DL
+ *     e UL e UEs conectados, em rdl_cell_state.csv, com uma linha por célula e janela para todas
+ *     as células. O modelo de potência é aplicado depois, em Python.
+ *   - C17.3: rdl_kpi_timeseries.csv (RdlKpiSampler::Flush) só tem linhas das células que
+ *     receberam pacotes na janela. Uma célula ociosa ou em sono emulado não aparece. Análises
+ *     por célula não podem supor todas as células presentes; para estado e ocupação de todas as
+ *     células, use rdl_cell_state.csv.
+ *   - C17.4: o modo de alocação de potência padrão do 5G-LENA, UniformPowerAllocUsed, divide a
+ *     potência total de TX pelos RBs usados. Um teto de PRB (PRB_QUOTA) não reduz a potência
+ *     irradiada e concentra a potência nos RBs restantes: +10·log10(1/teto) dB por RB, ou seja,
+ *     +5,2 dB com teto de 30 %. Isso atenua a perda de vazão do teto em relação a uma estação
+ *     com EPRE fixa. RdlSetPowerAllocation("bw") (opção --powerAllocation=bw do
+ *     scenario_rdl_multicell) troca para UniformPowerAllocBw; o padrão "used" reproduz as
+ *     campanhas anteriores.
+ */
 #ifndef RDL_NR_COMMON_H
 #define RDL_NR_COMMON_H
 
@@ -433,6 +451,8 @@ class RdlKpiSampler
         }
     }
 
+    // C17.3 (docs/17 §8): só escreve as células com pacotes na janela; uma célula ociosa ou em
+    // sono emulado não aparece. O estado de todas as células está em rdl_cell_state.csv.
     void Flush()
     {
         double now = Simulator::Now().GetSeconds();
@@ -467,6 +487,297 @@ class RdlKpiSampler
     double m_simTime;
     std::map<uint32_t, Ptr<NrUeNetDevice>> m_ueByNode;
     std::map<uint16_t, Acc> m_window;
+    std::ofstream m_out;
+};
+
+// ---- Energia (docs/17) ----------------------------------------------------------------
+// Contadores de ocupação de recursos, potência de TX e estado por célula. O C++ não calcula
+// watts: o modelo de potência (3GPP TR 38.864 e EARTH) é aplicado depois, em Python
+// (scripts/certification/energy_model.py).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Modo de alocação de potência do 5G-LENA (docs/17 §2.3, C17.4). Chamar antes de instalar os
+ * dispositivos (RdlBuildNrNetwork).
+ *   "used": não altera nada; vale o padrão do 5G-LENA, UniformPowerAllocUsed (a potência total
+ *           de TX se concentra nos RBs usados). Reproduz as campanhas anteriores.
+ *   "bw":   UniformPowerAllocBw (PSD constante sobre todos os RBs; potência irradiada
+ *           proporcional aos RBs usados, como numa estação com EPRE fixa).
+ */
+inline void
+RdlSetPowerAllocation(const std::string& mode)
+{
+    if (mode == "bw")
+    {
+        Config::SetDefault("ns3::NrGnbPhy::PowerAllocationType",
+                           EnumValue(NrSpectrumValueHelper::UNIFORM_POWER_ALLOCATION_BW));
+    }
+    else if (mode != "used")
+    {
+        NS_FATAL_ERROR("--powerAllocation inválido: '" << mode << "' (use used ou bw)");
+    }
+    std::cout << "[RDL-SCN] alocação de potência: "
+              << (mode == "bw" ? "UniformPowerAllocBw" : "UniformPowerAllocUsed (padrão do 5G-LENA)") << std::endl;
+}
+
+/** Contadores cumulativos e monotônicos de uma célula, desde t = 0 (docs/17 §3.2). */
+struct RdlCellCounters
+{
+    uint64_t slots{0};
+    uint64_t activeSlots{0};
+    uint64_t dataReg{0};
+    uint64_t ctrlReg{0};
+    uint64_t dataSym{0};
+    uint64_t ctrlSym{0};
+    uint64_t schedUe{0};
+    uint64_t sleepSlots{0};
+    uint64_t sleepDataReg{0};
+    uint64_t sleepSym{0}; // símbolos de dados e de controle transmitidos em sono emulado
+    uint64_t dlTbBytes{0};
+    uint64_t ulTbBytes{0};
+    double regPtxMw{0.0}; // Σ por slot de (REG de dados + REG de controle) × P_TX [mW]
+    double symPtxMw{0.0}; // Σ por slot de (símbolos de dados + de controle) × P_TX [mW]
+};
+
+/**
+ * Grava raw/rdl_cell_state.csv: uma linha por célula e janela, para todas as células, inclusive
+ * as ociosas e as em sono emulado (ao contrário de rdl_kpi_timeseries.csv). Cada janela é a
+ * diferença entre dois fechamentos dos contadores cumulativos.
+ *
+ * Fontes (5G-LENA v5.1): NrGnbPhy SlotDataStats e SlotCtrlStats (disparados em todo slot,
+ * inclusive nos vazios) e NrGnbMac DlScheduling e UlScheduling. Conexão direta em cada PHY e MAC
+ * (TraceConnectWithoutContext), sem caminho de Config e sem número aleatório: a instrumentação
+ * não altera a simulação (gate H13.0).
+ *
+ * Estado de sono emulado: por padrão, a célula está em sono quando a potência de TX do PHY está
+ * no nível de sono do RdlActuation (-30 dBm, CELL_STATE = 0). Quem tiver um getter de estado
+ * (RdlActuation::IsSleeping, docs/17 §3.3) pode passá-lo em isSleeping.
+ *
+ * Convivência com a malha fechada (docs/17 §7): ownTimer = false deixa o fechamento da janela a
+ * cargo de quem chamar CloseWindow() (o exportador do docs/16); Cumulative() e ConnectedUes()
+ * servem a leitura com outra cadência. Nunca há dois temporizadores.
+ *
+ * Limites: (1) usedReg do 5G-LENA soma DL e UL de dados (UL medido à parte em ul_tb_bytes,
+ * H13.5); (2) os contadores somam as BWPs da célula; todos os cenários usam uma BWP por célula.
+ */
+class RdlCellEnergySampler
+{
+  public:
+    static constexpr double kSleepTxPowerDbm = -30.0; // o mesmo nível do RdlActuation (CELL_STATE = 0)
+
+    RdlCellEnergySampler(NetDeviceContainer gnbDevs,
+                         NetDeviceContainer ueDevs,
+                         double periodS,
+                         double simTime,
+                         bool ownTimer = true,
+                         std::function<bool(uint32_t)> isSleeping = nullptr,
+                         const std::string& path = "rdl_cell_state.csv")
+        : m_gnbDevs(gnbDevs),
+          m_ueDevs(ueDevs),
+          m_period(periodS),
+          m_simTime(simTime),
+          m_isSleeping(std::move(isSleeping))
+    {
+        for (uint32_t g = 0; g < m_gnbDevs.GetN(); ++g)
+        {
+            Ptr<NrGnbNetDevice> dev = DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(g));
+            uint16_t cell = dev->GetCellId();
+            m_cells.push_back(cell);
+            m_gnbByCell[cell] = g;
+            m_cum[cell] = RdlCellCounters{};
+            m_lastClose[cell] = RdlCellCounters{};
+            ResetWindowPtx(cell, NrHelper::GetGnbPhy(dev, 0)->GetTxPower());
+            for (uint32_t b = 0; b < dev->GetCcMapSize(); ++b)
+            {
+                Ptr<NrGnbPhy> phy = NrHelper::GetGnbPhy(dev, b);
+                Ptr<NrGnbMac> mac = NrHelper::GetGnbMac(dev, b);
+                phy->TraceConnectWithoutContext("SlotDataStats",
+                                                MakeBoundCallback(&RdlCellEnergySampler::OnSlotData, this, g, b));
+                phy->TraceConnectWithoutContext("SlotCtrlStats",
+                                                MakeBoundCallback(&RdlCellEnergySampler::OnSlotCtrl, this, g, b));
+                mac->TraceConnectWithoutContext("DlScheduling",
+                                                MakeBoundCallback(&RdlCellEnergySampler::OnDlSched, this, cell));
+                mac->TraceConnectWithoutContext("UlScheduling",
+                                                MakeBoundCallback(&RdlCellEnergySampler::OnUlSched, this, cell));
+            }
+        }
+        m_out.open(path);
+        m_out << "t_end_s,cell_id,gnb,slots,slot_s,sym_per_slot,avail_rb,data_reg,ctrl_reg,data_sym,ctrl_sym,"
+                 "active_slots,sched_ue_sum,ptx_dbm_min,ptx_dbm_max,reg_ptx_mw,sym_ptx_mw,sleep_slots,"
+                 "sleep_data_reg,sleep_sym,dl_tb_bytes,ul_tb_bytes,connected_ues,power_alloc\n";
+        if (ownTimer)
+        {
+            Simulator::Schedule(Seconds(m_period), &RdlCellEnergySampler::TimerClose, this);
+        }
+    }
+
+    /** Contadores cumulativos da célula desde t = 0 (leitura pelo exportador do docs/16). */
+    const RdlCellCounters& Cumulative(uint16_t cellId) const
+    {
+        auto it = m_cum.find(cellId);
+        if (it == m_cum.end())
+        {
+            NS_FATAL_ERROR("RdlCellEnergySampler: célula desconhecida " << cellId);
+        }
+        return it->second;
+    }
+
+    /** UEs com RRC CONNECTED_NORMALLY servidos pela célula, agora. */
+    uint32_t ConnectedUes(uint16_t cellId) const
+    {
+        uint32_t n = 0;
+        for (uint32_t u = 0; u < m_ueDevs.GetN(); ++u)
+        {
+            Ptr<NrUeRrc> rrc = DynamicCast<NrUeNetDevice>(m_ueDevs.Get(u))->GetRrc();
+            if (rrc->GetState() == NrUeRrc::CONNECTED_NORMALLY && rrc->GetCellId() == cellId)
+            {
+                ++n;
+            }
+        }
+        return n;
+    }
+
+    /** Escreve uma linha por célula (diferenças desde o último fechamento) e guarda o fechamento. */
+    void CloseWindow()
+    {
+        double now = Simulator::Now().GetSeconds();
+        for (uint16_t cell : m_cells)
+        {
+            const RdlCellCounters& c = m_cum[cell];
+            const RdlCellCounters& p = m_lastClose[cell];
+            uint32_t g = m_gnbByCell[cell];
+            Ptr<NrGnbPhy> phy = NrHelper::GetGnbPhy(DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(g)), 0);
+            const auto& [ptxMin, ptxMax] = m_winPtx[cell];
+            m_out << std::fixed << std::setprecision(3) << now << "," << cell << "," << g << ","
+                  << (c.slots - p.slots) << "," << std::setprecision(9) << phy->GetSlotPeriod().GetSeconds()
+                  << "," << phy->GetSymbolsPerSlot() << "," << phy->GetRbNum() << "," << (c.dataReg - p.dataReg)
+                  << "," << (c.ctrlReg - p.ctrlReg) << "," << (c.dataSym - p.dataSym) << ","
+                  << (c.ctrlSym - p.ctrlSym) << "," << (c.activeSlots - p.activeSlots) << ","
+                  << (c.schedUe - p.schedUe) << "," << std::setprecision(3) << ptxMin << "," << ptxMax << ","
+                  << std::setprecision(6) << (c.regPtxMw - p.regPtxMw) << "," << (c.symPtxMw - p.symPtxMw) << ","
+                  << (c.sleepSlots - p.sleepSlots) << "," << (c.sleepDataReg - p.sleepDataReg) << ","
+                  << (c.sleepSym - p.sleepSym) << ","
+                  << (c.dlTbBytes - p.dlTbBytes) << "," << (c.ulTbBytes - p.ulTbBytes) << "," << ConnectedUes(cell)
+                  << ","
+                  << (phy->GetPowerAllocationType() == NrSpectrumValueHelper::UNIFORM_POWER_ALLOCATION_BW ? "bw"
+                                                                                                           : "used")
+                  << "\n";
+            m_lastClose[cell] = c;
+            ResetWindowPtx(cell, phy->GetTxPower());
+        }
+        m_out.flush();
+    }
+
+  private:
+    void TimerClose()
+    {
+        CloseWindow();
+        double now = Simulator::Now().GetSeconds();
+        if (now + m_period <= m_simTime + 1e-9)
+        {
+            Simulator::Schedule(Seconds(m_period), &RdlCellEnergySampler::TimerClose, this);
+        }
+    }
+
+    void ResetWindowPtx(uint16_t cell, double ptxDbm)
+    {
+        m_winPtx[cell] = {ptxDbm, ptxDbm};
+    }
+
+    bool Sleeping(uint32_t gnb, double ptxDbm) const
+    {
+        return m_isSleeping ? m_isSleeping(gnb) : ptxDbm <= kSleepTxPowerDbm + 1e-6;
+    }
+
+    /** Potência de TX do PHY: dBm (para o estado) e mW (para as somas ponderadas). */
+    double PtxDbm(uint32_t gnb, uint32_t bwp) const
+    {
+        return NrHelper::GetGnbPhy(DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(gnb)), bwp)->GetTxPower();
+    }
+
+    static void OnSlotData(RdlCellEnergySampler* self,
+                           uint32_t gnb,
+                           uint32_t bwp,
+                           const SfnSf& /* sfnSf */,
+                           uint32_t scheduledUe,
+                           uint32_t usedReg,
+                           uint32_t usedSym,
+                           uint32_t /* availableRb */,
+                           uint32_t /* availableSym */,
+                           uint16_t /* bwpId */,
+                           uint16_t /* cellId */)
+    {
+        uint16_t cell = self->m_cells[gnb];
+        double dbm = self->PtxDbm(gnb, bwp);
+        double mw = std::pow(10.0, dbm / 10.0);
+        RdlCellCounters& c = self->m_cum[cell];
+        c.slots++;
+        c.dataReg += usedReg;
+        c.dataSym += usedSym;
+        c.schedUe += scheduledUe;
+        if (usedReg > 0)
+        {
+            c.activeSlots++;
+        }
+        c.regPtxMw += usedReg * mw;
+        c.symPtxMw += usedSym * mw;
+        if (self->Sleeping(gnb, dbm))
+        {
+            c.sleepSlots++;
+            c.sleepDataReg += usedReg;
+            c.sleepSym += usedSym;
+        }
+        auto& [ptxMin, ptxMax] = self->m_winPtx[cell];
+        ptxMin = std::min(ptxMin, dbm);
+        ptxMax = std::max(ptxMax, dbm);
+    }
+
+    static void OnSlotCtrl(RdlCellEnergySampler* self,
+                           uint32_t gnb,
+                           uint32_t bwp,
+                           const SfnSf& /* sfnSf */,
+                           uint32_t /* scheduledUe */,
+                           uint32_t usedReg,
+                           uint32_t usedSym,
+                           uint32_t /* availableRb */,
+                           uint32_t /* availableSym */,
+                           uint16_t /* bwpId */,
+                           uint16_t /* cellId */)
+    {
+        uint16_t cell = self->m_cells[gnb];
+        double dbm = self->PtxDbm(gnb, bwp);
+        double mw = std::pow(10.0, dbm / 10.0);
+        RdlCellCounters& c = self->m_cum[cell];
+        c.ctrlReg += usedReg;
+        c.ctrlSym += usedSym;
+        c.regPtxMw += usedReg * mw;
+        c.symPtxMw += usedSym * mw;
+        if (self->Sleeping(gnb, dbm))
+        {
+            c.sleepSym += usedSym;
+        }
+    }
+
+    static void OnDlSched(RdlCellEnergySampler* self, uint16_t cell, NrSchedulingCallbackInfo info)
+    {
+        self->m_cum[cell].dlTbBytes += info.m_tbSize;
+    }
+
+    static void OnUlSched(RdlCellEnergySampler* self, uint16_t cell, NrSchedulingCallbackInfo info)
+    {
+        self->m_cum[cell].ulTbBytes += info.m_tbSize;
+    }
+
+    NetDeviceContainer m_gnbDevs;
+    NetDeviceContainer m_ueDevs;
+    double m_period;
+    double m_simTime;
+    std::function<bool(uint32_t)> m_isSleeping;
+    std::vector<uint16_t> m_cells; // índice = gNB
+    std::map<uint16_t, uint32_t> m_gnbByCell;
+    std::map<uint16_t, RdlCellCounters> m_cum;
+    std::map<uint16_t, RdlCellCounters> m_lastClose;
+    std::map<uint16_t, std::pair<double, double>> m_winPtx; // mínima e máxima da janela (dBm)
     std::ofstream m_out;
 };
 

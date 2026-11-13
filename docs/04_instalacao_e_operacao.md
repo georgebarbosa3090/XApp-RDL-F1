@@ -60,7 +60,7 @@ bash scripts/certification/run_ns3_certified.sh \
 | :-- | :-- |
 | `execution_manifest.json` | backend (`NS3_5GLENA` ou `NORI_NS3`), versões e commits lidos dos checkouts, comando, argumentos de semente, horários, código de saída, SHA-256 do cenário e dos cabeçalhos |
 | `logs/stdout.log`, `logs/stderr.log` | saída completa do simulador |
-| `raw/` | FlowMonitor, `rdl_kpi_timeseries.csv`, `rdl_actuation_log.csv`, cronograma e anexos |
+| `raw/` | FlowMonitor, `rdl_kpi_timeseries.csv` (só células com pacotes na janela), `rdl_actuation_log.csv`, `rdl_cell_state.csv` (ocupação, potência e sono de todas as células; `scenario_rdl_multicell`, desde 2026-11-13, docs/17), cronograma e anexos |
 | `hashes.sha256` | SHA-256 de todos os arquivos (integridade, não prova de execução) |
 
 Regras do executor: nunca sobrescreve uma execução existente; recusa rodar com menos de 1 GB livre (`MIN_FREE_MB`); com `--no-build`, só roda se a fonte em `scratch/` for idêntica à do repositório e o binário for mais novo que ela; passa a semente por `--seed` (os cenários chamam `SeedManager::SetSeed` depois de ler a linha de comando, o que anula `--RngRun`).

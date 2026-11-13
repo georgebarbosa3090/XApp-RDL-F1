@@ -13,6 +13,7 @@ Campanha de experimentos de conflito: cenários × baselines × sementes, com ev
 Uso:
   python scripts/certification/run_conflict_campaign.py --seeds 1001-1005 --jobs 2
   python scripts/certification/run_conflict_campaign.py --scenarios S1 S7 --baselines B0 B3 --seeds 1001
+  python scripts/certification/run_conflict_campaign.py --scenarios G1 --baselines B0 B3 --seeds 13001       --sim-arg=--powerAllocation=used --run-suffix U       # run_id nr_G1_B3U_seed13001 (docs/17)
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -102,12 +104,19 @@ def disk_ok() -> bool:
     return True
 
 
-def run_one(scenario: str, baseline: str, seed: int, log_dir: Path) -> tuple:
-    run_id = f"nr_{scenario}_{baseline}_seed{seed}"
+def run_id_of(scenario: str, baseline: str, seed: int, suffix: str = "") -> str:
+    """run_id da execução; o sufixo (uma letra) distingue variantes de configuração, como o modo de potência."""
+    return f"nr_{scenario}_{baseline}{suffix}_seed{seed}"
+
+
+def run_one(scenario: str, baseline: str, seed: int, log_dir: Path, sim_args: List[str] = (), suffix: str = "") -> tuple:
+    run_id = run_id_of(scenario, baseline, seed, suffix)
     if STOP.is_set() or not disk_ok():
         return run_id, 75, 0.0
     cmd = [sys.executable, str(ROOT / "scripts" / "certification" / "run_conflict_experiment.py"),
-           "--scenario", scenario, "--baseline", baseline, "--seed", str(seed), "--no-build"]
+           "--scenario", scenario, "--baseline", baseline, "--seed", str(seed), "--no-build", "--run-id", run_id]
+    # "--sim-arg=valor": o valor começa com "--" e o argparse do executor o leria como opção
+    cmd += [f"--sim-arg={a}" for a in sim_args]
     started = time.monotonic()
     say(f"INÍCIO {run_id}")
     log_path = log_dir / f"{run_id}.log"
@@ -127,14 +136,14 @@ def run_one(scenario: str, baseline: str, seed: int, log_dir: Path) -> tuple:
 
 
 def select_jobs(seeds: List[int], scenarios: List[str], baselines: List[str], experiments_dir: Path,
-                retry_failed: bool, stamp: str) -> List[tuple]:
+                retry_failed: bool, stamp: str, suffix: str = "") -> List[tuple]:
     """Execuções a rodar, em ordem de semente. Remove as interrompidas e, com retry_failed,
     move as que falharam para runs_failed/; em ambos os casos elas voltam para a fila."""
     jobs = []
     for sd in seeds:
         for sc in scenarios:
             for bl in baselines:
-                run_dir = experiments_dir / "runs" / f"nr_{sc}_{bl}_seed{sd}"
+                run_dir = experiments_dir / "runs" / run_id_of(sc, bl, sd, suffix)
                 state = run_state(run_dir)
                 if state == "INCOMPLETE":
                     # Sem hashes.sha256 a execução foi interrompida antes de terminar: não é evidência.
@@ -166,7 +175,17 @@ def main(argv=None) -> int:
     parser.add_argument("--skip-analysis", action="store_true")
     parser.add_argument("--retry-failed", action="store_true",
                         help="move execuções com run_status != SUCCESS para experiments/runs_failed/ e as refaz")
+    parser.add_argument("--sim-arg", action="append", default=[],
+                        help="argumento extra do cenário ns-3, repetível; use --sim-arg=--opcao=valor "
+                             "(ex.: --sim-arg=--powerAllocation=bw; fica no command do manifesto)")
+    parser.add_argument("--run-suffix", default="",
+                        help="uma letra maiúscula acrescentada ao baseline no run_id (ex.: U -> nr_G1_B3U_seed13001)")
     args = parser.parse_args(argv)
+    if args.run_suffix and not re.fullmatch(r"[A-Z]", args.run_suffix):
+        parser.error("--run-suffix deve ser uma letra maiúscula")
+    bad = [b for b in args.baselines if not re.fullmatch(r"B\d[A-Z]?", b + args.run_suffix)]
+    if bad:
+        parser.error(f"baseline(s) {bad} com o sufixo {args.run_suffix!r} não formam um run_id que o analisador reconheça")
 
     seeds = parse_seeds(args.seeds)
     nori_only = [s for s in args.scenarios if s in catalog["scenarios"] and not catalog["scenarios"][s].get("ns3")]
@@ -179,11 +198,14 @@ def main(argv=None) -> int:
     log_dir = Path(args.log_dir) if args.log_dir else Path(os.environ.get("TEMP", "/tmp")) / f"rdl_campaign_{stamp}"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    jobs = select_jobs(seeds, args.scenarios, args.baselines, ROOT / "experiments", args.retry_failed, stamp)
+    jobs = select_jobs(seeds, args.scenarios, args.baselines, ROOT / "experiments", args.retry_failed, stamp,
+                       args.run_suffix)
     total = len(seeds) * len(args.scenarios) * len(args.baselines)
     say(f"Campanha: {len(args.scenarios)} cenário(s) × {len(args.baselines)} baseline(s) × {len(seeds)} semente(s) "
         f"= {total} execuções; {total - len(jobs)} já existem; {len(jobs)} a rodar com {args.jobs} em paralelo.")
     say(f"Logs da campanha em {log_dir}")
+    if args.sim_arg or args.run_suffix:
+        say(f"Argumentos extras do cenário: {args.sim_arg or '-'}; sufixo do run_id: {args.run_suffix or '-'}")
     if jobs:
         ns3_names = sorted({catalog["scenarios"][sc]["ns3"] for sc, _, _ in jobs})
         if prebuild(ns3_names, log_dir) != 0:
@@ -194,7 +216,7 @@ def main(argv=None) -> int:
     started = time.monotonic()
     done = 0
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
-        futures = [pool.submit(run_one, sc, bl, sd, log_dir) for sc, bl, sd in jobs]
+        futures = [pool.submit(run_one, sc, bl, sd, log_dir, args.sim_arg, args.run_suffix) for sc, bl, sd in jobs]
         for future in as_completed(futures):
             run_id, code, _ = future.result()
             done += 1

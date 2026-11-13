@@ -38,7 +38,7 @@ As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/cat
 | `HANDOVER` (gNB de destino) | `NrHelper::HandoverRequest` para os UEs do gNB de origem, um a cada 10 ms |
 | `SCHEDULER_WEIGHT` | não suportado; registrado como `UNSUPPORTED` |
 
-Saídas por execução: `rdl_actuation_log.csv` (cada ação, instante e efeito) e `rdl_kpi_timeseries.csv` (vazão e atraso por célula a cada `--kpiPeriod`). As linhas `[RDL-ACT]` e `[RDL-KPI]` aparecem ao vivo no terminal.
+Saídas por execução: `rdl_actuation_log.csv` (cada ação, instante e efeito) e `rdl_kpi_timeseries.csv` (vazão e atraso a cada `--kpiPeriod`, só das células que receberam pacotes na janela). O `scenario_rdl_multicell` grava também `rdl_cell_state.csv` (`RdlCellEnergySampler`: ocupação de recursos, potência de TX e sono emulado de todas as células por janela, docs/17 §3) e aceita `--powerAllocation=used|bw` (padrão `used`, o `UniformPowerAllocUsed` do 5G-LENA, que concentra a potência nos RBs usados; `bw` = PSD constante). As linhas `[RDL-ACT]` e `[RDL-KPI]` aparecem ao vivo no terminal.
 
 ## 4. Baselines
 
