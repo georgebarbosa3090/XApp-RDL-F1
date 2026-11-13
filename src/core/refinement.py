@@ -18,8 +18,11 @@ class Refinement:
         strict_capabilities: bool = False,
         config: Optional[Dict[str, Any]] = None,
         committed_action_lookup: Optional[Callable[[str, str], Optional[XAppAction]]] = None,
+        clock: Optional[Callable[[], float]] = None,
     ):
         self.memory = memory
+        # Relógio em segundos (padrão: time.time); histerese e intervalo mínimo usam self.clock() * 1000
+        self.clock: Callable[[], float] = clock or (lambda: time.time())
         self.strict_capabilities = strict_capabilities
         # Fonte do último valor confirmado (ACK) pela RAN para node/parâmetro; usada
         # pelo slew-rate. Sem ela, o slew-rate não pode ser verificado (ver abaixo).
@@ -70,7 +73,7 @@ class Refinement:
 
     def remaining_lockout_ms(self, action: XAppAction, now_ms: Optional[float] = None) -> float:
         """Quanto falta para o alvo aceitar novo controle desta ação (0 = já aceita)."""
-        now_ms = time.time() * 1000 if now_ms is None else now_ms
+        now_ms = self.clock() * 1000 if now_ms is None else now_ms
         last_time = self.last_control_time.get(f"{action.node_id}_{action.parameter}", 0)
         return max(0.0, self.min_interval_ms(action) - (now_ms - last_time))
 
@@ -186,7 +189,7 @@ class Refinement:
 
     def commit_control_timestamps(self, actions: List[XAppAction], timestamp_ms: Optional[float] = None) -> None:
         """Registra os timestamps de histerese ao final do lote de decisão."""
-        now = timestamp_ms if timestamp_ms is not None else (time.time() * 1000)
+        now = timestamp_ms if timestamp_ms is not None else (self.clock() * 1000)
         for action in actions:
             if action and action.node_id and action.parameter:
                 self.last_control_time[f"{action.node_id}_{action.parameter}"] = now
@@ -202,7 +205,7 @@ class Refinement:
         if not action or not action.node_id:
             return False, 1, "Unknown target node or empty action"
 
-        now = time.time() * 1000
+        now = self.clock() * 1000
         target_key = f"{action.node_id}_{action.parameter}"
 
         # 1. Validade temporal (histerese / frequência máxima de controle para o mesmo alvo)
@@ -233,7 +236,7 @@ class Refinement:
         if not actions:
             return False, 1, "No actions selected"
 
-        now = time.time() * 1000
+        now = self.clock() * 1000
         pending_time_updates: Dict[str, float] = {}
 
         for action in actions:

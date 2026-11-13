@@ -26,11 +26,11 @@ A versão original da literatura aplicava corte cego de potência (`TX_POWER: 20
    * `MICRO_SLEEP_AND_THROTTLING`: Desativação rápida de símbolos OFDM em slots vazios (3GPP Rel-18), mantendo canais de sincronismo e radiodifusão (SSB).
    * `CARRIER_MICRO_SLEEP`: Desativação de portadoras secundárias de agregação (CA) durante a madrugada no Campus universitário.
 5. **Salvaguarda de SLA para Fatias Críticas:**
-   * Emite a flag `prohibit_urllc_degradation: true`, instruindo a H-RDL a vetar qualquer economia de energia que degrade a latência do maquinário autônomo.
+   * Emite a flag `prohibit_urllc_degradation: true`, instruindo a RDL-N1 a vetar qualquer economia de energia que degrade a latência do maquinário autônomo.
 
 ---
 
-## Interface de Interceptação H-RDL / GreenRAN
+## Interface de Interceptação RDL-N1 / GreenRAN
 
 * **MsgType:** `RDL_ACTION_PROPOSAL` (30000 / 20010)
 * **Estrutura do Payload Emitido:**

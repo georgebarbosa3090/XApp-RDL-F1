@@ -1,6 +1,6 @@
 """
 Testes de Integração E2 Local (Local Protocol Layer / Codec & Mapper Integration)
-Valida a integração em malha fechada local dos módulos H-RDL:
+Valida a integração em malha fechada local dos módulos RDL-N1:
 KPMReport -> Perception -> Reasoning -> Refinement -> RCMapper -> RICcontrolAcknowledge
 """
 

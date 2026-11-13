@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Formata ao vivo os eventos da xApp kpm-probe (JSON Lines no stdout do pod) em linhas legíveis:
-subscrição, KPM decodificado por UE (fatia, PRBs), decisão do H-RDL, RIC Control e ACK.
+subscrição, KPM decodificado por UE (fatia, PRBs), decisão do RDL-N1, RIC Control e ACK.
 
 Uso:
     kubectl -n ricxapp logs -f deploy/kpm-probe --since=1s | python3 scripts/observe/format_xapp_events.py

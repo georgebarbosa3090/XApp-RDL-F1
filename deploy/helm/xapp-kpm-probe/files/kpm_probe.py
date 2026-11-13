@@ -12,12 +12,12 @@ Fluxo:
      tamanho e sha256 do payload — o sha256 casa cada Indication recebida com o PCAP;
   4. depois da N-ésima Indication KPM de um nó, envia um RIC Control (12040) com cotas de PRB
      por fatia (E2SM-RC estilo 2, ação 6) e registra o ACK/Failure (12041/12042). As cotas vêm:
-     - (fase 4, RC_DECISION=hrdl) do H-RDL: o KPM_t0 decodificado vira estado, duas políticas de
+     - (fase 4, RC_DECISION=hrdl) do RDL-N1: o KPM_t0 decodificado vira estado, duas políticas de
        referência propõem PRB_QUOTA e o pipeline real da xApp RDL arbitra
        (src/closed_loop/hrdl_slice_loop.py); decision_source=H_RDL;
      - (fase 3, RC_DECISION=fixed) de uma cota fixa do chart; decision_source=FIXED_PROBE.
 
-O código do repositório (src/: codec E2AP/E2SM v3, ponte H-RDL e o próprio H-RDL) chega ao pod
+O código do repositório (src/: codec E2AP/E2SM v3, ponte RDL-N1 e o próprio RDL-N1) chega ao pod
 num pacote gerado de um commit (scripts/deploy_kpm_probe.sh); o commit fica registrado no evento
 start e em cada decisão.
 
@@ -64,7 +64,7 @@ DECISION_SOURCE = "FIXED_PROBE" if RC_DECISION == "fixed" else "H_RDL"
 # roteiro antes de cada execução), ou de RC_SCENARIO
 RC_SCENARIO = ENV.get("RC_SCENARIO", "S8")
 RC_SCENARIO_FILE = ENV.get("RC_SCENARIO_FILE", "/data/rdl_scenario")
-# Baseline da decisão no modo catalog (campanha do G5): B3 = H-RDL; B0/B1/B2 = sem coordenação, FIFO e
+# Baseline da decisão no modo catalog (campanha do G5): B3 = RDL-N1; B0/B1/B2 = sem coordenação, FIFO e
 # prioridade estática (src/closed_loop/catalog_loop.decide_baseline). Lido a cada decisão deste arquivo.
 RC_BASELINE_FILE = ENV.get("RC_BASELINE_FILE", "/data/rdl_baseline")
 # A decisão só dispara com o par de KPM do período completo (nó + UEs chegados dentro desta janela; achado 48)
@@ -76,7 +76,7 @@ sys.path.insert(0, APP_DIR)
 from src.e2.v3 import codec  # noqa: E402  (src/e2/v3/codec.py do commit SRC_COMMIT)
 from src.closed_loop.kpm_pairing import pair_complete, pair_gap_s  # noqa: E402
 
-# Políticas A1 entregues pelo A1 Mediator (RMR 20010) e aplicadas na decisão H-RDL (docs/10).
+# Políticas A1 entregues pelo A1 Mediator (RMR 20010) e aplicadas na decisão RDL-N1 (docs/10).
 # Importação tolerante: commits anteriores a a0cb21eb não têm src/interfaces/a1_rmr.py.
 try:
     from src.interfaces.a1_policy_receiver import A1PolicyManager  # noqa: E402
@@ -324,7 +324,7 @@ def _quota_objs(spec):
 
 
 def decide(meid: str):
-    """Cotas de cada RIC Control a enviar (na ordem) e registro da decisão (H-RDL sobre o KPM_t0, baseline
+    """Cotas de cada RIC Control a enviar (na ordem) e registro da decisão (RDL-N1 sobre o KPM_t0, baseline
     do G5 ou cota fixa). Só o B0 produz mais de um Control."""
     if RC_DECISION == "fixed":
         return [parse_quotas(RC_QUOTAS)], {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
@@ -352,7 +352,7 @@ def decide(meid: str):
 
 
 def warm_up_decision() -> None:
-    """Carrega o H-RDL (numpy, pydantic, pycrate...) e roda uma decisão de aquecimento antes do primeiro
+    """Carrega o RDL-N1 (numpy, pydantic, pycrate...) e roda uma decisão de aquecimento antes do primeiro
     KPM: importar tudo na hora da decisão atrasava o Control o bastante para chegar outra Indication,
     e a decisão deixava de ser sobre o último KPM antes do Control (KPM_t0)."""
     if RC_DECISION == "fixed":

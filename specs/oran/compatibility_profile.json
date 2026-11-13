@@ -1,6 +1,6 @@
 {
   "profile_name": "F1_COMPATIBILITY_PROFILE_FROZEN",
-  "phase": "Phase 1 (H-RDL Deterministic & Closed-Loop E2)",
+  "phase": "Phase 1 (RDL-N1 rule- and policy-based level & Closed-Loop E2)",
   "status": "FROZEN_FOR_REPRODUCIBILITY",
   "generated_at": "2026-09-11T10:00:00Z",
   "git_commit": "06b2a556",

@@ -9,7 +9,7 @@ Fluxo de uma execução:
      (RdlActuation, rdl-nr-common.h) e envia a topologia ("hello").
   2. A cada janela de decisão o ns-3 pausa e envia o KPM da janela. Os drivers de xApp
      (scripts/closed_loop/drivers.py) recebem o KPM e devolvem propostas.
-  3. O baseline decide as propostas da janela (B0, B1, B2 ou o pipeline real da H-RDL: B3, B3A, B3M)
+  3. O baseline decide as propostas da janela (B0, B1, B2 ou o pipeline real da RDL-N1: B3, B3A, B3M)
      e as ações voltam ao ns-3, aplicadas no mesmo instante simulado.
   4. Cada janela (KPM, propostas, decisão, ações) é gravada em raw/closed_loop_log.jsonl da execução,
      antes de as ações voltarem ao ns-3: o arquivo está completo quando o executor calcula os hashes.
@@ -32,7 +32,6 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
@@ -42,6 +41,7 @@ for p in (ROOT, ROOT / "scripts" / "certification"):
         sys.path.insert(0, str(p))
 
 import run_conflict_experiment as rce  # noqa: E402
+from src.core import baselines as bl  # noqa: E402
 from scripts.closed_loop.drivers import ReplayDriver, XAppDriver  # noqa: E402
 
 RUNS = ROOT / "experiments" / "runs"
@@ -67,19 +67,8 @@ class WindowBaseline:
             ids, entry = self.stream.decide(group, t_close)
             by_id = {e["id"]: e for e in group}
             return [by_id[i] for i in ids if i in by_id], entry
-        if self.baseline == "B0":
-            winners = sorted(group, key=lambda e: (e["t"], e["id"]))
-            rule = "apply-all-at-window-close"
-        else:
-            by_target: "OrderedDict[Tuple, List]" = OrderedDict()
-            for e in group:
-                by_target.setdefault((e["gnb"], e["parameter"], e["ue"]), []).append(e)
-            if self.baseline == "B1":
-                winners = [min(c, key=lambda e: (e["t"], e["id"])) for c in by_target.values()]
-                rule = "fifo-per-target"
-            else:
-                winners = [min(c, key=lambda e: (-e["priority"], e["t"], e["id"])) for c in by_target.values()]
-                rule = "static-priority-per-target"
+        winners = bl.select(group, self.baseline, rce._target, rce._arrival, lambda e: e["priority"])
+        rule = bl.B0_AT_WINDOW_CLOSE if self.baseline == "B0" else bl.RULES[self.baseline]
         return winners, {"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
                          "selected": [w["id"] for w in winners], "rule": rule}
 

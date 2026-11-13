@@ -8,8 +8,8 @@ Fluxo:
        B0  sem coordenação: cada proposta é aplicada no instante em que chega;
        B1  FIFO: por janela de decisão (200 ms) e alvo, vence a primeira proposta;
        B2  prioridade estática: por janela e alvo, vence a maior prioridade;
-       B3  H-RDL: as propostas de cada janela passam pelo pipeline real da xApp RDL
-           (RDLxApp._process_action_group: Perception, Reasoning TVS/EEVS, Refinement),
+       B3  RDL-N1: as propostas de cada janela passam pelo pipeline real da xApp RDL
+           (RDLxApp.process_actions: Perception, Reasoning TVS/EEVS, Refinement),
            com o relógio do Refinement substituído pelo relógio simulado.
   3. Executa o cenário ns-3 pelo executor certificado (saída ao vivo), que aplica o
      cronograma na RAN (rdl-nr-common.h) e grava a evidência em experiments/runs/<run_id>/.
@@ -35,7 +35,6 @@ import subprocess
 import sys
 import tempfile
 import time as _time
-import types
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -44,10 +43,12 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from src.core import baselines as bl  # noqa: E402  regra única de B0–B2
+
 CATALOG = ROOT / "simulations" / "ns3" / "conflicts" / "catalog.json"
 RUNNER = ROOT / "scripts" / "certification" / "run_ns3_certified.sh"
-# B3: H-RDL atual (EEVS aditivo, padrão desde o pré-registro 09). B3A: apelido do B3, nome usado nas
-# execuções do pré-registro 09. B3M: H-RDL com o EEVS por média, para reproduzir as campanhas até a 10.
+# B3: RDL-N1 atual (EEVS aditivo, padrão desde o pré-registro 09). B3A: apelido do B3, nome usado nas
+# execuções do pré-registro 09. B3M: RDL-N1 com o EEVS por média, para reproduzir as campanhas até a 10.
 BASELINES = ("B0", "B1", "B2", "B3", "B3A", "B3M")
 SCHEDULE_FIELDS = ["time_s", "gnb", "parameter", "value", "ue", "xapp_id", "action_id"]
 
@@ -100,34 +101,34 @@ def _entry(e: Dict[str, Any], at: float) -> Dict[str, Any]:
 def baseline_b0(events, window):
     """Sem coordenação: toda proposta chega à RAN no instante em que é emitida."""
     schedule = [_entry(e, e["t"]) for e in events]
-    log = [{"t_close": e["t"], "proposal_ids": [e["id"]], "selected": [e["id"]], "rule": "apply-on-arrival"}
+    log = [{"t_close": e["t"], "proposal_ids": [e["id"]], "selected": [e["id"]], "rule": bl.B0_ON_ARRIVAL}
            for e in events]
     return schedule, log
 
 
-def _per_window(events, window, choose, rule):
+def _arrival(e: Dict[str, Any]) -> Tuple[float, str]:
+    return (e["t"], e["id"])
+
+
+def _per_window(events, window, baseline):
     schedule, log = [], []
     for k, group in _windows(events, window).items():
         t_close = (k + 1) * window
-        by_target: "OrderedDict[Tuple, List]" = OrderedDict()
-        for e in group:
-            by_target.setdefault(_target(e), []).append(e)
-        winners = [choose(cands) for cands in by_target.values()]
+        winners = bl.select_per_target(group, baseline, _target, _arrival, lambda e: e["priority"])
         schedule += [_entry(w, t_close) for w in winners]
         log.append({"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
-                    "selected": [w["id"] for w in winners], "rule": rule})
+                    "selected": [w["id"] for w in winners], "rule": bl.RULES[baseline]})
     return schedule, log
 
 
 def baseline_b1(events, window):
     """FIFO: por janela e alvo, a primeira proposta a chegar."""
-    return _per_window(events, window, lambda c: min(c, key=lambda e: (e["t"], e["id"])), "fifo-per-target")
+    return _per_window(events, window, "B1")
 
 
 def baseline_b2(events, window):
     """Prioridade estática: por janela e alvo, a maior prioridade (empate: a mais antiga)."""
-    return _per_window(events, window, lambda c: min(c, key=lambda e: (-e["priority"], e["t"], e["id"])),
-                       "static-priority-per-target")
+    return _per_window(events, window, "B2")
 
 
 class _SimClock:
@@ -150,20 +151,18 @@ class HrdlStream:
         os.environ.setdefault("USE_FAKE_SDL", "True")
         os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
         from src.conflict_types import XAppAction
-        import src.core.perception as perception_module
-        import src.core.refinement as refinement_module
         from src.rdl_xapp import RDLxApp
 
         self._XAppAction = XAppAction
         self._clock = _SimClock()
-        # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
-        # as janelas são decididas em sequência, em milissegundos de tempo real.
-        self._modules = (refinement_module, perception_module)
-        self._original_times = (refinement_module.time, perception_module.time)
-        refinement_module.time = types.SimpleNamespace(time=self._clock.time)
-        perception_module.time = types.SimpleNamespace(time=self._clock.time)
         logging.disable(logging.INFO)  # mantém a saída ao vivo legível; avisos continuam visíveis
-        self.app = RDLxApp()
+        # Sem servidores HTTP (8080/8081): o executor só chama o pipeline de decisão
+        self.app = RDLxApp(serve_http=False)
+        # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
+        # as janelas são decididas em sequência, em milissegundos de tempo real. O relógio é
+        # injetado nos dois componentes; o módulo time não é mais trocado.
+        self.app.perception.clock = self._clock.time
+        self.app.refinement.clock = self._clock.time
         self._dispatched: List[str] = []
         self._resolutions: List[Dict[str, Any]] = []
 
@@ -196,7 +195,7 @@ class HrdlStream:
                                     timestamp=t_close) for e in group]
         before, res_before = len(self._dispatched), len(self._resolutions)
         started = _time.perf_counter()
-        self.app._process_action_group(actions)
+        self.app.process_actions(actions)
         latency_ms = (_time.perf_counter() - started) * 1000.0
         selected = self._dispatched[before:]
         entry = {"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
@@ -205,14 +204,12 @@ class HrdlStream:
         return selected, entry
 
     def close(self) -> None:
-        refinement_module, perception_module = self._modules
-        refinement_module.time, perception_module.time = self._original_times
         logging.disable(logging.NOTSET)
         self.app.stop()
 
 
 def baseline_b3(events, window):
-    """H-RDL: pipeline real da xApp RDL por janela de decisão, no relógio simulado."""
+    """RDL-N1: pipeline real da xApp RDL por janela de decisão, no relógio simulado."""
     stream = HrdlStream()
     by_id = {e["id"]: e for e in events}
     schedule, log = [], []
@@ -228,7 +225,7 @@ def baseline_b3(events, window):
 
 
 def _with_eevs(mode: str):
-    """H-RDL com a agregação do EEVS fixada (independe do ambiente)."""
+    """RDL-N1 com a agregação do EEVS fixada (independe do ambiente)."""
     def decider(events, window):
         previous = os.environ.get("RDL_EEVS_AGGREGATION")
         os.environ["RDL_EEVS_AGGREGATION"] = mode
@@ -239,7 +236,7 @@ def _with_eevs(mode: str):
                 os.environ.pop("RDL_EEVS_AGGREGATION", None)
             else:
                 os.environ["RDL_EEVS_AGGREGATION"] = previous
-    decider.__doc__ = f"H-RDL (RDLxApp._process_action_group) com EEVS {mode}"
+    decider.__doc__ = f"RDL-N1 (RDLxApp.process_actions) com EEVS {mode}"
     return decider
 
 
@@ -275,20 +272,35 @@ def decide(scenario_id: str, baseline: str, catalog: Dict[str, Any]):
     return spec, events, schedule, log
 
 
-def repo_git_sha() -> str:
-    """Commit atual do repositório; usa o git do WSL se o do Windows não estiver disponível."""
-    candidates = [["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"]]
+def _git(args: List[str]) -> Optional[str]:
+    """Saída de um comando git no repositório; usa o git do WSL se o do Windows não estiver disponível."""
+    candidates = [["git", "-C", str(ROOT)] + args]
     if os.name == "nt":
-        candidates.append(["wsl", "-d", "Ubuntu", "--", "git", "-C", to_wsl(ROOT), "rev-parse", "--short", "HEAD"])
+        candidates.append(["wsl", "-d", "Ubuntu", "--", "git", "-C", to_wsl(ROOT)] + args)
     for cmd in candidates:
         try:
-            out = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            out = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
         except (FileNotFoundError, subprocess.TimeoutExpired):
             continue
-        sha = out.stdout.replace("\0", "").strip()
-        if out.returncode == 0 and sha:
-            return sha
-    return "unknown"
+        if out.returncode == 0:
+            return out.stdout.replace("\0", "")
+    return None
+
+
+def repo_git_sha() -> str:
+    """Commit atual (SHA completo). "unknown" só quando nenhum git responde, com aviso."""
+    sha = (_git(["rev-parse", "HEAD"]) or "").strip()
+    if not sha:
+        print("[aviso] commit do repositório não identificado; decision_log fica com repo_git_sha=unknown",
+              file=sys.stderr)
+        return "unknown"
+    return sha
+
+
+def repo_dirty() -> Optional[bool]:
+    """Há mudança não commitada no código que decide (src, scripts, simulations, configs)? None se o git não responde."""
+    out = _git(["-c", "core.filemode=false", "status", "--porcelain", "--untracked-files=normal", "--", "src", "scripts", "simulations", "configs"])
+    return None if out is None else bool(out.strip())
 
 
 def write_outputs(directory: Path, scenario_id, baseline, spec, events, schedule, log) -> Tuple[Path, Path]:
@@ -301,9 +313,9 @@ def write_outputs(directory: Path, scenario_id, baseline, spec, events, schedule
     decision = {
         "scenario": scenario_id, "baseline": baseline, "ns3_scenario": spec["ns3"],
         "summary": spec.get("summary"), "conflict_window_s": spec.get("conflict_window_s"),
-        "engine": "src/rdl_xapp.py RDLxApp._process_action_group" if baseline in EEVS_BY_BASELINE else DECIDERS[baseline].__doc__,
+        "engine": "src/rdl_xapp.py RDLxApp.process_actions" if baseline in EEVS_BY_BASELINE else DECIDERS[baseline].__doc__,
         "eevs_aggregation": EEVS_BY_BASELINE.get(baseline),
-        "repo_git_sha": git_sha, "proposals": events, "windows": log, "schedule": schedule,
+        "repo_git_sha": git_sha, "repo_dirty": repo_dirty(), "proposals": events, "windows": log, "schedule": schedule,
     }
     decision_path = directory / "decision_log.json"
     decision_path.write_text(json.dumps(decision, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -2,7 +2,7 @@
 
 ## Autor
 
-**George Barbosa** — autor do software próprio deste repositório (xApp RDL, Fase 1 – H-RDL), licenciado sob Apache-2.0 ([`LICENSE`](LICENSE)).
+**George Barbosa** — autor do software próprio deste repositório (xApp RDL, Fase 1 – RDL-N1), licenciado sob Apache-2.0 ([`LICENSE`](LICENSE)).
 
 ## Software próprio
 
@@ -11,7 +11,7 @@ Escrito para este projeto. Os arquivos principais trazem o cabeçalho `Autor: Ge
 | Componente | Caminho |
 | :-- | :-- |
 | xApp RDL (percepção, TVS/EEVS, Safety Guard, janela de decisão, governança, grafo de conhecimento, A1, E2) | `src/` |
-| xApp1-RANSlicer e xApp2-EnergySaver do GreenRAN | `src/greenran/` |
+| RANSlicer-GreenRAN e EnergySaver-GreenRAN do GreenRAN | `src/greenran/` |
 | Perfis de backend do testbed (NORI, srsRAN, OAI) | `src/e2/backends/testbed_profiles.py`, `configs/testbed_ufpa/backends/` |
 | kpm-probe (xApp que fecha o loop E2 real na bancada NORI) | `deploy/helm/xapp-kpm-probe/files/kpm_probe.py` |
 | rApp-ResourceOptimizer e rApp de governança | `rapps/` |

@@ -9,8 +9,8 @@ import os
 
 class Reasoning:
     """
-    Componente de Raciocínio e Arbitragem da xApp RDL (Fase 1: H-RDL / Núcleo / Core).
-    Implementa as heurísticas determinísticas TVS e EEVS fundamentadas em modelos analíticos calibrados de rádio 5G:
+    Componente de Raciocínio e Arbitragem da xApp RDL (Fase 1: RDL-N1 / Núcleo / Core).
+    Implementa as regras TVS e EEVS fundamentadas em modelos analíticos calibrados de rádio 5G:
     - Capacidade Espectral de Shannon com SINR real e overhead 3GPP;
     - Modelo de Atraso e Satisfação de SLA (Fila M/G/1 com curva sigmoide);
     - Modelo de Eficiência Energética (Earth/3GPP Linear Power Model);
@@ -83,11 +83,11 @@ class Reasoning:
             if best_res.confidence >= 0.8:
                 return self._resolve_by_history(conflict, similar_resolutions)
 
-        # 2. Conflito DIRETO (mesmo parâmetro/alvo) -> Heurística TVS
+        # 2. Conflito DIRETO (mesmo parâmetro/alvo) -> Regra TVS
         if conflict.conflict_type.name == "DIRECT":
             return self._resolve_direct_conflict(conflict)
 
-        # 3. Conflito INDIRETO (impacto cruzado em KPIs) -> Heurística EEVS
+        # 3. Conflito INDIRETO (impacto cruzado em KPIs) -> Regra EEVS
         return self._resolve_indirect_conflict(conflict)
 
     def _resolve_direct_conflict(self, conflict: ConflictEvent) -> ResolutionAction:
@@ -105,7 +105,7 @@ class Reasoning:
                    self.w_stability * scores["stability"] +
                    self.w_priority * scores["priority"])
 
-            # Tie-breaking determinístico canônico: (utilidade, prioridade, menor |valor|, action_id)
+            # Tie-breaking canônico de ordem fixa: (utilidade, prioridade, menor |valor|, action_id)
             candidate_key = (
                 round(u_a, 9),
                 float(getattr(act, "priority", 50)),
@@ -184,7 +184,7 @@ class Reasoning:
     def _resolve_indirect_greedy(
         self, actions: List[XAppAction], max_priority: int
     ) -> List[XAppAction]:
-        """Build a deterministic compatible subset without enumerating the powerset."""
+        """Build a reproducible compatible subset without enumerating the powerset."""
         selected: List[XAppAction] = []
         selected_score = -float("inf")
         for action in actions:

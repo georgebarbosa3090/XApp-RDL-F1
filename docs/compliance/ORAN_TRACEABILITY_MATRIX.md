@@ -17,7 +17,7 @@ Níveis de verificação usados (do mais fraco ao mais forte): `IMPLEMENTED` (c�
 | Closed loop causal | `CausalTracker` + pilha NORI | `tests/interoperability/test_closed_loop.py` (local) | — | IMPLEMENTED |
 | Descoberta E2 (RAN Function Definition) | — | — | — | não implementado |
 
-`SIMULATION_EVIDENCE` aqui significa que a decisão da H-RDL foi aplicada na RAN simulada (malha aberta, sem E2). Nenhum requisito está em `INTEROP_VERIFIED`.
+`SIMULATION_EVIDENCE` aqui significa que a decisão da RDL-N1 foi aplicada na RAN simulada (malha aberta, sem E2). Nenhum requisito está em `INTEROP_VERIFIED`.
 
 ## 2. Gates
 
@@ -30,7 +30,7 @@ flowchart LR
 | :-: | :-- | :-: |
 | G0 | Manifestos completos; versões e commits iguais ao lock | CERTIFIED (nativa) |
 | G1 | E2 Setup, Subscription e Indication KPM externos numa execução NORI elegível | NOT_CERTIFIED |
-| G2 | Conflito detectado e decisão determinística com Safety Guard | LOCAL_ONLY |
+| G2 | Conflito detectado e decisão reprodutível com Safety Guard | LOCAL_ONLY |
 | G3 | RIC Control e ACK/Failure externos correlacionados | BLOCKED |
 | G4 | KPM_t0 → decisão → RC → ACK → KPM_t1, em ordem e com efeito medido | BLOCKED |
 | G5 | ≥ 30 sementes pareadas elegíveis por baseline B0–B3 com E2 | CERTIFIED (S8, 30 pares) |

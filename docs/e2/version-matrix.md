@@ -19,7 +19,7 @@ O perfil da xApp (v02.03 / RC v01.03) **não coincide** com o do NORI (v3.01). O
 ## 2. Mapeamento de controle (RC)
 
 ```text
-ação lógica da H-RDL ──RanFunctionCapabilityRegistry──▶ (estilo, ação, RAN Parameter ID) ──codec RC──▶ RIC Control Request
+ação lógica da RDL-N1 ──RanFunctionCapabilityRegistry──▶ (estilo, ação, RAN Parameter ID) ──codec RC──▶ RIC Control Request
 ```
 
 Valores padrão do registro (`src/e2/rc/capability_registry.py`). No modo estrito (`RDL_STRICT_ORAN=true`) esses padrões não são usados: a capacidade precisa ser registrada a partir da RAN Function do E2 Node, e a descoberta automática pela RAN Function Definition ainda não está implementada.

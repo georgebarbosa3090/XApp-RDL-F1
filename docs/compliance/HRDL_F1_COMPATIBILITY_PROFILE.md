@@ -1,4 +1,4 @@
-# Perfil de compatibilidade — H-RDL Fase 1
+# Perfil de compatibilidade — RDL-N1 Fase 1
 
 ## 1. Camadas
 
@@ -7,7 +7,7 @@
 | Normativa | O-RAN ALLIANCE (E2AP, E2SM-KPM, E2SM-RC) | versões-alvo da xApp abaixo |
 | Implementação de referência | O-RAN Software Community | Subscription Manager (REST), E2Term (RMR/SCTP), RMR, SDL |
 | Simulação | ns-3 + 5G-LENA (+ NORI) | duas pilhas, abaixo |
-| Contribuição | H-RDL | percepção por alvo, TVS/EEVS, Safety Guard, despacho |
+| Contribuição | RDL-N1 | percepção por alvo, TVS/EEVS, Safety Guard, despacho |
 | Evidência | política de proveniência e certificador | gates G0–G6 |
 
 ## 2. Versões-alvo da xApp RDL
@@ -62,4 +62,4 @@ nori:                # backend NORI_NS3 — única pilha com E2 real
 
 ## 5. Forma de citação recomendada
 
-> A H-RDL Fase 1 visa compatibilidade com E2AP v02.03, E2SM-KPM v03.00 e E2SM-RC v01.03 (O-RAN SC Release J). A avaliação de decisão foi feita em ns-3.48 com 5G-LENA v5.1, com as ações aplicadas na RAN simulada; a interoperabilidade E2 com um E2 Node e um Near-RT RIC reais não foi demonstrada nesta fase.
+> A RDL-N1 Fase 1 visa compatibilidade com E2AP v02.03, E2SM-KPM v03.00 e E2SM-RC v01.03 (O-RAN SC Release J). A avaliação de decisão foi feita em ns-3.48 com 5G-LENA v5.1, com as ações aplicadas na RAN simulada; a interoperabilidade E2 com um E2 Node e um Near-RT RIC reais não foi demonstrada nesta fase.

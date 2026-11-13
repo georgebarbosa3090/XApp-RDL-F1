@@ -351,7 +351,7 @@
         "--trafficRate=300Mb/s"
       ],
       "conflict_window_s": null,
-      "summary": "Closed loop E2 real na bancada NORI: xSlice protege a URLLC (teto eMBB 25 %) e a xApp de vazão eMBB pede 80 %; o H-RDL decide sobre o KPM_t0 e a cota sai por E2SM-RC (fase 4, desenho v5). Só roda no NORI.",
+      "summary": "Closed loop E2 real na bancada NORI: xSlice protege a URLLC (teto eMBB 25 %) e a xApp de vazão eMBB pede 80 %; o RDL-N1 decide sobre o KPM_t0 e a cota sai por E2SM-RC (fase 4, desenho v5). Só roda no NORI.",
       "proposals": [
         {
           "xapp_id": "xslice",

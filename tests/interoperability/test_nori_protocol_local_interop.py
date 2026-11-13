@@ -131,7 +131,7 @@ def test_nori_rc_control_failure_with_cause_and_rollback():
 
 def test_nori_rc_causal_gate4_tracking():
     """
-    Valida a causalidade estrita do Gate 4: registro de KPM(t0), intervenção H-RDL, ACK e KPM(t1) com métrica CRE.
+    Valida a causalidade estrita do Gate 4: registro de KPM(t0), intervenção RDL-N1, ACK e KPM(t1) com métrica CRE.
     """
     from src.observability.causal_tracker import CausalTracker
     

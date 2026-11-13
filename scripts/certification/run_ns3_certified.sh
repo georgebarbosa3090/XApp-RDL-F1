@@ -169,6 +169,19 @@ def out(cmd):
         return subprocess.run(cmd, capture_output=True, text=True, check=False).stdout.strip().splitlines()[0]
     except Exception:
         return ""
+def repo_changes():
+    """Mudanças não commitadas (e arquivos novos) no código que decide ou executa a simulação.
+    None quando o git não responde a tempo (WSL sobre /mnt/c pode ser lento)."""
+    code = ["src", "scripts", "simulations", "configs", "reference-xapps", "xapps-originais", "third_party"]
+    try:
+        res = subprocess.run(["git", "-c", "core.filemode=false", "-C", "${REPO_DIR}", "status", "--porcelain", "--untracked-files=normal", "--"] + code,
+                             capture_output=True, text=True, check=False, timeout=90)
+    except Exception:
+        return None
+    if res.returncode != 0:
+        return None
+    return [line[3:] for line in res.stdout.splitlines() if line.strip()]
+changes = repo_changes()
 manifest = {
     "run_id": "${RUN_ID}",
     "source": ${SOURCES},
@@ -193,6 +206,11 @@ manifest = {
     "nr_commit": "${LENA_COMMIT}" or None,
     "nori_commit": "${NORI_COMMIT}" or None,
     "repo_git_sha": out(["git", "-C", "${REPO_DIR}", "rev-parse", "--short=7", "HEAD"]),
+    # SHA completo e estado da árvore (auditoria de 2026-11-13, R3): uma execução com código não
+    # commitado fica identificável. repo_dirty = None quando o git não respondeu.
+    "repo_git_sha_full": out(["git", "-C", "${REPO_DIR}", "rev-parse", "HEAD"]) or None,
+    "repo_dirty": None if changes is None else bool(changes),
+    "repo_dirty_paths": None if changes is None else changes[:50],
     "scenario_sha256": out(["sha256sum", "${SCRATCH_SRC}"]).split(" ")[0],
     "support_files_sha256": {
         __import__("os").path.basename(h): out(["sha256sum", h]).split(" ")[0]

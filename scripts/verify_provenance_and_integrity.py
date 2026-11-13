@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Auditor de Proveniência e Integridade Científica (scripts/verify_provenance_and_integrity.py)
 Validador Automatizado de Conformidade com a Diretriz Estrita de ZERO DADOS SINTÉTICOS.
 

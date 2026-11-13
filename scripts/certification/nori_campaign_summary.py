@@ -3,7 +3,7 @@
 Resumo da campanha dos cenários de conflito na bancada NORI (``scripts/run_nori_campaign.sh``).
 
 Para cada execução ``nori_S<k>_B3_seed<N>``: cadeia E2 identificada no PCAP (papéis), concordância
-do tshark, Indications casadas com a xApp, decisão do H-RDL (estratégias, ações selecionadas,
+do tshark, Indications casadas com a xApp, decisão do RDL-N1 (estratégias, ações selecionadas,
 atuadas e não atuáveis no NORI), Control/ACK, efeito na RAN (``slice_effect.json``) e o veredito
 do certificador por execução. Saída: ``reports/nori/resumo_campanha_nori_<UTC>.md``.
 
@@ -107,8 +107,8 @@ def main(argv: Optional[List[str]] = None) -> int:
              "Gerado por `scripts/certification/nori_campaign_summary.py`. Papéis da cadeia na ordem "
              "E2 Setup, Subscription, KPM_t0, Control, ACK, KPM_t1 (✓ presente no PCAP, · ausente). "
              "Só PRB_QUOTA no gNB 0 é atuável no NORI; potência, handover e ações em outros gNBs são decididas "
-             "pelo H-RDL e registradas, sem Control.", "",
-             "| Execução | Baseline (fonte da decisão) | Cadeia | tshark | Msgs | Indications xApp | Estratégias H-RDL | "
+             "pelo RDL-N1 e registradas, sem Control.", "",
+             "| Execução | Baseline (fonte da decisão) | Cadeia | tshark | Msgs | Indications xApp | Estratégias RDL-N1 | "
              "Atuado (E2SM-RC) | Decidido, não atuável no NORI | Não selecionadas | Efeito (certificador) | Efeito v6 |",
              "| :-- | :-: | :-: | :-: | --: | :-: | :-- | :-- | :-- | :-- | :-: | :-: |"]
     for r in runs:

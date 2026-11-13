@@ -12,7 +12,7 @@
 # Variáveis: SIM_TIME (40), TRAFFIC_RATE (300Mb/s), E2_PERIOD (1), KUBECONFIG,
 #   RUN_TAG (condição no run_id: nori_<S>_B3<RUN_TAG>_seed<N>, ex.: _bw50) e SCENARIO_ARGS (argumentos
 #   extras do cenário, ex.: --bandwidth=50e6). Um RUN_TAG só com [a-z0-9_].
-#   BASELINE (B3 = H-RDL, padrão; B0/B1/B2 = sem coordenação, FIFO, prioridade estática): gravado em
+#   BASELINE (B3 = RDL-N1, padrão; B0/B1/B2 = sem coordenação, FIFO, prioridade estática): gravado em
 #   /data/rdl_baseline na xApp e no run_id (nori_<S>_<BASELINE>..._seed<N>).
 set -uo pipefail
 [ $# -eq 2 ] || { echo "Uso: $0 <S0..S8> <semente>" >&2; exit 64; }
@@ -46,9 +46,13 @@ fi
 for i in $(seq 1 120); do ready && break; sleep 5; done
 ready || { say "xApp kpm-probe não está pronta em modo catalog (pod único)"; exit 3; }
 kubectl -n ricxapp exec deploy/kpm-probe -- sh -c "echo $SCENARIO > /data/rdl_scenario; echo $BASELINE > /data/rdl_baseline"
-say "cenário $SCENARIO gravado na xApp; xApp com src/ de $(kubectl -n ricxapp exec deploy/kpm-probe -- sh -c 'grep "event\": \"start\"" /data/logs/kpm_probe_events.jsonl | tail -1' | grep -o '"src_commit": "[0-9a-f]\{7\}' | cut -d'"' -f4) (repositório em ${COMMIT:0:7})"
+XAPP_SRC_COMMIT="$(kubectl -n ricxapp exec deploy/kpm-probe -- sh -c 'grep "event\": \"start\"" /data/logs/kpm_probe_events.jsonl | tail -1' | grep -o '"src_commit": "[0-9a-f]*' | cut -d'"' -f4 || true)"
+say "cenário $SCENARIO gravado na xApp; xApp com src/ de ${XAPP_SRC_COMMIT:0:7} (repositório em ${COMMIT:0:7})"
 say "=== $RUN_ID: $SCENARIO na bancada NORI, baseline $BASELINE, semente $SEED (saída ao vivo) ==="
+# Proveniência no manifesto (auditoria de 2026-11-13, R3): commit do repositório que conduz a execução e
+# commit do src/ embutido na kpm-probe (o código que decide)
 kubectl -n ricsim exec -it deploy/nori-ns3 -- env RDL_SCENARIO="$SCENARIO" RDL_BASELINE="$BASELINE" \
+  RDL_REPO_GIT_SHA="$COMMIT" RDL_XAPP_SRC_COMMIT="$XAPP_SRC_COMMIT" \
   bash /scripts/run.sh nori-rc-slicing-flowmon "$RUN_ID" --seed "$SEED" -- \
   --simTime="${SIM_TIME:-40}" --ns3::E2Interface::E2Periodicity="${E2_PERIOD:-1}" --trafficRate="${TRAFFIC_RATE:-300Mb/s}" "${EXTRA[@]}" \
   | grep --line-buffered -E "Slice [01]|\[t = |\[RDL-UE\]|E2Term|SETUP|Subscription|subscription|RICcontrol|===|E2SimMod"

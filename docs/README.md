@@ -1,11 +1,11 @@
-# Documentação — xApp RDL (Fase 1: H-RDL)
+# Documentação — xApp RDL (Fase 1: RDL-N1)
 
 ## Por onde começar
 
 | Se você quer… | Leia |
 | :-- | :-- |
 | entender as peças do projeto, quem fala com quem e por qual protocolo | [01 — Componentes e fluxos](01_componentes_e_fluxos.md) |
-| entender como a H-RDL decide | [02 — Modelo de decisão](02_modelo_de_decisao_h_rdl.md) |
+| entender como a RDL-N1 decide | [02 — Modelo de decisão](02_modelo_de_decisao_h_rdl.md) |
 | saber o que cada cenário testa | [03 — Cenários e conflitos](03_cenarios_e_conflitos.md) |
 | instalar e rodar a bancada | [04 — Instalação e operação](04_instalacao_e_operacao.md) |
 | acompanhar uma execução ao vivo ou rodar uma campanha | [05 — Observabilidade e campanhas](05_observabilidade_e_campanhas.md) |
@@ -18,7 +18,7 @@
 | # | Documento | Conteúdo |
 | :-: | :-- | :-- |
 | 01 | [Componentes e fluxos](01_componentes_e_fluxos.md) | O que é simulado, emulado ou real. Quem se registra em quem. Protocolos, portas, tipos de mensagem RMR e identificadores E2. O que cada ação faz em cada pilha. Componentes do NORI. PCAP e tshark. Diagramas de cada fluxo: registro, subscrição, KPM, decisão e Control, efeito, certificação, observabilidade e pilha nativa |
-| 02 | [Modelo de decisão da H-RDL](02_modelo_de_decisao_h_rdl.md) | Modos de operação, entrada de propostas, Safety Guard, percepção, TVS/EEVS, Refinement, parâmetros controláveis, integração E2 da `RDLxApp`, limitações |
+| 02 | [Modelo de decisão da RDL-N1](02_modelo_de_decisao_h_rdl.md) | Modos de operação, entrada de propostas, Safety Guard, percepção, TVS/EEVS, Refinement, parâmetros controláveis, integração E2 da `RDLxApp`, limitações |
 | 03 | [Cenários e conflitos](03_cenarios_e_conflitos.md) | Tipos de conflito, cenários S0–S8 e o que cada um atua na bancada NORI |
 | 04 | [Instalação e operação](04_instalacao_e_operacao.md) | Ambiente, pilha nativa, execução com proveniência, campanhas, certificação, k3s, Near-RT RIC, NORI, xApp `kpm-probe`, dissecação do PCAP, Helm, solução de problemas |
 | 05 | [Observabilidade e campanhas](05_observabilidade_e_campanhas.md) | Painel tmux, comandos de cada aba ao vivo (NORI, E2AP, xApp, RIC, Kubernetes, UEs), InfluxDB e Grafana, campanhas NORI e nativa |
@@ -27,17 +27,17 @@
 | 09 | [Frameworks e ações críticas](09_frameworks_e_acoes_criticas.md) | Frameworks avaliados para o GreenRAN; classes de urgência e alternativas fora da RDL (dApps, E2SM-RC Policy, guarda na DU, A1) |
 | 10 | [SMO, Non-RT RIC e rApp](10_smo_non_rt_ric_e_rapp.md) | A1-PMS do O-RAN SC na bancada, A1 via RMR, fluxo de ML do MAPPO, passo a passo do SMO completo |
 | 11 | [Governança hierárquica das xApps](11_governanca_hierarquica_xapps.md) | Registro e NetworkPolicy, interceptação por rota, conflito implícito, rApp de governança, supervisão sob demanda; onde ficam dbaas, NetworkX e Neo4j |
-| 12 | [xApps do GreenRAN, rApp e testbed](12_greenran_xapps_rapp_e_testbed.md) | xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer; perfis srsRAN (GERCOM) e OAI (LACIS) |
+| 12 | [xApps do GreenRAN, rApp e testbed](12_greenran_xapps_rapp_e_testbed.md) | RANSlicer-GreenRAN, EnergySaver-GreenRAN, rApp-ResourceOptimizer; perfis srsRAN (GERCOM) e OAI (LACIS) |
 | — | [Pré-registros](preregistros/README.md) | Desenhos v2–v7 da fase 4, campanha do G5 e conflitos entre células (08), cada um com o resultado registrado depois |
 
 ## Glossário curto
 
 | Termo | Significado |
 | :-- | :-- |
-| H-RDL | a camada de decisão da Fase 1: Safety Guard, TVS/EEVS e Refinement |
+| RDL-N1 | a camada de decisão da Fase 1: Safety Guard, TVS/EEVS e Refinement |
 | NORI | módulo E2 para o ns-3 + 5G-LENA (`lasseufpa/nori`); na bancada, o gNB simulado fala E2 real com o RIC |
 | KPM_t0 / KPM_t1 | o relatório KPM antes do Control (que dispara a decisão) e o primeiro depois dele |
-| B0–B3 | baselines: sem coordenação, FIFO, prioridade estática e H-RDL |
+| B0–B3 | baselines: sem coordenação, FIFO, prioridade estática e RDL-N1 |
 | G0–G6 | gates de evidência avaliados pelo certificador |
 | MEID | identificador do nó E2 usado pelo RMR para rotear o Control (`gnb_268_341_00000001` na bancada) |
 | RMR | o roteador de mensagens interno do Near-RT RIC |

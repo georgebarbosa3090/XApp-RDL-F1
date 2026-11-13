@@ -1,15 +1,15 @@
-# Perfil-alvo da Fase 2 (CA-RDL)
+# Perfil-alvo da Fase 2 (RDL-N2)
 
 **Situação:** definição. O código e os gates da Fase 2 vivem no repositório `georgebarbosa3090/XApp-RDL-F2`; este documento registra apenas o que a Fase 1 assume sobre ela. Nenhum status de gate da Fase 2 é verificado neste repositório.
 
 ## 1. Relação com a Fase 1
 
-A Fase 2 acrescenta contexto (grafo de conhecimento) e arbitragem aprendida (MAPPO com GNN) sobre a H-RDL. A Fase 1 permanece como barreira de segurança: toda ação proposta pela Fase 2 passa pelo `Refinement` da Fase 1 (limites, histerese, slew-rate) e é rejeitada se violá-lo.
+A Fase 2 acrescenta contexto (grafo de conhecimento) e arbitragem aprendida (MAPPO com GNN) sobre a RDL-N1. A Fase 1 permanece como barreira de segurança: toda ação proposta pela Fase 2 passa pelo `Refinement` da Fase 1 (limites, histerese, slew-rate) e é rejeitada se violá-lo.
 
 ## 2. Alvos declarados
 
 ```yaml
-phase1_layer: H-RDL (Refinement como barreira obrigatória)
+phase1_layer: RDL-N1 (Refinement como barreira obrigatória)
 e2ap: v03.01
 e2sm_kpm: v08.00
 e2sm_rc: v10.00
@@ -28,7 +28,7 @@ A versão anterior deste documento citava o commit NORI `9b64c12`, que não exis
 | E2AP | v02.03 | v03.01 |
 | E2SM-KPM | v03.00 | v08.00 |
 | E2SM-RC | v01.03 (perfil local simplificado) | v10.00 |
-| Arbitragem | TVS/EEVS determinístico | MAPPO + GNN + KG, com a H-RDL como reserva |
+| Arbitragem | TVS/EEVS por regras | MAPPO + GNN + KG, com a RDL-N1 como reserva |
 | Cenários | S0–S7 | S9–S15 |
 
 ## 4. Requisitos que a Fase 1 impõe à Fase 2

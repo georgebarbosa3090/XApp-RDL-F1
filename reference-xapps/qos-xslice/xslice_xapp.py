@@ -123,7 +123,7 @@ class XSliceXApp:
         val = prb_quota if prb_quota is not None else self.compute_dynamic_prb_quota()
         param = parameter if parameter is not None else self.target_parameter
         
-        # Metadados de consciência ecológica para a camada de arbitragem H-RDL / CA-RDL
+        # Metadados de consciência ecológica para a camada de arbitragem RDL-N1 / RDL-N2
         eco_compliance = 0.85 if self.greenran_profile != "URLLC_AGRO_CRITICAL" else 0.40
         bwp_candidate = 1 if val <= 40.0 else 0  # BWP reduzida para economia de energia se cota for baixa
 

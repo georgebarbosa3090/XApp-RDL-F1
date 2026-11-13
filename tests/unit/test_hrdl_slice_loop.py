@@ -1,7 +1,7 @@
 """
-Testes da ponte KPM -> H-RDL -> cotas de PRB (src/closed_loop/hrdl_slice_loop.py).
+Testes da ponte KPM -> RDL-N1 -> cotas de PRB (src/closed_loop/hrdl_slice_loop.py).
 
-A decisão passa pelo pipeline real da xApp RDL (RDLxApp._process_action_group); os KPM aqui são
+A decisão passa pelo pipeline real da xApp RDL (RDLxApp.process_actions); os KPM aqui são
 dicionários no formato que src/e2/v3/codec.py devolve ao decodificar as Indications do NORI.
 """
 
@@ -42,7 +42,7 @@ def test_real_hrdl_pipeline_resolves_the_direct_conflict():
         {"sst": 2, "max_prb_ratio": 20, "min_prb_ratio": 0, "dedicated_prb_ratio": 0}]
 
 
-def test_decision_is_deterministic_across_fresh_deciders():
+def test_decision_is_reproducible_across_fresh_deciders():
     a = loop.decide_slice_quotas(NODE_ID, CONGESTED, UES)
     b = loop.decide_slice_quotas(NODE_ID, CONGESTED, UES)
     assert (a["selected"], a["quotas"]) == (b["selected"], b["quotas"])

@@ -79,7 +79,7 @@ Outras peças do testbed:
 
 1. **srsRAN com OSC RIC é o caminho mais curto** para a RDL no testbed. É a combinação que o GT IQoS e o Blueprint já usam, e o srsRAN anuncia RC CONTROL Style 2. O ponto a confirmar é se a Action 6 vem no leiaute aninhado da norma, que o codec ainda não aceita.
 2. **No OAI, a RDL depende de uma escolha do laboratório.** Uma opção é o OSC RIC, com integração ainda imatura. A outra é o FlexRIC, que exige uma ponte E42 ↔ RMR ou rodar a RDL como xApp do FlexRIC. Essa mesma ponte aparece no desenho das xApps originais em malha fechada (doc 16), porque o xSlice e o Energy Saving originais são xApps do FlexRIC.
-3. **Potência e desligamento de célula (atividades A1.2 e A1.3) não têm canal no testbed hoje.** Nenhuma pilha aberta oferece O1 pronto, e nenhuma fonte cita E2SM-CCC. Isso afeta diretamente a xApp2-EnergySaver: no testbed, ela começaria só com a cota de PRB, ou com a reconfiguração da célula fora do laço E2.
+3. **Potência e desligamento de célula (atividades A1.2 e A1.3) não têm canal no testbed hoje.** Nenhuma pilha aberta oferece O1 pronto, e nenhuma fonte cita E2SM-CCC. Isso afeta diretamente a EnergySaver-GreenRAN: no testbed, ela começaria só com a cota de PRB, ou com a reconfiguração da célula fora do laço E2.
 4. **A medição de energia já existe em parte.** A observabilidade com Zabbix da ilha da RNP (WGRS 2026) coleta consumo de energia de RU, DU e CU, e pode alimentar o gate GR4. Vale perguntar à ilha da UFPA se terá o mesmo.
 5. **Há trabalho anterior do próprio grupo para aproveitar.** O GT IQoS da UFPA já integrou uma xApp de fatiamento ao OSC RIC com srsRAN no testbed. O código e a configuração desse trabalho respondem às perguntas 3 a 9 para o srsRAN mais rápido que qualquer captura.
 
@@ -109,7 +109,7 @@ Esses documentos podem trazer parte do que falta.
 
 **O que muda para a RDL:** a arbitragem não depende de fatiamento, porque a cota por fatia é só um dos cinco parâmetros controlados (`src/e2/rc/control_parameter.py`). Ficam afetados:
 
-- o papel do xSlice e o xApp1-RANSlicer, que é um entregável do GreenRAN;
+- o papel do xSlice e o RANSlicer-GreenRAN, que é um entregável do GreenRAN;
 - os cenários com `PRB_QUOTA` por fatia: S0, S1, S2, S6, S7, S8, S12, S14 e G1;
 - o gate TB7, que previa a arbitragem entre o RANSlicer e o EnergySaver.
 

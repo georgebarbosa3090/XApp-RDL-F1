@@ -319,7 +319,7 @@ O docs/16 (§3.1, etapa E1) prevê ampliar o `RdlKpiSampler` com "uso de PRB, UE
 | C17.3 | `rdl_kpi_timeseries.csv` (`RdlKpiSampler::Flush`) | só escreve células com pacotes na janela | documentar no `docs/03` e no cabeçalho; análises por célula não podem supor todas as células presentes |
 | C17.4 | `rdl-nr-common.h` e `docs/03` | o modo de alocação de potência (`UniformPowerAllocUsed`, padrão) não está documentado; ele concentra a potência nos RBs usados (+5,2 dB por RB com teto de 30 %) | documentar; tratar como ameaça à validade nos artigos que usam teto de PRB no ns-3 (G1, S12) até a H13.6 quantificar |
 | C17.5 | artigo SBRC, Limitações | "energia aproximada por PRBs ativos e células ligadas" | depois do pré-registro 12, trocar pelo texto da seção 6.1 e manter "não medida" até o GR4 |
-| C17.6 | Fase 2 (`artigos/scripts/insights_complemento.py`, linha 9: `energy_ratio = min(100, teto_crit + teto_embb)/100`) | o "PRB ativo" da CA-RDL é a soma dos tetos, não a ocupação | no artigo da Fase 2, chamar de "soma dos tetos de PRB (proxy)" |
+| C17.6 | Fase 2 (`artigos/scripts/insights_complemento.py`, linha 9: `energy_ratio = min(100, teto_crit + teto_embb)/100`) | o "PRB ativo" da RDL-N2 é a soma dos tetos, não a ocupação | no artigo da Fase 2, chamar de "soma dos tetos de PRB (proxy)" |
 
 ## 9. Referências novas (não inseridas no `references.bib`)
 

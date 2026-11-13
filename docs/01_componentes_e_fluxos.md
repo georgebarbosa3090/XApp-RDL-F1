@@ -19,11 +19,11 @@ Os detalhes ficam nos outros documentos:
 
 ## 1. Visão geral
 
-O projeto tem duas pilhas de simulação e uma xApp de decisão, a H-RDL.
+O projeto tem duas pilhas de simulação e uma xApp de decisão, a RDL-N1.
 
 | Pilha | O que é | E2 | Malha | Para que serve |
 | :-- | :-- | :-: | :-: | :-- |
-| **Bancada NORI** | ns-3.42 + 5G-LENA + módulo NORI, em tempo real, ligada a um Near-RT RIC O-RAN SC Release I de verdade | real (SCTP, E2AP v3.01) | fechada | certificar a cadeia KPM_t0 → H-RDL → E2SM-RC → ACK → KPM_t1 (gates G1–G5) |
+| **Bancada NORI** | ns-3.42 + 5G-LENA + módulo NORI, em tempo real, ligada a um Near-RT RIC O-RAN SC Release I de verdade | real (SCTP, E2AP v3.01) | fechada | certificar a cadeia KPM_t0 → RDL-N1 → E2SM-RC → ACK → KPM_t1 (gates G1–G5) |
 | **Pilha nativa** | ns-3.48 + 5G-LENA v5.1, sem RIC | não há | aberta | comparar baselines B0–B3 em S0–S7 com cronograma de ações fixo (gate G0) |
 
 ```mermaid
@@ -43,7 +43,7 @@ flowchart LR
             DB[("DBaaS<br/>(Redis / SDL)")]
         end
         subgraph RICXAPP["namespace ricxapp"]
-            XA["xApp kpm-probe<br/>+ H-RDL embutida"]
+            XA["xApp kpm-probe<br/>+ RDL-N1 embutida"]
         end
         subgraph MON["namespace monitoring"]
             INF[("InfluxDB")]
@@ -90,8 +90,8 @@ Três termos, usados sempre no mesmo sentido neste repositório:
 | Núcleo EPC e host remoto (ns-3) | **simulado** | dentro do ns-3 | origem do tráfego UDP downlink para os UEs | ns-3.42 `ab4cce0` |
 | Nó E2 do NORI (agente E2 do gNB) | **emulado** | dentro do ns-3, com `RealtimeSimulatorImpl` | o gNB simulado fala E2AP v3.01 real, por SCTP real, com o RIC; o tempo simulado segue o relógio de parede | NORI `8a30867` + patch `0001-rc-control-ack` |
 | Near-RT RIC (E2Term, E2Mgr, SubMgr, RtMgr, AppMgr, A1 Mediator, DBaaS) | **real** | k3s, namespace `ricplt` | plataforma O-RAN SC: termina o E2, roteia RMR, gerencia subscrições e nós | Release I (`ric-dep` `0a6f18e`) |
-| xApp `kpm-probe` | **real** | k3s, namespace `ricxapp` | assina KPM, decide com a H-RDL e envia o RIC Control | código do `src/` do commit implantado |
-| H-RDL (núcleo de decisão) | **real** | biblioteca dentro da `kpm-probe` (e dentro do driver da pilha nativa) | Safety Guard → Perception → TVS/EEVS → Refinement | `src/core/`, `src/rdl_xapp.py` |
+| xApp `kpm-probe` | **real** | k3s, namespace `ricxapp` | assina KPM, decide com a RDL-N1 e envia o RIC Control | código do `src/` do commit implantado |
+| RDL-N1 (núcleo de decisão) | **real** | biblioteca dentro da `kpm-probe` (e dentro do driver da pilha nativa) | Safety Guard → Perception → TVS/EEVS → Refinement | `src/core/`, `src/rdl_xapp.py` |
 | xApps que propõem ações (xSlice, Energy Saving, Traffic Steering, …) | **emuladas por propostas** | não rodam como processos nos experimentos | as propostas vêm do catálogo (`conflicts/catalog.json`) ou de duas políticas de referência (`hrdl_slice_loop.py`), sempre iguais entre baselines e sementes | — |
 | Pilha nativa (ns-3.48 + 5G-LENA v5.1) | **simulada** | WSL, fora do k3s | RAN e atuação inteiras dentro do simulador; sem E2 | ns-3.48 `d2add90`, 5G-LENA `cedcead` |
 | `tcpdump` | **real** | pod `nori-ns3` | grava o SCTP/E2 do fio em `raw/e2_sctp.pcap` | do Ubuntu 20.04 |
@@ -272,8 +272,8 @@ O codec é [`src/e2/v3/codec.py`](../src/e2/v3/codec.py).
 
 | `rc.decision` | Quem decide | Propostas | `decision_source` | Aceito no G4 |
 | :-- | :-- | :-- | :-- | :-: |
-| `hrdl` | H-RDL sobre o KPM_t0 ([`hrdl_slice_loop.py`](../src/closed_loop/hrdl_slice_loop.py)) | duas políticas de referência: `xapp-qos-xslice` (prioridade 90) e `xapp-embb-throughput` (prioridade 60) | `H_RDL` | sim |
-| `catalog` + baseline B3 | H-RDL ([`catalog_loop.py`](../src/closed_loop/catalog_loop.py)) | as do cenário do catálogo (`/data/rdl_scenario`) | `H_RDL` | sim |
+| `hrdl` | RDL-N1 sobre o KPM_t0 ([`hrdl_slice_loop.py`](../src/closed_loop/hrdl_slice_loop.py)) | duas políticas de referência: `xapp-qos-xslice` (prioridade 90) e `xapp-embb-throughput` (prioridade 60) | `H_RDL` | sim |
+| `catalog` + baseline B3 | RDL-N1 ([`catalog_loop.py`](../src/closed_loop/catalog_loop.py)) | as do cenário do catálogo (`/data/rdl_scenario`) | `H_RDL` | sim |
 | `catalog` + B0/B1/B2 | `decide_baseline` | as do cenário do catálogo | `BASELINE_B0` / `_B1` / `_B2` | não (são os comparadores do G5) |
 | `fixed` | ninguém: cotas de `rc.sliceQuotas` | — | `FIXED_PROBE` | não |
 
@@ -284,7 +284,7 @@ O codec é [`src/e2/v3/codec.py`](../src/e2/v3/codec.py).
 | B0 | sem coordenação: cada proposta é aplicada na chegada | ação aplicada na chegada | um Control por proposta atuável, em sequência; cada ACK correlacionado pelo `RICInstanceID` |
 | B1 | FIFO por janela e alvo | aplicada no fechamento da janela de 200 ms | um Control com a primeira proposta |
 | B2 | prioridade estática por janela e alvo | idem | um Control com a de maior prioridade |
-| B3 | H-RDL (Safety Guard, TVS, EEVS, Refinement) | idem | um Control com a ação selecionada pela H-RDL |
+| B3 | RDL-N1 (Safety Guard, TVS, EEVS, Refinement) | idem | um Control com a ação selecionada pela RDL-N1 |
 
 A decisão de cada cenário (S0–S8) na bancada está em [03 §4](03_cenarios_e_conflitos.md#4-cenários-na-bancada-nori-porte-de-s0s8-com-e2-real).
 
@@ -356,7 +356,7 @@ sequenceDiagram
     participant N as Nó E2 (NORI)
     participant T as E2Term
     participant X as xApp kpm-probe
-    participant H as H-RDL (dentro da xApp)
+    participant H as RDL-N1 (dentro da xApp)
 
     N->>T: Indication formato 1 (nó)
     T->>X: RMR 12050
@@ -378,7 +378,7 @@ Tempos medidos:
 
 | Medida | Valor | Fonte |
 | :-- | :-- | :-- |
-| Decisão do H-RDL (TVS) | 1,3 ms | `nori_hrdl_loop_seed1` |
+| Decisão do RDL-N1 (TVS) | 1,3 ms | `nori_hrdl_loop_seed1` |
 | Control → ACK, sem decisão (cotas fixas) | 1,9 ms | `nori_rc_control_seed1` |
 | Control → ACK, incluindo a decisão | 14,8 ms | `nori_hrdl_loop_seed1` |
 | Período KPM | 1 s (um par) | `E2Periodicity=1` |
@@ -419,9 +419,9 @@ flowchart LR
 | :-: | :-- | :-- |
 | G0 | manifestos completos, commits iguais ao `versions.lock` | manifesto + `BUILD_INFO.json` |
 | G1 | E2 Setup, Subscription e Indication externos | PCAP + tshark (R14) |
-| G2 | decisão H-RDL funcional | testes (só local) |
+| G2 | decisão RDL-N1 funcional | testes (só local) |
 | G3 | Control e ACK/Failure correlacionados | PCAP + registro da xApp |
-| G4 | cadeia KPM_t0 → decisão H-RDL → Control → ACK → KPM_t1, em ordem, com efeito `CONSISTENT` | PCAP + xApp + `slice_effect` |
+| G4 | cadeia KPM_t0 → decisão RDL-N1 → Control → ACK → KPM_t1, em ordem, com efeito `CONSISTENT` | PCAP + xApp + `slice_effect` |
 | G5 | ≥ 30 unidades (cenário, semente) pareadas em B0–B3 com E2 real | campanha do G5 |
 | G6 | G4 + G5 + reprodução independente | — |
 
@@ -456,7 +456,7 @@ sequenceDiagram
     autonumber
     participant C as catalog.json
     participant D as run_conflict_experiment.py
-    participant H as RDLxApp (H-RDL real)
+    participant H as RDLxApp (RDL-N1 real)
     participant S as ns-3.48 + 5G-LENA v5.1<br/>(rdl-nr-common.h)
     participant A as analyze_conflict_runs.py
 
@@ -477,7 +477,7 @@ A pilha nativa roda em malha aberta: o cronograma é calculado antes e não há 
 
 | Área | Caminho |
 | :-- | :-- |
-| H-RDL (núcleo) | `src/core/` (Perception, Reasoning TVS/EEVS, Refinement), `src/rdl_xapp.py` |
+| RDL-N1 (núcleo) | `src/core/` (Perception, Reasoning TVS/EEVS, Refinement), `src/rdl_xapp.py` |
 | Laços da bancada | `src/closed_loop/` (`hrdl_slice_loop.py`, `catalog_loop.py`, `kpm_pairing.py`) |
 | Codec E2 v3.01 da bancada | `src/e2/v3/codec.py` |
 | Codec E2 local da `RDLxApp` (não normativo) | `src/e2/e2ap/`, `src/e2/kpm*`, `src/e2/rc_encoder.py` |

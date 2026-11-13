@@ -17,7 +17,7 @@ class RANParameterDefinition:
     unit: str
     description: str
 
-# Tabela Canônica de Parâmetros da RAN para H-RDL
+# Tabela Canônica de Parâmetros da RAN para RDL-N1
 RAN_PARAMETERS: Dict[str, RANParameterDefinition] = {
     "PRB_QUOTA": RANParameterDefinition(
         param_id=1,

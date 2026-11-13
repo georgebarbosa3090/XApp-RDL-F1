@@ -27,16 +27,16 @@ Cada gate só é aprovado com artefatos brutos registrados conforme a [política
 | TB1 | Núcleo + RAN | UE registra, abre sessão PDU e trafega (ping/iperf3) | logs do AMF, `ping.log` |
 | TB2 | E2 Setup | E2 Setup Request/Response concluídos no E2Term | PCAP E2, log do E2Term |
 | TB3 | KPM de referência | xApp de referência recebe Indications KPM válidas | JSON de indicações |
-| TB4 | KPM na H-RDL | `SrsRanBackendAdapter` decodifica KPM real | log JSONL da xApp |
+| TB4 | KPM na RDL-N1 | `SrsRanBackendAdapter` decodifica KPM real | log JSONL da xApp |
 | TB5 | RC de referência | controle de PRB por xApp de referência com ACK | PCAP E2 |
-| TB6 | RC da H-RDL | RIC Control da xApp RDL com ACK correlacionado | log JSONL + PCAP |
-| TB7 | Arbitragem | propostas conflitantes de duas xApps resolvidas de forma determinística | `conflicts.jsonl`, `decisions.jsonl` |
+| TB6 | RC da RDL-N1 | RIC Control da xApp RDL com ACK correlacionado | log JSONL + PCAP |
+| TB7 | Arbitragem | propostas conflitantes de duas xApps resolvidas de forma reprodutível | `conflicts.jsonl`, `decisions.jsonl` |
 | TB8 | Closed loop | KPM(t0) → decisão → RC → ACK → KPM(t1..t3) em ordem | log causal, `iperf.json` |
 | TB9 | Comparação entre backends | mesmas decisões em NORI_NS3 e SRSRAN_OPEN5GS para as mesmas entradas | relatório comparativo |
 | TB10 | Ilha física | execução com O-RU e UE comercial | manifesto do testbed |
 
 ## 3. Primeiro cenário sugerido: S1 (conflito direto de PRB)
 
-S1 evita controle de potência, cujo suporte varia entre versões de firmware. Duas xApps propõem cotas de PRB incompatíveis para o mesmo alvo. A H-RDL agrupa as propostas por alvo na janela de 200 ms, descarta as que violam os limites do Safety Guard, escolhe **uma** ação por TVS/EEVS e a despacha como RIC Control. Não há divisão fixa de cotas: o valor aplicado é o da proposta vencedora, dentro dos limites configurados em `configs/`. A validação exige ACK correlacionado e três amostras KPM consecutivas após o controle (3 s com KPM a cada 1 s).
+S1 evita controle de potência, cujo suporte varia entre versões de firmware. Duas xApps propõem cotas de PRB incompatíveis para o mesmo alvo. A RDL-N1 agrupa as propostas por alvo na janela de 200 ms, descarta as que violam os limites do Safety Guard, escolhe **uma** ação por TVS/EEVS e a despacha como RIC Control. Não há divisão fixa de cotas: o valor aplicado é o da proposta vencedora, dentro dos limites configurados em `configs/`. A validação exige ACK correlacionado e três amostras KPM consecutivas após o controle (3 s com KPM a cada 1 s).
 
 O comportamento correspondente na simulação está nos resultados de S1 em [`../06_metodologia_e_resultados.md`](../06_metodologia_e_resultados.md).

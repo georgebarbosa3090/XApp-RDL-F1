@@ -21,9 +21,28 @@ spec:
               {{- toYaml .Values.ricxapp.rdl.proposerLabel | nindent 14 }}
       ports:
         - {port: {{ .Values.ricxapp.rdl.rmrDataPort }}, protocol: TCP}
-    # Demais portas da RDL (rota RMR 4561, HTTP 8080, métricas 8081): sem restrição adicional
-    - ports:
+    # Rota RMR (4561): só o RtMgr, no namespace da plataforma
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Values.ricplt.namespace }}}
+      ports:
         - {port: 4561, protocol: TCP}
+    {{- if .Values.rdlPolicy.restrictHttp }}
+    # HTTP (8080: /health, /ready, /governance, /rejections, /decisions, /kg) e métricas (8081): só os
+    # namespaces que consomem esses endpoints (rApps e CronJob do grafo no Non-RT RIC, observabilidade).
+    # As sondas do kubelet vêm do próprio nó, que o controlador do k3s (kube-router) sempre permite.
+    - from:
+        {{- range .Values.rdlPolicy.httpAllowedNamespaces }}
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ . }}}
+        {{- end }}
+      ports:
         - {port: 8080, protocol: TCP}
         - {port: 8081, protocol: TCP}
+    {{- else }}
+    # HTTP e métricas sem restrição (rdlPolicy.restrictHttp=false)
+    - ports:
+        - {port: 8080, protocol: TCP}
+        - {port: 8081, protocol: TCP}
+    {{- end }}
 {{- end }}

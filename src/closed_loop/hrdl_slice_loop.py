@@ -1,5 +1,5 @@
 """
-Ponte da malha fechada (fase 4): KPM_t0 (E2SM-KPM v3) -> decisão H-RDL -> cotas de PRB (E2SM-RC v3).
+Ponte da malha fechada (fase 4): KPM_t0 (E2SM-KPM v3) -> decisão RDL-N1 -> cotas de PRB (E2SM-RC v3).
 
 1. ``slice_state``: estado da célula a partir do KPM decodificado (``src/e2/v3/codec.py``). Usa só o
    que o KPM do NORI mede de fato: PRB usados e disponíveis do nó (congestionamento) e a fatia de
@@ -16,7 +16,7 @@ Ponte da malha fechada (fase 4): KPM_t0 (E2SM-KPM v3) -> decisão H-RDL -> cotas
    propunha 40 %; o TVS a escolheu e o teto não restringiu (a eMBB usava ~40 % dos PRBs).
 
    ``PRB_QUOTA`` é o teto de PRB (%) da fatia eMBB; a URLLC recebe ``100 - PRB_QUOTA``.
-3. ``HrdlDecider``: o pipeline real da xApp RDL (``RDLxApp._process_action_group``: Safety Guard,
+3. ``HrdlDecider``: o pipeline real da xApp RDL (``RDLxApp.process_actions``: Safety Guard,
    Perception, Reasoning TVS/EEVS, Refinement), com o despacho capturado — o mesmo caminho do B3 na
    campanha. Uma instância nova por decisão, para que o histórico de uma execução não decida a outra.
 4. ``decide_slice_quotas``: junta tudo e devolve o registro da decisão (estado, propostas,
@@ -39,7 +39,7 @@ POLICIES = (
     ("xapp-qos-xslice", 90, 25, "protege a URLLC sob congestionamento: teto de 25 % para a eMBB"),
     ("xapp-embb-throughput", 60, 80, "maximiza a vazão eMBB sob congestionamento: teto de 80 % para a eMBB"),
 )
-ENGINE = "src/rdl_xapp.py RDLxApp._process_action_group"
+ENGINE = "src/rdl_xapp.py RDLxApp.process_actions"
 
 
 def slice_state(node: Dict[str, Any], ues: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
@@ -71,7 +71,7 @@ def quotas_for(prb_quota_embb: float) -> List[SlicePrbQuota]:
 
 
 class HrdlDecider:
-    """Pipeline real do H-RDL fora do RIC, com o despacho de controle capturado."""
+    """Pipeline real do RDL-N1 fora do RIC, com o despacho de controle capturado."""
 
     def __init__(self) -> None:
         saved = {k: os.environ.pop(k, None) for k in ("SUBMGR_URL",)}   # sem subscrição própria do RDLxApp
@@ -114,7 +114,7 @@ class HrdlDecider:
 
     def decide(self, actions: Sequence[Any]) -> Dict[str, Any]:
         started = time.perf_counter()
-        self.app._process_action_group(list(actions))
+        self.app.process_actions(list(actions))
         return {"selected": list(self.dispatched), "resolutions": list(self.resolutions),
                 "decision_wall_ms": round((time.perf_counter() - started) * 1000.0, 3)}
 
@@ -124,7 +124,7 @@ class HrdlDecider:
 
 def decide_slice_quotas(node_id: str, node: Dict[str, Any], ues: Sequence[Dict[str, Any]],
                         decider: Optional[HrdlDecider] = None) -> Dict[str, Any]:
-    """Decisão completa a partir do KPM_t0; ``quotas`` vazio quando o H-RDL não seleciona ação."""
+    """Decisão completa a partir do KPM_t0; ``quotas`` vazio quando o RDL-N1 não seleciona ação."""
     state = slice_state(node, ues)
     proposals = reference_proposals(state, node_id)
     record: Dict[str, Any] = {
@@ -148,11 +148,11 @@ def decide_slice_quotas(node_id: str, node: Dict[str, Any], ues: Sequence[Dict[s
     record["decision_wall_ms"] = out["decision_wall_ms"]
     selected = [a for a in out["selected"] if a.parameter == "PRB_QUOTA"]
     if not selected:
-        record["reason"] = "H-RDL não selecionou ação (bloqueada pelo Safety Guard ou sem vencedor)"
+        record["reason"] = "RDL-N1 não selecionou ação (bloqueada pelo Safety Guard ou sem vencedor)"
         return record
     winner = selected[0]
     record["selected"] = {"action_id": winner.action_id, "xapp_id": winner.xapp_id, "value": winner.value,
                           "priority": winner.priority}
     record["quotas"] = [q.__dict__ for q in quotas_for(winner.value)]
-    record["reason"] = "ação selecionada pelo H-RDL"
+    record["reason"] = "ação selecionada pelo RDL-N1"
     return record

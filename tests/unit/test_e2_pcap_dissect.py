@@ -420,7 +420,7 @@ def test_g4_requires_an_h_rdl_decision_on_kpm_t0(tmp_path, policy, lock, monkeyp
     report = cert.certify_run(run_dir, policy, lock, [], droot)
     gates = cert.evaluate_gates([report], lock)
     assert gates["G3"]["verdict"] == cert.CERTIFIED
-    # Sem medida de efeito na RAN, nem a decisão do H-RDL certifica G4.
+    # Sem medida de efeito na RAN, nem a decisão do RDL-N1 certifica G4.
     assert gates["G4"]["verdict"] == cert.NOT_CERTIFIED
     assert reason in gates["G4"]["reason"], gates["G4"]["reason"]
 

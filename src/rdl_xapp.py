@@ -111,23 +111,55 @@ RIC_SUB_REQ = RIC_SUBSCRIPTION_REQ
 RIC_SUB_RESP = RIC_SUBSCRIPTION_RESP
 RIC_SUB_FAILURE = RIC_SUBSCRIPTION_FAILURE
 
+# Modos de operação (RDL_MODE). Todo valor fora desta lista é erro de configuração na partida:
+# antes, um modo desconhecido (como "governance", o padrão do chart) caía em silêncio no MockRMRXapp.
+#   OFFLINE_SIMULATION: RMR simulado, memória local; testes e experimentos de simulação.
+#   GOVERNANCE: RMR real (ricxappframe obrigatório), fora do modo estrito; é o modo do chart Helm.
+#   O_RAN_INTEROP: RMR real, SDL, registro de xApps obrigatório e despacho bloqueado até a
+#                  interoperabilidade do backend ser verificada.
+RDL_MODES = ("OFFLINE_SIMULATION", "GOVERNANCE", "O_RAN_INTEROP")
+_MODE_ALIASES = {
+    "OFFLINE_SIMULATION": "OFFLINE_SIMULATION", "SIMULATION": "OFFLINE_SIMULATION",
+    "GOVERNANCE": "GOVERNANCE",
+    "O_RAN_INTEROP": "O_RAN_INTEROP", "ORAN-STRICT": "O_RAN_INTEROP", "ORAN_STRICT": "O_RAN_INTEROP",
+    "STRICT": "O_RAN_INTEROP",
+}
+
+
+def parse_rdl_mode(raw: Optional[str]) -> str:
+    """Modo canônico de ``RDL_MODE`` (vazio = OFFLINE_SIMULATION). Valor desconhecido levanta ValueError."""
+    value = (raw or "OFFLINE_SIMULATION").strip().upper()
+    if value not in _MODE_ALIASES:
+        raise ValueError(f"RDL_MODE desconhecido: {raw!r}. Valores aceitos: {', '.join(RDL_MODES)} "
+                         f"(apelidos: {', '.join(sorted(set(_MODE_ALIASES) - set(RDL_MODES)))})")
+    return _MODE_ALIASES[value]
+
+
+def _env_flag(name: str, default: str) -> bool:
+    return os.getenv(name, default).strip().lower() in ("true", "1", "yes")
+
 
 class RDLxApp:
-    def __init__(self):
+    def __init__(self, serve_http: Optional[bool] = None):
+        """``serve_http=False`` não sobe os servidores HTTP de saúde (8080) e métricas (8081): usado
+        pelos executores de experimento, que só chamam o pipeline de decisão. Padrão: ``RDL_SERVE_HTTP``
+        (true)."""
         self.running = True
         os.environ.setdefault("CONFIG_FILE", "/app/configs/config-file.json")
+        self.serve_http = _env_flag("RDL_SERVE_HTTP", "true") if serve_http is None else bool(serve_http)
+        # Nó E2 assinado e com capacidades estáticas registradas no ponto de entrada (um nó por instância)
+        self.e2_node_id = os.getenv("RDL_E2_NODE", "gnb_01").strip() or "gnb_01"
 
-        # Modos de Operação (O_RAN_INTEROP / ORAN-STRICT | SIMULATION / OFFLINE_SIMULATION | STANDALONE)
-        raw_mode = os.getenv("RDL_MODE", "OFFLINE_SIMULATION").upper()
-        self.mode = "O_RAN_INTEROP" if raw_mode in ("O_RAN_INTEROP", "ORAN-STRICT", "ORAN_STRICT", "STRICT") else raw_mode
+        self.mode = parse_rdl_mode(os.getenv("RDL_MODE"))
         self.oran_strict = (self.mode == "O_RAN_INTEROP")
+        self.real_rmr = self.mode in ("GOVERNANCE", "O_RAN_INTEROP")
 
+        if self.real_rmr and not _HAS_RICXAPPFRAME:
+            raise RuntimeError(
+                f"ricxappframe / RMR é obrigatório no modo {self.mode}: "
+                "o MockRMRXapp não envia nem recebe mensagens e não pode substituir o transporte real."
+            )
         if self.mode == "O_RAN_INTEROP":
-            if not _HAS_RICXAPPFRAME:
-                raise RuntimeError(
-                    "ImportError: ricxappframe / RMR é obrigatório no modo O_RAN_INTEROP. "
-                    "Fallback para MockRMR é estritamente proibido em ambiente O-RAN estrito."
-                )
             use_fake_sdl = False
             rmr_wait_for_ready = os.getenv("RMR_WAIT_FOR_READY", "false").lower() in ("true", "1", "yes")
         else:
@@ -183,9 +215,10 @@ class RDLxApp:
             lambda full=False: self.knowledge_graph.to_dict() if full else self.knowledge_graph.stats()
         )
         self.health.set_state(AppState.STARTING)
-        self.health.run()
         self.metrics = MetricsServer(port=8081)
-        self.metrics.start()
+        if self.serve_http:
+            self.health.run()
+            self.metrics.start()
         self.asn1_decoder = KpmDecoder()
         self.rc_encoder = RCEncoder()
         self.rc_mapper = RCMapper(ran_function_id=3)
@@ -249,7 +282,7 @@ class RDLxApp:
         self.active_subscriptions: Dict[str, bool] = {}
         self.decision_loop_started = False
 
-        if self.mode == "O_RAN_INTEROP":
+        if self.real_rmr:
             self.xapp = _RealRMRXapp(
                 default_handler=self._default_handler,
                 rmr_port=4560,
@@ -314,9 +347,10 @@ class RDLxApp:
             pass
 
     def start(self):
-        logger.info(f"Iniciando xApp RDL (H-RDL Fase 1 | Modo: {self.mode})")
-        self.health.run()
-        self.metrics.start()
+        logger.info(f"Iniciando xApp RDL (RDL-N1 Fase 1 | Modo: {self.mode})")
+        if self.serve_http:
+            self.health.run()
+            self.metrics.start()
         self.running = True
         self.xapp.run()
 
@@ -433,15 +467,15 @@ class RDLxApp:
             )
         else:
             # Registra capacidades estaticas pre-configuradas em modo DEV/UNIT/OFFLINE
-            self.backend.register_static_profile_capabilities("gnb_01")
+            self.backend.register_static_profile_capabilities(self.e2_node_id)
         # Inicia subscricao E2SM-KPM com o tempo de reporte padrao do backend
         kpm_period = self.backend.metadata.default_kpm_period_ms
         from src.e2.rc.capability_registry import rc_capability_registry
         try:
-            kpm_fn_id = rc_capability_registry.get_kpm_function_id("gnb_01")
+            kpm_fn_id = rc_capability_registry.get_kpm_function_id(self.e2_node_id)
             if self.oran_strict:
-                rc_capability_registry.get_rc_function_id("gnb_01")
-            subscribed = self.send_subscription_request(node_id="gnb_01", ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+                rc_capability_registry.get_rc_function_id(self.e2_node_id)
+            subscribed = self.send_subscription_request(node_id=self.e2_node_id, ran_function_id=kpm_fn_id, report_period_ms=kpm_period, xapp_instance=xapp_instance)
             if not subscribed:
                 if self.oran_strict:
                     self.health.set_state(AppState.DEGRADED)
@@ -464,7 +498,7 @@ class RDLxApp:
                     error=str(e),
                 )
             else:
-                self.send_subscription_request(node_id="gnb_01", ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
+                self.send_subscription_request(node_id=self.e2_node_id, ran_function_id=2, report_period_ms=kpm_period, xapp_instance=xapp_instance)
                 self.health.set_state(AppState.READY)
                 self.metrics.ready_state.set(1)
 
@@ -1005,6 +1039,12 @@ class RDLxApp:
         return {"summary": {**self.proposals.summary(), "deferred_pending": deferred},
                 "entries": self.proposals.query(xapp_id=xapp_id, node_id=node_id, reason=reason,
                                                 since=since, limit=limit)}
+
+    def process_actions(self, actions: List[XAppAction], fast_path: bool = False, on_demand: bool = False):
+        """API pública do pipeline de decisão (Perception → Reasoning → Refinement → despacho) sobre um
+        grupo de propostas já fechado. Usada pelos executores de experimento e pelo orquestrador da
+        malha fechada, que não passam pela janela nem pelo transporte RMR."""
+        return self._process_action_group(actions, fast_path=fast_path, on_demand=on_demand)
 
     def _process_action_group(self, actions: List[XAppAction], fast_path: bool = False, on_demand: bool = False):
         """

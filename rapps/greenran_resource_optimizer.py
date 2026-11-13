@@ -2,7 +2,7 @@
 # Autor: George Barbosa
 # Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
-rApp-ResourceOptimizer do GreenRAN (atividade A1.7): coordena o xApp1-RANSlicer e o xApp2-EnergySaver
+rApp-ResourceOptimizer do GreenRAN (atividade A1.7): coordena o RANSlicer-GreenRAN e o EnergySaver-GreenRAN
 na escala Non-RT (> 1 s), por políticas A1 publicadas no A1-PMS (doc 12).
 
 Entradas:
@@ -19,8 +19,8 @@ Saídas, três políticas A1 (instâncias ``greenran-*``, donos no mapa ``RDL_A1
 | Tipo | Destino | Conteúdo |
 | :-- | :-- | :-- |
 | 20001 ``GreenRAN_Intent_Policy`` | RDL | pesos de energia e SLA na arbitragem, desligamento de vizinhas |
-| 21000 ``GreenRAN_RANSlicer_Intent`` | xApp1-RANSlicer | vazão e atraso-alvo da fatia de câmeras, piso mMTC, margem |
-| 21001 ``GreenRAN_EnergySaver_Policy`` | xApp2-EnergySaver | janela de economia, limiares, células mínimas ativas |
+| 21000 ``GreenRAN_RANSlicer_Intent`` | RANSlicer-GreenRAN | vazão e atraso-alvo da fatia de câmeras, piso mMTC, margem |
+| 21001 ``GreenRAN_EnergySaver_Policy`` | EnergySaver-GreenRAN | janela de economia, limiares, células mínimas ativas |
 
 Regras de coordenação:
 1. **SLA em risco** (atraso eMBB acima do alvo ou vazão abaixo): prioriza SLA. Sobe o peso de SLA, proíbe
@@ -113,7 +113,7 @@ def plan(intent: Dict[str, Any], hour: int, report: Optional[Dict[str, Any]] = N
                      es_min_active_cells=max(saver["es_min_active_cells"], 2))
         reasons.append("SLA da fatia de câmeras em risco: prioriza SLA")
     else:
-        lost = ((report.get("rejections") or {}).get("by_xapp") or {}).get("xapp2_energysaver") or {}
+        lost = ((report.get("rejections") or {}).get("by_xapp") or {}).get("energysaver_greenran") or {}
         total = sum(lost.values())
         if night and total >= 10 and lost.get("LOST_ARBITRATION", 0) >= 0.7 * total:
             rdl["energy_weight"] = min(0.6, rdl["energy_weight"] + 0.1)

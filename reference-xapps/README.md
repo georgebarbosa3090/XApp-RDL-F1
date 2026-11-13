@@ -18,7 +18,7 @@ Os charts aplicam o rótulo `rdl.governance/proposer: "true"`, exigido pela Netw
 
 Campos opcionais da proposta: `defer_ok` (reavaliar a proposta quando o bloqueio de histerese do alvo expirar) e `ttl_ms` (validade pedida, até 3000 ms). Ver [docs/02 §3.2](../docs/02_modelo_de_decisao_h_rdl.md).
 
-**Autoria e procedência.** As quatro xApps são software próprio (autor: George Barbosa; [`AUTHORS.md`](../AUTHORS.md)). xSlice, Energy Saving e Traffic Steering são reimplementações em Python inspiradas em trabalhos de terceiros, sem código copiado. O código original de cada fonte, sem modificação, com a licença e o registro de procedência, está em [`third_party/xapps/`](../third_party/xapps/). As xApps do GreenRAN (xApp1-RANSlicer e xApp2-EnergySaver) ficam em [`src/greenran/`](../src/greenran/) (doc 12).
+**Autoria e procedência.** As quatro xApps são software próprio (autor: George Barbosa; [`AUTHORS.md`](../AUTHORS.md)). xSlice, Energy Saving e Traffic Steering são reimplementações em Python inspiradas em trabalhos de terceiros, sem código copiado. O código original de cada fonte, sem modificação, com a licença e o registro de procedência, está em [`third_party/xapps/`](../third_party/xapps/). As xApps do GreenRAN (RANSlicer-GreenRAN e EnergySaver-GreenRAN) ficam em [`src/greenran/`](../src/greenran/) (doc 12).
 
 ## 1. Catálogo
 

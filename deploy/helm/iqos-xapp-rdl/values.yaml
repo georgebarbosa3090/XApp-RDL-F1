@@ -4,6 +4,8 @@ image:
   repository: iqos-xapp-rdl
   pullPolicy: IfNotPresent
   tag: "1.1.0"
+  # Opcional: digest (sha256:...) da imagem; quando definido, a imagem é referenciada por ele, não pela tag
+  digest: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -21,15 +23,28 @@ podAnnotations:
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
 securityContext:
   allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
   capabilities:
     drop:
       - ALL
 
+# Única área gravável do contêiner (raiz somente leitura): /tmp, num emptyDir. O cache do ASN.1 do
+# codec E2SM v3 vai para lá (XAPP_RDL_ASN1_DIR).
+tmpVolume:
+  sizeLimit: 256Mi
+
 env:
+  # Modos aceitos: governance (RMR real, fora do modo estrito), o_ran_interop (estrito) e
+  # offline_simulation (RMR simulado: não envia nem recebe nada; só para testes). Um valor
+  # desconhecido derruba a xApp na partida (src/rdl_xapp.py, parse_rdl_mode).
   rdlMode: "governance"
+  # Nó E2 assinado pela RDL no ponto de entrada
+  e2Node: "gnb_01"
   ranBackend: "NORI_NS3"
   useFakeSdl: "false"
   rmrSeedRt: "/app/configs/routes.rt"

@@ -175,7 +175,7 @@ def test_rdl_xapp_drops_unsafe_proposal_before_arbitration():
 
 
 def test_b3_inter_cell_schedules_for_s4_and_s5(catalog):
-    """Pré-registro 08, H9.1: cronograma determinístico do B3 nos conflitos entre células."""
+    """Pré-registro 08, H9.1: cronograma reprodutível do B3 nos conflitos entre células."""
     _, _, s4, _ = driver.decide("S4", "B3", catalog)
     assert [(e["gnb"], e["parameter"], e["time_s"]) for e in s4] == [(0, "HANDOVER", 15.2)]
     _, _, s4_b0, _ = driver.decide("S4", "B0", catalog)

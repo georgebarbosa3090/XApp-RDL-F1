@@ -5,7 +5,7 @@ Permite executar testes de integração e validação de software da xApp-RDL
 sem dependência de placas de rádio físico (SDR) ou antenas:
   - Comunicação via sockets IPC/TCP ZeroMQ;
   - Validação de sinalização 5G SA (N2/N3) e fluxo de pacotes na interface tun;
-  - Extração de telemetria e despacho de controle determinístico.
+  - Extração de telemetria e despacho de controle reprodutível.
 """
 
 import time

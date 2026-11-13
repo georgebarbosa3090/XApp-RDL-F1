@@ -13,7 +13,7 @@ pins:
   python:
     ricxappframe: "3.2.2"
     asn1tools: "0.169.0"
-    # Dependências do H-RDL (src/), nas versões do uv.lock para Python 3.10
+    # Dependências do RDL-N1 (src/), nas versões do uv.lock para Python 3.10
     hrdl: ["pydantic==2.13.5", "numpy==2.2.6", "pycrate==0.8.1", "requests==2.34.2", "structlog==26.1.0"]
   # ASN.1 do E2SM usado pelo NORI, baixado no commit fixado e conferido por sha256
   noriAsn:
@@ -42,8 +42,8 @@ kpm:
 
 # RIC Control E2SM-RC v3.01: depois da N-ésima Indication KPM de cada conexão, envia um Control com
 # cotas de PRB por fatia (estilo 2, ação 6) e registra o ACK/Failure.
-#   decision: hrdl  -> cotas decididas pelo H-RDL sobre o KPM_t0 (fase 4; decision_source=H_RDL)
-#   decision: catalog -> o H-RDL arbitra as propostas do cenário de conflito (S0–S8) lido de /data/rdl_scenario
+#   decision: hrdl  -> cotas decididas pelo RDL-N1 sobre o KPM_t0 (fase 4; decision_source=H_RDL)
+#   decision: catalog -> o RDL-N1 arbitra as propostas do cenário de conflito (S0–S8) lido de /data/rdl_scenario
 #                        (padrão: scenario); só a cota de PRB no gNB 0 vira Control (docs/05)
 #   decision: fixed -> cotas de sliceQuotas (fase 3; decision_source=FIXED_PROBE)
 rc:
@@ -68,4 +68,4 @@ resources:
     cpu: 100m
     memory: 256Mi
   limits:
-    memory: 1Gi       # o H-RDL (numpy, pydantic, pycrate) e a instalação inicial passam de 512 Mi
+    memory: 1Gi       # o RDL-N1 (numpy, pydantic, pycrate) e a instalação inicial passam de 512 Mi

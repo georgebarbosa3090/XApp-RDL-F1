@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 run_pyright_check.py: Validação de integridade de tipos e sintaxe estática em src/ e tests/
-Garante 0 erros bloqueantes na auditoria estática da Fase 1 (H-RDL).
+Garante 0 erros bloqueantes na auditoria estática da Fase 1 (RDL-N1).
 """
 
 import ast
@@ -83,7 +83,7 @@ def run_pyright_if_available() -> bool:
 
 
 def main():
-    print("=== AUDITORIA DE TIPAGEM E ESTRUTURA ESTÁTICA (Fase 1 - H-RDL) ===")
+    print("=== AUDITORIA DE TIPAGEM E ESTRUTURA ESTÁTICA (Fase 1 - RDL-N1) ===")
     ast_errors_src = audit_python_files_ast(SRC_DIR)
     ast_errors_tests = audit_python_files_ast(TESTS_DIR)
     all_ast_errors = ast_errors_src + ast_errors_tests

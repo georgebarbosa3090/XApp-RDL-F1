@@ -34,18 +34,18 @@ def main():
         logger.info("Iniciando Reference xApp: Traffic Steering (O-RAN SC)...")
         app = TrafficSteeringXApp()
 
-    elif role in ("xapp1", "ranslicer", "xapp1-ranslicer"):
-        from src.greenran.xapp1_ranslicer import RanSlicer
-        logger.info("Iniciando GreenRAN xApp1-RANSlicer...")
+    elif role in ("xapp1", "ranslicer", "ranslicer-greenran"):
+        from src.greenran.ranslicer_greenran import RanSlicer
+        logger.info("Iniciando RANSlicer-GreenRAN...")
         app = RanSlicer(rmr_port=int(os.getenv("RMR_PORT", "4560")))
 
-    elif role in ("xapp2", "energysaver", "xapp2-energysaver"):
-        from src.greenran.xapp2_energysaver import EnergySaver
-        logger.info("Iniciando GreenRAN xApp2-EnergySaver...")
+    elif role in ("xapp2", "energysaver", "energysaver-greenran"):
+        from src.greenran.energysaver_greenran import EnergySaver
+        logger.info("Iniciando EnergySaver-GreenRAN...")
         app = EnergySaver(rmr_port=int(os.getenv("RMR_PORT", "4560")))
 
     else:
-        logger.info("Iniciando xApp RDL (Resource and Decision Layer - Fase 1: H-RDL)...")
+        logger.info("Iniciando xApp RDL (Resource and Decision Layer - Fase 1: RDL-N1)...")
         app = RDLxApp()
 
     try:

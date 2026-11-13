@@ -1,5 +1,5 @@
 """
-Regras de conflito entre células (H-RDL).
+Regras de conflito entre células (RDL-N1).
 
 A percepção original agrupa conflitos por gNB e não enxerga interações entre
 células vizinhas (achado 11, cenários S4 e S5). Este módulo define as regras que a

@@ -9,7 +9,7 @@ sequenceDiagram
     participant R as rApp GreenRAN<br/>(ResourceOptimizer)
     participant P as A1-PMS<br/>(Non-RT RIC)
     participant M as A1 Mediator<br/>(Near-RT RIC)
-    participant X as xApp RDL / CA-RDL
+    participant X as xApp RDL / RDL-N2
     R->>P: PUT /a1-policy/v2/policies (tipo 20001, instância "greenran")
     P->>M: A1-P: cria a instância no tipo 20001
     M->>X: RMR 20010 A1_POLICY_REQUEST (CREATE)
@@ -34,8 +34,8 @@ Segue a divisão do O-RAN WG2 entre treino e inferência:
 
 1. **Treino no SMO / Non-RT RIC:** `python -m cardl.marl.train` (repositório da Fase 2), no ambiente calibrado com as medições do NORI. Gera checkpoint e manifesto com sha256.
 2. **Publicação do modelo:** o checkpoint vai para a xApp como volume (ConfigMap ou PVC no Helm) com o sha256 esperado (`CARDL_CHECKPOINT`, `CARDL_CHECKPOINT_SHA256`). A xApp recusa um checkpoint com sha256 diferente.
-3. **Ativação por A1:** a política 20002 liga o MARL (`marl_enabled`) e define a confiança mínima. Sem ela, ou com o MARL desligado, decide a H-RDL.
-4. **Monitoramento:** cada decisão registra a origem (MAPPO ou H-RDL) e o motivo da reserva.
+3. **Ativação por A1:** a política 20002 liga o MARL (`marl_enabled`) e define a confiança mínima. Sem ela, ou com o MARL desligado, decide a RDL-N1.
+4. **Monitoramento:** cada decisão registra a origem (MAPPO ou RDL-N1) e o motivo da reserva.
 
 ## 3. Implantação na bancada (A1-PMS no k3s)
 

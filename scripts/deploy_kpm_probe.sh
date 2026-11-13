@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Implanta a xApp kpm-probe com o src/ do repositório num commit exato (codec E2 v3, ponte H-RDL e
-# o próprio H-RDL). O pacote é o "git archive" desse commit, em base64 no ConfigMap; o commit vai
+# Implanta a xApp kpm-probe com o src/ do repositório num commit exato (codec E2 v3, ponte RDL-N1 e
+# o próprio RDL-N1). O pacote é o "git archive" desse commit, em base64 no ConfigMap; o commit vai
 # para o evento start e para cada decisão registrada pela xApp.
 # Recusa src/ com alterações não commitadas: o que roda no cluster tem de corresponder a um commit.
 # Uso (Ubuntu do WSL): bash scripts/deploy_kpm_probe.sh [args extras do helm, ex.: -f valores.yaml]

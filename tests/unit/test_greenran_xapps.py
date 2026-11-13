@@ -1,4 +1,4 @@
-"""xApp1-RANSlicer, xApp2-EnergySaver e rApp-ResourceOptimizer do GreenRAN (doc 12)."""
+"""RANSlicer-GreenRAN, EnergySaver-GreenRAN e rApp-ResourceOptimizer do GreenRAN (doc 12)."""
 import importlib.util
 import json
 import sys
@@ -12,8 +12,8 @@ from rdl_transport import RdlTransport  # noqa: E402
 
 from src.conflict_types import XAppAction  # noqa: E402
 from src.greenran.common import CellSample, SeasonalProfile, SliceKpi, normalize_kpm  # noqa: E402
-from src.greenran.xapp1_ranslicer import RanSlicer  # noqa: E402
-from src.greenran.xapp2_energysaver import ACTIVE, EVACUATING, SLEEP, EnergySaver  # noqa: E402
+from src.greenran.ranslicer_greenran import RanSlicer  # noqa: E402
+from src.greenran.energysaver_greenran import ACTIVE, EVACUATING, SLEEP, EnergySaver  # noqa: E402
 from src.interfaces.a1_policy_receiver import A1PolicyManager  # noqa: E402
 
 
@@ -47,7 +47,7 @@ def test_seasonal_profile():
     assert p.to_dict()["c"][3] == 15.0
 
 
-# ---------------------------------------------------------------- xApp1-RANSlicer
+# ---------------------------------------------------------------- RANSlicer-GreenRAN
 
 def sample(cell, load, thp, delay, prb=50, ues=2):
     return CellSample(cell, 0.0, load_pct=load, slices={1: SliceKpi(thp_mbps=thp, delay_ms=delay, prb_used=prb, ues=ues),
@@ -55,7 +55,7 @@ def sample(cell, load, thp, delay, prb=50, ues=2):
 
 
 def test_ranslicer_computes_safe_quota_from_measured_efficiency():
-    x = RanSlicer(transport=transport("xapp1_ranslicer"))
+    x = RanSlicer(transport=transport("ranslicer_greenran"))
     x.observe(sample("gnb_0", load=60, thp=25.0, delay=40))       # eMBB ≈ 50 % dos PRBs → 0,5 Mb/s por ponto
     (p,) = x.step(now=0)
     assert p["parameter"] == "PRB_QUOTA" and p["priority"] == 90       # vazão 25 < alvo 30: SLA em risco
@@ -69,19 +69,19 @@ def test_ranslicer_computes_safe_quota_from_measured_efficiency():
 
 
 def test_ranslicer_delay_raises_quota_and_learned_policy_is_shielded():
-    x = RanSlicer(transport=transport("xapp1_ranslicer"), learned_policy=lambda state: 99.0)
+    x = RanSlicer(transport=transport("ranslicer_greenran"), learned_policy=lambda state: 99.0)
     x.handle_a1(a1_msg(21000, "op", {"embb_min_thp_mbps": 5, "ranslicer_learned_policy": True, "mmtc_min_prb_pct": 15}))
     x.observe(sample("gnb_0", load=60, thp=30.0, delay=250))
     (p,) = x.step(now=0)
     assert p["value"] == 85.0                                          # política pede 99; escudo corta em 100 − 15
-    low = RanSlicer(transport=transport("xapp1_ranslicer"), learned_policy=lambda state: 1.0)
+    low = RanSlicer(transport=transport("ranslicer_greenran"), learned_policy=lambda state: 1.0)
     low.handle_a1(a1_msg(21000, "op", {"ranslicer_learned_policy": True}))
     low.observe(sample("gnb_0", load=60, thp=40.0, delay=10))
     assert low.step(now=0)[0]["value"] == 44.0                         # eficiência 40 ÷ 50 = 0,8: 30 × 1,15 ÷ 0,8 → 44; não desce abaixo
     assert low.handle_a1(a1_msg(21000, "op", {"es_sleep_threshold_pct": 5}))["status"] == "ERROR"
 
 
-# ---------------------------------------------------------------- xApp2-EnergySaver
+# ---------------------------------------------------------------- EnergySaver-GreenRAN
 
 def cell(cid, load, ues):
     s = CellSample(cid, 0.0, load_pct=load, slices={1: SliceKpi(ues=ues)} if ues else {})
@@ -90,7 +90,7 @@ def cell(cid, load, ues):
 
 def test_energysaver_evacuates_then_sleeps_and_wakes():
     hour = {"h": 2}
-    x = EnergySaver(transport=transport("xapp2_energysaver"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
+    x = EnergySaver(transport=transport("energysaver_greenran"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
                     hour_of=lambda t: hour["h"])
     x.observe(cell("gnb_0", 30, 5))
     x.observe(cell("gnb_1", 5, 2))
@@ -107,7 +107,7 @@ def test_energysaver_evacuates_then_sleeps_and_wakes():
 
 def test_energysaver_respects_window_min_cells_and_rejections():
     hour = {"h": 14}
-    x = EnergySaver(transport=transport("xapp2_energysaver"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
+    x = EnergySaver(transport=transport("energysaver_greenran"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
                     hour_of=lambda t: hour["h"])
     x.observe(cell("gnb_0", 20, 5))
     x.observe(cell("gnb_1", 0, 0))
@@ -120,7 +120,7 @@ def test_energysaver_respects_window_min_cells_and_rejections():
     assert p["parameter"] == "CELL_STATE" and x.state["gnb_1"] == SLEEP
     x.on_result({"node_id": "gnb_1", "parameter": "CELL_STATE", "reason": "SAFETY"})
     assert x.state["gnb_1"] == ACTIVE                                  # recusado pela RDL
-    assert x.status()["xapp_id"] == "xapp2_energysaver"
+    assert x.status()["xapp_id"] == "energysaver_greenran"
 
 
 def test_greenran_proposals_go_through_the_rdl_pipeline(monkeypatch, tmp_path):
@@ -132,9 +132,9 @@ def test_greenran_proposals_go_through_the_rdl_pipeline(monkeypatch, tmp_path):
     try:
         sent = []
         app.dispatcher.dispatch_control = lambda decision, **_: sent.append(decision.selected_actions[0]) or "req"
-        slicer = RanSlicer(transport=transport("xapp1_ranslicer"))
+        slicer = RanSlicer(transport=transport("ranslicer_greenran"))
         slicer.observe(sample("gnb_1", load=60, thp=25.0, delay=40))
-        saver = EnergySaver(transport=transport("xapp2_energysaver"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
+        saver = EnergySaver(transport=transport("energysaver_greenran"), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]},
                             hour_of=lambda t: 2)
         saver.observe(cell("gnb_0", 30, 5))
         saver.observe(cell("gnb_1", 0, 0))
@@ -174,7 +174,7 @@ def test_rapp_plans_three_policies_accepted_by_a1_and_owners():
     assert risk["policies"]["21001"]["es_min_active_cells"] == 2 and risk["policies"]["21000"]["slice_safety_margin"] == 0.30
     implicit = r.plan({}, hour=2, report={"implicit_conflicts": [{"node_id": "gnb_1"}]})
     assert implicit["policies"]["21001"]["es_sleep_threshold_pct"] == 0.0
-    losing = r.plan({}, hour=2, report={"rejections": {"by_xapp": {"xapp2_energysaver": {"LOST_ARBITRATION": 9, "SAFETY": 1}}}})
+    losing = r.plan({}, hour=2, report={"rejections": {"by_xapp": {"energysaver_greenran": {"LOST_ARBITRATION": 9, "SAFETY": 1}}}})
     assert losing["policies"]["20001"]["energy_weight"] == pytest.approx(0.55)
     day = r.plan({"energy_priority": "low"}, hour=14)
     assert day["policies"]["20001"]["energy_weight"] == 0.05

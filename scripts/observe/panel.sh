@@ -3,7 +3,7 @@
 #   0 campanha   terminal livre para rodar a campanha ou um cenário (comandos sugeridos já digitados)
 #   1 nori       execução NORI corrente: vazão por fatia, [RDL-UE], E2 Setup, Subscription, Control
 #   2 e2ap       protocolo E2AP decodificado ao vivo pelo tshark (tcpdump do pod)
-#   3 xapp       subscrição, KPM decodificado por UE, decisão do H-RDL, RIC Control e ACK
+#   3 xapp       subscrição, KPM decodificado por UE, decisão do RDL-N1, RIC Control e ACK
 #   4 ric        logs filtrados de E2Term, E2Mgr, SubMgr e RtMgr (painel de cima) e estado do RIC (embaixo)
 #   5 k8s        deployments e pods de ricplt, ricxapp e ricsim
 #   6 ues        registro de UEs ([RDL-UE])

@@ -24,7 +24,7 @@ def test_reasoning_shannon_and_tvs_resolution():
     assert resolution.winning_actions[0].xapp_id == "xslice"
 
 
-def test_large_indirect_conflict_uses_deterministic_bounded_strategy():
+def test_large_indirect_conflict_uses_bounded_strategy():
     reasoning = Reasoning(MemoryModule(), config={"max_exact_actions": 4})
     actions = [
         XAppAction(f"xapp_{index}", "gnb_01", f"PARAM_{index}", float(index), 50)

@@ -56,7 +56,7 @@ COUNT_METRICS = {"actions_applied", "handovers", "unsafe_applied", "oscillations
 
 # ---------------------------------------------------------------------------------------------
 # Hipóteses. Derivadas do tratamento esperado de cada tipo de conflito na taxonomia
-# (docs/03_cenarios_e_conflitos.md, coluna "Tratamento na H-RDL"), escrita antes
+# (docs/03_cenarios_e_conflitos.md, coluna "Tratamento na RDL-N1"), escrita antes
 # desta campanha. Não foram pré-registradas formalmente.
 #
 # Cada critério é um de:
@@ -65,28 +65,28 @@ COUNT_METRICS = {"actions_applied", "handovers", "unsafe_applied", "oscillations
 # ---------------------------------------------------------------------------------------------
 HYPOTHESES = [
     {"id": "H0", "scenario": "S0", "type": "controle (sem conflito)",
-     "text": "Sem conflito, a H-RDL é transparente: B3 não difere do B0 em vazão nem em atraso.",
+     "text": "Sem conflito, a RDL-N1 é transparente: B3 não difere do B0 em vazão nem em atraso.",
      "checks": [("paired", "thp_conflict", "B3", "B0", "=0"), ("paired", "delay_conflict_ms", "B3", "B0", "=0")]},
     {"id": "H1", "scenario": "S1", "type": "direto (PRB)",
-     "text": "Em conflito direto de PRB, a H-RDL elimina as oscilações e melhora vazão e atraso em relação ao B0.",
+     "text": "Em conflito direto de PRB, a RDL-N1 elimina as oscilações e melhora vazão e atraso em relação ao B0.",
      "checks": [("all", "oscillations", "B3", "==", 0), ("paired", "thp_conflict", "B3", "B0", ">0"),
                 ("paired", "delay_conflict_ms", "B3", "B0", "<0")]},
     {"id": "H2", "scenario": "S2", "type": "indireto (TVS)",
-     "text": "Em conflito indireto, a H-RDL escolhe um subconjunto de ações que não piora vazão nem atraso em relação a B0, B1 e B2.",
+     "text": "Em conflito indireto, a RDL-N1 escolhe um subconjunto de ações que não piora vazão nem atraso em relação a B0, B1 e B2.",
      "checks": [("paired", "thp_conflict", "B3", "B0", ">=0"), ("paired", "delay_conflict_ms", "B3", "B0", "<=0"),
                 ("paired", "thp_conflict", "B3", "B1", ">=0"), ("paired", "delay_conflict_ms", "B3", "B1", "<=0")]},
     {"id": "H3", "scenario": "S3", "type": "direto (potência)",
-     "text": "Em conflito direto de potência, a H-RDL elimina as oscilações sem perda de vazão em relação ao B0.",
+     "text": "Em conflito direto de potência, a RDL-N1 elimina as oscilações sem perda de vazão em relação ao B0.",
      "checks": [("all", "oscillations", "B3", "==", 0), ("paired", "thp_conflict", "B3", "B0", ">=0")]},
     {"id": "H4", "scenario": "S4", "type": "entre células (limitação esperada)",
-     "text": "A H-RDL não detecta o conflito entre células: o handover acontece e B3 não difere do B1 em vazão nem em atraso.",
+     "text": "A RDL-N1 não detecta o conflito entre células: o handover acontece e B3 não difere do B1 em vazão nem em atraso.",
      "checks": [("all", "handovers", "B3", ">", 0), ("paired", "thp_conflict", "B3", "B1", "=0"),
                 ("paired", "delay_conflict_ms", "B3", "B1", "=0")]},
     {"id": "H5", "scenario": "S5", "type": "temporal entre células (limitação esperada)",
-     "text": "A H-RDL não detecta o ping-pong entre células: B3 aplica os mesmos handovers que o B0.",
+     "text": "A RDL-N1 não detecta o ping-pong entre células: B3 aplica os mesmos handovers que o B0.",
      "checks": [("paired", "handovers", "B3", "B0", "=0"), ("paired", "thp_conflict", "B3", "B0", "=0")]},
     {"id": "H6", "scenario": "S6", "type": "tempestade",
-     "text": "Sob tempestade de conflitos, a H-RDL aplica menos ações, elimina as oscilações e reduz o atraso em relação a B0, B1 e B2.",
+     "text": "Sob tempestade de conflitos, a RDL-N1 aplica menos ações, elimina as oscilações e reduz o atraso em relação a B0, B1 e B2.",
      "checks": [("paired", "actions_applied", "B3", "B1", "<0"), ("all", "oscillations", "B3", "==", 0),
                 ("paired", "delay_conflict_ms", "B3", "B0", "<0"), ("paired", "delay_conflict_ms", "B3", "B1", "<0"),
                 ("paired", "delay_conflict_ms", "B3", "B2", "<0")]},
@@ -292,7 +292,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     # 2. Pergunta e hipóteses
     L.append("## 2. Pergunta e hipóteses")
     L.append("")
-    L.append("**Pergunta.** Quando várias xApps propõem controles conflitantes, a decisão da H-RDL (B3) leva a um "
+    L.append("**Pergunta.** Quando várias xApps propõem controles conflitantes, a decisão da RDL-N1 (B3) leva a um "
              "desempenho de rede melhor ou mais seguro que não coordenar (B0), FIFO por janela e alvo (B1) ou "
              "prioridade estática por janela e alvo (B2)?")
     L.append("")
@@ -575,7 +575,7 @@ def build_report(analysis: Dict[str, Any], analysis_path: Path, catalog: Dict[st
     if identical:
         L.append(f"Nos cenários {', '.join(identical)}, B1, B2 e B3 aplicaram o mesmo cronograma em todas as sementes. "
                  "Nesses cenários a campanha mede o efeito de coordenar versus não coordenar, não uma vantagem "
-                 "específica da H-RDL sobre FIFO ou prioridade estática.")
+                 "específica da RDL-N1 sobre FIFO ou prioridade estática.")
         L.append("")
 
     # 11. Ameaças e proveniência

@@ -1,7 +1,7 @@
 # Autor: George Barbosa
 # Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
-xApp2-EnergySaver (GreenRAN, atividade A1.6): desligamento de RUs em baixa demanda com padrão sazonal.
+EnergySaver-GreenRAN (GreenRAN, atividade A1.6): desligamento de RUs em baixa demanda com padrão sazonal.
 
 Por célula, um perfil de carga por hora do dia (``SeasonalProfile``) aprende os padrões sazonais. A cada
 período, dentro da janela de economia da política A1 21001 (``GreenRAN_EnergySaver_Policy``):
@@ -47,7 +47,7 @@ def _index(cell_id: str) -> Optional[int]:
 
 
 class EnergySaver(GreenRanXApp):
-    XAPP_ID = "xapp2_energysaver"
+    XAPP_ID = "energysaver_greenran"
     A1_TYPE = "21001"
     DEFAULTS: Dict[str, Any] = {
         "es_sleep_threshold_pct": 15.0,

@@ -80,6 +80,10 @@ manifest = {
     # Porte S0–S8 (scripts/run_nori_scenario.sh): cenário de conflito do catálogo e baseline da decisão
     "conflict_scenario": os.environ.get("RDL_SCENARIO") or None,
     "baseline": os.environ.get("RDL_BASELINE") or None,
+    # Proveniência do código da RDL (scripts/run_nori_scenario.sh): repositório e src/ da kpm-probe
+    "repo_git_sha": (os.environ.get("RDL_REPO_GIT_SHA") or "")[:7] or None,
+    "repo_git_sha_full": os.environ.get("RDL_REPO_GIT_SHA") or None,
+    "xapp_src_commit": os.environ.get("RDL_XAPP_SRC_COMMIT") or None,
     "seed": int("$SEED"),
     "command": """$CMD""",
     "run_status": status,

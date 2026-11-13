@@ -11,7 +11,7 @@ data:
   kpm_probe.py: |
 {{ .Files.Get "files/kpm_probe.py" | indent 4 }}
   # Pacote do src/ do repositório (git archive de um commit, tar.gz em base64): codec E2 v3,
-  # ponte H-RDL e o próprio H-RDL. Gerado por scripts/deploy_kpm_probe.sh, sem cópia no chart.
+  # ponte RDL-N1 e o próprio RDL-N1. Gerado por scripts/deploy_kpm_probe.sh, sem cópia no chart.
   src.tar.gz.b64: |
 {{ required "use scripts/deploy_kpm_probe.sh (pacote do src/ de um commit)" .Values.srcBundle | indent 4 }}
 ---

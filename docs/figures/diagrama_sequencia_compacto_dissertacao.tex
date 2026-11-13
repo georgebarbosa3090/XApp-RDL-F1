@@ -1,6 +1,6 @@
 % ==============================================================================
 % Diagrama de Sequência Compacto para Dissertação de Mestrado (LaTeX / TikZ)
-% Obra: H-RDL: Governança Determinística e Mitigação de Conflitos no Near-RT RIC
+% Obra: RDL-N1: Governança por Regras e Políticas e Mitigação de Conflitos no Near-RT RIC
 % Autor: George Alexandro Ferreira Barbosa | PPGCOMP / UFPA
 % Fluxo implementado em src/ (revisado em 2026-11-08). Sem valores medidos:
 % os tempos são parâmetros de configuração; a troca E2 real ainda não foi exercitada.
@@ -62,7 +62,7 @@
     \node[note, anchor=west] at (\xRDL + 0.3, -6.3) {Propostas por RMR 30000; janela de decisão de 200 ms};
 
     % Fase III
-    \node[phase, fill=green!15] at (-1.5, -7.0) {Fase III: Decisão determinística};
+    \node[phase, fill=green!15] at (-1.5, -7.0) {Fase III: Decisão por regras};
     \draw[fill=green!25, draw=green!60!black] (\xRDL - 0.15, -7.4) rectangle (\xRDL + 0.15, -10.2);
     \draw[msg] (\xRDL + 0.15, -7.7) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize] {8. Safety Guard por proposta (limites físicos)} (\xRDL + 0.15, -8.1);
     \draw[msg] (\xRDL + 0.15, -8.4) -- ++(1.2,0) -- ++(0,-0.4) -- node[right, font=\scriptsize] {9. Conflitos por alvo (direto / indireto + incumbente)} (\xRDL + 0.15, -8.8);

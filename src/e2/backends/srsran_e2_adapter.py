@@ -4,7 +4,7 @@ Adaptador de Backend para o srsRAN Project (5G SA CU/DU com E2 Agent Nativo O-RA
 Responsável por:
   1. Conexão SCTP na porta 36422 (E2AP v02.03);
   2. Subscrição e ingestão de telemetria periódica E2SM-KPM (Report Style 1);
-  3. Mapeamento de métricas físicas para o vetor de estado normalizado da H-RDL;
+  3. Mapeamento de métricas físicas para o vetor de estado normalizado da RDL-N1;
   4. Codificação e despacho de mensagens de controle E2SM-RC com ponto fixo estrito (Q8.8 e Q16.16);
   5. Pareamento com confirmação externa (RICcontrolAcknowledge) e rastreamento causal.
 
@@ -150,13 +150,13 @@ class SrsranE2Adapter(RadioBackendAdapter):
     def dispatch_control(self, node_id: str, action_vector: Dict[str, Any]) -> ControlResult:
         """
         Codifica e emite uma mensagem de controle E2SM-RC com ponto fixo estrito.
-        Aplica as cotas de PRB arbitradas pela H-RDL na gNodeB srsRAN.
+        Aplica as cotas de PRB arbitradas pela RDL-N1 na gNodeB srsRAN.
         """
         t_start = time.perf_counter()
         self.last_transaction_id += 1
         tx_id = self.last_transaction_id
 
-        # Extração das cotas arbitradas pela H-RDL
+        # Extração das cotas arbitradas pela RDL-N1
         prb_quotas = action_vector.get("prb_quotas", {"URLLC": 0.50, "eMBB": 0.50})
         tx_power = action_vector.get("tx_power_dbm", self.current_tx_power_dbm)
 

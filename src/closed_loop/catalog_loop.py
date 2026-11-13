@@ -1,20 +1,20 @@
 """
-Porte dos cenários de conflito S0–S8 para a bancada NORI (E2 real): catálogo -> H-RDL -> RIC Control.
+Porte dos cenários de conflito S0–S8 para a bancada NORI (E2 real): catálogo -> RDL-N1 -> RIC Control.
 
 A pilha nativa (ns-3.48) reproduz a topologia de cada cenário mas não tem E2. No NORI, a carga de
 conflito de cada cenário é a mesma do catálogo (``simulations/ns3/conflicts/catalog.json``): as
-propostas das xApps vão ao pipeline real da xApp RDL (``RDLxApp._process_action_group``) e a ação
+propostas das xApps vão ao pipeline real da xApp RDL (``RDLxApp.process_actions``) e a ação
 vencedora sai como RIC Control E2SM-RC pela cadeia E2 real.
 
 Mapeamento para o NORI (um gNB, duas fatias: eMBB SST 1 e URLLC SST 2):
 
-- Cada proposta mantém o gNB de origem no alvo (``<nó>#g<gNB>``): o H-RDL vê os mesmos conflitos
+- Cada proposta mantém o gNB de origem no alvo (``<nó>#g<gNB>``): o RDL-N1 vê os mesmos conflitos
   (diretos e indiretos) da pilha nativa.
 - Só ``PRB_QUOTA`` no gNB 0 (a célula portada) é atuável: vira cotas de PRB por fatia, com
   ``PRB_QUOTA`` = teto % da fatia eMBB e a URLLC com o complemento (``quotas_for``).
 - ``TX_POWER`` não existe no E2SM-RC do NORI, ``HANDOVER`` é só registrado em log pelo NORI (e o
   cenário tem um único gNB), e ações em gNB ≥ 1 não têm célula correspondente: são decididas pelo
-  H-RDL e registradas como não atuáveis, sem Control.
+  RDL-N1 e registradas como não atuáveis, sem Control.
 - Uma decisão por execução: as propostas do cenário (primeira ocorrência de cada xApp/gNB/parâmetro)
   formam uma única janela de decisão, disparada pelo KPM_t0.
 """
@@ -25,6 +25,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
+from src.core import baselines as bl
 from src.closed_loop.hrdl_slice_loop import ENGINE, HrdlDecider, quotas_for, slice_state
 
 ACTUABLE_PARAMETER = "PRB_QUOTA"
@@ -67,7 +68,7 @@ def actuation_of(action: Any) -> Dict[str, Any]:
 def decide_catalog(scenario: str, node_id: str, node: Dict[str, Any], ues: Sequence[Dict[str, Any]],
                    catalog: Dict[str, Any], decider: Optional[HrdlDecider] = None,
                    a1_policies: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, Any]:
-    """Decisão do H-RDL sobre as propostas do cenário; ``quotas`` vazio se nada for atuável.
+    """Decisão do RDL-N1 sobre as propostas do cenário; ``quotas`` vazio se nada for atuável.
 
     ``a1_policies``: instâncias A1 ativas (``"tipo:id" -> corpo``), aplicadas à RDLxApp antes da decisão;
     a política efetiva fica registrada em ``a1_policy``."""
@@ -107,7 +108,7 @@ def decide_catalog(scenario: str, node_id: str, node: Dict[str, Any], ues: Seque
         winner = actuable[0]
         record["actuated"] = {"action_id": winner.action_id, "xapp_id": winner.xapp_id, "value": winner.value}
         record["quotas"] = [q.__dict__ for q in quotas_for(winner.value)]
-        record["reason"] = "ação de PRB do gNB 0 selecionada pelo H-RDL e atuada por E2SM-RC"
+        record["reason"] = "ação de PRB do gNB 0 selecionada pelo RDL-N1 e atuada por E2SM-RC"
     else:
         record["reason"] = "nenhuma ação selecionada é atuável no NORI (sem RIC Control)"
     return record
@@ -120,7 +121,7 @@ def decide_catalog(scenario: str, node_id: str, node: Dict[str, Any], ues: Seque
 
 BASELINES = ("B0", "B1", "B2", "B3")
 BASELINE_SOURCE = {"B0": "BASELINE_B0", "B1": "BASELINE_B1", "B2": "BASELINE_B2", "B3": "H_RDL"}
-BASELINE_RULE = {"B0": "apply-on-arrival", "B1": "fifo-per-target", "B2": "static-priority-per-target"}
+BASELINE_RULE = {"B0": bl.B0_ON_ARRIVAL, **bl.RULES}
 
 
 def arrival_order(catalog: Dict[str, Any], scenario: str, node_id: str) -> List[Any]:
@@ -143,25 +144,18 @@ def arrival_order(catalog: Dict[str, Any], scenario: str, node_id: str) -> List[
 
 def decide_baseline(scenario: str, baseline: str, node_id: str, node: Dict[str, Any],
                     ues: Sequence[Dict[str, Any]], catalog: Dict[str, Any]) -> Dict[str, Any]:
-    """Decisão de um baseline sem H-RDL. ``control_sequence``: cotas de cada RIC Control, na ordem de envio.
+    """Decisão de um baseline sem RDL-N1. ``control_sequence``: cotas de cada RIC Control, na ordem de envio.
 
     - B0 (sem coordenação): toda proposta atuável vai à RAN na ordem de chegada; vale a última.
     - B1 (FIFO): por alvo (gNB, parâmetro), a primeira a chegar.
     - B2 (prioridade estática): por alvo, a de maior prioridade (empate: a primeira a chegar).
     """
     if baseline not in BASELINE_RULE:
-        raise ValueError(f"baseline sem H-RDL desconhecido: {baseline} (B0, B1, B2)")
+        raise ValueError(f"baseline sem RDL-N1 desconhecido: {baseline} (B0, B1, B2)")
     order = arrival_order(catalog, scenario, node_id)
-    if baseline == "B0":
-        selected = list(order)
-    else:
-        by_target: Dict[Any, List[Any]] = {}
-        for a in order:
-            by_target.setdefault((a.node_id, a.parameter), []).append(a)
-        if baseline == "B1":
-            selected = [cands[0] for cands in by_target.values()]
-        else:
-            selected = [min(cands, key=lambda a: (-a.priority, order.index(a))) for cands in by_target.values()]
+    rank = {id(a): i for i, a in enumerate(order)}
+    selected = bl.select(order, baseline, lambda a: (a.node_id, a.parameter), lambda a: rank[id(a)],
+                         lambda a: a.priority)
     actuable = [a for a in selected if actuation_of(a)["actuable"]]
     record: Dict[str, Any] = {
         "decision_source": BASELINE_SOURCE[baseline], "baseline": baseline, "rule": BASELINE_RULE[baseline],

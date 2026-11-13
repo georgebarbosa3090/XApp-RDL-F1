@@ -1,6 +1,6 @@
 """
 Módulo de Rastreamento Causal e Métricas Científicas de Governança O-RAN (Gate 4)
-Implementa a formalização matemática e causal entre Telemetria (t0) -> Conflito -> Decisão H-RDL -> E2SM-RC -> ACK -> Telemetria (t1).
+Implementa a formalização matemática e causal entre Telemetria (t0) -> Conflito -> Decisão RDL-N1 -> E2SM-RC -> ACK -> Telemetria (t1).
 Calcula a métrica Conflict Resolution Effectiveness (CRE) e indicadores de alta autoridade científica.
 """
 

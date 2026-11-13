@@ -17,7 +17,7 @@ ricxapp:
   # Quem pode mandar RIC Control (RMR de dados) ao E2Term além da plataforma
   e2Controllers:
     - {app: ricxapp-iqos-xapp-rdl}               # a RDL
-    - {app.kubernetes.io/name: kpm-probe}        # bancada NORI: a kpm-probe embute o H-RDL (modo catálogo)
+    - {app.kubernetes.io/name: kpm-probe}        # bancada NORI: a kpm-probe embute o RDL-N1 (modo catálogo)
   rdl:
     podLabels: {app: ricxapp-iqos-xapp-rdl}
     rmrDataPort: 4560
@@ -30,6 +30,10 @@ e2termPolicy:
 # Política na porta RMR de dados da RDL (só a plataforma e as xApps proponentes)
 rdlPolicy:
   enabled: true
+  # Portas HTTP (8080) e de métricas (8081) da RDL só para estes namespaces; os endpoints não têm
+  # autenticação. Verificado só com helm template; na bancada, conferir as sondas antes de confiar.
+  restrictHttp: true
+  httpAllowedNamespaces: [ricplt, ricxapp, nonrtric, monitoring]
 
 # Tabela de rotas RMR estática (RMR_SEED_RT) para xApps proponentes e interceptação
 routes:

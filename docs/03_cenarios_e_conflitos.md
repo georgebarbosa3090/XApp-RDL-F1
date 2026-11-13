@@ -2,7 +2,7 @@
 
 ## 1. Tipos de conflito
 
-| Tipo | Definição | Exemplo | Tratamento na H-RDL |
+| Tipo | Definição | Exemplo | Tratamento na RDL-N1 |
 | :-- | :-- | :-- | :-- |
 | Direto | Duas xApps pedem valores diferentes para o mesmo parâmetro do mesmo nó | xSlice pede 75 % de PRB, Energy Saving pede 30 % | detectado; TVS escolhe um vencedor |
 | Indireto | Parâmetros diferentes do mesmo nó que afetam os mesmos KPIs | redução de potência junto com reserva de PRB | detectado pelo grafo de KPIs; EEVS escolhe o subconjunto |
@@ -34,7 +34,7 @@ Observações dos experimentos:
 
 - S2, S4 e S5 rodam com `--disableSrs=true`: o 5G-LENA v5.1 aborta em handover em massa por SRS sobrepostos no gNB de destino.
 - A rede de base do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
-- No S4 e no S5 os conflitos ocorrem entre células. Até 2026-11-10 a H-RDL não os detectava, e as campanhas registradas até essa data (nativa de 2026-11-08 e NORI de 2026-11-09) refletem isso. Desde então o B3 detecta os dois: no S4 a redução de potência da gNB1 perde para o handover (`HANDOVER_INTO_REDUCED_CELL`, prioridade 80 > 65); no S5 o handover de volta do Load Balancer perde para o do Traffic Steering (`HANDOVER_PING_PONG`, 80 > 70). Execuções novas desses cenários não são comparáveis às anteriores sem declarar a mudança.
+- No S4 e no S5 os conflitos ocorrem entre células. Até 2026-11-10 a RDL-N1 não os detectava, e as campanhas registradas até essa data (nativa de 2026-11-08 e NORI de 2026-11-09) refletem isso. Desde então o B3 detecta os dois: no S4 a redução de potência da gNB1 perde para o handover (`HANDOVER_INTO_REDUCED_CELL`, prioridade 80 > 65); no S5 o handover de volta do Load Balancer perde para o do Traffic Steering (`HANDOVER_PING_PONG`, 80 > 70). Execuções novas desses cenários não são comparáveis às anteriores sem declarar a mudança.
 
 ### 2.2 Cenário S8 e o porte para a bancada NORI
 
@@ -84,8 +84,8 @@ Uma semente (9101), B0 e B3, 18 execuções em `experiments/runs/nr_{S9..S15,G1,
 **Desde 2026-11-11:**
 
 - **S12 e S14:** portadora reduzida (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir. Validação por rodada curta com a semente 9102 antes da campanha pareada ([pré-registro 10](preregistros/10_campanha_s9_s15_g1_g2.md)).
-- **Baselines depois da troca do EEVS (achado 66):** `B3` = H-RDL atual (EEVS aditivo); `B3A` = apelido do B3, nome das execuções do pré-registro 09; `B3M` = H-RDL com EEVS por média, para reproduzir as campanhas até a 10. As execuções `B3` gravadas até a campanha 10 usaram média; o campo `eevs_aggregation` do `decision_log.json` registra a agregação de cada execução.
-- **Baseline `B3A` (histórico):** o mesmo H-RDL do B3 com o EEVS aditivo ([pré-registro 09](preregistros/09_eevs_aditivo.md)). Muda a decisão só em S2, S13 (admite o handover de evacuação, achado 55) e S15.
+- **Baselines depois da troca do EEVS (achado 66):** `B3` = RDL-N1 atual (EEVS aditivo); `B3A` = apelido do B3, nome das execuções do pré-registro 09; `B3M` = RDL-N1 com EEVS por média, para reproduzir as campanhas até a 10. As execuções `B3` gravadas até a campanha 10 usaram média; o campo `eevs_aggregation` do `decision_log.json` registra a agregação de cada execução.
+- **Baseline `B3A` (histórico):** o mesmo RDL-N1 do B3 com o EEVS aditivo ([pré-registro 09](preregistros/09_eevs_aditivo.md)). Muda a decisão só em S2, S13 (admite o handover de evacuação, achado 55) e S15.
 - **Análise:** o analisador passou a incluir G1, G2 e o B3A. Antes, o padrão de nome de execução os descartava (achado 61); por isso o relatório de análise de 2026-11-11 não tem G1 nem G2.
 
 ## 3. xApps que geram as propostas
@@ -99,13 +99,13 @@ As propostas do catálogo representam os papéis das xApps (xSlice/RANSlicer, En
 | Nativa (ns-3.48 + 5G-LENA v5.1) | S0–S7 (`simulations/ns3/scenario_s*.cc`) | não | G0 |
 | NORI (ns-3.42 + 5G-LENA + E2 real) | S0–S8 (variante `nori-rc-slicing-flowmon`) | sim | G0–G4 |
 
-A pilha nativa aplica um cronograma de ações dentro do ns-3, sem E2. Por isso a cadeia KPM_t0 → H-RDL → E2SM-RC → ACK → KPM_t1 só pode ser certificada na bancada NORI, o único lugar onde o nó E2 fala com o RIC.
+A pilha nativa aplica um cronograma de ações dentro do ns-3, sem E2. Por isso a cadeia KPM_t0 → RDL-N1 → E2SM-RC → ACK → KPM_t1 só pode ser certificada na bancada NORI, o único lugar onde o nó E2 fala com o RIC.
 
 Na bancada NORI, cada cenário do catálogo (`simulations/ns3/conflicts/catalog.json`) roda assim:
 
 1. O cenário é escrito em `/data/rdl_scenario`, no volume da xApp kpm-probe.
 2. A xApp, em modo `catalog`, assina o KPM do nó.
-3. Na 12.ª Indication, o H-RDL real (`src/closed_loop/catalog_loop.py`) arbitra as propostas das xApps do cenário. O estado de entrada é o KPM decodificado: PRBs do nó, UEs e fatias.
+3. Na 12.ª Indication, o RDL-N1 real (`src/closed_loop/catalog_loop.py`) arbitra as propostas das xApps do cenário. O estado de entrada é o KPM decodificado: PRBs do nó, UEs e fatias.
 4. Se houver o que atuar, a xApp envia o RIC Control E2SM-RC (função 300). O ACK e o efeito na vazão por fatia são medidos.
 
 O que o NORI consegue atuar:
@@ -120,7 +120,7 @@ As propostas não atuáveis aparecem na decisão (`not_actuated`, com o motivo).
 
 Cada execução faz uma única decisão. Ela usa a primeira ocorrência de cada proposta (xApp, gNB, parâmetro) e mantém o gNB de origem no alvo (`<meid>#g<gnb>`). Assim, propostas para gNBs diferentes não viram conflito falso.
 
-| Cenário | Decisão do H-RDL (verificada em `tests/unit/test_catalog_loop.py`) | Control no NORI |
+| Cenário | Decisão do RDL-N1 (verificada em `tests/unit/test_catalog_loop.py`) | Control no NORI |
 | :-- | :-- | :-- |
 | S0 | xslice `PRB_QUOTA` 80; `TX_POWER` no gNB 1 não atuável | 80/20 |
 | S1 | conflito direto → TVS escolhe xslice 75 | 75/25 |
@@ -130,7 +130,7 @@ Cada execução faz uma única decisão. Ela usa a primeira ocorrência de cada 
 | S5 | ping-pong entre células desde 2026-11-10: o `HANDOVER` do gNB 1 não é selecionado; o do gNB 0 vence (não atuável) | nenhum |
 | S6 | xslice 85 | 85/15 |
 | S7 | Safety Guard bloqueia `rogue_xapp` (`TX_POWER` 60 e `PRB_QUOTA` 150); xslice 70 | 70/30 |
-| S8 | conflito direto xslice 25 × embb_throughput 80 → H-RDL escolhe embb_throughput 80 | 80/20 |
+| S8 | conflito direto xslice 25 × embb_throughput 80 → RDL-N1 escolhe embb_throughput 80 | 80/20 |
 
 ### 4.1 S8: o closed loop do NORI
 
@@ -152,4 +152,4 @@ A decisão usa as duas mensagens do par. Os sha256 de ambas ficam registrados em
 
 Na execução `nori_S1_B3_seed1001`, o gatilho registrado era a mensagem de formato 1 do par. No fio, porém, a última mensagem antes do Control era a de formato 3, que também entrou na decisão.
 
-A xApp também só decide quando a Indication recebida completa o par do período (nó e UEs chegados a no máximo 0,5 s um do outro), em qualquer ordem de entrega, para que uma decisão rápida não use os UEs do período anterior (achado 48). Além disso, a xApp aquece o H-RDL antes do primeiro KPM (evento `decision_warm_up`). Isso evita que a importação das bibliotecas atrase o Control na hora da decisão.
+A xApp também só decide quando a Indication recebida completa o par do período (nó e UEs chegados a no máximo 0,5 s um do outro), em qualquer ordem de entrega, para que uma decisão rápida não use os UEs do período anterior (achado 48). Além disso, a xApp aquece o RDL-N1 antes do primeiro KPM (evento `decision_warm_up`). Isso evita que a importação das bibliotecas atrase o Control na hora da decisão.

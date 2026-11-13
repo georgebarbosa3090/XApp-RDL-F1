@@ -11,9 +11,8 @@ spec:
       {{- include "iqos-xapp-rdl.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      annotations:
-        rolloutTimestamp: {{ now | quote }}
       {{- with .Values.podAnnotations }}
+      annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
@@ -26,11 +25,19 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- if .Values.image.digest }}
+          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
+          {{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: RDL_MODE
               value: {{ .Values.env.rdlMode | default "governance" | quote }}
+            - name: RDL_E2_NODE
+              value: {{ .Values.env.e2Node | default "gnb_01" | quote }}
+            - name: XAPP_RDL_ASN1_DIR
+              value: "/tmp/xapp-rdl-asn1"
             - name: RAN_BACKEND
               value: {{ .Values.env.ranBackend | default "NORI_NS3" | quote }}
             - name: USE_FAKE_SDL
@@ -74,6 +81,13 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: {{ .Values.tmpVolume.sizeLimit | default "256Mi" }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

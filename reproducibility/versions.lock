@@ -14,6 +14,8 @@ near_rt_ric_arch = "v17.00"
 # anteriores que declaram "9b64c12" não correspondem a nenhuma versão real do NORI.
 [profile.nori]
 backend = "NORI_NS3"
+# SO do pod nori-ns3 (imagem do NORI); confere com environment.os dos manifestos (R7)
+os = "Ubuntu 20.04"
 ns3 = "3.42"
 ns3_commit = "ab4cce021d8f6b2458784704a10af810d3969f0f"
 nr_commit = "78b7179e3841c608c2021ffa88bea1906a1c7594"
@@ -34,6 +36,8 @@ nori_patches = "0001-rc-control-ack.patch:94a1d0911eb276ec279eb878fd8d0ab8a6d46a
 # Pilha nativa sem NORI (FlowMonitor dos cenários de conflito S0-S7; sem E2).
 [profile.native]
 backend = "NS3_5GLENA"
+# SO do Ubuntu do WSL onde a pilha nativa roda (R7)
+os = "Ubuntu 24.04"
 ns3 = "3.48"
 ns3_commit = "d2add90b452d600cfb4859baed8e9ea633519447"
 fiveg_lena = "v5.1"
@@ -85,7 +89,9 @@ numpy = ">=1.24.0"
 scipy = ">=1.10.0"
 
 [infrastructure]
-os = "Ubuntu 22.04 LTS (WSL2 / Linux Kernel 5.15+)"
+# Host da bancada; cada perfil acima declara o SO em que as execuções dele rodam (até 2026-11-13 só havia
+# este valor, 22.04, que nenhuma execução usava, e R7 avisava em todas)
+os = "Ubuntu 24.04 LTS (WSL2)"
 kubernetes = "v1.28+"
 k3s = "v1.28.8+k3s1"
 k3d = "v5.6.0"

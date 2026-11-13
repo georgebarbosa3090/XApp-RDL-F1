@@ -1,6 +1,6 @@
-# 02 — Modelo de decisão da H-RDL
+# 02 — Modelo de decisão da RDL-N1
 
-Este documento descreve o modelo de decisão da xApp RDL na Fase 1 (H-RDL). O mapa dos componentes, protocolos e fluxos da bancada está em [01](01_componentes_e_fluxos.md). Cada seção indica os arquivos de referência; quando o texto e o código divergirem, o código prevalece e o documento deve ser corrigido.
+Este documento descreve o modelo de decisão da xApp RDL na Fase 1 (RDL-N1). O mapa dos componentes, protocolos e fluxos da bancada está em [01](01_componentes_e_fluxos.md). Cada seção indica os arquivos de referência; quando o texto e o código divergirem, o código prevalece e o documento deve ser corrigido.
 
 ## 1. Papel no Near-RT RIC
 
@@ -40,7 +40,8 @@ flowchart TB
 
 | Modo (`RDL_MODE`) | Comportamento |
 | :-- | :-- |
-| `OFFLINE_SIMULATION` (padrão) | RMR simulado que nunca reporta envio com sucesso; memória local em vez de SDL; capacidades estáticas registradas para `gnb_01`; subscrição só se `SUBMGR_URL` estiver definido. Usado em testes e nos experimentos de simulação. |
+| `OFFLINE_SIMULATION` (padrão; apelido `SIMULATION`) | RMR simulado que nunca reporta envio com sucesso; memória local em vez de SDL; capacidades estáticas registradas para o nó de `RDL_E2_NODE` (padrão `gnb_01`); subscrição só se `SUBMGR_URL` estiver definido. Usado em testes e nos experimentos de simulação. |
+| `GOVERNANCE` (padrão do chart Helm) | RMR real: exige `ricxappframe`, e a partida falha sem ele. Fora do modo estrito: aceita xApps não registradas cuja origem não contradiga o registro (doc 11 §1); SDL conforme `USE_FAKE_SDL`; capacidades estáticas do nó de `RDL_E2_NODE`. Até 2026-11-13, este valor não era reconhecido e caía no RMR simulado, de modo que a RDL implantada pelo chart não recebia nem enviava mensagens (auditoria de 2026-11-13, R1). |
 | `O_RAN_INTEROP` | Exige `ricxappframe`/RMR, SDL e `RAN_BACKEND` explícito; rejeita propostas externas (o transporte não autentica a xApp emissora); **bloqueia despacho e fica fora de `READY`** enquanto `protocol_interoperability_verified` for falso no backend, isto é, enquanto o codec E2 não for validado contra o ASN.1 oficial e uma implementação independente. |
 
 Estados de saúde (`src/observability/health_server.py`): `STARTING`, `SUBSCRIBING`, `READY`, `DEGRADED`, `ERROR`, `STOPPED`. O endpoint `/ready` só responde 200 em `READY`.
@@ -132,7 +133,7 @@ Motivo: antes desse passo, uma ação insegura que conflitasse com uma legítima
 - Para alvos sem proposta na janela entra a última ação confirmada pela RAN: estados persistentes (célula desligada, potência reduzida) sempre. O handover é um evento, mas seu efeito (UEs servidos pela célula de destino) persiste: um handover confirmado protege a célula de destino até ser substituído por outro handover do mesmo nó de origem, ou por `handover_hold_s` segundos quando configurado. O ping-pong exige os dois handovers a até `pingpong_window_s` um do outro.
 - No experimento nativo (B3), a Percepção e o Refinement usam o relógio simulado e cada proposta recebe o instante simulado do fechamento da janela (`scripts/certification/run_conflict_experiment.py`).
 - A topologia (vizinhança) e os parâmetros vêm de um JSON em `RDL_TOPOLOGY_FILE` (exemplo em `configs/testbed_ufpa/topology.example.json`). Sem arquivo, as duas regras de handover continuam ativas e a de vizinhas dormindo fica inativa.
-- **Limitação:** quando a incumbente perde a arbitragem (por exemplo, a potência reduzida já aplicada numa célula para a qual um handover vence), a H-RDL não a reverte por conta própria: só arbitra propostas. Restaurar a célula exige uma proposta de outra xApp.
+- **Limitação:** quando a incumbente perde a arbitragem (por exemplo, a potência reduzida já aplicada numa célula para a qual um handover vence), a RDL-N1 não a reverte por conta própria: só arbitra propostas. Restaurar a célula exige uma proposta de outra xApp.
 
 ### 4.2 Estágio 1 — TVS (conflitos diretos)
 
@@ -140,7 +141,7 @@ Para cada conflito direto, `Reasoning._resolve_direct_conflict` escolhe **um** v
 
 $$U_{TVS}(a) = 0{,}40\,s_{SLA} + 0{,}25\,s_{vazão} + 0{,}15\,s_{energia} + 0{,}10\,s_{estab} + 0{,}10\,s_{prio}$$
 
-com desempate determinístico por (utilidade, prioridade, menor |valor|, `action_id`). As componentes são heurísticas calibradas à mão, não modelos analíticos completos:
+com desempate de ordem fixa por (utilidade, prioridade, menor |valor|, `action_id`). As componentes são regras calibradas à mão, não modelos analíticos completos:
 
 | Componente | Regra no código |
 | :-- | :-- |
@@ -164,7 +165,7 @@ $$U_{EEVS}(S) = 0{,}45\,QoS(S) + 0{,}20\,\overline{energia}(S) + 0{,}15\,J(S) - 
 - **Risco a acompanhar no modo aditivo:** uma ação de energia de baixa prioridade compatível com uma ação de prioridade ≥ 90 na mesma célula passa a ser admitida junto com ela, porque a penalidade de 0,20 por combiná-las não compensa o ganho somado de energia (`tests/unit/test_evaluation_fixes.py`). Mudar essa penalidade mudaria o algoritmo pré-registrado: exige novo pré-registro.
 - $QoS$: SLA médio ponderado pela prioridade; $J$: índice de Jain sobre os SLAs; $viol$: (prioridade máxima do conflito − prioridade máxima de S)/30, mais 0,20 se S combina uma xApp de energia com uma ação de prioridade ≥ 90.
 - Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro), ou que violam uma regra entre células (seção 4.1), valem −∞. Os conflitos `INTER_CELL` são resolvidos pelo EEVS depois dos indiretos, com a mesma redução aos vencedores do estágio 1.
-- A busca exata enumera só subconjuntos compatíveis (no máximo uma ação por alvo): $\prod_k (n_k+1) - 1$ combinações. Acima de `max_exact_subsets` (padrão $2^{16}-1$) usa-se uma heurística gulosa determinística, sem garantia de ótimo.
+- A busca exata enumera só subconjuntos compatíveis (no máximo uma ação por alvo): $\prod_k (n_k+1) - 1$ combinações. Acima de `max_exact_subsets` (padrão $2^{16}-1$) usa-se uma busca gulosa de ordem fixa, sem garantia de ótimo.
 - Alvos sem vencedor no EEVS são bloqueados no lote.
 
 Se o vencedor de um alvo é a incumbente, o valor atual é mantido e nada é reenviado.
@@ -210,7 +211,7 @@ Catálogo canônico (`src/e2/rc/control_parameter.py`); outros parâmetros são 
 | `HANDOVER` | 4 | 0–65535 | ID da célula de destino |
 | `CELL_STATE` | 5 | 0 (desligada) ou 1 (ativa) | estado |
 
-`CELL_STATE` atende à economia de energia por desligamento de células do GreenRAN (atividade A1.3 da proposta). O E2SM-RC não tem um Control Style padrão para isso; o caminho normativo provável é o E2SM-CCC (Cell Configuration and Control). Por isso não há capacidade padrão registrada: a H-RDL decide sobre `CELL_STATE`, mas o despacho falha fechado até que o nó anuncie a capacidade.
+`CELL_STATE` atende à economia de energia por desligamento de células do GreenRAN (atividade A1.3 da proposta). O E2SM-RC não tem um Control Style padrão para isso; o caminho normativo provável é o E2SM-CCC (Cell Configuration and Control). Por isso não há capacidade padrão registrada: a RDL-N1 decide sobre `CELL_STATE`, mas o despacho falha fechado até que o nó anuncie a capacidade.
 
 ## 6. Integração E2
 
@@ -279,7 +280,7 @@ O receptor A1-P (`src/interfaces/a1_policy_receiver.py`) valida as políticas e,
 | | `sla_weight` (0,1–0,8) | peso de SLA no TVS e de QoS no EEVS |
 | | `allow_neighbor_sleep` (bool) | desliga a regra `NEIGHBOR_SLEEP` |
 | | `low_power_threshold_dbm` (−10 a 43) | limiar de potência reduzida das regras entre células |
-| 20002 `CARDL_Model_Policy` | `marl_enabled` (bool), `min_confidence` (0–1) | só a CA-RDL (Fase 2) usa: liga o MAPPO e define a confiança mínima; a H-RDL armazena e ignora |
+| 20002 `CARDL_Model_Policy` | `marl_enabled` (bool), `min_confidence` (0–1) | só a RDL-N2 (Fase 2) usa: liga o MAPPO e define a confiança mínima; a RDL-N1 armazena e ignora |
 
 O tipo 20001 é o ponto de contato previsto com o rApp-ResourceOptimizer do GreenRAN (ver [`compliance/GREENRAN_UFPA_TESTBED_PROFILE.md`](compliance/GREENRAN_UFPA_TESTBED_PROFILE.md)); os campos são uma proposta a combinar com a equipe do rApp.
 
@@ -288,6 +289,6 @@ O tipo 20001 é o ponto de contato previsto com o rApp-ResourceOptimizer do Gree
 1. Interoperabilidade E2 não demonstrada; codecs não normativos (seção 6.4).
 2. Conflitos entre células: detectados para handover × célula desligada/reduzida, ping-pong e vizinhas dormindo (seção 4.1), sem reverter a incumbente que perde; outros acoplamentos entre células (interferência, balanceamento de carga) não são modelados.
 3. Identidade das xApps não autenticada no transporte de propostas.
-4. As utilidades TVS/EEVS são heurísticas com pesos fixos, sem calibração experimental publicada.
+4. As utilidades TVS/EEVS são regras com pesos fixos, sem calibração experimental publicada.
 5. Descoberta E2 (RAN Function Definition) não implementada: no modo estrito a xApp não obtém os IDs de função e permanece fora de `READY`.
 6. Políticas A1 ligadas à decisão (seção 7.1), mas o receptor não tem autenticação e o tipo 20001 ainda não foi combinado com o rApp do GreenRAN.

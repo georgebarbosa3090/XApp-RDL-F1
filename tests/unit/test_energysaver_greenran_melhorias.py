@@ -1,5 +1,5 @@
 """
-Melhorias da xApp2-EnergySaver (2026-11-13; docs/12 §3 e docs/16, comparação com o ES Orange):
+Melhorias da EnergySaver-GreenRAN (2026-11-13; docs/12 §3 e docs/16, comparação com o ES Orange):
 destino da evacuação pela cobertura dos UEs, confirmação da evacuação, permanência mínima, histerese de
 potência, hora em UTC com deslocamento da política e amostras a partir do KPM da malha fechada.
 """
@@ -11,7 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.greenran.common import CellSample, SliceKpi, UeKpi, samples_from_closed_loop  # noqa: E402
-from src.greenran.xapp2_energysaver import ACTIVE, EVACUATING, SLEEP, EnergySaver  # noqa: E402
+from src.greenran.energysaver_greenran import ACTIVE, EVACUATING, SLEEP, EnergySaver  # noqa: E402
 
 NEIGH = {"gnb_0": ["gnb_1", "gnb_2"], "gnb_1": ["gnb_0", "gnb_2"], "gnb_2": ["gnb_0", "gnb_1"]}
 

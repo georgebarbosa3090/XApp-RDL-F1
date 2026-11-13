@@ -3,9 +3,9 @@
 """
 xApps do GreenRAN (OpenRAN@Brasil, testbed UFPA), conforme a proposta GreenRAN (A1.5 e A1.6):
 
-- ``xapp1_ranslicer``: xApp1-RANSlicer — cota de PRB por fatia guiada por intenção (eMBB das câmeras de
+- ``ranslicer_greenran``: RANSlicer-GreenRAN — cota de PRB por fatia guiada por intenção (eMBB das câmeras de
   vigilância × mMTC dos sensores), com política aprendida opcional sob escudo de segurança.
-- ``xapp2_energysaver``: xApp2-EnergySaver — padrões sazonais de carga por célula, desligamento de
+- ``energysaver_greenran``: EnergySaver-GreenRAN — padrões sazonais de carga por célula, desligamento de
   RU em baixa demanda com evacuação prévia dos UEs para a vizinha (borda entre duas RUs) e religamento.
 
 As duas propõem à xApp RDL (RMR 30000) e recebem o resultado (30001); a RDL coordena as duas na escala

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Certificador de evidências experimentais ns-3.48 / 5G-LENA v5.1 / NORI (H-RDL Fase 1).
+Certificador de evidências experimentais ns-3.48 / 5G-LENA v5.1 / NORI (RDL-N1 Fase 1).
 
 Avalia cada execução em ``experiments/runs/`` contra a política de proveniência
 (``reproducibility/provenance_policy.yaml``) e o lock de versões
@@ -322,7 +322,8 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
     report.add("R6.versions_lock", *compare_with_lock(manifest, profile, profile_name))
 
     env = manifest.get("environment") or {}
-    lock_os = lock.get("infrastructure", {}).get("os", "")
+    # SO do perfil do backend (pod do NORI ou WSL da pilha nativa); o de [infrastructure] é o padrão
+    lock_os = profile.get("os") or lock.get("infrastructure", {}).get("os", "")
     env_os = str(env.get("os", "")) if isinstance(env, dict) else ""
     if env_os and lock_os and lock_os.split(" (")[0] not in env_os:
         report.add("R7.environment", WARN, f"SO do manifesto '{env_os}' difere do lock '{lock_os}'")
@@ -330,6 +331,7 @@ def _certify_run_specific(run_dir: Path, manifest: Dict[str, Any], policy: Dict[
         report.add("R7.environment", WARN, "ambiente de execução não registrado")
     else:
         report.add("R7.environment", PASS, env_os)
+    _check_repo_commit(run_dir, manifest, report)
 
     # R8 — manifesto de hashes completo e conferido
     hash_file = run_dir / "hashes.sha256"
@@ -575,6 +577,30 @@ def _certify_pcap_dissection(run_dir: Path, pcaps: List[Path], dissection_root: 
         report.add("R12.rc_correlation", NA, "nenhum RIC Control no PCAP")
 
 
+def _check_repo_commit(run_dir: Path, manifest: Dict[str, Any], report: RunReport) -> None:
+    """R15 — commit do código da RDL que gerou a execução (informativo; não muda a elegibilidade).
+
+    Nativo: ``repo_git_sha`` do manifesto (e ``repo_dirty``, desde 2026-11-13). NORI: ``repo_git_sha`` /
+    ``xapp_src_commit`` do manifesto, desde 2026-11-13; antes disso, o ``src_commit`` do evento ``start`` da
+    kpm-probe em ``experiments/xapp_logs/<run>/kpm_probe_events.jsonl``."""
+    sha = manifest.get("repo_git_sha_full") or manifest.get("repo_git_sha") or manifest.get("xapp_src_commit")
+    origin = "manifesto"
+    if not sha:
+        events = ROOT / "experiments" / "xapp_logs" / run_dir.name / "kpm_probe_events.jsonl"
+        if events.is_file():
+            match = re.search(r'"src_commit":\s*"([0-9a-f]{7,40})"', events.read_text(encoding="utf-8", errors="replace"))
+            if match:
+                sha, origin = match.group(1), "log da kpm-probe"
+    report.facts["repo_commit"] = sha
+    if not sha:
+        report.add("R15.repo_commit", WARN, "commit do código da RDL não registrado")
+    elif manifest.get("repo_dirty") is True:
+        report.add("R15.repo_commit", WARN, f"{str(sha)[:12]} ({origin}) com mudanças não commitadas: "
+                   f"{(manifest.get('repo_dirty_paths') or [])[:5]}")
+    else:
+        report.add("R15.repo_commit", PASS, f"{str(sha)[:12]} ({origin})")
+
+
 def _check_timeline(manifest: Dict[str, Any], report: RunReport) -> None:
     """R13 — início e fim registrados, em ordem."""
     started, finished = manifest.get("started_at_utc"), manifest.get("finished_at_utc")
@@ -642,12 +668,12 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
                              else "nenhuma execução elegível com Indication KPM e subscrição E2 externas "
                                   "confirmadas por dissecação independente do PCAP"}
     gates["G2"] = {"verdict": "LOCAL_ONLY",
-                   "reason": "decisão determinística coberta por testes unitários; não certifica interoperabilidade"}
+                   "reason": "decisão reprodutível coberta por testes unitários; não certifica interoperabilidade"}
     g3 = [r for r in eligible if rule_pass(r, "R12")]
     gates["G3"] = {"verdict": (CERTIFIED if g3 else NOT_CERTIFIED) if gates["G1"]["verdict"] == CERTIFIED else BLOCKED,
                    "reason": f"{len(g3)} execução(ões) com RC request/ACK correlacionados" if g3
                              else "sem RIC Control + ACK externos correlacionados em execução elegível"}
-    # G4 exige a cadeia completa E que o Control tenha sido decidido pelo H-RDL a partir do KPM_t0:
+    # G4 exige a cadeia completa E que o Control tenha sido decidido pelo RDL-N1 a partir do KPM_t0:
     # o registro da xApp liga os bytes do Control no PCAP à fonte da decisão e ao KPM que a motivou.
     def decision(r: RunReport) -> Dict[str, Any]:
         return (((r.facts.get("e2_dissection") or {}).get("xapp_crosscheck") or {}).get("decision") or {})
@@ -664,17 +690,17 @@ def evaluate_gates(reports: List[RunReport], lock: Dict[str, Dict[str, str]]) ->
     chains_ok = [r for r in reports if r.kind == "chain" and not r.failed()]
     g4_ok = bool(g4 or chains_ok)
     if g4_ok:
-        g4_reason = (f"{len(g4) or len(chains_ok)} cadeia(s) KPM_t0 -> decisão H-RDL -> RC -> ACK -> KPM_t1 com efeito "
+        g4_reason = (f"{len(g4) or len(chains_ok)} cadeia(s) KPM_t0 -> decisão RDL-N1 -> RC -> ACK -> KPM_t1 com efeito "
                      f"na RAN coerente com as cotas")
     elif decided:
         verdicts = sorted({f"{(r.facts.get('slice_effect') or {}).get('verdict', 'sem medida de efeito')}"
                            f" ({(r.facts.get('slice_effect') or {}).get('rule', '-')})" for r in decided})
-        g4_reason = (f"cadeia completa e decidida pelo H-RDL em {len(decided)} execução(ões), mas o efeito na RAN "
+        g4_reason = (f"cadeia completa e decidida pelo RDL-N1 em {len(decided)} execução(ões), mas o efeito na RAN "
                      f"não foi confirmado (veredito: {', '.join(verdicts)})")
     elif complete:
         sources = sorted({str(decision(r).get("source")) for r in complete})
         g4_reason = (f"cadeia E2 completa em {len(complete)} execução(ões), mas o Control não veio de uma decisão "
-                     f"do H-RDL sobre o KPM_t0 (fonte registrada: {', '.join(sources)})")
+                     f"do RDL-N1 sobre o KPM_t0 (fonte registrada: {', '.join(sources)})")
     else:
         g4_reason = "nenhuma cadeia closed-loop elegível (fixtures e execuções sintéticas não contam)"
     gates["G4"] = {"verdict": (CERTIFIED if g4_ok else NOT_CERTIFIED) if gates["G3"]["verdict"] == CERTIFIED else BLOCKED,

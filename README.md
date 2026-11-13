@@ -1,14 +1,22 @@
-# xApp RDL — Resource and Decision Layer (Fase 1: H-RDL)
+# xApp RDL — Resource and Decision Layer (Fase 1: RDL-N1)
 
-Camada de governança para o Near-RT RIC (O-RAN) que recebe as propostas de controle de várias xApps, detecta conflitos entre elas e decide, de forma determinística e com guardas de segurança, quais ações chegam à RAN.
+Camada de governança hierárquica e multinível para o Near-RT RIC (O-RAN). Ela recebe as propostas de controle de várias xApps, detecta conflitos entre elas e decide quais ações chegam à RAN:
+- **Nível 1 (RDL-N1):** decide por regras e políticas, com guardas de segurança;
+- **Nível 2 (RDL-N2):** acrescenta uma política aprendida com restrições, que usa o nível 1 como reserva.
 
 Projeto de mestrado — PPGCOMP / UFPA. Autor: George Alexandro Ferreira Barbosa. Orientador: Prof. Dr. André Riker.
 
-| Fase | Abordagem | Repositório |
+| Nível / fase | Abordagem | Repositório |
 | :-- | :-- | :-- |
-| 1 — H-RDL | Heurísticas determinísticas (TVS/EEVS) + Safety Guard | este repositório |
-| 2 — CA-RDL | Contexto + Safe-MARL (MAPPO com restrições) | [XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
-| 3 | RDL autônoma/federada (6G) | planejamento |
+| N1 — RDL-N1 (Fase 1) | Regras e políticas (Safety Guard, TVS/EEVS, Refinement, políticas A1) | este repositório |
+| N2 — RDL-N2 (Fase 2) | Política aprendida com restrições (MAPPO, CMDP-Lagrangiano), com a RDL-N1 como reserva | [XApp-RDL-F2](https://github.com/georgebarbosa3090/XApp-RDL-F2) |
+| Fase 3 | RDL autônoma/federada (6G) | planejamento |
+
+**Nomes (desde 13/11/2026):**
+- **Nomes novos:** RDL-N1 substitui H-RDL, e RDL-N2 substitui CA-RDL. Os nomes antigos sugeriam "heurística" e "baseada em contexto", e não descreviam a hierarquia.
+- **O que mantém o nome antigo e por quê:**
+  - **Registros congelados:** pré-registros 01–10 (`docs/preregistros/`), evidências (`experiments/`) e relatórios datados (`reports/`). Mudá-los alteraria registros.
+  - **Identificadores de máquina:** `HRDL_RUNTIME`, `HRDL_F1_*`, o pacote `cardl` da F2 e as pastas dos artigos. Eles são validados por manifestos e políticas de proveniência.
 
 ---
 
@@ -18,30 +26,30 @@ O que existe e o que foi verificado, com a evidência correspondente. Os veredit
 
 | Item | Situação | Evidência |
 | :-- | :-- | :-- |
-| Pipeline de decisão H-RDL (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 428 testes passando | `tests/` |
+| Pipeline de decisão RDL-N1 (percepção, TVS/EEVS, Safety Guard, despacho) | implementado; 428 testes passando | `tests/` |
 | Adequação ao testbed UFPA do GreenRAN (OpenRAN@Brasil) | implementado no código em 2026-11-10, sem execução no testbed: conflitos **entre células** (handover × célula desligada/reduzida, ping-pong, vizinhas dormindo), parâmetro `CELL_STATE` (despacho fail-closed até o nó anunciá-lo), políticas A1 ligadas à decisão (tipo 20001 `GreenRAN_Intent_Policy`). Gates TB0–TB10 e GR1–GR4 pendentes | [perfil](docs/compliance/GREENRAN_UFPA_TESTBED_PROFILE.md), [relatório de adequação](reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md), [docs/07, achado 52](docs/07_certificacao_e_achados.md) |
 | Conflitos entre células na RAN simulada (S4, S5) | campanha pré-registrada, 40 execuções (sementes 1006–1010): cronograma do B3 como previsto em 10/10; no S5 o ping-pong suprimido melhora vazão e atraso em 5/5; no S4 a vazão do B3 ficou **menor** que a do B0 (H9.3 refutada) | [pré-registro 08](docs/preregistros/08_conflitos_entre_celulas_s4_s5.md) |
 | Grafo de conhecimento, janela adaptativa e caminho crítico | implementados (testes); janela adaptativa ligada por padrão desde 2026-11-11; exportação para NetworkX e Neo4j (`scripts/kg/export_kg.py`) | [docs/02 §3.1 e §4.5](docs/02_modelo_de_decisao_h_rdl.md), [docs/09](docs/09_frameworks_e_acoes_criticas.md) |
 | Propostas não atendidas: registro com motivo (`GET /rejections`, `/decisions`), aviso RMR 30001, adiamento opcional e validade | implementados (testes), sem execução ao vivo | [docs/02 §3.2](docs/02_modelo_de_decisao_h_rdl.md), [docs/09 §2.4](docs/09_frameworks_e_acoes_criticas.md) |
 | Governança hierárquica das xApps (registro, NetworkPolicy, interceptação do 12040, conflito implícito, rApp de governança, modo sob demanda) | implementada (testes); NetworkPolicy verificada no cluster; interceptação com RMR real não verificada | [docs/11](docs/11_governanca_hierarquica_xapps.md) |
 | Conflito entre rApps na A1 (dono e precedência por campo, quinto aspecto da governança) | implementado (testes) | [docs/11 §5.1](docs/11_governanca_hierarquica_xapps.md) |
-| GreenRAN: xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer (A1 20001/21000/21001) e perfis srsRAN (GERCOM) / OAI (LACIS) | implementados (testes); sem RAN real | [docs/12](docs/12_greenran_xapps_rapp_e_testbed.md) |
+| GreenRAN: RANSlicer-GreenRAN, EnergySaver-GreenRAN, rApp-ResourceOptimizer (A1 20001/21000/21001) e perfis srsRAN (GERCOM) / OAI (LACIS) | implementados (testes); sem RAN real | [docs/12](docs/12_greenran_xapps_rapp_e_testbed.md) |
 | Histórico do grafo no SMO (Neo4j leve + CronJob de exportação a cada minuto) | chart `kg-neo4j` verificado na bancada com grafo de teste (531 nós, exportação idempotente) | [docs/11 §6.1](docs/11_governanca_hierarquica_xapps.md) |
 | SMO / Non-RT RIC | A1-PMS do O-RAN SC no k3s com adaptador para o A1 Mediator da Release I; rApp → A1-PMS → A1 Mediator verificado; a xApp com E2 real ainda não trata o RMR 20010 | [docs/10](docs/10_smo_non_rt_ric_e_rapp.md) |
 | Cenários S9–S15 e GreenRAN (G1, G2) | reconstruídos com NR (inclusive canal NTN do 3GPP com posições geocêntricas); teste curto de uma semente: no G2 o B3 evita a queda de serviço que o B0 causa ao desligar as duas RUs, e no G1 protege as câmeras; sem campanha pareada | [docs/03 §2.3](docs/03_cenarios_e_conflitos.md) |
 | Conflitos aplicados na RAN simulada (ns-3.48 + 5G-LENA v5.1) | implementado para S0–S7 (PRB, potência, handover) | [`simulations/ns3/`](simulations/ns3/README.md) |
-| Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o H-RDL sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo H-RDL sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/preregistros/05_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. No desenho [v7](docs/preregistros/06_fase4_v7.md), com a banda reduzida a 50 MHz, as 30 execuções saíram `INCONSISTENT`: o teto age em PRBs absolutos da portadora, e a regra relativa só vale na banda da calibração | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/06, seção 5.5](docs/06_metodologia_e_resultados.md#55-campanha-nori-s0s8--10011005-2026-11-09) |
+| Cenários de conflito S0–S8 na bancada NORI (E2 real) | implementado: a kpm-probe em modo `catalog` roda o RDL-N1 sobre o KPM real e atua a cota de PRB no gNB 0 (potência, handover e outros gNBs são decididos e registrados como não atuáveis). Campanha S0–S8 × 5 sementes (45 execuções): 30 com Control decidido pelo RDL-N1 sobre o KPM_t0 e ACK, 20 com efeito `CONSISTENT`; S3–S5 sem nada atuável. Pela regra v5, S7 sai `INCONSISTENT` (interpolação até um nível saturado) e a semente 1005 fica fora da calibração (vazão de base pela metade), mas a razão depois/antes é a mesma em todas as sementes (achados 41–43). Na avaliação pré-registrada da regra relativa ([v6](docs/preregistros/05_fase4_v6.md)), com as sementes novas 2001–2005, as 30 execuções saíram `CONSISTENT` (erro ≤ 0,03 %), inclusive os cinco S7. No desenho [v7](docs/preregistros/06_fase4_v7.md), com a banda reduzida a 50 MHz, as 30 execuções saíram `INCONSISTENT`: o teto age em PRBs absolutos da portadora, e a regra relativa só vale na banda da calibração | [resumo da campanha](reports/nori/resumo_campanha_nori_20261109T015402Z.md), [docs/06, seção 5.5](docs/06_metodologia_e_resultados.md#55-campanha-nori-s0s8--10011005-2026-11-09) |
 | Comparação de baselines B0–B3 nos cenários S0–S7 | campanha concluída: 160 execuções (5 sementes), malha aberta; resultados em [`docs/06`](docs/06_metodologia_e_resultados.md#4-resultados-da-pilha-nativa-malha-aberta-sem-e2) e no [relatório da campanha](reports/conflicts/relatorio_campanha_20261108T110655Z.md) | `experiments/runs/nr_*`, [`reports/conflicts/`](reports/conflicts/) |
 | Interoperabilidade E2 real (KPM/RC com NORI e Near-RT RIC) | **E2 Setup, E2SM-KPM e RIC Control E2SM-RC verificados** (NORI ↔ Near-RT RIC Release I no k3s). A xApp [`kpm-probe`](deploy/helm/xapp-kpm-probe/README.md) assina KPM v3.00 pelo SubMgr e envia um RIC Control E2SM-RC v3.01 (cotas de PRB por fatia) codificado por [`src/e2/v3/codec.py`](src/e2/v3/codec.py); o NORI devolve o ACK correlacionado. As mensagens E2AP são confirmadas pelo tshark 4.2.2 e casadas byte a byte com a xApp. O ACK do RC exige um [patch de 56 linhas no NORI](deploy/helm/nori-ns3/files/patches/0001-rc-control-ack.patch), registrado no lock | [`nori_rc_control_seed1`](experiments/runs/nori_rc_control_seed1/execution_manifest.json), [`nori_kpm_flowmon_seed1_p1s`](experiments/runs/nori_kpm_flowmon_seed1_p1s/execution_manifest.json), [`experiments/e2_dissection/`](experiments/e2_dissection/), [guia, seção 7](docs/04_instalacao_e_operacao.md#7-bancada-e2-real-near-rt-ric-nori-e-xapp) |
-| Closed loop causal KPM → decisão → RC → KPM | **verificado (G4), com ressalvas**. No desenho v5 ([pré-registro](docs/preregistros/04_fase4_v5.md)), o H-RDL decidiu cotas de PRB a partir do KPM_t0 em três execuções; o Control E2SM-RC foi confirmado por ACK e a URLLC caiu de 151,5 para 76,4 Mb/s, a 1,3 % da previsão feita antes das execuções. Ressalvas: decisão igual nas três (o sinal de congestionamento do NORI é sempre verdadeiro), efeito medido no FlowMonitor (o KPM do NORI não mede vazão por UE), NORI com patch do ACK, cenário único. Histórico: a v1 não viu efeito (teto de 40 %, INCONSISTENT). Os desenhos v2 a v4 ([v2](docs/preregistros/01_fase4_v2.md), [v3](docs/preregistros/02_fase4_v3.md), [v4](docs/preregistros/03_fase4_v4.md)) pararam na calibração e as avaliações não foram rodadas. A análise exploratória da v4 mostrou a causa: a cota funciona e é linear, mas o NORI a aplica ~12 s simulados depois do Control (agendamento pelo relógio de parede no simulador em tempo real), fora da janela de análise | [`nori_hrdl_v5_seed1..3`](experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json), [docs/06, seção 5.4](docs/06_metodologia_e_resultados.md#54-fase-4-decisão-do-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-desenhos-v1v5-2026-11-08) | [`nori_hrdl_loop_seed1`](experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json), [docs/06, seção 5.4](docs/06_metodologia_e_resultados.md#54-fase-4-decisão-do-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-desenhos-v1v5-2026-11-08) |
+| Closed loop causal KPM → decisão → RC → KPM | **verificado (G4), com ressalvas**. No desenho v5 ([pré-registro](docs/preregistros/04_fase4_v5.md)), o RDL-N1 decidiu cotas de PRB a partir do KPM_t0 em três execuções; o Control E2SM-RC foi confirmado por ACK e a URLLC caiu de 151,5 para 76,4 Mb/s, a 1,3 % da previsão feita antes das execuções. Ressalvas: decisão igual nas três (o sinal de congestionamento do NORI é sempre verdadeiro), efeito medido no FlowMonitor (o KPM do NORI não mede vazão por UE), NORI com patch do ACK, cenário único. Histórico: a v1 não viu efeito (teto de 40 %, INCONSISTENT). Os desenhos v2 a v4 ([v2](docs/preregistros/01_fase4_v2.md), [v3](docs/preregistros/02_fase4_v3.md), [v4](docs/preregistros/03_fase4_v4.md)) pararam na calibração e as avaliações não foram rodadas. A análise exploratória da v4 mostrou a causa: a cota funciona e é linear, mas o NORI a aplica ~12 s simulados depois do Control (agendamento pelo relógio de parede no simulador em tempo real), fora da janela de análise | [`nori_hrdl_v5_seed1..3`](experiments/runs/nori_hrdl_v5_seed1/execution_manifest.json), [docs/06, seção 5.4](docs/06_metodologia_e_resultados.md#54-fase-4-decisão-do-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-desenhos-v1v5-2026-11-08) | [`nori_hrdl_loop_seed1`](experiments/runs/nori_hrdl_loop_seed1/execution_manifest.json), [docs/06, seção 5.4](docs/06_metodologia_e_resultados.md#54-fase-4-decisão-do-h-rdl-sobre-o-kpm_t0-e-efeito-na-ran-desenhos-v1v5-2026-11-08) |
 
 | Gate | Exigência | Veredito |
 | :-: | :-- | :-: |
 | G0 | Ambiente reproduzível (versões e commits por execução) | CERTIFIED (pilhas nativa e NORI) |
 | G1 | E2SM-KPM externo (E2 Setup, Subscription, Indication) | CERTIFIED (249 execuções NORI) |
-| G2 | Decisão H-RDL funcional | LOCAL_ONLY (testes) |
+| G2 | Decisão RDL-N1 funcional | LOCAL_ONLY (testes) |
 | G3 | E2SM-RC externo (Control + ACK correlacionados) | CERTIFIED (230 execuções; NORI com patch do lock) |
-| G4 | Closed loop causal (Control decidido pelo H-RDL a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (84 cadeias decididas pelo H-RDL: 3 da v5 e 20 da campanha S0–S8 pela regra v5; 30 da avaliação v6 e 31 do B3 da campanha do G5 pela regra v6, adotada sem efeito retroativo) |
+| G4 | Closed loop causal (Control decidido pelo RDL-N1 a partir do KPM_t0, com efeito na RAN coerente com as cotas) | CERTIFIED (84 cadeias decididas pelo RDL-N1: 3 da v5 e 20 da campanha S0–S8 pela regra v5; 30 da avaliação v6 e 31 do B3 da campanha do G5 pela regra v6, adotada sem efeito retroativo) |
 | G5 | Campanha ≥ 30 sementes pareadas com E2 | CERTIFIED (S8: 30 pares B0–B3 com E2 real; [pré-registro e resultado](docs/preregistros/07_campanha_g5_s8.md)) |
 | G6 | Artefato reproduzível por terceiros | NOT_CERTIFIED (falta reprodução independente) |
 
@@ -52,7 +60,7 @@ Importante para leitura de resultados antigos:
 
 ---
 
-## Como a H-RDL decide
+## Como a RDL-N1 decide
 
 ```mermaid
 flowchart LR
@@ -76,7 +84,7 @@ flowchart LR
 
 Detalhes e fórmulas em [`docs/02_modelo_de_decisao_h_rdl.md`](docs/02_modelo_de_decisao_h_rdl.md).
 
-**Conflitos entre células** (desde 2026-11-10): além dos conflitos por gNB, a percepção detecta handover para uma célula que outra xApp desliga ou reduz, ping-pong de handover entre duas células e vizinhas desligadas ao mesmo tempo; o EEVS só admite subconjuntos compatíveis. Isso cobre os cenários S4 e S5, mas as campanhas registradas antes dessa data não refletem a mudança. A H-RDL não reverte uma ação já aplicada que perde a arbitragem ([docs/02 §4.1](docs/02_modelo_de_decisao_h_rdl.md#41-percepção-conflitos-agrupados-por-alvo)).
+**Conflitos entre células** (desde 2026-11-10): além dos conflitos por gNB, a percepção detecta handover para uma célula que outra xApp desliga ou reduz, ping-pong de handover entre duas células e vizinhas desligadas ao mesmo tempo; o EEVS só admite subconjuntos compatíveis. Isso cobre os cenários S4 e S5, mas as campanhas registradas antes dessa data não refletem a mudança. A RDL-N1 não reverte uma ação já aplicada que perde a arbitragem ([docs/02 §4.1](docs/02_modelo_de_decisao_h_rdl.md#41-percepção-conflitos-agrupados-por-alvo)).
 
 ---
 
@@ -96,7 +104,7 @@ Nos cenários S0–S7, as ações decididas são aplicadas na RAN durante a simu
 | B0 | sem coordenação: cada proposta é aplicada ao chegar |
 | B1 | FIFO por janela e alvo |
 | B2 | prioridade estática por janela e alvo |
-| B3 | H-RDL: o pipeline real da xApp (`RDLxApp._process_action_group`) no relógio simulado |
+| B3 | RDL-N1: o pipeline real da xApp (`RDLxApp._process_action_group`) no relógio simulado |
 
 Esta é uma avaliação em **malha aberta**: sem E2 e sem realimentação de KPM. Metodologia, métricas e resultados em [`docs/06_metodologia_e_resultados.md`](docs/06_metodologia_e_resultados.md).
 
@@ -139,7 +147,7 @@ Executar a xApp (modo local, sem RIC):
 python -m src.main
 ```
 
-Variáveis principais: `RDL_MODE` (`OFFLINE_SIMULATION` ou `O_RAN_INTEROP`), `RAN_BACKEND`, `SUBMGR_URL` (subscrição E2SM-KPM pela API REST do Subscription Manager), `XAPP_HTTP_HOST`, `XAPP_HTTP_PORT`, `XAPP_RMR_PORT`. No modo `O_RAN_INTEROP` a xApp permanece bloqueada enquanto o codec E2 não for validado contra o ASN.1 oficial.
+Variáveis principais: `RDL_MODE` (`OFFLINE_SIMULATION`, `GOVERNANCE` ou `O_RAN_INTEROP`; um valor desconhecido impede a partida; ver [docs/02 §2](docs/02_modelo_de_decisao_h_rdl.md#2-modos-de-operação)), `RDL_E2_NODE` (nó E2 assinado, padrão `gnb_01`), `RDL_SERVE_HTTP` (`false` não sobe os servidores 8080/8081), `RAN_BACKEND`, `SUBMGR_URL` (subscrição E2SM-KPM pela API REST do Subscription Manager), `XAPP_HTTP_HOST`, `XAPP_HTTP_PORT`, `XAPP_RMR_PORT`. No modo `O_RAN_INTEROP` a xApp permanece bloqueada enquanto o codec E2 não for validado contra o ASN.1 oficial.
 
 ---
 
@@ -167,7 +175,7 @@ Comece pelo [índice](docs/README.md). Os documentos são numerados na ordem de 
 | # | Documento | Conteúdo |
 | :-: | :-- | :-- |
 | 01 | [Componentes e fluxos](docs/01_componentes_e_fluxos.md) | o que é simulado, emulado ou real; quem registra em quem; protocolos, portas e mensagens RMR; ações; NORI; PCAP e tshark; cada fluxo |
-| 02 | [Modelo de decisão da H-RDL](docs/02_modelo_de_decisao_h_rdl.md) | Safety Guard, percepção, TVS/EEVS, Refinement, despacho e limitações |
+| 02 | [Modelo de decisão da RDL-N1](docs/02_modelo_de_decisao_h_rdl.md) | Safety Guard, percepção, TVS/EEVS, Refinement, despacho e limitações |
 | 03 | [Cenários e conflitos](docs/03_cenarios_e_conflitos.md) | tipos de conflito, S0–S8 e o que cada cenário atua na bancada NORI |
 | 04 | [Instalação e operação](docs/04_instalacao_e_operacao.md) | pilha nativa, Near-RT RIC, NORI, xApp, dissecação, solução de problemas |
 | 05 | [Observabilidade e campanhas](docs/05_observabilidade_e_campanhas.md) | abas ao vivo, InfluxDB e Grafana, campanhas NORI e nativa |
@@ -176,7 +184,7 @@ Comece pelo [índice](docs/README.md). Os documentos são numerados na ordem de 
 | 09 | [Frameworks e ações críticas](docs/09_frameworks_e_acoes_criticas.md) | frameworks avaliados; ações que não podem esperar a janela (dentro e fora da RDL) |
 | 10 | [SMO, Non-RT RIC e rApp](docs/10_smo_non_rt_ric_e_rapp.md) | A1-PMS na bancada, fluxo de ML do MAPPO, passo a passo do SMO completo para o testbed |
 | 11 | [Governança hierárquica das xApps](docs/11_governanca_hierarquica_xapps.md) | registro e NetworkPolicy, interceptação por rota, conflito implícito, rApp de governança, supervisão sob demanda; dbaas, NetworkX e Neo4j |
-| 12 | [xApps do GreenRAN, rApp e testbed](docs/12_greenran_xapps_rapp_e_testbed.md) | xApp1-RANSlicer, xApp2-EnergySaver, rApp-ResourceOptimizer, backends srsRAN (GERCOM) e OAI (LACIS), passo a passo por laboratório |
+| 12 | [xApps do GreenRAN, rApp e testbed](docs/12_greenran_xapps_rapp_e_testbed.md) | RANSlicer-GreenRAN, EnergySaver-GreenRAN, rApp-ResourceOptimizer, backends srsRAN (GERCOM) e OAI (LACIS), passo a passo por laboratório |
 | — | [Pré-registros](docs/preregistros/README.md) | desenhos da fase 4 (v2–v7), campanha do G5 e conflitos entre células (08), fixados antes das execuções |
 
 ---

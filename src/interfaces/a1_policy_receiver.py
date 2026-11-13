@@ -1,6 +1,6 @@
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Módulo: Receptor REST de Políticas A1-P (O-RAN.WG2.A1AP-v03.01 / A1-PMS)
 Arquivo: src/interfaces/a1_policy_receiver.py
 Descrição: Implementa o servidor de gerenciamento de políticas A1-P do Non-RT RIC (SMO)
@@ -60,7 +60,7 @@ class A1PolicyManager:
                 }
             },
             # GreenRAN (OpenRAN@Brasil, UFPA): objetivos que o rApp-ResourceOptimizer
-            # repassa à coordenação Near-RT entre xApp1-RANSlicer e xApp2-EnergySaver.
+            # repassa à coordenação Near-RT entre RANSlicer-GreenRAN e EnergySaver-GreenRAN.
             "20001": {
                 "name": "GreenRAN_Intent_Policy",
                 "description": "Peso de energia e de SLA na arbitragem e regras de economia entre celulas",
@@ -74,10 +74,10 @@ class A1PolicyManager:
                     }
                 }
             },
-            # GreenRAN: intenção do rApp-ResourceOptimizer para o xApp1-RANSlicer (src/greenran; doc 12)
+            # GreenRAN: intenção do rApp-ResourceOptimizer para o RANSlicer-GreenRAN (src/greenran; doc 12)
             "21000": {
                 "name": "GreenRAN_RANSlicer_Intent",
-                "description": "Alvos de SLA da fatia eMBB (cameras) e piso da fatia mMTC (sensores) para o xApp1-RANSlicer",
+                "description": "Alvos de SLA da fatia eMBB (cameras) e piso da fatia mMTC (sensores) para o RANSlicer-GreenRAN",
                 "schema": {
                     "type": "object",
                     "properties": {
@@ -89,10 +89,10 @@ class A1PolicyManager:
                     }
                 }
             },
-            # GreenRAN: política do rApp-ResourceOptimizer para o xApp2-EnergySaver
+            # GreenRAN: política do rApp-ResourceOptimizer para o EnergySaver-GreenRAN
             "21001": {
                 "name": "GreenRAN_EnergySaver_Policy",
-                "description": "Janela de economia, limiares de desligamento e religamento e celulas minimas ativas para o xApp2-EnergySaver",
+                "description": "Janela de economia, limiares de desligamento e religamento e celulas minimas ativas para o EnergySaver-GreenRAN",
                 "schema": {
                     "type": "object",
                     "properties": {
@@ -106,10 +106,10 @@ class A1PolicyManager:
                     }
                 }
             },
-            # CA-RDL (Fase 2): liga/desliga a arbitragem MAPPO; a H-RDL só armazena e ignora
+            # RDL-N2 (Fase 2): liga/desliga a arbitragem MAPPO; a RDL-N1 só armazena e ignora
             "20002": {
                 "name": "CARDL_Model_Policy",
-                "description": "Liga ou desliga a arbitragem MAPPO da CA-RDL e ajusta a confianca minima (reserva: H-RDL)",
+                "description": "Liga ou desliga a arbitragem MAPPO da RDL-N2 e ajusta a confianca minima (reserva: RDL-N1)",
                 "schema": {
                     "type": "object",
                     "properties": {

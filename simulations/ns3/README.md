@@ -1,6 +1,6 @@
 # Cenários ns-3 + 5G-LENA
 
-Cenários C++ usados para avaliar a xApp RDL (H-RDL). Um cenário existir ou compilar não é resultado: só contam execuções feitas pelos executores com proveniência e aprovadas pelo certificador (ver [política de evidência](../../docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)).
+Cenários C++ usados para avaliar a xApp RDL (RDL-N1). Um cenário existir ou compilar não é resultado: só contam execuções feitas pelos executores com proveniência e aprovadas pelo certificador (ver [política de evidência](../../docs/compliance/EXPERIMENTAL_EVIDENCE_POLICY.md)).
 
 ## 1. Pilhas
 
@@ -15,7 +15,7 @@ O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separa
 
 | ID | Cenário | Arquivo | Conflito exercitado |
 | :-: | :-- | :-- | :-- |
-| S0 | sem conflito | [`scenario_rdl_no_conflict.cc`](scenario_rdl_no_conflict.cc) | nenhum; a H-RDL não deve interferir |
+| S0 | sem conflito | [`scenario_rdl_no_conflict.cc`](scenario_rdl_no_conflict.cc) | nenhum; a RDL-N1 não deve interferir |
 | S1 | conflito direto de PRB | [`scenario_rdl_direct_prb_conflict.cc`](scenario_rdl_direct_prb_conflict.cc) | duas xApps com cotas de PRB diferentes no mesmo alvo |
 | S2 | conflito indireto (TVS) | [`scenario_rdl_tvs_conflict.cc`](scenario_rdl_tvs_conflict.cc) | cota de PRB × handover |
 | S3 | energia × QoS | [`scenario_rdl_energy_vs_qos.cc`](scenario_rdl_energy_vs_qos.cc) | potência de transmissão × cota de PRB |
@@ -23,7 +23,7 @@ O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separa
 | S5 | ping-pong temporal | [`scenario_rdl_temporal_pingpong.cc`](scenario_rdl_temporal_pingpong.cc) | handovers alternados entre duas células |
 | S6 | tempestade de conflitos | [`scenario_rdl_conflict_storm.cc`](scenario_rdl_conflict_storm.cc) | muitas propostas por janela |
 | S7 | injeção de falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | propostas fora dos limites físicos |
-| S8 | closed loop com NORI | — (só na bancada NORI: variante `nori-rc-slicing-flowmon`, `bash scripts/run_nori_scenario.sh S8 <semente>`) | xslice × embb_throughput disputam a cota de PRB; o H-RDL decide sobre o KPM real e o RIC Control E2SM-RC altera a RAN |
+| S8 | closed loop com NORI | — (só na bancada NORI: variante `nori-rc-slicing-flowmon`, `bash scripts/run_nori_scenario.sh S8 <semente>`) | xslice × embb_throughput disputam a cota de PRB; o RDL-N1 decide sobre o KPM real e o RIC Control E2SM-RC altera a RAN |
 
 As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). Os cenários S0–S8 também rodam na bancada NORI com a cadeia E2 real (só a cota de PRB no gNB 0 é atuável lá); ver [docs/05](../../docs/05_observabilidade_e_campanhas.md).
 
@@ -47,7 +47,7 @@ Saídas por execução: `rdl_actuation_log.csv` (cada ação, instante e efeito)
 | B0 | sem coordenação: cada proposta é aplicada ao chegar |
 | B1 | FIFO por janela de 200 ms e alvo |
 | B2 | prioridade estática por janela e alvo |
-| B3 | H-RDL: `RDLxApp._process_action_group` por janela, no relógio simulado |
+| B3 | RDL-N1: `RDLxApp._process_action_group` por janela, no relógio simulado |
 
 É uma avaliação **em malha aberta**: o cronograma de propostas é fixo e não há E2 nem realimentação de KPM.
 

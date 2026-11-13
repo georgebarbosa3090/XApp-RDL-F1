@@ -2,7 +2,7 @@
 
 Implementado em 2026-11-11, conforme a proposta GreenRAN (atividades A1.5, A1.6 e A1.7) e o relatório de adequação ([`reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md`](../reports/avaliacao/adequacao_f1_f2_greenran_ufpa_20261110.md)). Autor: George Barbosa ([`AUTHORS.md`](../AUTHORS.md)).
 
-**Estado:** testado em unidade e integrado ao pipeline real de decisão da RDL; **sem execução em RAN real**. No GreenRAN, o xApp1 é entregável da UFRGS e o xApp2 da UFPA. As versões daqui servem para integrar e testar a coordenação até as definitivas chegarem; elas usam o mesmo contrato (RMR 30000/30001 e A1).
+**Estado:** testado em unidade e integrado ao pipeline real de decisão da RDL; **sem execução em RAN real**. No GreenRAN, a RANSlicer-GreenRAN é entregável da UFRGS e o EnergySaver-GreenRAN da UFPA. As versões daqui servem para integrar e testar a coordenação até as definitivas chegarem; elas usam o mesmo contrato (RMR 30000/30001 e A1).
 
 ## 1. Arquitetura
 
@@ -12,8 +12,8 @@ flowchart TD
     G["RDL: GET /governance"] --> R
     K["indicadores de SLA e carga"] --> R
     R -->|"A1 20001: pesos e sleep"| H["xApp RDL"]
-    R -->|"A1 21000: alvos de SLA"| X1["xApp1-RANSlicer<br/>src/greenran/xapp1_ranslicer.py"]
-    R -->|"A1 21001: janela e limiares"| X2["xApp2-EnergySaver<br/>src/greenran/xapp2_energysaver.py"]
+    R -->|"A1 21000: alvos de SLA"| X1["RANSlicer-GreenRAN<br/>src/greenran/ranslicer_greenran.py"]
+    R -->|"A1 21001: janela e limiares"| X2["EnergySaver-GreenRAN<br/>src/greenran/energysaver_greenran.py"]
     X1 -->|"PRB_QUOTA (RMR 30000)"| H
     X2 -->|"HANDOVER, CELL_STATE, TX_POWER (30000)"| H
     H -->|"recusas com motivo (30001)"| X1
@@ -30,16 +30,16 @@ As escalas de tempo se dividem assim:
 - **RDL:** coordena as duas em cada janela de decisão. Arbitra os conflitos diretos, indiretos e entre células, e aplica Safety Guard, governança e política A1.
 - **rApp:** coordena em escala Non-RT (> 1 s), ajustando objetivos e limites de cada uma.
 
-## 2. xApp1-RANSlicer (A1.5)
+## 2. RANSlicer-GreenRAN (A1.5)
 
 | Item | Implementação |
 | :-- | :-- |
 | Entrada | KPM por UE e fatia (`normalize_kpm`); intenção A1 21000 (`embb_min_thp_mbps`, `embb_max_delay_ms`, `mmtc_min_prb_pct`, `slice_safety_margin`, `ranslicer_learned_policy`) |
 | Decisão | eficiência medida da fatia eMBB (Mb/s por ponto de PRB, média móvel) → teto = alvo × (1 + margem) ÷ eficiência; se o atraso passou do limite, sobe pelo menos 10 pontos |
-| *Safe RL* | uma política aprendida opcional (por exemplo, o ator MAPPO da CA-RDL) pode propor o teto, mas a saída é recortada ao intervalo seguro [necessidade, 100 − piso mMTC]. É um escudo de segurança, testado |
+| *Safe RL* | uma política aprendida opcional (por exemplo, o ator MAPPO da RDL-N2) pode propor o teto, mas a saída é recortada ao intervalo seguro [necessidade, 100 − piso mMTC]. É um escudo de segurança, testado |
 | Saída | `PRB_QUOTA` (eMBB recebe v, a outra fatia 100 − v), prioridade 90 com SLA em risco e 75 sem; `defer_ok`; mudanças < 2 pontos não são propostas |
 
-## 3. xApp2-EnergySaver (A1.6)
+## 3. EnergySaver-GreenRAN (A1.6)
 
 | Item | Implementação |
 | :-- | :-- |
@@ -66,9 +66,9 @@ Campos da política A1 21001 (valores padrão):
 | `es_nominal_tx_power_dbm` | não definido | potência restaurada; sem valor, não restaura |
 | `es_utc_offset_h` | −3 | deslocamento do horário (Belém) |
 
-**Melhorias de 2026-11-13** (motivadas pela comparação com o ES Orange original, docs/16): destino da evacuação pela cobertura dos UEs, confirmação de célula vazia, aborto com espera, permanência mínima, potência com histerese, hora reprodutível e registro de motivos. Testes em `tests/unit/test_xapp2_energysaver_melhorias.py`.
+**Melhorias de 2026-11-13** (motivadas pela comparação com o ES Orange original, docs/16): destino da evacuação pela cobertura dos UEs, confirmação de célula vazia, aborto com espera, permanência mínima, potência com histerese, hora reprodutível e registro de motivos. Testes em `tests/unit/test_energysaver_greenran_melhorias.py`.
 
-**Pendente:** o handover dividido por UE (cada UE para a sua melhor vizinha). A RDL aplica o `HANDOVER` à célula inteira, porque `XAppAction` não tem o campo do UE. Exige o campo `ue` no esquema da proposta (RMR 30000) e na atuação, a ser coordenado com os campos novos do doc 18. No testbed, a RSRP das vizinhas por UE depende de o agente E2 reportá-la (por exemplo, por relatórios de medição RRC via E2SM-RC REPORT). Sem isso, a xApp2 usa o destino pela carga.
+**Pendente:** o handover dividido por UE (cada UE para a sua melhor vizinha). A RDL aplica o `HANDOVER` à célula inteira, porque `XAppAction` não tem o campo do UE. Exige o campo `ue` no esquema da proposta (RMR 30000) e na atuação, a ser coordenado com os campos novos do doc 18. No testbed, a RSRP das vizinhas por UE depende de o agente E2 reportá-la (por exemplo, por relatórios de medição RRC via E2SM-RC REPORT). Sem isso, a EnergySaver-GreenRAN usa o destino pela carga.
 
 ## 4. rApp-ResourceOptimizer (A1.7)
 
@@ -104,7 +104,7 @@ A kpm-probe lê o perfil por `RDL_BACKEND_PROFILE`. Sem IDs de RC confirmados, e
 
 **Limite do codec:** hoje só o leiaute plano do NORI é implementado. Se o agente E2 do srsRAN ou do OAI usar o leiaute aninhado da norma E2SM-RC, ou o modelo de serviço de fatiamento próprio do FlexRIC, o codec precisa de uma extensão, que só pode ser escrita e verificada com o agente real.
 
-**Testbed sem fatiamento:** em 2026-11-12, a equipe informou que o testbed não terá suporte a fatiamento. Isso afeta o xApp1-RANSlicer, os cenários com `PRB_QUOTA` por fatia e o gate TB7. As propostas para contornar a falta estão na [varredura dos testbeds, §7](compliance/VARREDURA_TESTBEDS_OPENRAN_BRASIL.md):
+**Testbed sem fatiamento:** em 2026-11-12, a equipe informou que o testbed não terá suporte a fatiamento. Isso afeta o RANSlicer-GreenRAN, os cenários com `PRB_QUOTA` por fatia e o gate TB7. As propostas para contornar a falta estão na [varredura dos testbeds, §7](compliance/VARREDURA_TESTBEDS_OPENRAN_BRASIL.md):
 
 - P1: fatia no núcleo pelo SST/S-NSSAI, como no GT IQoS;
 - P2: fatia lógica no escalonador;
@@ -120,7 +120,7 @@ A recomendação é P3, P1 e P5. Até a decisão, o passo 4 abaixo pode conferir
 1. Preencher o perfil com a equipe: versões e commits, endereço do E2Term, RAN Function IDs anunciados no E2 Setup, nomes das métricas KPM por fatia, Style/Action e IDs da cota de PRB, canais de potência e de desligamento. Fecha o gate TB0.
 2. Subir o Near-RT RIC (O-RAN SC; a bancada usa a Release I, `scripts/deploy_ric_i_release.sh`) e ligar o agente E2 da CU/DU ao E2Term. Gates TB1–TB4: E2 Setup, subscrição e KPM.
 3. Implantar a kpm-probe com `RDL_BACKEND_PROFILE` e conferir RIC Control e ACK de cota de PRB (TB5–TB6).
-4. Implantar a xApp RDL, o xApp1 e o xApp2 (papéis `ranslicer` e `energysaver` em `src/main.py`), o chart `ric-governance` e o registro de xApps; conferir a arbitragem entre as duas (TB7).
+4. Implantar a xApp RDL, a RANSlicer-GreenRAN e a EnergySaver-GreenRAN (papéis `ranslicer` e `energysaver` em `src/main.py`), o chart `ric-governance` e o registro de xApps; conferir a arbitragem entre as duas (TB7).
 5. Implantar o A1-PMS (chart `a1pms`) e o rApp-ResourceOptimizer; conferir a política mudando a decisão (GR1).
 6. Rodar o cenário GreenRAN pré-registrado com energia medida (GR4).
 

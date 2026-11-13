@@ -1,7 +1,7 @@
 # Autor: George Barbosa
 # Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
-xApp1-RANSlicer (GreenRAN, atividade A1.5): cota de PRB por fatia guiada por intenção.
+RANSlicer-GreenRAN (GreenRAN, atividade A1.5): cota de PRB por fatia guiada por intenção.
 
 Fatias do GreenRAN: eMBB das câmeras de vigilância (SST 1; App1: 25 Mb/s por câmera, atraso < 100 ms) e
 mMTC dos sensores (SST 2; App2). A cada período, por célula:
@@ -11,7 +11,7 @@ mMTC dos sensores (SST 2; App2). A cada período, por célula:
 2. **Necessidade:** teto eMBB = vazão-alvo × (1 + margem) ÷ eficiência. Se o atraso passou do limite,
    sobe pelo menos ``ranslicer_delay_step`` pontos acima do teto atual.
 3. **Escudo de segurança (safe RL):** uma política aprendida opcional (por exemplo, o ator MAPPO da
-   CA-RDL) pode propor o teto, mas a saída é recortada ao intervalo seguro [necessidade, 100 − piso mMTC].
+   RDL-N2) pode propor o teto, mas a saída é recortada ao intervalo seguro [necessidade, 100 − piso mMTC].
    Sem política, vale a necessidade.
 4. **Proposta à RDL:** ``PRB_QUOTA`` = teto da fatia eMBB (convenção da RDL: eMBB recebe v, a outra
    fatia 100 − v), prioridade 90 com SLA em risco e 75 sem risco. Mudanças menores que
@@ -30,7 +30,7 @@ EMBB_SST, MMTC_SST = 1, 2
 
 
 class RanSlicer(GreenRanXApp):
-    XAPP_ID = "xapp1_ranslicer"
+    XAPP_ID = "ranslicer_greenran"
     A1_TYPE = "21000"
     DEFAULTS: Dict[str, Any] = {
         "embb_min_thp_mbps": 30.0,       # alvo agregado da fatia de câmeras na célula

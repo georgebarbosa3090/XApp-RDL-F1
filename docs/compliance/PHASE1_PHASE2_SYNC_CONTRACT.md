@@ -1,4 +1,4 @@
-# Contrato entre a Fase 1 (H-RDL) e a Fase 2 (CA-RDL)
+# Contrato entre a Fase 1 (RDL-N1) e a Fase 2 (RDL-N2)
 
 **Situação:** especificação. Do lado da Fase 1 existem os campos opcionais em `src/conflict_types.py`; o mecanismo de reserva (fallback) pertence à Fase 2 e não é exercitado neste repositório.
 
@@ -6,7 +6,7 @@
 
 1. **Segurança primeiro.** O `Refinement` da Fase 1 é a última etapa antes do despacho, qualquer que seja a origem da ação.
 2. **Esquema estável.** Os campos da Fase 1 não mudam de nome nem de semântica; a Fase 2 só acrescenta campos opcionais.
-3. **Reserva determinística.** Se o motor da Fase 2 falhar ou não decidir dentro da janela de 200 ms, a decisão é tomada pela arbitragem TVS/EEVS da Fase 1.
+3. **Reserva por regras.** Se o motor da Fase 2 falhar ou não decidir dentro da janela de 200 ms, a decisão é tomada pela arbitragem TVS/EEVS da Fase 1.
 
 ## 2. Fluxo
 
@@ -33,13 +33,13 @@ flowchart TD
 
 | Repositório | Papel |
 | :-- | :-- |
-| `georgebarbosa3090/XApp-RDL-F1` | H-RDL, cenários S0–S7, Safety Guard, certificação |
-| `georgebarbosa3090/XApp-RDL-F2` | CA-RDL, MAPPO/GNN, cenários S9–S15 |
+| `georgebarbosa3090/XApp-RDL-F1` | RDL-N1, cenários S0–S7, Safety Guard, certificação |
+| `georgebarbosa3090/XApp-RDL-F2` | RDL-N2, MAPPO/GNN, cenários S9–S15 |
 
 ## 5. Verificação
 
 | Item | Onde se verifica | Situação |
 | :-- | :-- | :-- |
 | Tipos importam com os campos opcionais | testes deste repositório | coberto (os campos têm padrão `None`) |
-| Reserva determinística em ≤ 200 ms | repositório da Fase 2 | não verificado aqui |
+| Reserva por regras em ≤ 200 ms | repositório da Fase 2 | não verificado aqui |
 | Mesma política de evidência | `reproducibility/provenance_policy.yaml` | aplicada na Fase 1 |

@@ -31,7 +31,7 @@ source:
   url: http://service-ricxapp-iqos-xapp-rdl-http.ricxapp:8080
 
 # Fonte de teste para a bancada sem RDL implantada: serve um grafo gravado em arquivo
-# (gerado por scripts/kg/dump_catalog_kg.py a partir das decisões reais do H-RDL no catálogo).
+# (gerado por scripts/kg/dump_catalog_kg.py a partir das decisões reais do RDL-N1 no catálogo).
 # Uso: --set testSource.enabled=true --set-file testSource.kgJson=<arquivo.json>
 testSource:
   enabled: false

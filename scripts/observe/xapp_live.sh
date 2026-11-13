@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Aba xApp: subscrição, KPM decodificado por UE (fatia, PRBs), decisão do H-RDL, RIC Control e ACK.
+# Aba xApp: subscrição, KPM decodificado por UE (fatia, PRBs), decisão do RDL-N1, RIC Control e ACK.
 # Uso: bash scripts/observe/xapp_live.sh [--indications]
 REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-/etc/rancher/k3s/k3s.yaml}"

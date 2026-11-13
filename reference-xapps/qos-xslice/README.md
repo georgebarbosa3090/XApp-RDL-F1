@@ -21,13 +21,13 @@ A versão original da xApp solicitava uma cota fixa de 80% dos PRBs sem consciê
    * `MMTC_SOIL_SENSORS`: Telemetria de sensores de solo, umidade e microclima da Amazônia Oriental (Embrapa). Transmissão em rajadas curtas com cota compacta ($15\%$ a $25\%$).
    * `EMBB_CAMPUS`: Tráfego acadêmico do Campus da UFPA (Mirante do Rio, ITEC), seguindo regime circadiano (alta demanda diurna de 08h às 18h, baixa noturna).
 3. **Metadados de Consciência Ecológica (*Energy Budget Awareness*):**
-   * Emite na proposta JSON os campos `eco_compliant`, `flexibility_ratio` e `recommended_bwp_id` para permitir que o mediador H-RDL reduza a largura de banda ativa (*BWP switching*) quando a carga permitir.
+   * Emite na proposta JSON os campos `eco_compliant`, `flexibility_ratio` e `recommended_bwp_id` para permitir que o mediador RDL-N1 reduza a largura de banda ativa (*BWP switching*) quando a carga permitir.
 4. **Proteção de Limiar Mínimo de SINR:**
-   * Sinaliza ao mediador H-RDL a restrição de SINR mínimo ($SINR_{min} \ge 5\text{ dB}$ para URLLC) para barrar cortes destrutivos de potência da `EnergySaver`.
+   * Sinaliza ao mediador RDL-N1 a restrição de SINR mínimo ($SINR_{min} \ge 5\text{ dB}$ para URLLC) para barrar cortes destrutivos de potência da `EnergySaver`.
 
 ---
 
-## Interface de Interceptação H-RDL / GreenRAN
+## Interface de Interceptação RDL-N1 / GreenRAN
 
 * **MsgType:** `RDL_ACTION_PROPOSAL` (30000 / 20010)
 * **Estrutura do Payload Emitido:**
@@ -57,7 +57,7 @@ A versão original da xApp solicitava uma cota fixa de 80% dos PRBs sem consciê
 | Variável | Padrão | Descrição |
 | :--- | :---: | :--- |
 | `GREENRAN_PROFILE` | `URLLC_AGRO_CRITICAL` | Perfil de operação: `URLLC_AGRO_CRITICAL`, `MMTC_SOIL_SENSORS`, `EMBB_CAMPUS`. |
-| `ECO_AWARE_MODE` | `true` | Ativa a emissão de metadados ecológicos para negociação com a H-RDL. |
+| `ECO_AWARE_MODE` | `true` | Ativa a emissão de metadados ecológicos para negociação com a RDL-N1. |
 | `DYNAMIC_SLICING_ENABLED`| `true` | Habilita cálculo dinâmico de PRBs com base em carga em vez de cota estática. |
 | `TARGET_NODES` | `gnb_01,gnb_02` | Lista de gNodeBs alvo na topologia. |
 | `HTTP_PORT` | `8082` | Porta da API REST FastAPI (`/health`, `/ready`, `/metrics`). |

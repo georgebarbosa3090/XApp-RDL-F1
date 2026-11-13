@@ -29,7 +29,7 @@ decision_window_ms: 200
 
 ## 3. Mapeamento de controle previsto
 
-| Parâmetro H-RDL | Estilo RC | Ação RC | Observação |
+| Parâmetro RDL-N1 | Estilo RC | Ação RC | Observação |
 | :-- | :-: | :-: | :-- |
 | `PRB_QUOTA` | 2 (slice) | 6 (alocação de PRB) | conforme o agente E2 do srsRAN |
 | `HANDOVER` | 3 (mobilidade) | 1 | a confirmar na versão do srsRAN |

@@ -59,7 +59,7 @@ Como o registro decide se uma proposta entra:
 
 O descritor da RDL ([`configs/xapp_descriptor.json`](../configs/xapp_descriptor.json)) é o único que declara `RIC_CONTROL_REQ` em `txMessages`. Ele também recebe `RIC_CONTROL_REQ`, por causa da interceptação.
 
-**Modo catálogo (kpm-probe da bancada NORI) e a NetworkPolicy.** A kpm-probe embute o H-RDL e envia o RIC Control ela mesma. Por isso ela está na lista de controladores autorizados do E2Term (`ricxapp.e2Controllers`), e o teste no cluster confirmou o acesso (tabela abaixo).
+**Modo catálogo (kpm-probe da bancada NORI) e a NetworkPolicy.** A kpm-probe embute o RDL-N1 e envia o RIC Control ela mesma. Por isso ela está na lista de controladores autorizados do E2Term (`ricxapp.e2Controllers`), e o teste no cluster confirmou o acesso (tabela abaixo).
 
 - **O catálogo não é tráfego de rede.** As propostas vêm de `simulations/ns3/conflicts/catalog.json`, dentro do processo da kpm-probe; o cenário e o baseline vêm de arquivos no volume dela. A NetworkPolicy não se aplica a eles.
 - **Não passam pelos níveis 1 e 3 da RDL.** As propostas do catálogo não passam pelo RMR 30000 nem pelo registro de xApps: `decide_catalog` chama o pipeline direto. Assim, também não há recusa `UNAUTHORIZED` nem modo `ON_DEMAND` no modo catálogo.
@@ -183,7 +183,7 @@ O rApp de governança transforma cada `rapp_conflicts` numa recomendação `RESO
 | :-- | :-- |
 | O dbaas (Redis) é do Near-RT ou do Non-RT? | Do **Near-RT RIC**: o `dbaas` roda no namespace `ricplt` e é o SDL das xApps. O Non-RT RIC (A1-PMS) tem banco próprio, desligado na bancada. |
 | O modo catálogo fica no dbaas? | **Não.** O cenário e o baseline da kpm-probe ficam em arquivos no volume dela (`/data/rdl_scenario`, `/data/rdl_baseline`). No modo `O_RAN_INTEROP`, a RDL grava no SDL (dbaas) os pedidos de controle, as decisões e as recusas (`rejection:<id>`). |
-| Onde atua o grafo de conhecimento próprio? | Dentro da RDL, no Near-RT RIC: em memória, consultado a cada decisão (contexto da CA-RDL, disputa do modo sob demanda) e exposto em `GET /kg`. |
+| Onde atua o grafo de conhecimento próprio? | Dentro da RDL, no Near-RT RIC: em memória, consultado a cada decisão (contexto da RDL-N2, disputa do modo sob demanda) e exposto em `GET /kg`. |
 | Onde atua o NetworkX? | **Fora do laço de decisão:** análise do grafo exportado (centralidade, componentes, caminhos de conflito) num notebook, num teste ou no rApp (`src/core/kg_export.py: to_networkx`; extra `kg`). |
 | Onde atua o Neo4j? | **No SMO / Non-RT RIC:** histórico persistente, que sobrevive ao reinício da RDL e é consultado pelos rApps. A RDL não depende dele. Um banco de grafos externo no caminho de cada decisão poria latência de rede dentro da janela de 200 ms. Na bancada, roda pelo chart `kg-neo4j` (seção 6.1); para uma exportação avulsa, há `scripts/kg/export_kg.py` (Cypher para `cypher-shell`, ou gravação direta com `--neo4j-uri` e senha em `NEO4J_PASSWORD`). |
 
@@ -196,7 +196,7 @@ O chart [`deploy/helm/kg-neo4j`](../deploy/helm/kg-neo4j) instala, no namespace 
 | Deployment `kg-neo4j` | Neo4j 5.26 Community: heap de 256 MiB, page cache de 64 MiB, limite de 768 MiB; `emptyDir` por padrão (`neo4j.persistence.enabled=true` usa PVC `local-path`) |
 | Secret `kg-neo4j-auth` | senha do usuário `neo4j`, gerada na primeira instalação e mantida nas atualizações |
 | CronJob `kg-neo4j-export` | a cada minuto, lê `GET /kg?full=true` da RDL e grava pela API HTTP transacional do Neo4j. Usa `python:alpine` e só a biblioteca padrão; o script é `files/export_kg_job.py`, com os mesmos comandos de `src/core/kg_export.py`, o que um teste garante |
-| `kg-test-source` (opcional) | para a bancada sem RDL implantada: serve um grafo gravado por `scripts/kg/dump_catalog_kg.py`, produzido pelo H-RDL real decidindo o catálogo (sem ns-3). Não é evidência experimental, e as células de cenários diferentes se fundem |
+| `kg-test-source` (opcional) | para a bancada sem RDL implantada: serve um grafo gravado por `scripts/kg/dump_catalog_kg.py`, produzido pelo RDL-N1 real decidindo o catálogo (sem ns-3). Não é evidência experimental, e as células de cenários diferentes se fundem |
 
 ```bash
 python scripts/kg/dump_catalog_kg.py --out kg_catalogo.json

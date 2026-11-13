@@ -1,5 +1,5 @@
 """
-test_coverage_expansion_f1.py: Suíte estendida de testes unitários para a Fase 1 (H-RDL / XApp-RDL-F1).
+test_coverage_expansion_f1.py: Suíte estendida de testes unitários para a Fase 1 (RDL-N1 / XApp-RDL-F1).
 Eleva a cobertura de código e de branches para >85%, exercitando SdlRepository,
 RefinementAgent, RDLxApp handlers/pipelines e subsistemas observáveis.
 """

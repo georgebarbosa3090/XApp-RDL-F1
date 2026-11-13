@@ -177,7 +177,7 @@ class KnowledgeGraph:
         return sorted(found)
 
     def context_features(self, cell_id: str, parameter: str, since: float = 0.0) -> Dict[str, float]:
-        """Atributos numéricos para o raciocínio (usados pela CA-RDL da Fase 2)."""
+        """Atributos numéricos para o raciocínio (usados pela RDL-N2 da Fase 2)."""
         conflicts = self.conflicts_on(cell_id, parameter, since)
         inter_cell = sum(1 for c in conflicts if self._nodes[c].attrs.get("type") == "INTER_CELL")
         decisions = {d for c in conflicts for d in self.successors(c, "RESOLVED_BY")}

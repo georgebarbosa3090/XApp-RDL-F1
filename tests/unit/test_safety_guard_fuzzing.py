@@ -1,6 +1,6 @@
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Módulo: Testes de Fuzzing Estocástico e Verificação de Invariantes Formais
 Arquivo: tests/unit/test_safety_guard_fuzzing.py
 Descrição: Executa 10.000 iterações de fuzzing estocástico com valores extremos

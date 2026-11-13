@@ -1,5 +1,5 @@
 """
-Interface Abstrata de Backend de Rádio para a xApp-RDL (Fase 1 H-RDL e Fase 2 CA-RDL).
+Interface Abstrata de Backend de Rádio para a xApp-RDL (Fase 1 RDL-N1 e Fase 2 RDL-N2).
 
 Permite que a camada de decisão opere de forma 100% polimórfica e agnóstica
 ao ambiente subjacente:

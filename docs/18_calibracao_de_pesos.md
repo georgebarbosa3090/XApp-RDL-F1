@@ -130,7 +130,7 @@ Nenhum vetor de pesos faz a decisão certa pelo motivo certo. Por isso a Parte A
 - **Se todas violam:** vence a de maior s_SLA.
 - **Motivo de recusa novo:** `SLA_PROTECTION`. Hoje são 7 motivos (`REASONS`, `src/core/proposal_registry.py`).
   - A recusa não pode ser contada como `LOST_ARBITRATION`. O rApp aumenta o peso de energia quando o EnergySaver perde arbitragens à noite (`greenran_resource_optimizer.py`), e uma recusa por proteção de SLA não deve alimentar essa regra.
-- **Analogia com a Fase 2:** é a restrição de custo do CMDP da CA-RDL (`cost_limit` = 0,05 em `cardl/marl/mappo.py`) levada à heurística. A diferença é que a guarda é uma regra determinística, não um multiplicador de Lagrange.
+- **Analogia com a Fase 2:** é a restrição de custo do CMDP da RDL-N2 (`cost_limit` = 0,05 em `cardl/marl/mappo.py`) levada à heurística. A diferença é que a guarda é uma regra determinística, não um multiplicador de Lagrange.
 
 ### 4.5 Modo heurístico
 
@@ -266,7 +266,7 @@ Avaliar, fora dos dados de calibração:
 - (a) o modelo de efeito por fatia com a guarda de SLA (`B3S`, pesos padrão);
 - (b) o modelo de efeito com os pesos calibrados (`B3C`);
 
-contra o H-RDL atual (`B3`), na RAN simulada (ns-3) e com E2 real (NORI).
+contra o RDL-N1 atual (`B3`), na RAN simulada (ns-3) e com E2 real (NORI).
 
 ### 2. Estado do código
 

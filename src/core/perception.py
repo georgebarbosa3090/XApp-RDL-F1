@@ -1,5 +1,5 @@
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
 from src.core.inter_cell import HANDOVER_INTO_REDUCED_CELL, InterCellRules
 from src.core.knowledge_graph import KnowledgeGraph
@@ -7,14 +7,18 @@ from src.core.knowledge_graph import KnowledgeGraph
 
 class Perception:
     """
-    Componente de Percepção da H-RDL (Núcleo / Core).
+    Componente de Percepção da RDL-N1 (Núcleo / Core).
     Responsável pela ingestão de telemetria E2SM-KPM com verificação de TTL,
-    manutenção do grafo de dependência de KPIs e detecção determinística de
+    manutenção do grafo de dependência de KPIs e detecção por regras de
     colisões e conflitos multi-xApp, inclusive entre células vizinhas.
     """
     def __init__(self, kpm_ttl_s: float = 1.0, inter_cell_rules: Optional[InterCellRules] = None,
-                 knowledge_graph: Optional[KnowledgeGraph] = None):
+                 knowledge_graph: Optional[KnowledgeGraph] = None,
+                 clock: Optional[Callable[[], float]] = None):
         self.kpm_ttl_s = kpm_ttl_s
+        # Relógio em segundos (padrão: time.time). Os executores de experimento injetam o tempo
+        # simulado aqui (atributo clock), em vez de trocar o módulo time.
+        self.clock: Callable[[], float] = clock or (lambda: time.time())
         # Regras e topologia (vizinhança entre células) para conflitos entre células
         self.inter_cell_rules = inter_cell_rules or InterCellRules()
         # Grafo de conhecimento: topologia, parâmetro -> KPIs e histórico de conflitos/decisões
@@ -47,7 +51,7 @@ class Perception:
         self.latest_kpm = report
         self._kpm_by_node[report.node_id] = report
         report_ts = getattr(report, "timestamp", None)
-        self._kpm_timestamps[report.node_id] = float(report_ts) if isinstance(report_ts, (int, float)) and report_ts > 0 else time.time()
+        self._kpm_timestamps[report.node_id] = float(report_ts) if isinstance(report_ts, (int, float)) and report_ts > 0 else self.clock()
 
     def get_kpm_report_with_ttl(self, node_id: str) -> Tuple[Optional[KPMReport], bool]:
         """Retorna (report, is_valid) aplicando TTL de 1000 ms (kpm_ttl_s)."""
@@ -56,7 +60,7 @@ class Perception:
             return None, False
         if self.kpm_ttl_s > 0:
             ts = self._kpm_timestamps.get(node_id, getattr(report, "timestamp", 0.0))
-            if ts > 0 and (time.time() - ts) > self.kpm_ttl_s:
+            if ts > 0 and (self.clock() - ts) > self.kpm_ttl_s:
                 return None, False
         return report, True
 
@@ -159,7 +163,7 @@ class Perception:
         e um evento é gerado por (regra, par de nós).
         """
         rules = self.inter_cell_rules
-        now = time.time()
+        now = self.clock()
         relevant: List[XAppAction] = []
         targets_with_proposal = set()
         for node_id, by_param in proposals_by_node.items():

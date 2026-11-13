@@ -1,5 +1,5 @@
 """
-Integração das xApps de referência com o núcleo H-RDL.
+Integração das xApps de referência com o núcleo RDL-N1.
 
 Desde 2026-11-10 restam quatro xApps de referência:
   1. qos-xslice (PRB_QUOTA) — inspirada em Yan et al.

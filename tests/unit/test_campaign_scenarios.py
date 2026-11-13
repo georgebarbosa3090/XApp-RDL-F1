@@ -18,7 +18,7 @@ from src.core.refinement import Refinement
 from src.conflict_types import XAppAction, ConflictType
 
 def test_scenario_s0_non_interference_pass_through():
-    """Valida que sob ações compatíveis sem risco de SLA, o H-RDL não altera nem bloqueia nenhuma proposta (InterferenceRate = 0)."""
+    """Valida que sob ações compatíveis sem risco de SLA, o RDL-N1 não altera nem bloqueia nenhuma proposta (InterferenceRate = 0)."""
     memory = MemoryModule()
     refinement = Refinement(memory)
 
@@ -63,7 +63,7 @@ def test_scenario_s1_direct_conflict_detection_accuracy():
     assert f1 == 1.0
 
 def test_scenario_s4_traffic_steering_vs_energy_arbitration():
-    """Valida que quando uma célula congestionada tenta descarregar UEs em uma célula onde ES quer alterar potência, o H-RDL prioriza a manutenção da cobertura."""
+    """Valida que quando uma célula congestionada tenta descarregar UEs em uma célula onde ES quer alterar potência, o RDL-N1 prioriza a manutenção da cobertura."""
     memory = MemoryModule()
     reasoning = Reasoning(memory, config={})
     refinement = Refinement(memory)
@@ -230,8 +230,8 @@ def test_scenario_s11_v2x_highway_platoon_urllc_contract():
     is_safe, _, _ = refinement.validate_single_action(v2x_action)
     assert is_safe
 
-def test_scenario_s12_iiot_tsn_deterministic_jitter_contract():
-    """Valida contrato formal da xApp proposta Industrial-QoS (Garantia de latência determinística e supressão de jitter)."""
+def test_scenario_s12_iiot_tsn_bounded_jitter_contract():
+    """Valida contrato formal da xApp proposta Industrial-QoS (Garantia de latência limitada e supressão de jitter)."""
     memory = MemoryModule()
     refinement = Refinement(memory)
 

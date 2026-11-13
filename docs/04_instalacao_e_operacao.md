@@ -216,7 +216,7 @@ kubectl -n ricxapp logs -f deploy/kpm-probe | grep --line-buffered -v "RMR \[INF
 
 O script gera o pacote do `src/` com `git archive` do commit atual e o passa ao chart em base64; a xApp registra o commit no evento `start` e em cada decisão.
 
-Desde a fase 3, a xApp também envia, depois da N-ésima Indication de cada conexão (`rc.afterIndications`), um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. Com `rc.decision: hrdl` (fase 4, padrão) as cotas são decididas pelo H-RDL sobre o KPM_t0 (`decision_source: H_RDL`); com `rc.decision: fixed`, vêm de `rc.sliceQuotas` (`FIXED_PROBE`).
+Desde a fase 3, a xApp também envia, depois da N-ésima Indication de cada conexão (`rc.afterIndications`), um RIC Control E2SM-RC v3.01 por RMR (tipo 12040, MEID do nó) com cotas de PRB por fatia, e registra o ACK/Failure. Com `rc.decision: hrdl` (fase 4, padrão) as cotas são decididas pelo RDL-N1 sobre o KPM_t0 (`decision_source: H_RDL`); com `rc.decision: fixed`, vêm de `rc.sliceQuotas` (`FIXED_PROBE`).
 
 ### 7.5 Dissecação E2 do PCAP
 
@@ -238,7 +238,7 @@ root/usr/bin/tshark --version | head -1
 
 ### 7.6 Cenários de conflito S0–S8 na bancada NORI e observabilidade ao vivo
 
-Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e a decisão do H-RDL sobre o KPM (só a cota de PRB no gNB 0 é atuável). Um cenário: `bash scripts/run_nori_scenario.sh S1 1001`; a campanha S0–S8 × 5 sementes, com certificação e resumo: `bash scripts/run_nori_campaign.sh`. Os comandos de cada aba ao vivo (execução NORI, E2AP pelo tshark, xApp, RIC, Kubernetes, registro de UEs), o painel tmux e a campanha nativa com análise, certificação e relatório estão em [docs/05](05_observabilidade_e_campanhas.md).
+Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e a decisão do RDL-N1 sobre o KPM (só a cota de PRB no gNB 0 é atuável). Um cenário: `bash scripts/run_nori_scenario.sh S1 1001`; a campanha S0–S8 × 5 sementes, com certificação e resumo: `bash scripts/run_nori_campaign.sh`. Os comandos de cada aba ao vivo (execução NORI, E2AP pelo tshark, xApp, RIC, Kubernetes, registro de UEs), o painel tmux e a campanha nativa com análise, certificação e relatório estão em [docs/05](05_observabilidade_e_campanhas.md).
 
 ## 8. Implantação da xApp no Kubernetes
 

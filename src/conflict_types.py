@@ -119,8 +119,8 @@ class KPMReport:
 @dataclass
 class RDLDecision:
     """
-    Contrato formal de saída da Camada de Decisão (H-RDL / CA-RDL).
-    Separa estritamente a inteligência determinística/analítica/MARL da camada de transporte E2.
+    Contrato formal de saída da Camada de Decisão (RDL-N1 / RDL-N2).
+    Separa estritamente a inteligência por regras/analítica/MARL da camada de transporte E2.
     """
     decision_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     state: dict = field(default_factory=dict)
@@ -129,7 +129,7 @@ class RDLDecision:
     safety_result: dict = field(default_factory=dict)
     selected_actions: List[XAppAction] = field(default_factory=list)
     reason: str = "PASS_THROUGH_CLEAN"
-    strategy_used: str = "DETERMINISTIC_H_RDL"
+    strategy_used: str = "RDL_N1"
     timestamp: float = field(default_factory=time.time)
     marl_agent_id: Optional[str] = None
     reward_estimate: Optional[float] = None

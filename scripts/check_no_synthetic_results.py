@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Auditor Estático de Dados Sintéticos (scripts/check_no_synthetic_results.py)
 
 Garante que NENHUM script de processamento de experimentos ou geração de figuras

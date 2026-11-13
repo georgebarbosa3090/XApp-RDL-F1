@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Pipeline de Reproducao e Validacao Normativa — XApp-RDL-F2 (CA-RDL)
+# Pipeline de Reproducao e Validacao Normativa — XApp-RDL-F2 (RDL-N2)
 # =============================================================================
 set -euo pipefail
 
 echo "========================================================================"
-echo "   REPRODUCAO DETERMINISTICA E VALIDACAO — XAPP-RDL-F2 (CA-RDL / MARL)"
+echo "   REPRODUCAO E VALIDACAO — XAPP-RDL-F2 (RDL-N2 / MARL)"
 echo "========================================================================"
 
 echo "[1/4] Verificando ambiente Python e dependencias..."

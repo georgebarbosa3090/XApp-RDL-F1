@@ -42,15 +42,15 @@ ric:
   near_rt_ric: A_CONFIRMAR          # ex.: O-RAN SC (a bancada da Fase 1 usa a Release I, ric-dep 0a6f18e)
   near_rt_ric_release: A_CONFIRMAR
   non_rt_ric: A_CONFIRMAR           # onde roda o rApp-ResourceOptimizer
-  a1_policy_types:                  # tipos que a H-RDL aceita hoje (src/interfaces/a1_policy_receiver.py)
+  a1_policy_types:                  # tipos que a RDL-N1 aceita hoje (src/interfaces/a1_policy_receiver.py)
     - 20000                         # ORAN_RDL_Governance_Policy
     - 20001                         # GreenRAN_Intent_Policy (proposta, a combinar com a UFRGS)
   smo: A_CONFIRMAR
 
 xapps:
   rdl: XApp-RDL-F1                  # commit a registrar por execução
-  xapp1_ranslicer: A_CONFIRMAR      # UFRGS
-  xapp2_energysaver: A_CONFIRMAR    # UFPA
+  ranslicer_greenran: A_CONFIRMAR      # UFRGS
+  energysaver_greenran: A_CONFIRMAR    # UFPA
   rmr_message_type_proposals: 30000 # RDL_ACTION_PROPOSAL (contrato de entrada das propostas)
   rmr_message_type_results: 30001   # RDL_ACTION_RESULT (propostas recusadas: motivo e retry_after_ms)
 

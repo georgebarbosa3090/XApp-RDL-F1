@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Validador de Artefatos Experimentais e Gate 1 (scripts/validate_experiment_tree.py)
 
 Valida o encadeamento formal Claim -> Metric -> RawEvidence e a aprovação do Gate 1.

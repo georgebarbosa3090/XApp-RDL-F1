@@ -1,7 +1,7 @@
 """
 Arquitetura de Adaptação Multibackend RAN (RANBackendAdapter)
 
-Proporciona o desacoplamento formal entre a camada de governança H-RDL (XAppAction, KPMReport, RDLDecision)
+Proporciona o desacoplamento formal entre a camada de governança RDL-N1 (XAppAction, KPMReport, RDLDecision)
 e os diferentes backends experimentais suportados pelo projeto:
   1. NORI_NS3: Simulação discreta 5G-LENA + NORI E2SIM (Perfil F1 Congelado)
   2. SRSRAN_OPEN5GS: Testbed de software srsRAN + Open5GS + O-RAN SC (Perfil Testbed srsRAN)
@@ -38,7 +38,7 @@ class BackendMetadata:
     protocol_interoperability_verified: bool = False
 
 class RANBackendAdapter(ABC):
-    """Interface abstrata base para adaptadores de backend RAN no H-RDL."""
+    """Interface abstrata base para adaptadores de backend RAN no RDL-N1."""
 
     @property
     @abstractmethod
@@ -79,7 +79,7 @@ class RANBackendAdapter(ABC):
         instance_id: int = 1,
         ack_request: int = 1
     ) -> bytes:
-        """Mapeia ação H-RDL para o formato PDU de controle E2AP do backend especificando Style/Action apropriados."""
+        """Mapeia ação RDL-N1 para o formato PDU de controle E2AP do backend especificando Style/Action apropriados."""
         pass
 
     @abstractmethod

@@ -2,7 +2,7 @@
 
 ## 1. Pergunta avaliada
 
-Quando várias xApps propõem controles conflitantes, a decisão da H-RDL leva a um desempenho de rede melhor ou mais seguro que alternativas simples (sem coordenação, FIFO, prioridade estática)?
+Quando várias xApps propõem controles conflitantes, a decisão da RDL-N1 leva a um desempenho de rede melhor ou mais seguro que alternativas simples (sem coordenação, FIFO, prioridade estática)?
 
 Esta campanha avalia a **decisão** em malha aberta: as propostas são decididas por cada baseline e as ações resultantes são aplicadas na RAN simulada. Não há E2 nem realimentação de KPM; o closed loop é objeto da pilha NORI (gates G1–G4).
 
@@ -13,13 +13,13 @@ Esta campanha avalia a **decisão** em malha aberta: as propostas são decididas
 | Simulador | ns-3.48 (`d2add90`) + 5G-LENA v5.1 (`cedcead`), perfil otimizado |
 | Cenários | S0–S7 ([taxonomia](03_cenarios_e_conflitos.md)); S0 é controle sem conflito |
 | Propostas | definidas por cenário em [`catalog.json`](../simulations/ns3/conflicts/catalog.json): mesma carga de conflito para todos os baselines e sementes |
-| Baselines | B0 sem coordenação; B1 FIFO por janela e alvo; B2 prioridade estática por janela e alvo; B3 H-RDL |
+| Baselines | B0 sem coordenação; B1 FIFO por janela e alvo; B2 prioridade estática por janela e alvo; B3 RDL-N1 |
 | Janela de decisão | 200 ms; em B1–B3 a ação decidida é aplicada no fechamento da janela; em B0, na chegada |
 | Atuação | PRB pela máscara de RBGs do escalonador; potência via `NrGnbPhy::SetTxPower`; handover X2 escalonado em 10 ms por UE |
 | Sementes | 1001–1005, pareadas (mesma semente em todos os baselines de um cenário) |
 | Medição | vazão e atraso por célula a cada 100 ms nos `UdpServer` dos UEs (`rdl_kpi_timeseries.csv`); ações aplicadas (`rdl_actuation_log.csv`) |
 
-### 2.1 Como o B3 usa a H-RDL real
+### 2.1 Como o B3 usa a RDL-N1 real
 
 O driver ([`run_conflict_experiment.py`](../scripts/certification/run_conflict_experiment.py)) instancia a `RDLxApp` e chama `_process_action_group` para as propostas de cada janela, como a xApp faria em operação. Duas adaptações, ambas registradas no `decision_log.json`:
 
@@ -90,15 +90,15 @@ Linhas marcadas "B1 = B2 = B3" ou "B1 = B2" não são coincidência de medição
 | S2, S4, S7 | B0 · B1 = B2 · B3 |
 | S6 | B0 · B1 · B2 · B3 (todos diferentes) |
 
-Consequência: em S0, S1, S3 e S5 a campanha não distingue a H-RDL de FIFO ou prioridade estática; o que se mede ali é o efeito de coordenar versus não coordenar. A comparação específica da H-RDL só existe em S2, S4, S6 e S7.
+Consequência: em S0, S1, S3 e S5 a campanha não distingue a RDL-N1 de FIFO ou prioridade estática; o que se mede ali é o efeito de coordenar versus não coordenar. A comparação específica da RDL-N1 só existe em S2, S4, S6 e S7.
 
 ### 4.2 Leitura
 
-- **S1 (conflito direto de PRB):** coordenar elimina as 9 oscilações e eleva a vazão no conflito de 118 para 279 Mbps, com o atraso caindo de 17,1 para 9,1 ms. O ganho é de qualquer coordenação (B1–B3 decidem igual), não específico da H-RDL. Sem coordenação, a xApp de energia escreve por último e a cota fica em 30 % na maior parte do tempo.
-- **S6 (tempestade de conflitos):** a H-RDL aplica 25 ações (contra 55 do B1/B2 e 80 do B0) e zera as oscilações (9 no B1/B2, 57 no B0). O atraso no conflito é o menor (51,3 ± 6,7 ms). Os ICs por baseline se sobrepõem aos do B1 e do B2, mas a diferença pareada por semente exclui zero contra os três: B3 − B0 = −43,1 ± 11,0 ms, B3 − B1 = −11,8 ± 11,3 ms, B3 − B2 = −16,4 ± 12,5 ms, com o B3 melhor nas 5 sementes. A vazão não difere de forma distinguível entre os quatro.
-- **S7 (injeção de falha):** só a H-RDL impede que as 10 ações inseguras (potência de 60 dBm, cota de 150 %) cheguem à RAN; B1 e B2 escolhem por janela e alvo, mas não validam valores. A vazão é igual; o atraso é menor no B0 (10,5 ms contra 13,2–13,6 ms), efeito de redução de interferência e não da arbitragem (achado 3 da seção 6).
-- **S2 (handover × QoS):** a H-RDL evita o handover (0 contra 0,8 em média), mas o atraso no conflito fica maior e mais variável (26,2 ± 23,4 ms contra ~7,5 ms) e a vazão mais variável. Resultado desfavorável à H-RDL neste cenário, a investigar.
-- **S4 e S5 (conflitos entre células):** a H-RDL remove uma ação no S4 sem efeito nos KPIs, e o handover ocorre igual; no S5 os quatro baselines aplicam os mesmos 8 handovers. Coerente com a limitação do achado 2 da seção 6 (a percepção não relaciona ações em células diferentes).
+- **S1 (conflito direto de PRB):** coordenar elimina as 9 oscilações e eleva a vazão no conflito de 118 para 279 Mbps, com o atraso caindo de 17,1 para 9,1 ms. O ganho é de qualquer coordenação (B1–B3 decidem igual), não específico da RDL-N1. Sem coordenação, a xApp de energia escreve por último e a cota fica em 30 % na maior parte do tempo.
+- **S6 (tempestade de conflitos):** a RDL-N1 aplica 25 ações (contra 55 do B1/B2 e 80 do B0) e zera as oscilações (9 no B1/B2, 57 no B0). O atraso no conflito é o menor (51,3 ± 6,7 ms). Os ICs por baseline se sobrepõem aos do B1 e do B2, mas a diferença pareada por semente exclui zero contra os três: B3 − B0 = −43,1 ± 11,0 ms, B3 − B1 = −11,8 ± 11,3 ms, B3 − B2 = −16,4 ± 12,5 ms, com o B3 melhor nas 5 sementes. A vazão não difere de forma distinguível entre os quatro.
+- **S7 (injeção de falha):** só a RDL-N1 impede que as 10 ações inseguras (potência de 60 dBm, cota de 150 %) cheguem à RAN; B1 e B2 escolhem por janela e alvo, mas não validam valores. A vazão é igual; o atraso é menor no B0 (10,5 ms contra 13,2–13,6 ms), efeito de redução de interferência e não da arbitragem (achado 3 da seção 6).
+- **S2 (handover × QoS):** a RDL-N1 evita o handover (0 contra 0,8 em média), mas o atraso no conflito fica maior e mais variável (26,2 ± 23,4 ms contra ~7,5 ms) e a vazão mais variável. Resultado desfavorável à RDL-N1 neste cenário, a investigar.
+- **S4 e S5 (conflitos entre células):** a RDL-N1 remove uma ação no S4 sem efeito nos KPIs, e o handover ocorre igual; no S5 os quatro baselines aplicam os mesmos 8 handovers. Coerente com a limitação do achado 2 da seção 6 (a percepção não relaciona ações em células diferentes).
 - **S0 (sem conflito):** sem diferença distinguível entre baselines, como esperado.
 
 Sobreposição de IC não é um teste de hipótese pareado; com n = 5 os resultados indicam comportamento e não sustentam afirmações estatísticas fortes.
@@ -154,12 +154,12 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 | 11 | Indication (KPM_t1) | nó → RIC | 123/4, função 200 | PCAP + tshark |
 
 - 86 mensagens E2AP; o tshark concorda com o dissecador nas 86; as 80 Indications do PCAP chegaram à xApp com os mesmos bytes.
-- Certificador: execução `ELIGIBLE` (R6 aceita o patch do lock); **G3 `CERTIFIED`**. **G4 `NOT_CERTIFIED`**: a cadeia está completa no fio, mas o Control registrado pela xApp tem `decision_source=FIXED_PROBE`; G4 exige uma decisão do H-RDL disparada pelo KPM_t0.
+- Certificador: execução `ELIGIBLE` (R6 aceita o patch do lock); **G3 `CERTIFIED`**. **G4 `NOT_CERTIFIED`**: a cadeia está completa no fio, mas o Control registrado pela xApp tem `decision_source=FIXED_PROBE`; G4 exige uma decisão do RDL-N1 disparada pelo KPM_t0.
 - O tshark 4.2 só conhece o OID E2SM-RC `…53148.1.1.2.3`; o NORI anuncia o RC v3 como `…1.3.2.3`, e o tshark cai no dissector KPM (aviso "Dissector version mismatch"). A confirmação independente cobre o E2AP do Control e do ACK; o conteúdo E2SM-RC é conferido pelo codec (ida e volta, testes) e pelo decodificador asn1c do NORI (o ACK só sai depois de decodificar cotas).
 - Efeito: a vazão por fatia não mudou depois do Control (~102,7 Mbps nas duas). Cada UE pede 100 Mb/s e a célula de 100 MHz não satura, então um teto de 30 % de PRB ainda atende o URLLC. Demonstrar efeito causal (fase 4) exige cotas que restrinjam a carga ou carga maior.
 - O perfil `optimized` compila sem `NS_LOG`: os logs de aplicação de cota e de envio do ACK não aparecem no `stdout.log`; a evidência é o PCAP.
 
-### 5.4 Fase 4: decisão do H-RDL sobre o KPM_t0 e efeito na RAN (desenhos v1–v5, 2026-11-08)
+### 5.4 Fase 4: decisão do RDL-N1 sobre o KPM_t0 e efeito na RAN (desenhos v1–v5, 2026-11-08)
 
 **Desenho (fixado antes da execução).**
 
@@ -172,7 +172,7 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 | Elo | Evidência |
 | :-- | :-- |
 | KPM_t0 (#18) | PRB usados 236 / disponíveis 139 (congestionada); UE 1 em SST 1, UE 2 em SST 2 |
-| Decisão H-RDL | conflito DIRECT entre as duas propostas; TVS escolheu `xapp-qos-xslice` (confiança 0,92) em 1,3 ms; cotas eMBB 40 % / URLLC 60 % |
+| Decisão RDL-N1 | conflito DIRECT entre as duas propostas; TVS escolheu `xapp-qos-xslice` (confiança 0,92) em 1,3 ms; cotas eMBB 40 % / URLLC 60 % |
 | RIC Control (#19) | RICrequestID 1003/1, função 300; bytes iguais ao registro da xApp; disparado pelo KPM_t0 |
 | ACK (#20) | correlacionado, recebido pela xApp em 14,8 ms (inclui a decisão) |
 | KPM_t1 (#21) | presente |
@@ -184,7 +184,7 @@ Três execuções de `nori-rc-slicing-flowmon` (semente 1) com a xApp `kpm-probe
 - **Desenho v2** ([pré-registro](preregistros/01_fase4_v2.md), commit `3962e97`): a calibração [`nori_cal30_seed101`](../experiments/runs/nori_cal30_seed101/execution_manifest.json) (teto de 30 % nas duas fatias) saiu inválida, porque nenhuma fatia perdeu vazão. Por isso as avaliações v2 não foram rodadas, como o pré-registro determina. Os dados sugeriam que o teto só limitaria com cotas somando 100 %.
 - **Desenho v3** ([pré-registro](preregistros/02_fase4_v3.md), commit `7ded3b2`): calibrações com cotas complementares, [`nori_cal3070_seed201`](../experiments/runs/nori_cal3070_seed201/execution_manifest.json) e [`nori_cal7030_seed202`](../experiments/runs/nori_cal7030_seed202/execution_manifest.json). Um teto de 30 % não restringiu nenhuma das fatias, mesmo com soma 100 %. A hipótese da soma foi refutada, a calibração saiu inválida e as avaliações não foram rodadas. O único efeito observado continua sendo a URLLC a 20 %; a relação teto → vazão é não linear (ver o pré-registro v3, seção 7).
 - **Desenho v4** ([pré-registro](preregistros/03_fase4_v4.md), commit `d9e046c`): a curva com a janela pré-registrada saiu inválida, e as avaliações não foram rodadas. A análise exploratória da série inteira mostrou que **a cota funciona e é linear** (~3,8 Mb/s por ponto percentual de PRB: 10 % → 37,5; 15 % → 56,2; 20 % → 76,5; 30 % → 114,0 Mb/s). O efeito começa quando o tempo simulado alcança o relógio de parede do instante do Control (~12 s simulados depois), porque o NORI agenda o Control a partir da thread do E2 no simulador em tempo real. Os nulos da v1 a v3 vieram da janela de análise.
-- **Desenho v5** ([pré-registro](preregistros/04_fase4_v5.md), commit `6bb7773`): janela ancorada no instante de aplicação do Control. Nas três avaliações (`nori_hrdl_v5_seed1..3`, 40 s), o H-RDL decidiu 80/20 sobre o KPM_t0; a URLLC caiu de 151,49 para 76,44–76,45 Mb/s (previsão 75,49, erro de 1,3 %) e a eMBB não mudou. As três foram `CONSISTENT`, e o **G4 foi certificado**. Ressalvas na seção 7 do pré-registro.
+- **Desenho v5** ([pré-registro](preregistros/04_fase4_v5.md), commit `6bb7773`): janela ancorada no instante de aplicação do Control. Nas três avaliações (`nori_hrdl_v5_seed1..3`, 40 s), o RDL-N1 decidiu 80/20 sobre o KPM_t0; a URLLC caiu de 151,49 para 76,44–76,45 Mb/s (previsão 75,49, erro de 1,3 %) e a eMBB não mudou. As três foram `CONSISTENT`, e o **G4 foi certificado**. Ressalvas na seção 7 do pré-registro.
 - Limitações do sensor KPM do NORI usadas na decisão: `RRU.PrbUsedDl` do nó passa dos PRBs disponíveis mesmo sem saturação (225 de 139 a 100 Mb/s), então o sinal de congestionamento é sempre verdadeiro nesse cenário; `RRU.PrbUsedDl` por UE é calculado por símbolos OFDM (119 para cada UE, antes e depois do Control); `DRB.UEThpDl` sai sempre 0; nomes de métrica com `_` fora do alfabeto de `PrintableString` (lidos com um tipo equivalente em APER).
 
 ### 5.5 Campanha NORI S0–S8 × 1001–1005 (2026-11-09)
@@ -199,7 +199,7 @@ A campanha rodou as 45 execuções, todas concluídas. O resumo por execução e
 
 Em todas as 45 execuções o tshark concordou com o dissecador. Em todas as 30 com Control:
 
-- a decisão foi do H-RDL e teve o KPM_t0 entre as entradas;
+- a decisão foi do RDL-N1 e teve o KPM_t0 entre as entradas;
 - o ACK foi correlacionado;
 - a eMBB não perdeu vazão.
 
@@ -228,7 +228,7 @@ As 30 avaliações pré-registradas em [docs/preregistros, v6](preregistros/05_f
 
 | Hipótese | Resultado |
 | :-- | :-- |
-| H6.1 (cadeia E2 completa, decisão do H-RDL sobre o KPM_t0, ACK, tshark) | cumprida nas 30 |
+| H6.1 (cadeia E2 completa, decisão do RDL-N1 sobre o KPM_t0, ACK, tshark) | cumprida nas 30 |
 | H6.2 (≥ 27 de 30 `CONSISTENT` pela v6) | cumprida: 30 de 30 |
 | H6.3 (os cinco S7, teto de 30 %, `CONSISTENT`) | cumprida |
 | H6.4 (invariância à vazão de base) | não testada: as cinco sementes deram 151,49 Mb/s |
@@ -241,9 +241,9 @@ O [pré-registro v7](preregistros/06_fase4_v7.md) testou a H6.4 reduzindo a band
 
 ### 5.8 Campanha do G5: S8 × B0–B3 × 30 sementes (2026-11-09)
 
-O [pré-registro da campanha do G5](preregistros/07_campanha_g5_s8.md) rodou o S8 com os quatro baselines e E2 real nas sementes 5001–5033. Três pares foram perdidos e repostos, declarados antes das execuções de reposição: um pela corrida no disparo da decisão do B0 (5012), dois pela perda de registro do E2Term no RIC (5028 e 5029). **G5 `CERTIFIED`, com 30 pares.** Todas as execuções válidas saíram `CONSISTENT` pela regra v6, com as cotas previstas: B0 com dois Controls e 25/75 final, B1 80/20, B2 25/75, B3 80/20. Na vazão total, o H-RDL e o FIFO dão 227,93 Mb/s, e o B0 e o B2 dão 246,73 Mb/s, sem hipótese de superioridade pré-registrada. Resumo em [`reports/nori/resumo_campanha_nori_20261109T130646Z.md`](../reports/nori/resumo_campanha_nori_20261109T130646Z.md); certificado `certificate_20261109T130613Z`: G0, G1 (249), G3 (230), G4 (84) e G5 `CERTIFIED`, G6 `NOT_CERTIFIED`.
+O [pré-registro da campanha do G5](preregistros/07_campanha_g5_s8.md) rodou o S8 com os quatro baselines e E2 real nas sementes 5001–5033. Três pares foram perdidos e repostos, declarados antes das execuções de reposição: um pela corrida no disparo da decisão do B0 (5012), dois pela perda de registro do E2Term no RIC (5028 e 5029). **G5 `CERTIFIED`, com 30 pares.** Todas as execuções válidas saíram `CONSISTENT` pela regra v6, com as cotas previstas: B0 com dois Controls e 25/75 final, B1 80/20, B2 25/75, B3 80/20. Na vazão total, o RDL-N1 e o FIFO dão 227,93 Mb/s, e o B0 e o B2 dão 246,73 Mb/s, sem hipótese de superioridade pré-registrada. Resumo em [`reports/nori/resumo_campanha_nori_20261109T130646Z.md`](../reports/nori/resumo_campanha_nori_20261109T130646Z.md); certificado `certificate_20261109T130613Z`: G0, G1 (249), G3 (230), G4 (84) e G5 `CERTIFIED`, G6 `NOT_CERTIFIED`.
 
-## 6. Achados sobre a H-RDL
+## 6. Achados sobre a RDL-N1
 
 1. **Veto por associação (corrigido).** No S7, uma proposta insegura no mesmo conflito indireto que uma legítima fazia a validação rejeitar a resolução inteira, bloqueando também a ação legítima. Correção: Safety Guard por proposta antes da arbitragem.
 2. **Conflitos entre células não são detectados (limitação).** No S4 (handover para uma célula que o Energy Saving desliga) e no S5 (ping-pong entre duas células), as ações estão em nós diferentes e a percepção não as relaciona.

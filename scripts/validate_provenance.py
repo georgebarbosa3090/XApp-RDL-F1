@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Auditor de Providência e Integridade Científica (scripts/validate_provenance.py)
 
 Valida estritamente a rastreabilidade de evidências reais extraídas do ns-3 / 5G-LENA / NORI:

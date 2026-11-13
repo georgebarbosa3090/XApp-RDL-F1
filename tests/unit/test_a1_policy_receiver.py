@@ -1,6 +1,6 @@
 """
 ========================================================================================
-Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (H-RDL)
+Projeto: xApp RDL (Resource and Decision Layer) - Fase 1 (RDL-N1)
 Módulo: Testes Unitários do Receptor de Políticas A1-P (O-RAN WG2)
 Arquivo: tests/unit/test_a1_policy_receiver.py
 ========================================================================================

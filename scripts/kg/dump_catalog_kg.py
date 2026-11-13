@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Grafo de conhecimento produzido pelo H-RDL real (B3, ``RDLxApp._process_action_group``) ao decidir as
+Grafo de conhecimento produzido pelo RDL-N1 real (B3, ``RDLxApp._process_action_group``) ao decidir as
 propostas dos cenários do catálogo, gravado em JSON (formato de ``GET /kg?full=true``).
 
 Serve de fonte de teste para a exportação ao Neo4j na bancada sem RDL implantada (chart kg-neo4j,

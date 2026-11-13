@@ -13,7 +13,7 @@ Avaliação feita em 2026-11-10 para o projeto GreenRAN (testbed UFPA). Para cad
 | **OpenRAN Gym / ColO-RAN / SCOPE** ([artigo](https://arxiv.org/pdf/2207.12362)) | coleta de dados, RIC leve e teste de xApps em Colosseum, Arena, POWDER | transferência simulação → testbed real | depende de Colosseum/PAWR (EUA) | **referência**; útil se houver acesso a testbed PAWR |
 | **dApps** (Lacava et al., [arXiv 2501.16502](https://arxiv.org/pdf/2501.16502v2); O-RAN nGRG, [relatório v2.0](https://mediastorage.o-ran.org/ngrg-rr/nGRG-RR-2025-05-dApps%20Architecture%20and%20Interfaces-v2.0.pdf)) | aplicações na DU/CU com interface E3, laço < 1 ms, código aberto sobre OAI | o caminho para ações críticas que não podem esperar a janela (seção 2) | ainda não é especificação O-RAN; exige OAI | **adotar como alternativa para ações críticas** se o testbed usar OAI |
 | **QACM** (Wadud et al., IEEE TGCN 2024, [arXiv 2405.07324](https://arxiv.org/pdf/2405.07324)) e o CMF de [arXiv 2305.07117](https://arxiv.org/pdf/2305.07117) | mitigação de conflitos maximizando xApps com QoS atendida | baseline da literatura para comparar com TVS/EEVS e MAPPO | sem código público confirmado; reimplementação | **adotar como baseline B4** (reimplementado e declarado como tal) |
-| **Mitigação por escalonador A2C** ([arXiv 2504.06867](https://arxiv.org/html/2504.06867v3)) | reconcilia ações de xApps por aprendizado, sem treino conjunto das xApps | comparação direta com o MAPPO da CA-RDL | reimplementação | **referência** para a Fase 2 |
+| **Mitigação por escalonador A2C** ([arXiv 2504.06867](https://arxiv.org/html/2504.06867v3)) | reconcilia ações de xApps por aprendizado, sem treino conjunto das xApps | comparação direta com o MAPPO da RDL-N2 | reimplementação | **referência** para a Fase 2 |
 | **NTN no ns-3** (Sandri et al., TR 38.811, [WNS3 2023](https://www.nsnam.org/workshops/wns3-2023/04-sandri-slides-wns3-2023.pdf)) | modelos de propagação NTN | S9 (NTN) e o caso Skylo/direct-to-cell do GreenRAN | **já presente** no ns-3.48 instalado (`ThreeGppNTN*PropagationLossModel`) | **usar** na reconstrução do S9 |
 | **NR V2X do 5G-LENA** ([v1.0](https://5g-lena.cttc.es/blog/26/)) | sidelink NR (Mode 2) | V2X real para o S11 | ramo separado (`nr-v2x-dev`) sobre ns-3 com patch (3.42); incompatível com a pilha nativa 3.48 | **não adotar agora**; S11 reconstruído com Uu (gNBs na rodovia) e handover |
 | **Módulo de energia do ns-3** (`BasicEnergySource`) | fonte de energia com consumo | bateria do UAV (S10) e nós rurais (GreenRAN) | presente no ns-3.48 | **usar** no S10 |
@@ -41,7 +41,7 @@ Cada proposta é classificada na chegada (`src/core/decision_window.py`, `RDLxAp
 - **Intervalo mínimo próprio.** No alvo, vale `critical_control_interval_ms` (100 ms; ajustável pela política A1), não os 1000 ms da classe normal. Sem isso, uma ação crítica numa célula controlada há menos de 1 s seria recusada.
 - **Cota por xApp.** No máximo `RDL_CRITICAL_MAX_PER_S` (5) críticas por segundo; o excedente vira `URGENT`. Isso impede uma xApp de se declarar crítica o tempo todo para furar a fila.
 - **Auditoria.** A decisão sai com `reason = CRITICAL_FAST_PATH`, fica em `CausalTracker.fast_path_decisions` e conta em `rdl_critical_path_decisions_total`.
-- **Medida.** A latência de decisão do pipeline H-RDL é de milissegundos; o que domina o tempo até a RAN é o E2 (RIC Control → ACK). Uma ação abaixo de 10 ms não cabe no Near-RT RIC (seção 2.3).
+- **Medida.** A latência de decisão do pipeline RDL-N1 é de milissegundos; o que domina o tempo até a RAN é o E2 (RIC Control → ACK). Uma ação abaixo de 10 ms não cabe no Near-RT RIC (seção 2.3).
 
 ### 2.3 Alternativas fora da RDL
 
@@ -99,4 +99,4 @@ Uma xApp que manda RIC Control (12040) direto ao E2Term passa por fora da RDL. D
 
 O doc 11 também traz a supervisão sob demanda (modo `ON_DEMAND`) e onde ficam o dbaas, o NetworkX e o Neo4j.
 
-No GreenRAN, o xApp1-RANSlicer e o xApp2-EnergySaver são do próprio projeto: bastam o nível 1 e as propostas por RMR 30000. A interceptação só é necessária para xApps prontas de terceiros.
+No GreenRAN, o RANSlicer-GreenRAN e o EnergySaver-GreenRAN são do próprio projeto: bastam o nível 1 e as propostas por RMR 30000. A interceptação só é necessária para xApps prontas de terceiros.

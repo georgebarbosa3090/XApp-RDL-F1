@@ -40,7 +40,7 @@ class MemoryModule:
             self._resolutions = self._resolutions[-self.MAX_HISTORY:]
 
     def get_similar_resolutions(self, conflict) -> list:
-        # Retorna vazio por padrão para acionar as políticas determinísticas TVS/EEVS
+        # Retorna vazio por padrão para acionar as regras TVS/EEVS
         return []
 
     def save_rejection(self, rejection_id: str, data: dict):

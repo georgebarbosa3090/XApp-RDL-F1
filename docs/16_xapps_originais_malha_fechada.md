@@ -40,7 +40,7 @@ Pronto quando:
                                       │   adaptadores → RMR 30000 (RDL_ACTION_PROPOSAL)
                                       ▼
                                    barreira da janela (todas as xApps responderam ou esgotou o prazo)
-                                   baseline B0 | B1 | B2 | B3 (H-RDL real, RMR 30000/30001)
+                                   baseline B0 | B1 | B2 | B3 (RDL-N1 real, RMR 30000/30001)
    RdlActuation ◄──ações(JSON)──   ações da janela k
    aplica e retoma o ns-3
 ```
@@ -76,7 +76,7 @@ Pronto quando:
   - uma marca de "janela sem controle", que o adaptador emite quando o TS responde ao 30003 com o 30004 e não envia gRPC dentro do prazo (ver a seção 4.3).
 - **Prazo:** cada xApp tem um prazo de parede por janela, com valor inicial de 2 s. Se ele esgotar, a janela segue sem as propostas daquela xApp e o fato fica registrado (`xapp_timeout`).
 - **Determinismo:**
-  - as xApps assíncronas podem tornar a execução não determinística;
+  - as xApps assíncronas podem tornar a execução variar entre repetições;
   - o PPO do xSlice aprende em linha e usa aleatoriedade própria, que deve ser semeada pelo orquestrador quando o código permitir;
   - o piloto mede isso repetindo a mesma semente duas vezes (pré-registro 11, §5).
 
@@ -127,7 +127,7 @@ Pronto quando:
 
 ### 4.4 xApps próprias que ficam
 
-- **GreenRAN:** xApp1-RANSlicer e xApp2-EnergySaver (`src/greenran/`), com KPM do orquestrador e proposta pelo `rdl_transport` (RMR).
+- **GreenRAN:** RANSlicer-GreenRAN e EnergySaver-GreenRAN (`src/greenran/`), com KPM do orquestrador e proposta pelo `rdl_transport` (RMR).
 - **Rogue:** `reference-xapps/rogue-xapp/`, idem.
 
 ## 5. Mapeamento dos `xapp_id` do catálogo
@@ -136,9 +136,9 @@ Pronto quando:
 | :-- | :-- | :-- | :-- |
 | `xslice` | S0, S1, S2, S3, S6, S7, S8, S12, S14 | xSlice original (C e GNNRL) | só `PRB_QUOTA`; o `TX_POWER` do S3 não existe no original |
 | `traffic_steering` | S2, S4, S5, S9, S10, S11, S13, S15, G2 | ric-app-ts original | `HANDOVER` |
-| `energy_saving` | S0, S1, S3, S4, S6, S9, S10, S12, S13, S15, G1 | ES Orange original | só `HANDOVER` e `CELL_STATE` (ver 4.2); no G1, decidir entre o ES Orange e a xApp2 do GreenRAN (D1) |
-| `energy_saving_ru0/ru1` | G2 | duas instâncias do ES Orange, ou a xApp2 do GreenRAN | D1 |
-| `ranslicer` | G1 | xApp1-RANSlicer (própria) | pronta para adaptar |
+| `energy_saving` | S0, S1, S3, S4, S6, S9, S10, S12, S13, S15, G1 | ES Orange original | só `HANDOVER` e `CELL_STATE` (ver 4.2); no G1, decidir entre o ES Orange e a EnergySaver-GreenRAN (D1) |
+| `energy_saving_ru0/ru1` | G2 | duas instâncias do ES Orange, ou a EnergySaver-GreenRAN | D1 |
+| `ranslicer` | G1 | RANSlicer-GreenRAN (própria) | pronta para adaptar |
 | `rogue_xapp` | S7, S15 | rogue-xapp (própria) | pronta para adaptar |
 | `fault_injector` | S13 | evento do cenário ns-3, não é xApp | sai das propostas e vira falha agendada |
 | `load_balancer` | S5, S6, S11 | sem original | D2 |
@@ -168,7 +168,7 @@ Se o pip, o git, o ns-3 e os builds disputarem a RAM com uma campanha, nada diss
 
 | # | Decisão |
 | :-- | :-- |
-| D1 | No G1 e no G2, a economia de energia fica com a **xApp2-EnergySaver do GreenRAN**. O ES Orange original fica nos cenários S. |
+| D1 | No G1 e no G2, a economia de energia fica com a **EnergySaver-GreenRAN**. O ES Orange original fica nos cenários S. |
 | D2 | `load_balancer`, `beamformer`, `isac_radar` e `embb_throughput` viram **xApps próprias**, com lógica documentada, que leem o KPM e propõem pela 30000. S5, S6, S8, S11 e S14 continuam. |
 | D3 | AD e QP são **emulados no adaptador**: anomalia quando a vazão do UE cai abaixo de um limiar fixado no pré-registro, e predição igual à vazão medida no ns-3. |
 | D4 | O PPO do xSlice parte de um **modelo pré-treinado** em execuções de aquecimento pré-registradas, com sementes separadas, e fica congelado nas campanhas. |
@@ -180,7 +180,7 @@ Se o pip, o git, o ns-3 e os builds disputarem a RAM com uma campanha, nada diss
 
 Texto original das perguntas:
 
-- **D1.** No G1 e no G2, o papel de "energy saving" fica com o ES Orange original ou com a xApp2-EnergySaver do GreenRAN, que é própria e foi feita para esses cenários?
+- **D1.** No G1 e no G2, o papel de "energy saving" fica com o ES Orange original ou com a EnergySaver-GreenRAN, que é própria e foi feita para esses cenários?
 - **D2.** Para `load_balancer`, `beamformer`, `isac_radar` e `embb_throughput`, que não têm original:
   - (a) xApp própria, com lógica documentada;
   - (b) procurar um original público;
@@ -300,9 +300,9 @@ Alternativa para o TS no testbed: rodar o mesmo adaptador da simulação no luga
 
 O projeto tem duas xApps próprias com a função de economia de energia:
 - a derivada em Python `reference-xapps/energy-saving/energy_saving_xapp.py`, inspirada no ES Orange;
-- a xApp2-EnergySaver do GreenRAN (`src/greenran/xapp2_energysaver.py`, doc 12 §3).
+- a EnergySaver-GreenRAN (`src/greenran/energysaver_greenran.py`, doc 12 §3).
 
-| Aspecto | ES Orange (original, C) | Derivada (`reference-xapps/energy-saving`) | xApp2-EnergySaver (GreenRAN) |
+| Aspecto | ES Orange (original, C) | Derivada (`reference-xapps/energy-saving`) | EnergySaver-GreenRAN (GreenRAN) |
 | :-- | :-- | :-- | :-- |
 | Entrada | KPM por UE: SINR servidor e das vizinhas | **nenhuma telemetria**: bateria, solar e ambiente vêm de variáveis de ambiente | KPM por célula (carga em %, UEs) e política A1 21001 |
 | Decisão | célula com no máximo 1 UE registrado → handover dos UEs → `CELL_OFF` | **constante**: `TX_POWER` de 18, 20 ou 21 dBm conforme o ambiente e a bateria configurados, a cada 2,5 s, em todos os nós | carga atual **e** carga esperada na próxima hora (perfil sazonal) abaixo do limiar, dentro da janela de economia, com vizinha capaz de absorver |
@@ -315,21 +315,21 @@ O projeto tem duas xApps próprias com a função de economia de energia:
 | Tempo | `time()` e `sleep(5)` (relógio simulado na malha fechada) | `time.sleep(2.5)` | `hour_of(t)`, por padrão o horário **local de parede** |
 
 **Onde as xApps próprias são melhores que o original:**
-1. **A xApp2 decide com critério de carga e previsão.** O original usa "no máximo 1 UE já visto", que nunca diminui. A xApp2 olha a carga atual, a carga esperada para a próxima hora e a capacidade da vizinha, e respeita um mínimo de células ativas.
-2. **A xApp2 religa células.** O original nunca religa, e uma célula desligada fica assim até o fim.
-3. **A xApp2 coordena com a RDL:** trata a recusa (30001), usa `defer_ok` e `ttl_ms`, e tem prioridades distintas para desligar (65) e religar (85).
-4. **A xApp2 não tem limites de escala nem estado obsoleto.**
+1. **A EnergySaver-GreenRAN decide com critério de carga e previsão.** O original usa "no máximo 1 UE já visto", que nunca diminui. A EnergySaver-GreenRAN olha a carga atual, a carga esperada para a próxima hora e a capacidade da vizinha, e respeita um mínimo de células ativas.
+2. **A EnergySaver-GreenRAN religa células.** O original nunca religa, e uma célula desligada fica assim até o fim.
+3. **A EnergySaver-GreenRAN coordena com a RDL:** trata a recusa (30001), usa `defer_ok` e `ttl_ms`, e tem prioridades distintas para desligar (65) e religar (85).
+4. **A EnergySaver-GreenRAN não tem limites de escala nem estado obsoleto.**
 5. **A derivada** só é melhor em integração (RMR 30000, métricas Prometheus, charts Helm). Na lógica, não reproduz a função do original: não lê KPM, não faz handover nem desliga célula.
 
 **Onde as xApps próprias podem melhorar** (o item 1 aproveita o ponto forte do original):
-1. **xApp2: escolher o destino da evacuação pelo sinal do UE, não só pela carga da vizinha.** O original escolhe, por UE, a vizinha de maior SINR, com amostras mínimas e piso de −10 dB. Na malha fechada o KPM já traz o SINR servidor e a RSRP das vizinhas por UE (§3.1). Com isso a xApp2 pode recusar uma vizinha sem cobertura para algum UE, ou dividir a evacuação entre vizinhas.
-2. **xApp2: confirmar a evacuação antes de propor `CELL_STATE = 0`.** Hoje ela passa de `EVACUATING` a `SLEEP` no período seguinte, sem conferir se a célula ficou vazia. Basta exigir `total_ues == 0` no KPM ou um prazo; sem isso, os UEs que restarem entram em falha de enlace.
-3. **xApp2: histerese e tempo mínimo de permanência.** Isso evita alternar sono e despertar com carga perto do limiar, e evita repetir a mesma proposta de `TX_POWER` a cada período.
-4. **xApp2: usar o tempo simulado, não o de parede.** A hora padrão vem de `time.localtime`. Na malha fechada, a hora tem de vir do `t` do KPM, como `hour_of` já permite injetar.
+1. **EnergySaver-GreenRAN: escolher o destino da evacuação pelo sinal do UE, não só pela carga da vizinha.** O original escolhe, por UE, a vizinha de maior SINR, com amostras mínimas e piso de −10 dB. Na malha fechada o KPM já traz o SINR servidor e a RSRP das vizinhas por UE (§3.1). Com isso a EnergySaver-GreenRAN pode recusar uma vizinha sem cobertura para algum UE, ou dividir a evacuação entre vizinhas.
+2. **EnergySaver-GreenRAN: confirmar a evacuação antes de propor `CELL_STATE = 0`.** Hoje ela passa de `EVACUATING` a `SLEEP` no período seguinte, sem conferir se a célula ficou vazia. Basta exigir `total_ues == 0` no KPM ou um prazo; sem isso, os UEs que restarem entram em falha de enlace.
+3. **EnergySaver-GreenRAN: histerese e tempo mínimo de permanência.** Isso evita alternar sono e despertar com carga perto do limiar, e evita repetir a mesma proposta de `TX_POWER` a cada período.
+4. **EnergySaver-GreenRAN: usar o tempo simulado, não o de parede.** A hora padrão vem de `time.localtime`. Na malha fechada, a hora tem de vir do `t` do KPM, como `hour_of` já permite injetar.
 5. **Derivada: ler o KPM, ou deixar explícito que é só gerador de carga de conflito.** Os campos `telemetry_context` e `prohibit_urllc_degradation` não mudam a decisão da RDL. O "coverage guard" é um piso fixo de 18 dBm, não o pior SINR de borda que o README promete. Ou o README passa a dizer isso, ou a derivada passa a usar o KPM.
 6. **Derivada: tratar a recusa da RDL (30001) e o `retry_after_ms`.** Hoje ela reenvia a mesma proposta a cada 2,5 s.
 
-Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas entram, se o autor quiser, como versão nova da xApp2, avaliada com as mesmas sementes.
+Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas entram, se o autor quiser, como versão nova da EnergySaver-GreenRAN, avaliada com as mesmas sementes.
 
 **Ainda sobre o ES Orange:**
 

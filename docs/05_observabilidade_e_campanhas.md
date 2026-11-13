@@ -106,7 +106,7 @@ kubectl -n ricsim exec -i deploy/nori-ns3 -- tcpdump -i any -U -s 0 -w - sctp 2>
 
 A dissecação completa, com hashes, concordância com o tshark e papéis da cadeia, continua sendo feita depois, sobre o PCAP da execução (`scripts/certification/e2_pcap_dissect.py`). A aba ao vivo serve para acompanhar; não é evidência.
 
-### 2.3 xApp: subscrição, KPM por UE, decisão do H-RDL, Control e ACK
+### 2.3 xApp: subscrição, KPM por UE, decisão do RDL-N1, Control e ACK
 
 ```bash
 bash scripts/observe/xapp_live.sh                 # também cada Indication RMR: --indications
@@ -118,7 +118,7 @@ O script formata os eventos JSON da kpm-probe (`scripts/observe/format_xapp_even
 - RIC Subscription (HTTP do SubMgr e `SubscriptionId`) e Subscription Response do nó;
 - `KPM nó`: PRBs usados e disponíveis, UEs ativos, RRC conectados;
 - `KPM UEs`: UE, SST da fatia, PRBs, vazão e TBs;
-- a decisão do H-RDL: cenário, tipo de conflito → estratégia, propostas selecionadas, não atuáveis e não selecionadas;
+- a decisão do RDL-N1: cenário, tipo de conflito → estratégia, propostas selecionadas, não atuáveis e não selecionadas;
 - `RIC Control -> nó` (RICrequestID, função 300, teto por SST) e `RIC Control ACK do nó`, com a latência.
 
 O comando manual equivalente:
@@ -287,7 +287,7 @@ Os painéis de RIC Control ficam vazios em execuções sem Control, como as exec
 | `xapp_indication` | `rmr_message` (RIC Indication) | `count`, `length` | `run` |
 | `xapp_control` | `control_request` | cotas por fatia, ordem do Control (B0), intervalo do par KPM | `run`, `source`, `rmr_ok` |
 | `xapp_control_outcome` | `control_outcome` | latência e correlação do ACK | `run`, `outcome` |
-| `xapp_decision` | `control_decision` | decisão do H-RDL | `run`, `source` |
+| `xapp_decision` | `control_decision` | decisão do RDL-N1 | `run`, `source` |
 | `campanha_execucao` | `slice_effect*.json` e manifestos (histórico completo na primeira passada) | `verdict_code`, `embb_before_mbps`, `embb_after_mbps`, `urllc_before_mbps`, `urllc_after_mbps`, `urllc_predicted_mbps` | `run`, `rule`, `verdict` |
 | `certificado` | certificado mais recente | `certified`, `verdict_code`, `reason` | `gate`, `verdict`, `certificate` |
 
@@ -397,7 +397,7 @@ O resumo tem uma linha por execução, com:
 - os papéis da cadeia no PCAP;
 - a concordância com o tshark;
 - as Indications casadas com a xApp;
-- as estratégias do H-RDL;
+- as estratégias do RDL-N1;
 - o que foi atuado e o que não foi atuável;
 - o veredito do efeito na RAN.
 
@@ -409,7 +409,7 @@ Cada execução fica em três lugares:
 - `experiments/xapp_logs/<run>/`: eventos da xApp recortados;
 - `experiments/e2_dissection/<run>/`: dissecação E2 e `slice_effect.json`.
 
-Na bancada NORI, o baseline padrão é o B3 (H-RDL real). Para a campanha do G5, a xApp também decide como B0 (sem coordenação: toda proposta atuável vai à RAN na ordem de chegada, vale a última), B1 (FIFO por alvo) e B2 (prioridade estática por alvo), com a mesma semântica da pilha nativa (`src/closed_loop/catalog_loop.decide_baseline`). O baseline é escolhido com `--baselines` ou `BASELINE=B0..B3`, gravado em `/data/rdl_baseline` e no `run_id` (`nori_<S>_<B>_seed<N>`). A fonte da decisão registrada é `BASELINE_B0`, `BASELINE_B1`, `BASELINE_B2` ou `H_RDL` ([pré-registro do G5](preregistros/07_campanha_g5_s8.md)).
+Na bancada NORI, o baseline padrão é o B3 (RDL-N1 real). Para a campanha do G5, a xApp também decide como B0 (sem coordenação: toda proposta atuável vai à RAN na ordem de chegada, vale a última), B1 (FIFO por alvo) e B2 (prioridade estática por alvo), com a mesma semântica da pilha nativa (`src/closed_loop/catalog_loop.decide_baseline`). O baseline é escolhido com `--baselines` ou `BASELINE=B0..B3`, gravado em `/data/rdl_baseline` e no `run_id` (`nori_<S>_<B>_seed<N>`). A fonte da decisão registrada é `BASELINE_B0`, `BASELINE_B1`, `BASELINE_B2` ou `H_RDL` ([pré-registro do G5](preregistros/07_campanha_g5_s8.md)).
 
 Para acompanhar a campanha ao vivo, abra o painel (seção 1) ou as abas da seção 2. Rode a campanha em primeiro plano em uma delas.
 
@@ -445,7 +445,7 @@ python3 scripts/certification/certify_chain.py          # certificado em reports
 
 ## 6. Limites
 
-- O NORI tem um único gNB e só atua cota de PRB por fatia. Nos cenários que dependem de potência, handover ou de vários gNBs (S3, S4, S5), ou nas propostas desse tipo dos demais cenários, a decisão do H-RDL é registrada, mas não há efeito na RAN para medir.
+- O NORI tem um único gNB e só atua cota de PRB por fatia. Nos cenários que dependem de potência, handover ou de vários gNBs (S3, S4, S5), ou nas propostas desse tipo dos demais cenários, a decisão do RDL-N1 é registrada, mas não há efeito na RAN para medir.
 - A decisão é única por execução: não há rearbitragem periódica, como no cronograma da pilha nativa.
 - A previsão de efeito usa a curva v5 (teto → vazão, `experiments/calibration/slice_cap_curve_v5.json`), calibrada com 2 UEs e tráfego de 300 Mb/s. Fora dessa configuração, o veredito de efeito não vale.
 
