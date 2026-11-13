@@ -1,0 +1,271 @@
+{
+  "scenario": "S11",
+  "baseline": "B3",
+  "ns3_scenario": "scenario_rdl_multicell",
+  "summary": "Rodovia (V2X por Uu, 120 km/h): veículos andam da gNB0 para a gNB1; Traffic Steering antecipa o handover 0→1 e o Load Balancer devolve 1→0 a cada 2 s — ping-pong entre células. Sem sidelink (o NR V2X do 5G-LENA é outro ramo).",
+  "conflict_window_s": [
+    15.0,
+    25.0
+  ],
+  "engine": "src/rdl_xapp.py RDLxApp._process_action_group",
+  "eevs_aggregation": "mean",
+  "repo_git_sha": "d0cbd8fe",
+  "proposals": [
+    {
+      "t": 16.0,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-16.000"
+    },
+    {
+      "t": 17.0,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "HANDOVER",
+      "value": 0.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "load_balancer-g1-HANDOVER-17.000"
+    },
+    {
+      "t": 18.0,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-18.000"
+    },
+    {
+      "t": 19.0,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "HANDOVER",
+      "value": 0.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "load_balancer-g1-HANDOVER-19.000"
+    },
+    {
+      "t": 20.0,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-20.000"
+    },
+    {
+      "t": 21.0,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "HANDOVER",
+      "value": 0.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "load_balancer-g1-HANDOVER-21.000"
+    },
+    {
+      "t": 22.0,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-22.000"
+    },
+    {
+      "t": 23.0,
+      "xapp_id": "load_balancer",
+      "gnb": 1,
+      "parameter": "HANDOVER",
+      "value": 0.0,
+      "priority": 70,
+      "ue": -1,
+      "id": "load_balancer-g1-HANDOVER-23.000"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 16.2,
+      "proposal_ids": [
+        "traffic_steering-g0-HANDOVER-16.000"
+      ],
+      "selected": [
+        "traffic_steering-g0-HANDOVER-16.000"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.535,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 17.2,
+      "proposal_ids": [
+        "load_balancer-g1-HANDOVER-17.000"
+      ],
+      "selected": [],
+      "resolutions": [
+        {
+          "conflict_type": "INTER_CELL",
+          "involved": [
+            "load_balancer-g1-HANDOVER-17.000",
+            "traffic_steering-g0-HANDOVER-16.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-16.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.556,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 18.2,
+      "proposal_ids": [
+        "traffic_steering-g0-HANDOVER-18.000"
+      ],
+      "selected": [
+        "traffic_steering-g0-HANDOVER-18.000"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.215,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 19.2,
+      "proposal_ids": [
+        "load_balancer-g1-HANDOVER-19.000"
+      ],
+      "selected": [],
+      "resolutions": [
+        {
+          "conflict_type": "INTER_CELL",
+          "involved": [
+            "load_balancer-g1-HANDOVER-19.000",
+            "traffic_steering-g0-HANDOVER-18.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-18.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.332,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 20.2,
+      "proposal_ids": [
+        "traffic_steering-g0-HANDOVER-20.000"
+      ],
+      "selected": [
+        "traffic_steering-g0-HANDOVER-20.000"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.161,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 21.2,
+      "proposal_ids": [
+        "load_balancer-g1-HANDOVER-21.000"
+      ],
+      "selected": [],
+      "resolutions": [
+        {
+          "conflict_type": "INTER_CELL",
+          "involved": [
+            "load_balancer-g1-HANDOVER-21.000",
+            "traffic_steering-g0-HANDOVER-20.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-20.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.299,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 22.2,
+      "proposal_ids": [
+        "traffic_steering-g0-HANDOVER-22.000"
+      ],
+      "selected": [
+        "traffic_steering-g0-HANDOVER-22.000"
+      ],
+      "resolutions": [],
+      "decision_wall_ms": 0.149,
+      "rule": "hrdl-pipeline"
+    },
+    {
+      "t_close": 23.2,
+      "proposal_ids": [
+        "load_balancer-g1-HANDOVER-23.000"
+      ],
+      "selected": [],
+      "resolutions": [
+        {
+          "conflict_type": "INTER_CELL",
+          "involved": [
+            "load_balancer-g1-HANDOVER-23.000",
+            "traffic_steering-g0-HANDOVER-22.000"
+          ],
+          "winners": [
+            "traffic_steering-g0-HANDOVER-22.000"
+          ],
+          "strategy": "EEVS"
+        }
+      ],
+      "decision_wall_ms": 0.286,
+      "rule": "hrdl-pipeline"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 16.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-16.000"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-18.000"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-20.000"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-22.000"
+    }
+  ]
+}

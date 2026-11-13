@@ -1,0 +1,540 @@
+{
+  "scenario": "G2",
+  "baseline": "B1",
+  "ns3_scenario": "scenario_rdl_multicell",
+  "summary": "GreenRAN noite (baixa demanda, UEs na borda entre duas RUs): o EnergySaver da RU 0 e o da RU 1 querem desligar as duas células vizinhas, e o Traffic Steering move os UEs da RU 0 para a RU 1 — sleep de vizinhas e handover para célula desligada.",
+  "conflict_window_s": [
+    15.0,
+    25.0
+  ],
+  "engine": "FIFO: por janela e alvo, a primeira proposta a chegar.",
+  "eevs_aggregation": null,
+  "repo_git_sha": "d0cbd8fe",
+  "proposals": [
+    {
+      "t": 15.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-15.000"
+    },
+    {
+      "t": 15.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-15.020"
+    },
+    {
+      "t": 15.04,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 80,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-15.040"
+    },
+    {
+      "t": 16.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-16.000"
+    },
+    {
+      "t": 16.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-16.020"
+    },
+    {
+      "t": 17.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-17.000"
+    },
+    {
+      "t": 17.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-17.020"
+    },
+    {
+      "t": 18.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-18.000"
+    },
+    {
+      "t": 18.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-18.020"
+    },
+    {
+      "t": 19.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-19.000"
+    },
+    {
+      "t": 19.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-19.020"
+    },
+    {
+      "t": 20.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-20.000"
+    },
+    {
+      "t": 20.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-20.020"
+    },
+    {
+      "t": 21.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-21.000"
+    },
+    {
+      "t": 21.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-21.020"
+    },
+    {
+      "t": 22.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-22.000"
+    },
+    {
+      "t": 22.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-22.020"
+    },
+    {
+      "t": 23.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-23.000"
+    },
+    {
+      "t": 23.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-23.020"
+    },
+    {
+      "t": 24.0,
+      "xapp_id": "energy_saving_ru0",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving_ru0-g0-CELL_STATE-24.000"
+    },
+    {
+      "t": 24.02,
+      "xapp_id": "energy_saving_ru1",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 60,
+      "ue": -1,
+      "id": "energy_saving_ru1-g1-CELL_STATE-24.020"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 15.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-15.000",
+        "energy_saving_ru1-g1-CELL_STATE-15.020",
+        "traffic_steering-g0-HANDOVER-15.040"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-15.000",
+        "energy_saving_ru1-g1-CELL_STATE-15.020",
+        "traffic_steering-g0-HANDOVER-15.040"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 16.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-16.000",
+        "energy_saving_ru1-g1-CELL_STATE-16.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-16.000",
+        "energy_saving_ru1-g1-CELL_STATE-16.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 17.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-17.000",
+        "energy_saving_ru1-g1-CELL_STATE-17.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-17.000",
+        "energy_saving_ru1-g1-CELL_STATE-17.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 18.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-18.000",
+        "energy_saving_ru1-g1-CELL_STATE-18.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-18.000",
+        "energy_saving_ru1-g1-CELL_STATE-18.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 19.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-19.000",
+        "energy_saving_ru1-g1-CELL_STATE-19.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-19.000",
+        "energy_saving_ru1-g1-CELL_STATE-19.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 20.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-20.000",
+        "energy_saving_ru1-g1-CELL_STATE-20.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-20.000",
+        "energy_saving_ru1-g1-CELL_STATE-20.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 21.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-21.000",
+        "energy_saving_ru1-g1-CELL_STATE-21.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-21.000",
+        "energy_saving_ru1-g1-CELL_STATE-21.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 22.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-22.000",
+        "energy_saving_ru1-g1-CELL_STATE-22.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-22.000",
+        "energy_saving_ru1-g1-CELL_STATE-22.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 23.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-23.000",
+        "energy_saving_ru1-g1-CELL_STATE-23.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-23.000",
+        "energy_saving_ru1-g1-CELL_STATE-23.020"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 24.2,
+      "proposal_ids": [
+        "energy_saving_ru0-g0-CELL_STATE-24.000",
+        "energy_saving_ru1-g1-CELL_STATE-24.020"
+      ],
+      "selected": [
+        "energy_saving_ru0-g0-CELL_STATE-24.000",
+        "energy_saving_ru1-g1-CELL_STATE-24.020"
+      ],
+      "rule": "fifo-per-target"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-15.000"
+    },
+    {
+      "time_s": 15.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-15.020"
+    },
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-15.040"
+    },
+    {
+      "time_s": 16.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-16.000"
+    },
+    {
+      "time_s": 16.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-16.020"
+    },
+    {
+      "time_s": 17.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-17.000"
+    },
+    {
+      "time_s": 17.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-17.020"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-18.000"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-18.020"
+    },
+    {
+      "time_s": 19.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-19.000"
+    },
+    {
+      "time_s": 19.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-19.020"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-20.000"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-20.020"
+    },
+    {
+      "time_s": 21.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-21.000"
+    },
+    {
+      "time_s": 21.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-21.020"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-22.000"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-22.020"
+    },
+    {
+      "time_s": 23.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-23.000"
+    },
+    {
+      "time_s": 23.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-23.020"
+    },
+    {
+      "time_s": 24.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru0",
+      "action_id": "energy_saving_ru0-g0-CELL_STATE-24.000"
+    },
+    {
+      "time_s": 24.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving_ru1",
+      "action_id": "energy_saving_ru1-g1-CELL_STATE-24.020"
+    }
+  ]
+}

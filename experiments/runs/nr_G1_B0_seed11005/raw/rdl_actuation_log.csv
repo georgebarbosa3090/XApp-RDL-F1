@@ -1,0 +1,21 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-15.000,APPLIED,RBG 85/106
+15.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-15.050,APPLIED,RBG 32/106
+16,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-16.000,APPLIED,RBG 85/106
+16.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-16.050,APPLIED,RBG 32/106
+17,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-17.000,APPLIED,RBG 85/106
+17.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-17.050,APPLIED,RBG 32/106
+18,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-18.000,APPLIED,RBG 85/106
+18.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-18.050,APPLIED,RBG 32/106
+19,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-19.000,APPLIED,RBG 85/106
+19.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-19.050,APPLIED,RBG 32/106
+20,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-20.000,APPLIED,RBG 85/106
+20.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-20.050,APPLIED,RBG 32/106
+21,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-21.000,APPLIED,RBG 85/106
+21.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-21.050,APPLIED,RBG 32/106
+22,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-22.000,APPLIED,RBG 85/106
+22.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-22.050,APPLIED,RBG 32/106
+23,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-23.000,APPLIED,RBG 85/106
+23.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-23.050,APPLIED,RBG 32/106
+24,0,1,PRB_QUOTA,80,-1,ranslicer,ranslicer-g0-PRB_QUOTA-24.000,APPLIED,RBG 85/106
+24.05,0,1,PRB_QUOTA,30,-1,energy_saving,energy_saving-g0-PRB_QUOTA-24.050,APPLIED,RBG 32/106

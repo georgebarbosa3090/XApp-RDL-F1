@@ -1,0 +1,12 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+15.0,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.000
+15.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-15.050
+16.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-16.050
+17.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-17.050
+18.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-18.050
+19.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-19.050
+20.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-20.050
+21.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-21.050
+22.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-22.050
+23.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-23.050
+24.05,1,TX_POWER,5.0,-1,energy_saving,energy_saving-g1-TX_POWER-24.050

@@ -1,0 +1,11 @@
+time_s,gnb,parameter,value,ue,xapp_id,action_id
+15.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-15.000
+15.2,0,HANDOVER,1.0,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.040
+17.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-17.000
+18.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-18.000
+19.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-19.000
+20.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-20.000
+21.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-21.000
+22.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-22.000
+23.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-23.000
+24.2,0,CELL_STATE,0.0,-1,energy_saving_ru0,energy_saving_ru0-g0-CELL_STATE-24.000

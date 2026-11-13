@@ -1,0 +1,31 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-15.060,APPLIED,RBG 53/106
+15.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-15.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+15.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-15.020,APPLIED,TxPower=90 dBm
+16.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-16.060,APPLIED,RBG 53/106
+16.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-16.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+16.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-16.020,APPLIED,TxPower=90 dBm
+17.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-17.060,APPLIED,RBG 53/106
+17.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-17.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+17.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-17.020,APPLIED,TxPower=90 dBm
+18.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-18.060,APPLIED,RBG 53/106
+18.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-18.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+18.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-18.020,APPLIED,TxPower=90 dBm
+19.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-19.060,APPLIED,RBG 53/106
+19.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-19.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+19.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-19.020,APPLIED,TxPower=90 dBm
+20.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-20.060,APPLIED,RBG 53/106
+20.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-20.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+20.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-20.020,APPLIED,TxPower=90 dBm
+21.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-21.060,APPLIED,RBG 53/106
+21.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-21.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+21.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-21.020,APPLIED,TxPower=90 dBm
+22.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-22.060,APPLIED,RBG 53/106
+22.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-22.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+22.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-22.020,APPLIED,TxPower=90 dBm
+23.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-23.060,APPLIED,RBG 53/106
+23.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-23.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+23.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-23.020,APPLIED,TxPower=90 dBm
+24.2,0,1,PRB_QUOTA,50,-1,energy_saving,energy_saving-g0-PRB_QUOTA-24.060,APPLIED,RBG 53/106
+24.2,0,1,HANDOVER,7,-1,rogue_xapp,rogue_xapp-g0-HANDOVER-24.000,REJECTED_BY_TOPOLOGY,gNB de destino inválido
+24.2,1,2,TX_POWER,90,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-24.020,APPLIED,TxPower=90 dBm

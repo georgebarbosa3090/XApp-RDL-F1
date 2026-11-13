@@ -1,0 +1,419 @@
+{
+  "scenario": "G1",
+  "baseline": "B1",
+  "ns3_scenario": "scenario_rdl_multicell",
+  "summary": "GreenRAN campus (App1-Vigilância × App2-Monitoramento), em escala reduzida: 6 câmeras HD a 5 Mb/s numa portadora de 20 MHz (as câmeras 4K a 25 Mb/s da proposta custariam mais de 45 min de parede por execução) e 30 sensores de baixa taxa; o RANSlicer reserva 80 % de PRB na RU 0 e o EnergySaver pede 30 % (economia de PRBs ativos) — conflito direto na fatia de câmeras.",
+  "conflict_window_s": [
+    15.0,
+    25.0
+  ],
+  "engine": "FIFO: por janela e alvo, a primeira proposta a chegar.",
+  "eevs_aggregation": null,
+  "repo_git_sha": "d0cbd8fe",
+  "proposals": [
+    {
+      "t": 15.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-15.000"
+    },
+    {
+      "t": 15.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-15.050"
+    },
+    {
+      "t": 16.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-16.000"
+    },
+    {
+      "t": 16.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-16.050"
+    },
+    {
+      "t": 17.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-17.000"
+    },
+    {
+      "t": 17.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-17.050"
+    },
+    {
+      "t": 18.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-18.000"
+    },
+    {
+      "t": 18.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-18.050"
+    },
+    {
+      "t": 19.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-19.000"
+    },
+    {
+      "t": 19.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-19.050"
+    },
+    {
+      "t": 20.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-20.000"
+    },
+    {
+      "t": 20.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-20.050"
+    },
+    {
+      "t": 21.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-21.000"
+    },
+    {
+      "t": 21.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-21.050"
+    },
+    {
+      "t": 22.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-22.000"
+    },
+    {
+      "t": 22.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-22.050"
+    },
+    {
+      "t": 23.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-23.000"
+    },
+    {
+      "t": 23.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-23.050"
+    },
+    {
+      "t": 24.0,
+      "xapp_id": "ranslicer",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "priority": 90,
+      "ue": -1,
+      "id": "ranslicer-g0-PRB_QUOTA-24.000"
+    },
+    {
+      "t": 24.05,
+      "xapp_id": "energy_saving",
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 30.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g0-PRB_QUOTA-24.050"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 15.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-15.000",
+        "energy_saving-g0-PRB_QUOTA-15.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-15.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 16.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-16.000",
+        "energy_saving-g0-PRB_QUOTA-16.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-16.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 17.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-17.000",
+        "energy_saving-g0-PRB_QUOTA-17.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-17.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 18.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-18.000",
+        "energy_saving-g0-PRB_QUOTA-18.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-18.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 19.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-19.000",
+        "energy_saving-g0-PRB_QUOTA-19.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-19.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 20.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-20.000",
+        "energy_saving-g0-PRB_QUOTA-20.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-20.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 21.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-21.000",
+        "energy_saving-g0-PRB_QUOTA-21.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-21.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 22.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-22.000",
+        "energy_saving-g0-PRB_QUOTA-22.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-22.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 23.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-23.000",
+        "energy_saving-g0-PRB_QUOTA-23.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-23.000"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 24.2,
+      "proposal_ids": [
+        "ranslicer-g0-PRB_QUOTA-24.000",
+        "energy_saving-g0-PRB_QUOTA-24.050"
+      ],
+      "selected": [
+        "ranslicer-g0-PRB_QUOTA-24.000"
+      ],
+      "rule": "fifo-per-target"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-15.000"
+    },
+    {
+      "time_s": 16.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-16.000"
+    },
+    {
+      "time_s": 17.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-17.000"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-18.000"
+    },
+    {
+      "time_s": 19.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-19.000"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-20.000"
+    },
+    {
+      "time_s": 21.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-21.000"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-22.000"
+    },
+    {
+      "time_s": 23.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-23.000"
+    },
+    {
+      "time_s": 24.2,
+      "gnb": 0,
+      "parameter": "PRB_QUOTA",
+      "value": 80.0,
+      "ue": -1,
+      "xapp_id": "ranslicer",
+      "action_id": "ranslicer-g0-PRB_QUOTA-24.000"
+    }
+  ]
+}

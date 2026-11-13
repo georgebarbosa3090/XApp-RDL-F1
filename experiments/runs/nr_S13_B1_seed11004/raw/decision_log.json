@@ -1,0 +1,351 @@
+{
+  "scenario": "S13",
+  "baseline": "B1",
+  "ns3_scenario": "scenario_rdl_multicell",
+  "summary": "Desastre rural: a gNB0 falha (CELL_STATE=0 pelo injetor de falhas, prioridade 100); o Traffic Steering move os UEs dela para a gNB1 enquanto o Energy Saving quer desligar a gNB1 por baixa carga — conflito entre células com prioridade de emergência.",
+  "conflict_window_s": [
+    15.0,
+    25.0
+  ],
+  "engine": "FIFO: por janela e alvo, a primeira proposta a chegar.",
+  "eevs_aggregation": null,
+  "repo_git_sha": "d0cbd8fe",
+  "proposals": [
+    {
+      "t": 15.0,
+      "xapp_id": "fault_injector",
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 100,
+      "ue": -1,
+      "id": "fault_injector-g0-CELL_STATE-15.000"
+    },
+    {
+      "t": 15.0,
+      "xapp_id": "traffic_steering",
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "priority": 85,
+      "ue": -1,
+      "id": "traffic_steering-g0-HANDOVER-15.000"
+    },
+    {
+      "t": 15.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-15.050"
+    },
+    {
+      "t": 16.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-16.050"
+    },
+    {
+      "t": 17.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-17.050"
+    },
+    {
+      "t": 18.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-18.050"
+    },
+    {
+      "t": 19.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-19.050"
+    },
+    {
+      "t": 20.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-20.050"
+    },
+    {
+      "t": 21.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-21.050"
+    },
+    {
+      "t": 22.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-22.050"
+    },
+    {
+      "t": 23.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-23.050"
+    },
+    {
+      "t": 24.05,
+      "xapp_id": "energy_saving",
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "priority": 65,
+      "ue": -1,
+      "id": "energy_saving-g1-CELL_STATE-24.050"
+    }
+  ],
+  "windows": [
+    {
+      "t_close": 15.2,
+      "proposal_ids": [
+        "fault_injector-g0-CELL_STATE-15.000",
+        "traffic_steering-g0-HANDOVER-15.000",
+        "energy_saving-g1-CELL_STATE-15.050"
+      ],
+      "selected": [
+        "fault_injector-g0-CELL_STATE-15.000",
+        "traffic_steering-g0-HANDOVER-15.000",
+        "energy_saving-g1-CELL_STATE-15.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 16.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-16.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-16.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 17.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-17.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-17.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 18.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-18.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-18.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 19.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-19.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-19.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 20.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-20.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-20.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 21.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-21.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-21.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 22.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-22.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-22.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 23.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-23.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-23.050"
+      ],
+      "rule": "fifo-per-target"
+    },
+    {
+      "t_close": 24.2,
+      "proposal_ids": [
+        "energy_saving-g1-CELL_STATE-24.050"
+      ],
+      "selected": [
+        "energy_saving-g1-CELL_STATE-24.050"
+      ],
+      "rule": "fifo-per-target"
+    }
+  ],
+  "schedule": [
+    {
+      "time_s": 15.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-15.050"
+    },
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "fault_injector",
+      "action_id": "fault_injector-g0-CELL_STATE-15.000"
+    },
+    {
+      "time_s": 15.2,
+      "gnb": 0,
+      "parameter": "HANDOVER",
+      "value": 1.0,
+      "ue": -1,
+      "xapp_id": "traffic_steering",
+      "action_id": "traffic_steering-g0-HANDOVER-15.000"
+    },
+    {
+      "time_s": 16.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-16.050"
+    },
+    {
+      "time_s": 17.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-17.050"
+    },
+    {
+      "time_s": 18.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-18.050"
+    },
+    {
+      "time_s": 19.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-19.050"
+    },
+    {
+      "time_s": 20.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-20.050"
+    },
+    {
+      "time_s": 21.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-21.050"
+    },
+    {
+      "time_s": 22.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-22.050"
+    },
+    {
+      "time_s": 23.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-23.050"
+    },
+    {
+      "time_s": 24.2,
+      "gnb": 1,
+      "parameter": "CELL_STATE",
+      "value": 0.0,
+      "ue": -1,
+      "xapp_id": "energy_saving",
+      "action_id": "energy_saving-g1-CELL_STATE-24.050"
+    }
+  ]
+}

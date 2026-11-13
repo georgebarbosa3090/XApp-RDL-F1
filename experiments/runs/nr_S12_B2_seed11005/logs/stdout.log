@@ -1,0 +1,34 @@
+[RDL-SCN] 1 gNB(s), 30 UE(s), canal InH-OfficeMixed, 43 dBm
+[RDL-ACT] 8 ações agendadas a partir de <repo>/experiments/runs/nr_S12_B2_seed11005/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=20.32 Mbps atraso=15.95 ms
+[RDL-KPI] t=3.0s vazao=20.34 Mbps atraso=22.17 ms
+[RDL-KPI] t=4.0s vazao=20.32 Mbps atraso=28.35 ms
+[RDL-KPI] t=5.0s vazao=20.34 Mbps atraso=34.58 ms
+[RDL-KPI] t=6.0s vazao=20.32 Mbps atraso=36.57 ms
+[RDL-KPI] t=7.0s vazao=20.34 Mbps atraso=36.61 ms
+[RDL-KPI] t=8.0s vazao=20.32 Mbps atraso=36.57 ms
+[RDL-KPI] t=9.0s vazao=20.34 Mbps atraso=36.61 ms
+[RDL-KPI] t=10.0s vazao=20.32 Mbps atraso=36.57 ms
+[RDL-KPI] t=11.0s vazao=20.34 Mbps atraso=36.61 ms
+[RDL-KPI] t=12.0s vazao=20.32 Mbps atraso=36.57 ms
+[RDL-ACT] t=12.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-12.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=13.0s vazao=18.17 Mbps atraso=41.00 ms
+[RDL-ACT] t=13.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-13.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=14.0s vazao=18.23 Mbps atraso=41.15 ms
+[RDL-ACT] t=14.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-14.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=15.0s vazao=18.19 Mbps atraso=41.05 ms
+[RDL-ACT] t=15.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-15.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=16.0s vazao=18.17 Mbps atraso=41.00 ms
+[RDL-ACT] t=16.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-16.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=17.0s vazao=18.23 Mbps atraso=41.16 ms
+[RDL-ACT] t=17.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-17.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=18.0s vazao=18.20 Mbps atraso=41.07 ms
+[RDL-ACT] t=18.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-18.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=19.0s vazao=18.17 Mbps atraso=40.98 ms
+[RDL-ACT] t=19.200s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-19.000 -> APPLIED (RBG 42/53)
+[RDL-KPI] t=20.0s vazao=18.22 Mbps atraso=41.15 ms
+[RDL-KPI] t=21.0s vazao=18.23 Mbps atraso=41.14 ms
+[RDL-KPI] t=22.0s vazao=18.23 Mbps atraso=41.13 ms
+[RDL-KPI] t=23.0s vazao=18.19 Mbps atraso=41.06 ms
+[RDL-KPI] t=24.0s vazao=18.17 Mbps atraso=41.00 ms

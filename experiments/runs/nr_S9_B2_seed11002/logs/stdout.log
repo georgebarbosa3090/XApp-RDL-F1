@@ -1,0 +1,42 @@
+[RDL-SCN] 2 gNB(s), 40 UE(s), canal NTN-Rural, 77 dBm
+[RDL-ACT] 11 ações agendadas a partir de <repo>/experiments/runs/nr_S9_B2_seed11002/raw/action_schedule.csv
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=0.77 Mbps atraso=29.93 ms
+[RDL-KPI] t=3.0s vazao=0.58 Mbps atraso=15.87 ms
+[RDL-KPI] t=4.0s vazao=0.58 Mbps atraso=15.86 ms
+[RDL-KPI] t=5.0s vazao=0.59 Mbps atraso=15.60 ms
+[RDL-KPI] t=6.0s vazao=0.59 Mbps atraso=15.60 ms
+[RDL-KPI] t=7.0s vazao=0.58 Mbps atraso=15.73 ms
+[RDL-KPI] t=8.0s vazao=0.59 Mbps atraso=15.50 ms
+[RDL-KPI] t=9.0s vazao=0.58 Mbps atraso=15.84 ms
+[RDL-KPI] t=10.0s vazao=0.58 Mbps atraso=15.86 ms
+[RDL-KPI] t=11.0s vazao=0.58 Mbps atraso=15.73 ms
+[RDL-KPI] t=12.0s vazao=0.58 Mbps atraso=15.89 ms
+[RDL-KPI] t=13.0s vazao=0.58 Mbps atraso=15.87 ms
+[RDL-KPI] t=14.0s vazao=0.59 Mbps atraso=15.60 ms
+[RDL-KPI] t=15.0s vazao=0.58 Mbps atraso=15.84 ms
+[RDL-ACT] t=15.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-15.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-ACT] t=15.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.000 -> APPLIED (20 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=16.0s vazao=0.13 Mbps atraso=4.49 ms
+[RDL-ACT] t=16.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-16.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=17.0s vazao=0.13 Mbps atraso=4.49 ms
+[RDL-ACT] t=17.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-17.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=18.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=18.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-18.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=19.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=19.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-19.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=20.0s vazao=0.64 Mbps atraso=5.94 ms
+[RDL-ACT] t=20.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-20.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=21.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=21.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-21.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=22.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=22.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-22.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=23.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=23.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-23.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=24.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-ACT] t=24.200s gnb=1 cell=2 CELL_STATE=0.000 xapp=energy_saving id=energy_saving-g1-CELL_STATE-24.050 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=25.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-KPI] t=26.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-KPI] t=27.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-KPI] t=28.0s vazao=0.64 Mbps atraso=5.82 ms
+[RDL-KPI] t=29.0s vazao=0.64 Mbps atraso=5.82 ms

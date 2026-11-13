@@ -1,0 +1,35 @@
+{
+  "run_id": "nr_S10_B3_seed11002",
+  "source": [
+    "NS3_FLOWMONITOR",
+    "HRDL_RUNTIME"
+  ],
+  "backend": "NS3_5GLENA",
+  "scenario": "scenario_rdl_multicell",
+  "baseline": "B3",
+  "seed": 11002,
+  "command": "cd ~/ns3-oran-workspace/ns-3-oran && ./ns3 run 'scratch/scenario_rdl_multicell --seed=11002 --actionSchedule=<repo>/experiments/runs/nr_S10_B3_seed11002/raw/action_schedule.csv --simTime=30 --channel=UMa --gnbs=0,0,25;300,0,100 --ueGroups=30,0,0,10,120,8,0,0,1.5;10,300,0,10,120,20,0,0,1.5'",
+  "rng_args": "--seed=11002",
+  "action_schedule_sha256": "e1d1006c4dc73771e87ddd52c1a8daf9c774b6a0b6be8bca12f5ca48612dd986",
+  "run_status": "SUCCESS",
+  "exit_code": 0,
+  "started_at_utc": "2026-11-12T16:02:13Z",
+  "finished_at_utc": "2026-11-12T16:31:14Z",
+  "ns3_version": "3.48",
+  "ns3_commit": "d2add90b452d600cfb4859baed8e9ea633519447",
+  "fiveg_lena_version": "v5.1",
+  "nr_commit": "cedceadda17392c90587fb9400eb9b1f8c236713",
+  "nori_commit": null,
+  "repo_git_sha": "d0cbd8f",
+  "scenario_sha256": "70498fc436c634f989ad674a6feeeb5e3ce436dc4e514ec7723e36f176b3b2ec",
+  "support_files_sha256": {
+    "rdl-nr-common.h": "b8db5deb0269453065a18010879f55f9986c4c20f97156e5509adcd2a52d6a1e"
+  },
+  "environment": {
+    "os": "Ubuntu 24.04.1 LTS",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "cmake": "cmake version 3.28.3"
+  },
+  "publication_eligible": true
+}
