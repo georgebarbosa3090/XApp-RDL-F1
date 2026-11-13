@@ -47,15 +47,56 @@ class SliceKpi:
 
 
 @dataclass
+class UeKpi:
+    """Medidas por UE: SINR da célula servidora e RSRP por célula medida (servidora e vizinhas)."""
+    ue_id: str
+    serving_cell: str
+    sinr_db: Optional[float] = None
+    rsrp_dbm: Dict[str, float] = field(default_factory=dict)
+    thp_mbps: float = 0.0
+
+
+@dataclass
 class CellSample:
     cell_id: str
     t: float
     load_pct: Optional[float] = None          # PRBs em uso / disponíveis, em %
     slices: Dict[int, SliceKpi] = field(default_factory=dict)
+    ues: List[UeKpi] = field(default_factory=list)
 
     @property
     def total_ues(self) -> int:
-        return sum(s.ues for s in self.slices.values())
+        if self.slices:
+            return sum(s.ues for s in self.slices.values())
+        return len(self.ues)
+
+    @property
+    def has_ue_signal(self) -> bool:
+        """Há RSRP de vizinhas por UE (necessário para escolher destino pela cobertura)."""
+        return any(len(u.rsrp_dbm) > 1 for u in self.ues)
+
+
+def samples_from_closed_loop(kpm: Dict[str, Any]) -> Dict[str, CellSample]:
+    """
+    Amostras por célula a partir do KPM da malha fechada (ns-3, ``rdl-nr-common.h``; docs/16 §3.1).
+    As células são nomeadas ``gnb_<índice>``, como nos ``node_id`` das propostas.
+    """
+    t = float(kpm["t"])
+    gnb_of_cell = {int(c["cell_id"]): int(c["gnb"]) for c in kpm.get("cells", [])}
+    out: Dict[str, CellSample] = {}
+    for c in kpm.get("cells", []):
+        util = c.get("prb_util")
+        out[f"gnb_{c['gnb']}"] = CellSample(f"gnb_{c['gnb']}", t,
+                                            load_pct=None if util is None else round(100.0 * float(util), 2))
+    for u in kpm.get("ues", []):
+        g = u.get("gnb")
+        if not u.get("connected") or g is None or g < 0 or f"gnb_{g}" not in out:
+            continue
+        rsrp = {f"gnb_{gnb_of_cell[int(c)]}": float(v) for c, v in (u.get("rsrp_dbm") or {}).items()
+                if int(c) in gnb_of_cell and v is not None}
+        out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp,
+                                         float(u.get("thp_mbps") or 0.0)))
+    return out
 
 
 def normalize_kpm(cell_id: str, kpm: Dict[str, Any], t: Optional[float] = None,
@@ -74,8 +115,19 @@ def normalize_kpm(cell_id: str, kpm: Dict[str, Any], t: Optional[float] = None,
     ues = kpm.get("ues")
     if ues is not None:
         slices: Dict[int, SliceKpi] = {}
+        sample.ues = []
+        # Sinal por UE (opcional): só quando o perfil do backend dá os nomes. "ue_rsrp_prefix" é o prefixo
+        # de uma medida por célula (por exemplo "RSRP.cell."), seguido do identificador da célula.
+        sinr_key, rsrp_prefix = m.get("ue_sinr_db"), m.get("ue_rsrp_prefix")
         for ue in ues:
             meas = ue.get("measurements") or {}
+            if sinr_key or rsrp_prefix:
+                rsrp = {k[len(rsrp_prefix):]: float(v) for k, v in meas.items()
+                        if rsrp_prefix and k.startswith(rsrp_prefix) and isinstance(v, (int, float))}
+                sinr = meas.get(sinr_key) if sinr_key else None
+                sample.ues.append(UeKpi(str(ue.get("ue_id")), cell_id,
+                                        float(sinr) if isinstance(sinr, (int, float)) else None, rsrp,
+                                        float(meas.get(m["ue_thp_kbps"]) or 0.0) / 1000.0))
             sst = int(meas.get(m["ue_sst"]) or 1)
             s = slices.setdefault(sst, SliceKpi())
             s.ues += 1

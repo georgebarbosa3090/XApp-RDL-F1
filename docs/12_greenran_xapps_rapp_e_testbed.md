@@ -43,12 +43,32 @@ As escalas de tempo se dividem assim:
 
 | Item | Implementação |
 | :-- | :-- |
-| Entrada | carga por célula (KPM de nó), UEs por célula, vizinhança (`RDL_TOPOLOGY_FILE`); política A1 21001 (`es_sleep_threshold_pct`, `es_wake_threshold_pct`, `es_min_active_cells`, janela `es_sleep_start_hour`–`es_sleep_end_hour`, `es_tx_power_reduction`, `es_reduced_tx_power_dbm`) |
-| Padrões sazonais | carga esperada por hora do dia e por célula (`SeasonalProfile`, 24 faixas) |
-| Borda entre duas RUs | desligamento em dois passos: `HANDOVER` dos UEs para a vizinha que os absorve, depois `CELL_STATE = 0`; uma célula por período; mínimo de células ativas respeitado |
-| Religamento | `CELL_STATE = 1` (prioridade 85) quando a janela acaba, uma vizinha passa do limiar ou a carga esperada sobe |
-| Potência | `TX_POWER` reduzida com carga moderada, se a política permitir |
-| Recusa da RDL | volta a célula a ativa (por exemplo, quando a regra `HANDOVER_INTO_REDUCED_CELL` barra o desligamento) |
+| Entrada | carga por célula (KPM de nó), UEs por célula e, quando o backend fornece, SINR e RSRP por UE para a célula servidora e as vizinhas (`UeKpi`; na malha fechada, `samples_from_closed_loop`; no testbed, as chaves `ue_sinr_db` e `ue_rsrp_prefix` do perfil do backend); vizinhança (`RDL_TOPOLOGY_FILE`); política A1 21001 (tabela abaixo) |
+| Padrões sazonais | carga esperada por hora do dia e por célula (`SeasonalProfile`, 24 faixas). A hora é UTC mais `es_utc_offset_h`, e não o fuso do computador; na malha fechada, vem do tempo simulado |
+| Borda entre duas RUs | desligamento em dois passos, uma célula por período, com mínimo de células ativas e permanência mínima: (1) `HANDOVER` dos UEs para a vizinha que cobre **todos** os UEs com RSRP ≥ `es_min_target_rsrp_dbm`, a de maior RSRP mínima; sem essa medida, vale a vizinha menos carregada, e o motivo fica registrado; se nenhuma cobre todos, não evacua; (2) `CELL_STATE = 0` **só com a célula vazia no KPM**. Se ainda houver UEs depois de `es_evacuation_timeout_s`, a evacuação é abortada, com espera antes de nova tentativa |
+| Religamento | `CELL_STATE = 1` (prioridade 85). Quando a janela acaba ou a carga esperada sobe, respeita `es_min_dwell_s`. Quando uma vizinha passa do limiar, religa na hora (proteção de capacidade) |
+| Potência | `TX_POWER` reduzida **uma vez** ao entrar na faixa moderada. Restaurada para `es_nominal_tx_power_dbm` quando a carga passa do dobro do limiar mais `es_tx_power_hysteresis_pct`, se esse valor estiver definido |
+| Recusa da RDL | volta a célula a ativa e reinicia a permanência (por exemplo, quando a regra `HANDOVER_INTO_REDUCED_CELL` barra o desligamento). O relógio é o mesmo da decisão |
+| Auditoria | `decisions` registra, por célula e instante, a decisão e o motivo (destino pela cobertura ou pela carga, aborto, recusa) |
+
+Campos da política A1 21001 (valores padrão):
+
+| Campo | Padrão | Função |
+| :-- | :-- | :-- |
+| `es_sleep_threshold_pct` / `es_wake_threshold_pct` | 15 / 60 | limiar de sono e de despertar (carga em %) |
+| `es_min_active_cells` | 1 | mínimo de células ativas |
+| `es_sleep_start_hour` / `es_sleep_end_hour` | 22 / 6 | janela de economia |
+| `es_tx_power_reduction` / `es_reduced_tx_power_dbm` | true / 30 | redução de potência com carga moderada |
+| `es_min_target_rsrp_dbm` | −110 | cobertura mínima de cada UE na vizinha de destino |
+| `es_evacuation_timeout_s` | 5 | prazo para a célula esvaziar antes de abortar |
+| `es_min_dwell_s` | 30 | permanência mínima entre mudanças de estado da célula |
+| `es_tx_power_hysteresis_pct` | 5 | histerese da restauração da potência |
+| `es_nominal_tx_power_dbm` | não definido | potência restaurada; sem valor, não restaura |
+| `es_utc_offset_h` | −3 | deslocamento do horário (Belém) |
+
+**Melhorias de 2026-11-13** (motivadas pela comparação com o ES Orange original, docs/16): destino da evacuação pela cobertura dos UEs, confirmação de célula vazia, aborto com espera, permanência mínima, potência com histerese, hora reprodutível e registro de motivos. Testes em `tests/unit/test_xapp2_energysaver_melhorias.py`.
+
+**Pendente:** o handover dividido por UE (cada UE para a sua melhor vizinha). A RDL aplica o `HANDOVER` à célula inteira, porque `XAppAction` não tem o campo do UE. Exige o campo `ue` no esquema da proposta (RMR 30000) e na atuação, a ser coordenado com os campos novos do doc 18. No testbed, a RSRP das vizinhas por UE depende de o agente E2 reportá-la (por exemplo, por relatórios de medição RRC via E2SM-RC REPORT). Sem isso, a xApp2 usa o destino pela carga.
 
 ## 4. rApp-ResourceOptimizer (A1.7)
 
