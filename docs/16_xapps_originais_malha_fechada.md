@@ -290,6 +290,49 @@ Alternativa para o TS no testbed: rodar o mesmo adaptador da simulação no luga
   - o ID da célula de destino vai como um caractere de '1' a '9'.
   
   O shim atribui a cada UE um ID local da célula (0 a 19) e mapeia de volta para o UE global no controle. Com mais de 20 UEs numa célula, o shim só reporta os 20 primeiros, e isso é registrado no log da execução.
+- **Como os limites do ES Orange foram resolvidos sem alterar o código (2026-11-13):**
+  - **20 UEs por célula:** o shim reporta cada UE com um ID local da célula (0 a 19) e corta em 20 por célula. O corte não muda nenhuma decisão. O ES só age em célula com no máximo 1 UE registrado, e uma célula com mais de 20 UEs chegaria a 20 registros de qualquer forma, então nunca seria candidata. Os UEs além do 20º só ficariam visíveis numa célula que o ES ignora.
+  - **IDs locais ambíguos no controle:** o handover do ES traz só o ID local e a célula de destino. O driver resolve a origem entre as células, diferentes do destino, em que esse ID local foi reportado na última janela, e escolhe a de menos UEs. É a única que pode ser candidata, pelo critério de no máximo 1 UE. Se houver empate, o controle é registrado como ambíguo e não vira proposta.
+  - **10 células e ID da célula como caractere:** os cenários têm no máximo 4 gNBs (IDs de célula de 1 a 4). O shim recusa, com erro, um cenário com mais de 9 células.
+  - **Fica como característica do original, e é relatado:** o registro de UEs nunca é esvaziado. Um UE que saiu da célula continua contando para o critério de no máximo 1 UE.
+
+**Comparação: ES Orange original × xApps próprias de energia (2026-11-13)**
+
+O projeto tem duas xApps próprias com a função de economia de energia:
+- a derivada em Python `reference-xapps/energy-saving/energy_saving_xapp.py`, inspirada no ES Orange;
+- a xApp2-EnergySaver do GreenRAN (`src/greenran/xapp2_energysaver.py`, doc 12 §3).
+
+| Aspecto | ES Orange (original, C) | Derivada (`reference-xapps/energy-saving`) | xApp2-EnergySaver (GreenRAN) |
+| :-- | :-- | :-- | :-- |
+| Entrada | KPM por UE: SINR servidor e das vizinhas | **nenhuma telemetria**: bateria, solar e ambiente vêm de variáveis de ambiente | KPM por célula (carga em %, UEs) e política A1 21001 |
+| Decisão | célula com no máximo 1 UE registrado → handover dos UEs → `CELL_OFF` | **constante**: `TX_POWER` de 18, 20 ou 21 dBm conforme o ambiente e a bateria configurados, a cada 2,5 s, em todos os nós | carga atual **e** carga esperada na próxima hora (perfil sazonal) abaixo do limiar, dentro da janela de economia, com vizinha capaz de absorver |
+| Ações | `HANDOVER` por UE e `CELL_STATE = 0` | só `TX_POWER` (os "modos" de sono são rótulos, sem ação diferente) | `HANDOVER` (evacuação), `CELL_STATE` 0 e 1, `TX_POWER` com carga moderada |
+| Destino do handover | por UE, a vizinha de maior SINR (exige 5 amostras e mais de −10 dB) | não faz handover | por célula, a vizinha **menos carregada** que fica abaixo do limiar de despertar, sem olhar o sinal do UE |
+| Religar célula | **não existe** | não se aplica | existe: fim da janela, vizinha sobrecarregada ou carga esperada alta (prioridade 85) |
+| Confirma a evacuação antes de desligar | conta handovers *enviados* como concluídos; ou espera 30 s | não se aplica | **não**: no período seguinte ao handover, propõe o desligamento mesmo que ainda haja UEs |
+| Coordenação | nenhuma (controla o E2 direto) | RMR 30000 para a RDL, sem tratar recusas | RMR 30000, `defer_ok`, `ttl_ms` e volta a `ACTIVE` se a RDL recusar |
+| Limites de escala | 20 UEs por célula, 10 células, registro que nunca é limpo | nenhum | nenhum |
+| Tempo | `time()` e `sleep(5)` (relógio simulado na malha fechada) | `time.sleep(2.5)` | `hour_of(t)`, por padrão o horário **local de parede** |
+
+**Onde as xApps próprias são melhores que o original:**
+1. **A xApp2 decide com critério de carga e previsão.** O original usa "no máximo 1 UE já visto", que nunca diminui. A xApp2 olha a carga atual, a carga esperada para a próxima hora e a capacidade da vizinha, e respeita um mínimo de células ativas.
+2. **A xApp2 religa células.** O original nunca religa, e uma célula desligada fica assim até o fim.
+3. **A xApp2 coordena com a RDL:** trata a recusa (30001), usa `defer_ok` e `ttl_ms`, e tem prioridades distintas para desligar (65) e religar (85).
+4. **A xApp2 não tem limites de escala nem estado obsoleto.**
+5. **A derivada** só é melhor em integração (RMR 30000, métricas Prometheus, charts Helm). Na lógica, não reproduz a função do original: não lê KPM, não faz handover nem desliga célula.
+
+**Onde as xApps próprias podem melhorar** (o item 1 aproveita o ponto forte do original):
+1. **xApp2: escolher o destino da evacuação pelo sinal do UE, não só pela carga da vizinha.** O original escolhe, por UE, a vizinha de maior SINR, com amostras mínimas e piso de −10 dB. Na malha fechada o KPM já traz o SINR servidor e a RSRP das vizinhas por UE (§3.1). Com isso a xApp2 pode recusar uma vizinha sem cobertura para algum UE, ou dividir a evacuação entre vizinhas.
+2. **xApp2: confirmar a evacuação antes de propor `CELL_STATE = 0`.** Hoje ela passa de `EVACUATING` a `SLEEP` no período seguinte, sem conferir se a célula ficou vazia. Basta exigir `total_ues == 0` no KPM ou um prazo; sem isso, os UEs que restarem entram em falha de enlace.
+3. **xApp2: histerese e tempo mínimo de permanência.** Isso evita alternar sono e despertar com carga perto do limiar, e evita repetir a mesma proposta de `TX_POWER` a cada período.
+4. **xApp2: usar o tempo simulado, não o de parede.** A hora padrão vem de `time.localtime`. Na malha fechada, a hora tem de vir do `t` do KPM, como `hour_of` já permite injetar.
+5. **Derivada: ler o KPM, ou deixar explícito que é só gerador de carga de conflito.** Os campos `telemetry_context` e `prohibit_urllc_degradation` não mudam a decisão da RDL. O "coverage guard" é um piso fixo de 18 dBm, não o pior SINR de borda que o README promete. Ou o README passa a dizer isso, ou a derivada passa a usar o KPM.
+6. **Derivada: tratar a recusa da RDL (30001) e o `retry_after_ms`.** Hoje ela reenvia a mesma proposta a cada 2,5 s.
+
+Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas entram, se o autor quiser, como versão nova da xApp2, avaliada com as mesmas sementes.
+
+**Ainda sobre o ES Orange:**
+
 - **ES Orange, nomes e SINR:**
   - ele espera `L3servingSINR3gpp_cell_<c>_UEID_<u>` (SINR servidor, em dB) e `L3neighSINRListOf_UEID_<u>_of_Cell_<c>` (SINR por vizinha, seguido do ID da vizinha);
   - o 5G-LENA dá o SINR da célula servidora e a RSRP das vizinhas;

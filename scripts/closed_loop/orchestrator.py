@@ -113,10 +113,19 @@ class Ns3Link:
         self.conn.sendall(("\n".join(lines + ["END"]) + "\n").encode("utf-8"))
 
 
-def build_drivers(kind: str, spec: Dict[str, Any], window: float) -> List[XAppDriver]:
+SHIM_BUILD = os.environ.get("RDL_SHIM_BUILD", os.path.expanduser("~/xapps-originais/shim-build"))
+
+
+def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str) -> List[XAppDriver]:
     if kind == "replay":
         return [ReplayDriver(rce.expand_proposals(spec), window)]
-    raise SystemExit(f"--xapps {kind}: ainda não implementado (docs/16, etapas E2–E4)")
+    if kind == "es-orange":
+        # Gate E2: só o ES Orange original no laço (as demais xApps do cenário ficam de fora)
+        from scripts.closed_loop.flexric_driver import FlexricXAppDriver
+        work = os.path.join(tempfile.gettempdir(), f"rdl_xapp_es_{run_id}")
+        return [FlexricXAppDriver("es-orange", "energy_saving", os.path.join(SHIM_BUILD, "xapp_es_with_cell_util_rdl"),
+                                  "es", priority=60, workdir=work)]
+    raise SystemExit(f"--xapps {kind}: ainda não implementado (docs/16, etapas E3–E4)")
 
 
 def run(args) -> int:
@@ -152,7 +161,7 @@ def run(args) -> int:
     proc = subprocess.Popen(cmd, env=env)
 
     baseline = WindowBaseline(args.baseline)
-    drivers = build_drivers(args.xapps, spec, window)
+    drivers = build_drivers(args.xapps, spec, window, run_id)
     log_fh = None
     n_windows = n_props = n_actions = 0
     try:
@@ -181,12 +190,18 @@ def run(args) -> int:
                 break
             t = float(msg["t"])
             proposals: List[Dict[str, Any]] = []
+            notes: List[Dict[str, Any]] = []
             for d in drivers:
                 proposals += d.on_kpm(msg)
+                dlog = getattr(d, "log", None)
+                if dlog:
+                    notes += [dict(n, driver=d.name) for n in dlog]
+                    dlog.clear()
             proposals.sort(key=lambda e: (e["t"], e["id"]))
             actions, entry = baseline.decide(proposals, t)
             log_fh.write(json.dumps({"type": "window", "t": t, "kpm": msg, "proposals": proposals,
-                                     "decision": entry, "actions": actions}, ensure_ascii=False) + "\n")
+                                     "xapp_controls": notes, "decision": entry, "actions": actions},
+                                    ensure_ascii=False) + "\n")
             log_fh.flush()
             link.send_actions(actions)
             n_windows += 1
