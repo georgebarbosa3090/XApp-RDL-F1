@@ -84,6 +84,17 @@ A kpm-probe lê o perfil por `RDL_BACKEND_PROFILE`. Sem IDs de RC confirmados, e
 
 **Limite do codec:** hoje só o leiaute plano do NORI é implementado. Se o agente E2 do srsRAN ou do OAI usar o leiaute aninhado da norma E2SM-RC, ou o modelo de serviço de fatiamento próprio do FlexRIC, o codec precisa de uma extensão, que só pode ser escrita e verificada com o agente real.
 
+**Testbed sem fatiamento:** em 2026-11-12, a equipe informou que o testbed não terá suporte a fatiamento. Isso afeta o xApp1-RANSlicer, os cenários com `PRB_QUOTA` por fatia e o gate TB7. As propostas para contornar a falta estão na [varredura dos testbeds, §7](compliance/VARREDURA_TESTBEDS_OPENRAN_BRASIL.md):
+
+- P1: fatia no núcleo pelo SST/S-NSSAI, como no GT IQoS;
+- P2: fatia lógica no escalonador;
+- P3: teto de PRB da célula;
+- P4: fatiamento desenvolvido na pilha aberta;
+- P5: fatiamento medido no ns-3 e cadeia sem fatia no testbed;
+- P6: outro laboratório.
+
+A recomendação é P3, P1 e P5. Até a decisão, o passo 4 abaixo pode conferir o TB7 entre o EnergySaver e o Traffic Steering.
+
 **Passo a passo em cada laboratório:**
 
 1. Preencher o perfil com a equipe: versões e commits, endereço do E2Term, RAN Function IDs anunciados no E2 Setup, nomes das métricas KPM por fatia, Style/Action e IDs da cota de PRB, canais de potência e de desligamento. Fecha o gate TB0.
