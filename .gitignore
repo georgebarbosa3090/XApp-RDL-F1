@@ -106,6 +106,7 @@ scripts/test_batching.py
 backups/
 *rollback*
 !tests/*rollback*
+!tests/unit/*rollback*
 *sync*
 !docs/compliance/*.md
 

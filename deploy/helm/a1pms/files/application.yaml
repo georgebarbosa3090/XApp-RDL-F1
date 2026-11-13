@@ -107,6 +107,9 @@ server:
   port : 8433
   http-port: 8081
   shutdown: "graceful"
+  # "policy_agent" é a senha pública do keystore autoassinado que vem dentro da imagem do A1-PMS (padrão do
+  # O-RAN SC), não um segredo do projeto. A bancada usa só a porta HTTP (8081). Fora da bancada, montar um
+  # keystore próprio por Secret e trocar estas senhas (auditoria de 2026-11-13, R18).
   ssl:
     key-store-type: JKS
     key-store-password: policy_agent

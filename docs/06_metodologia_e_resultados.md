@@ -47,6 +47,8 @@ Mudanças de método durante a campanha, todas registradas:
 - 2026-11-08: os handovers passaram a ser escalonados em 10 ms por UE, e S2, S4 e S5 passaram a rodar com `--disableSrs=true`, porque o 5G-LENA v5.1 abortava em handover em massa. As execuções de S2, S4 e S5 feitas antes disso foram descartadas e refeitas; as falhas do simulador estão preservadas em `experiments/runs_failed/`.
 - S0, S1, S3 e S7 (só B0 e B3) da semente 1001 foram executados antes dessas mudanças; elas não afetam cenários sem handover (a opção `--disableSrs` fica desligada e os cronogramas desses cenários não têm `HANDOVER`), mas o hash da fonte do cenário difere entre essas execuções e as posteriores (campo `scenario_sha256`). No S7 da semente 1001 isso ocorre dentro do mesmo conjunto pareado: B0/B3 com uma fonte e B1/B2 com a outra.
 - 2026-11-08: `run_conflict_campaign.py` removia execuções interrompidas (sem `hashes.sha256`) mas não as recolocava na fila; corrigido, elas passam a ser refeitas na mesma rodada.
+- 2026-11-13 (achado 68 de `docs/07`): o manifesto passa a gravar `repo_git_sha_full`, `repo_dirty` e `repo_dirty_paths` (mudanças não commitadas em `src/`, `scripts/`, `simulations/`, `configs/` e nas pastas de xApps), e o certificador reporta o commit na regra informativa R15. As execuções anteriores têm só `repo_git_sha` (7 caracteres) e não registram se a árvore estava suja.
+- Regressão de decisão: `tests/integration/test_schedule_replay.py` refaz, com o código atual, o cronograma de cada execução nativa registrada e confere o `action_schedule_sha256` do manifesto (achado 69).
 
 ## 4. Resultados da pilha nativa (malha aberta, sem E2)
 
@@ -106,6 +108,16 @@ Sobreposição de IC não é um teste de hipótese pareado; com n = 5 os resulta
 ### 4.3 Relatório completo
 
 O relatório [`relatorio_campanha_20261108T110655Z.md`](../reports/conflicts/relatorio_campanha_20261108T110655Z.md), gerado por [`generate_campaign_report.py`](../scripts/certification/generate_campaign_report.py), traz as hipóteses H0–H7 com critérios e vereditos (seis suportadas; H2 e H3 inconclusivas), uma tabela por semente com todas as métricas, as diferenças pareadas B3 − Bx, as conclusões, os comandos de execução no terminal WSL/Ubuntu e o comando ns-3 de cada execução.
+
+### 4.4 Campanhas pré-registradas posteriores (pilha nativa, malha aberta)
+
+Os resultados completos, com as tabelas geradas pelos scripts, ficam nos pré-registros. Resumo:
+
+| Pré-registro | Desenho | Resultado |
+| :-- | :-- | :-- |
+| [08](preregistros/08_conflitos_entre_celulas_s4_s5.md) | regras entre células; S4/S5 × B0–B3 × sementes 1006–1010 | H9.1 confirmada (10/10); H9.2 refutada no S5/B3 (handovers sem UEs); H9.3 refutada (vazão do S4 menor no B3); no S4 a semente não varia o resultado (achado 54) |
+| [09](preregistros/09_eevs_aditivo.md) | EEVS aditivo (B3A) contra a média (B3) em S2, S13 e S15; sementes 12001–12005 | H10.1–H10.3 confirmadas; o B3A evacua a célula em falha no S13; o aditivo virou o padrão (achado 66) |
+| [10](preregistros/10_campanha_s9_s15_g1_g2.md) | S9–S13, S15, G1, G2 × B0–B3 × sementes 11001–11005 (S14 excluído antes da campanha) | H11.1–H11.5 confirmadas (5/5); penalidade de atraso no S9 e no S10 (o S15 reproduz o S9 semente a semente); ressalvas de replicação e de natureza das hipóteses no §6 do pré-registro |
 
 ## 5. Resultados com E2 real (bancada NORI)
 
@@ -246,7 +258,7 @@ O [pré-registro da campanha do G5](preregistros/07_campanha_g5_s8.md) rodou o S
 ## 6. Achados sobre a RDL-N1
 
 1. **Veto por associação (corrigido).** No S7, uma proposta insegura no mesmo conflito indireto que uma legítima fazia a validação rejeitar a resolução inteira, bloqueando também a ação legítima. Correção: Safety Guard por proposta antes da arbitragem.
-2. **Conflitos entre células não são detectados (limitação).** No S4 (handover para uma célula que o Energy Saving desliga) e no S5 (ping-pong entre duas células), as ações estão em nós diferentes e a percepção não as relaciona.
+2. **Conflitos entre células não eram detectados (corrigido em 2026-11-10, achado 52 de `docs/07`).** No S4 (handover para uma célula que o Energy Saving desliga) e no S5 (ping-pong entre duas células), as ações estão em nós diferentes e a percepção não as relacionava. As regras `HANDOVER_INTO_REDUCED_CELL`, `HANDOVER_PING_PONG` e `NEIGHBOR_SLEEP` (`src/core/inter_cell.py`) passaram a detectá-las e foram avaliadas no pré-registro 08 (§4.4). Os números da campanha C1 acima, de 2026-11-08, são anteriores à correção.
 3. **Efeitos de rede que não vêm da arbitragem.** No S7, a melhora de atraso após uma restrição de PRB vem da redução de interferência entre células. Antes de atribuir um efeito à decisão, compare com um controle (execução sem cronograma ou com a ação isolada).
 
 ## 7. Ameaças à validade
@@ -254,6 +266,10 @@ O [pré-registro da campanha do G5](preregistros/07_campanha_g5_s8.md) rodou o S
 - Malha aberta: a decisão não reage ao estado da RAN durante o experimento.
 - As propostas do catálogo são estilizadas (valores e períodos fixos), não produzidas por xApps reais reagindo à rede.
 - Cinco sementes por célula do desenho; para o gate G5 a política exige 30 sementes e E2 real.
+- **Pseudorreplicação (achado 70 de `docs/07`).** Em vários cenários a semente não muda topologia nem tráfego: S4 (achado 54), S12 (o mesmo resultado nas cinco sementes da campanha 10), S8 na bancada (desvio-padrão entre sementes abaixo de 0,01 Mb/s no G5) e as contagens de S11 e S15. Nesses casos, "5/5" e "30 pares" contam repetições idênticas de um mesmo caso, não réplicas independentes. O critério "≥ 4 de 5" é heurístico: num teste de sinais com p = 0,5, 4 ou 5 acertos em 5 ocorrem ao acaso com probabilidade 6/32. Os próximos pré-registros devem definir a unidade de replicação e usar posições e tráfego dependentes da semente.
+- **Hipóteses verdadeiras por construção.** Em malha aberta, uma hipótese sobre contagem de ações aplicadas (por exemplo, H11.3 e H11.4) decorre do cronograma fixo e das regras da RDL-N1: é verificação funcional, não medida de efeito na RAN.
+- **Baselines pouco discriminativos.** B1 e B2 deram resultados idênticos em todos os cenários da campanha 10, e no S12 e no G1 B1 = B2 = B3 nas métricas de rádio. Um ganho "sobre a RDL-N1" nesses cenários também é ganho sobre FIFO e prioridade estática.
+- **Viés de desenho.** O mesmo autor escreve o catálogo de cenários, as hipóteses, os baselines e a xApp; a reprodução independente (G6) não foi feita.
 - Os pesos de TVS/EEVS são fixos e não foram calibrados por experimento.
 - `SCHEDULER_WEIGHT` não tem atuação na RAN simulada.
 - SRS desativado nos cenários com handover altera a estimação de canal de uplink (o tráfego avaliado é downlink).

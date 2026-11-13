@@ -84,4 +84,10 @@ Descritivo (S9, S10 e S13 não têm hipótese de direção). As faixas abaixo v�
 - **Baselines coincidentes:** no S12 e no G1, B1, B2 e B3 dão as mesmas métricas de rádio. A única diferença é o número de ações aplicadas: o B3 aplica uma a menos (S12: 7 contra 8; G1: 9 contra 10).
 - **B1 e B2:** dão resultados idênticos em todos os cenários desta campanha.
 
+**Desvios e ressalvas anotados depois dos resultados (auditoria de 2026-11-13; nada fixado acima foi alterado):**
+
+- **Código entre o registro e a execução.** O §2 diz que o commit do pré-registro é o mesmo da execução. O critério de exclusão entrou em `5ae0232`, e as 160 execuções gravam `d0cbd8f`. Entre os dois, 12 arquivos de `src/` e `scripts/` mudaram (dono por campo da A1, `src/greenran/`, `src/rdl_xapp.py`, `src/main.py`), mas nenhum em `src/core/` nem o catálogo. A decisão do B3 não depende desses arquivos, e os cronogramas da campanha são reproduzidos byte a byte pelo código atual (`tests/integration/test_schedule_replay.py`).
+- **Replicação.** No S12, as cinco sementes dão o mesmo resultado (as mesmas vazões da rodada curta 9102); no S11 e no S15, as contagens de handovers e de ações inseguras são as mesmas em todas as sementes. Nesses casos, "5/5" conta repetições idênticas, não réplicas independentes.
+- **Natureza de H11.3 e H11.4.** Em malha aberta, o cronograma de propostas é fixo. H11.4 decorre do Safety Guard (*default-deny* para valores fora dos limites), e H11.3 da regra `HANDOVER_PING_PONG`, aplicados a esse cronograma. São verificações funcionais executadas no simulador, não medidas de efeito na RAN; só H11.1, H11.2 e H11.5 medem a resposta do rádio.
+
 Resultado em ambiente simulado (ns-3/5G-LENA, sem E2), em malha aberta: as propostas são fixas, vêm do catálogo e não são geradas por xApps em execução (ver [doc 16](../16_xapps_originais_malha_fechada.md)). São cinco sementes por par cenário × baseline.

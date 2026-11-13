@@ -19,6 +19,7 @@ Escopo: `XApp-RDL-F1` (ramo `malha-fechada`, HEAD `b8ac56e6` no início da audit
 7. **Engenharia [V].** Pacote Python chamado `src`; `RDLxApp` com 1373 linhas e E/S no construtor; baselines B0–B2 em quatro lugares; relógio por *monkeypatch* nos experimentos; cerca de 30 variáveis de ambiente lidas de forma dispersa; Pyright quase todo desligado.
 8. **Reprodutibilidade e documentação [V].** O manifesto nativo grava o SHA curto, sem indicar árvore suja; as 262 execuções NORI não têm `repo_git_sha` no manifesto; o `versions.lock` declara um SO que nenhuma execução usa. Há 9 trechos de documentação defasados (`docs/06`, `docs/07`, `docs/16`, README dos pré-registros, README da F2).
 9. **Prioridades:** modo do chart (R1), documentação (R2), proveniência (R3), pseudorreplicação (R5), pipeline com relógio injetado e baselines únicos (R7, R8), e RC interceptado (12040) como entrada canônica da RDL (R12).
+10. **Correções do mesmo dia:** R1–R6, R8, R14 e R18 feitos; R7, R11, R13, R15 e R17 parciais; R9, R10, R12, R16, R19 e R20 pendentes, cada um com o motivo (seção 6).
 
 ---
 
@@ -399,6 +400,42 @@ Prioridade: **P1** = alto impacto e baixo esforço; **P2** = alto impacto e esfo
 2. **Junto com a malha fechada (doc 16):** R7, R8 e R10. Sem eles, cada baseline e cada relógio continua divergindo entre a bancada, o nativo e a malha fechada.
 3. **Em seguida:** R12, que depende de R7 e R10, depois R9 e R6.
 4. **O resto entra conforme o testbed GreenRAN:** R13 e R19 antes de qualquer RAN real.
+
+---
+
+## 6. Situação após as correções (2026-11-13, mesmo dia)
+
+A pedido do autor, as recomendações foram verificadas uma a uma e corrigidas onde a correção cabia sem decisão nova do autor, sem execução na bancada e sem retreino. Esta sessão não fez commits. Parte das correções (código, testes, charts, `versions.lock` e certificador) entrou no commit `e6bebdf0`, feito às 13:48 por outra sessão junto com a renomeação para RDL-N1/RDL-N2; a mensagem desse commit não as descreve. O restante (CI, `.coveragerc`, `.gitignore`, testes movidos, remoção do compose, redação, A1-PMS, parte dos docs, pré-registros, esta seção e o README da F2) está sem commit. Os achados 67 a 70 de `docs/07` registram as correções.
+
+**Dois problemas novos encontrados ao corrigir [V]:**
+- O despacho da `RDLxApp` (`ControlDispatcher` + `src/e2/rc_encoder.py`) ainda usa o codificador RC não normativo; só a kpm-probe e a interceptação usam o codec v3. Mesmo com o RMR real (R1), a RDL do chart não comanda o NORI sozinha. Registrado em `docs/07` §1 e na pendência 11; entra no R12.
+- Ao mover os testes soltos para `tests/unit/`, `test_rollback_timeout.py` passaria a ser ignorado pelo padrão `*rollback*` do `.gitignore` (a exceção só cobria `tests/`). Acrescentada a exceção `!tests/unit/*rollback*`.
+- `tests/unit/test_closed_loop.py` (commit `13a68e44`) tinha o mesmo nome de `tests/interoperability/test_closed_loop.py`. Sem pacotes de teste, `pytest tests/` parava na coleta, e a etapa de suíte completa do CI antigo também falharia nesse ramo. Renomeado para `test_closed_loop_orchestrator.py`.
+
+| # | Situação | O que foi feito | O que falta e por quê |
+| :-: | :-- | :-- | :-- |
+| R1 | **feito** | `parse_rdl_mode` com `OFFLINE_SIMULATION`, `GOVERNANCE` e `O_RAN_INTEROP`; `GOVERNANCE` usa o RMR real e falha sem `ricxappframe`; modo desconhecido impede a partida; `RDL_E2_NODE` no lugar do `gnb_01` fixo; `RDL_SERVE_HTTP`; testes em `tests/unit/test_rdl_mode.py`; `docs/02` §2 e README | verificar na bancada; o despacho RC da `RDLxApp` ainda é o não normativo (ver acima) |
+| R2 | **feito** | os 9 trechos da seção 3.7: README dos pré-registros, `docs/07` §1, §2, §3 e §5, `docs/06` (achado 2 e novo §4.4 com os pré-registros 08–10), `docs/16` (status), README da F2, `versions.lock` (SO por perfil) e `.coveragerc` | — |
+| R3 | **feito para as próximas execuções** | manifesto nativo com `repo_git_sha_full`, `repo_dirty`, `repo_dirty_paths` (`run_ns3_certified.sh`); `decision_log` com SHA completo e `repo_dirty`, e aviso em vez de `unknown` silencioso (`run_conflict_experiment.py`); manifesto NORI com `repo_git_sha` e `xapp_src_commit` (`run_nori_scenario.sh`, `deploy/helm/nori-ns3/files/run.sh`); regra informativa R15 no certificador (661 PASS, 17 WARN nas execuções de calibração e curva); testes em `tests/unit/test_provenance_commit.py` | os manifestos antigos não são reescritos (os hashes dependem deles); o manifesto NORI só muda depois de reimplantar o chart `nori-ns3` |
+| R4 | **feito** | IEEE F1 (inglês e português): atribuição da penalidade de atraso corrigida (S9/S10 pela regra de handover; S15 = S9; custo da média no S13), p99 de 17,6 ms no resumo, pseudorreplicação nas ameaças; SBRC: "duas configurações" nos dois resumos e no corpo, pseudorreplicação nas limitações; F2: B1 = B2 = B3 no resumo. Os quatro compilam sem erro | o SBRC passou de 14 para 15 páginas: conferir o limite da chamada |
+| R5 | **feito** | ameaças no `docs/06` §7, achado 70 em `docs/07`, ressalvas anotadas no pré-registro 10 §6 (inclusive o código entre o registro e a execução) e nos artigos | aplicar nos próximos pré-registros (unidade de replicação, sementes que mudam posições e tráfego) |
+| R6 | **feito, não executado no GitHub** | `ci.yml`: ruff (E9, F63, F7, F82) em job próprio, `helm lint` + `helm template` de todos os charts, RMR com falha fechada (fonte conferida: responde 200), suíte rodada uma vez, gatilho em todo push | adotar o `uv.lock` no CI (o lock não é usado em lugar nenhum hoje; exige conferir se está sincronizado) |
+| R7 | **parcial** | relógio injetável (`Perception.clock`, `Refinement.clock`), sem *monkeypatch* do módulo `time`; `RDLxApp.process_actions` público; `RDLxApp(serve_http=False)` nos executores | extrair um `DecisionPipeline` sem a `RDLxApp` inteira e tirar o resto da E/S do construtor; a `RDLxApp` continua com cerca de 1400 linhas |
+| R8 | **feito na F1** | `src/core/baselines.py` usado pelo executor nativo, pelo orquestrador e pela bancada; `tests/unit/test_baselines.py`; regressão `tests/integration/test_schedule_replay.py`: os cronogramas de B0 (101), B1 (90), B2 (90), B3 (106) e B3A (15) registrados são reproduzidos byte a byte | F2 (`cardl/marl/baselines.py`): depende de commitar a F1 e mover o pin |
+| R9 | **não feito** | — | renomear o pacote `src` muda todos os imports da F1 e da F2 e o pin; com outras sessões editando a mesma pasta, só com o trabalho delas commitado |
+| R10 | **não feito** | — | mover a kpm-probe para `src/` exige reimplantar e validar na bancada NORI |
+| R11 | **parcial** | `RDL_E2_NODE` e `RDL_SERVE_HTTP` documentados no README | configuração tipada única: refatoração do construtor da `RDLxApp`, melhor junto do R7 |
+| R12 | **não feito** | o problema do despacho RC foi registrado | decisão de arquitetura do autor (entrada canônica 12040, xApps próprias emitindo E2SM-RC, B3 da malha fechada pelo RMR) |
+| R13 | **parcial, não verificado no cluster** | `seccompProfile: RuntimeDefault`, `readOnlyRootFilesystem` com `/tmp` em `emptyDir` (cache do ASN.1 em `/tmp`), *digest* opcional da imagem, sem `rolloutTimestamp: now`; NetworkPolicy: 4561 só do `ricplt`, 8080/8081 só dos namespaces consumidores; `helm lint` e `helm template` limpos | políticas de *egress*; identidade forte do proponente (R19); verificar sondas e consumidores na bancada |
+| R14 | **feito** | `docker/docker-compose.yml` removido (sem referências; continua no histórico do git) | — |
+| R15 | **parcial** | README da F2 atualizado (seleção, ganho também sobre FIFO e prioridade, treino em `a0cb21eb`; entre `a0cb21eb` e o pin só o EEVS mudou no `reasoning.py`, não o TVS usado pelo B3 do ambiente) | retreinar no pin atual muda a evidência dos artigos: decisão do autor; o `.venv` local da F2 continua com a F1 da cópia de trabalho |
+| R16 | **não feito** | — | o Pyright não está instalado no `.venv` nem no WSL; religar regras sem poder rodar seria às cegas |
+| R17 | **parcial** | `omit` obsoleto removido; testes soltos movidos para `tests/unit/`; escape corrigido em `test_kg_export.py`; nome duplicado resolvido; testes de baselines e da regressão de decisão | `scripts/` continua fora do gate de cobertura |
+| R18 | **feito** | o script de redação não grava mais nomes de usuário (padrões com qualquer usuário; 6 testes passam); a senha `policy_agent` do A1-PMS documentada como a do keystore público da imagem, sem uso na bancada (HTTP 8081) | trocar o keystore por um próprio fora da bancada |
+| R19 | **não feito** | — | autenticação (R1/CAPIF ou mTLS) depende do SMO/infraestrutura |
+| R20 | **não feito** | — | reprodução independente exige um terceiro |
+
+**Testes depois das correções [V]:** `pytest tests/` (codec, unit, integration e interoperability numa só execução, como o CI novo): 478 passam, 1 pulado; cobertura de `src/` com ramos de 86,29 % (mínimo de 85 %). `ruff --select E9,F63,F7,F82`: sem erros. `helm lint` e `helm template` dos 9 charts: sem erros. Os quatro artigos compilam.
 
 ---
 

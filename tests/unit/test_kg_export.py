@@ -27,7 +27,7 @@ def test_cypher_is_idempotent_and_complete():
     assert sum(s.startswith("MATCH (a:RdlNode") for s in stmts) == len(data["edges"])
     assert any("MERGE (a)-[e:RESOLVED_BY]->(b)" in s for s in stmts)
     assert to_cypher(data) == stmts                                          # reprodutível
-    assert _literal('aspas "e" \ barra') == json.dumps('aspas "e" \ barra')
+    assert _literal('aspas "e" \\ barra') == json.dumps('aspas "e" \\ barra')
     assert _literal(None) == "null" and _literal(True) == "true" and _literal([1, "a"]) == '[1, "a"]'
 
 

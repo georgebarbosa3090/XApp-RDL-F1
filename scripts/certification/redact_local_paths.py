@@ -59,15 +59,20 @@ def _dynamic_rules() -> List[Tuple[str, str, str]]:
     return rules
 
 
-# Identificações já gravadas em evidências antigas (máquinas e clones anteriores). A ordem importa.
+def _any_user_path_pattern(rest: str) -> str:
+    """Regex de ``<unidade>:/Users/<qualquer usuário>/<rest>`` em qualquer grafia (como ``_path_pattern``),
+    sem gravar no código o nome de usuário de nenhuma máquina."""
+    parts = SEP.join(re.escape(x) for x in rest.strip("/").split("/") if x)
+    return rf"(?i:(?:file:///)?(?:\b[a-z]:|/mnt/[a-z]){SEP}users{SEP}(?!<)[\w.-]+{SEP}{parts})(?![\w.-])"
+
+
+# Identificações já gravadas em evidências antigas (clones anteriores, em qualquer usuário). A ordem importa:
+# os clones vêm antes da regra genérica do diretório do usuário. O clone atual é coberto pela regra dinâmica.
 STATIC_RULES: List[Tuple[str, str, str]] = [
-    # clone anterior do repositório (até 2026-11-12); o atual, em C:/Users/georg/RDL, é coberto pela regra dinâmica
-    ("repo-windows", _path_pattern("C:/Users/georg/.antigravity-ide/XApp-RDL-F1"), "<repo>"),
-    ("repo-antigo", _path_pattern("C:/Users/georg/.antigravity-ide/iqos-xapp-rdl-phase1"), "<repo-antigo>"),
-    ("repo-antigo", _path_pattern("C:/Users/george.barbosa/.gemini/antigravity/scratch/iqos-xapp-rdl-phase1"),
-     "<repo-antigo>"),
-    ("usuario-wsl", r"`george` / `/home/george`", "`<usuário>` / `~`"),
-    ("home-wsl", r"/home/george(?![\w.-])", "~"),
+    ("repo-windows", _any_user_path_pattern(".antigravity-ide/XApp-RDL-F1"), "<repo>"),
+    ("repo-antigo", _any_user_path_pattern(".antigravity-ide/iqos-xapp-rdl-phase1"), "<repo-antigo>"),
+    ("repo-antigo", _any_user_path_pattern(".gemini/antigravity/scratch/iqos-xapp-rdl-phase1"), "<repo-antigo>"),
+    ("usuario-wsl", r"`(?!<)[a-z][\w.-]*` / `/home/(?!<)[a-z][\w.-]*`", "`<usuário>` / `~`"),
 ]
 
 # Restos genéricos: qualquer diretório de usuário do Windows ou HOME do WSL.

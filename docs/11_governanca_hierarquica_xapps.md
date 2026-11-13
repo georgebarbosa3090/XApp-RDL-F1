@@ -54,7 +54,7 @@ Como o registro decide se uma proposta entra:
 | Objeto | Efeito |
 | :-- | :-- |
 | `NetworkPolicy e2term-rmr-data-rdl-only` (ricplt) | a porta RMR de dados do E2Term (38000) só aceita a plataforma (ricplt), a RDL e a kpm-probe da bancada; o E2 Setup (SCTP 36422), as métricas e o namespace do NORI (`ricsim`) continuam abertos |
-| `NetworkPolicy rdl-rmr-data-proposers-only` (ricxapp) | a porta RMR de dados da RDL (4560) só aceita a plataforma e os pods com o rótulo `rdl.governance/proposer: "true"`, que os charts das xApps de referência agora aplicam |
+| `NetworkPolicy rdl-rmr-data-proposers-only` (ricxapp) | a porta RMR de dados da RDL (4560) só aceita a plataforma e os pods com o rótulo `rdl.governance/proposer: "true"`, que os charts das xApps de referência agora aplicam. Desde 2026-11-13, a rota RMR (4561) só aceita o namespace da plataforma, e as portas HTTP (8080, sem autenticação: `/governance`, `/rejections`, `/decisions`, `/kg`) e de métricas (8081) só aceitam `rdlPolicy.httpAllowedNamespaces` (padrão: `ricplt`, `ricxapp`, `nonrtric`, `monitoring`); `rdlPolicy.restrictHttp=false` volta ao comportamento anterior. Verificado só com `helm template`. O rótulo de proponente é atribuído por quem implanta a xApp: a identidade forte continua dependendo do registro e da autenticação do transporte (pendência 5 de `docs/07`) |
 | `ConfigMap rdl-governance-routes` | tabela de rotas RMR (`RMR_SEED_RT`): 30000 → RDL, 30001 → xApps proponentes, 12040 de cada xApp interceptada → RDL, 12040 da RDL → E2Term |
 
 O descritor da RDL ([`configs/xapp_descriptor.json`](../configs/xapp_descriptor.json)) é o único que declara `RIC_CONTROL_REQ` em `txMessages`. Ele também recebe `RIC_CONTROL_REQ`, por causa da interceptação.
