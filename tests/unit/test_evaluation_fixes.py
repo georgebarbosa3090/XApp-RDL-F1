@@ -411,7 +411,9 @@ def test_indirect_stage_arbitrates_only_direct_stage_winners():
         app.stop()
 
 
-def test_indirect_loser_target_is_blocked():
+def test_indirect_loser_target_is_blocked(monkeypatch):
+    """EEVS por média (B3M): combinar ES com URLLC baixa a média e só a URLLC passa."""
+    monkeypatch.setenv("RDL_EEVS_AGGREGATION", "mean")
     from src.rdl_xapp import RDLxApp
 
     app = RDLxApp()
@@ -420,8 +422,24 @@ def test_indirect_loser_target_is_blocked():
         urllc = XAppAction("xslice", "gnb_eevs", "PRB_QUOTA", 80.0, 95)
         energy = XAppAction("energy_saving", "gnb_eevs", "TX_POWER", 10.0, 40)
         app._process_action_group([urllc, energy])
-        # EEVS penaliza combinar ES com URLLC e descartar a maior prioridade: só a URLLC passa.
         assert dispatched == [urllc]
+    finally:
+        app.stop()
+
+
+def test_additive_eevs_admits_compatible_energy_action_with_urllc():
+    """EEVS aditivo (padrão): a ação de energia compatível entra junto com a URLLC; a penalidade de 0,20 por
+    combiná-las não compensa o ganho somado de energia (risco documentado no doc 02 §4.3)."""
+    from src.rdl_xapp import RDLxApp
+
+    app = RDLxApp()
+    try:
+        assert app.reasoning.eevs_aggregation == "additive"
+        dispatched = _spy_dispatch(app)
+        urllc = XAppAction("xslice", "gnb_eevs", "PRB_QUOTA", 80.0, 95)
+        energy = XAppAction("energy_saving", "gnb_eevs", "TX_POWER", 10.0, 40)
+        app._process_action_group([urllc, energy])
+        assert sorted(a.parameter for a in dispatched) == ["PRB_QUOTA", "TX_POWER"]
     finally:
         app.stop()
 

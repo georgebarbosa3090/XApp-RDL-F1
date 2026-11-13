@@ -84,7 +84,8 @@ Uma semente (9101), B0 e B3, 18 execuções em `experiments/runs/nr_{S9..S15,G1,
 **Desde 2026-11-11:**
 
 - **S12 e S14:** portadora reduzida (S12 10 MHz, S14 50 MHz; `load_note` no catálogo), para o teto de PRB restringir. Validação por rodada curta com a semente 9102 antes da campanha pareada ([pré-registro 10](preregistros/10_campanha_s9_s15_g1_g2.md)).
-- **Baseline `B3A`:** o mesmo H-RDL do B3 com o EEVS aditivo ([pré-registro 09](preregistros/09_eevs_aditivo.md)). Muda a decisão só em S2, S13 (admite o handover de evacuação, achado 55) e S15.
+- **Baselines depois da troca do EEVS (achado 66):** `B3` = H-RDL atual (EEVS aditivo); `B3A` = apelido do B3, nome das execuções do pré-registro 09; `B3M` = H-RDL com EEVS por média, para reproduzir as campanhas até a 10. As execuções `B3` gravadas até a campanha 10 usaram média; o campo `eevs_aggregation` do `decision_log.json` registra a agregação de cada execução.
+- **Baseline `B3A` (histórico):** o mesmo H-RDL do B3 com o EEVS aditivo ([pré-registro 09](preregistros/09_eevs_aditivo.md)). Muda a decisão só em S2, S13 (admite o handover de evacuação, achado 55) e S15.
 - **Análise:** o analisador passou a incluir G1, G2 e o B3A. Antes, o padrão de nome de execução os descartava (achado 61); por isso o relatório de análise de 2026-11-11 não tem G1 nem G2.
 
 ## 3. xApps que geram as propostas

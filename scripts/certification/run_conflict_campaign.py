@@ -158,7 +158,7 @@ def main(argv=None) -> int:
     # Só cenários com binário ns-3.48 (o S8 é do NORI: scripts/run_nori_campaign.sh)
     native = sorted(s for s, spec in catalog["scenarios"].items() if spec.get("ns3"))
     parser.add_argument("--scenarios", nargs="+", default=native)
-    # B3A (EEVS aditivo, pré-registro 09) só roda quando pedido explicitamente
+    # B3A (apelido do B3, pré-registro 09) e B3M (EEVS por média, campanhas antigas) só rodam quando pedidos
     parser.add_argument("--baselines", nargs="+", default=["B0", "B1", "B2", "B3"], choices=list(driver.BASELINES))
     parser.add_argument("--seeds", nargs="+", required=True, help="ex.: 1001-1005 ou 1001 1002")
     parser.add_argument("--jobs", type=int, default=2)

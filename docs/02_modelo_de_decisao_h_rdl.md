@@ -160,6 +160,8 @@ Os conflitos indiretos são resolvidos só entre os vencedores do estágio 1 (pe
 
 $$U_{EEVS}(S) = 0{,}45\,QoS(S) + 0{,}20\,\overline{energia}(S) + 0{,}15\,J(S) - 0{,}35\,viol(S)$$
 
+- **Agregação** (`RDL_EEVS_AGGREGATION`, achado 66): o padrão é `additive`, desde a troca proposta no pré-registro 09 (H10.1–H10.3 confirmadas). Nesse modo, $QoS$ e energia dividem as contribuições pelos alvos do conflito, e não pelo tamanho de S; assim, acrescentar uma ação compatível nunca baixa esses termos. `mean` reproduz as campanhas até a 10 (baseline B3M).
+- **Risco a acompanhar no modo aditivo:** uma ação de energia de baixa prioridade compatível com uma ação de prioridade ≥ 90 na mesma célula passa a ser admitida junto com ela, porque a penalidade de 0,20 por combiná-las não compensa o ganho somado de energia (`tests/unit/test_evaluation_fixes.py`). Mudar essa penalidade mudaria o algoritmo pré-registrado: exige novo pré-registro.
 - $QoS$: SLA médio ponderado pela prioridade; $J$: índice de Jain sobre os SLAs; $viol$: (prioridade máxima do conflito − prioridade máxima de S)/30, mais 0,20 se S combina uma xApp de energia com uma ação de prioridade ≥ 90.
 - Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro), ou que violam uma regra entre células (seção 4.1), valem −∞. Os conflitos `INTER_CELL` são resolvidos pelo EEVS depois dos indiretos, com a mesma redução aos vencedores do estágio 1.
 - A busca exata enumera só subconjuntos compatíveis (no máximo uma ação por alvo): $\prod_k (n_k+1) - 1$ combinações. Acima de `max_exact_subsets` (padrão $2^{16}-1$) usa-se uma heurística gulosa determinística, sem garantia de ótimo.

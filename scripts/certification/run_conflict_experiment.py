@@ -46,8 +46,9 @@ if str(ROOT) not in sys.path:
 
 CATALOG = ROOT / "simulations" / "ns3" / "conflicts" / "catalog.json"
 RUNNER = ROOT / "scripts" / "certification" / "run_ns3_certified.sh"
-# B3A: o mesmo H-RDL do B3 com o EEVS aditivo (RDL_EEVS_AGGREGATION=additive; pré-registro 09)
-BASELINES = ("B0", "B1", "B2", "B3", "B3A")
+# B3: H-RDL atual (EEVS aditivo, padrão desde o pré-registro 09). B3A: apelido do B3, nome usado nas
+# execuções do pré-registro 09. B3M: H-RDL com o EEVS por média, para reproduzir as campanhas até a 10.
+BASELINES = ("B0", "B1", "B2", "B3", "B3A", "B3M")
 SCHEDULE_FIELDS = ["time_s", "gnb", "parameter", "value", "ue", "xapp_id", "action_id"]
 
 
@@ -206,7 +207,7 @@ def baseline_b3(events, window):
 
 
 def _with_eevs(mode: str):
-    """B3 com a agregação do EEVS fixada (o B3 usa sempre "mean", como nas campanhas anteriores)."""
+    """H-RDL com a agregação do EEVS fixada (independe do ambiente)."""
     def decider(events, window):
         previous = os.environ.get("RDL_EEVS_AGGREGATION")
         os.environ["RDL_EEVS_AGGREGATION"] = mode
@@ -221,9 +222,9 @@ def _with_eevs(mode: str):
     return decider
 
 
-EEVS_BY_BASELINE = {"B3": "mean", "B3A": "additive"}
+EEVS_BY_BASELINE = {"B3": "additive", "B3A": "additive", "B3M": "mean"}
 DECIDERS = {"B0": baseline_b0, "B1": baseline_b1, "B2": baseline_b2,
-            "B3": _with_eevs("mean"), "B3A": _with_eevs("additive")}
+            "B3": _with_eevs("additive"), "B3A": _with_eevs("additive"), "B3M": _with_eevs("mean")}
 
 
 def decide(scenario_id: str, baseline: str, catalog: Dict[str, Any]):
