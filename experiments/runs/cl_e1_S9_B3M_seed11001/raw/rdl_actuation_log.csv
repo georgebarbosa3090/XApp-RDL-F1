@@ -1,0 +1,2 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+15.2,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-15.000,APPLIED,20 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)

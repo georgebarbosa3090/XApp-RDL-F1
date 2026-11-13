@@ -138,71 +138,92 @@ class _SimClock:
         return self.now
 
 
+class HrdlStream:
+    """
+    Pipeline real da xApp RDL decidindo uma janela por vez, no relógio simulado. Usado pelo
+    B3 em malha aberta (baseline_b3, todas as janelas em sequência) e pelo orquestrador da
+    malha fechada (scripts/closed_loop/orchestrator.py, uma janela a cada KPM do ns-3).
+    """
+
+    def __init__(self):
+        os.environ.setdefault("RDL_MODE", "OFFLINE_SIMULATION")
+        os.environ.setdefault("USE_FAKE_SDL", "True")
+        os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
+        from src.conflict_types import XAppAction
+        import src.core.perception as perception_module
+        import src.core.refinement as refinement_module
+        from src.rdl_xapp import RDLxApp
+
+        self._XAppAction = XAppAction
+        self._clock = _SimClock()
+        # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
+        # as janelas são decididas em sequência, em milissegundos de tempo real.
+        self._modules = (refinement_module, perception_module)
+        self._original_times = (refinement_module.time, perception_module.time)
+        refinement_module.time = types.SimpleNamespace(time=self._clock.time)
+        perception_module.time = types.SimpleNamespace(time=self._clock.time)
+        logging.disable(logging.INFO)  # mantém a saída ao vivo legível; avisos continuam visíveis
+        self.app = RDLxApp()
+        self._dispatched: List[str] = []
+        self._resolutions: List[Dict[str, Any]] = []
+
+        def capture_dispatch(decision, decision_latency_ms=None):
+            action = decision.selected_actions[0]
+            self._dispatched.append(action.action_id)
+            self.app.perception.commit_actions([action])  # aplicada na RAN simulada (sem E2/ACK)
+            return f"sim-{action.action_id}"
+
+        original_resolve = self.app.reasoning.resolve
+
+        def capture_resolve(conflict):
+            resolution = original_resolve(conflict)
+            self._resolutions.append({
+                "conflict_type": conflict.conflict_type.name,
+                "involved": [a.action_id for a in conflict.involved_xapps],
+                "winners": [a.action_id for a in resolution.winning_actions],
+                "strategy": resolution.strategy_used.name,
+            })
+            return resolution
+
+        self.app.dispatcher.dispatch_control = capture_dispatch
+        self.app.reasoning.resolve = capture_resolve
+
+    def decide(self, group: List[Dict[str, Any]], t_close: float) -> Tuple[List[str], Dict[str, Any]]:
+        """Decide as propostas de uma janela. Retorna os ids selecionados e o registro da janela."""
+        self._clock.now = t_close
+        actions = [self._XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
+                                    value=e["value"], priority=e["priority"], action_id=e["id"],
+                                    timestamp=t_close) for e in group]
+        before, res_before = len(self._dispatched), len(self._resolutions)
+        started = _time.perf_counter()
+        self.app._process_action_group(actions)
+        latency_ms = (_time.perf_counter() - started) * 1000.0
+        selected = self._dispatched[before:]
+        entry = {"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
+                 "selected": selected, "resolutions": self._resolutions[res_before:],
+                 "decision_wall_ms": round(latency_ms, 3), "rule": "hrdl-pipeline"}
+        return selected, entry
+
+    def close(self) -> None:
+        refinement_module, perception_module = self._modules
+        refinement_module.time, perception_module.time = self._original_times
+        logging.disable(logging.NOTSET)
+        self.app.stop()
+
+
 def baseline_b3(events, window):
     """H-RDL: pipeline real da xApp RDL por janela de decisão, no relógio simulado."""
-    os.environ.setdefault("RDL_MODE", "OFFLINE_SIMULATION")
-    os.environ.setdefault("USE_FAKE_SDL", "True")
-    os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
-    from src.conflict_types import XAppAction
-    import src.core.perception as perception_module
-    import src.core.refinement as refinement_module
-    from src.rdl_xapp import RDLxApp
-
-    clock = _SimClock()
-    # Histerese (Refinement) e janela de ping-pong entre células (Perception) no relógio simulado:
-    # as janelas são decididas em sequência, em milissegundos de tempo real.
-    original_time = refinement_module.time
-    original_perception_time = perception_module.time
-    refinement_module.time = types.SimpleNamespace(time=clock.time)
-    perception_module.time = types.SimpleNamespace(time=clock.time)
-    logging.disable(logging.INFO)  # mantém a saída ao vivo legível; avisos continuam visíveis
-    app = RDLxApp()
+    stream = HrdlStream()
     by_id = {e["id"]: e for e in events}
-    dispatched: List[str] = []
-    resolutions: List[Dict[str, Any]] = []
-
-    def capture_dispatch(decision, decision_latency_ms=None):
-        action = decision.selected_actions[0]
-        dispatched.append(action.action_id)
-        app.perception.commit_actions([action])  # aplicada na RAN simulada (sem E2/ACK)
-        return f"sim-{action.action_id}"
-
-    original_resolve = app.reasoning.resolve
-
-    def capture_resolve(conflict):
-        resolution = original_resolve(conflict)
-        resolutions.append({
-            "conflict_type": conflict.conflict_type.name,
-            "involved": [a.action_id for a in conflict.involved_xapps],
-            "winners": [a.action_id for a in resolution.winning_actions],
-            "strategy": resolution.strategy_used.name,
-        })
-        return resolution
-
-    app.dispatcher.dispatch_control = capture_dispatch
-    app.reasoning.resolve = capture_resolve
     schedule, log = [], []
     try:
         for k, group in _windows(events, window).items():
             t_close = (k + 1) * window
-            clock.now = t_close
-            actions = [XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
-                                  value=e["value"], priority=e["priority"], action_id=e["id"],
-                                  timestamp=t_close) for e in group]
-            before, res_before = len(dispatched), len(resolutions)
-            started = _time.perf_counter()
-            app._process_action_group(actions)
-            latency_ms = (_time.perf_counter() - started) * 1000.0
-            selected = dispatched[before:]
+            selected, entry = stream.decide(group, t_close)
             schedule += [_entry(by_id[a], t_close) for a in selected if a in by_id]
-            log.append({"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
-                        "selected": selected, "resolutions": resolutions[res_before:],
-                        "decision_wall_ms": round(latency_ms, 3), "rule": "hrdl-pipeline"})
+            log.append(entry)
     finally:
-        refinement_module.time = original_time
-        perception_module.time = original_perception_time
-        logging.disable(logging.NOTSET)
-        app.stop()
+        stream.close()
     return schedule, log
 
 

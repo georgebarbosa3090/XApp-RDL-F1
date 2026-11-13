@@ -1,0 +1,35 @@
+[0/2] Re-checking globbed directories...
+[1/2] Building CXX object scratch/CMakeFiles/scratch_scenario_rdl_multicell.dir/scenario_rdl_multicell.cc.o
+[2/2] Linking CXX executable ~/ns3-oran-workspace/ns-3-oran/build/scratch/ns3.48-scenario_rdl_multicell-optimized
+[RDL-SCN] 2 gNB(s), 40 UE(s), canal NTN-Rural, 77 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_7402.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=0.70 Mbps atraso=22.31 ms
+[RDL-KPI] t=3.0s vazao=0.78 Mbps atraso=36.74 ms
+[RDL-KPI] t=4.0s vazao=0.46 Mbps atraso=9.03 ms
+[RDL-KPI] t=5.0s vazao=0.43 Mbps atraso=17.88 ms
+[RDL-KPI] t=6.0s vazao=0.40 Mbps atraso=7.64 ms
+[RDL-KPI] t=7.0s vazao=0.61 Mbps atraso=14.78 ms
+[RDL-KPI] t=8.0s vazao=0.45 Mbps atraso=7.33 ms
+[RDL-KPI] t=9.0s vazao=0.58 Mbps atraso=15.40 ms
+[RDL-KPI] t=10.0s vazao=0.59 Mbps atraso=14.68 ms
+[RDL-KPI] t=11.0s vazao=0.62 Mbps atraso=13.51 ms
+[RDL-KPI] t=12.0s vazao=0.46 Mbps atraso=13.11 ms
+[RDL-KPI] t=13.0s vazao=0.50 Mbps atraso=15.41 ms
+[RDL-KPI] t=14.0s vazao=0.53 Mbps atraso=9.31 ms
+[RDL-KPI] t=15.0s vazao=0.80 Mbps atraso=35.35 ms
+[RDL-ACT] t=15.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.000 -> APPLIED (20 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=16.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=17.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=18.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=19.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=20.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=21.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=22.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=23.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=24.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=25.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=26.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=27.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=28.0s vazao=0.64 Mbps atraso=15.41 ms
+[RDL-KPI] t=29.0s vazao=0.64 Mbps atraso=15.41 ms

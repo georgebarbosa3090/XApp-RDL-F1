@@ -20,6 +20,12 @@
  *      avaliado (B0..B3). Cada ação aplicada é registrada em rdl_actuation_log.csv.
  *   3. RdlKpiSampler: série temporal de vazão e atraso por célula, medida nos UdpServer
  *      dos UEs (rdl_kpi_timeseries.csv), com progresso impresso ao vivo.
+ *   4. Malha fechada (docs/16 §3.1): com a variável de ambiente RDL_CONTROL_SOCKET apontando
+ *      para um socket Unix aberto pelo orquestrador (scripts/closed_loop/orchestrator.py),
+ *      RdlActuation não lê cronograma. A cada janela de decisão (RDL_DECISION_WINDOW, padrão
+ *      0,2 s simulados) o ns-3 envia o KPM da janela em uma linha JSON, bloqueia até receber
+ *      as ações (linhas "ACT gnb parametro valor ue xapp_id action_id" e "END") e as aplica no
+ *      mesmo instante simulado. O tempo de parede gasto fora do ns-3 não altera o tempo simulado.
  * Saídas em std::cout (NS_LOG é removido no perfil otimizado).
  * =========================================================================================
  */
@@ -35,8 +41,15 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/seq-ts-header.h"
 
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
+
 #include <algorithm>
+#include <cerrno>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -183,9 +196,33 @@ class RdlActuation
     {
     }
 
-    /** Lê o cronograma e agenda cada ação. Retorna o número de ações agendadas. */
+    ~RdlActuation()
+    {
+        if (m_fd >= 0)
+        {
+            // Depois de Simulator::Destroy() o relógio não vale mais: usa o fechamento da última janela.
+            SendLine("{\"type\":\"end\",\"t\":" + Num(m_lastWindowT, 3) + "}");
+            close(m_fd);
+            m_fd = -1;
+        }
+    }
+
+    /**
+     * Lê o cronograma e agenda cada ação. Retorna o número de ações agendadas.
+     * Com RDL_CONTROL_SOCKET definido, entra em malha fechada (seção 4 do cabeçalho) e retorna 0.
+     */
     uint32_t Load(const std::string& path)
     {
+        const char* sock = std::getenv("RDL_CONTROL_SOCKET");
+        if (sock != nullptr && sock[0] != '\0')
+        {
+            if (!path.empty())
+            {
+                NS_FATAL_ERROR("Malha fechada (RDL_CONTROL_SOCKET) e cronograma (--actionSchedule) são exclusivos");
+            }
+            StartControlLoop(sock);
+            return 0;
+        }
         if (path.empty())
         {
             std::cout << "[RDL-ACT] sem cronograma de ações: execução sem atuação na RAN" << std::endl;
@@ -375,6 +412,269 @@ class RdlActuation
             Record(a, "UNSUPPORTED", "parâmetro sem mapeamento na RAN simulada");
         }
     }
+
+    // ----------------------------------------------------------------------- malha fechada
+    struct UeAcc
+    {
+        uint64_t packets{0};
+        uint64_t bytes{0};
+        double delaySumMs{0.0};
+        double sinrSum{0.0}; // linear
+        uint32_t sinrN{0};
+        std::map<uint16_t, double> rsrp; // última RSRP (dBm) por célula medida
+    };
+
+    struct CellAcc
+    {
+        double usedReg{0.0};
+        double availReg{0.0};
+    };
+
+    static std::string Num(double v, int prec = 4)
+    {
+        if (!std::isfinite(v))
+        {
+            return "null";
+        }
+        std::ostringstream o;
+        o << std::fixed << std::setprecision(prec) << v;
+        return o.str();
+    }
+
+    void StartControlLoop(const std::string& sockPath)
+    {
+        const char* w = std::getenv("RDL_DECISION_WINDOW");
+        m_window = (w != nullptr && w[0] != '\0') ? std::stod(w) : 0.2;
+        m_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (m_fd < 0)
+        {
+            NS_FATAL_ERROR("socket(): " << std::strerror(errno));
+        }
+        sockaddr_un addr{};
+        addr.sun_family = AF_UNIX;
+        std::strncpy(addr.sun_path, sockPath.c_str(), sizeof(addr.sun_path) - 1);
+        if (connect(m_fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+        {
+            NS_FATAL_ERROR("connect(" << sockPath << "): " << std::strerror(errno));
+        }
+        m_log.open("rdl_actuation_log.csv");
+        m_log << "time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail\n";
+
+        for (uint32_t u = 0; u < m_ueDevs.GetN(); ++u)
+        {
+            m_ueOfNode[m_ueDevs.Get(u)->GetNode()->GetId()] = u;
+            Ptr<NrUePhy> phy = NrHelper::GetUePhy(m_ueDevs.Get(u), 0);
+            phy->TraceConnectWithoutContext("DlDataSinr", MakeBoundCallback(&RdlActuation::OnSinr, this, u));
+            phy->TraceConnectWithoutContext("ReportUeMeasurements",
+                                            MakeBoundCallback(&RdlActuation::OnMeas, this, u));
+        }
+        for (uint32_t g = 0; g < m_gnbDevs.GetN(); ++g)
+        {
+            Ptr<NrGnbNetDevice> gnb = DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(g));
+            for (uint32_t b = 0; b < gnb->GetCcMapSize(); ++b)
+            {
+                NrHelper::GetGnbPhy(gnb, b)->TraceConnectWithoutContext(
+                    "SlotDataStats", MakeBoundCallback(&RdlActuation::OnSlot, this, g));
+            }
+        }
+        Config::Connect("/NodeList/*/ApplicationList/*/$ns3::UdpServer/RxWithoutAddress",
+                        MakeCallback(&RdlActuation::OnRx, this));
+
+        std::ostringstream h;
+        h << "{\"type\":\"hello\",\"window\":" << Num(m_window, 3) << ",\"n_ues\":" << m_ueDevs.GetN()
+          << ",\"gnbs\":[";
+        for (uint32_t g = 0; g < m_gnbDevs.GetN(); ++g)
+        {
+            Ptr<NrGnbNetDevice> gnb = DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(g));
+            h << (g ? "," : "") << "{\"gnb\":" << g << ",\"cell_id\":" << CellIdOf(g)
+              << ",\"tx_power_dbm\":" << Num(NrHelper::GetGnbPhy(gnb, 0)->GetTxPower(), 2)
+              << ",\"rbs\":" << NrHelper::GetGnbPhy(gnb, 0)->GetRbNum() << "}";
+        }
+        h << "]}";
+        SendLine(h.str());
+        Simulator::Schedule(Seconds(m_window), &RdlActuation::CloseWindow, this);
+        std::cout << "[RDL-CTL] malha fechada: socket " << sockPath << ", janela " << m_window << " s"
+                  << std::endl;
+    }
+
+    static void OnSinr(RdlActuation* self, uint32_t u, uint16_t, uint16_t, double sinr, uint16_t)
+    {
+        UeAcc& a = self->m_ueAcc[u];
+        a.sinrSum += sinr;
+        a.sinrN++;
+    }
+
+    static void OnMeas(RdlActuation* self, uint32_t u, uint16_t, uint16_t cellId, double rsrp, double, bool,
+                       uint8_t)
+    {
+        self->m_lastRsrp[u][cellId] = rsrp;
+    }
+
+    static void OnSlot(RdlActuation* self, uint32_t g, const SfnSf&, uint32_t, uint32_t usedReg, uint32_t,
+                       uint32_t availableRb, uint32_t availableSym, uint16_t, uint16_t)
+    {
+        CellAcc& c = self->m_cellAcc[g];
+        c.usedReg += usedReg;
+        c.availReg += static_cast<double>(availableRb) * availableSym;
+    }
+
+    void OnRx(std::string context, Ptr<const Packet> packet)
+    {
+        uint32_t nodeId = std::stoul(context.substr(10, context.find('/', 10) - 10)); // "/NodeList/<id>/"
+        auto it = m_ueOfNode.find(nodeId);
+        if (it == m_ueOfNode.end())
+        {
+            return;
+        }
+        UeAcc& a = m_ueAcc[it->second];
+        a.packets++;
+        a.bytes += packet->GetSize();
+        SeqTsHeader seqTs;
+        Ptr<Packet> copy = packet->Copy();
+        if (copy->GetSize() >= seqTs.GetSerializedSize() && copy->PeekHeader(seqTs))
+        {
+            a.delaySumMs += (Simulator::Now() - seqTs.GetTs()).GetSeconds() * 1000.0;
+        }
+    }
+
+    int GnbOfCell(uint16_t cellId) const
+    {
+        for (uint32_t g = 0; g < m_gnbDevs.GetN(); ++g)
+        {
+            if (CellIdOf(g) == cellId)
+            {
+                return static_cast<int>(g);
+            }
+        }
+        return -1;
+    }
+
+    std::string KpmJson()
+    {
+        double now = Simulator::Now().GetSeconds();
+        std::map<uint32_t, uint32_t> nUes;
+        std::map<uint32_t, UeAcc> perGnb;
+        std::ostringstream ues;
+        for (uint32_t u = 0; u < m_ueDevs.GetN(); ++u)
+        {
+            Ptr<NrUeRrc> rrc = DynamicCast<NrUeNetDevice>(m_ueDevs.Get(u))->GetRrc();
+            uint16_t cell = rrc->GetCellId();
+            int g = GnbOfCell(cell);
+            bool connected = rrc->GetState() == NrUeRrc::CONNECTED_NORMALLY;
+            const UeAcc& a = m_ueAcc[u];
+            if (g >= 0 && connected)
+            {
+                nUes[g]++;
+                UeAcc& pg = perGnb[g];
+                pg.packets += a.packets;
+                pg.bytes += a.bytes;
+                pg.delaySumMs += a.delaySumMs;
+            }
+            double thp = a.bytes * 8.0 / (m_window * 1e6);
+            double delay = a.packets ? a.delaySumMs / a.packets : NAN;
+            double sinrDb = a.sinrN ? 10.0 * std::log10(a.sinrSum / a.sinrN) : NAN;
+            ues << (u ? "," : "") << "{\"ue\":" << u << ",\"cell_id\":" << cell << ",\"gnb\":" << g
+                << ",\"rnti\":" << rrc->GetRnti() << ",\"connected\":" << (connected ? "true" : "false")
+                << ",\"rx_packets\":" << a.packets << ",\"thp_mbps\":" << Num(thp) << ",\"delay_ms\":"
+                << Num(delay) << ",\"sinr_db\":" << Num(sinrDb, 2) << ",\"rsrp_dbm\":{";
+            bool first = true;
+            for (const auto& [c, r] : m_lastRsrp[u])
+            {
+                ues << (first ? "" : ",") << "\"" << c << "\":" << Num(r, 2);
+                first = false;
+            }
+            ues << "}}";
+        }
+        std::ostringstream o;
+        o << "{\"type\":\"kpm\",\"t\":" << Num(now, 3) << ",\"window\":" << Num(m_window, 3) << ",\"cells\":[";
+        for (uint32_t g = 0; g < m_gnbDevs.GetN(); ++g)
+        {
+            Ptr<NrGnbNetDevice> gnb = DynamicCast<NrGnbNetDevice>(m_gnbDevs.Get(g));
+            const CellAcc& c = m_cellAcc[g];
+            const UeAcc& pg = perGnb[g];
+            o << (g ? "," : "") << "{\"gnb\":" << g << ",\"cell_id\":" << CellIdOf(g)
+              << ",\"tx_power_dbm\":" << Num(NrHelper::GetGnbPhy(gnb, 0)->GetTxPower(), 2)
+              << ",\"sleeping\":" << (m_savedTxPower.count(g) ? "true" : "false")
+              << ",\"prb_util\":" << Num(c.availReg > 0 ? c.usedReg / c.availReg : NAN)
+              << ",\"n_ues\":" << nUes[g] << ",\"thp_mbps\":" << Num(pg.bytes * 8.0 / (m_window * 1e6))
+              << ",\"delay_ms\":" << Num(pg.packets ? pg.delaySumMs / pg.packets : NAN) << "}";
+        }
+        o << "],\"ues\":[" << ues.str() << "]}";
+        return o.str();
+    }
+
+    void SendLine(const std::string& s)
+    {
+        std::string msg = s + "\n";
+        size_t off = 0;
+        while (off < msg.size())
+        {
+            ssize_t n = write(m_fd, msg.data() + off, msg.size() - off);
+            if (n <= 0)
+            {
+                NS_FATAL_ERROR("Malha fechada: falha ao escrever no socket: " << std::strerror(errno));
+            }
+            off += static_cast<size_t>(n);
+        }
+    }
+
+    std::string ReadLine()
+    {
+        while (true)
+        {
+            size_t nl = m_rbuf.find('\n');
+            if (nl != std::string::npos)
+            {
+                std::string line = m_rbuf.substr(0, nl);
+                m_rbuf.erase(0, nl + 1);
+                return line;
+            }
+            char buf[4096];
+            ssize_t n = read(m_fd, buf, sizeof(buf));
+            if (n <= 0)
+            {
+                NS_FATAL_ERROR("Malha fechada: orquestrador fechou o socket");
+            }
+            m_rbuf.append(buf, static_cast<size_t>(n));
+        }
+    }
+
+    void CloseWindow()
+    {
+        SendLine(KpmJson());
+        m_ueAcc.clear();
+        m_cellAcc.clear();
+        double now = Simulator::Now().GetSeconds();
+        m_lastWindowT = now;
+        while (true)
+        {
+            std::string line = ReadLine();
+            if (line == "END")
+            {
+                break;
+            }
+            std::istringstream in(line);
+            std::string tag;
+            Action a;
+            a.time = now;
+            in >> tag >> a.gnb >> a.parameter >> a.value >> a.ue >> a.xapp >> a.id;
+            if (tag != "ACT" || in.fail())
+            {
+                NS_FATAL_ERROR("Malha fechada: linha inválida do orquestrador: " << line);
+            }
+            Apply(a);
+        }
+        Simulator::Schedule(Seconds(m_window), &RdlActuation::CloseWindow, this);
+    }
+
+    int m_fd{-1};
+    double m_window{0.2};
+    double m_lastWindowT{0.0};
+    std::string m_rbuf;
+    std::map<uint32_t, uint32_t> m_ueOfNode;
+    std::map<uint32_t, UeAcc> m_ueAcc;
+    std::map<uint32_t, std::map<uint16_t, double>> m_lastRsrp;
+    std::map<uint32_t, CellAcc> m_cellAcc;
 
     const double kSleepTxPowerDbm = -30.0;
     std::map<uint32_t, double> m_savedTxPower;

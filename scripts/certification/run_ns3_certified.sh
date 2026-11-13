@@ -179,6 +179,10 @@ manifest = {
     "command": redact_text("cd ${NS3_DIR} && ./ns3 run 'scratch/${SCENARIO} ${SIM_ARGS}'"),
     "rng_args": "${RNG_ARGS}",
     "action_schedule_sha256": "${SCHEDULE_SHA}" or None,
+    # docs/16: malha fechada quando o orquestrador define RDL_CONTROL_SOCKET; o registro por janela
+    # (KPM, propostas, decisão, ações) fica em raw/closed_loop_log.jsonl e entra nos hashes.
+    "control_mode": "closed_loop" if "${RDL_CONTROL_SOCKET:-}" else "open_loop_schedule",
+    "decision_window_s": float("${RDL_DECISION_WINDOW:-0.2}") if "${RDL_CONTROL_SOCKET:-}" else None,
     "run_status": "${RUN_STATUS}",
     "exit_code": int("${EXIT_CODE}"),
     "started_at_utc": "${STARTED}",

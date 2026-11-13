@@ -191,7 +191,63 @@ Texto original das perguntas:
 - **D4.** No xSlice, o PPO aprende em linha. Ele parte do zero em cada execução, ou de um modelo pré-treinado em execuções de aquecimento, que também precisam de pré-registro?
 - **D5.** Os cenários que perdem o conflito com os originais, como S3 (`TX_POWER` do xSlice) e S0, S3, S4 e S10 (`TX_POWER` do ES), saem, mudam de parâmetro ou ficam como controle sem conflito?
 
+### 7.1 xApps do FlexRIC no RIC Near-RT do O-RAN SC (decisão de 2026-11-13)
+
+- **Pergunta:** o xSlice e o ES Orange só rodam no FlexRIC, ou podem rodar no RIC Near-RT do OSC?
+- **O Traffic Steering** (`ric-app-ts`) já é xApp do OSC (RMR, xapp-frame-cpp, A1).
+  - **No OSC:** depende das xApps QP (predição) e AD (anomalia) e da RC xApp (`ric-app-rc`), que recebe o handover por gRPC e envia o RIC Control pelo E2.
+  - **Na simulação, nenhuma das três precisa ser instalada:** pela D3, o adaptador emula a AD e a QP e faz o papel de servidor gRPC da RC xApp. As campanhas 01 a 10 também não as usaram, porque nenhuma xApp rodava: as propostas vinham do catálogo.
+  - **No testbed:** só serão necessárias se o TS original rodar no OSC de verdade.
+- **O xSlice e o ES Orange** são xApps do FlexRIC (API E42, `src/xApp/e42_xapp_api.h`, e SMs do FlexRIC). Como estão, não rodam no OSC.
+- **Decisão: biblioteca shim com a mesma API E42 (`libe42_shim`) e dois backends.**
+  - **Backend ns-3 (simulação):** atende as chamadas da API com o KPM do orquestrador (§3) e converte o controle E2SM-RC que sai em proposta 30000.
+  - **Backend OSC (testbed srsRAN do GERCOM):**
+    - a subscrição passa pelo Subscription Manager do OSC;
+    - as indicações chegam por RMR 12050;
+    - o controle sai por RMR 12040, em E2SM-RC, interceptado pela RDL (nível 2, doc 11).
+  - **O que não muda:** o código e a lógica de decisão das xApps ficam intactos. Os codificadores ASN.1 de KPM e RC do próprio FlexRIC seguem as normas O-RAN e são reaproveitados nos dois backends.
+  - **Efeito colateral:** resolve a "ponte E42 ↔ RMR" que hoje obriga os derivados em Python a fazerem os papéis de xSlice e ES na bancada (Derivados (b)).
+  - **Ordem:** o backend ns-3 vem primeiro (etapa E2). O backend OSC vem depois, com o testbed.
+- **Alternativa registrada (não escolhida): portar o transporte.**
+  - **O que é:** reescrever as partes E42 dessas xApps com xapp-frame-cpp e RMR.
+  - **Por que não:** funciona, mas altera o código original, que deixa de ser "sem modificação" e perde a conferência por sha256 do `SOURCE.md`.
+
+**O que precisa ser instalado no backend testbed (OSC com srsRAN, perfil GERCOM)**
+
+Na simulação, nada da lista abaixo é instalado: o orquestrador e os adaptadores fazem esses papéis (§3, §4 e D3). No testbed, cada xApp original que rodar no OSC de verdade exige:
+
+| Para rodar | O que instalar no OSC (mesma release do RIC da bancada, Release I) | Papel |
+| :-- | :-- | :-- |
+| Traffic Steering (`ric-app-ts`) | **xApp QP** (`ric-app-qp`) | recebe a lista de UEs do TS (`TS_UE_LIST`, 30000) e devolve a vazão prevista por célula (`TS_QOE_PREDICTION`, 30002) |
+| | **xApp AD** (`ric-app-ad`) | detecta a anomalia de UE e avisa o TS (`TS_ANOMALY_UPDATE`, 30003) |
+| | **xApp RC** (`ric-app-rc`) | recebe o handover do TS por gRPC (`SendRICControlReqServiceGrpc`) e envia o RIC Control pelo E2 (E2SM-RC) |
+| | **coleta de KPM e base de séries temporais** (por exemplo kpimon-go e InfluxDB, que a QP e a AD leem) | sem ela, a QP e a AD não têm dados de entrada |
+| | **política A1 tipo 20008** (`threshold`) pelo A1 Mediator ou pelo A1-PMS | limiar do TS |
+| | **rotas RMR** separando o 30000 do TS (para a QP) do 30000 da RDL (`RDL_ACTION_PROPOSAL`) | evita a colisão descrita em §4.3 |
+| xSlice e ES Orange (FlexRIC) | **backend OSC do `libe42_shim`** (§7.1) e as xApps compiladas contra ele | API E42 sobre o Subscription Manager (subscrição), RMR 12050 (indicação) e RMR 12040 (controle E2SM-RC) |
+| | **agente PPO/GCN do xSlice** (`GNNRL/`, PyTorch) e o banco SQLite no esquema do FlexRIC, alimentado pelo shim | decisão do xSlice |
+| | **agente E2 do srsRAN com E2SM-KPM e E2SM-RC** anunciados no E2 Setup | KPM de entrada e RC Control de saída (gates TB1–TB6) |
+| Todas | **RDL e governança** (chart `ric-governance`, NetworkPolicy, interceptação do 12040, nível 2 do doc 11) | o controle das xApps passa pela RDL antes de chegar ao E2 |
+
+Alternativa para o TS no testbed: rodar o mesmo adaptador da simulação no lugar da QP, da AD e da RC xApp, alimentado pelo KPM real. O TS continua original, mas a QP e a AD emuladas (D3) também passam a valer no testbed, e isso tem de ser dito no relato.
+
+**Limites no testbed, para decisão posterior do autor** (valem para qualquer caminho acima):
+
+| xApp | O que precisa | Situação no testbed (varredura, §2, §5 e §7) | Consequência |
+| :-- | :-- | :-- | :-- |
+| xSlice | cota de PRB por fatia do RC (Style 2, RRM Policy Ratio) | a equipe informou que **não haverá fatiamento** | sem fatias, o xSlice não tem o que controlar. Só funciona com a proposta P3 (teto da célula com uma fatia só, tratado como teto de PRB da célula) ou depois de o fatiamento existir (P4) |
+| ES Orange | handover (RC, Handover Control 8.4.4.1) e desligamento de célula | o handover é RC padrão. O **desligamento de célula não tem canal** no srsRAN nem no OAI hoje: O1/NETCONF ainda está a desenvolver ou a testar, e nenhuma fonte cita E2SM-CCC | no testbed, o ES original propõe handovers que chegam à RAN. O desligamento é recusado na atuação (`UNSUPPORTED`) até haver canal |
+| TS | QP, AD e RC xApp no OSC | o OSC é o RIC indicado para o srsRAN | instalar a QP, a AD e a RC xApp do OSC, ou usar o mesmo adaptador da simulação |
+
 ## 8. Etapas
+
+**Estado em 2026-11-13:**
+- **E0 concluída.** Fontes no commit fixado em `~/xapps-originais/` no WSL (fora do repositório): xslice-oran, FlexRIC no ramo da Orange, ric-app-ts, RMR, xapp-frame-cpp e ric-app-rc. Os 16 sha256 do `SOURCE.md` conferem. Os pacotes apt foram instalados.
+- **E1 concluída para o S9.**
+  - **O que existe:** o modo de malha fechada no `rdl-nr-common.h`, ligado por `RDL_CONTROL_SOCKET` (os cenários não mudaram), e o `scripts/closed_loop/orchestrator.py`.
+  - **Resultado:** com o driver de reprodução do catálogo e o B3M, a série de KPI e o log de atuação do S9 (semente 11001) ficaram idênticos byte a byte aos da execução `nr_S9_B3_seed11001` da campanha 10.
+  - **Manifesto e hashes:** o manifesto grava `control_mode: closed_loop`, e o `raw/closed_loop_log.jsonl` entra nos hashes.
+- **Achado da E0:** o agente GNNRL do xSlice (`GNNRL/env.py`) lê o banco SQLite que as xApps de monitoramento do FlexRIC gravam (`xapp_db_`) e o arquivo `trandata/KPM_UE.txt`, e escreve `trandata/slice_ctrl.bin`. Por isso o backend ns-3 do shim também precisa gravar esse banco, no esquema do FlexRIC.
 
 | Etapa | Entrega | Gate |
 | :-- | :-- | :-- |
