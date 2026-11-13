@@ -150,7 +150,7 @@ com desempate determinístico por (utilidade, prioridade, menor |valor|, `action
 | $s_{estab}$ | 0,75 para `HANDOVER`, 0,90 para os demais |
 | $s_{prio}$ | (prioridade + reforço A1)/100 limitada a [0,1; 1]; o reforço (`urllc_priority_boost`) só vale para prioridade ≥ 90 |
 
-Para `CELL_STATE`: $s_{vazão}$ = 0,20 (desligada) ou 0,80 (ativa); $s_{energia}$ = 1 − P_sleep/P₀ ≈ 0,97 (desligada) ou 0,30 (ativa); o $s_{SLA}$ de um desligamento zera quando o KPM do nó indica atraso acima do limite, como para as xApps de energia.
+Para `CELL_STATE`: $s_{vazão}$ = 0,20 (desligada) ou 0,80 (ativa); $s_{energia}$ = 1 − P_sleep/P₀ = 1 − 75/130 ≈ 0,42 (desligada) ou 0,30 (ativa), com o P_sleep da macro no EARTH, coerente com P₀ e ΔP (correção C17.1, 2026-11-13; até a campanha 10, P_sleep = 4,3 W, o da pico, e o escore era ≈ 0,97); o $s_{SLA}$ de um desligamento zera quando o KPM do nó indica atraso acima do limite, como para as xApps de energia.
 
 Os pesos de TVS e EEVS podem ser ajustados por política A1 (seção 7.1).
 
@@ -160,7 +160,7 @@ Os conflitos indiretos são resolvidos só entre os vencedores do estágio 1 (pe
 
 $$U_{EEVS}(S) = 0{,}45\,QoS(S) + 0{,}20\,\overline{energia}(S) + 0{,}15\,J(S) - 0{,}35\,viol(S)$$
 
-- **Agregação** (`RDL_EEVS_AGGREGATION`, achado 66): o padrão é `additive`, desde a troca proposta no pré-registro 09 (H10.1–H10.3 confirmadas). Nesse modo, $QoS$ e energia dividem as contribuições pelos alvos do conflito, e não pelo tamanho de S; assim, acrescentar uma ação compatível nunca baixa esses termos. `mean` reproduz as campanhas até a 10 (baseline B3M).
+- **Agregação** (`RDL_EEVS_AGGREGATION`, achado 66): o padrão é `additive`, desde a troca proposta no pré-registro 09 (H10.1–H10.3 confirmadas). Nesse modo, $QoS$ e energia dividem as contribuições pelos alvos do conflito, e não pelo tamanho de S; assim, acrescentar uma ação compatível nunca baixa esses termos. `mean` reproduz a agregação das campanhas até a 10 (baseline B3M). Depois da correção C17.1, o B3M não reproduz mais os cronogramas antigos de G2 e S13 (docs/17 §8).
 - **Risco a acompanhar no modo aditivo:** uma ação de energia de baixa prioridade compatível com uma ação de prioridade ≥ 90 na mesma célula passa a ser admitida junto com ela, porque a penalidade de 0,20 por combiná-las não compensa o ganho somado de energia (`tests/unit/test_evaluation_fixes.py`). Mudar essa penalidade mudaria o algoritmo pré-registrado: exige novo pré-registro.
 - $QoS$: SLA médio ponderado pela prioridade; $J$: índice de Jain sobre os SLAs; $viol$: (prioridade máxima do conflito − prioridade máxima de S)/30, mais 0,20 se S combina uma xApp de energia com uma ação de prioridade ≥ 90.
 - Subconjuntos com dois valores diferentes para o mesmo (nó, parâmetro), ou que violam uma regra entre células (seção 4.1), valem −∞. Os conflitos `INTER_CELL` são resolvidos pelo EEVS depois dos indiretos, com a mesma redução aos vencedores do estágio 1.

@@ -9,13 +9,22 @@ import os
 
 class Reasoning:
     """
-    Componente de Raciocínio e Arbitragem da xApp RDL (Fase 1: H-RDL / Núcleo / Core).
-    Implementa as heurísticas determinísticas TVS e EEVS fundamentadas em modelos analíticos calibrados de rádio 5G:
-    - Capacidade Espectral de Shannon com SINR real e overhead 3GPP;
-    - Modelo de Atraso e Satisfação de SLA (Fila M/G/1 com curva sigmoide);
-    - Modelo de Eficiência Energética (Earth/3GPP Linear Power Model);
-    - Barreira de Estabilidade e Penalidade de Oscilação (Ping-Pong);
-    - Priorização estrita de fatias de missão crítica (URLLC > TS > eMBB > ES > mMTC).
+    Componente de Raciocínio e Arbitragem da xApp RDL (Fase 1: H-RDL).
+
+    Implementa as heurísticas determinísticas TVS (conflitos diretos: um vencedor por alvo) e EEVS
+    (conflitos indiretos: subconjunto compatível de vencedores), descritas no docs/02 §4. Os escores
+    por ação (_calculate_action_scores) são tabelas e fórmulas fixas, calibradas à mão, e não modelos
+    de rádio ou de fila:
+    - s_vazão: fração de PRB (v/100, limitada a [0,05; 1]) para PRB_QUOTA; linear na potência para
+      TX_POWER; 0,20 (desligada) ou 0,80 para CELL_STATE; 0,70 nos demais;
+    - s_SLA: valores por faixa de prioridade (>= 90, >= 75, >= 60, demais), zerado para ações de energia
+      quando o KPM do nó indica atraso acima do limite;
+    - s_energia: modelo linear do EARTH (P0_W, DELTA_P) normalizado entre consumo mínimo e máximo para
+      TX_POWER; max(0,2; 1 - v/150) para PRB_QUOTA; 1 - P_SLEEP_W/P0_W (desligada) ou 0,30 para
+      CELL_STATE; 0,60 nos demais;
+    - s_estab: 0,75 para HANDOVER e 0,90 nos demais; s_prio: prioridade/100, com reforço A1 para URLLC.
+    No EEVS entram ainda o índice de Jain sobre os SLAs e a penalidade de violação de prioridade.
+    Não há capacidade de Shannon, SINR nem modelo de fila (C17.2, docs/17 §8).
     """
     def __init__(self, memory: Any, config: Optional[dict] = None, inter_cell_rules: Optional[InterCellRules] = None):
         self.memory = memory
@@ -40,7 +49,8 @@ class Reasoning:
         # Agregação do EEVS (achado 55): "additive" (padrão desde a troca proposta no pré-registro 09, com
         # H10.1–H10.3 confirmadas) divide QoS e energia pelos alvos do conflito, e acrescentar uma ação
         # compatível nunca baixa esses termos; "mean" (padrão até a campanha do pré-registro 10) divide pelo
-        # tamanho do subconjunto e reproduz as campanhas anteriores (baseline B3M).
+        # tamanho do subconjunto e reproduz a agregação das campanhas anteriores (baseline B3M; desde a C17.1,
+        # com P_SLEEP_W = 75 W, não os cronogramas antigos de G2 e S13).
         self.eevs_aggregation = str(self.config.get("eevs_aggregation") or os.getenv("RDL_EEVS_AGGREGATION", "additive")).lower()
         if self.eevs_aggregation not in ("mean", "additive"):
             raise ValueError(f"RDL_EEVS_AGGREGATION inválido: {self.eevs_aggregation}")
@@ -49,14 +59,17 @@ class Reasoning:
         # Limite de subconjuntos compatíveis avaliados exatamente pelo EEVS antes do guloso.
         self.max_exact_subsets = max(1, int(self.config.get("max_exact_subsets", 2 ** self.max_exact_actions - 1)))
 
-        # Parâmetros Físicos Calibrados de Rádio 5G (Banda n78 3.5 GHz)
+        # Constantes de rádio declaradas; só as do modelo de potência (N_TRX, P0_W, DELTA_P, P_SLEEP_W)
+        # entram nos escores (C17.2): não há cálculo de capacidade a partir de banda, overhead ou ruído.
         self.BANDWIDTH_HZ = 100e6         # 100 MHz de BWP
         self.EFFICIENCY_OVERHEAD = 0.86    # 14% de overhead de controle DMRS/PDCCH
         self.NOISE_FLOOR_DBM = -95.0       # Piso de ruído térmico
         self.N_TRX = 4                     # Canais MIMO 4x4
         self.P0_W = 130.0                  # Consumo estático de circuito (Earth Model)
         self.DELTA_P = 4.7                 # Inclinação do amplificador de potência RF
-        self.P_SLEEP_W = 4.3               # Consumo em modo hibernação (Cell Sleep)
+        # P_sleep da macro no EARTH (Auer et al., 2011), par coerente com P0_W e DELTA_P (C17.1, docs/17 §8);
+        # até a campanha 10 era 4,3 W, o P_sleep da pico.
+        self.P_SLEEP_W = 75.0              # Consumo em modo hibernação (Cell Sleep)
         self.sla_latency_limit_ms = float(self.config.get("sla_latency_limit_ms", 5.0))
         self.latest_kpm: Optional[KPMReport] = None
         self.kpm_by_node: Dict[str, KPMReport] = {}
@@ -247,7 +260,7 @@ class Reasoning:
         val = act.value
         prio = getattr(act, "priority", 50)
 
-        # 1. Throughput Score (Shannon Capacity Normalizado)
+        # 1. Throughput Score (tabela fixa por parâmetro; não é capacidade de Shannon)
         if param == "PRB_QUOTA":
             fraction_prb = max(0.05, min(1.0, val / 100.0))
             tput_score = fraction_prb
@@ -261,7 +274,7 @@ class Reasoning:
         else:
             tput_score = 0.70
 
-        # 2. SLA Score (Função Sigmoide de Atraso e Prioridade)
+        # 2. SLA Score (valores fixos por faixa de prioridade; não é modelo de fila)
         if prio >= 90:  # URLLC de Missão Crítica (SLA <= 5ms)
             if param == "PRB_QUOTA" and val >= 70:
                 sla_score = 0.98

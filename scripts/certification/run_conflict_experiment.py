@@ -47,7 +47,8 @@ if str(ROOT) not in sys.path:
 CATALOG = ROOT / "simulations" / "ns3" / "conflicts" / "catalog.json"
 RUNNER = ROOT / "scripts" / "certification" / "run_ns3_certified.sh"
 # B3: H-RDL atual (EEVS aditivo, padrão desde o pré-registro 09). B3A: apelido do B3, nome usado nas
-# execuções do pré-registro 09. B3M: H-RDL com o EEVS por média, para reproduzir as campanhas até a 10.
+# execuções do pré-registro 09. B3M: H-RDL com o EEVS por média, para reproduzir a agregação das campanhas
+# até a 10 (desde a C17.1, P_SLEEP_W = 75 W, os cronogramas de G2 e S13 no B3M diferem dos antigos; docs/17 §8).
 BASELINES = ("B0", "B1", "B2", "B3", "B3A", "B3M")
 SCHEDULE_FIELDS = ["time_s", "gnb", "parameter", "value", "ue", "xapp_id", "action_id"]
 
