@@ -195,17 +195,11 @@ class XSliceXApp:
         self.http_server.run()
 
     def _loop(self):
-        """Loop de emissão periódica de propostas de slicing adaptativo."""
-        logger.info(
-            f"xSlice xApp (GreenRAN Edition) ativa. Perfil={self.greenran_profile}, "
-            f"EcoMode={self.eco_aware_mode}, Nós={self.target_nodes}..."
-        )
-        while self.running:
-            for node in self.target_nodes:
-                proposal = self.generate_action_proposal(node_id=node)
-                self._dispatch_proposal(proposal)
-                logger.debug(f"[xSlice GreenRAN Proposal] Emitida: {proposal}")
-            time.sleep(2.0)
+        """Propõe só a partir do KPM (núcleo src.xapps.derivadas.XSliceDerivada; reference-xapps/common/kpm_runtime.py)."""
+        from kpm_runtime import make_core, run_kpm_loop
+        from src.xapps.derivadas import XSliceDerivada
+        self.core = make_core(XSliceDerivada, self.transport)
+        run_kpm_loop(self, self.core, 2.0)
 
     def start(self):
         self.running = True

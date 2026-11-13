@@ -1,6 +1,6 @@
 # xApps de referência
 
-Geradores de propostas usados para exercitar a xApp RDL. **Todas são implementações locais em Python** (`*_xapp.py`), escritas para este projeto. Algumas se inspiram no comportamento de xApps publicadas, mas nenhuma contém código upstream nem foi validada contra a implementação original. Nenhuma lê KPM: os valores propostos vêm de configuração.
+Geradores de propostas usados para exercitar a xApp RDL. **Todas são implementações locais em Python** (`*_xapp.py`), escritas para este projeto. Algumas se inspiram no comportamento de xApps publicadas, mas nenhuma contém código upstream nem foi validada contra a implementação original. **Desde 2026-11-13, todas propõem só a partir do KPM.** Cada xApp tem um núcleo de decisão em [`src/xapps/derivadas.py`](../src/xapps/derivadas.py), o mesmo usado na malha fechada do ns-3. Na execução, ele recebe o KPM pelo SubMgr e pela RMR 12050 ([`common/kpm_runtime.py`](common/kpm_runtime.py)). Sem `SUBMGR_URL`, a xApp não propõe nada. O método `generate_action_proposal` fica só para testes manuais.
 
 Cada xApp expõe `/health`, `/ready` e `/metrics` (FastAPI + Prometheus) e gera propostas no formato:
 
@@ -35,7 +35,7 @@ A xApp RDL só controla os parâmetros de `src/e2/rc/control_parameter.py` (`PRB
 
 ## 2. Relação com os cenários ns-3
 
-Os cenários de conflito **não executam estas xApps**. As propostas de cada cenário vêm de [`simulations/ns3/conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json), cujos `xapp_id` (`xslice`, `traffic_steering`, `energy_saving`, `rogue_xapp` etc.) reproduzem o papel dessas xApps. Ver [`docs/03_cenarios_e_conflitos.md`](../docs/03_cenarios_e_conflitos.md).
+Nas campanhas em malha aberta (01 a 10), os cenários **não executavam estas xApps**: as propostas vinham de [`simulations/ns3/conflicts/catalog.json`](../simulations/ns3/conflicts/catalog.json), cujos `xapp_id` reproduzem o papel delas. Na malha fechada ([docs/16](../docs/16_xapps_originais_malha_fechada.md); `scripts/closed_loop/orchestrator.py --xapps completo`), os núcleos das derivadas de xSlice e Traffic Steering fazem esses papéis até a integração dos originais, com `xapp_impl: derivado` no registro. Depois, servem de controle pareado. O papel de energia fica com a EnergySaver-GreenRAN, e a Rogue continua como teste de segurança. Ver [`docs/03_cenarios_e_conflitos.md`](../docs/03_cenarios_e_conflitos.md).
 
 ## 3. Execução
 

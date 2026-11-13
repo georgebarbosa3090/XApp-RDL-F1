@@ -218,17 +218,11 @@ class EnergySavingXApp:
         self.http_server.run()
 
     def _loop(self):
-        """Loop de emissão periódica de propostas de eficiência energética."""
-        logger.info(
-            f"Energy Saving xApp (GreenRAN Edition) ativa. Ambiente={self.greenran_env}, "
-            f"SoC={self.battery_soc*100}%, Solar={self.solar_power_w}W, Nós={self.target_nodes}..."
-        )
-        while self.running:
-            for node in self.target_nodes:
-                proposal = self.generate_action_proposal(node_id=node)
-                self._dispatch_proposal(proposal)
-                logger.debug(f"[EnergySaving GreenRAN Proposal] Emitida: {proposal}")
-            time.sleep(2.5)
+        """Propõe só a partir do KPM (núcleo src.xapps.derivadas.EnergySavingDerivada; reference-xapps/common/kpm_runtime.py)."""
+        from kpm_runtime import make_core, run_kpm_loop
+        from src.xapps.derivadas import EnergySavingDerivada
+        self.core = make_core(EnergySavingDerivada, self.transport)
+        run_kpm_loop(self, self.core, 2.5)
 
     def start(self):
         self.running = True

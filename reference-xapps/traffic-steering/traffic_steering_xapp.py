@@ -126,17 +126,11 @@ class TrafficSteeringXApp:
         self.http_server.run()
 
     def _loop(self):
-        """Loop de emissão periódica de propostas de steering e balanceamento."""
-        logger.info(f"Traffic Steering xApp ativa. Monitorando mobilidade e propondo handovers...")
-        while self.running:
-            proposal = self.generate_action_proposal(
-                source_node=self.source_node,
-                target_node=self.target_node,
-                target_ue=self.target_ue
-            )
-            logger.debug(f"[TrafficSteering Proposal] Emitida: {proposal}")
-            self.transport.send(proposal)
-            time.sleep(3.0)
+        """Propõe só a partir do KPM (núcleo src.xapps.derivadas.TrafficSteeringDerivada; reference-xapps/common/kpm_runtime.py)."""
+        from kpm_runtime import make_core, run_kpm_loop
+        from src.xapps.derivadas import TrafficSteeringDerivada
+        self.core = make_core(TrafficSteeringDerivada, self.transport)
+        run_kpm_loop(self, self.core, 3.0)
 
     def start(self):
         self.running = True

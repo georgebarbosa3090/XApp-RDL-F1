@@ -102,13 +102,11 @@ class RogueXApp:
         self.http_server.run()
 
     def _loop(self):
-        logger.info("Rogue xApp ativa. Injetando propostas com parameter flipping para estresse...")
-        while self.running:
-            for node in self.target_nodes:
-                proposal = self.generate_action_proposal(node_id=node)
-                logger.debug(f"[Rogue Proposal] Injetada: {proposal}")
-                self.transport.send(proposal)       # chega à RDL para exercitar o Safety Guard
-            time.sleep(0.5)
+        """Propõe só a partir do KPM (núcleo src.xapps.derivadas.RogueDerivada; reference-xapps/common/kpm_runtime.py)."""
+        from kpm_runtime import make_core, run_kpm_loop
+        from src.xapps.derivadas import RogueDerivada
+        self.core = make_core(RogueDerivada, self.transport)
+        run_kpm_loop(self, self.core, 0.5)
 
     def start(self):
         self.running = True
