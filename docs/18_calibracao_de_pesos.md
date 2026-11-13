@@ -329,7 +329,7 @@ Executado em 2026-11-12 com o `.venv` dos artigos, importando `src/` do F1 sem a
 
 ```python
 import sys
-sys.path.insert(0, r"C:\Users\georg\RDL\XApp-RDL-F1")
+sys.path.insert(0, "<raiz do XApp-RDL-F1>")
 from src.core.reasoning import Reasoning
 from src.conflict_types import XAppAction
 
