@@ -5,7 +5,9 @@ Análise das execuções de conflito (experiments/runs/nr_<S>_<B>_seed<N>/).
 Usa somente a evidência gravada pela execução:
   raw/rdl_kpi_timeseries.csv  vazão e atraso por célula e janela, medidos no ns-3;
   raw/rdl_actuation_log.csv   ações efetivamente aplicadas na RAN simulada;
-  raw/decision_log.json       propostas e decisões do baseline.
+  raw/decision_log.json       propostas e decisões do baseline;
+  raw/rdl_cell_state.csv      ocupação de recursos, potência de TX e sono emulado de todas as células
+                              por janela (RdlCellEnergySampler; só nas execuções com essa instrumentação).
 Execuções que não passam no certificador (hashes, manifesto, origem) são ignoradas.
 
 Métricas por execução:
@@ -15,7 +17,13 @@ Métricas por execução:
   actions_applied, handovers         ações APPLIED na RAN;
   unsafe_applied                     ações aplicadas fora dos limites físicos
                                       (TX_POWER > 43 dBm ou < -10 dBm; PRB_QUOTA fora de 0-100);
-  oscillations                       trocas de valor num mesmo alvo (gNB, parâmetro).
+  oscillations                       trocas de valor num mesmo alvo (gNB, parâmetro);
+  energia (docs/17 §5)               energy_conflict_tr1/_tr2 (u.r.·s, 3GPP TR 38.864 Cat. 1/Cat. 2),
+                                      energy_conflict_j (J, EARTH), energia por bit, ocupação de PRB,
+                                      tempo de sono, vazamento em sono e parcela UL, estimados pelo modelo
+                                      (scripts/certification/energy_model.py) a partir da ocupação medida
+                                      no simulador. Sem raw/rdl_cell_state.csv, essas colunas ficam vazias
+                                      ("—"); energy_proxy_commanded (nível 0, só com o log de atuação) é proxy.
 Agregado por cenário × baseline: média, desvio-padrão e IC 95% (t de Student) com n >= 2.
 
 Uso: python scripts/certification/analyze_conflict_runs.py [--out reports/conflicts]
@@ -37,6 +45,7 @@ from typing import Any, Dict, List
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "certification"))
 import certify_chain  # noqa: E402
+import energy_model  # noqa: E402
 
 # S0–S15 e G1–G2; B0–B3 e variantes do B3 (B3A: EEVS aditivo, pré-registro 09)
 RUN_PATTERN = re.compile(r"^nr_([SG]\d+)_(B\d[A-Z]?)_seed(\d+)$")
@@ -72,7 +81,17 @@ def window_stats(rows, t0, t1):
     return thp, delay
 
 
-def analyze_run(run_dir: Path, catalog: Dict[str, Any]) -> Dict[str, Any]:
+def _arg(spec: Dict[str, Any], name: str, default: str) -> str:
+    return next((a.split("=", 1)[1] for a in spec.get("args", []) if a.startswith(f"--{name}=")), default)
+
+
+def _power_alloc_from_command(manifest: Dict[str, Any]) -> str:
+    """Modo de potência pela linha de comando (execuções sem rdl_cell_state.csv; padrão do 5G-LENA: used)."""
+    m = re.search(r"--powerAllocation=(\w+)", str(manifest.get("command", "")))
+    return m.group(1) if m else "used"
+
+
+def analyze_run(run_dir: Path, catalog: Dict[str, Any], models: Dict[str, Any] | None = None) -> Dict[str, Any]:
     m = RUN_PATTERN.match(run_dir.name)
     scenario, baseline, seed = m.group(1), m.group(2), int(m.group(3))
     spec = catalog["scenarios"][scenario]
@@ -98,6 +117,14 @@ def analyze_run(run_dir: Path, catalog: Dict[str, Any]) -> Dict[str, Any]:
         if key in last and last[key] != value:
             oscillations += 1
         last[key] = value
+    cell_path = run_dir / "raw" / "rdl_cell_state.csv"
+    models = models or energy_model.load_models()
+    energy = energy_model.energy_metrics(
+        read_csv(cell_path) if cell_path.exists() else None, kpi, actuation, models, c0, c1,
+        bandwidth_hz=float(_arg(spec, "bandwidth", "100e6")), sim_end_s=sim_time,
+        n_gnbs=len([g for g in _arg(spec, "gnbs", "0,0,25;200,0,25").split(";") if g]))
+    if energy["power_alloc"] is None:
+        energy["power_alloc"] = _power_alloc_from_command(manifest)
     return {
         "run_id": run_dir.name, "scenario": scenario, "baseline": baseline, "seed": seed,
         "run_status": manifest.get("run_status"),
@@ -106,11 +133,26 @@ def analyze_run(run_dir: Path, catalog: Dict[str, Any]) -> Dict[str, Any]:
         "actions_applied": len(applied),
         "handovers": sum(1 for a in applied if a["parameter"] == "HANDOVER"),
         "unsafe_applied": unsafe, "oscillations": oscillations,
+        **energy,
     }
 
 
 METRICS = ["thp_pre", "thp_conflict", "thp_post", "delay_conflict_ms", "actions_applied", "handovers",
-           "unsafe_applied", "oscillations"]
+           "unsafe_applied", "oscillations", *energy_model.ENERGY_METRICS]
+# Economia contra o B0, pareada por semente (a métrica do TR 38.864): 1 − E(Bx)/E(B0), em %.
+SAVINGS = {"energy_conflict_tr1": "saving_vs_b0_tr1_pct", "energy_conflict_tr2": "saving_vs_b0_tr2_pct",
+           "energy_conflict_j": "saving_vs_b0_j_pct"}
+
+
+def add_paired_savings(rows: List[Dict[str, Any]]) -> None:
+    """Acrescenta a cada execução a economia contra o B0 da mesma semente, cenário e modo de potência
+    (o B0U de uma campanha com --run-suffix U é o B0 dela); None sem par."""
+    b0 = {(r["scenario"], r["seed"], r.get("power_alloc")): r for r in rows if r["baseline"].startswith("B0")}
+    for r in rows:
+        ref = b0.get((r["scenario"], r["seed"], r.get("power_alloc")))
+        for metric, key in SAVINGS.items():
+            e, e0 = r.get(metric), (ref or {}).get(metric)
+            r[key] = 100.0 * (1.0 - e / e0) if e is not None and e0 else None
 
 
 def aggregate(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -121,8 +163,9 @@ def aggregate(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     for (scenario, baseline), rs in sorted(groups.items()):
         entry: Dict[str, Any] = {"scenario": scenario, "baseline": baseline, "n": len(rs),
                                  "seeds": sorted(r["seed"] for r in rs)}
-        for metric in METRICS:
-            values = [r[metric] for r in rs if r[metric] is not None]
+        entry["power_alloc"] = sorted({str(r.get("power_alloc")) for r in rs})
+        for metric in METRICS + list(SAVINGS.values()):
+            values = [r[metric] for r in rs if r.get(metric) is not None]
             if not values:
                 entry[metric] = None
                 continue
@@ -134,15 +177,40 @@ def aggregate(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return out
 
 
-def fmt(cell) -> str:
+def fmt(cell, digits: int = 2, scale: float = 1.0) -> str:
     if cell is None:
         return "—"
     if cell["ci95"] is None:
-        return f"{cell['mean']:.2f}"
-    return f"{cell['mean']:.2f} ± {cell['ci95']:.2f}"
+        return f"{cell['mean'] * scale:.{digits}f}"
+    return f"{cell['mean'] * scale:.{digits}f} ± {cell['ci95'] * scale:.{digits}f}"
 
 
-def render(agg, rows, skipped, generated_at) -> str:
+def render_energy(agg, models_sha256: str) -> List[str]:
+    """Tabela de energia por cenário × baseline e por modelo (só grupos com rdl_cell_state.csv)."""
+    groups = [a for a in agg if a.get("energy_conflict_tr1") is not None]
+    if not groups:
+        return []
+    return [
+        "", "## Energia na janela de conflito (docs/17)", "",
+        "Estimada pelos modelos 3GPP TR 38.864 V18.1.0 (Cat. 1 principal; Cat. 2 robustez) e EARTH (Auer et al., "
+        "2011; um TRX de macro por célula) a partir da ocupação de recursos medida no simulador "
+        "(`raw/rdl_cell_state.csv`); não é energia medida. Parâmetros: `simulations/ns3/energy/energy_models.json`, "
+        f"sha256 `{models_sha256}`. Economia: 1 − E(Bx)/E(B0), pareada por semente.", "",
+        "| Cenário | Baseline | n | Potência | TR Cat. 1 (u.r.·s) | TR Cat. 2 (u.r.·s) | EARTH (J) | "
+        "Economia TR1 vs B0 (%) | Economia EARTH vs B0 (%) | µJ/bit (EARTH) | Ocupação de PRB | Sono (s) | "
+        "Vazamento em sono (REG) | Parcela UL |",
+        "| :-- | :-- | --: | :-- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |",
+    ] + [
+        f"| {a['scenario']} | {a['baseline']} | {a['n']} | {', '.join(a['power_alloc'])} | "
+        f"{fmt(a['energy_conflict_tr1'], 1)} | {fmt(a['energy_conflict_tr2'], 1)} | {fmt(a['energy_conflict_j'], 1)} | "
+        f"{fmt(a['saving_vs_b0_tr1_pct'], 1)} | {fmt(a['saving_vs_b0_j_pct'], 1)} | "
+        f"{fmt(a['energy_per_bit_j'], 3, 1e6)} | {fmt(a['prb_occupancy_conflict'], 3)} | {fmt(a['sleep_time_s'], 2)} | "
+        f"{fmt(a['sleep_leak_reg'], 0)} | {fmt(a['ul_share'], 4)} |"
+        for a in groups
+    ]
+
+
+def render(agg, rows, skipped, generated_at, models_sha256: str = "") -> str:
     lines = [
         "# Análise dos experimentos de conflito (ns-3.48 + 5G-LENA v5.1)", "",
         f"Gerado em {generated_at} por `scripts/certification/analyze_conflict_runs.py` a partir de "
@@ -157,13 +225,22 @@ def render(agg, rows, skipped, generated_at) -> str:
         lines.append(f"| {a['scenario']} | {a['baseline']} | {a['n']} | {fmt(a['thp_pre'])} | {fmt(a['thp_conflict'])} | "
                      f"{fmt(a['thp_post'])} | {fmt(a['delay_conflict_ms'])} | {fmt(a['actions_applied'])} | "
                      f"{fmt(a['handovers'])} | {fmt(a['unsafe_applied'])} | {fmt(a['oscillations'])} |")
-    lines += ["", "## Execuções", "", "| run_id | seed | vazão no conflito | atraso | ações | inseguras | oscilações |",
-              "| :-- | --: | --: | --: | --: | --: | --: |"]
+    lines += render_energy(agg, models_sha256)
+    lines += ["", "## Execuções", "",
+              "| run_id | seed | vazão no conflito | atraso | ações | inseguras | oscilações | potência | "
+              "TR Cat. 1 (u.r.·s) | EARTH (J) | proxy comandado |",
+              "| :-- | --: | --: | --: | --: | --: | --: | :-- | --: | --: | --: |"]
+
+    def num(v, d=2):
+        return f"{v:.{d}f}" if v is not None else "—"
+
     for r in rows:
-        tc = f"{r['thp_conflict']:.2f}" if r["thp_conflict"] is not None else "—"
-        dc = f"{r['delay_conflict_ms']:.2f}" if r["delay_conflict_ms"] is not None else "—"
-        lines.append(f"| `{r['run_id']}` | {r['seed']} | {tc} | {dc} | {r['actions_applied']} | "
-                     f"{r['unsafe_applied']} | {r['oscillations']} |")
+        lines.append(f"| `{r['run_id']}` | {r['seed']} | {num(r['thp_conflict'])} | {num(r['delay_conflict_ms'])} | "
+                     f"{r['actions_applied']} | {r['unsafe_applied']} | {r['oscillations']} | "
+                     f"{r.get('power_alloc') or '—'} | {num(r.get('energy_conflict_tr1'), 1)} | "
+                     f"{num(r.get('energy_conflict_j'), 1)} | {num(r.get('energy_proxy_commanded'))} |")
+    lines += ["", "O proxy comandado (nível 0) é a média no tempo de Σ gNBs ligada × cota de PRB aplicada, só com o "
+              "log de atuação: não é energia e serve só às execuções sem `raw/rdl_cell_state.csv`."]
     if skipped:
         lines += ["", "## Execuções ignoradas (não elegíveis no certificador)", ""]
         lines += [f"- `{run_id}`: {reason}" for run_id, reason in skipped]
@@ -180,6 +257,7 @@ def main(argv=None) -> int:
     catalog = json.loads((ROOT / "simulations" / "ns3" / "conflicts" / "catalog.json").read_text(encoding="utf-8"))
     policy, lock = certify_chain.load_policy(), certify_chain.load_versions_lock()
     patterns = certify_chain.synthetic_run_id_patterns()
+    models = energy_model.load_models()
     rows, skipped = [], []
     for run_dir in sorted(Path(args.runs_dir).iterdir()):
         if not run_dir.is_dir() or not RUN_PATTERN.match(run_dir.name):
@@ -191,10 +269,11 @@ def main(argv=None) -> int:
         if not (run_dir / "raw" / "rdl_kpi_timeseries.csv").exists():
             skipped.append((run_dir.name, "sem série temporal de KPIs"))
             continue
-        rows.append(analyze_run(run_dir, catalog))
+        rows.append(analyze_run(run_dir, catalog, models))
+    add_paired_savings(rows)
     agg = aggregate(rows)
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    report_md = render(agg, rows, skipped, generated_at)
+    report_md = render(agg, rows, skipped, generated_at, models["sha256"])
     print(report_md)
     if not args.no_write and rows:
         out = Path(args.out)
@@ -202,7 +281,8 @@ def main(argv=None) -> int:
         stamp = generated_at.replace(":", "").replace("-", "")
         (out / f"conflict_analysis_{stamp}.md").write_text(report_md, encoding="utf-8")
         (out / f"conflict_analysis_{stamp}.json").write_text(
-            json.dumps({"generated_at_utc": generated_at, "aggregate": agg, "runs": rows,
+            json.dumps({"generated_at_utc": generated_at, "energy_models_sha256": models["sha256"],
+                        "aggregate": agg, "runs": rows,
                         "skipped": skipped}, indent=2, ensure_ascii=False), encoding="utf-8")
         print(f"Relatórios em {out}")
     return 0

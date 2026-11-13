@@ -9,3 +9,6 @@ experiments/xapp_logs/** -text
 
 # Código de terceiros copiado sem modificação: bytes preservados (sha256 em SOURCE.md)
 third_party/** -text
+
+# Parâmetros dos modelos de energia: sha256 conferido em scripts/certification/energy_model.py
+simulations/ns3/energy/*.json text eol=lf

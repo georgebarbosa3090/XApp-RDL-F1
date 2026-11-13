@@ -1,6 +1,12 @@
 # 17. Modelo de energia: instrumentação no ns-3, modelo de potência da estação base e métrica por cenário
 
-Status: **desenho**, escrito em 2026-11-12 durante a campanha 10. Nada aqui está implementado. Este arquivo só entra no git depois da campanha 10, porque o executor grava o HEAD em cada execução.
+Status: desenho escrito em 2026-11-12, durante a campanha 10. **Implementado em 2026-11-13**, depois da campanha 10:
+- as correções C17.1 a C17.4 (seção 8);
+- a instrumentação da seção 3: `RdlCellEnergySampler`, `raw/rdl_cell_state.csv` e `--powerAllocation=used|bw` (padrão `used`);
+- o repasse de `--sim-arg` e `--run-suffix` no executor de campanha;
+- os modelos e as métricas da seção 5.2: `energy_model.py`, `energy_models.json` e as colunas de energia do analisador, com os testes de unidade.
+
+Os desvios do desenho estão nas seções 3.4 e 5.3. Faltam o gate H13.0 oficial e o piloto (EN3). Nenhuma campanha rodou com a instrumentação.
 
 **Decisões do autor (2026-11-12):**
 - Aprovados, para depois da campanha 10:
@@ -130,13 +136,27 @@ class RdlCellEnergySampler {
 
 - **Custo:** um *callback* por slot e por célula, com aritmética inteira. Com SCS de 15 kHz (106 RBs a 20 MHz, como em `RBG 85/106` no G1), são 1000 slots/s por célula: no G1, 2 células × 30 s × 1000 = 60 mil chamadas. É desprezível perto da PHY. O custo real se mede no gate H13.0.
 
-### 3.3 Mudanças pequenas fora da classe
+### 3.3 Mudanças pequenas fora da classe (desenho; o que mudou na implementação está na seção 3.4)
 
 - `RdlActuation`: um *getter* `bool IsSleeping(uint32_t gnb) const`, que devolve `m_savedTxPower.count(gnb) > 0`. É a única fonte do estado comandado. Não muda o comportamento.
 - `scenario_rdl_multicell.cc` (e os demais cenários que forem usados): uma opção `--powerAllocation=used|bw`, com padrão `used`. O padrão reproduz as campanhas anteriores. Com `bw`, aplica-se `Config::SetDefault("ns3::NrGnbPhy::PowerAllocationType", EnumValue(NrSpectrumValueHelper::UNIFORM_POWER_ALLOCATION_BW))` antes de instalar os dispositivos. A instanciação do sampler fica logo depois do `RdlKpiSampler`.
 - O cabeçalho do `rdl_kpi_timeseries.csv` **não muda**. A análise das execuções antigas continua lendo o mesmo formato.
 - O executor certificado já copia todo `*.csv` do diretório de trabalho para `raw/` e o inclui nos hashes (`scripts/certification/run_ns3_certified.sh`, linhas 145–146). Também grava o sha256 do `rdl-nr-common.h` em `support_files_sha256`. Não é preciso mudar o executor.
 - `run_native_campaign.sh` e `run_conflict_campaign.py` precisam repassar `--sim-arg` (o `run_conflict_experiment.py` já aceita), para que a campanha passe `--powerAllocation=bw`. O modo fica no `command` do manifesto e na coluna `power_alloc`.
+
+### 3.4 Implementação (2026-11-13) e desvios do desenho
+
+- **Código:** `RdlSetPowerAllocation`, `RdlCellCounters` e `RdlCellEnergySampler` ficam no bloco `// ---- Energia (docs/17) ----` de `rdl-nr-common.h`, depois do `RdlKpiSampler`. O `scenario_rdl_multicell` (G1, G2, S9–S15) ganhou `--powerAllocation=used|bw` e instancia o sampler logo depois do `RdlKpiSampler`, com o mesmo período de 0,1 s. Os demais cenários (S0–S7) não mudaram, porque nenhum deles entra no pré-registro 12.
+- **Sem `RdlActuation::IsSleeping`.** O `RdlActuation` também muda no ramo da malha fechada (docs/16), e esta implementação não o altera. O sampler considera a célula em sono quando a potência de TX do PHY está no nível de sono do `RdlActuation` (−30 dBm, `kSleepTxPowerDbm`). O construtor aceita um `std::function<bool(uint32_t)>` opcional. Depois do merge com a malha fechada, basta passar o `IsSleeping`, e a fonte única do estado volta a ser o `RdlActuation`, como prevê a seção 7. Pelo critério de potência, uma ação `TX_POWER` de −30 dBm também contaria como sono, mas o Refinement não admite potência abaixo de −10 dBm.
+- **Construtor** sem o ponteiro para o `RdlActuation`: `RdlCellEnergySampler(gnbDevs, ueDevs, periodS, simTime, ownTimer = true, isSleeping = nullptr, path = "rdl_cell_state.csv")`. `Cumulative`, `ConnectedUes` e `CloseWindow` seguem o desenho.
+- **Coluna nova `sleep_sym`:** símbolos de dados e de controle transmitidos em sono emulado. Com ela, o TR separa exatamente os símbolos dos slots ativos e os dos slots de sono: S_tx = `data_sym` + `ctrl_sym` − `sleep_sym`. Sem ela, uma janela com parte em sono misturaria os dois.
+- **Potência mínima e máxima por janela** (`ptx_dbm_min`, `ptx_dbm_max`): ficam fora dos contadores cumulativos, que só têm somas.
+- **Teste curto (exploratório, 2026-11-13; não é o gate H13.0).** Usou os argumentos do G1, com 3 s simulados, semente 1 e um cronograma manual: `PRB_QUOTA` 30 na célula 1 em 1,5 s; `CELL_STATE` 0 e 1 na célula 2, em 2,0 e 2,6 s. O cenário foi compilado fora do workspace do ns-3.
+  - O `rdl_kpi_timeseries.csv` e o `rdl_actuation_log.csv` saíram com sha256 idêntico ao do cenário da `main`, sem o sampler.
+  - O `rdl_cell_state.csv` teve 58 linhas, 2 células × 29 janelas, inclusive a da célula em sono.
+  - Na janela do desligamento, a célula 2 ainda transmitiu 60 526 REG de dados antes de os UEs entrarem em RLF. Esse vazamento (`sleep_data_reg`) é o que a H13.4 mede.
+  - `ul_tb_bytes` ficou em 0 nos dois modos.
+  - Com `--powerAllocation=bw`, a coluna `power_alloc` saiu `bw`, lida do atributo efetivo do PHY.
 
 ## 4. Modelos de potência
 
@@ -265,6 +285,25 @@ A comparação entre baselines é pareada por semente:
   - linhas sem `rdl_cell_state.csv` dão `None`.
 - O nível 0, só com o log de atuação (o proxy atual do artigo: cota de PRB comandada e células ligadas), fica como coluna `energy_proxy_commanded`. Ele serve **só** para as campanhas sem instrumentação, rotulado como proxy.
 
+### 5.3 Implementação (2026-11-13)
+
+- **Módulo:** `scripts/certification/energy_model.py`, com `Tr38864Model`, `EarthModel`, `load_models`, `energy_window`, `sleep_episodes_from_actuation` e `energy_metrics`. Os parâmetros ficam em `simulations/ns3/energy/energy_models.json`, com a fonte de cada tabela. O sha256 é calculado com finais de linha LF e conferido contra `EXPECTED_SHA256`. O `.gitattributes` fixa LF nesse arquivo.
+- **Desvios do desenho:**
+  - **Banda:** o CSV não grava a banda. O analisador a lê do `--bandwidth` do catálogo, com padrão de 100 MHz, para escolher o Set e a razão de banda.
+  - **Episódios de sono:** saem do `rdl_actuation_log.csv`, de `CELL_STATE` `APPLIED`. Reaplicar o 0 não abre episódio novo. Quando uma célula tem `sleep_slots` > 0 e nenhum episódio no log, o episódio é estimado das janelas do CSV.
+  - **Energia de transição:** entra quando o episódio começa em t0 ≤ início < t1, porque os slots de sono vêm depois do início.
+  - **Economia contra o B0:** é pareada por cenário, semente e modo de potência. Numa campanha com `--run-suffix U`, a referência é o B0U.
+  - **Proxy de nível 0 (`energy_proxy_commanded`):** média no tempo, na janela de conflito, de Σ gNBs ligada × cota de PRB aplicada (÷ 100). A unidade é células-equivalentes a plena cota. O valor sai em todas as execuções, rotulado como proxy.
+- **Conferência das execuções antigas (gate do EN2):** os analisadores da `main` e deste commit rodaram nas 412 execuções `nr_*` de `experiments/runs/`. A tabela agregada principal saiu idêntica. Nenhuma execução tem `rdl_cell_state.csv`, então as colunas de energia ficam com "—".
+- **Testes:** `tests/unit/test_energy_model.py` cobre os quatro testes da seção 5.2. Cobre também:
+  - os exemplos numéricos da seção 2.3 (200 → 137 u.r. no modo `bw`);
+  - o sha256;
+  - a escolha do estado de sono;
+  - os episódios;
+  - as métricas por execução e a tabela do relatório.
+
+  `tests/unit/test_campaign_sim_args.py` cobre o repasse de `--sim-arg` e de `--run-suffix`.
+
 ## 6. O que continua modelo, e como o GR4 fecha isso
 
 ### 6.1 O que é medição no simulador e o que é modelo
@@ -314,12 +353,33 @@ O docs/16 (§3.1, etapa E1) prevê ampliar o `RdlKpiSampler` com "uso de PRB, UE
 
 | # | Onde | Divergência | Proposta |
 | :-: | :-- | :-- | :-- |
-| C17.1 | `src/core/reasoning.py` (`P_SLEEP_W = 4.3`, com `P0_W = 130.0` e `DELTA_P = 4.7`) | 4,3 W é o P_sleep da **pico** no EARTH; 130 W e 4,7 são da **macro**, cujo P_sleep é 75 W. Assim, s_energia(`CELL_STATE` = 0) = 1 − 4,3/130 = 0,967, em vez de 1 − 75/130 = 0,423. O sono pesa mais do que o próprio modelo citado indica. `N_TRX = 4` difere do 6 da macro (sem efeito, porque o escore é normalizado) | corrigir para o par coerente (macro) ou derivar do modelo do TR. Muda decisões do EEVS (G2, S9, S13): conferir no cronograma, sem ns-3, e pré-registrar antes de qualquer campanha |
-| C17.2 | docstring de `Reasoning` | promete "Capacidade de Shannon com SINR real" e "Fila M/G/1 com curva sigmoide"; o código usa tabelas fixas (s_vazão = v/100, s_SLA por faixa de prioridade). O `docs/02` §4 descreve o código corretamente | corrigir a docstring |
-| C17.3 | `rdl_kpi_timeseries.csv` (`RdlKpiSampler::Flush`) | só escreve células com pacotes na janela | documentar no `docs/03` e no cabeçalho; análises por célula não podem supor todas as células presentes |
-| C17.4 | `rdl-nr-common.h` e `docs/03` | o modo de alocação de potência (`UniformPowerAllocUsed`, padrão) não está documentado; ele concentra a potência nos RBs usados (+5,2 dB por RB com teto de 30 %) | documentar; tratar como ameaça à validade nos artigos que usam teto de PRB no ns-3 (G1, S12) até a H13.6 quantificar |
+| C17.1 (**aplicada**, seção 8.1) | `src/core/reasoning.py` (`P_SLEEP_W = 4.3`, com `P0_W = 130.0` e `DELTA_P = 4.7`) | 4,3 W é o P_sleep da **pico** no EARTH; 130 W e 4,7 são da **macro**, cujo P_sleep é 75 W. Assim, s_energia(`CELL_STATE` = 0) = 1 − 4,3/130 = 0,967, em vez de 1 − 75/130 = 0,423. O sono pesa mais do que o próprio modelo citado indica. `N_TRX = 4` difere do 6 da macro (sem efeito, porque o escore é normalizado) | corrigir para o par coerente (macro) ou derivar do modelo do TR. Muda decisões do EEVS (G2, S9, S13): conferir no cronograma, sem ns-3, e pré-registrar antes de qualquer campanha |
+| C17.2 (**aplicada**) | docstring de `Reasoning` | promete "Capacidade de Shannon com SINR real" e "Fila M/G/1 com curva sigmoide"; o código usa tabelas fixas (s_vazão = v/100, s_SLA por faixa de prioridade). O `docs/02` §4 descreve o código corretamente | corrigir a docstring |
+| C17.3 (**documentada**: `docs/03` §2.5, cabeçalho e `Flush`) | `rdl_kpi_timeseries.csv` (`RdlKpiSampler::Flush`) | só escreve células com pacotes na janela | documentar no `docs/03` e no cabeçalho; análises por célula não podem supor todas as células presentes |
+| C17.4 (**documentada**: `docs/03` §2.5 e cabeçalho; opção `bw` implementada) | `rdl-nr-common.h` e `docs/03` | o modo de alocação de potência (`UniformPowerAllocUsed`, padrão) não está documentado; ele concentra a potência nos RBs usados (+5,2 dB por RB com teto de 30 %) | documentar; tratar como ameaça à validade nos artigos que usam teto de PRB no ns-3 (G1, S12) até a H13.6 quantificar |
 | C17.5 | artigo SBRC, Limitações | "energia aproximada por PRBs ativos e células ligadas" | depois do pré-registro 12, trocar pelo texto da seção 6.1 e manter "não medida" até o GR4 |
 | C17.6 | Fase 2 (`artigos/scripts/insights_complemento.py`, linha 9: `energy_ratio = min(100, teto_crit + teto_embb)/100`) | o "PRB ativo" da CA-RDL é a soma dos tetos, não a ocupação | no artigo da Fase 2, chamar de "soma dos tetos de PRB (proxy)" |
+
+### 8.1 C17.1 aplicada: o que mudou nos cronogramas (2026-11-13)
+
+`P_SLEEP_W` passou de 4,3 W para 75 W, o P_sleep da macro no EARTH, coerente com `P0_W = 130` e `DELTA_P = 4.7`. O $s_{energia}$ de `CELL_STATE = 0` caiu de 1 − 4,3/130 = 0,967 para 1 − 75/130 = 0,423. `N_TRX = 4` ficou como estava, porque não afeta o escore normalizado.
+
+A conferência não usou o ns-3. O próprio executor (`scripts/certification/run_conflict_experiment.py --dry-run`) rodou em G2, S9 e S13, com B3 e B3M. O mesmo decisor (`decide`) rodou, com os dois valores, em todos os cenários nativos do catálogo: S0–S7, S9–S15, G1 e G2. O cronograma não depende da semente.
+
+| Cenário | Baseline | Ações na RAN (4,3 W → 75 W) | O que muda |
+| :-- | :-- | :-: | :-- |
+| G2 | B3 | 10 → 10 | nada: a RU 0 dorme (9 `CELL_STATE = 0`) e o handover dela para a RU 1 é aplicado |
+| G2 | B3M | 10 → 1 | o B3M deixa de desligar a RU 0: saem os 9 `CELL_STATE = 0` (em 15,2 s e de 17,2 a 24,2 s), e fica só o `HANDOVER` em 15,2 s |
+| S9 | B3 e B3M | 1 → 1 | nada: só o handover |
+| S13 | B3 | 2 → 2 | nada: a falha (`CELL_STATE = 0`) e o handover de evacuação |
+| S13 | B3M | 1 → 2 | o B3M passa a admitir o handover de evacuação em 15,2 s, junto com a falha, como o B3; com o P_sleep corrigido, o achado 55 deixa de aparecer no S13 |
+| demais cenários | B3 e B3M | iguais | nada |
+
+Leitura:
+- O B3, que é o baseline atual (EEVS aditivo), não muda em nenhum cenário. As decisões do B3 no pré-registro 12 são as mesmas que a campanha 10 teria com o EEVS aditivo.
+- O B3M existe para reproduzir as campanhas até a 10 e deixa de reproduzir G2 e S13. Reproduzir exatamente essas execuções exige o commit anterior à correção. A agregação por média continua igual. No G2, o desligamento passa a valer menos que o handover na média do subconjunto.
+- O teste `test_b3a_admits_the_evacuation_handover_in_s13` (`tests/unit/test_eevs_additive.py`) agora confere os dois valores. Com 75 W, a média também admite o handover. Com 4,3 W, o teste reproduz o achado 55.
+- O achado 67 do `docs/07` registra a mudança. O pré-registro 12 deve declarar o commit com `P_SLEEP_W = 75` e, se usar o B3M, também essa mudança de cronograma.
 
 ## 9. Referências novas (não inseridas no `references.bib`)
 
@@ -364,6 +424,10 @@ Grafias divergentes entre fontes (Crossref "Oliver Blume" e "Muhammad Imran"; re
 | EN0 | campanha 10 concluída e analisada; nenhum commit antes | — |
 | EN1 | `RdlCellEnergySampler`, `IsSleeping`, `--powerAllocation` e repasse de `--sim-arg` no executor de campanha | compila; H13.0 (instrumentação neutra) |
 | EN2 | `energy_model.py`, `energy_models.json` e colunas em `analyze_conflict_runs.py`; testes de unidade | testes verdes; execuções antigas analisadas sem mudança nas colunas existentes |
+
+Situação em 2026-11-13:
+- **EN1:** implementado, sem o `IsSleeping` (seção 3.4). Compila sem avisos e passou no teste curto de neutralidade. Falta o H13.0 oficial com as execuções da campanha 10.
+- **EN2:** implementado. Os testes estão verdes e as colunas antigas não mudaram (seção 5.3).
 | EN3 | piloto: G1 e G2 × B0 e B3 × semente 9103, modo `bw` (não confirmatório) | todas as colunas preenchidas; H13.4 e H13.5 avaliáveis; duração medida |
 | EN4 | pré-registro 12 fechado e commitado antes da campanha | seção 11 |
 | EN5 | campanha e análise; artigos atualizados só pelos scripts | — |
