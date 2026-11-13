@@ -249,6 +249,52 @@ Alternativa para o TS no testbed: rodar o mesmo adaptador da simulação no luga
   - **Manifesto e hashes:** o manifesto grava `control_mode: closed_loop`, e o `raw/closed_loop_log.jsonl` entra nos hashes.
 - **Achado da E0:** o agente GNNRL do xSlice (`GNNRL/env.py`) lê o banco SQLite que as xApps de monitoramento do FlexRIC gravam (`xapp_db_`) e o arquivo `trandata/KPM_UE.txt`, e escreve `trandata/slice_ctrl.bin`. Por isso o backend ns-3 do shim também precisa gravar esse banco, no esquema do FlexRIC.
 
+**Desenho detalhado da E2, a partir da leitura dos `main()` (2026-11-13):**
+
+- **Uso da API E42 pelas duas xApps:**
+  - `init_xapp_api` e em seguida `sleep(1)`;
+  - `e2_nodes_xapp_api`, de que elas esperam os nós com as RAN Functions já decodificadas. A definição do KPM (`kpm_ran_function_def_t`) precisa trazer a lista de estilos de relatório e os nomes das métricas, porque a subscrição é montada a partir dela (`gen_kpm_subs`, estilo 4 com condição de casamento);
+  - `report_sm_xapp_api` para o KPM (ID 2). O xSlice subscreve também MAC (142), RLC (143), PDCP (144) e GTP (148);
+  - `control_sm_xapp_api` para o RC (`SM_RC_ID`);
+  - `rm_report_sm_xapp_api` e `try_stop_xapp_api` no fim.
+- **Nomes de métrica do ES Orange:** ele procura `L3servingSINR3gpp_cell_*` e `L3neighSINRListOf_UEID_*`, os nomes do agente E2 do ns-O-RAN. O backend ns-3 do shim gera esses nomes a partir do SINR servidor e da RSRP das vizinhas que o KPM do orquestrador já traz.
+- **Relógio:** as duas xApps usam `sleep(1)` e `sleep(5)`, e o ES usa `time(NULL)` com espera de 30 s.
+  - **Decisão:** em vez da `libfaketime`, usar uma biblioteca de pré-carga própria (`librdl_simclock.so`, via `LD_PRELOAD`). Ela sobrepõe `time`, `clock_gettime`, `gettimeofday`, `sleep`, `usleep` e `nanosleep` com o tempo simulado que o orquestrador publica.
+  - **Efeito:** um `sleep(5)` bloqueia até o tempo simulado avançar 5 s. O código das xApps não muda.
+  - **Por que não a `libfaketime`:** ela desloca ou escala o relógio, mas não sabe bloquear até o tempo simulado avançar.
+- **Barreira por janela:** a janela fecha quando todas as threads da xApp estão bloqueadas num `sleep` simulado com prazo futuro e os *callbacks* de indicação terminaram. O controle emitido nesse intervalo vira proposta com o carimbo da janela.
+- **Laço do xSlice:** ele faz espera ativa sobre `trandata/slice_ctrl.bin` até a marca de prontidão (quarto inteiro igual a 0), sem `sleep`, e quem escreve a marca é o agente GNNRL. A barreira do xSlice, portanto, inclui o agente:
+  - a janela fecha depois que o agente grava a decisão e a xApp a envia;
+  - a espera ativa é detectada pela leitura do arquivo, que a pré-carga também observa (`fopen`/`fread` de `slice_ctrl.bin`).
+- **Banco do GNNRL:** o shim grava o SQLite no esquema que as xApps de monitoramento do FlexRIC usam (`xapp_db_`), com as tabelas de KPM e MAC que o `GNNRL/env.py` lê.
+
+**Achados da leitura do código original (2026-11-13), que limitam o que cada xApp faz nos cenários:**
+
+- **xSlice: falta um arquivo no repositório.** O `xapp_xslice.c` inclui `src/util/e.h`, que não existe no repositório no commit `87db3bd`. Do jeito que foi publicado, o código não compila.
+  - **Correção de build, não de lógica:** copiamos o `src/util/e.h` do FlexRIC da Orange (commit `f56d448`, 26 linhas, só as macros `ecalloc` e `emalloc`) para a árvore do fork. Nenhum arquivo existente é alterado.
+- **xSlice, o que o laço faz:**
+  1. lê três PRB dedicados em `trandata/slice_ctrl.bin`, em espera ativa até a marca de prontidão;
+  2. monta um RC Control (Style 2, Action 6, `RRM_Policy_Ratio` com 3 fatias) e o envia a todos os nós;
+  3. espera de novo, em espera ativa, até a marca voltar a 0 e a regrava como 1.
+  
+  Quem escreve a decisão é o agente GNNRL. A cada passo, ele lê a tabela `MAC_UE` do SQLite do FlexRIC (`dl_curr_tbs`, `dl_sched_rb`, `pusch_snr`, `pucch_snr`, `wb_cqi`, `dl_mcs1`, `ul_mcs1`, `phr`, `dl_bler`, `ul_bler`) e o `trandata/KPM_UE.txt`. Esse arquivo é gravado pelo *callback* de KPM do xSlice com `DRB.PdcpSduVolumeDL/UL`, `DRB.RlcSduDelayDl`, `DRB.UEThpDl/Ul` e `RRU.PrbTotDl/Ul` por UE.
+  
+  **O KPM do ns-3 precisa ganhar estatísticas de MAC por UE** (MCS, TBS, RBs, BLER, SINR), vindas do traço `RxPacketTraceUe` do 5G-LENA. CQI, PHR e SNR de uplink não existem no cenário só de downlink: serão derivados do SINR ou declarados ausentes, com o critério documentado.
+- **ES Orange, o que o laço faz:** a cada 5 s, marca para desligar toda célula com **no máximo 1 UE registrado**. Os UEs são registrados quando aparecem no KPM e nunca são removidos. Para a célula marcada, ele:
+  1. faz o handover de cada UE para a vizinha de maior SINR, exigindo ao menos 5 amostras e SINR acima de −10 dB;
+  2. envia `CELL_OFF` (RC, estilo `ENERGY_STATE`), quando os handovers terminaram ou depois de 30 s.
+  
+  **Consequência:** em células com muitos UEs (S9, S10, S13, com 20 ou mais por célula), o ES original não age. O conflito só aparece se o cenário tiver uma célula com 0 ou 1 UE. Pela regra do pré-registro (§9, item 6), isso é resultado, e o cenário não é ajustado para forçá-lo.
+- **ES Orange, limites de tamanho do código:**
+  - os vetores têm no máximo 20 UEs por célula (índice = ID do UE) e 10 células;
+  - o ID da célula de destino vai como um caractere de '1' a '9'.
+  
+  O shim atribui a cada UE um ID local da célula (0 a 19) e mapeia de volta para o UE global no controle. Com mais de 20 UEs numa célula, o shim só reporta os 20 primeiros, e isso é registrado no log da execução.
+- **ES Orange, nomes e SINR:**
+  - ele espera `L3servingSINR3gpp_cell_<c>_UEID_<u>` (SINR servidor, em dB) e `L3neighSINRListOf_UEID_<u>_of_Cell_<c>` (SINR por vizinha, seguido do ID da vizinha);
+  - o 5G-LENA dá o SINR da célula servidora e a RSRP das vizinhas;
+  - o shim estima o SINR da vizinha como SINR servidor + (RSRP da vizinha − RSRP servidora), supondo a mesma interferência mais ruído. É uma aproximação, declarada no relato.
+
 | Etapa | Entrega | Gate |
 | :-- | :-- | :-- |
 | E0 | permissão para os downloads, fontes no commit exato, `SOURCE.md` atualizado | hashes conferidos |
