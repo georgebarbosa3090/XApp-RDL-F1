@@ -1,0 +1,19 @@
+execucao,cenario,baseline,commit,drivers,janelas,eventos_a1,propostas,janelas_com_conflito,conflitos_em_5s,selecionadas,nao_selecionadas,aplicadas,recusadas,status,reversoes_prb_quota,vazao_media_mbps,atraso_medio_ms,pares_em_conflito,pares_em_sequencia
+cl_piloto_G1_B0_completo_seed16902,G1,B0,46d89b0,propria:energysaver_greenran propria:ranslicer_greenran,149,3,16,0,0,16,0,16,0,APPLIED=16,11,30.052,8.622,,
+cl_piloto_G1_B3_completo_seed16902,G1,B3,46d89b0,propria:energysaver_greenran propria:ranslicer_greenran,149,3,16,0,0,16,0,16,0,APPLIED=16,11,30.052,8.622,,
+cl_piloto_G2_B0_completo_seed16902,G2,B0,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,3,0,0,3,0,3,0,APPLIED=3,0,1.797,5.547,,
+cl_piloto_G2_B3_completo_seed16902,G2,B3,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,2,0,0,1,1,1,0,APPLIED=1,0,1.797,6.039,,
+cl_piloto_S10_B0_completo_seed16902,S10,B0,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,1,0,0,1,0,1,0,APPLIED=1,0,34.804,5.591,,
+cl_piloto_S10_B3_completo_seed16902,S10,B3,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,1,0,0,1,0,1,0,APPLIED=1,0,34.804,5.591,,
+cl_piloto_S11_B0_completo_seed16902,S11,B0,46d89b0,propria:load_balancer original:traffic_steering,149,3,6,0,0,6,0,6,0,APPLIED=6,0,20.479,5.398,,
+cl_piloto_S11_B3_completo_seed16902,S11,B3,46d89b0,propria:load_balancer original:traffic_steering,149,3,6,0,0,6,0,6,0,APPLIED=6,0,20.479,5.398,,
+cl_piloto_S12_B0_completo_seed16902,S12,B0,46d89b0,propria:energysaver_greenran derivado:xslice,124,3,2,0,0,2,0,2,0,APPLIED=2,0,7.017,286.263,,
+cl_piloto_S12_B3_completo_seed16902,S12,B3,46d89b0,propria:energysaver_greenran derivado:xslice,124,3,2,0,0,2,0,2,0,APPLIED=2,0,7.017,286.263,,
+cl_piloto_S13_B0_completo_seed16902,S13,B0,46d89b0,propria:energysaver_greenran replay:fault_injector original:traffic_steering,149,3,35,0,1,35,0,35,0,APPLIED=35,0,30.094,8.372,,energysaver_greenran x fault_injector [estado_celula]=1
+cl_piloto_S13_B3_completo_seed16902,S13,B3,46d89b0,propria:energysaver_greenran replay:fault_injector original:traffic_steering,149,3,197,0,1,8,189,8,0,APPLIED=8,0,28.497,8.025,,energysaver_greenran x fault_injector [estado_celula]=1
+cl_piloto_S14_B0_completo_seed16902,S14,B0,46d89b0,propria:isac_radar derivado:xslice,124,3,5,0,0,5,0,5,0,APPLIED=5,0,49.142,7.883,,
+cl_piloto_S14_B3_completo_seed16902,S14,B3,46d89b0,propria:isac_radar derivado:xslice,124,3,5,0,0,5,0,5,0,APPLIED=5,0,49.142,7.883,,
+cl_piloto_S15_B0_completo_seed16902,S15,B0,46d89b0,propria:energysaver_greenran propria:rogue_xapp original:traffic_steering,149,3,33,0,2,33,0,33,0,APPLIED=33,0,0.5,51.91,,energysaver_greenran x rogue_xapp [potencia]=2
+cl_piloto_S15_B3_completo_seed16902,S15,B3,46d89b0,propria:energysaver_greenran propria:rogue_xapp original:traffic_steering,149,3,162,0,0,7,155,7,0,APPLIED=7,0,0.531,10.38,,
+cl_piloto_S9_B0_completo_seed16902,S9,B0,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,6,0,0,6,0,6,0,APPLIED=6,0,0.594,23.071,,
+cl_piloto_S9_B3_completo_seed16902,S9,B3,46d89b0,propria:energysaver_greenran original:traffic_steering,149,3,7,0,0,5,2,5,0,APPLIED=5,0,0.578,24.729,,

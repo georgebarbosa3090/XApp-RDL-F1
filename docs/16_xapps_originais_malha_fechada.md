@@ -366,7 +366,7 @@ Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas
   - o WSL caiu às 19:07 de 13/11 com o piloto e o build do TS rodando juntos (falta de memória). O G1/B0 parou em t = 20 s e foi refeito do início pelo próprio script. Build e piloto passaram a rodar em sequência;
   - o G2/B3 que o script pulou era de uma execução anterior (commit `fd2cb0f`, antes das correções da EnergySaver e do refinamento) e não vale para o piloto: precisa ser refeito.
 - **Achados:**
-  1. **Conflito orgânico quase ausente.** Nenhuma janela teve duas xApps no mesmo gNB e recurso. Em sequência (xApps diferentes no mesmo recurso até 5 s), só três casos: EnergySaver × `fault_injector` no S13 (estado da célula) e EnergySaver × Rogue no S15 (potência). Em S9, S10, S11, S12 e S14, B0 e B3 tiveram exatamente as mesmas ações e KPIs. Pela regra do §9 (item 6), isso é resultado e é relatado; o cenário não é ajustado para forçar conflito.
+  1. **Conflito direto orgânico quase ausente; conflito indireto presente.** Nenhuma janela teve duas xApps no mesmo gNB e recurso. Em sequência (xApps diferentes no mesmo recurso até 5 s), só três casos: EnergySaver × `fault_injector` no S13 (estado da célula) e EnergySaver × Rogue no S15 (potência). Já a própria RDL, nos B3, detectou e resolveu 20 conflitos pela EEVS: 17 indiretos (parâmetros diferentes que afetam os mesmos KPIs) e 3 entre células (contagem do painel `scripts/closed_loop/resumo_campanha.py`, 14/11; a primeira versão deste relato olhava só o mesmo recurso). Em S9, S10, S11, S12 e S14, B0 e B3 tiveram exatamente as mesmas ações e KPIs. Pela regra do §9 (item 6), isso é resultado e é relatado; o cenário não é ajustado para forçar conflito.
   2. **Oscilação do RANSlicer-GreenRAN** no G1/B0 (PRB_QUOTA alternando a cada janela). No B3, a RDL não selecionou a maior parte dessas propostas. Corrigido na xApp (banda morta sempre, teto que só sobe com SLA em risco, intervalo mínimo de 2 s por célula, recusa devolve o teto de referência); `tests/unit/test_greenran_xapps.py`.
   3. **S9 e S10 sem nenhuma proposta:** carga baixa e RSRP das vizinhas abaixo do piso de cobertura da EnergySaver (−110 dBm), e nenhuma vizinha 3 dB melhor para a derivada do TS.
 - **Mudanças depois do piloto:** TS original no papel `traffic_steering` (`closed_loop.json`), com a derivada em `--derivado traffic_steering` para o controle pareado; o log do processo de cada xApp original vai para `logs/xapp_<papel>.log` da execução.
@@ -375,6 +375,11 @@ Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas
   - com o AD absoluto (0,2 Mbps), os 40 UEs do S9 ficam anômalos em toda janela, porque o tráfego por UE é leve. O TS pediu cerca de 14 handovers por janela, e o B3 da RDL-N1 custa cerca de 1,4 s por proposta neste ambiente: cerca de 20 s de tempo real por janela, inviável para a campanha;
   - nos KPMs do piloto, o modo absoluto marca todos os UEs em 100 % das janelas no S9 e no G2. O modo relativo (`anomaly_mode: relativo`, vazão abaixo de 50 % da média móvel do próprio UE, como a "Degradation" do AD original) zera o G2, mas no S9 ainda marca anomalia em 77 % das janelas, porque com 1 ou 2 pacotes por janela de 200 ms a vazão é ruidosa;
   - **decisão do autor (14/11): taxa oferecida** (`anomaly_mode: oferta`, 50 % em janela deslizante de 1 s; §4.3). Nos KPMs do piloto, as anomalias coincidem com eventos da rede: até 16 UEs no S13 quando o `fault_injector` desliga uma célula e até 39 no S15 quando a Rogue derruba a potência. S9, S10, S11 e G2 ficam praticamente limpos (S9: anomalia em 10 % das janelas, média de 0,1 UE). As variações 50 %/2 s e 30 %/1 s dão o mesmo quadro. Os valores entram no pré-registro 11.
+- **2ª rodada do piloto (semente 16902, commit `46d89b0`, 14/11, 18 execuções com `SUCCESS`; painel em `reports/avaliacao/painel_cl_piloto_16902/`):** com o TS original, a correção do RANSlicer e o AD pela taxa oferecida.
+  - RANSlicer no G1/B0: de 151 para 16 propostas e de 131 para 11 inversões. Sobra um ciclo lento (a cada 2 s, cerca de 7 pontos): reduzir o teto sem risco põe a fatia em risco, e ele sobe de novo. Corrigido depois com histerese assimétrica (`ranslicer_down_hold_s`: só reduz após 10 s sem risco);
+  - TS original: 91 anomalias enviadas pelo AD emulado, 1324 predições do QP, 415 pedidos de HandOff e 909 manutenções na servidora;
+  - a RDL resolveu 32 conflitos pela EEVS (29 indiretos e 3 entre células);
+  - **efeito de malha fechada no S13 e no S15:** no B3, a RDL não seleciona a maior parte dos handovers do TS, os UEs seguem degradados e o TS volta a pedir (197 e 162 propostas no B3, contra 35 e 33 no B0). O TS original não trata recusa, porque no RIC ele não recebe resposta da RDL; é comportamento do original e é relatado.
 - **Gate da E3 com ns-3 (`experiments/runs/cl_e3_S9_B3_ts_seed16901`, 14/11):** S9/B3 completo com o TS original e a regra da taxa oferecida, `SUCCESS` em cerca de 2 min de tempo real. O TS pediu 22 handovers (e manteve o UE em 11 consultas), a RDL selecionou 5 e o ns-3 aplicou os 5. Tabela em `reports/avaliacao/gate_e3_ts_seed16901/`.
 
 ## 9. Rascunho do pré-registro 11 (não registrado)
@@ -402,3 +407,53 @@ O pré-registro é fechado e commitado depois do piloto e antes da campanha, com
    
    Se a xApp original não gerar o conflito no cenário, isso é um resultado e é relatado. O cenário não é ajustado para forçar o conflito.
 7. **Regras de relato:** iguais às do pré-registro 10 (`--retry-failed` uma vez; retomada depois de interrupção). Acrescenta-se uma regra: o relato separa as falhas de xApp das falhas do ns-3.
+
+## 10. Ciclo da cadeia igual ao NORI S8 (decisão do autor de 2026-11-14: híbrido A + C)
+
+O ciclo de referência é o da bancada NORI S8 (apresentação de 10/11, fluxo 01/10–10/10): E2 Setup → subscrição KPM → KPM_t0 → proposta → decisão da RDL → RIC Control Request E2SM-RC → ACK/Failure/timeout → KPM_t1 → verificação do efeito, com hashes e contagem das mensagens no encerramento. A cadeia E2 real só existe no NORI, que tem um único gNB, dois UEs e só atua cota de PRB (docs/01, docs/03). Os cenários da malha fechada (G1, G2, S9–S15) têm de 2 a 4 gNBs e usam handover, potência e estado de célula. Por isso o ciclo é seguido de duas formas, e o pré-registro 11 declara qual cobre o quê.
+
+### 10.1 A: mesmo ciclo no ns-3.48 multicelular (todos os cenários da malha fechada)
+
+| Etapa NORI S8 | Na malha fechada (A) | Evidência por execução |
+| :-- | :-- | :-- |
+| E2 Setup | o HELLO do ns-3 vira um `E2SetupRequest`/`Response` por gNB (nó `gnb_<i>`), com as RAN Functions KPM (2) e RC (3) e os parâmetros RC atuáveis | `raw/e2_chain.jsonl` (`e2_setup`) |
+| Subscrição KPM | cada xApp do cenário assina o KPM de cada nó (período = janela de decisão), com `RICrequestID` próprio | `subscription` |
+| KPM_t0 (Indication) | a cada janela, uma Indication por nó, numerada, entregue às xApps assinantes | `indication` / `kpm_t0` |
+| Proposta | a proposta da xApp no esquema do RMR 30000 | `proposal` |
+| Decisão | `RDLDecision` com identificador de correlação gravado **antes** do despacho | `decision` |
+| RIC Control Request | uma por ação, com `RICrequestID`, RAN Function 3 e cabeçalho e mensagem E2SM-RC codificados pelo codec da RDL (`src/e2/rc_encoder.py`, `src/e2/e2ap/control.py`); grava o hex e o sha256 dos bytes e decodifica de volta antes de entregar ao ns-3 | `control_request` |
+| ACK / Failure | o ns-3 devolve o resultado de cada controle na Indication seguinte: `APPLIED` e `NO_EFFECT` → `RICcontrolAcknowledge`; `REJECTED_*` e `UNSUPPORTED` → `RICcontrolFailure` com a causa; sem resultado em 5 s simulados → `timeout`. `RICrequestID` duplicado com controle pendente é recusado | `control_ack` / `control_failure` / `control_timeout` |
+| KPM_t1 | a primeira Indication do nó depois do ACK, com a verificação do estado aplicado: `PRB_QUOTA` → utilização de PRB e vazão da célula; `TX_POWER` → `tx_power_dbm`; `CELL_STATE` → `sleeping`; `HANDOVER` → célula servidora do UE | `kpm_t1` |
+| Encerramento | contagem dos papéis `e2_setup`, `subscription`, `kpm_t0`, `control_request`, `control_ack`, `kpm_t1` (os mesmos do `scripts/certification/e2_pcap_dissect.py`), conferência de hashes e veredito da cadeia | `scripts/closed_loop/verificar_cadeia.py` |
+
+- **Limite declarado:** sem SCTP, RIC e RMR; o transporte continua sendo o socket Unix em passo travado. Os bytes E2AP/E2SM-RC são do codec local, que, como no NORI, ainda não foi validado contra o ASN.1 oficial: provam autoconsistência, não interoperabilidade.
+- **Critério da cadeia (fail-closed):** toda execução precisa de `e2_setup` para cada gNB, `subscription` para cada xApp × nó, Indication em toda janela, e todo `control_request` com `control_ack`, `control_failure` ou `control_timeout`; todo ACK de ação com efeito esperado precisa de `kpm_t1` com o estado aplicado.
+
+### 10.2 C: malha fechada na bancada NORI com E2 real (S8)
+
+- **xApps reais no RIC:** RANSlicer-GreenRAN, a derivada do xSlice e a `embb_throughput` como xApps do Near-RT RIC (charts Helm), assinando o KPM do gNB do NORI pelo SubMgr (`RicKpmSource`) e enviando propostas pelo RMR 30000.
+- **RDL:** a `kpm-probe` ganha o modo `RC_DECISION=xapps`. Ela junta as propostas que chegam entre duas Indications (período E2 de 1 s), decide com o baseline da execução (B0–B3; B3 = RDL-N1) e envia o E2SM-RC pelo RMR 12040. O resto da cadeia é a do NORI: ACK, KPM_t1, PCAP dissecado pelo tshark e efeito por fatia.
+- **Limites conhecidos antes de rodar:** o KPM do NORI traz `DRB.UEThpDl` sempre 0 (docs/01), então as xApps que leem vazão por UE veem zero; a decisão delas fica apoiada em PRB e atraso. A memória do WSL (5 GB) não comporta a bancada NORI e o ns-3.48 juntos: C e A rodam em sequência.
+
+### 10.3 Ordem
+
+1. A: módulo da cadeia (`scripts/closed_loop/e2_chain.py`) e verificador, em arquivos novos (feito enquanto a 2ª rodada do piloto roda);
+2. A: resultado por controle no `rdl-nr-common.h` e integração no orquestrador, **depois** da 2ª rodada do piloto (que usa esses arquivos);
+3. C: modo `xapps` da `kpm-probe`, charts das três xApps e uma execução S8 B0/B3;
+4. pré-registro 11 com as duas coberturas declaradas.
+
+### 10.4 Painel de fim de campanha (pedido do autor, 2026-11-14, para relato e workshop)
+
+`scripts/closed_loop/resumo_campanha.py` roda no fim de cada campanha (e do piloto), mostra o painel no terminal e grava `painel.md` e `painel.json` em `reports/avaliacao/painel_<campanha>_<semente>/`. Ele lê só os artefatos de cada execução. Campo que a execução não registra aparece como "não registrado", nunca como zero.
+
+| Bloco | O que mostra | Fonte |
+| :-- | :-- | :-- |
+| Execuções | cenário × baseline × semente, status, duração, commits | manifesto |
+| Rede | gNBs, UEs registrados (conectados), handovers observados no KPM, ping-pong (volta à célula em ≤ 5 s), janelas com célula dormindo, mudanças de potência | `closed_loop_log.jsonl` (KPM) |
+| Mensagens | Indications KPM, propostas das xApps (RMR 30000) por xApp e parâmetro, recusas devolvidas, políticas A1 por tipo e caminho (rApp-ResourceOptimizer → A1 → RDL, RANSlicer, EnergySaver, TS) | `closed_loop_log.jsonl` |
+| Cadeia E2 | E2 Setup, subscrições, KPM_t0, decisões, RIC Control Request, ACK, Failure (por causa), timeout, KPM_t1 e veredito | `e2_chain.jsonl` + `verificar_cadeia.py` |
+| Conflitos | mesma janela e em sequência, pares e recursos, resoluções da RDL por estratégia (TVS/EEVS) e por tipo (direto, indireto, entre células), oscilações (inversões em TX_POWER e PRB_QUOTA) | log de janelas e de atuação |
+| Controle da RAN | ações por parâmetro e status, ajustes por gNB | `rdl_actuation_log.csv` |
+| Regras e grafo | janelas decididas por regra do baseline, consultas e escritas no grafo de conhecimento | decisão por janela (o grafo passa a contar consultas depois da 2ª rodada do piloto) |
+| xApps originais | TS: anomalias (30003), predições (30002), HandOff REST, mantidos na servidora, A1 20008 | `logs/xapp_traffic_steering.log` |
+| KPIs | vazão e atraso médios por execução | `rdl_kpi_timeseries.csv` |

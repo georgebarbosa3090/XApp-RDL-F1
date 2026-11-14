@@ -1,0 +1,66 @@
+[RDL-SCN] 3 gNB(s), 50 UE(s), canal RMa, 43 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_116834.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=30.72 Mbps atraso=5.95 ms
+[RDL-KPI] t=3.0s vazao=30.72 Mbps atraso=5.88 ms
+[RDL-KPI] t=4.0s vazao=30.72 Mbps atraso=5.96 ms
+[RDL-KPI] t=5.0s vazao=30.72 Mbps atraso=5.95 ms
+[RDL-ACT] t=5.200s gnb=0 cell=1 TX_POWER=30.000 xapp=energysaver_greenran id=energysaver_greenran-g0-TX_POWER-5.200-1 -> APPLIED (TxPower=30 dBm)
+[RDL-KPI] t=6.0s vazao=30.72 Mbps atraso=5.94 ms
+[RDL-KPI] t=7.0s vazao=30.72 Mbps atraso=5.94 ms
+[RDL-KPI] t=8.0s vazao=30.72 Mbps atraso=5.94 ms
+[RDL-KPI] t=9.0s vazao=30.72 Mbps atraso=6.03 ms
+[RDL-KPI] t=10.0s vazao=30.72 Mbps atraso=6.11 ms
+[RDL-KPI] t=11.0s vazao=30.72 Mbps atraso=5.95 ms
+[RDL-KPI] t=12.0s vazao=30.72 Mbps atraso=5.99 ms
+[RDL-KPI] t=13.0s vazao=30.72 Mbps atraso=6.07 ms
+[RDL-KPI] t=14.0s vazao=30.72 Mbps atraso=6.03 ms
+[RDL-KPI] t=15.0s vazao=30.72 Mbps atraso=6.07 ms
+[RDL-ACT] t=15.200s gnb=0 cell=1 CELL_STATE=0.000 xapp=fault_injector id=fault_injector-g0-CELL_STATE-15.000 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-1 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-10 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-11 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-12 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-13 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-14 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-15 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-16 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-17 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-18 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-19 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-2 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-20 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-21 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-22 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-23 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-3 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-4 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-5 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-6 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-7 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-8 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.800-9 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=16.000s gnb=1 cell=2 TX_POWER=30.000 xapp=energysaver_greenran id=energysaver_greenran-g1-TX_POWER-16.000-2 -> APPLIED (TxPower=30 dBm)
+[RDL-ACT] t=16.000s gnb=2 cell=3 TX_POWER=30.000 xapp=energysaver_greenran id=energysaver_greenran-g2-TX_POWER-16.000-3 -> APPLIED (TxPower=30 dBm)
+[RDL-ACT] t=16.000s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-16.000-24 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-KPI] t=16.0s vazao=29.82 Mbps atraso=5.69 ms
+[RDL-ACT] t=16.200s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-16.200-25 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=16.400s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-16.400-26 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=16.800s gnb=0 cell=1 HANDOVER=2.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-16.800-27 -> APPLIED (1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms))
+[RDL-ACT] t=17.000s gnb=0 cell=1 CELL_STATE=0.000 xapp=energysaver_greenran id=energysaver_greenran-g0-CELL_STATE-17.000-4 -> APPLIED (sleep emulado: TxPower=-30 dBm)
+[RDL-KPI] t=17.0s vazao=26.79 Mbps atraso=14.81 ms
+[RDL-ACT] t=17.200s gnb=0 cell=1 CELL_STATE=1.000 xapp=energysaver_greenran id=energysaver_greenran-g0-CELL_STATE-17.200-5 -> APPLIED (ativa: TxPower=30 dBm)
+[RDL-ACT] t=17.600s gnb=2 cell=3 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g2-HANDOVER-17.600-28 -> APPLIED (1 UE(s) cell 3 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=18.0s vazao=31.62 Mbps atraso=23.95 ms
+[RDL-ACT] t=18.400s gnb=2 cell=3 TX_POWER=30.000 xapp=energysaver_greenran id=energysaver_greenran-g2-TX_POWER-18.400-6 -> APPLIED (TxPower=30 dBm)
+[RDL-KPI] t=19.0s vazao=30.72 Mbps atraso=5.79 ms
+[RDL-KPI] t=20.0s vazao=30.72 Mbps atraso=6.17 ms
+[RDL-KPI] t=21.0s vazao=30.72 Mbps atraso=6.06 ms
+[RDL-KPI] t=22.0s vazao=30.72 Mbps atraso=6.97 ms
+[RDL-KPI] t=23.0s vazao=30.72 Mbps atraso=7.01 ms
+[RDL-KPI] t=24.0s vazao=29.90 Mbps atraso=7.18 ms
+[RDL-KPI] t=25.0s vazao=30.72 Mbps atraso=7.40 ms
+[RDL-KPI] t=26.0s vazao=30.72 Mbps atraso=7.47 ms
+[RDL-KPI] t=27.0s vazao=30.80 Mbps atraso=8.97 ms
+[RDL-KPI] t=28.0s vazao=31.54 Mbps atraso=11.64 ms
+[RDL-KPI] t=29.0s vazao=30.88 Mbps atraso=12.16 ms

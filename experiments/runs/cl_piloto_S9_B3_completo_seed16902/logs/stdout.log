@@ -1,0 +1,36 @@
+[RDL-SCN] 2 gNB(s), 40 UE(s), canal NTN-Rural, 77 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_27794.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=0.26 Mbps atraso=6.45 ms
+[RDL-KPI] t=3.0s vazao=0.64 Mbps atraso=12.59 ms
+[RDL-KPI] t=4.0s vazao=0.61 Mbps atraso=19.46 ms
+[RDL-ACT] t=4.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-4.400-2 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=5.0s vazao=0.83 Mbps atraso=34.40 ms
+[RDL-KPI] t=6.0s vazao=0.40 Mbps atraso=10.73 ms
+[RDL-ACT] t=6.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-6.800-3 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=7.0s vazao=0.54 Mbps atraso=17.40 ms
+[RDL-KPI] t=8.0s vazao=0.53 Mbps atraso=43.86 ms
+[RDL-KPI] t=9.0s vazao=0.64 Mbps atraso=35.09 ms
+[RDL-KPI] t=10.0s vazao=0.53 Mbps atraso=10.85 ms
+[RDL-ACT] t=10.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-10.200-4 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=11.0s vazao=0.59 Mbps atraso=26.60 ms
+[RDL-KPI] t=12.0s vazao=0.59 Mbps atraso=27.11 ms
+[RDL-KPI] t=13.0s vazao=0.58 Mbps atraso=29.32 ms
+[RDL-KPI] t=14.0s vazao=0.59 Mbps atraso=25.76 ms
+[RDL-KPI] t=15.0s vazao=0.58 Mbps atraso=23.57 ms
+[RDL-KPI] t=16.0s vazao=0.59 Mbps atraso=25.76 ms
+[RDL-KPI] t=17.0s vazao=0.58 Mbps atraso=22.62 ms
+[RDL-ACT] t=17.600s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-17.600-6 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=18.0s vazao=0.61 Mbps atraso=25.07 ms
+[RDL-KPI] t=19.0s vazao=0.66 Mbps atraso=44.40 ms
+[RDL-KPI] t=20.0s vazao=0.62 Mbps atraso=17.51 ms
+[RDL-ACT] t=20.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-20.400-7 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=21.0s vazao=0.62 Mbps atraso=35.59 ms
+[RDL-KPI] t=22.0s vazao=0.62 Mbps atraso=44.90 ms
+[RDL-KPI] t=23.0s vazao=0.62 Mbps atraso=41.08 ms
+[RDL-KPI] t=24.0s vazao=0.64 Mbps atraso=44.11 ms
+[RDL-KPI] t=25.0s vazao=0.64 Mbps atraso=43.03 ms
+[RDL-KPI] t=26.0s vazao=0.64 Mbps atraso=44.91 ms
+[RDL-KPI] t=27.0s vazao=0.62 Mbps atraso=43.59 ms
+[RDL-KPI] t=28.0s vazao=0.62 Mbps atraso=44.62 ms
+[RDL-KPI] t=29.0s vazao=0.64 Mbps atraso=43.03 ms

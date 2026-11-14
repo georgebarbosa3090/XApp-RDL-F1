@@ -1,0 +1,6 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+0.2,0,1,PRB_QUOTA,40,-1,isac_radar,isac_radar-g0-PRB_QUOTA-0.200-1,APPLIED,RBG 106/266
+5.2,0,1,PRB_QUOTA,40,-1,isac_radar,isac_radar-g0-PRB_QUOTA-5.200-2,APPLIED,RBG 106/266
+10.2,0,1,PRB_QUOTA,40,-1,isac_radar,isac_radar-g0-PRB_QUOTA-10.200-3,APPLIED,RBG 106/266
+15.2,0,1,PRB_QUOTA,40,-1,isac_radar,isac_radar-g0-PRB_QUOTA-15.200-4,APPLIED,RBG 106/266
+20.2,0,1,PRB_QUOTA,40,-1,isac_radar,isac_radar-g0-PRB_QUOTA-20.200-5,APPLIED,RBG 106/266

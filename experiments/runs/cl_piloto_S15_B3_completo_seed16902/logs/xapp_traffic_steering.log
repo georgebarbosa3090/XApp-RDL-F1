@@ -1,0 +1,3686 @@
+[WARN] jwrapper: element [10] is undefined or of unknown type
+[WARN] jwrapper: element [32] is undefined or of unknown type
+[WARN] jwrapper: element [77] is undefined or of unknown type
+[INFO] listening on port 4560
+1794632073585 30497/RMR [INFO] ric message routing library on SI95 p=4560 mv=3 flg=00 id=a (9f31e260 4.9.4 built: Nov 13 2026)
+[INFO] Policy Callback got a message, type=20010, length=112
+[INFO] Payload is {"operation": "CREATE", "policy_type_id": 20008, "policy_instance_id": "ts-limiar", "payload": {"threshold": 5}}
+[INFO] Setting Threshold for A1-P value: 5%
+[INFO] AD Callback got a message, type=30003, length=604
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=52, payload={"UEPredictionSet": ["0","2","3","8","9","10","11"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3182800, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 1,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1146693, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 2,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4790363, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 3,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1449663, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 4,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1047540, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 5,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [2200227, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 6,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"11": {"1": [1, 0], "2": [992628, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 7,
+    "ue": "11",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:40 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3167145, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 8,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 9,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1327998, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 10,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4709142, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 11,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1061571, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 12,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [364788, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 13,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [747897, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 14,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [757024, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 15,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 16,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1047540, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 17,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [1941057, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 18,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [868292, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 19,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [870530, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 20,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1639308, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 21,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"15": {"1": [1, 0], "2": [1070267, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 22,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1860123, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 23,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [847030, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 24,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1498350, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 25,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"19": {"1": [1, 0], "2": [1350050, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 26,
+    "ue": "19",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:41 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3203777, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 27,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 28,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1298816, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 29,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4749598, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 30,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1065306, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 31,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [380081, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 32,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [747897, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 33,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [757024, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 34,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 35,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1047540, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 36,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [1941057, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 37,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [650633, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 38,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [965940, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 39,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1513400, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 40,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:42 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 41,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:43 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1860123, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 42,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:43 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [847030, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 43,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:43 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1518649, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 44,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:43 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"19": {"1": [1, 0], "2": [1350050, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 45,
+    "ue": "19",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:43 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3156745, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 46,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 47,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1146693, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 48,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4381272, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 49,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1061571, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 50,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [364788, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 51,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [880356, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 52,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [870234, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 53,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 54,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1047540, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 55,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [1941057, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 56,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [650633, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 57,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [870530, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 58,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1513400, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 59,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 60,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1988830, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 61,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [930099, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 62,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1508470, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 63,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"19": {"1": [1, 0], "2": [1340766, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 64,
+    "ue": "19",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:44 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 3400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3167145, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 65,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 66,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1298816, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 67,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4897812, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 68,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1065306, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 69,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [364788, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 70,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [747897, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 71,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [870234, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 72,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 73,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1047540, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 74,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [2200227, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 75,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [650633, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 76,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [870530, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 77,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1529658, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 78,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 79,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1860123, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 80,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [847030, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 81,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1523761, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 82,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"19": {"1": [1, 0], "2": [1357050, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 83,
+    "ue": "19",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:45 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 3600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3167145, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 84,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 85,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1146693, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 86,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=20
+[INFO] Payload is {"3": {"1": [1, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1642393, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 87,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [370697, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 88,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [747897, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 89,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [757024, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 90,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=20
+[INFO] Payload is {"8": {"1": [1, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1058944, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 91,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=21
+[INFO] Payload is {"10": {"1": [1, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [667485, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 92,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [895056, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 93,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1513400, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 94,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 95,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1860123, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 96,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [847030, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 97,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1534031, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 98,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"19": {"1": [1, 0], "2": [1364083, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 99,
+    "ue": "19",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:46 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 3800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3294257, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 100,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [656746, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 101,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1194682, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 102,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4381272, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 103,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"4": {"1": [1, 0], "2": [1021266, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 104,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [374173, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 105,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [747897, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 106,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [757024, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 107,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 108,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1244382, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 109,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [1999928, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 110,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [678933, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 111,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [870530, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 112,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1568221, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 113,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 114,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1906429, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 115,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [897510, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 116,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1429171, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 117,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=1643
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=107, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18","19"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3029201, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 118,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [674836, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 119,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1270239, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 120,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [4645052, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 121,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"4": {"1": [1, 0], "2": [987585, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 122,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [370002, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 123,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [855219, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 124,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [791738, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 125,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 126,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1428776, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 127,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [2060338, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 128,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [708318, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 129,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [965940, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 130,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1416602, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 131,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 132,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1969847, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 133,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [847030, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 134,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1485785, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 135,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"19": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=1556
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=102, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18"]}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"0": {"1": [1, 0], "2": [3069523, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 136,
+    "ue": "0",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"1": {"1": [1, 0], "2": [769460, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 137,
+    "ue": "1",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"2": {"1": [1, 0], "2": [1270239, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 138,
+    "ue": "2",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"3": {"1": [1, 0], "2": [5145243, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 139,
+    "ue": "3",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"4": {"1": [1, 0], "2": [987585, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 140,
+    "ue": "4",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"5": {"1": [1, 0], "2": [371392, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 141,
+    "ue": "5",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"6": {"1": [1, 0], "2": [875873, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 142,
+    "ue": "6",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"7": {"1": [1, 0], "2": [791738, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 143,
+    "ue": "7",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"8": {"1": [1, 0], "2": [1313939, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 144,
+    "ue": "8",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"9": {"1": [1, 0], "2": [1087960, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 145,
+    "ue": "9",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"10": {"1": [1, 0], "2": [1941057, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 146,
+    "ue": "10",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"12": {"1": [1, 0], "2": [670901, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 147,
+    "ue": "12",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"13": {"1": [1, 0], "2": [909756, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 148,
+    "ue": "13",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"1": [1, 0], "2": [1494632, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 149,
+    "ue": "14",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"15": {"1": [1, 0], "2": [937438, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 150,
+    "ue": "15",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"16": {"1": [1, 0], "2": [1915760, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 151,
+    "ue": "16",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=39
+[INFO] Payload is {"17": {"1": [1, 0], "2": [878130, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 152,
+    "ue": "17",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"18": {"1": [1, 0], "2": [1417119, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:50887/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 153,
+    "ue": "18",
+    "fromCell": "1",
+    "toCell": "2",
+    "timestamp": "Sat Nov 14 01:54:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=1556
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=102, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [8, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=1556
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=102, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","12","13","14","15","16","17","18"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"0": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"1": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"2": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"3": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"4": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"5": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"6": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"7": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"8": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"9": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"10": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"12": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"13": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"14": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"15": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"16": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"17": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"18": {"2": [16, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 9400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 9600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3470
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 9800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3510
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 10000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=3510
+[INFO] Payload is [{"du-id": 1010, "ue-id": "0", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "1", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "2", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "5", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "10", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "12", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "13", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "14", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "15", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "16", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "17", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "18", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 10200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=212, payload={"UEPredictionSet": ["0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"0": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"1": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"4": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"5": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"7": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"10": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"12": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"13": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"14": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"15": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"16": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"17": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"18": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"19": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"21": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"39": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=2545
+[INFO] Payload is [{"du-id": 1010, "ue-id": "2", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "3", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "4", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "6", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "7", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "8", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "9", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "11", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "19", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "20", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "21", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "22", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "23", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "24", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "25", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "26", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "29", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "30", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "31", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "32", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "33", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "34", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "36", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "39", "measTimeStampRf": 10400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=160, payload={"UEPredictionSet": ["2","3","4","6","7","8","9","11","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39"]}
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"2": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"3": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=20
+[INFO] Payload is {"4": {"2": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"6": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=20
+[INFO] Payload is {"7": {"2": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"8": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=33
+[INFO] Payload is {"9": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"11": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=21
+[INFO] Payload is {"19": {"2": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=21
+[INFO] Payload is {"21": {"2": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"24": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"25": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"26": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"30": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"31": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"32": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"33": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"34": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"36": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"37": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [1, 0], "1": [0, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=21
+[INFO] Payload is {"39": {"2": [1, 0]}}
+[INFO] The current serving cell "2" is the best one

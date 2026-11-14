@@ -1,0 +1,47 @@
+[RDL-SCN] 2 gNB(s), 36 UE(s), canal UMi, 43 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_2347.sock, janela 0.2 s
+[RDL-ACT] t=0.200s gnb=0 cell=1 PRB_QUOTA=35.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-0.200-1 -> APPLIED (RBG 37/106)
+[RDL-ACT] t=0.200s gnb=1 cell=2 PRB_QUOTA=35.000 xapp=ranslicer_greenran id=ranslicer_greenran-g1-PRB_QUOTA-0.200-2 -> APPLIED (RBG 37/106)
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=25.80 Mbps atraso=21.71 ms
+[RDL-ACT] t=2.200s gnb=0 cell=1 PRB_QUOTA=49.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-2.200-3 -> APPLIED (RBG 52/106)
+[RDL-KPI] t=3.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=4.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=4.200s gnb=0 cell=1 PRB_QUOTA=57.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-4.200-4 -> APPLIED (RBG 60/106)
+[RDL-KPI] t=5.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=6.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=6.400s gnb=0 cell=1 PRB_QUOTA=51.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-6.400-5 -> APPLIED (RBG 54/106)
+[RDL-KPI] t=7.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=8.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=8.400s gnb=0 cell=1 PRB_QUOTA=59.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-8.400-6 -> APPLIED (RBG 63/106)
+[RDL-KPI] t=9.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=10.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=10.400s gnb=0 cell=1 PRB_QUOTA=53.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-10.400-7 -> APPLIED (RBG 56/106)
+[RDL-KPI] t=11.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=12.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=12.400s gnb=0 cell=1 PRB_QUOTA=61.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-12.400-8 -> APPLIED (RBG 65/106)
+[RDL-KPI] t=13.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=14.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=14.400s gnb=0 cell=1 PRB_QUOTA=54.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-14.400-9 -> APPLIED (RBG 57/106)
+[RDL-KPI] t=15.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=16.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=16.600s gnb=0 cell=1 PRB_QUOTA=62.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-16.600-10 -> APPLIED (RBG 66/106)
+[RDL-KPI] t=17.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=18.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=18.600s gnb=0 cell=1 PRB_QUOTA=55.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-18.600-11 -> APPLIED (RBG 58/106)
+[RDL-KPI] t=19.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=20.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=20.600s gnb=0 cell=1 PRB_QUOTA=48.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-20.600-12 -> APPLIED (RBG 51/106)
+[RDL-KPI] t=21.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=22.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=22.600s gnb=0 cell=1 PRB_QUOTA=56.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-22.600-13 -> APPLIED (RBG 59/106)
+[RDL-KPI] t=23.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=24.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=24.600s gnb=0 cell=1 PRB_QUOTA=49.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-24.600-14 -> APPLIED (RBG 52/106)
+[RDL-KPI] t=25.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-KPI] t=26.0s vazao=30.00 Mbps atraso=5.67 ms
+[RDL-ACT] t=26.600s gnb=0 cell=1 PRB_QUOTA=57.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-26.600-15 -> APPLIED (RBG 60/106)
+[RDL-KPI] t=27.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-KPI] t=28.0s vazao=30.00 Mbps atraso=5.42 ms
+[RDL-ACT] t=28.600s gnb=0 cell=1 PRB_QUOTA=50.000 xapp=ranslicer_greenran id=ranslicer_greenran-g0-PRB_QUOTA-28.600-16 -> APPLIED (RBG 53/106)
+[RDL-KPI] t=29.0s vazao=30.00 Mbps atraso=5.67 ms

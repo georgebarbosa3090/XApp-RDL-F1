@@ -1,0 +1,3 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+1.2,0,1,PRB_QUOTA,25,-1,xslice,xslice-g0-PRB_QUOTA-1.200-1,APPLIED,RBG 13/53
+5.2,0,1,TX_POWER,30,-1,energysaver_greenran,energysaver_greenran-g0-TX_POWER-5.200-1,APPLIED,TxPower=30 dBm
