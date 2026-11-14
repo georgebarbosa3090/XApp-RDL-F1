@@ -115,15 +115,22 @@ Pronto quando:
   2. o TS envia a lista de UEs ao QP (`TS_UE_LIST`, 30000) e responde ao AD (30004);
   3. o QP devolve a vazão prevista por célula (`TS_QOE_PREDICTION`, 30002);
   4. se uma vizinha supera a servidora acima do limiar (A1 tipo 20008, `threshold`, pela msg 20010), o TS pede o handover por gRPC (`SendRICControlReqServiceGrpc`) à RC xApp.
-- **Adaptador:**
-  - **papel do AD:** a regra de anomalia fica em aberto (seção 7, D3);
-  - **papel do QP:** devolve a vazão **medida** no ns-3 por célula para cada UE da lista;
-  - **servidor gRPC RC:** o handover vira `HANDOVER`, com `xapp_id = "traffic_steering"`;
-  - **política A1:** o orquestrador envia o 20010 com o `threshold` do cenário no início da execução.
+- **Adaptador (implementado em `scripts/closed_loop/ts_driver.py`, E3 concluída em 2026-11-13):**
+  - **caminho de controle:** o TS tem dois caminhos originais, gRPC para a RC xApp e REST (`ts_control_api: rest`, o padrão do descritor do próprio repositório). O adaptador usa o REST: o descritor original é copiado com o `ts_control_ep` apontando para um servidor HTTP do adaptador, que recebe o `HandOff` (`ue`, `fromCell`, `toCell`) e o converte em proposta `HANDOVER` do UE, com `xapp_id = "traffic_steering"` e `xapp_impl: original`. A lógica de decisão do TS não muda; o gRPC fica para o testbed, com a RC xApp;
+  - **papel do AD (D3):** a cada janela, os UEs conectados com vazão abaixo de `anomaly_thp_mbps` (padrão 0,2 Mbps; valor final no pré-registro 11) vão ao TS pelo 30003, no formato do AD original. Antes de `min_observation_s` (1 s) nada é enviado, porque ainda não há tráfego;
+  - **papel do QP (D3):** para cada UE da lista 30000, devolve pelo 30002 a vazão **medida** na servidora (primeira célula, como o TS exige) e, nas vizinhas, a medida escalada pela capacidade de Shannon, com o SINR da vizinha estimado por SINR servidor + (RSRP vizinha − RSRP servidora). A estimativa é a mesma do shim do ES (§8) e é declarada no relato;
+  - **política A1:** o adaptador envia o 20010 (tipo 20008, `threshold` em %) no início da execução;
+  - **RMR:** `librmr_si` do O-RAN SC carregada por `ctypes`, com tabelas de rotas estáticas por processo (`RMR_SEED_RT`, `RMR_RTG_SVC=-1`).
+- **Build (`xapps-originais/ts/build.sh`, sem `sudo` e sem download novo):**
+  - RMR e o **núcleo** do xapp-frame-cpp (messaging, json, alarm, metrics, config, xapp). Os módulos `rest-client` (cpprest) e `rest-server` (Pistache) do framework não são usados pelo TS, que tem o próprio cliente REST com curl, e ficam fora, como no shim do FlexRIC;
+  - o repositório traz `rc.pb.*` e `rc.grpc.pb.*` gerados por um protoc antigo, incompatível com o protobuf 3.21 do Ubuntu. Numa cópia de build, só esse código gerado é regenerado a partir do `rc.proto` original; o `sha256` do `ts_xapp.cpp` é conferido no original e na cópia;
+  - o link usa `--copy-dt-needed-entries`, porque o gRPC do Ubuntu separa a `libgpr` e o CMake original só lista `grpc++`.
+- **Teste:** `tests/integration/test_ts_original.py` (no WSL, pelo `scripts/closed_loop/run_test_wsl.py`). Com três UEs, o TS recebe a A1 (limiar 5 %), é consultado só pelos dois UEs anômalos, pede `HandOff` apenas do UE cuja vizinha é melhor e mantém o outro ("serving cell is the best one").
 - **Colisão do RMR 30000:** o TS usa 30000 (`TS_UE_LIST`) e a RDL usa 30000 (`RDL_ACTION_PROPOSAL`).
   - **Regra:** cada processo tem a própria tabela de rotas (`RMR_SEED_RT`). Na do TS, 30000 vai **só** para o endpoint QP do adaptador. Na do adaptador, 30000 vai para a RDL. O TS não tem rota para a RDL.
   - **Defesa extra:** a RDL já valida o esquema da proposta e o registro de xApps no modo estrito. Uma `TS_UE_LIST` que chegue à RDL é recusada e registrada.
   - **Teste:** um teste de integração verifica que nenhuma mensagem do TS chega à porta da RDL.
+  - **Na malha fechada (E3):** a RDL recebe as propostas do orquestrador, não pelo RMR. A tabela do TS tem uma única rota, 30000 → adaptador, então a colisão não ocorre. A regra acima continua valendo para o testbed.
 
 ### 4.4 xApps próprias que ficam
 
@@ -344,7 +351,7 @@ Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas
 | E0 | permissão para os downloads, fontes no commit exato, `SOURCE.md` atualizado | hashes conferidos |
 | E1 | `RdlKpmExporter` e modo `--control-socket` no `rdl-nr-common.h`; orquestrador com xApp nula | ns-3 em passo travado reproduz o modo de cronograma com as mesmas ações (mesmo `thp_conflict`) |
 | E2 | `libe42_shim`; xSlice e ES Orange compilados sem alteração | `sha256` dos `.c` igual ao do `SOURCE.md`; a indicação chega e o controle vira proposta |
-| E3 | adaptador O-RAN SC (QP, AD e servidor gRPC RC) e rotas RMR isoladas | o teste de isolamento do 30000 passa |
+| E3 | adaptador O-RAN SC (QP, AD e destino do controle REST) e rotas RMR isoladas | **concluída em 2026-11-13** (§4.3): o TS original compila e decide em `tests/integration/test_ts_original.py`; o 30000 do TS só tem rota para o adaptador |
 | E4 | GreenRAN e Rogue no orquestrador; `fault_injector` como evento | todas as xApps do catálogo atendidas ou decididas (D1–D5) |
 | E5 | teste de cadeia (`tests/integration/test_cadeia_malha_fechada.py`) | xApp → 30000 → RDL → ação → ns-3 → KPM → xApp em S8, S11 e G2 |
 | E6 | os derivados em Python ficam (D5) e ganham leitura de KPM pelo adaptador, para o controle pareado. Atualizar `reference-xapps/README.md`, `docs/03` e o relatório de adequação: nas campanhas de cenário, as propostas vêm dos originais. Os `third_party/xapps/*` passam para `xapps-originais/` com os adaptadores. | testes verdes; nenhuma campanha usa os derivados como fonte de propostas |
