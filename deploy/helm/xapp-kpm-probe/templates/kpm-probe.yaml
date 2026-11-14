@@ -209,7 +209,10 @@ spec:
             - { name: KPM_REPORT_STYLE, value: {{ .Values.kpm.reportStyle | quote }} }
             - { name: KPM_REPORTING_PERIOD_MS, value: {{ .Values.kpm.reportingPeriodMs | quote }} }
             - { name: KPM_GRANULARITY_PERIOD_MS, value: {{ .Values.kpm.granularityPeriodMs | quote }} }
-            - { name: KPM_MEAS_NAMES, value: {{ join "," .Values.kpm.measNames | quote }} }
+            # métricas em ordem inversa: Action Definition diferente da kpm-probe, então o SubMgr cria uma
+            # subscrição E2 própria. Fundida, o RtMgr do Release I gerava duas linhas mse|12050|<id> (uma por
+            # endpoint) e o RMR entregava as Indications só à kpm-probe.
+            - { name: KPM_MEAS_NAMES, value: {{ reverse .Values.kpm.measNames | join "," | quote }} }
             - { name: PROPONENTES, value: {{ join "," .Values.proponentes.xapps | quote }} }
             - { name: XAPP_RDL_SRC_COMMIT, value: {{ required "srcCommit ausente" .Values.srcCommit | quote }} }
           ports:
