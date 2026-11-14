@@ -66,9 +66,10 @@ def test_ranslicer_computes_safe_quota_from_measured_efficiency():
     assert x.step(now=1) == []                                         # em risco, mesmo teto: o em vigor basta
     resp = x.handle_a1(a1_msg(21000, "greenran-ranslicer", {"embb_min_thp_mbps": 10, "mmtc_min_prb_pct": 20}))
     assert resp["status"] == "OK"
-    (p,) = x.step(now=2)
+    assert x.step(now=2) == []                                         # sem risco, mas o último risco foi há < 10 s
+    (p,) = x.step(now=12)
     assert p["value"] == 23.0 and p["priority"] == 75                  # 10 × 1,15 ÷ 0,5 = 23
-    assert x.step(now=5) == []                                         # mudança < 2 pontos: nada
+    assert x.step(now=15) == []                                        # mudança < 2 pontos: nada
 
 
 def test_ranslicer_does_not_oscillate_and_reverts_on_refusal():
@@ -92,6 +93,17 @@ def test_ranslicer_does_not_oscillate_and_reverts_on_refusal():
     assert y.last_cap["gnb_0"] == first["value"]
     assert y.step(now=4) == []                                         # dentro do intervalo
     assert y.step(now=5.5)[0]["value"] == second["value"]              # repropõe o teto recusado
+
+
+def test_ranslicer_asymmetric_hysteresis_breaks_the_slow_cycle():
+    """2ª rodada do piloto: reduzir sem risco recriava o risco (49 -> 57 -> 51 -> 59 ... a cada 2 s)."""
+    x = RanSlicer(transport=transport("ranslicer_greenran"), eff_alpha=1.0)
+    values = []
+    for k in range(100):                                               # 20 s; risco em metade das janelas
+        thp = 25.0 if (k // 10) % 2 == 0 else 45.0
+        x.observe(sample("gnb_0", load=60, thp=thp, delay=40))
+        values += [p["value"] for p in x.step(now=0.2 * k)]
+    assert values == sorted(values)                                    # nunca desce perto do risco
 
 
 def test_ranslicer_delay_raises_quota_and_learned_policy_is_shielded():

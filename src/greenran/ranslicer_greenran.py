@@ -18,7 +18,8 @@ mMTC dos sensores (SST 2; App2). A cada período, por célula:
 5. **Estabilidade (piloto da malha fechada, 2026-11-14):** mudanças menores que ``ranslicer_min_change``
    pontos não são propostas sem risco; com o SLA em risco o teto só é proposto se subir (o valor em vigor
    continua aplicado, e descer só pioraria a vazão); entre duas propostas da mesma célula passam ao menos ``ranslicer_min_interval_s``
-   (o TTL da proposta). Sem isso, o ruído da média móvel da eficiência fechava um ciclo 54 ↔ 56 % a cada
+   (o TTL da proposta); o teto só desce depois de ``ranslicer_down_hold_s`` (10 s) sem risco, porque reduzir logo
+   depois do risco o recriava (ciclo lento de 2 s e cerca de 7 pontos na 2ª rodada do piloto). Sem isso, o ruído da média móvel da eficiência fechava um ciclo 54 ↔ 56 % a cada
    janela (131 reversões em 30 s no G1/B0). Recusa da RDL devolve o teto de referência ao valor em vigor.
 
 A intenção chega pela política A1 21000 (``GreenRAN_RANSlicer_Intent``), publicada pelo
@@ -46,6 +47,7 @@ class RanSlicer(GreenRanXApp):
         "ranslicer_delay_step": 10.0,
         "ranslicer_min_change": 2.0,
         "ranslicer_min_interval_s": 2.0,  # = ttl_ms da proposta
+        "ranslicer_down_hold_s": 10.0,    # só reduz o teto depois deste tempo sem SLA em risco
     }
 
     def __init__(self, *args, learned_policy: Optional[Callable[[Dict[str, float]], float]] = None,
@@ -57,6 +59,7 @@ class RanSlicer(GreenRanXApp):
         self.last_cap: Dict[str, float] = {}       # teto de referência (último proposto)
         self.prev_cap: Dict[str, Optional[float]] = {}   # teto em vigor antes da última proposta
         self.last_sent: Dict[str, float] = {}
+        self.last_risk: Dict[str, float] = {}
 
     def observe(self, sample: CellSample) -> None:
         super().observe(sample)
@@ -96,6 +99,8 @@ class RanSlicer(GreenRanXApp):
                 cap = min(max(float(self.learned_policy(state)), low), high)   # escudo de segurança
             cap = float(math.ceil(min(cap, high)))
             at_risk = delay_risk or thp_risk
+            if at_risk:
+                self.last_risk[cell] = now
             if current is not None:
                 if now - self.last_sent.get(cell, -math.inf) < float(pol["ranslicer_min_interval_s"]):
                     continue
@@ -104,6 +109,8 @@ class RanSlicer(GreenRanXApp):
                         continue                       # e o teto em vigor continua aplicado
                 elif abs(cap - current) < float(pol["ranslicer_min_change"]):
                     continue
+                elif cap < current and now - self.last_risk.get(cell, -math.inf) < float(pol["ranslicer_down_hold_s"]):
+                    continue                           # histerese assimétrica: reduzir logo depois do risco o recria
             self.prev_cap[cell] = current
             self.last_cap[cell] = cap
             self.last_sent[cell] = now
