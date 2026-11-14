@@ -1,0 +1,2 @@
+execucao,cenario,baseline,commit,drivers,janelas,eventos_a1,propostas,janelas_com_conflito,conflitos_em_5s,selecionadas,nao_selecionadas,aplicadas,recusadas,status,reversoes_prb_quota,vazao_media_mbps,atraso_medio_ms,pares_em_conflito,pares_em_sequencia
+cl_e3_S9_B3_ts_seed16901,S9,B3,b4593e8,propria:energysaver_greenran original:traffic_steering,149,3,22,0,0,5,17,5,0,APPLIED=5,0,0.592,23.233,,

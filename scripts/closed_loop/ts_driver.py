@@ -125,19 +125,27 @@ class TsOriginalDriver(XAppDriver):
     def __init__(self, workdir: str, prefix: Optional[str] = None, threshold_pct: int = 5,
                  anomaly_thp_mbps: float = 0.2, priority: int = 80, wait_s: float = 0.25,
                  min_observation_s: float = 1.0, anomaly_mode: str = "absoluto", anomaly_drop: float = 0.5,
-                 anomaly_alpha: float = 0.2):
+                 anomaly_alpha: float = 0.2, anomaly_frac: float = 0.5, anomaly_window_s: float = 1.0,
+                 ue_offered_mbps: Optional[Dict[int, float]] = None):
         base = Path(os.environ.get("XAPPS_ORIGINAIS", os.path.expanduser("~/xapps-originais")))
         self.prefix = Path(prefix or base / "install")
         self.binary = base / "build-ts" / "src" / "ts_xapp" / "ts_xapp"
         self.workdir = Path(workdir)
         self.threshold_pct, self.anomaly_thp, self.priority, self.wait_s = threshold_pct, anomaly_thp_mbps, priority, wait_s
         self.min_observation_s = min_observation_s   # antes disso não há tráfego: todo UE pareceria anômalo
-        # AD emulado (D3): "absoluto" = vazão < anomaly_thp_mbps; "relativo" = vazão < anomaly_drop × média
-        # móvel da própria vazão do UE (degradação, como o AD original, que marca "Degradation")
-        if anomaly_mode not in ("absoluto", "relativo"):
-            raise ValueError(f"anomaly_mode {anomaly_mode!r}: use absoluto | relativo")
+        # AD emulado (D3). "oferta" (pré-registro 11): a vazão entregue ao UE na janela deslizante de
+        # anomaly_window_s fica abaixo de anomaly_frac × a taxa oferecida pela aplicação do cenário
+        # (--ueGroups/--packetSize). "absoluto": vazão < anomaly_thp_mbps. "relativo": vazão < anomaly_drop ×
+        # média móvel da própria vazão do UE.
+        if anomaly_mode not in ("oferta", "absoluto", "relativo"):
+            raise ValueError(f"anomaly_mode {anomaly_mode!r}: use oferta | absoluto | relativo")
+        if anomaly_mode == "oferta" and not ue_offered_mbps:
+            raise ValueError("anomaly_mode oferta exige ue_offered_mbps (taxa oferecida por UE)")
         self.anomaly_mode, self.anomaly_drop, self.anomaly_alpha = anomaly_mode, anomaly_drop, anomaly_alpha
+        self.anomaly_frac, self.anomaly_window_s = anomaly_frac, anomaly_window_s
+        self.offered = {str(k): float(v) for k, v in (ue_offered_mbps or {}).items()}
         self.thp_ema: Dict[str, float] = {}
+        self.thp_hist: Dict[str, List[float]] = {}
         self.posts: "queue.Queue[Dict[str, Any]]" = queue.Queue()
         self.log: List[Dict[str, Any]] = []
         self.proc = None
@@ -230,12 +238,21 @@ class TsOriginalDriver(XAppDriver):
                     cells[c] = [max(0, int(round(thp_kbps * self._cap(float(sinr) + r - rsrp[serv]) / base))), 0]
         return {str(u["ue"]): cells}
 
-    def _anomalous(self, ues: Dict[str, Dict[str, Any]]) -> List[str]:
+    def _anomalous(self, ues: Dict[str, Dict[str, Any]], window_s: float = 0.2) -> List[str]:
         out = []
+        n_hist = max(1, int(round(self.anomaly_window_s / window_s)))
         for uid, u in ues.items():
             if u.get("thp_mbps") is None:
                 continue
             thp = float(u["thp_mbps"])
+            if self.anomaly_mode == "oferta":
+                hist = self.thp_hist.setdefault(uid, [])
+                hist.append(thp)
+                del hist[:-n_hist]
+                offered = self.offered.get(uid)
+                if offered and len(hist) == n_hist and sum(hist) / n_hist < self.anomaly_frac * offered:
+                    out.append(uid)
+                continue
             if self.anomaly_mode == "absoluto":
                 if thp < self.anomaly_thp:
                     out.append(uid)
@@ -254,7 +271,7 @@ class TsOriginalDriver(XAppDriver):
         if t < self.min_observation_s:
             return props
         ues = {str(u["ue"]): u for u in kpm.get("ues", []) if u.get("connected")}
-        anomalous = self._anomalous(ues)
+        anomalous = self._anomalous(ues, float(kpm.get("window") or 0.2))
         if not anomalous:
             return props
         ad = [{"du-id": 1010, "ue-id": uid, "measTimeStampRf": int(t * 1000), "Degradation": "RSRP RSSINR"}

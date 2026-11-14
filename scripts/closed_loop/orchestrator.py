@@ -192,6 +192,23 @@ def ue_sst_map(spec: Dict[str, Any], groups_sst: List[int]) -> Dict[int, int]:
     return out
 
 
+def ue_offered_mbps(spec: Dict[str, Any], default_packet_bytes: int = 1024) -> Dict[int, float]:
+    """Índice do UE -> taxa oferecida pela aplicação (Mb/s): --packetSize × 8 ÷ intervalMs do grupo em --ueGroups.
+
+    1024 B é o padrão de --packetSize no scenario_rdl_multicell.cc; os UEs seguem a ordem dos grupos.
+    """
+    args = spec.get("args", [])
+    groups = next((a.split("=", 1)[1] for a in args if a.startswith("--ueGroups=")), "")
+    size = next((int(a.split("=", 1)[1]) for a in args if a.startswith("--packetSize=")), default_packet_bytes)
+    out, u = {}, 0
+    for g in filter(None, groups.split(";")):
+        f = g.split(",")
+        for _ in range(int(f[0])):
+            out[u] = size * 8 / (float(f[5]) * 1000.0)       # bytes/ms -> Mb/s
+            u += 1
+    return out
+
+
 def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple = ()) -> List[XAppDriver]:
     """Todas as xApps do cenário em malha fechada, pelo papel no catálogo e pelo closed_loop.json.
 
@@ -224,7 +241,10 @@ def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple =
         if rc.get("driver"):                      # original em processo próprio (docs/16 §4.3)
             cls = getattr(importlib.import_module(rc["driver"]), rc["class"])
             work = os.path.join(tempfile.gettempdir(), f"rdl_xapp_{role}_{run_id or os.getpid()}")
-            drivers.append(cls(workdir=work, **rc.get("args", {})))
+            kw = dict(rc.get("args", {}))
+            if kw.get("anomaly_mode") == "oferta":
+                kw["ue_offered_mbps"] = ue_offered_mbps(spec)
+            drivers.append(cls(workdir=work, **kw))
             continue
         if rc.get("replay_catalog"):
             events = [e for e in rce.expand_proposals(spec) if e["xapp_id"] == role]

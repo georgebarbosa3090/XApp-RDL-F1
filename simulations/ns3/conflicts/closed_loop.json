@@ -3,7 +3,7 @@
   "roles": {
     "xslice": {"module": "src.xapps.derivadas", "class": "XSliceDerivada", "xapp_impl": "derivado"},
     "traffic_steering": {"driver": "scripts.closed_loop.ts_driver", "class": "TsOriginalDriver", "xapp_impl": "original",
-                         "args": {"threshold_pct": 5, "anomaly_thp_mbps": 0.2, "priority": 80, "min_observation_s": 1.0},
+                         "args": {"threshold_pct": 5, "anomaly_mode": "oferta", "anomaly_frac": 0.5, "anomaly_window_s": 1.0, "priority": 80, "min_observation_s": 1.0},
                          "derivado": {"module": "src.xapps.derivadas", "class": "TrafficSteeringDerivada", "xapp_impl": "derivado"}},
     "energy_saving": {"module": "src.greenran.energysaver_greenran", "class": "EnergySaver", "xapp_impl": "propria"},
     "energy_saving_ru0": {"same_as": "energy_saving"},

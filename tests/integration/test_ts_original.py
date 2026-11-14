@@ -68,6 +68,25 @@ def test_relative_anomaly_marks_only_degradation_of_the_ue_itself():
     assert TsOriginalDriver(workdir=".")._anomalous(low) == ["0", "1"]     # absoluto (0,2 Mbps): todos
 
 
+def test_offered_rate_anomaly_uses_sliding_window_against_the_scenario_offer():
+    import scripts.closed_loop.orchestrator as orc
+    from scripts.closed_loop.ts_driver import TsOriginalDriver
+
+    spec = {"args": ["--packetSize=200", "--ueGroups=1,0,0,0,10,100,0,0,1.5;1,0,0,0,10,10,0,0,1.5"]}
+    off = orc.ue_offered_mbps(spec)
+    assert off == {0: pytest.approx(0.016), 1: pytest.approx(0.16)}         # 200 B a cada 100 ms e 10 ms
+    assert orc.ue_offered_mbps({"args": ["--ueGroups=2,0,0,0,10,8,0,0,1.5"]})[1] == pytest.approx(1.024)  # 1024 B
+    drv = TsOriginalDriver(workdir=".", anomaly_mode="oferta", anomaly_frac=0.5, anomaly_window_s=1.0, ue_offered_mbps=off)
+    ues = lambda t0, t1: {"0": _ue(0, 1, t0, 3.0, {}), "1": _ue(1, 1, t1, 3.0, {})}   # noqa: E731
+    marks = [drv._anomalous(ues(0.008 if k % 2 else 0.016, 0.16), 0.2) for k in range(5)]
+    assert marks == [[], [], [], [], []]       # 1 ou 2 pacotes por janela: em 1 s a entrega passa de 50 %
+    for _ in range(5):
+        got = drv._anomalous(ues(0.016, 0.02), 0.2)                         # UE 1 recebe 12 % da oferta
+    assert got == ["1"]
+    with pytest.raises(ValueError):
+        TsOriginalDriver(workdir=".", anomaly_mode="oferta")                # sem a taxa oferecida
+
+
 @pytest.mark.skipif(os.name == "nt" or not BIN.exists(), reason="requer o ts_xapp compilado no Linux/WSL")
 def test_ts_original_hands_off_only_the_ue_with_a_better_neighbor(tmp_path):
     from scripts.closed_loop.ts_driver import TsOriginalDriver
