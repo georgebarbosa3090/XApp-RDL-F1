@@ -58,5 +58,9 @@ kubectl -n ricsim exec -it deploy/nori-ns3 -- env RDL_SCENARIO="$SCENARIO" RDL_B
   bash /scripts/run.sh nori-rc-slicing-flowmon "$RUN_ID" --seed "$SEED" -- \
   --simTime="${SIM_TIME:-40}" --ns3::E2Interface::E2Periodicity="${E2_PERIOD:-1}" --trafficRate="${TRAFFIC_RATE:-300Mb/s}" "${EXTRA[@]}" \
   | grep --line-buffered -E "Slice [01]|\[t = |\[RDL-UE\]|E2Term|SETUP|Subscription|subscription|RICcontrol|===|E2SimMod"
+RC=${PIPESTATUS[0]}
+if [ "$RC" = 69 ]; then   # bancada ainda se preparando (pod recriado): nada rodou, nada a coletar
+  say "bancada NORI ainda não está pronta (código 69): espere o marcador READY do pod nori-ns3"; exit 69
+fi
 bash "$REPO/scripts/collect_nori_run.sh" "$RUN_ID" 2>&1 | grep -E "hashes|Cadeia|tshark \(|xApp:|Control:|Efeito|SST|ERRO"
 sleep 15   # o E2Mgr marca o nó como desconectado e a xApp apaga a subscrição antes da próxima execução
