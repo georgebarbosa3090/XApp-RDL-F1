@@ -26,10 +26,8 @@ else
 fi
 ( cd "$DEST" && sha256sum --quiet -c hashes.sha256 ) && say "hashes.sha256 conferido ($(wc -l < "$DEST/hashes.sha256") arquivos)"
 
-if kubectl -n ricxapp get deploy kpm-probe >/dev/null 2>&1; then
-  mkdir -p "$XLOG"
-  kubectl -n ricxapp exec deploy/kpm-probe -- cat /data/logs/kpm_probe_events.jsonl \
-    | python3 -c '
+cut_events() {  # cut_events <deploy> <arquivo de eventos no volume> <nome no repositório>
+  kubectl -n ricxapp exec "deploy/$1" -- cat "$2" | python3 -c '
 import json, sys
 from datetime import datetime, timedelta
 m = json.load(open(sys.argv[1]))
@@ -43,9 +41,17 @@ for line in sys.stdin:
         continue
     if start <= parse(ev["t_utc"]) <= end:
         sys.stdout.write(line); n += 1
-print("%d eventos da xApp em [%s, %s + 5 s]" % (n, m["started_at_utc"], m["finished_at_utc"]), file=sys.stderr)
-' "$DEST/execution_manifest.json" > "$XLOG/kpm_probe_events.jsonl"
-  ( cd "$XLOG" && sha256sum kpm_probe_events.jsonl > hashes.sha256 )
+print("%d eventos em [%s, %s + 5 s]" % (n, m["started_at_utc"], m["finished_at_utc"]), file=sys.stderr)
+' "$DEST/execution_manifest.json" > "$XLOG/$3"
+}
+if kubectl -n ricxapp get deploy kpm-probe >/dev/null 2>&1; then
+  mkdir -p "$XLOG"
+  cut_events kpm-probe /data/logs/kpm_probe_events.jsonl kpm_probe_events.jsonl
+  # malha fechada com xApps reais (docs/16 §10.2): eventos das proponentes (KPM, decisões, propostas, recusas)
+  if kubectl -n ricxapp get deploy nori-proponentes >/dev/null 2>&1; then
+    cut_events nori-proponentes /data/logs/proponentes_events.jsonl proponentes_events.jsonl
+  fi
+  ( cd "$XLOG" && sha256sum ./*.jsonl > hashes.sha256 )
 else
   say "xApp kpm-probe não implantada: sem recorte de eventos"
 fi

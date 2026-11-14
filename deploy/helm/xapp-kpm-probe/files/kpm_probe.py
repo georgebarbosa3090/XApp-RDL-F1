@@ -97,9 +97,12 @@ RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILUR
              30000: "RDL_ACTION_PROPOSAL", 30001: "RDL_ACTION_RESULT"}
 RX = ["RIC_SUB_RESP", "RIC_SUB_FAILURE", "RIC_SUB_DEL_RESP", "RIC_INDICATION",
       "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"] + (["A1_POLICY_REQ"] if A1 is not None else []) \
-    + (["RDL_ACTION_PROPOSAL"] if RC_DECISION == "xapps" else [])
+    + (["TS_UE_LIST"] if RC_DECISION == "xapps" else [])
 TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"] + (["A1_POLICY_RESP", "A1_POLICY_QUERY"] if A1 is not None else []) \
-    + (["RDL_ACTION_RESULT"] if RC_DECISION == "xapps" else [])
+    + (["TS_QOE_PRED_REQ"] if RC_DECISION == "xapps" else [])
+# O RtMgr do Release I conhece 30000 e 30001 pelos nomes do Traffic Steering (TS_UE_LIST, TS_QOE_PRED_REQ): é a
+# colisão do docs/16 §4.3. Sem TS no RIC, os nomes servem só para o RtMgr criar as rotas das propostas (30000)
+# e dos resultados (30001); a RDL valida o esquema de cada proposta.
 POLICIES = [int(t) for t in ("20000", "20001", "20002")] if A1 is not None else []  # tipos da RDL
 
 STOP = threading.Event()
@@ -416,7 +419,7 @@ def notify_refusals(rmr, ctx, decision) -> None:
     for aid in decision.get("not_selected", []):
         p = by_id.get(aid, {})
         body = json.dumps({"xapp_id": p.get("xapp_id"), "action_id": aid, "parameter": p.get("parameter"),
-                           "node_id": p.get("target"), "reason": "NOT_SELECTED"}).encode("utf-8")
+                           "node_id": str(p.get("target", "")).split("#")[0], "reason": "NOT_SELECTED"}).encode("utf-8")
         sbuf = rmr.rmr_alloc_msg(ctx, len(body), payload=body, gen_transaction_id=True, mtype=RDL_ACTION_RESULT)
         sbuf = rmr.rmr_send_msg(ctx, sbuf)
         state = rmr.message_summary(sbuf)[rmr.RMR_MS_MSG_STATE]
@@ -625,6 +628,9 @@ def main() -> int:
             elif state != "CONNECTED":
                 attempts.pop(meid, None)
                 CONTROL.pop(meid, None)   # próxima conexão (nova execução) recebe novo Control
+                XAPPS_CONTROLS.pop(meid, None)
+                if WINDOW is not None:
+                    WINDOW.drain()        # propostas da execução anterior não decidem a próxima
                 LAST_KPM.pop(meid, None)
                 if meid in subs:
                     indications = {str(k[1]): v for k, v in COUNTS.items() if k[0] == 12050}

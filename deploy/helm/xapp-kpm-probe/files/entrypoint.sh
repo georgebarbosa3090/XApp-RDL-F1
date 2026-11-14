@@ -47,13 +47,15 @@ for entry in $NORI_ASN_FILES; do
   log "ASN.1 $f sha256 $h"
 done
 
-# Código do repositório (src/) do commit XAPP_RDL_SRC_COMMIT, entregue em base64 pelo chart
-APP="$D/app/${XAPP_RDL_SRC_COMMIT}"
+# Código do repositório (src/) do commit XAPP_RDL_SRC_COMMIT, entregue em base64 pelo chart. Um diretório por
+# processo (kpm-probe e as xApps proponentes dividem o volume e podem subir ao mesmo tempo).
+ROOT_APP="$D/app-${XAPP_NAME:-kpm-probe}"
+APP="$ROOT_APP/${XAPP_RDL_SRC_COMMIT}"
 if [ ! -d "$APP/src" ]; then
-  rm -rf "$D/app" && mkdir -p "$APP"
+  rm -rf "$ROOT_APP" && mkdir -p "$APP"
   base64 -d /scripts/src.tar.gz.b64 | tar -xz -C "$APP"
 fi
 log "src/ do commit ${XAPP_RDL_SRC_COMMIT} em $APP"
 
-export ASN_DIR="$D/asn" EVENTS_FILE="$D/logs/kpm_probe_events.jsonl" XAPP_RDL_APP_DIR="$APP" XAPP_RDL_ASN1_DIR="$D/asn"
-exec "$D/venv/bin/python" -u /scripts/kpm_probe.py
+export ASN_DIR="$D/asn" EVENTS_FILE="${EVENTS_FILE:-$D/logs/kpm_probe_events.jsonl}" XAPP_RDL_APP_DIR="$APP" XAPP_RDL_ASN1_DIR="$D/asn"
+exec "$D/venv/bin/python" -u "/scripts/${XAPP_MAIN:-kpm_probe.py}"

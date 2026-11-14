@@ -7,6 +7,8 @@
 #
 # Uso (Ubuntu do WSL, a partir da raiz do repositório ou de qualquer lugar):
 #   bash scripts/run_nori_scenario.sh S1 1001
+# RC_MODE=xapps: malha fechada com as xApps proponentes reais (docs/16 §10.2; kpm-probe implantada com
+#   --set rc.decision=xapps --set proponentes.enabled=true). Padrão: catalog.
 # Pré-requisitos: RIC Release I, bancada NORI e xApp kpm-probe em modo catalog
 #   (bash scripts/deploy_kpm_probe.sh --set rc.decision=catalog).
 # Variáveis: SIM_TIME (40), TRAFFIC_RATE (300Mb/s), E2_PERIOD (1), KUBECONFIG,
@@ -37,14 +39,14 @@ ready() {
   pods=$(kubectl -n ricxapp get pods -l app.kubernetes.io/name=kpm-probe --no-headers 2>/dev/null)
   [ "$(echo "$pods" | grep -c .)" = 1 ] && echo "$pods" | grep -q " 1/1 .*Running" || return 1
   ev=$(kubectl -n ricxapp exec deploy/kpm-probe -- sh -c 'grep -E "event\": \"(start|rmr_ready)\"" /data/logs/kpm_probe_events.jsonl | tail -2' 2>/dev/null)
-  echo "$ev" | head -1 | grep -q '"rc_decision": "catalog"' && echo "$ev" | tail -1 | grep -q '"event": "rmr_ready"'
+  echo "$ev" | head -1 | grep -q "\"rc_decision\": \"${RC_MODE:-catalog}\"" && echo "$ev" | tail -1 | grep -q '"event": "rmr_ready"'
 }
 
 if [ -e "$REPO/experiments/runs/$RUN_ID" ]; then
   say "$RUN_ID já existe no repositório: pulando (não sobrescrevo evidência)"; exit 0
 fi
 for i in $(seq 1 120); do ready && break; sleep 5; done
-ready || { say "xApp kpm-probe não está pronta em modo catalog (pod único)"; exit 3; }
+ready || { say "xApp kpm-probe não está pronta em modo ${RC_MODE:-catalog} (pod único)"; exit 3; }
 kubectl -n ricxapp exec deploy/kpm-probe -- sh -c "echo $SCENARIO > /data/rdl_scenario; echo $BASELINE > /data/rdl_baseline"
 XAPP_SRC_COMMIT="$(kubectl -n ricxapp exec deploy/kpm-probe -- sh -c 'grep "event\": \"start\"" /data/logs/kpm_probe_events.jsonl | tail -1' | grep -o '"src_commit": "[0-9a-f]*' | cut -d'"' -f4 || true)"
 say "cenário $SCENARIO gravado na xApp; xApp com src/ de ${XAPP_SRC_COMMIT:0:7} (repositório em ${COMMIT:0:7})"

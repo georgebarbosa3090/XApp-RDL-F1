@@ -69,3 +69,15 @@ resources:
     memory: 256Mi
   limits:
     memory: 1Gi       # o RDL-N1 (numpy, pydantic, pycrate) e a instalação inicial passam de 512 Mi
+
+# xApps proponentes da malha fechada no NORI (docs/16 §10.2; com rc.decision: xapps): RANSlicer-GreenRAN,
+# derivada do xSlice e embb_throughput, lendo o KPM real pelo RIC e propondo à RDL pelo RMR 30000.
+proponentes:
+  enabled: false
+  xapps: [ranslicer, xslice, embb_throughput]
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 768Mi

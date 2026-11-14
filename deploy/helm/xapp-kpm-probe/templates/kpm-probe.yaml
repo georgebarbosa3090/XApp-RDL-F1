@@ -10,6 +10,8 @@ data:
 {{ .Files.Get "files/entrypoint.sh" | indent 4 }}
   kpm_probe.py: |
 {{ .Files.Get "files/kpm_probe.py" | indent 4 }}
+  proponentes.py: |
+{{ .Files.Get "files/proponentes.py" | indent 4 }}
   # Pacote do src/ do repositório (git archive de um commit, tar.gz em base64): codec E2 v3,
   # ponte RDL-N1 e o próprio RDL-N1. Gerado por scripts/deploy_kpm_probe.sh, sem cópia no chart.
   src.tar.gz.b64: |
@@ -131,3 +133,102 @@ spec:
         - name: scripts
           configMap:
             name: {{ include "kpm-probe.name" . }}-scripts
+{{- if .Values.proponentes.enabled }}
+{{- /*
+xApps proponentes da malha fechada no NORI (docs/16 §10.2): RANSlicer-GreenRAN, derivada do xSlice e
+embb_throughput num pod, com o mesmo src/ do commit e o mesmo volume (o venv já instalado pela kpm-probe).
+*/}}
+{{- range $svc := list "http" "rmr" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-{{ $.Release.Namespace }}-nori-proponentes-{{ $svc }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" $ | nindent 4 }}
+spec:
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: nori-proponentes
+  ports:
+    - { name: http, port: 8080, targetPort: 8080, protocol: TCP }
+    - { name: rmr-data, port: 4560, targetPort: 4560, protocol: TCP }
+    - { name: rmr-route, port: 4561, targetPort: 4561, protocol: TCP }
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nori-proponentes
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kpm-probe.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nori-proponentes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nori-proponentes
+        rdl.governance/proposer: "true"
+      annotations:
+        checksum/scripts: {{ printf "%s%s%s" (.Files.Get "files/entrypoint.sh") (.Files.Get "files/proponentes.py") .Values.srcBundle | sha256sum }}
+        checksum/values: {{ toJson .Values | sha256sum }}
+    spec:
+      containers:
+        - name: nori-proponentes
+          image: {{ .Values.image }}
+          command: ["bash", "/scripts/entrypoint.sh"]
+          env:
+            - { name: XAPP_NAME, value: "nori-proponentes" }
+            - { name: XAPP_MAIN, value: "proponentes.py" }
+            - { name: EVENTS_FILE, value: "/data/logs/proponentes_events.jsonl" }
+            - { name: XAPP_VERSION, value: {{ .Chart.AppVersion | quote }} }
+            - { name: XAPP_HTTP_HOST, value: "service-{{ .Release.Namespace }}-nori-proponentes-http.{{ .Release.Namespace }}" }
+            - { name: XAPP_RMR_HOST, value: "service-{{ .Release.Namespace }}-nori-proponentes-rmr.{{ .Release.Namespace }}" }
+            - { name: RMR_SRC_ID, value: "service-{{ .Release.Namespace }}-nori-proponentes-rmr.{{ .Release.Namespace }}" }
+            - { name: RMR_RTG_SVC, value: "4561" }
+            - { name: RMR_VERSION, value: {{ .Values.pins.rmr.version | quote }} }
+            - { name: RMR_URL, value: {{ .Values.pins.rmr.url | quote }} }
+            - { name: RMR_SHA256, value: {{ .Values.pins.rmr.sha256 | quote }} }
+            - { name: PIP_RICXAPPFRAME, value: {{ .Values.pins.python.ricxappframe | quote }} }
+            - { name: PIP_ASN1TOOLS, value: {{ .Values.pins.python.asn1tools | quote }} }
+            - { name: PIP_HRDL_DEPS, value: {{ join " " .Values.pins.python.hrdl | quote }} }
+            - { name: NORI_ASN_BASE_URL, value: {{ .Values.pins.noriAsn.baseUrl | quote }} }
+            - name: NORI_ASN_FILES
+              value: {{ range $f, $h := .Values.pins.noriAsn.files }}{{ $f }}={{ $h }} {{ end }}
+            - { name: E2MGR_URL, value: {{ .Values.ric.e2mgrUrl | quote }} }
+            - { name: SUBMGR_URL, value: {{ .Values.ric.submgrUrl | quote }} }
+            - { name: APPMGR_URL, value: {{ .Values.ric.appmgrUrl | quote }} }
+            - { name: KPM_RAN_FUNCTION_ID, value: {{ .Values.kpm.ranFunctionId | quote }} }
+            - { name: KPM_REPORT_STYLE, value: {{ .Values.kpm.reportStyle | quote }} }
+            - { name: KPM_REPORTING_PERIOD_MS, value: {{ .Values.kpm.reportingPeriodMs | quote }} }
+            - { name: KPM_GRANULARITY_PERIOD_MS, value: {{ .Values.kpm.granularityPeriodMs | quote }} }
+            - { name: KPM_MEAS_NAMES, value: {{ join "," .Values.kpm.measNames | quote }} }
+            - { name: PROPONENTES, value: {{ join "," .Values.proponentes.xapps | quote }} }
+            - { name: XAPP_RDL_SRC_COMMIT, value: {{ required "srcCommit ausente" .Values.srcCommit | quote }} }
+          ports:
+            - { name: http, containerPort: 8080 }
+            - { name: rmr-data, containerPort: 4560 }
+            - { name: rmr-route, containerPort: 4561 }
+          readinessProbe:
+            httpGet: { path: /ric/v1/health/ready, port: 8080 }
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.proponentes.resources | nindent 12 }}
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: scripts, mountPath: /scripts }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "kpm-probe.name" . }}-data
+        - name: scripts
+          configMap:
+            name: {{ include "kpm-probe.name" . }}-scripts
+{{- end }}
