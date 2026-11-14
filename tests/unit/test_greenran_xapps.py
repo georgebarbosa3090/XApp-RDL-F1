@@ -63,12 +63,35 @@ def test_ranslicer_computes_safe_quota_from_measured_efficiency():
     (p,) = x.step(now=0)
     assert p["parameter"] == "PRB_QUOTA" and p["priority"] == 90       # vazão 25 < alvo 30: SLA em risco
     assert p["value"] == 69.0                                          # 30 × 1,15 ÷ 0,5 = 69
-    assert x.step(now=1)[0]["value"] == 69.0                           # ainda em risco: repete
+    assert x.step(now=1) == []                                         # em risco, mesmo teto: o em vigor basta
     resp = x.handle_a1(a1_msg(21000, "greenran-ranslicer", {"embb_min_thp_mbps": 10, "mmtc_min_prb_pct": 20}))
     assert resp["status"] == "OK"
     (p,) = x.step(now=2)
     assert p["value"] == 23.0 and p["priority"] == 75                  # 10 × 1,15 ÷ 0,5 = 23
-    assert x.step(now=3) == []                                         # mudança < 2 pontos: nada
+    assert x.step(now=5) == []                                         # mudança < 2 pontos: nada
+
+
+def test_ranslicer_does_not_oscillate_and_reverts_on_refusal():
+    """Piloto da malha fechada: ruído de eficiência 54 ↔ 56 não pode virar proposta a cada janela."""
+    x = RanSlicer(transport=transport("ranslicer_greenran"), eff_alpha=1.0)
+    sent = []
+    for k in range(50):                                                # 10 s em janelas de 0,2 s
+        thp = 25.0 if k % 2 else 26.0                                  # em risco (alvo 30) com ruído
+        x.observe(sample("gnb_0", load=60, thp=thp, delay=40))
+        sent += x.step(now=0.2 * k)
+    values = [p["value"] for p in sent]
+    assert values == sorted(values) and len(sent) <= 3                 # só sobe, e no máximo a cada 2 s
+    # recusa da RDL: o teto de referência volta ao anterior, e a xApp pode repropor depois do intervalo
+    y = RanSlicer(transport=transport("ranslicer_greenran"))
+    y.observe(sample("gnb_0", load=60, thp=40.0, delay=10))
+    (first,) = y.step(now=0)
+    y.observe(sample("gnb_0", load=60, thp=20.0, delay=10))
+    (second,) = y.step(now=3)
+    assert second["value"] > first["value"]
+    y.on_result({"node_id": "gnb_0", "parameter": "PRB_QUOTA", "reason": "NOT_SELECTED"})
+    assert y.last_cap["gnb_0"] == first["value"]
+    assert y.step(now=4) == []                                         # dentro do intervalo
+    assert y.step(now=5.5)[0]["value"] == second["value"]              # repropõe o teto recusado
 
 
 def test_ranslicer_delay_raises_quota_and_learned_policy_is_shielded():

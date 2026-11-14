@@ -14,8 +14,12 @@ mMTC dos sensores (SST 2; App2). A cada período, por célula:
    RDL-N2) pode propor o teto, mas a saída é recortada ao intervalo seguro [necessidade, 100 − piso mMTC].
    Sem política, vale a necessidade.
 4. **Proposta à RDL:** ``PRB_QUOTA`` = teto da fatia eMBB (convenção da RDL: eMBB recebe v, a outra
-   fatia 100 − v), prioridade 90 com SLA em risco e 75 sem risco. Mudanças menores que
-   ``ranslicer_min_change`` pontos não são propostas (evita oscilação).
+   fatia 100 − v), prioridade 90 com SLA em risco e 75 sem risco.
+5. **Estabilidade (piloto da malha fechada, 2026-11-14):** mudanças menores que ``ranslicer_min_change``
+   pontos não são propostas sem risco; com o SLA em risco o teto só é proposto se subir (o valor em vigor
+   continua aplicado, e descer só pioraria a vazão); entre duas propostas da mesma célula passam ao menos ``ranslicer_min_interval_s``
+   (o TTL da proposta). Sem isso, o ruído da média móvel da eficiência fechava um ciclo 54 ↔ 56 % a cada
+   janela (131 reversões em 30 s no G1/B0). Recusa da RDL devolve o teto de referência ao valor em vigor.
 
 A intenção chega pela política A1 21000 (``GreenRAN_RANSlicer_Intent``), publicada pelo
 rApp-ResourceOptimizer.
@@ -41,6 +45,7 @@ class RanSlicer(GreenRanXApp):
         "ranslicer_default_eff": 1.0,    # Mb/s por ponto de PRB sem medida
         "ranslicer_delay_step": 10.0,
         "ranslicer_min_change": 2.0,
+        "ranslicer_min_interval_s": 2.0,  # = ttl_ms da proposta
     }
 
     def __init__(self, *args, learned_policy: Optional[Callable[[Dict[str, float]], float]] = None,
@@ -49,7 +54,9 @@ class RanSlicer(GreenRanXApp):
         self.learned_policy = learned_policy
         self.eff_alpha = eff_alpha
         self.efficiency: Dict[str, float] = {}
-        self.last_cap: Dict[str, float] = {}
+        self.last_cap: Dict[str, float] = {}       # teto de referência (último proposto)
+        self.prev_cap: Dict[str, Optional[float]] = {}   # teto em vigor antes da última proposta
+        self.last_sent: Dict[str, float] = {}
 
     def observe(self, sample: CellSample) -> None:
         super().observe(sample)
@@ -89,12 +96,30 @@ class RanSlicer(GreenRanXApp):
                 cap = min(max(float(self.learned_policy(state)), low), high)   # escudo de segurança
             cap = float(math.ceil(min(cap, high)))
             at_risk = delay_risk or thp_risk
-            if current is not None and abs(cap - current) < float(pol["ranslicer_min_change"]) and not at_risk:
-                continue
+            if current is not None:
+                if now - self.last_sent.get(cell, -math.inf) < float(pol["ranslicer_min_interval_s"]):
+                    continue
+                if at_risk:
+                    if cap <= current:                 # em risco, reduzir a fatia eMBB só piora a vazão,
+                        continue                       # e o teto em vigor continua aplicado
+                elif abs(cap - current) < float(pol["ranslicer_min_change"]):
+                    continue
+            self.prev_cap[cell] = current
             self.last_cap[cell] = cap
+            self.last_sent[cell] = now
             out.append({"xapp_id": self.XAPP_ID, "node_id": cell, "parameter": "PRB_QUOTA", "value": cap,
                         "priority": 90 if at_risk else 75, "defer_ok": True, "ttl_ms": 2000})
         return out
+
+    def on_result(self, result: Dict[str, Any]) -> None:
+        super().on_result(result)
+        cell = result.get("node_id")
+        if result.get("parameter") == "PRB_QUOTA" and cell in self.last_cap:
+            prev = self.prev_cap.pop(cell, None)          # recusada: o teto em vigor é o anterior
+            if prev is None:
+                self.last_cap.pop(cell, None)
+            else:
+                self.last_cap[cell] = prev
 
 
 def main() -> int:  # pragma: no cover - execução no RIC
