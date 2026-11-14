@@ -31,6 +31,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parents[2]
+import sys  # noqa: E402
+if str(ROOT) not in sys.path:   # rodado como script (fim do piloto/campanha no WSL)
+    sys.path.insert(0, str(ROOT))
 RESOURCE = {"TX_POWER": "potência", "CELL_STATE": "estado da célula", "PRB_QUOTA": "PRB", "HANDOVER": "associação de UE"}
 A1_TARGET = {"20001": "RDL (pesos e limites)", "21000": "RANSlicer-GreenRAN (intenção de fatia)",
              "21001": "EnergySaver-GreenRAN (limiares de energia)", "20008": "Traffic Steering (limiar)"}
@@ -117,7 +120,7 @@ def analyze(run: Path, horizon_s: float = 5.0) -> Dict[str, Any]:
         if any(len(x) > 1 for x in groups.values()):
             same_window += 1
         d = w.get("decision") or {}
-        selected += len(d.get("selected") or [])
+        selected += len(w.get("actions") or [])     # despachadas (a cadeia E2 tira as que o codec recusou)
         if ps:
             rules[d.get("rule", "?")] += 1
         for res in d.get("resolutions") or []:

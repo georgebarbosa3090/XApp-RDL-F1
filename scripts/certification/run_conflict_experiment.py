@@ -194,6 +194,8 @@ class HrdlStream:
                                     value=e["value"], priority=e["priority"], action_id=e["id"],
                                     timestamp=t_close) for e in group]
         before, res_before = len(self._dispatched), len(self._resolutions)
+        kg = getattr(self.app, "knowledge_graph", None)
+        kg_before = kg.op_totals() if kg is not None and hasattr(kg, "op_totals") else None
         started = _time.perf_counter()
         self.app.process_actions(actions)
         latency_ms = (_time.perf_counter() - started) * 1000.0
@@ -201,6 +203,10 @@ class HrdlStream:
         entry = {"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
                  "selected": selected, "resolutions": self._resolutions[res_before:],
                  "decision_wall_ms": round(latency_ms, 3), "rule": "hrdl-pipeline"}
+        if kg_before is not None:                 # consultas e escritas no grafo nesta decisão (docs/16 §10.4)
+            after = kg.op_totals()
+            entry["kg_queries"] = after["queries"] - kg_before["queries"]
+            entry["kg_writes"] = after["writes"] - kg_before["writes"]
         return selected, entry
 
     def close(self) -> None:

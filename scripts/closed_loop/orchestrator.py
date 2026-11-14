@@ -304,8 +304,10 @@ def run(args) -> int:
         sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(args.scenario, {})}
         rapp = RAppStep(drivers, baseline, sc_cfg.get("intent", {}), int(sc_cfg.get("hour", 2)),
                         ue_sst_map(spec, sc_cfg.get("ue_sst_groups", [])))
-    log_fh = None
+    log_fh = chain_fh = chain = None
+    use_chain = args.cadeia_e2 == "on" or (args.cadeia_e2 == "auto" and args.xapps == "completo")
     n_windows = n_props = n_actions = 0
+    t = 0.0
     try:
         conn = None
         while conn is None:
@@ -326,11 +328,19 @@ def run(args) -> int:
         log_fh.write(json.dumps({"type": "header", "scenario": args.scenario, "baseline": args.baseline,
                                  "xapps": args.xapps, "drivers": [d.name for d in drivers], "seed": args.seed,
                                  "window_s": window, "hello": hello}, ensure_ascii=False) + "\n")
+        if use_chain:                             # ciclo NORI S8 (docs/16 §10.1): setup e subscrições
+            from scripts.closed_loop.e2_chain import E2Chain
+            chain_fh = open(run_dir / "raw" / "e2_chain.jsonl", "w", encoding="utf-8")
+            chain = E2Chain(chain_fh, window)
+            chain.setup(hello)
+            chain.subscribe([d.name for d in drivers])
         while True:
             msg = link.read()
             if msg is None or msg.get("type") == "end":
                 break
             t = float(msg["t"])
+            if chain is not None:                 # KPM_t0 aos assinantes; ACK/Failure dos controles anteriores
+                chain.indication(msg)
             a1_event = rapp.step(msg) if rapp is not None else None
             proposals: List[Dict[str, Any]] = []
             notes: List[Dict[str, Any]] = []
@@ -342,6 +352,8 @@ def run(args) -> int:
                     dlog.clear()
             proposals.sort(key=lambda e: (e["t"], e["id"]))
             actions, entry = baseline.decide(proposals, t)
+            if chain is not None:                 # decisão gravada e uma RIC Control Request por ação
+                actions = chain.dispatch(t, actions, entry)
             chosen = {a["id"] for a in actions}
             for d in drivers:
                 d.on_decision(chosen)
@@ -353,6 +365,11 @@ def run(args) -> int:
             n_windows += 1
             n_props += len(proposals)
             n_actions += len(actions)
+        if chain is not None:
+            summary = chain.close(t)
+            chain_fh.close()
+            chain_fh = None
+            print("[RDL-E2] cadeia: " + " ".join(f"{k}={v}" for k, v in summary.items()), flush=True)
         log_fh.close()
         log_fh = None
         print(f"[RDL-CTL] {n_windows} janelas, {n_props} propostas, {n_actions} ações", flush=True)
@@ -360,6 +377,8 @@ def run(args) -> int:
     finally:
         if log_fh is not None:
             log_fh.close()
+        if chain_fh is not None:
+            chain_fh.close()
         baseline.close()
         for d in drivers:
             d.close()
@@ -387,6 +406,8 @@ def main(argv=None) -> int:
     ap.add_argument("--run-id", default=None)
     ap.add_argument("--no-build", action="store_true")
     ap.add_argument("--sim-arg", action="append", default=[])
+    ap.add_argument("--cadeia-e2", choices=["auto", "on", "off"], default="auto",
+                    help="ciclo NORI S8 (docs/16 §10.1): auto = ligado com --xapps completo")
     ap.add_argument("--derivado", action="append", default=[], metavar="PAPEL",
                     help="papel que roda com a derivada em Python (controle pareado), ex.: traffic_steering")
     args = ap.parse_args(argv)

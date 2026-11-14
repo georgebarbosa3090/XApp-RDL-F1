@@ -41,8 +41,33 @@ class Node:
     attrs: Dict[str, Any] = field(default_factory=dict)
 
 
+_QUERIES = ("has_node", "node", "successors", "predecessors", "edge", "nodes", "neighbors", "neighbor_map",
+            "affected_kpis", "shared_kpis", "conflicts_on", "context_features")
+_WRITES = ("add_node", "add_edge", "add_cell", "add_neighbors", "add_parameter", "record_action", "record_conflict",
+           "record_decision")
+
+
+def _counted(kind: str, fn):
+    """Conta a chamada pública (consulta ou escrita); chamadas internas aninhadas não contam de novo."""
+    import functools
+
+    @functools.wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        depth = getattr(self._tls, "depth", 0)
+        if depth == 0:
+            self.op_counts[kind] = self.op_counts.get(kind, 0) + 1
+        self._tls.depth = depth + 1
+        try:
+            return fn(self, *args, **kwargs)
+        finally:
+            self._tls.depth = depth
+    return wrapper
+
+
 class KnowledgeGraph:
     def __init__(self, max_events: int = 5000):
+        self.op_counts: Dict[str, int] = {"queries": 0, "writes": 0}   # painel de campanha (docs/16 §10.4)
+        self._tls = threading.local()
         self.max_events = int(max_events)
         self._nodes: Dict[str, Node] = {}
         # relation -> origem -> {destino: atributos}
@@ -199,6 +224,10 @@ class KnowledgeGraph:
         counts["edges"] = sum(len(d) for adj in self._out.values() for d in adj.values())
         return counts
 
+    def op_totals(self) -> Dict[str, int]:
+        """Consultas e escritas públicas acumuladas (o painel usa a diferença por decisão)."""
+        return dict(self.op_counts)
+
     def to_dict(self) -> Dict[str, Any]:
         with self._lock:
             return {
@@ -214,3 +243,9 @@ class KnowledgeGraph:
             with open(path, "w", encoding="utf-8") as fh:
                 fh.write(text)
         return text
+
+
+for _name in _QUERIES:
+    setattr(KnowledgeGraph, _name, _counted("queries", getattr(KnowledgeGraph, _name)))
+for _name in _WRITES:
+    setattr(KnowledgeGraph, _name, _counted("writes", getattr(KnowledgeGraph, _name)))

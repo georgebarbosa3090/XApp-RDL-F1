@@ -297,6 +297,25 @@ class RdlActuation
         m_log << now << "," << a.gnb << "," << cell << "," << a.parameter << "," << a.value << "," << a.ue
               << "," << a.xapp << "," << a.id << "," << status << "," << detail << "\n";
         m_log.flush();
+        if (m_fd >= 0)
+        {
+            m_outcomes.push_back("{\"id\":\"" + JsonEscape(a.id) + "\",\"status\":\"" + status + "\",\"detail\":\"" +
+                                 JsonEscape(detail) + "\",\"t\":" + Num(now, 3) + "}");
+        }
+    }
+
+    static std::string JsonEscape(const std::string& s)
+    {
+        std::string o;
+        for (char c : s)
+        {
+            if (c == '"' || c == '\\')
+            {
+                o += '\\';
+            }
+            o += (c == '\n' ? ' ' : c);
+        }
+        return o;
     }
 
     void Apply(Action a)
@@ -338,6 +357,7 @@ class RdlActuation
                 std::fill(mask.begin(), mask.begin() + std::min(allowed, nRbg), true);
                 sched->SetDlNotchedRbgMask(mask);
                 d << "RBG " << allowed << "/" << nRbg << (a.value != quota ? " (fora de 0-100, limitado pela PHY)" : "");
+                m_prbQuota[a.gnb] = quota;
             }
             Record(a, "APPLIED", d.str());
         }
@@ -595,11 +615,18 @@ class RdlActuation
             o << (g ? "," : "") << "{\"gnb\":" << g << ",\"cell_id\":" << CellIdOf(g)
               << ",\"tx_power_dbm\":" << Num(NrHelper::GetGnbPhy(gnb, 0)->GetTxPower(), 2)
               << ",\"sleeping\":" << (m_savedTxPower.count(g) ? "true" : "false")
+              << ",\"prb_quota\":" << Num(m_prbQuota.count(g) ? m_prbQuota.at(g) : 100.0, 1)
               << ",\"prb_util\":" << Num(c.availReg > 0 ? c.usedReg / c.availReg : NAN)
               << ",\"n_ues\":" << nUes[g] << ",\"thp_mbps\":" << Num(pg.bytes * 8.0 / (m_window * 1e6))
               << ",\"delay_ms\":" << Num(pg.packets ? pg.delaySumMs / pg.packets : NAN) << "}";
         }
-        o << "],\"ues\":[" << ues.str() << "]}";
+        o << "],\"ues\":[" << ues.str() << "],\"control_outcomes\":[";
+        for (size_t i = 0; i < m_outcomes.size(); ++i)
+        {
+            o << (i ? "," : "") << m_outcomes[i];
+        }
+        m_outcomes.clear();
+        o << "]}";
         return o.str();
     }
 
@@ -678,6 +705,10 @@ class RdlActuation
 
     const double kSleepTxPowerDbm = -30.0;
     std::map<uint32_t, double> m_savedTxPower;
+    // ciclo E2 da malha fechada (docs/16 §10.1): resultado de cada controle, devolvido na Indication seguinte
+    // (ACK/Failure no orquestrador), e a cota de PRB em vigor por gNB (estado aplicado para o KPM_t1)
+    std::vector<std::string> m_outcomes;
+    std::map<uint32_t, double> m_prbQuota;
     const Time kHandoverSpacing = MilliSeconds(10);
     Ptr<NrHelper> m_nrHelper;
     NetDeviceContainer m_gnbDevs;

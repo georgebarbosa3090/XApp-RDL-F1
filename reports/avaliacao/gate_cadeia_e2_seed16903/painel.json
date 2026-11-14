@@ -1,0 +1,168 @@
+[
+  {
+    "execucao": "cl_e2chain_G2_B3_seed16903",
+    "cenario": "G2",
+    "baseline": "B3",
+    "semente": 16903,
+    "status": "SUCCESS",
+    "commit": "c9b136b",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 14,
+    "janelas": 149,
+    "duracao_s": 96,
+    "ues_registrados": 14,
+    "handovers_observados": 3,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 122,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 2,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 1,
+      "energysaver_greenran/HANDOVER": 1
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": 0,
+    "escritas_grafo": 2,
+    "acoes_ran_por_status": {
+      "APPLIED": 2
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 1,
+      "HANDOVER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_1": {
+        "HANDOVER": 1,
+        "CELL_STATE": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 2,
+      "control_ack": 2,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 2
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 0,
+      "predicoes_QP_30002": 0,
+      "handoff_REST": 0,
+      "mantidos_na_servidora": 0,
+      "a1_20008": 0
+    },
+    "vazao_media_mbps": 1.802,
+    "atraso_medio_ms": 4.904
+  },
+  {
+    "execucao": "cl_e2chain_S15_B0_seed16903",
+    "cenario": "S15",
+    "baseline": "B0",
+    "semente": 16903,
+    "status": "SUCCESS",
+    "commit": "c9b136b",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "propria:rogue_xapp",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 45,
+    "ues_registrados": 40,
+    "handovers_observados": 24,
+    "ping_pong": 2,
+    "janelas_celula_dormindo": 122,
+    "mudancas_potencia": 5,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 49,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 3,
+      "rogue_xapp/PRB_QUOTA": 2,
+      "rogue_xapp/TX_POWER": 4,
+      "traffic_steering/HANDOVER": 40
+    },
+    "recusas_devolvidas": 4,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 15
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 45
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 3,
+      "HANDOVER:APPLIED": 40,
+      "TX_POWER:APPLIED": 2
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 38,
+        "TX_POWER": 1,
+        "CELL_STATE": 2
+      },
+      "gnb_1": {
+        "HANDOVER": 2,
+        "TX_POWER": 1,
+        "CELL_STATE": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 6,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 45,
+      "control_ack": 45,
+      "control_failure": 4,
+      "control_timeout": 0,
+      "kpm_t1": 45
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 17,
+      "predicoes_QP_30002": 436,
+      "handoff_REST": 40,
+      "mantidos_na_servidora": 396,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 0.595,
+    "atraso_medio_ms": 9.594
+  }
+]

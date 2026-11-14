@@ -1,0 +1,1103 @@
+[
+  {
+    "execucao": "cl_piloto_G1_B0_completo_seed16901",
+    "cenario": "G1",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "propria:ranslicer_greenran"
+    ],
+    "gnbs": 2,
+    "ues": 36,
+    "janelas": 149,
+    "duracao_s": 315,
+    "ues_registrados": 36,
+    "handovers_observados": 14,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 151,
+    "propostas_por_xapp": {
+      "energysaver_greenran/HANDOVER": 1,
+      "ranslicer_greenran/PRB_QUOTA": 150
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 149
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 151
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 1,
+      "PRB_QUOTA:APPLIED": 150
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 149
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 1,
+        "HANDOVER": 1
+      }
+    },
+    "oscilacoes": 131,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 30.087,
+    "atraso_medio_ms": 6.935
+  },
+  {
+    "execucao": "cl_piloto_G1_B3_completo_seed16901",
+    "cenario": "G1",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "propria:ranslicer_greenran"
+    ],
+    "gnbs": 2,
+    "ues": 36,
+    "janelas": 149,
+    "duracao_s": 345,
+    "ues_registrados": 36,
+    "handovers_observados": 14,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 58,
+    "propostas_por_xapp": {
+      "energysaver_greenran/HANDOVER": 1,
+      "ranslicer_greenran/PRB_QUOTA": 57
+    },
+    "recusas_devolvidas": 40,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 56
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 1
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 1
+    },
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 18
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 1,
+      "PRB_QUOTA:APPLIED": 17
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 16
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 1,
+        "HANDOVER": 1
+      }
+    },
+    "oscilacoes": 11,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 30.136,
+    "atraso_medio_ms": 7.357
+  },
+  {
+    "execucao": "cl_piloto_G2_B0_completo_seed16901",
+    "cenario": "G2",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 14,
+    "janelas": 149,
+    "duracao_s": 119,
+    "ues_registrados": 14,
+    "handovers_observados": 5,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 122,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 2,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 1,
+      "energysaver_greenran/HANDOVER": 1
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 2
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 1,
+      "HANDOVER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_1": {
+        "HANDOVER": 1,
+        "CELL_STATE": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 1.802,
+    "atraso_medio_ms": 5.477
+  },
+  {
+    "execucao": "cl_piloto_G2_B3_completo_seed16901",
+    "cenario": "G2",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "fd2cb0f",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 14,
+    "janelas": 149,
+    "duracao_s": 110,
+    "ues_registrados": 14,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 2,
+    "propostas_por_xapp": {
+      "energysaver_greenran/HANDOVER": 2
+    },
+    "recusas_devolvidas": 2,
+    "politicas_a1": {},
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {},
+    "acoes_ran_por_parametro": {},
+    "ajustes_por_gnb": {},
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 1.803,
+    "atraso_medio_ms": 7.929
+  },
+  {
+    "execucao": "cl_piloto_S10_B0_completo_seed16901",
+    "cenario": "S10",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 1194,
+    "ues_registrados": 40,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 0,
+    "propostas_por_xapp": {},
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {},
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {},
+    "acoes_ran_por_parametro": {},
+    "ajustes_por_gnb": {},
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 34.812,
+    "atraso_medio_ms": 5.269
+  },
+  {
+    "execucao": "cl_piloto_S10_B3_completo_seed16901",
+    "cenario": "S10",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 1169,
+    "ues_registrados": 40,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 0,
+    "propostas_por_xapp": {},
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {},
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {},
+    "acoes_ran_por_parametro": {},
+    "ajustes_por_gnb": {},
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 34.812,
+    "atraso_medio_ms": 5.269
+  },
+  {
+    "execucao": "cl_piloto_S11_B0_completo_seed16901",
+    "cenario": "S11",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:load_balancer",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 3,
+    "ues": 30,
+    "janelas": 149,
+    "duracao_s": 626,
+    "ues_registrados": 30,
+    "handovers_observados": 20,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 447,
+    "propostas_rmr_30000": 8,
+    "propostas_por_xapp": {
+      "load_balancer/PRB_QUOTA": 6,
+      "traffic_steering/HANDOVER": 2
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 8
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 8
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 2,
+      "PRB_QUOTA:APPLIED": 6
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 2,
+        "HANDOVER": 2
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 4
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 19.943,
+    "atraso_medio_ms": 18.495
+  },
+  {
+    "execucao": "cl_piloto_S11_B3_completo_seed16901",
+    "cenario": "S11",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:load_balancer",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 3,
+    "ues": 30,
+    "janelas": 149,
+    "duracao_s": 546,
+    "ues_registrados": 30,
+    "handovers_observados": 20,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 447,
+    "propostas_rmr_30000": 8,
+    "propostas_por_xapp": {
+      "load_balancer/PRB_QUOTA": 6,
+      "traffic_steering/HANDOVER": 2
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 8
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 2
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 2
+    },
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 8
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 2,
+      "PRB_QUOTA:APPLIED": 6
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 2,
+        "HANDOVER": 2
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 4
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 19.943,
+    "atraso_medio_ms": 18.495
+  },
+  {
+    "execucao": "cl_piloto_S12_B0_completo_seed16901",
+    "cenario": "S12",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 30,
+    "janelas": 124,
+    "duracao_s": 443,
+    "ues_registrados": 30,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 124,
+    "propostas_rmr_30000": 2,
+    "propostas_por_xapp": {
+      "energysaver_greenran/TX_POWER": 1,
+      "xslice/PRB_QUOTA": 1
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 2
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 1,
+      "TX_POWER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 1,
+        "TX_POWER": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 7.017,
+    "atraso_medio_ms": 286.263
+  },
+  {
+    "execucao": "cl_piloto_S12_B3_completo_seed16901",
+    "cenario": "S12",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 30,
+    "janelas": 124,
+    "duracao_s": 495,
+    "ues_registrados": 30,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 124,
+    "propostas_rmr_30000": 2,
+    "propostas_por_xapp": {
+      "energysaver_greenran/TX_POWER": 1,
+      "xslice/PRB_QUOTA": 1
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 2
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 1
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 1
+    },
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 2
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 1,
+      "TX_POWER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 1,
+        "TX_POWER": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 7.017,
+    "atraso_medio_ms": 286.263
+  },
+  {
+    "execucao": "cl_piloto_S13_B0_completo_seed16901",
+    "cenario": "S13",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "replay:fault_injector",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 3,
+    "ues": 50,
+    "janelas": 149,
+    "duracao_s": 1335,
+    "ues_registrados": 50,
+    "handovers_observados": 44,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 24,
+    "mudancas_potencia": 5,
+    "indicacoes_kpm": 447,
+    "propostas_rmr_30000": 11,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 2,
+      "energysaver_greenran/TX_POWER": 6,
+      "fault_injector/CELL_STATE": 1,
+      "traffic_steering/HANDOVER": 2
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 1,
+    "pares_em_conflito": {
+      "energysaver_greenran × fault_injector [estado da célula]": 1
+    },
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 11
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 11
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 3,
+      "HANDOVER:APPLIED": 2,
+      "TX_POWER:APPLIED": 6
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "TX_POWER": 2,
+        "CELL_STATE": 3,
+        "HANDOVER": 1
+      },
+      "gnb_1": {
+        "TX_POWER": 2
+      },
+      "gnb_2": {
+        "TX_POWER": 2,
+        "HANDOVER": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 28.894,
+    "atraso_medio_ms": 16.942
+  },
+  {
+    "execucao": "cl_piloto_S13_B3_completo_seed16901",
+    "cenario": "S13",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "replay:fault_injector",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 3,
+    "ues": 50,
+    "janelas": 149,
+    "duracao_s": 1236,
+    "ues_registrados": 50,
+    "handovers_observados": 36,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 73,
+    "mudancas_potencia": 5,
+    "indicacoes_kpm": 447,
+    "propostas_rmr_30000": 11,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 1,
+      "energysaver_greenran/TX_POWER": 7,
+      "fault_injector/CELL_STATE": 1,
+      "traffic_steering/HANDOVER": 2
+    },
+    "recusas_devolvidas": 2,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 1,
+    "pares_em_conflito": {
+      "energysaver_greenran × fault_injector [estado da célula]": 1
+    },
+    "regras_de_decisao": {
+      "hrdl-pipeline": 11
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 8
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 7,
+      "INTER_CELL": 1
+    },
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 9
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 1,
+      "HANDOVER:APPLIED": 1,
+      "TX_POWER:APPLIED": 7
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "TX_POWER": 2,
+        "CELL_STATE": 1,
+        "HANDOVER": 1
+      },
+      "gnb_1": {
+        "TX_POWER": 2
+      },
+      "gnb_2": {
+        "TX_POWER": 3
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 29.37,
+    "atraso_medio_ms": 9.284
+  },
+  {
+    "execucao": "cl_piloto_S14_B0_completo_seed16901",
+    "cenario": "S14",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:isac_radar",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 30,
+    "janelas": 124,
+    "duracao_s": 1019,
+    "ues_registrados": 30,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 124,
+    "propostas_rmr_30000": 5,
+    "propostas_por_xapp": {
+      "isac_radar/PRB_QUOTA": 5
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 5
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 5
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 5
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 5
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 49.142,
+    "atraso_medio_ms": 7.823
+  },
+  {
+    "execucao": "cl_piloto_S14_B3_completo_seed16901",
+    "cenario": "S14",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:isac_radar",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 30,
+    "janelas": 124,
+    "duracao_s": 958,
+    "ues_registrados": 30,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 124,
+    "propostas_rmr_30000": 5,
+    "propostas_por_xapp": {
+      "isac_radar/PRB_QUOTA": 5
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 5
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 5
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 5
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 5
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 49.142,
+    "atraso_medio_ms": 7.823
+  },
+  {
+    "execucao": "cl_piloto_S15_B0_completo_seed16901",
+    "cenario": "S15",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "propria:rogue_xapp",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 27,
+    "ues_registrados": 40,
+    "handovers_observados": 20,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 119,
+    "mudancas_potencia": 8,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 10,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 3,
+      "energysaver_greenran/TX_POWER": 1,
+      "rogue_xapp/PRB_QUOTA": 1,
+      "rogue_xapp/TX_POWER": 4,
+      "traffic_steering/HANDOVER": 1
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 2,
+    "pares_em_conflito": {
+      "energysaver_greenran × rogue_xapp [potência]": 2
+    },
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 10
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 10
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 3,
+      "HANDOVER:APPLIED": 1,
+      "PRB_QUOTA:APPLIED": 1,
+      "TX_POWER:APPLIED": 5
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "TX_POWER": 2,
+        "HANDOVER": 1,
+        "CELL_STATE": 2
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 1,
+        "TX_POWER": 3,
+        "CELL_STATE": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 0.483,
+    "atraso_medio_ms": 26.271
+  },
+  {
+    "execucao": "cl_piloto_S15_B3_completo_seed16901",
+    "cenario": "S15",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "propria:rogue_xapp",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 31,
+    "ues_registrados": 40,
+    "handovers_observados": 20,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 121,
+    "mudancas_potencia": 5,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 10,
+    "propostas_por_xapp": {
+      "energysaver_greenran/CELL_STATE": 3,
+      "rogue_xapp/PRB_QUOTA": 2,
+      "rogue_xapp/TX_POWER": 4,
+      "traffic_steering/HANDOVER": 1
+    },
+    "recusas_devolvidas": 4,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 9
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 8
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 6,
+      "INTER_CELL": 2
+    },
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 6
+    },
+    "acoes_ran_por_parametro": {
+      "CELL_STATE:APPLIED": 3,
+      "HANDOVER:APPLIED": 1,
+      "TX_POWER:APPLIED": 2
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "TX_POWER": 1,
+        "HANDOVER": 1,
+        "CELL_STATE": 2
+      },
+      "gnb_1": {
+        "TX_POWER": 1,
+        "CELL_STATE": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 0.509,
+    "atraso_medio_ms": 9.351
+  },
+  {
+    "execucao": "cl_piloto_S9_B0_completo_seed16901",
+    "cenario": "S9",
+    "baseline": "B0",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 77,
+    "ues_registrados": 40,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 0,
+    "propostas_por_xapp": {},
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {},
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {},
+    "acoes_ran_por_parametro": {},
+    "ajustes_por_gnb": {},
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 0.575,
+    "atraso_medio_ms": 18.801
+  },
+  {
+    "execucao": "cl_piloto_S9_B3_completo_seed16901",
+    "cenario": "S9",
+    "baseline": "B3",
+    "semente": 16901,
+    "status": "SUCCESS",
+    "commit": "9f31e26",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 149,
+    "duracao_s": 78,
+    "ues_registrados": 40,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 0,
+    "propostas_por_xapp": {},
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {},
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {},
+    "acoes_ran_por_parametro": {},
+    "ajustes_por_gnb": {},
+    "oscilacoes": 0,
+    "cadeia_e2": "não registrado",
+    "cadeia_veredito": "não registrado",
+    "vazao_media_mbps": 0.575,
+    "atraso_medio_ms": 18.801
+  }
+]

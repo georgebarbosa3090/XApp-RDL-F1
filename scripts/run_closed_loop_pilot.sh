@@ -38,3 +38,5 @@ for sc in $SCENARIOS; do
   done
 done
 say "piloto concluído"
+# painel de fim de campanha (docs/16 §10.4): conflitos, oscilações, cadeia E2, rede, mensagens, controle e regras
+python scripts/closed_loop/resumo_campanha.py --prefix cl_piloto_ --seed "$SEED"

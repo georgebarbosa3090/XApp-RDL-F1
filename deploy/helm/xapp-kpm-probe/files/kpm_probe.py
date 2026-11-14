@@ -55,7 +55,11 @@ RC_RAN_FUNCTION_ID = int(ENV.get("RC_RAN_FUNCTION_ID", "300"))
 RC_REQUESTOR_ID = int(ENV.get("RC_REQUESTOR_ID", "1003"))
 RC_AFTER_INDICATIONS = int(ENV.get("RC_AFTER_INDICATIONS", "4"))
 RC_QUOTAS = ENV.get("RC_SLICE_QUOTAS", "1:70:10:5,2:30:10:5")   # sst:max:min:dedicated (%)
-RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | catalog | fixed
+RC_DECISION = ENV.get("RC_DECISION", "hrdl").lower()             # hrdl | catalog | fixed | xapps
+# Modo xapps (docs/16 §10.2): propostas das xApps reais pelo RMR 30000, uma decisão por Indication KPM completa
+# (com propostas na janela), no máximo RC_XAPPS_MAX_CONTROLS controles por execução e por nó
+RC_XAPPS_MAX_CONTROLS = int(ENV.get("RC_XAPPS_MAX_CONTROLS", "100"))
+RDL_ACTION_PROPOSAL, RDL_ACTION_RESULT = 30000, 30001
 # Perfil do backend do testbed (NORI, srsRAN do GERCOM, OAI do LACIS; doc 12 §4). Sem perfil: leiaute do NORI.
 BACKEND_PROFILE = ENV.get("RDL_BACKEND_PROFILE", "")
 RC_PARAM_IDS = None
@@ -89,10 +93,13 @@ except ImportError:  # pragma: no cover
 RMR_TYPES = {12010: "RIC_SUB_REQ", 12011: "RIC_SUB_RESP", 12012: "RIC_SUB_FAILURE",
              12020: "RIC_SUB_DEL_REQ", 12021: "RIC_SUB_DEL_RESP", 12050: "RIC_INDICATION",
              12040: "RIC_CONTROL_REQ", 12041: "RIC_CONTROL_ACK", 12042: "RIC_CONTROL_FAILURE",
-             20010: "A1_POLICY_REQ", 20011: "A1_POLICY_RESP", 20012: "A1_POLICY_QUERY"}
+             20010: "A1_POLICY_REQ", 20011: "A1_POLICY_RESP", 20012: "A1_POLICY_QUERY",
+             30000: "RDL_ACTION_PROPOSAL", 30001: "RDL_ACTION_RESULT"}
 RX = ["RIC_SUB_RESP", "RIC_SUB_FAILURE", "RIC_SUB_DEL_RESP", "RIC_INDICATION",
-      "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"] + (["A1_POLICY_REQ"] if A1 is not None else [])
-TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"] + (["A1_POLICY_RESP", "A1_POLICY_QUERY"] if A1 is not None else [])
+      "RIC_CONTROL_ACK", "RIC_CONTROL_FAILURE"] + (["A1_POLICY_REQ"] if A1 is not None else []) \
+    + (["RDL_ACTION_PROPOSAL"] if RC_DECISION == "xapps" else [])
+TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "RIC_CONTROL_REQ"] + (["A1_POLICY_RESP", "A1_POLICY_QUERY"] if A1 is not None else []) \
+    + (["RDL_ACTION_RESULT"] if RC_DECISION == "xapps" else [])
 POLICIES = [int(t) for t in ("20000", "20001", "20002")] if A1 is not None else []  # tipos da RDL
 
 STOP = threading.Event()
@@ -277,6 +284,11 @@ CONTROL = {}         # meid -> estado do último Control enviado neste ciclo de 
 PENDING = {}         # ric_instance_id -> estado de cada Control enviado (o B0 envia mais de um)
 LAST_KPM = {}        # meid -> {"node": ..., "node_sha256": ..., "ues": ..., "ues_sha256": ...}
 _control_instance = [0]
+WINDOW = None        # modo xapps: propostas das xApps reais desde a última decisão (src/closed_loop/xapps_loop.py)
+XAPPS_CONTROLS = {}  # meid -> controles enviados no modo xapps
+if RC_DECISION == "xapps":
+    from src.closed_loop.xapps_loop import ProposalWindow  # noqa: E402
+    WINDOW = ProposalWindow()
 
 
 def track_kpm(meid: str, payload: bytes, sha: str) -> None:
@@ -329,7 +341,12 @@ def decide(meid: str):
     if RC_DECISION == "fixed":
         return [parse_quotas(RC_QUOTAS)], {"decision_source": DECISION_SOURCE, "quotas_spec": RC_QUOTAS}
     kpm = LAST_KPM.get(meid) or {}
-    if RC_DECISION == "catalog":
+    if RC_DECISION == "xapps":
+        from src.closed_loop.xapps_loop import decide_xapps
+        policies = dict(A1.active_policies) if A1 is not None else {}
+        record = decide_xapps(current_baseline(), meid, kpm.get("node") or {}, kpm.get("ues") or [], WINDOW.drain(),
+                              a1_policies=policies or None)
+    elif RC_DECISION == "catalog":
         from src.closed_loop.catalog_loop import decide_baseline, decide_catalog, load_catalog
         catalog = load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json"))
         baseline = current_baseline()
@@ -362,7 +379,11 @@ def warm_up_decision() -> None:
         node = {"RRU.PrbUsedDl": 1, "RRU.PrbAvailDl": 1}
         ues = [{"ue_id": 1, "measurements": {"DRB.NetworkSlicing.SST": 1}},
                {"ue_id": 2, "measurements": {"DRB.NetworkSlicing.SST": 2}}]
-        if RC_DECISION == "catalog":
+        if RC_DECISION == "xapps":
+            from src.closed_loop.xapps_loop import decide_xapps
+            warm = [{"xapp_id": "warm-up", "parameter": "PRB_QUOTA", "value": 50, "priority": 50, "_seq": 0}]
+            decide_xapps("B3", "warm-up", node, ues, warm)
+        elif RC_DECISION == "catalog":
             from src.closed_loop.catalog_loop import decide_catalog, load_catalog
             decide_catalog("S8", "warm-up", node, ues,
                            load_catalog(os.path.join(APP_DIR, "simulations", "ns3", "conflicts", "catalog.json")))
@@ -378,6 +399,8 @@ def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> Non
     """Decide e envia os RIC Control da decisão, na ordem; registra cada pedido (bytes, decisão, KPM)."""
     quota_sets, decision = decide(meid)
     source = decision.get("decision_source", DECISION_SOURCE)
+    if RC_DECISION == "xapps":
+        notify_refusals(rmr, ctx, decision)
     if not quota_sets:
         CONTROL[meid] = {"skipped": decision.get("reason")}
         event("control_decision", meid=meid, sent=False, decision_source=source, decision=decision,
@@ -385,6 +408,20 @@ def send_control(rmr, ctx, meid: str, trigger_sha: str, trigger_seq: int) -> Non
         return
     for order, quotas in enumerate(quota_sets, start=1):
         _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, trigger_seq, order, len(quota_sets))
+
+
+def notify_refusals(rmr, ctx, decision) -> None:
+    """Modo xapps: devolve RDL_ACTION_RESULT (30001) às xApps cujas propostas não foram selecionadas."""
+    by_id = {p["action_id"]: p for p in decision.get("proposals", [])}
+    for aid in decision.get("not_selected", []):
+        p = by_id.get(aid, {})
+        body = json.dumps({"xapp_id": p.get("xapp_id"), "action_id": aid, "parameter": p.get("parameter"),
+                           "node_id": p.get("target"), "reason": "NOT_SELECTED"}).encode("utf-8")
+        sbuf = rmr.rmr_alloc_msg(ctx, len(body), payload=body, gen_transaction_id=True, mtype=RDL_ACTION_RESULT)
+        sbuf = rmr.rmr_send_msg(ctx, sbuf)
+        state = rmr.message_summary(sbuf)[rmr.RMR_MS_MSG_STATE]
+        rmr.rmr_free_msg(sbuf)
+        event("action_result", action_id=aid, xapp_id=p.get("xapp_id"), reason="NOT_SELECTED", rmr_state=state)
 
 
 def _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, trigger_seq, order, total) -> None:
@@ -492,11 +529,27 @@ def rmr_loop() -> None:
                   policy_instance_id=response.get("policy_instance_id"), applied=ok, response_rmr_state=sent_state,
                   effective=A1.effective_policy())
             continue
+        if mtype == RDL_ACTION_PROPOSAL and WINDOW is not None:
+            item = WINDOW.add(payload, time.monotonic(), meid)
+            event("proposal", accepted=item is not None, xapp_id=(item or {}).get("xapp_id"),
+                  parameter=(item or {}).get("parameter"), value=(item or {}).get("value"),
+                  priority=(item or {}).get("priority"), node_id=(item or {}).get("node_id"), sha256=sha)
+            continue
         if mtype == 12050 and meid:
             track_kpm(meid, payload, sha)
         if mtype in (12041, 12042):
             handle_control_outcome(meid, mtype, payload)
-        elif (mtype == 12050 and RC_ENABLED and meid and meid not in CONTROL
+        elif (mtype == 12050 and RC_ENABLED and RC_DECISION == "xapps" and meid
+              and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS
+              and XAPPS_CONTROLS.get(meid, 0) < RC_XAPPS_MAX_CONTROLS
+              and pair_complete(LAST_KPM.get(meid, {}), RC_PAIR_WINDOW_S)):
+            # malha fechada com xApps reais: uma decisão por Indication completa (KPM_t0), com o que chegou
+            try:
+                XAPPS_CONTROLS[meid] = XAPPS_CONTROLS.get(meid, 0) + 1
+                send_control(rmr, ctx, meid, sha, COUNTS[(mtype, sub_id)])
+            except Exception as exc:  # noqa: BLE001 - registra e segue recebendo KPM
+                event("control_error", meid=meid, detail=f"{type(exc).__name__}: {exc}")
+        elif (mtype == 12050 and RC_ENABLED and RC_DECISION != "xapps" and meid and meid not in CONTROL
               and COUNTS[(mtype, sub_id)] >= RC_AFTER_INDICATIONS
               and pair_complete(LAST_KPM.get(meid, {}), RC_PAIR_WINDOW_S)):
             try:

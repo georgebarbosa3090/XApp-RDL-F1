@@ -1,0 +1,7 @@
+[WARN] jwrapper: element [10] is undefined or of unknown type
+[WARN] jwrapper: element [32] is undefined or of unknown type
+[WARN] jwrapper: element [77] is undefined or of unknown type
+[INFO] listening on port 4560
+1794640783618 8000/RMR [INFO] ric message routing library on SI95 p=4560 mv=3 flg=00 id=a (9f31e260 4.9.4 built: Nov 13 2026)
+[INFO] Policy Callback got a message, type=20010, length=112
+[INFO] Payload is {"operation": "CREATE", "policy_type_id": 20008, "policy_instance_id": "ts-limiar", "payload": {"threshold": 5}}

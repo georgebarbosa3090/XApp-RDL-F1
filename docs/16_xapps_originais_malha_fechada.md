@@ -457,3 +457,11 @@ O ciclo de referência é o da bancada NORI S8 (apresentação de 10/11, fluxo 0
 | Regras e grafo | janelas decididas por regra do baseline, consultas e escritas no grafo de conhecimento | decisão por janela (o grafo passa a contar consultas depois da 2ª rodada do piloto) |
 | xApps originais | TS: anomalias (30003), predições (30002), HandOff REST, mantidos na servidora, A1 20008 | `logs/xapp_traffic_steering.log` |
 | KPIs | vazão e atraso médios por execução | `rdl_kpi_timeseries.csv` |
+
+### 10.5 Estado em 2026-11-14
+
+- **A integrado e verificado.** O orquestrador liga a cadeia com `--xapps completo` (`--cadeia-e2 auto|on|off`); o `rdl-nr-common.h` devolve o resultado de cada controle (`control_outcomes`) e a cota de PRB em vigor (`prb_quota`) na Indication seguinte, só com o socket aberto (o modo cronograma e o gate E1 não mudam). Gate `scripts/closed_loop/gate_cadeia_e2.sh` (semente 16903): G2/B3 e S15/B0 com `CADEIA_COMPLETA`, 47 Control Requests, 47 ACK e 47 KPM_t1 com o efeito confirmado no KPM; painel em `reports/avaliacao/gate_cadeia_e2_seed16903/`.
+- **Mudança de comportamento:** ação que o codec E2SM-RC não codifica não é despachada e volta à xApp como recusa (`control_failure`, causa `codec`). No S15/B0, as 4 propostas da Rogue a 45 dBm (o perfil RC vai até 43 dBm) deixaram de ser aplicadas, como aconteceria numa E2 real.
+- **Grafo de conhecimento:** passa a contar consultas e escritas públicas (`KnowledgeGraph.op_totals`; `kg_queries` e `kg_writes` no registro de cada decisão do B3). Achado: nas decisões por janela a RDL grava no grafo (ações, conflitos e decisões), mas só o caminho sob demanda (`_contended`) o consulta; o painel mostra o número real.
+- **RANSlicer-GreenRAN:** histerese assimétrica (`ranslicer_down_hold_s` = 10 s) contra o ciclo lento da 2ª rodada.
+- **C:** a `kpm-probe` ganhou o modo `RC_DECISION=xapps` (declara RX 30000 e TX 30001 no AppMgr, junta as propostas, decide a cada Indication completa com `src/closed_loop/xapps_loop.py` e devolve `RDL_ACTION_RESULT` às recusadas). Falta implantar as três xApps proponentes no RIC (release Helm com a mesma imagem e o pacote `src/` da `kpm-probe`, `SUBMGR_URL` e `KPM_NODES` apontando o gNB do NORI) e rodar o S8 B0/B3, sem o ns-3 rodando ao mesmo tempo (memória do WSL).
