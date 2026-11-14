@@ -1,0 +1,31 @@
+[RDL-SCN] 1 gNB(s), 30 UE(s), canal UMi, 43 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_65977.sock, janela 0.2 s
+[RDL-ACT] t=0.200s gnb=0 cell=1 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g0-PRB_QUOTA-0.200-1 -> APPLIED (RBG 106/266)
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-KPI] t=2.0s vazao=49.15 Mbps atraso=7.81 ms
+[RDL-KPI] t=3.0s vazao=49.15 Mbps atraso=7.79 ms
+[RDL-KPI] t=4.0s vazao=49.15 Mbps atraso=7.79 ms
+[RDL-KPI] t=5.0s vazao=49.15 Mbps atraso=7.80 ms
+[RDL-ACT] t=5.200s gnb=0 cell=1 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g0-PRB_QUOTA-5.200-2 -> APPLIED (RBG 106/266)
+[RDL-KPI] t=6.0s vazao=49.15 Mbps atraso=7.80 ms
+[RDL-KPI] t=7.0s vazao=49.15 Mbps atraso=7.86 ms
+[RDL-KPI] t=8.0s vazao=49.15 Mbps atraso=7.88 ms
+[RDL-KPI] t=9.0s vazao=49.15 Mbps atraso=7.80 ms
+[RDL-KPI] t=10.0s vazao=49.15 Mbps atraso=7.81 ms
+[RDL-ACT] t=10.200s gnb=0 cell=1 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g0-PRB_QUOTA-10.200-3 -> APPLIED (RBG 106/266)
+[RDL-KPI] t=11.0s vazao=49.07 Mbps atraso=7.79 ms
+[RDL-KPI] t=12.0s vazao=49.15 Mbps atraso=7.80 ms
+[RDL-KPI] t=13.0s vazao=49.15 Mbps atraso=7.88 ms
+[RDL-KPI] t=14.0s vazao=49.15 Mbps atraso=7.84 ms
+[RDL-KPI] t=15.0s vazao=49.23 Mbps atraso=7.80 ms
+[RDL-ACT] t=15.200s gnb=0 cell=1 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g0-PRB_QUOTA-15.200-4 -> APPLIED (RBG 106/266)
+[RDL-KPI] t=16.0s vazao=49.15 Mbps atraso=7.79 ms
+[RDL-KPI] t=17.0s vazao=49.15 Mbps atraso=7.79 ms
+[RDL-KPI] t=18.0s vazao=49.07 Mbps atraso=7.80 ms
+[RDL-KPI] t=19.0s vazao=49.15 Mbps atraso=7.81 ms
+[RDL-KPI] t=20.0s vazao=49.15 Mbps atraso=7.84 ms
+[RDL-ACT] t=20.200s gnb=0 cell=1 PRB_QUOTA=40.000 xapp=isac_radar id=isac_radar-g0-PRB_QUOTA-20.200-5 -> APPLIED (RBG 106/266)
+[RDL-KPI] t=21.0s vazao=49.15 Mbps atraso=7.83 ms
+[RDL-KPI] t=22.0s vazao=49.15 Mbps atraso=7.79 ms
+[RDL-KPI] t=23.0s vazao=49.15 Mbps atraso=7.81 ms
+[RDL-KPI] t=24.0s vazao=49.15 Mbps atraso=7.87 ms

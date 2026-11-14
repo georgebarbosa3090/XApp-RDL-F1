@@ -1,0 +1,7 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+2.2,0,1,TX_POWER,5,-1,rogue_xapp,rogue_xapp-g0-TX_POWER-2.200-2,APPLIED,TxPower=5 dBm
+2.6,0,1,HANDOVER,1,-1,traffic_steering,traffic_steering-g0-HANDOVER-2.600-1,APPLIED,20 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+5.2,0,1,CELL_STATE,0,-1,energysaver_greenran,energysaver_greenran-g0-CELL_STATE-5.200-1,APPLIED,sleep emulado: TxPower=-30 dBm
+8.2,1,2,TX_POWER,5,-1,rogue_xapp,rogue_xapp-g1-TX_POWER-8.200-5,APPLIED,TxPower=5 dBm
+10.2,0,1,CELL_STATE,1,-1,energysaver_greenran,energysaver_greenran-g0-CELL_STATE-10.200-2,APPLIED,ativa: TxPower=5 dBm
+10.6,1,2,CELL_STATE,0,-1,energysaver_greenran,energysaver_greenran-g1-CELL_STATE-10.600-3,APPLIED,sleep emulado: TxPower=-30 dBm

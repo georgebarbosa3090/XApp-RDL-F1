@@ -358,6 +358,24 @@ Nenhuma dessas melhorias muda a campanha pré-registrada sem novo registro. Elas
 | E7 | piloto e pré-registro 11 commitado antes da campanha | seção 9 |
 | E8 | artigos: trocar "xApps de terceiros usadas como referência" pela execução dos originais | números só pelos scripts |
 
+### 8.1 Piloto exploratório da E7 (semente 16901, 2026-11-13/14)
+
+- **O que rodou:** `scripts/run_closed_loop_pilot.sh`, nove cenários (G1, G2, S9–S15) × B0/B3, todas as xApps do cenário lendo o KPM e o rApp-ResourceOptimizer com A1 no laço. O TS ainda era a derivada (o original entrou depois, na E3). Tabelas geradas por `scripts/closed_loop/analisar_piloto.py` em `reports/avaliacao/piloto_malha_fechada_seed16901/`.
+- **Desvios:**
+  - o commit `9f31e260` (só o script do piloto) entrou depois do início do G2/B0;
+  - o WSL caiu às 19:07 de 13/11 com o piloto e o build do TS rodando juntos (falta de memória). O G1/B0 parou em t = 20 s e foi refeito do início pelo próprio script. Build e piloto passaram a rodar em sequência;
+  - o G2/B3 que o script pulou era de uma execução anterior (commit `fd2cb0f`, antes das correções da EnergySaver e do refinamento) e não vale para o piloto: precisa ser refeito.
+- **Achados:**
+  1. **Conflito orgânico quase ausente.** Nenhuma janela teve duas xApps no mesmo gNB e recurso. Em sequência (xApps diferentes no mesmo recurso até 5 s), só três casos: EnergySaver × `fault_injector` no S13 (estado da célula) e EnergySaver × Rogue no S15 (potência). Em S9, S10, S11, S12 e S14, B0 e B3 tiveram exatamente as mesmas ações e KPIs. Pela regra do §9 (item 6), isso é resultado e é relatado; o cenário não é ajustado para forçar conflito.
+  2. **Oscilação do RANSlicer-GreenRAN** no G1/B0 (PRB_QUOTA alternando a cada janela). No B3, a RDL não selecionou a maior parte dessas propostas. Corrigido na xApp (banda morta sempre, teto que só sobe com SLA em risco, intervalo mínimo de 2 s por célula, recusa devolve o teto de referência); `tests/unit/test_greenran_xapps.py`.
+  3. **S9 e S10 sem nenhuma proposta:** carga baixa e RSRP das vizinhas abaixo do piso de cobertura da EnergySaver (−110 dBm), e nenhuma vizinha 3 dB melhor para a derivada do TS.
+- **Mudanças depois do piloto:** TS original no papel `traffic_steering` (`closed_loop.json`), com a derivada em `--derivado traffic_steering` para o controle pareado; o log do processo de cada xApp original vai para `logs/xapp_<papel>.log` da execução.
+- **Primeira execução com o TS original e ns-3 (S9/B3, 14/11, interrompida em t ≈ 7 s; `experiments/runs_failed/cl_e3_S9_B3_ts_seed16901__interrompida_20261114`):**
+  - a cadeia fecha: AD emulado → TS original → QP emulado → `HandOff` por REST → proposta → RDL → handover aplicado no ns-3;
+  - com o AD absoluto (0,2 Mbps), os 40 UEs do S9 ficam anômalos em toda janela, porque o tráfego por UE é leve. O TS pediu cerca de 14 handovers por janela, e o B3 da RDL-N1 custa cerca de 1,4 s por proposta neste ambiente: cerca de 20 s de tempo real por janela, inviável para a campanha;
+  - nos KPMs do piloto, o modo absoluto marca todos os UEs em 100 % das janelas no S9 e no G2. O modo relativo (`anomaly_mode: relativo`, vazão abaixo de 50 % da média móvel do próprio UE, como a "Degradation" do AD original) zera o G2, mas no S9 ainda marca anomalia em 77 % das janelas, porque com 1 ou 2 pacotes por janela de 200 ms a vazão é ruidosa;
+  - **pendente (decisão do autor, D3 no pré-registro 11):** a forma e o valor do limiar do AD emulado.
+
 ## 9. Rascunho do pré-registro 11 (não registrado)
 
 O pré-registro é fechado e commitado depois do piloto e antes da campanha, com o mesmo formato dos pré-registros 08–10.

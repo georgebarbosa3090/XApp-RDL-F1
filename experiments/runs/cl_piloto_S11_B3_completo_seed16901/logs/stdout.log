@@ -1,0 +1,39 @@
+[RDL-SCN] 3 gNB(s), 30 UE(s), canal RMa, 43 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_38963.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-1.200-1 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=2.0s vazao=20.48 Mbps atraso=5.04 ms
+[RDL-KPI] t=3.0s vazao=20.48 Mbps atraso=5.13 ms
+[RDL-KPI] t=4.0s vazao=20.48 Mbps atraso=5.29 ms
+[RDL-KPI] t=5.0s vazao=20.48 Mbps atraso=5.32 ms
+[RDL-KPI] t=6.0s vazao=20.48 Mbps atraso=5.19 ms
+[RDL-ACT] t=6.200s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-6.200-2 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=7.0s vazao=20.48 Mbps atraso=5.22 ms
+[RDL-KPI] t=8.0s vazao=20.48 Mbps atraso=5.38 ms
+[RDL-KPI] t=9.0s vazao=20.48 Mbps atraso=5.14 ms
+[RDL-KPI] t=10.0s vazao=20.48 Mbps atraso=5.47 ms
+[RDL-KPI] t=11.0s vazao=20.48 Mbps atraso=5.18 ms
+[RDL-ACT] t=11.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-11.200-1 -> APPLIED (20 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=11.400s gnb=1 cell=2 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-11.400-3 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=12.0s vazao=17.86 Mbps atraso=59.82 ms
+[RDL-KPI] t=13.0s vazao=14.09 Mbps atraso=65.32 ms
+[RDL-KPI] t=14.0s vazao=17.69 Mbps atraso=69.28 ms
+[RDL-KPI] t=15.0s vazao=17.04 Mbps atraso=52.17 ms
+[RDL-KPI] t=16.0s vazao=19.01 Mbps atraso=41.10 ms
+[RDL-ACT] t=16.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-16.200-2 -> APPLIED (6 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=16.600s gnb=1 cell=2 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-16.600-4 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=17.0s vazao=20.48 Mbps atraso=4.95 ms
+[RDL-KPI] t=18.0s vazao=20.48 Mbps atraso=4.99 ms
+[RDL-KPI] t=19.0s vazao=20.48 Mbps atraso=5.06 ms
+[RDL-KPI] t=20.0s vazao=20.48 Mbps atraso=5.22 ms
+[RDL-KPI] t=21.0s vazao=20.56 Mbps atraso=5.19 ms
+[RDL-ACT] t=21.600s gnb=1 cell=2 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-21.600-5 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=22.0s vazao=20.40 Mbps atraso=5.29 ms
+[RDL-KPI] t=23.0s vazao=20.48 Mbps atraso=5.64 ms
+[RDL-KPI] t=24.0s vazao=20.40 Mbps atraso=5.71 ms
+[RDL-KPI] t=25.0s vazao=20.56 Mbps atraso=6.45 ms
+[RDL-KPI] t=26.0s vazao=20.48 Mbps atraso=6.18 ms
+[RDL-ACT] t=26.600s gnb=1 cell=2 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g1-PRB_QUOTA-26.600-6 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=27.0s vazao=20.56 Mbps atraso=7.25 ms
+[RDL-KPI] t=28.0s vazao=20.56 Mbps atraso=6.91 ms
+[RDL-KPI] t=29.0s vazao=20.48 Mbps atraso=7.24 ms

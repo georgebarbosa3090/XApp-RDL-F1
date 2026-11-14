@@ -1,0 +1,26 @@
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+[RDL-SCN] 2 gNB(s), 40 UE(s), canal NTN-Rural, 77 dBm
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_1158.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-1.200-9 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-1.200-23 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=2.0s vazao=0.67 Mbps atraso=26.05 ms
+[RDL-ACT] t=2.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-2.200-116 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=2.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-2.200-128 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=3.0s vazao=0.56 Mbps atraso=13.88 ms
+[RDL-ACT] t=3.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-3.200-211 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=3.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-3.200-222 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=4.0s vazao=0.54 Mbps atraso=16.36 ms
+[RDL-ACT] t=4.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-4.200-295 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=4.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-4.200-304 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=5.0s vazao=0.54 Mbps atraso=12.98 ms
+[RDL-ACT] t=5.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-5.200-365 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=5.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-5.200-373 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=6.0s vazao=0.69 Mbps atraso=22.68 ms
+[RDL-ACT] t=6.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-6.200-426 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=6.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-6.200-433 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=7.0s vazao=0.66 Mbps atraso=14.03 ms
+[RDL-ACT] t=7.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-7.200-470 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=7.200s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-7.200-475 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=8.0s vazao=0.61 Mbps atraso=12.04 ms
