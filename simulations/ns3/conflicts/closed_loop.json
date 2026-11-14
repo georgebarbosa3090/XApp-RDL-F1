@@ -1,8 +1,10 @@
 {
-  "_doc": "Configuração dos cenários em malha fechada (docs/16). Complementa o catalog.json sem alterá-lo: o catálogo continua fixando topologia, tráfego e papéis das xApps; aqui ficam as xApps que fazem cada papel na malha fechada, a fatia (SST) de cada grupo de UEs (--ueGroups, na ordem) e a hora do dia vista pelas xApps de energia. Papel de energia: EnergySaver-GreenRAN em todos os cenários (decisão de 2026-11-13; o ES Orange original tem o defeito do contador). xSlice e Traffic Steering usam as derivadas até a integração dos originais (xSlice: GNNRL e estatísticas de MAC; TS: etapa E3), e as execuções registram xapp_impl.",
+  "_doc": "Configuração dos cenários em malha fechada (docs/16). Complementa o catalog.json sem alterá-lo: o catálogo continua fixando topologia, tráfego e papéis das xApps; aqui ficam as xApps que fazem cada papel na malha fechada, a fatia (SST) de cada grupo de UEs (--ueGroups, na ordem) e a hora do dia vista pelas xApps de energia. Papel de energia: EnergySaver-GreenRAN em todos os cenários (decisão de 2026-11-13; o ES Orange original tem o defeito do contador). Traffic Steering: o ric-app-ts original (etapa E3, scripts/closed_loop/ts_driver.py); a derivada fica em 'derivado' para o controle pareado (--derivado traffic_steering). xSlice usa a derivada até a integração do original (GNNRL e estatísticas de MAC). As execuções registram xapp_impl.",
   "roles": {
     "xslice": {"module": "src.xapps.derivadas", "class": "XSliceDerivada", "xapp_impl": "derivado"},
-    "traffic_steering": {"module": "src.xapps.derivadas", "class": "TrafficSteeringDerivada", "xapp_impl": "derivado"},
+    "traffic_steering": {"driver": "scripts.closed_loop.ts_driver", "class": "TsOriginalDriver", "xapp_impl": "original",
+                         "args": {"threshold_pct": 5, "anomaly_thp_mbps": 0.2, "priority": 80, "min_observation_s": 1.0},
+                         "derivado": {"module": "src.xapps.derivadas", "class": "TrafficSteeringDerivada", "xapp_impl": "derivado"}},
     "energy_saving": {"module": "src.greenran.energysaver_greenran", "class": "EnergySaver", "xapp_impl": "propria"},
     "energy_saving_ru0": {"same_as": "energy_saving"},
     "energy_saving_ru1": {"same_as": "energy_saving"},

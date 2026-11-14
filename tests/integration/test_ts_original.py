@@ -56,6 +56,18 @@ def test_handoff_post_becomes_ue_handover_proposal():
     assert drv._to_proposal({"ue": "0", "fromCell": "9", "toCell": "2"}, 2.0) is None   # célula desconhecida
 
 
+def test_relative_anomaly_marks_only_degradation_of_the_ue_itself():
+    from scripts.closed_loop.ts_driver import TsOriginalDriver
+
+    drv = TsOriginalDriver(workdir=".", anomaly_mode="relativo", anomaly_drop=0.5)
+    low = {"0": _ue(0, 1, 0.01, 3.0, {}), "1": _ue(1, 1, 0.01, 3.0, {})}   # tráfego leve, estável
+    assert drv._anomalous(low) == []                                        # 1ª janela: só a média
+    assert drv._anomalous(low) == []                                        # leve não é anomalia
+    low["1"] = _ue(1, 1, 0.002, 3.0, {})                                    # UE 1 cai a 20 % da própria média
+    assert drv._anomalous(low) == ["1"]
+    assert TsOriginalDriver(workdir=".")._anomalous(low) == ["0", "1"]     # absoluto (0,2 Mbps): todos
+
+
 @pytest.mark.skipif(os.name == "nt" or not BIN.exists(), reason="requer o ts_xapp compilado no Linux/WSL")
 def test_ts_original_hands_off_only_the_ue_with_a_better_neighbor(tmp_path):
     from scripts.closed_loop.ts_driver import TsOriginalDriver

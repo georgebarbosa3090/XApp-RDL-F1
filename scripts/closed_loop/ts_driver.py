@@ -124,13 +124,20 @@ class TsOriginalDriver(XAppDriver):
 
     def __init__(self, workdir: str, prefix: Optional[str] = None, threshold_pct: int = 5,
                  anomaly_thp_mbps: float = 0.2, priority: int = 80, wait_s: float = 0.25,
-                 min_observation_s: float = 1.0):
+                 min_observation_s: float = 1.0, anomaly_mode: str = "absoluto", anomaly_drop: float = 0.5,
+                 anomaly_alpha: float = 0.2):
         base = Path(os.environ.get("XAPPS_ORIGINAIS", os.path.expanduser("~/xapps-originais")))
         self.prefix = Path(prefix or base / "install")
         self.binary = base / "build-ts" / "src" / "ts_xapp" / "ts_xapp"
         self.workdir = Path(workdir)
         self.threshold_pct, self.anomaly_thp, self.priority, self.wait_s = threshold_pct, anomaly_thp_mbps, priority, wait_s
         self.min_observation_s = min_observation_s   # antes disso não há tráfego: todo UE pareceria anômalo
+        # AD emulado (D3): "absoluto" = vazão < anomaly_thp_mbps; "relativo" = vazão < anomaly_drop × média
+        # móvel da própria vazão do UE (degradação, como o AD original, que marca "Degradation")
+        if anomaly_mode not in ("absoluto", "relativo"):
+            raise ValueError(f"anomaly_mode {anomaly_mode!r}: use absoluto | relativo")
+        self.anomaly_mode, self.anomaly_drop, self.anomaly_alpha = anomaly_mode, anomaly_drop, anomaly_alpha
+        self.thp_ema: Dict[str, float] = {}
         self.posts: "queue.Queue[Dict[str, Any]]" = queue.Queue()
         self.log: List[Dict[str, Any]] = []
         self.proc = None
@@ -188,6 +195,11 @@ class TsOriginalDriver(XAppDriver):
                   "payload": {"threshold": self.threshold_pct}}
         self.rmr.send(A1_POLICY_REQ, json.dumps(policy).encode())
 
+    @property
+    def stdout_log(self) -> Path:
+        """Log do processo do TS (o orquestrador o copia para logs/ da execução)."""
+        return self.workdir / "ts_stdout.log"
+
     def close(self) -> None:
         if self.proc and self.proc.poll() is None:
             self.proc.terminate()
@@ -218,6 +230,22 @@ class TsOriginalDriver(XAppDriver):
                     cells[c] = [max(0, int(round(thp_kbps * self._cap(float(sinr) + r - rsrp[serv]) / base))), 0]
         return {str(u["ue"]): cells}
 
+    def _anomalous(self, ues: Dict[str, Dict[str, Any]]) -> List[str]:
+        out = []
+        for uid, u in ues.items():
+            if u.get("thp_mbps") is None:
+                continue
+            thp = float(u["thp_mbps"])
+            if self.anomaly_mode == "absoluto":
+                if thp < self.anomaly_thp:
+                    out.append(uid)
+                continue
+            ema = self.thp_ema.get(uid)
+            if ema is not None and ema > 0 and thp < self.anomaly_drop * ema:
+                out.append(uid)
+            self.thp_ema[uid] = thp if ema is None else (1 - self.anomaly_alpha) * ema + self.anomaly_alpha * thp
+        return out
+
     def on_kpm(self, kpm: Dict[str, Any]) -> List[Dict[str, Any]]:
         t = float(kpm["t"])
         props: List[Dict[str, Any]] = []
@@ -226,8 +254,7 @@ class TsOriginalDriver(XAppDriver):
         if t < self.min_observation_s:
             return props
         ues = {str(u["ue"]): u for u in kpm.get("ues", []) if u.get("connected")}
-        anomalous = [uid for uid, u in ues.items()
-                     if u.get("thp_mbps") is not None and float(u["thp_mbps"]) < self.anomaly_thp]
+        anomalous = self._anomalous(ues)
         if not anomalous:
             return props
         ad = [{"du-id": 1010, "ue-id": uid, "measTimeStampRf": int(t * 1000), "Degradation": "RSRP RSSINR"}

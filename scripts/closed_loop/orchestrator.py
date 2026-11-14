@@ -27,6 +27,7 @@ import argparse
 import json
 import os
 import select
+import shutil
 import socket
 import subprocess
 import sys
@@ -105,7 +106,8 @@ class Ns3Link:
 SHIM_BUILD = os.environ.get("RDL_SHIM_BUILD", os.path.expanduser("~/xapps-originais/shim-build"))
 
 
-def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str) -> List[XAppDriver]:
+def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str,
+                  derivado: tuple = ()) -> List[XAppDriver]:
     if kind == "replay":
         return [ReplayDriver(rce.expand_proposals(spec), window)]
     if kind == "es-orange":
@@ -115,7 +117,7 @@ def build_drivers(kind: str, spec: Dict[str, Any], window: float, run_id: str) -
         return [FlexricXAppDriver("es-orange", "energy_saving", os.path.join(SHIM_BUILD, "xapp_es_with_cell_util_rdl"),
                                   "es", priority=60, workdir=work)]
     if kind == "completo":
-        return build_full_drivers(spec)
+        return build_full_drivers(spec, run_id, derivado)
     raise SystemExit(f"--xapps {kind}: desconhecido (replay | es-orange | completo)")
 
 
@@ -190,8 +192,11 @@ def ue_sst_map(spec: Dict[str, Any], groups_sst: List[int]) -> Dict[int, int]:
     return out
 
 
-def build_full_drivers(spec: Dict[str, Any]) -> List[XAppDriver]:
-    """Todas as xApps do cenário em malha fechada, pelo papel no catálogo e pelo closed_loop.json."""
+def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple = ()) -> List[XAppDriver]:
+    """Todas as xApps do cenário em malha fechada, pelo papel no catálogo e pelo closed_loop.json.
+
+    ``derivado``: papéis que rodam com a derivada em Python no lugar do original (controle pareado, docs/16 §7).
+    """
     import importlib
     from scripts.closed_loop.drivers import PythonXAppDriver
     from src.greenran.common import load_neighbors
@@ -212,6 +217,15 @@ def build_full_drivers(spec: Dict[str, Any]) -> List[XAppDriver]:
         if role in made:
             continue
         made.add(role)
+        if role in derivado:
+            if "derivado" not in rc:
+                raise SystemExit(f"--derivado {role}: o papel não tem derivada no closed_loop.json")
+            rc = rc["derivado"]
+        if rc.get("driver"):                      # original em processo próprio (docs/16 §4.3)
+            cls = getattr(importlib.import_module(rc["driver"]), rc["class"])
+            work = os.path.join(tempfile.gettempdir(), f"rdl_xapp_{role}_{run_id or os.getpid()}")
+            drivers.append(cls(workdir=work, **rc.get("args", {})))
+            continue
         if rc.get("replay_catalog"):
             events = [e for e in rce.expand_proposals(spec) if e["xapp_id"] == role]
             drv = ReplayDriver(events, float(rce.load_catalog().get("decision_window_s", 0.2)))
@@ -263,7 +277,7 @@ def run(args) -> int:
     proc = subprocess.Popen(cmd, env=env)
 
     baseline = WindowBaseline(args.baseline)
-    drivers = build_drivers(args.xapps, spec, window, run_id)
+    drivers = build_drivers(args.xapps, spec, window, run_id, tuple(args.derivado))
     rapp = None
     if args.xapps == "completo":
         cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
@@ -329,6 +343,10 @@ def run(args) -> int:
         baseline.close()
         for d in drivers:
             d.close()
+            out = getattr(d, "stdout_log", None)   # log do processo da xApp original, guardado na execução
+            if out is not None and Path(out).exists():
+                run_dir.joinpath("logs").mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(out, run_dir / "logs" / f"xapp_{d.name.split(':')[-1]}.log")
         server.close()
         if os.path.exists(sock_path):
             os.remove(sock_path)
@@ -349,6 +367,8 @@ def main(argv=None) -> int:
     ap.add_argument("--run-id", default=None)
     ap.add_argument("--no-build", action="store_true")
     ap.add_argument("--sim-arg", action="append", default=[])
+    ap.add_argument("--derivado", action="append", default=[], metavar="PAPEL",
+                    help="papel que roda com a derivada em Python (controle pareado), ex.: traffic_steering")
     args = ap.parse_args(argv)
     if os.name == "nt":
         raise SystemExit("rode no Ubuntu do WSL: o ns-3 e o socket Unix ficam no Linux")

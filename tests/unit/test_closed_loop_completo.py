@@ -40,8 +40,12 @@ def test_full_drivers_build_and_propose(scenario, monkeypatch, tmp_path):
         topo = tmp_path / "topo.json"
         topo.write_text(json.dumps(spec["topology"]), encoding="utf-8")
         monkeypatch.setenv("RDL_TOPOLOGY_FILE", str(topo))
-    drivers = orc.build_full_drivers(spec)
     roles = {p["xapp_id"] for p in spec["proposals"]}
+    if "traffic_steering" in roles:   # sem a opção, o papel usa o TS original (processo; testado em test_ts_original)
+        from scripts.closed_loop.ts_driver import TsOriginalDriver
+        assert any(isinstance(d, TsOriginalDriver) for d in orc.build_full_drivers(spec, "t"))
+    # aqui, as xApps em Python: o TS entra pela derivada (controle pareado)
+    drivers = orc.build_full_drivers(spec, "t", derivado=("traffic_steering",))
     assert drivers, scenario
     props = []
     for k in range(1, 60):
