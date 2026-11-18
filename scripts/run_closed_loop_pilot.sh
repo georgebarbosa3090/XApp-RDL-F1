@@ -5,15 +5,18 @@
 # pré-registro 11, não para conclusões. Retomável: pula execuções já concluídas com SUCCESS.
 #
 # Uso (Ubuntu do WSL): bash scripts/run_closed_loop_pilot.sh [--scenarios "S9 G2"] [--baselines "B0 B3"] [--seed 16901]
+#   [--repeat 2]: roda cada execução N vezes com a mesma semente (teste de determinismo do pré-registro 11, item 5);
+#   a k-ésima repetição (k >= 2) ganha o sufixo _rep<k> no run_id. Compare com scripts/closed_loop/comparar_determinismo.py.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 VENV="${VENV:-$HOME/.venvs/xapp-rdl}"
-SCENARIOS="G2 G1 S9 S15 S11 S14 S10 S13 S12"; BASELINES="B0 B3"; SEED=16901
+SCENARIOS="G2 G1 S9 S15 S11 S14 S10 S13 S12"; BASELINES="B0 B3"; SEED=16901; REPEAT=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --scenarios) SCENARIOS="$2"; shift 2 ;;
     --baselines) BASELINES="$2"; shift 2 ;;
     --seed) SEED="$2"; shift 2 ;;
+    --repeat) REPEAT="$2"; shift 2 ;;
     *) echo "opção desconhecida: $1" >&2; exit 64 ;;
   esac
 done
@@ -21,11 +24,13 @@ done
 source "$VENV/bin/activate" || { echo "venv não encontrado em $VENV" >&2; exit 3; }
 cd "$REPO"
 say() { echo "[$(date +%H:%M:%S)] $*"; }
-say "piloto da malha fechada: cenários [$SCENARIOS] × baselines [$BASELINES], semente $SEED"
+say "piloto da malha fechada: cenários [$SCENARIOS] × baselines [$BASELINES], semente $SEED, $REPEAT repetição(ões)"
 first=1
+for k in $(seq 1 "$REPEAT"); do
 for sc in $SCENARIOS; do
   for bl in $BASELINES; do
-    rid="cl_piloto_${sc}_${bl}_completo_seed${SEED}"
+    tag=""; [ "$k" -ge 2 ] && tag="_rep${k}"
+    rid="cl_piloto_${sc}_${bl}_completo${tag}_seed${SEED}"
     man="experiments/runs/${rid}/execution_manifest.json"
     if [ -f "$man" ] && grep -q '"run_status": "SUCCESS"' "$man"; then say "pula $rid (concluída)"; continue; fi
     rm -rf "experiments/runs/${rid}"
@@ -36,6 +41,7 @@ for sc in $SCENARIOS; do
     say "FIM $rid"
     first=0
   done
+done
 done
 say "piloto concluído"
 # painel de fim de campanha (docs/16 §10.4): conflitos, oscilações, cadeia E2, rede, mensagens, controle e regras
