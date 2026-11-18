@@ -1,0 +1,73 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S8_B3_xapps_seed9208",
+  "generated_at_utc": "2026-11-18T14:17:10Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v6-ratio-apply",
+  "anchor": "apply",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.1
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "e7c387af969870f08dccab8713726952e31b5efbd7179614bfa413a35c21c837",
+  "source_dissection_sha256": "a5bfa6d6cc3760fec4674ac1024024fb23ea74843978ef195a979de54e2105fc",
+  "control_frame": 27,
+  "control_wall_epoch": 1795011300.81271,
+  "control_sim_time_s": 1.7921832509060214,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 35,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 65,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "control_apply_time_s": 3.566092014312744,
+  "calibration": "experiments/calibration/slice_cap_curve_v5.json",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
+  "verdict": "NOT_TESTABLE",
+  "window_before": [
+    -0.43390798568725586,
+    3.566092014312744
+  ],
+  "window_after": [
+    5.566092014312744,
+    9.566092014312744
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 35.0,
+      "throughput_before_mbps": 125.948,
+      "throughput_after_mbps": 146.657,
+      "relative_change": 0.1644,
+      "curve_prediction": {
+        "kind": "not_testable",
+        "reason": "teto 35 % fora dos níveis que restringem (10, 15, 20, 30 %)"
+      },
+      "expectation": "not_testable",
+      "met": null
+    },
+    "2": {
+      "cap_max_prb_pct": 65.0,
+      "throughput_before_mbps": 125.794,
+      "throughput_after_mbps": 69.288,
+      "relative_change": -0.4492,
+      "curve_prediction": {
+        "kind": "not_testable",
+        "reason": "teto 65 % fora dos níveis que restringem (10, 15, 20, 30 %)"
+      },
+      "expectation": "not_testable",
+      "met": null
+    }
+  }
+}
