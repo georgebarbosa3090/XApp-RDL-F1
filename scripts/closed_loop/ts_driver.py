@@ -139,8 +139,9 @@ class TsOriginalDriver(XAppDriver):
         # média móvel da própria vazão do UE.
         if anomaly_mode not in ("oferta", "absoluto", "relativo"):
             raise ValueError(f"anomaly_mode {anomaly_mode!r}: use oferta | absoluto | relativo")
-        if anomaly_mode == "oferta" and not ue_offered_mbps:
-            raise ValueError("anomaly_mode oferta exige ue_offered_mbps (taxa oferecida por UE)")
+        # A taxa oferecida vem do HELLO do ns-3 (ue_offered_mbps, soma dos UdpClient por UE); a calculada pelo
+        # catálogo (--ueGroups) fica como reserva. Sem nenhuma das duas, on_hello recusa o modo "oferta".
+        self.offered_source = "catalogo" if ue_offered_mbps else ""
         self.anomaly_mode, self.anomaly_drop, self.anomaly_alpha = anomaly_mode, anomaly_drop, anomaly_alpha
         self.anomaly_frac, self.anomaly_window_s = anomaly_frac, anomaly_window_s
         self.offered = {str(k): float(v) for k, v in (ue_offered_mbps or {}).items()}
@@ -155,9 +156,20 @@ class TsOriginalDriver(XAppDriver):
         self._seq = 0
 
     # ------------------------------------------------------------------ ciclo de vida
+    def _set_offered(self, hello: Dict[str, Any]) -> None:
+        """Taxa oferecida por UE: a do HELLO do ns-3 tem precedência sobre a calculada pelo catálogo."""
+        if hello.get("ue_offered_mbps"):
+            self.offered = {str(k): float(v) for k, v in hello["ue_offered_mbps"].items()}
+            self.offered_source = "ns3_hello"
+        if self.anomaly_mode == "oferta" and not self.offered:
+            raise ValueError("anomaly_mode oferta exige a taxa oferecida por UE (HELLO do ns-3 ou --ueGroups)")
+
     def on_hello(self, hello: Dict[str, Any]) -> None:
         self.workdir.mkdir(parents=True, exist_ok=True)
         self.gnb_of_cell = {int(g["cell_id"]): int(g["gnb"]) for g in hello["gnbs"]}
+        self._set_offered(hello)
+        print(f"[ts-original] taxa oferecida: {len(self.offered)} UEs, fonte {self.offered_source or 'nenhuma'}",
+              flush=True)
         posts = self.posts
 
         class H(BaseHTTPRequestHandler):

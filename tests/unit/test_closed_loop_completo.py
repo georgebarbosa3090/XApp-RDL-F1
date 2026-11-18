@@ -22,7 +22,8 @@ CFG = json.loads(orc.CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
 
 
 def _kpm(t, spec, cells=3):
-    n = sum(int(g.split(",")[0]) for g in next(a for a in spec["args"] if a.startswith("--ueGroups=")).split("=", 1)[1].split(";"))
+    groups = next((a for a in spec["args"] if a.startswith("--ueGroups=")), "")
+    n = sum(int(g.split(",")[0]) for g in groups.split("=", 1)[1].split(";")) if groups else 20   # S0–S7: 20 UEs
     ues = []
     for u in range(n):
         g = u % cells
@@ -62,8 +63,18 @@ def test_full_drivers_build_and_propose(scenario, monkeypatch, tmp_path):
 
 def test_ue_sst_map_from_groups():
     spec = CAT["scenarios"]["G1"]
-    m = orc.ue_sst_map(spec, [1, 2])
+    m = orc.ue_sst_map(spec, {"ue_sst_groups": [1, 2]})
     assert m[0] == 1 and m[5] == 1 and m[6] == 2 and len(m) == 36
+
+
+def test_ue_sst_map_for_s2_and_s3_follows_the_traffic_classes_of_the_programs():
+    """S0–S7 não têm --ueGroups: a fatia de cada UE vem da classe de tráfego do programa ns-3 (closed_loop.json)."""
+    cfg = json.loads((ROOT / "simulations/ns3/conflicts/closed_loop.json").read_text(encoding="utf-8"))["scenarios"]
+    s2 = orc.ue_sst_map(CAT["scenarios"]["S2"], cfg["S2"])
+    assert [s2[u] for u in range(6)] == [2, 1, 3, 2, 1, 3]              # i mod 3: URLLC, eMBB, mMTC
+    s3 = orc.ue_sst_map(CAT["scenarios"]["S3"], cfg["S3"])
+    assert s3[0] == 2 and s3[9] == 2 and s3[10] == 1 and len(s3) == 20
+    assert orc.ue_sst_map(CAT["scenarios"]["S1"], {}) == {}               # sem classe URLLC: tudo eMBB
 
 
 def test_rapp_delivers_a1_policies_to_rdl_and_greenran_xapps(monkeypatch, tmp_path):
@@ -74,7 +85,7 @@ def test_rapp_delivers_a1_policies_to_rdl_and_greenran_xapps(monkeypatch, tmp_pa
     drivers = orc.build_full_drivers(spec)
     baseline = orc.WindowBaseline("B3")
     try:
-        rapp = orc.RAppStep(drivers, baseline, {}, 2, orc.ue_sst_map(spec, [1, 2]))
+        rapp = orc.RAppStep(drivers, baseline, {}, 2, orc.ue_sst_map(spec, {"ue_sst_groups": [1, 2]}))
         ev = rapp.step(_kpm(0.2, spec, cells=2))
         assert sorted(ev["delivered"]) == ["20001->RDL", "21000->ranslicer_greenran", "21001->energysaver_greenran"]
         assert rapp.step(_kpm(0.4, spec, cells=2)) is None            # próximo passo só depois de 10 s

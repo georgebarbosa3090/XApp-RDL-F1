@@ -510,7 +510,68 @@ class RdlActuation
               << ",\"tx_power_dbm\":" << Num(NrHelper::GetGnbPhy(gnb, 0)->GetTxPower(), 2)
               << ",\"rbs\":" << NrHelper::GetGnbPhy(gnb, 0)->GetRbNum() << "}";
         }
-        h << "]}";
+        // Taxa oferecida por UE (Mb/s): soma dos UdpClient cujo destino é o IP do UE (PacketSize × 8 ÷ Interval).
+        // O AD emulado do Traffic Steering original compara a vazão entregue com essa taxa (docs/16 §4.3);
+        // vale para qualquer cenário, inclusive os que instalam o tráfego sem RdlInstallDownlinkUdp.
+        std::map<uint32_t, uint32_t> ueOfIp;
+        for (uint32_t u = 0; u < m_ueDevs.GetN(); ++u)
+        {
+            Ptr<Ipv4> ip = m_ueDevs.Get(u)->GetNode()->GetObject<Ipv4>();
+            for (uint32_t i = 1; ip && i < ip->GetNInterfaces(); ++i)
+            {
+                for (uint32_t a = 0; a < ip->GetNAddresses(i); ++a)
+                {
+                    ueOfIp[ip->GetAddress(i, a).GetLocal().Get()] = u;
+                }
+            }
+        }
+        std::map<uint32_t, double> offered;
+        for (uint32_t n = 0; n < NodeList::GetNNodes(); ++n)
+        {
+            Ptr<Node> node = NodeList::GetNode(n);
+            for (uint32_t k = 0; k < node->GetNApplications(); ++k)
+            {
+                Ptr<UdpClient> cli = DynamicCast<UdpClient>(node->GetApplication(k));
+                if (!cli)
+                {
+                    continue;
+                }
+                AddressValue remote;
+                UintegerValue size;
+                TimeValue interval;
+                cli->GetAttribute("Remote", remote);
+                cli->GetAttribute("PacketSize", size);
+                cli->GetAttribute("Interval", interval);
+                Address addr = remote.Get();
+                Ipv4Address dst;
+                if (InetSocketAddress::IsMatchingType(addr))
+                {
+                    dst = InetSocketAddress::ConvertFrom(addr).GetIpv4();
+                }
+                else if (Ipv4Address::IsMatchingType(addr))
+                {
+                    dst = Ipv4Address::ConvertFrom(addr);
+                }
+                else
+                {
+                    continue;
+                }
+                auto it = ueOfIp.find(dst.Get());
+                double s = interval.Get().GetSeconds();
+                if (it != ueOfIp.end() && s > 0)
+                {
+                    offered[it->second] += size.Get() * 8.0 / s / 1e6;
+                }
+            }
+        }
+        h << "],\"ue_offered_mbps\":{";
+        bool first = true;
+        for (const auto& [u, mbps] : offered)
+        {
+            h << (first ? "" : ",") << "\"" << u << "\":" << Num(mbps, 4);
+            first = false;
+        }
+        h << "}}";
         SendLine(h.str());
         Simulator::Schedule(Seconds(m_window), &RdlActuation::CloseWindow, this);
         std::cout << "[RDL-CTL] malha fechada: socket " << sockPath << ", janela " << m_window << " s"

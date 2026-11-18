@@ -9,7 +9,7 @@ Fluxo de uma execução:
      (RdlActuation, rdl-nr-common.h) e envia a topologia ("hello").
   2. A cada janela de decisão o ns-3 pausa e envia o KPM da janela. Os drivers de xApp
      (scripts/closed_loop/drivers.py) recebem o KPM e devolvem propostas.
-  3. O baseline decide as propostas da janela (B0, B1, B2 ou o pipeline real da RDL-N1: B3, B3A, B3M)
+  3. O baseline decide as propostas da janela (B0, B1, B2 ou o pipeline real da RDL-N1: B3, B3A, B3M, B3S)
      e as ações voltam ao ns-3, aplicadas no mesmo instante simulado.
   4. Cada janela (KPM, propostas, decisão, ações) é gravada em raw/closed_loop_log.jsonl da execução,
      antes de as ações voltarem ao ns-3: o arquivo está completo quando o executor calcula os hashes.
@@ -46,7 +46,10 @@ from src.core import baselines as bl  # noqa: E402
 from scripts.closed_loop.drivers import ReplayDriver, XAppDriver  # noqa: E402
 
 RUNS = ROOT / "experiments" / "runs"
-EEVS = {"B3": "additive", "B3A": "additive", "B3M": "mean"}
+EEVS = {"B3": "additive", "B3A": "additive", "B3M": "mean", "B3S": "additive"}
+# B3S: ablação do slew-rate (docs/16, item 6a): o B3 com o Refinement limitando o passo em relação ao último
+# valor aplicado (3 dB de potência, 30 pontos de PRB). Desligado no B3 porque muda a semântica pré-registrada.
+SLEW_RATE = {"B3S"}
 
 
 # --------------------------------------------------------------------------- baselines por janela
@@ -60,6 +63,8 @@ class WindowBaseline:
         if baseline in EEVS:
             os.environ["RDL_EEVS_AGGREGATION"] = EEVS[baseline]
             self.stream = rce.HrdlStream()
+            if baseline in SLEW_RATE:
+                self.stream.app.refinement.config["enforce_slew_rate"] = True
 
     def decide(self, group: List[Dict[str, Any]], t_close: float) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         if not group:
@@ -180,11 +185,29 @@ class RAppStep:
         return {"t": t, "kpi": kpi, "policies": out["policies"], "reasons": out["reasons"], "delivered": delivered}
 
 
-def ue_sst_map(spec: Dict[str, Any], groups_sst: List[int]) -> Dict[int, int]:
-    """Índice do UE -> SST, pelos tamanhos dos grupos em --ueGroups (na ordem)."""
+def ue_sst_map(spec: Dict[str, Any], sc_cfg: Dict[str, Any], max_ues: int = 1024) -> Dict[int, int]:
+    """Índice do UE -> SST.
+
+    - ``ue_sst_groups``: SST de cada grupo de --ueGroups, na ordem (scenario_rdl_multicell: G*, S9–S15);
+    - ``ue_sst_cycle``: SST repetido em ciclo pelo índice do UE (S2: i mod 3 -> URLLC, eMBB, mMTC no programa);
+    - ``ue_sst_counts``: pares [quantidade, SST] na ordem dos UEs (S3: UEs 0–9 URLLC).
+    UE sem SST definido fica na fatia 1 (eMBB).
+    """
+    out: Dict[int, int] = {}
+    if sc_cfg.get("ue_sst_cycle"):
+        cyc = [int(x) for x in sc_cfg["ue_sst_cycle"]]
+        return {u: cyc[u % len(cyc)] for u in range(max_ues)}
+    if sc_cfg.get("ue_sst_counts"):
+        u = 0
+        for n, sst in sc_cfg["ue_sst_counts"]:
+            for _ in range(int(n)):
+                out[u] = int(sst)
+                u += 1
+        return out
+    groups_sst = sc_cfg.get("ue_sst_groups", [])
     arg = next((a for a in spec.get("args", []) if a.startswith("--ueGroups=")), "")
     sizes = [int(g.split(",")[0]) for g in arg.split("=", 1)[1].split(";")] if arg else []
-    out, u = {}, 0
+    u = 0
     for k, n in enumerate(sizes):
         for _ in range(n):
             out[u] = int(groups_sst[k]) if k < len(groups_sst) else 1
@@ -220,7 +243,7 @@ def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple =
 
     cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
     sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(spec.get("_id", ""), {})}
-    ue_sst = ue_sst_map(spec, sc_cfg.get("ue_sst_groups", []))
+    ue_sst = ue_sst_map(spec, sc_cfg)
     hour = int(sc_cfg.get("hour", 2))
     roles = sorted({p["xapp_id"] for p in spec["proposals"]})
     drivers: List[XAppDriver] = []
@@ -303,7 +326,7 @@ def run(args) -> int:
         cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
         sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(args.scenario, {})}
         rapp = RAppStep(drivers, baseline, sc_cfg.get("intent", {}), int(sc_cfg.get("hour", 2)),
-                        ue_sst_map(spec, sc_cfg.get("ue_sst_groups", [])))
+                        ue_sst_map(spec, sc_cfg))
     log_fh = chain_fh = chain = None
     use_chain = args.cadeia_e2 == "on" or (args.cadeia_e2 == "auto" and args.xapps == "completo")
     n_windows = n_props = n_actions = 0
@@ -400,7 +423,7 @@ def run(args) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--scenario", required=True)
-    ap.add_argument("--baseline", required=True, choices=["B0", "B1", "B2", "B3", "B3A", "B3M"])
+    ap.add_argument("--baseline", required=True, choices=["B0", "B1", "B2", "B3", "B3A", "B3M", "B3S"])
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--xapps", default="replay", help="replay (gate E1) | originais (docs/16, E2–E4)")
     ap.add_argument("--run-id", default=None)

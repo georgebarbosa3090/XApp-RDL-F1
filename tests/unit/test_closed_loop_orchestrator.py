@@ -76,3 +76,18 @@ def test_b0_applies_every_proposal_at_window_close():
     for t, i in closed:
         e = next(e for e in events if e["id"] == i)
         assert e["t"] < t <= e["t"] + WINDOW + 1e-9
+
+
+def test_b3s_enforces_slew_rate_and_b3_does_not():
+    """B3S (ablação, docs/16 item 6a): passo máximo de 30 pontos de PRB e 3 dB em relação ao último valor aplicado."""
+    prb = lambda i, v: {"id": f"a{i}", "xapp_id": "xslice", "gnb": 0, "parameter": "PRB_QUOTA",  # noqa: E731
+                        "value": v, "priority": 80}
+    for baseline, esperado in (("B3S", [["a1"], [], ["a3"]]), ("B3", [["a1"], ["a2"], ["a3"]])):
+        d = WindowBaseline(baseline)
+        try:
+            got = [[w["id"] for w in d.decide([prb(1, 50)], 0.2)[0]],
+                   [w["id"] for w in d.decide([prb(2, 90)], 2.0)[0]],    # +40 pontos: acima do passo no B3S
+                   [w["id"] for w in d.decide([prb(3, 75)], 4.0)[0]]]    # +25 em relação a 50: aceito
+        finally:
+            d.close()
+        assert got == esperado, baseline

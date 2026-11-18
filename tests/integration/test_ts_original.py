@@ -83,8 +83,23 @@ def test_offered_rate_anomaly_uses_sliding_window_against_the_scenario_offer():
     for _ in range(5):
         got = drv._anomalous(ues(0.016, 0.02), 0.2)                         # UE 1 recebe 12 % da oferta
     assert got == ["1"]
-    with pytest.raises(ValueError):
-        TsOriginalDriver(workdir=".", anomaly_mode="oferta")                # sem a taxa oferecida
+    with pytest.raises(ValueError):                                         # sem a taxa oferecida
+        TsOriginalDriver(workdir=".", anomaly_mode="oferta").on_hello({"gnbs": [], "window": 0.2})
+
+
+def test_offered_rate_from_ns3_hello_overrides_the_catalog(tmp_path):
+    """S2, S4 e S5 não têm --ueGroups: a taxa oferecida vem do HELLO do ns-3 (soma dos UdpClient por UE)."""
+    from scripts.closed_loop.ts_driver import TsOriginalDriver
+
+    drv = TsOriginalDriver(workdir=str(tmp_path), anomaly_mode="oferta")    # nada do catálogo
+    drv._set_offered({"gnbs": [], "window": 0.2, "ue_offered_mbps": {"0": 1.024, "1": 0.4096}})
+    assert drv.offered_source == "ns3_hello"
+    assert drv.offered == {"0": pytest.approx(1.024), "1": pytest.approx(0.4096)}
+    cat = TsOriginalDriver(workdir=str(tmp_path), anomaly_mode="oferta", ue_offered_mbps={0: 2.0})
+    cat._set_offered({"gnbs": [], "window": 0.2})                           # HELLO antigo, sem a taxa
+    assert cat.offered_source == "catalogo" and cat.offered == {"0": 2.0}
+    cat._set_offered({"gnbs": [], "window": 0.2, "ue_offered_mbps": {"0": 0.5}})
+    assert cat.offered_source == "ns3_hello" and cat.offered == {"0": 0.5}
 
 
 @pytest.mark.skipif(os.name == "nt" or not BIN.exists(), reason="requer o ts_xapp compilado no Linux/WSL")
