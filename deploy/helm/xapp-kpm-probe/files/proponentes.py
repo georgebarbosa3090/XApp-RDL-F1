@@ -258,6 +258,10 @@ def rmr_loop():
                     break
                 time.sleep(0.05)
             rmr.rmr_free_msg(sbuf)
+            if "relay_control_outcome" in p:
+                event("control_outcome_relayed", rmr_ok=state == rmr.RMR_OK, rmr_state=state,
+                      mtype=p["relay_control_outcome"]["mtype"], sha256=p["relay_control_outcome"]["sha256"])
+                continue
             event("proposal", rmr_ok=state == rmr.RMR_OK, rmr_state=state, sha256=hashlib.sha256(body).hexdigest(),
                   **{k: p.get(k) for k in ("xapp_id", "node_id", "parameter", "value", "priority")})
         mbuf = rmr.rmr_torcv_msg(ctx, mbuf, 100)
@@ -274,6 +278,14 @@ def rmr_loop():
             on_indication(meid, payload, hashlib.sha256(payload).hexdigest())
         elif mtype == RESULT:
             on_result(payload)
+        elif mtype in (12041, 12042):
+            # Com duas xApps registradas, o RtMgr do Release I gera uma linha mse|12041|-1 (e 12042) por xApp e o
+            # E2Term entrega cada ACK/Failure a uma delas. O que cai aqui é da kpm-probe: repassa os bytes
+            # originais pela rota 30000 (o sha256 continua casando com o PCAP).
+            sha = hashlib.sha256(payload).hexdigest()
+            OUTBOX.put({"relay_control_outcome": {"mtype": mtype, "meid": meid, "payload_hex": payload.hex(),
+                                                   "sha256": sha, "relayed_by": NAME}})
+            event("control_outcome_misrouted", mtype=mtype, meid=meid, sha256=sha, length=len(payload))
         else:
             event("rmr_message", mtype=mtype, length=len(payload), meid=meid)
     rmr.rmr_close(ctx)

@@ -459,7 +459,19 @@ def _send_one_control(rmr, ctx, meid, quotas, decision, source, trigger_sha, tri
           trigger_kpm_seq=trigger_seq, control_order=order, control_total=total)
 
 
-def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
+def _relayed_outcome(payload: bytes):
+    """ACK/Failure repassado pelas proponentes no 30000 (``{"relay_control_outcome": {...}}``), ou None."""
+    try:
+        body = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        return None
+    relay = body.get("relay_control_outcome") if isinstance(body, dict) else None
+    if isinstance(relay, dict) and relay.get("mtype") in (12041, 12042) and relay.get("payload_hex"):
+        return relay
+    return None
+
+
+def handle_control_outcome(meid: str, mtype: int, payload: bytes, relayed_by=None) -> None:
     try:
         out = codec.parse_ric_control_outcome(payload)
     except codec.CodecError as exc:
@@ -475,7 +487,8 @@ def handle_control_outcome(meid: str, mtype: int, payload: bytes) -> None:
     event("control_outcome", meid=meid, mtype=mtype, outcome=out["outcome"],
           ric_requestor_id=out.get("ric_requestor_id"), ric_instance_id=out.get("ric_instance_id"),
           ran_function_id=out.get("ran_function_id"), correlated_with_request=correlated, latency_ms=latency,
-          length=len(payload), sha256=hashlib.sha256(payload).hexdigest(), cause_raw=out.get("cause_raw"))
+          length=len(payload), sha256=hashlib.sha256(payload).hexdigest(), cause_raw=out.get("cause_raw"),
+          relayed_by=relayed_by)
 
 
 def rmr_loop() -> None:
@@ -533,6 +546,17 @@ def rmr_loop() -> None:
                   effective=A1.effective_policy())
             continue
         if mtype == RDL_ACTION_PROPOSAL and WINDOW is not None:
+            relay = _relayed_outcome(payload)
+            if relay is not None:
+                # ACK/Failure que o E2Term entregou às proponentes (rotas 12041/12042 duplicadas no RtMgr)
+                r_payload = bytes.fromhex(relay["payload_hex"])
+                r_sha = hashlib.sha256(r_payload).hexdigest()
+                r_meid = relay.get("meid") or meid
+                event("rmr_message", mtype=relay["mtype"], mtype_name=RMR_TYPES.get(relay["mtype"], "?"), sub_id=None,
+                      meid=r_meid, length=len(r_payload), sha256=r_sha, seq=None, source=s[rmr.RMR_MS_MSG_SOURCE],
+                      relayed_by=relay.get("relayed_by"))
+                handle_control_outcome(r_meid, relay["mtype"], r_payload, relayed_by=relay.get("relayed_by"))
+                continue
             item = WINDOW.add(payload, time.monotonic(), meid)
             event("proposal", accepted=item is not None, xapp_id=(item or {}).get("xapp_id"),
                   parameter=(item or {}).get("parameter"), value=(item or {}).get("value"),
