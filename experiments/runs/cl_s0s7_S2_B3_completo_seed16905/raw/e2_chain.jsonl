@@ -1,0 +1,313 @@
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_0", "cell_id": 1, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_0", "cell_id": 1, "accepted": [2, 3]}
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_1", "cell_id": 2, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_1", "cell_id": 2, "accepted": [2, 3]}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 3}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 3}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "admitted": true}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_0", "seq": 1, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0013, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_1", "seq": 1, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0113, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_0", "seq": 2, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_1", "seq": 2, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_0", "seq": 3, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_1", "seq": 3, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_0", "seq": 4, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_1", "seq": 4, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_0", "seq": 5, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_1", "seq": 5, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 1.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_0", "seq": 6, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_1", "seq": 6, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.8233, "thp_mbps": 10.0864}
+{"role": "decision", "t": 1.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_0", "seq": 7, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_1", "seq": 7, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.835, "thp_mbps": 10.2912}
+{"role": "decision", "t": 1.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_0", "seq": 8, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.2562, "thp_mbps": 76.272}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_1", "seq": 8, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.9142, "thp_mbps": 34.5824}
+{"role": "decision", "t": 1.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_0", "seq": 9, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_1", "seq": 9, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 1.0, "thp_mbps": 98.7712}
+{"role": "decision", "t": 1.8, "rule": "hrdl-pipeline", "selected": ["xslice-g1-PRB_QUOTA-1.800-1"], "correlation": [{"action_id": "xslice-g1-PRB_QUOTA-1.800-1", "xapp_id": "xslice", "node": "gnb_1", "parameter": "PRB_QUOTA", "value": 25.0, "ue": -1}]}
+{"role": "control_request", "t": 1.8, "action_id": "xslice-g1-PRB_QUOTA-1.800-1", "node": "gnb_1", "parameter": "PRB_QUOTA", "value": 25.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "dca2be6fc70d96725dfd335424fce9be8f385a850977417a94a909126140750e", "hex": "010101095052425f51554f54410119"}, "e2ap_pdu": {"len": 54, "sha256": "8d131be5b2635aae22b7bd284ebc98daf9bc01edc9bdf43e76a3951451d0f2bd", "hex": "00044032000005001d0005000001000500050002000300160004010101010017000f010101095052425f51554f544101190015000120"}, "decoded_value": 25.0}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_0", "seq": 10, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5029, "thp_mbps": 167.496}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_1", "seq": 10, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.257, "thp_mbps": 42.113}
+{"role": "control_ack", "t": 2.0, "action_id": "xslice-g1-PRB_QUOTA-1.800-1", "node": "gnb_1", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "status": "APPLIED", "detail": "RBG 133/533", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "a3bf3e6795db2f1ddeffdb7f602f64419ff352d8004a357347b6fea3aa792686", "hex": "20044012000002001d00050000010005000500020003"}}
+{"role": "kpm_t1", "t": 2.0, "action_id": "xslice-g1-PRB_QUOTA-1.800-1", "node": "gnb_1", "parameter": "PRB_QUOTA", "expected": 25.0, "observed": 25.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 2.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_0", "seq": 11, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5017, "thp_mbps": 167.664}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_1", "seq": 11, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.0848}
+{"role": "decision", "t": 2.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_0", "seq": 12, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_1", "seq": 12, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5834}
+{"role": "decision", "t": 2.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_0", "seq": 13, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_1", "seq": 13, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4918}
+{"role": "decision", "t": 2.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_0", "seq": 14, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_1", "seq": 14, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8627}
+{"role": "decision", "t": 2.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_0", "seq": 15, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_1", "seq": 15, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6803}
+{"role": "decision", "t": 3.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_0", "seq": 16, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_1", "seq": 16, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.665}
+{"role": "decision", "t": 3.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_0", "seq": 17, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_1", "seq": 17, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8698}
+{"role": "decision", "t": 3.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_0", "seq": 18, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_1", "seq": 18, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6806}
+{"role": "decision", "t": 3.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_0", "seq": 19, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_1", "seq": 19, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7517}
+{"role": "decision", "t": 3.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_0", "seq": 20, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_1", "seq": 20, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8074}
+{"role": "decision", "t": 4.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_0", "seq": 21, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_1", "seq": 21, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4093}
+{"role": "decision", "t": 4.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_0", "seq": 22, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_1", "seq": 22, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.385}
+{"role": "decision", "t": 4.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_0", "seq": 23, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_1", "seq": 23, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.353}
+{"role": "decision", "t": 4.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_0", "seq": 24, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_1", "seq": 24, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6848}
+{"role": "decision", "t": 4.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_0", "seq": 25, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_1", "seq": 25, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6192}
+{"role": "decision", "t": 5.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_0", "seq": 26, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_1", "seq": 26, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6861}
+{"role": "decision", "t": 5.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_0", "seq": 27, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_1", "seq": 27, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6499}
+{"role": "decision", "t": 5.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_0", "seq": 28, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_1", "seq": 28, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5523}
+{"role": "decision", "t": 5.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_0", "seq": 29, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_1", "seq": 29, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6288}
+{"role": "decision", "t": 5.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_0", "seq": 30, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_1", "seq": 30, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3693}
+{"role": "decision", "t": 6.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_0", "seq": 31, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_1", "seq": 31, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.2675}
+{"role": "decision", "t": 6.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_0", "seq": 32, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_1", "seq": 32, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6237}
+{"role": "decision", "t": 6.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_0", "seq": 33, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_1", "seq": 33, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5066}
+{"role": "decision", "t": 6.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_0", "seq": 34, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_1", "seq": 34, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.792}
+{"role": "decision", "t": 6.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_0", "seq": 35, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5017, "thp_mbps": 167.664}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_1", "seq": 35, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6147}
+{"role": "decision", "t": 7.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_0", "seq": 36, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_1", "seq": 36, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6138}
+{"role": "decision", "t": 7.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_0", "seq": 37, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_1", "seq": 37, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.568}
+{"role": "decision", "t": 7.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_0", "seq": 38, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_1", "seq": 38, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5933}
+{"role": "decision", "t": 7.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_0", "seq": 39, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_1", "seq": 39, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.456}
+{"role": "decision", "t": 7.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_0", "seq": 40, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_1", "seq": 40, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7667}
+{"role": "decision", "t": 8.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_0", "seq": 41, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_1", "seq": 41, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.792}
+{"role": "decision", "t": 8.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_0", "seq": 42, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_1", "seq": 42, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6448}
+{"role": "decision", "t": 8.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_0", "seq": 43, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5025, "thp_mbps": 167.496}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_1", "seq": 43, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5075}
+{"role": "decision", "t": 8.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_0", "seq": 44, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_1", "seq": 44, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5274}
+{"role": "decision", "t": 8.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_0", "seq": 45, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_1", "seq": 45, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4608}
+{"role": "decision", "t": 9.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_0", "seq": 46, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_1", "seq": 46, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5322}
+{"role": "decision", "t": 9.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_0", "seq": 47, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_1", "seq": 47, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5827}
+{"role": "decision", "t": 9.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_0", "seq": 48, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_1", "seq": 48, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5994}
+{"role": "decision", "t": 9.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_0", "seq": 49, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_1", "seq": 49, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7968}
+{"role": "decision", "t": 9.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_0", "seq": 50, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_1", "seq": 50, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4963}
+{"role": "decision", "t": 10.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_0", "seq": 51, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_1", "seq": 51, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.64}
+{"role": "decision", "t": 10.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_0", "seq": 52, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_1", "seq": 52, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3747}
+{"role": "decision", "t": 10.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_0", "seq": 53, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_1", "seq": 53, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7709}
+{"role": "decision", "t": 10.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_0", "seq": 54, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_1", "seq": 54, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.92}
+{"role": "decision", "t": 10.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_0", "seq": 55, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_1", "seq": 55, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6038}
+{"role": "decision", "t": 11.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_0", "seq": 56, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_1", "seq": 56, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6192}
+{"role": "decision", "t": 11.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_0", "seq": 57, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_1", "seq": 57, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.288}
+{"role": "decision", "t": 11.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_0", "seq": 58, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_1", "seq": 58, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3494}
+{"role": "decision", "t": 11.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_0", "seq": 59, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5033, "thp_mbps": 167.328}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_1", "seq": 59, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3238}
+{"role": "decision", "t": 11.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_0", "seq": 60, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_1", "seq": 60, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6429}
+{"role": "decision", "t": 12.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_0", "seq": 61, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_1", "seq": 61, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6445}
+{"role": "decision", "t": 12.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_0", "seq": 62, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_1", "seq": 62, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5526}
+{"role": "decision", "t": 12.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_0", "seq": 63, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5033, "thp_mbps": 167.328}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_1", "seq": 63, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5674}
+{"role": "decision", "t": 12.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_0", "seq": 64, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_1", "seq": 64, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5219}
+{"role": "decision", "t": 12.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_0", "seq": 65, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_1", "seq": 65, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6442}
+{"role": "decision", "t": 13.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_0", "seq": 66, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_1", "seq": 66, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7514}
+{"role": "decision", "t": 13.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_0", "seq": 67, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5008, "thp_mbps": 167.832}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_1", "seq": 67, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5021}
+{"role": "decision", "t": 13.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_0", "seq": 68, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_1", "seq": 68, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3334}
+{"role": "decision", "t": 13.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_0", "seq": 69, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_1", "seq": 69, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5837}
+{"role": "decision", "t": 13.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_0", "seq": 70, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_1", "seq": 70, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3942}
+{"role": "decision", "t": 14.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_0", "seq": 71, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_1", "seq": 71, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.913}
+{"role": "decision", "t": 14.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_0", "seq": 72, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_1", "seq": 72, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7578}
+{"role": "decision", "t": 14.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_0", "seq": 73, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_1", "seq": 73, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7613}
+{"role": "decision", "t": 14.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_0", "seq": 74, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_1", "seq": 74, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.481}
+{"role": "decision", "t": 14.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_0", "seq": 75, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_1", "seq": 75, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7718}
+{"role": "decision", "t": 15.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_0", "seq": 76, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_1", "seq": 76, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.905}
+{"role": "decision", "t": 15.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_0", "seq": 77, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_1", "seq": 77, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.3277}
+{"role": "decision", "t": 15.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_0", "seq": 78, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_1", "seq": 78, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8026}
+{"role": "decision", "t": 15.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_0", "seq": 79, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_1", "seq": 79, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5523}
+{"role": "decision", "t": 15.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_0", "seq": 80, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_1", "seq": 80, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6496}
+{"role": "decision", "t": 16.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_0", "seq": 81, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_1", "seq": 81, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4346}
+{"role": "decision", "t": 16.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_0", "seq": 82, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_1", "seq": 82, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7472}
+{"role": "decision", "t": 16.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_0", "seq": 83, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_1", "seq": 83, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.496}
+{"role": "decision", "t": 16.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_0", "seq": 84, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_1", "seq": 84, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.7226}
+{"role": "decision", "t": 16.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_0", "seq": 85, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_1", "seq": 85, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4163}
+{"role": "decision", "t": 17.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_0", "seq": 86, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_1", "seq": 86, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5213}
+{"role": "decision", "t": 17.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_0", "seq": 87, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_1", "seq": 87, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 36.2}
+{"role": "decision", "t": 17.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_0", "seq": 88, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5008, "thp_mbps": 167.832}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_1", "seq": 88, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.2413}
+{"role": "decision", "t": 17.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_0", "seq": 89, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5017, "thp_mbps": 167.664}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_1", "seq": 89, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4099}
+{"role": "decision", "t": 17.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_0", "seq": 90, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_1", "seq": 90, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.4304}
+{"role": "decision", "t": 18.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_0", "seq": 91, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_1", "seq": 91, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6083}
+{"role": "decision", "t": 18.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_0", "seq": 92, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_1", "seq": 92, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.6403}
+{"role": "decision", "t": 18.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_0", "seq": 93, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_1", "seq": 93, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.5376}
+{"role": "decision", "t": 18.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_0", "seq": 94, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_1", "seq": 94, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8275}
+{"role": "decision", "t": 18.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_0", "seq": 95, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.5, "thp_mbps": 168.0}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_1", "seq": 95, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.2495, "thp_mbps": 35.8323}
+{"role": "decision", "t": 19.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_0", "seq": 96, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0158, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_1", "seq": 96, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0426, "thp_mbps": 0.0}
+{"role": "decision", "t": 19.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_0", "seq": 97, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_1", "seq": 97, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 19.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_0", "seq": 98, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_1", "seq": 98, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 19.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_0", "seq": 99, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 3, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_1", "seq": 99, "subscribers": ["derivado:xslice", "original:traffic_steering"], "n_ues": 27, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 19.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "chain_summary", "t": 19.8, "counts": {"e2_setup": 2, "subscription": 4, "kpm_t0": 198, "control_request": 1, "control_ack": 1, "kpm_t1": 1, "control_failure": 0, "control_timeout": 0, "decision": 99}}

@@ -1,0 +1,2 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+1.8,1,2,PRB_QUOTA,25,-1,xslice,xslice-g1-PRB_QUOTA-1.800-1,APPLIED,RBG 133/533
