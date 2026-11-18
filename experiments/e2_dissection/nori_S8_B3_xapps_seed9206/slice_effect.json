@@ -1,0 +1,73 @@
+{
+  "schema": "xapp-rdl/slice-effect/v1",
+  "run_id": "nori_S8_B3_xapps_seed9206",
+  "generated_at_utc": "2026-11-18T14:02:12Z",
+  "generator": "scripts/certification/slice_effect.py",
+  "rule": "v5-curve-apply",
+  "anchor": "apply",
+  "constants": {
+    "window_s": 4.0,
+    "settle_s": 2.0,
+    "margin_pp": 5.0,
+    "min_drop": 0.05,
+    "tolerance": 0.2
+  },
+  "source_csv": "raw/slice_series.csv",
+  "source_csv_sha256": "c8ad37322d31ddcd9b3b1df2ceae5c89136280a85f487cc8159250ecc9275f66",
+  "source_dissection_sha256": "ac7e12ac0699845f4f3e6e79620f471a23c7ddb2d297161ddf8abfd1211a5f0f",
+  "control_frame": 28,
+  "control_wall_epoch": 1795010399.135687,
+  "control_sim_time_s": 2.0231234531745397,
+  "quotas_from_pcap": [
+    {
+      "sst": 1,
+      "max_prb_ratio": 90,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    },
+    {
+      "sst": 2,
+      "max_prb_ratio": 10,
+      "min_prb_ratio": 0,
+      "dedicated_prb_ratio": 0
+    }
+  ],
+  "control_apply_time_s": 4.383158206939697,
+  "calibration": "experiments/calibration/slice_cap_curve_v5.json",
+  "calibration_sha256": "d7c2f54ead0f51583a9b20c00eaa602f105b461a33d0ac44e2604015b0d8282d",
+  "verdict": "NOT_TESTABLE",
+  "window_before": [
+    0.38315820693969727,
+    4.383158206939697
+  ],
+  "window_after": [
+    6.383158206939697,
+    10.383158206939697
+  ],
+  "slices": {
+    "1": {
+      "cap_max_prb_pct": 90.0,
+      "throughput_before_mbps": 129.597,
+      "throughput_after_mbps": 151.488,
+      "relative_change": 0.1689,
+      "curve_prediction": {
+        "kind": "no_decrease",
+        "threshold_free_pct": 70.0
+      },
+      "expectation": "no_decrease",
+      "met": true
+    },
+    "2": {
+      "cap_max_prb_pct": 10.0,
+      "throughput_before_mbps": 129.465,
+      "throughput_after_mbps": 37.461,
+      "relative_change": -0.7106,
+      "curve_prediction": {
+        "kind": "not_testable",
+        "reason": "teto 10 % fora do intervalo medido (deixa-um-fora)"
+      },
+      "expectation": "not_testable",
+      "met": null
+    }
+  }
+}
