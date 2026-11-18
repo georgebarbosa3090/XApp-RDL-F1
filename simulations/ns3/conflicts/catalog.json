@@ -214,7 +214,7 @@
         10.0,
         15.0
       ],
-      "summary": "Tempestade de conflitos: seis xApps disputam PRB e potência nas quatro gNBs a cada 0,5 s.",
+      "summary": "Tempestade de conflitos: cinco xApps (Energy Saving em três gNBs) disputam PRB e potência nas quatro gNBs a cada 0,5 s. Em malha fechada, a tempestade é só a que as xApps geram a partir do KPM (docs/03).",
       "proposals": [
         {
           "xapp_id": "xslice",

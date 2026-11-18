@@ -1,0 +1,642 @@
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_0", "cell_id": 1, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_0", "cell_id": 1, "accepted": [2, 3]}
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_1", "cell_id": 2, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_1", "cell_id": 2, "accepted": [2, 3]}
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_2", "cell_id": 3, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_2", "cell_id": 3, "accepted": [2, 3]}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 3}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 3}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 5}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 5}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 6}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "replay:fault_injector", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 6}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 7}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 7}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 8}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 8}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 9}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_2", "ric_request_id": {"ricRequestorID": 102, "ricInstanceID": 9}, "admitted": true}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_0", "seq": 1, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.0105, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_1", "seq": 1, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0063, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_2", "seq": 1, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0042, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_0", "seq": 2, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_1", "seq": 2, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_2", "seq": 2, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_0", "seq": 3, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_1", "seq": 3, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_2", "seq": 3, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_0", "seq": 4, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_1", "seq": 4, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_2", "seq": 4, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_0", "seq": 5, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_1", "seq": 5, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_2", "seq": 5, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 1.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_0", "seq": 6, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2704, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_1", "seq": 6, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.105, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_2", "seq": 6, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0717, "thp_mbps": 4.096}
+{"role": "decision", "t": 1.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_0", "seq": 7, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_1", "seq": 7, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.075, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_2", "seq": 7, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 1.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_0", "seq": 8, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_1", "seq": 8, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.075, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_2", "seq": 8, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 1.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_0", "seq": 9, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_1", "seq": 9, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.075, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_2", "seq": 9, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 1.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_0", "seq": 10, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_1", "seq": 10, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.075, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_2", "seq": 10, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 2.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_0", "seq": 11, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_1", "seq": 11, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_2", "seq": 11, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0421, "thp_mbps": 4.096}
+{"role": "decision", "t": 2.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_0", "seq": 12, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_1", "seq": 12, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_2", "seq": 12, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 2.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_0", "seq": 13, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_1", "seq": 13, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_2", "seq": 13, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 2.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_0", "seq": 14, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2338, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_1", "seq": 14, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_2", "seq": 14, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 2.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_0", "seq": 15, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_1", "seq": 15, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_2", "seq": 15, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 3.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_0", "seq": 16, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_1", "seq": 16, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_2", "seq": 16, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 3.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_0", "seq": 17, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_1", "seq": 17, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_2", "seq": 17, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 3.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_0", "seq": 18, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_1", "seq": 18, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_2", "seq": 18, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 3.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_0", "seq": 19, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_1", "seq": 19, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_2", "seq": 19, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 3.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_0", "seq": 20, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_1", "seq": 20, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_2", "seq": 20, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 4.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_0", "seq": 21, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_1", "seq": 21, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_2", "seq": 21, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 4.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_0", "seq": 22, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_1", "seq": 22, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_2", "seq": 22, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 4.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_0", "seq": 23, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_1", "seq": 23, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_2", "seq": 23, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 4.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_0", "seq": 24, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_1", "seq": 24, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_2", "seq": 24, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 4.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_0", "seq": 25, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_1", "seq": 25, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_2", "seq": 25, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 5.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_0", "seq": 26, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2333, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_1", "seq": 26, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_2", "seq": 26, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 5.2, "rule": "hrdl-pipeline", "selected": ["energysaver_greenran-g0-TX_POWER-5.200-1"], "correlation": [{"action_id": "energysaver_greenran-g0-TX_POWER-5.200-1", "xapp_id": "energysaver_greenran", "node": "gnb_0", "parameter": "TX_POWER", "value": 30.0, "ue": -1}]}
+{"role": "control_request", "t": 5.2, "action_id": "energysaver_greenran-g0-TX_POWER-5.200-1", "node": "gnb_0", "parameter": "TX_POWER", "value": 30.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 10}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "20afaf6fd2c3d05622bbdf4ecb1e165eec59781bc66c99c21d63c44eeab56b85", "hex": "0101030854585f504f57455202012c"}, "e2ap_pdu": {"len": 54, "sha256": "9312a95712ad9841bb7ec983961f6160eddcbf89e7a6dbf6d08b0a84231cc301", "hex": "00044032000005001d0005000001000a00050002000300160004010101010017000f0101030854585f504f57455202012c0015000120"}, "decoded_value": 30.0}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_0", "seq": 27, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.255, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_1", "seq": 27, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_2", "seq": 27, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "control_ack", "t": 5.4, "action_id": "energysaver_greenran-g0-TX_POWER-5.200-1", "node": "gnb_0", "parameter": "TX_POWER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 10}, "status": "APPLIED", "detail": "TxPower=30 dBm", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "df6e03085adc378865ff0a42e7fa8781e06c01b69c125f1340b63733ecbeb79e", "hex": "20044012000002001d0005000001000a000500020003"}}
+{"role": "kpm_t1", "t": 5.4, "action_id": "energysaver_greenran-g0-TX_POWER-5.200-1", "node": "gnb_0", "parameter": "TX_POWER", "expected": 30.0, "observed": 30.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 5.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_0", "seq": 28, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2471, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_1", "seq": 28, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_2", "seq": 28, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 5.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_0", "seq": 29, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_1", "seq": 29, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_2", "seq": 29, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 5.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_0", "seq": 30, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_1", "seq": 30, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_2", "seq": 30, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 6.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_0", "seq": 31, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_1", "seq": 31, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_2", "seq": 31, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 6.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_0", "seq": 32, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_1", "seq": 32, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_2", "seq": 32, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 6.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_0", "seq": 33, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_1", "seq": 33, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_2", "seq": 33, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 6.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_0", "seq": 34, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_1", "seq": 34, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_2", "seq": 34, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 6.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_0", "seq": 35, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_1", "seq": 35, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_2", "seq": 35, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 7.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_0", "seq": 36, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2483, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_1", "seq": 36, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_2", "seq": 36, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 7.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_0", "seq": 37, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_1", "seq": 37, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_2", "seq": 37, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 7.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_0", "seq": 38, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_1", "seq": 38, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_2", "seq": 38, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 7.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_0", "seq": 39, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_1", "seq": 39, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_2", "seq": 39, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 7.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_0", "seq": 40, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_1", "seq": 40, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_2", "seq": 40, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 8.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_0", "seq": 41, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2483, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_1", "seq": 41, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_2", "seq": 41, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 8.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_0", "seq": 42, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2487, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_1", "seq": 42, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_2", "seq": 42, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 8.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_0", "seq": 43, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_1", "seq": 43, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_2", "seq": 43, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 8.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_0", "seq": 44, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_1", "seq": 44, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_2", "seq": 44, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 8.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_0", "seq": 45, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2471, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_1", "seq": 45, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_2", "seq": 45, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 9.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_0", "seq": 46, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_1", "seq": 46, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_2", "seq": 46, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 9.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_0", "seq": 47, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2492, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_1", "seq": 47, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_2", "seq": 47, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 9.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_0", "seq": 48, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_1", "seq": 48, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_2", "seq": 48, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 9.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_0", "seq": 49, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_1", "seq": 49, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_2", "seq": 49, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 9.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_0", "seq": 50, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_1", "seq": 50, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_2", "seq": 50, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 10.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_0", "seq": 51, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_1", "seq": 51, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_2", "seq": 51, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 10.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_0", "seq": 52, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_1", "seq": 52, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0721, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_2", "seq": 52, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 10.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_0", "seq": 53, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_1", "seq": 53, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_2", "seq": 53, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 10.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_0", "seq": 54, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_1", "seq": 54, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_2", "seq": 54, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 10.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_0", "seq": 55, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2462, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_1", "seq": 55, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_2", "seq": 55, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 11.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_0", "seq": 56, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2487, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_1", "seq": 56, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_2", "seq": 56, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 11.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_0", "seq": 57, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2462, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_1", "seq": 57, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_2", "seq": 57, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 11.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_0", "seq": 58, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2467, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_1", "seq": 58, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_2", "seq": 58, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 11.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_0", "seq": 59, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2471, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_1", "seq": 59, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_2", "seq": 59, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 11.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_0", "seq": 60, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2471, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_1", "seq": 60, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_2", "seq": 60, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 12.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_0", "seq": 61, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_1", "seq": 61, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_2", "seq": 61, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 12.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_0", "seq": 62, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2492, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_1", "seq": 62, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_2", "seq": 62, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 12.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_0", "seq": 63, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_1", "seq": 63, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_2", "seq": 63, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 12.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_0", "seq": 64, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_1", "seq": 64, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_2", "seq": 64, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 12.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_0", "seq": 65, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2462, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_1", "seq": 65, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_2", "seq": 65, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 13.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_0", "seq": 66, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2492, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_1", "seq": 66, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_2", "seq": 66, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 13.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_0", "seq": 67, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2483, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_1", "seq": 67, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_2", "seq": 67, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 13.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_0", "seq": 68, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2483, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_1", "seq": 68, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_2", "seq": 68, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 13.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_0", "seq": 69, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_1", "seq": 69, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_2", "seq": 69, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 13.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_0", "seq": 70, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2475, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_1", "seq": 70, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_2", "seq": 70, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 14.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_0", "seq": 71, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2483, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_1", "seq": 71, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_2", "seq": 71, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 14.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_0", "seq": 72, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_1", "seq": 72, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0712, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_2", "seq": 72, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 14.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_0", "seq": 73, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2492, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_1", "seq": 73, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_2", "seq": 73, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 14.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_0", "seq": 74, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2487, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_1", "seq": 74, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_2", "seq": 74, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 14.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_0", "seq": 75, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2479, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_1", "seq": 75, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_2", "seq": 75, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 15.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_0", "seq": 76, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.2471, "thp_mbps": 20.48}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_1", "seq": 76, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0717, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_2", "seq": 76, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 15.2, "rule": "hrdl-pipeline", "selected": ["fault_injector-g0-CELL_STATE-15.000"], "correlation": [{"action_id": "fault_injector-g0-CELL_STATE-15.000", "xapp_id": "fault_injector", "node": "gnb_0", "parameter": "CELL_STATE", "value": 0.0, "ue": -1}]}
+{"role": "control_request", "t": 15.2, "action_id": "fault_injector-g0-CELL_STATE-15.000", "node": "gnb_0", "parameter": "CELL_STATE", "value": 0.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 11}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 16, "sha256": "d6d006a86607670773aef1482f4c6756169cab601f25f06185a8933a096cd92b", "hex": "0101050a43454c4c5f53544154450100"}, "e2ap_pdu": {"len": 55, "sha256": "6b581200cbad20a92ce69e0ed09619fa8c5dff6ce83a346df66d99b0e66e7248", "hex": "00044033000005001d0005000001000b0005000200030016000401010101001700100101050a43454c4c5f535441544501000015000120"}, "decoded_value": 0.0}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_0", "seq": 77, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.3783, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_1", "seq": 77, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_2", "seq": 77, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "control_ack", "t": 15.4, "action_id": "fault_injector-g0-CELL_STATE-15.000", "node": "gnb_0", "parameter": "CELL_STATE", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 11}, "status": "APPLIED", "detail": "sleep emulado: TxPower=-30 dBm", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "cd6c0787818aa51d98a0902db96cc1d9a60fce008324ec44fd65a472293a98e3", "hex": "20044012000002001d0005000001000b000500020003"}}
+{"role": "kpm_t1", "t": 15.4, "action_id": "fault_injector-g0-CELL_STATE-15.000", "node": "gnb_0", "parameter": "CELL_STATE", "expected": 0.0, "observed": true, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 15.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_0", "seq": 78, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.3812, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_1", "seq": 78, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_2", "seq": 78, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 15.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_0", "seq": 79, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 25, "prb_util": 0.8067, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_1", "seq": 79, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0708, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_2", "seq": 79, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 10, "prb_util": 0.0417, "thp_mbps": 4.096}
+{"role": "decision", "t": 15.8, "rule": "hrdl-pipeline", "selected": ["traffic_steering-g0-HANDOVER-15.800-9"], "correlation": [{"action_id": "traffic_steering-g0-HANDOVER-15.800-9", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 2.0, "ue": 8}]}
+{"role": "control_request", "t": 15.8, "action_id": "traffic_steering-g0-HANDOVER-15.800-9", "node": "gnb_0", "parameter": "HANDOVER", "value": 2.0, "ue": 8, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 12}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "f505fd8f596d7fae1bf32ead21a20f30a6944b0d9c75a7f676076cde628da6f2", "hex": "0101040848414e444f5645520102"}, "e2ap_pdu": {"len": 53, "sha256": "bf9bd46263c5cc76632de510dcb5f17016b4073bdbba2dfedfc43de772b23aec", "hex": "00044031000005001d0005000001000c00050002000300160004010101010017000e0101040848414e444f56455201020015000120"}, "decoded_value": 2.0}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_0", "seq": 80, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.6946, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_1", "seq": 80, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0667, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_2", "seq": 80, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 11, "prb_util": 0.0617, "thp_mbps": 4.8742}
+{"role": "control_ack", "t": 16.0, "action_id": "traffic_steering-g0-HANDOVER-15.800-9", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 12}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "6c4b4701223e53fd2d0e764e73c1d19b692d10e15875336abcfd028f444e4e8c", "hex": "20044012000002001d0005000001000c000500020003"}}
+{"role": "kpm_t1", "t": 16.0, "action_id": "traffic_steering-g0-HANDOVER-15.800-9", "node": "gnb_0", "parameter": "HANDOVER", "expected": 2.0, "observed": 3, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 16.0, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_0", "seq": 81, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.9237, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_1", "seq": 81, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_2", "seq": 81, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 11, "prb_util": 0.0542, "thp_mbps": 4.9152}
+{"role": "decision", "t": 16.2, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_0", "seq": 82, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.8579, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_1", "seq": 82, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_2", "seq": 82, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 11, "prb_util": 0.0542, "thp_mbps": 4.9152}
+{"role": "decision", "t": 16.4, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_0", "seq": 83, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.9071, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_1", "seq": 83, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_2", "seq": 83, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 11, "prb_util": 0.0542, "thp_mbps": 4.9152}
+{"role": "decision", "t": 16.6, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_0", "seq": 84, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.8342, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_1", "seq": 84, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_2", "seq": 84, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 11, "prb_util": 0.0542, "thp_mbps": 4.9152}
+{"role": "decision", "t": 16.8, "rule": "hrdl-pipeline", "selected": ["traffic_steering-g0-HANDOVER-16.800-144"], "correlation": [{"action_id": "traffic_steering-g0-HANDOVER-16.800-144", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 2.0, "ue": 24}]}
+{"role": "control_request", "t": 16.8, "action_id": "traffic_steering-g0-HANDOVER-16.800-144", "node": "gnb_0", "parameter": "HANDOVER", "value": 2.0, "ue": 24, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 13}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "f505fd8f596d7fae1bf32ead21a20f30a6944b0d9c75a7f676076cde628da6f2", "hex": "0101040848414e444f5645520102"}, "e2ap_pdu": {"len": 53, "sha256": "85eb7c60b25d0cba0a6c73837a1c3f60bb7022086ddbc220bdb2c400713b842f", "hex": "00044031000005001d0005000001000d00050002000300160004010101010017000e0101040848414e444f56455201020015000120"}, "decoded_value": 2.0}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_0", "seq": 85, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.7913, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_1", "seq": 85, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_2", "seq": 85, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 12, "prb_util": 0.0808, "thp_mbps": 5.6934}
+{"role": "control_ack", "t": 17.0, "action_id": "traffic_steering-g0-HANDOVER-16.800-144", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 13}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 3 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "4e74a207b3df8e8b991f8f39fc4f002be2a3d301db9cbb629ad105a5f6532108", "hex": "20044012000002001d0005000001000d000500020003"}}
+{"role": "kpm_t1", "t": 17.0, "action_id": "traffic_steering-g0-HANDOVER-16.800-144", "node": "gnb_0", "parameter": "HANDOVER", "expected": 2.0, "observed": 3, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 17.0, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_0", "seq": 86, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.89, "thp_mbps": 0.5325}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_1", "seq": 86, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_2", "seq": 86, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 12, "prb_util": 0.0808, "thp_mbps": 5.7344}
+{"role": "decision", "t": 17.2, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_0", "seq": 87, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 20, "prb_util": 0.9154, "thp_mbps": 0.3686}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_1", "seq": 87, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0625, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_2", "seq": 87, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 12, "prb_util": 0.0808, "thp_mbps": 5.7344}
+{"role": "decision", "t": 17.4, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_0", "seq": 88, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0325, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_1", "seq": 88, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.0642, "thp_mbps": 6.144}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_2", "seq": 88, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 15, "prb_util": 0.1192, "thp_mbps": 7.4547}
+{"role": "decision", "t": 17.6, "rule": "hrdl-pipeline", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_0", "seq": 89, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_1", "seq": 89, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.2387, "thp_mbps": 14.4179}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_2", "seq": 89, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.2296, "thp_mbps": 13.4758}
+{"role": "decision", "t": 17.8, "rule": "hrdl-pipeline", "selected": ["energysaver_greenran-g1-TX_POWER-17.800-3", "energysaver_greenran-g2-TX_POWER-17.800-4"], "correlation": [{"action_id": "energysaver_greenran-g1-TX_POWER-17.800-3", "xapp_id": "energysaver_greenran", "node": "gnb_1", "parameter": "TX_POWER", "value": 30.0, "ue": -1}, {"action_id": "energysaver_greenran-g2-TX_POWER-17.800-4", "xapp_id": "energysaver_greenran", "node": "gnb_2", "parameter": "TX_POWER", "value": 30.0, "ue": -1}]}
+{"role": "control_request", "t": 17.8, "action_id": "energysaver_greenran-g1-TX_POWER-17.800-3", "node": "gnb_1", "parameter": "TX_POWER", "value": 30.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 14}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "20afaf6fd2c3d05622bbdf4ecb1e165eec59781bc66c99c21d63c44eeab56b85", "hex": "0101030854585f504f57455202012c"}, "e2ap_pdu": {"len": 54, "sha256": "8a9203af2c3778ea3a99d8227e2357ca1506f14cf5bc9eeae54304054fc3a91a", "hex": "00044032000005001d0005000001000e00050002000300160004010101010017000f0101030854585f504f57455202012c0015000120"}, "decoded_value": 30.0}
+{"role": "control_request", "t": 17.8, "action_id": "energysaver_greenran-g2-TX_POWER-17.800-4", "node": "gnb_2", "parameter": "TX_POWER", "value": 30.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 15}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "20afaf6fd2c3d05622bbdf4ecb1e165eec59781bc66c99c21d63c44eeab56b85", "hex": "0101030854585f504f57455202012c"}, "e2ap_pdu": {"len": 54, "sha256": "bc3344a613e6bc3f7bb8ec71218e5828680fc1ba590e74496590a0708046a049", "hex": "00044032000005001d0005000001000f00050002000300160004010101010017000f0101030854585f504f57455202012c0015000120"}, "decoded_value": 30.0}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_0", "seq": 90, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_1", "seq": 90, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.635, "thp_mbps": 16.0563}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_2", "seq": 90, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5696, "thp_mbps": 14.7866}
+{"role": "control_ack", "t": 18.0, "action_id": "energysaver_greenran-g1-TX_POWER-17.800-3", "node": "gnb_1", "parameter": "TX_POWER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 14}, "status": "APPLIED", "detail": "TxPower=30 dBm", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "2c4190269b3abac14c6035e8f6279695348247d74e41a3115b07793a9fad8ed7", "hex": "20044012000002001d0005000001000e000500020003"}}
+{"role": "control_ack", "t": 18.0, "action_id": "energysaver_greenran-g2-TX_POWER-17.800-4", "node": "gnb_2", "parameter": "TX_POWER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 15}, "status": "APPLIED", "detail": "TxPower=30 dBm", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "8fc20b3f0164aa40f86c6aaf3eeaf6a366d118a3c21e2748cf505f2c90606163", "hex": "20044012000002001d0005000001000f000500020003"}}
+{"role": "kpm_t1", "t": 18.0, "action_id": "energysaver_greenran-g1-TX_POWER-17.800-3", "node": "gnb_1", "parameter": "TX_POWER", "expected": 30.0, "observed": 30.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 18.0, "action_id": "energysaver_greenran-g2-TX_POWER-17.800-4", "node": "gnb_2", "parameter": "TX_POWER", "expected": 30.0, "observed": 30.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 18.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_0", "seq": 91, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_1", "seq": 91, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_2", "seq": 91, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5913, "thp_mbps": 14.7866}
+{"role": "decision", "t": 18.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_0", "seq": 92, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_1", "seq": 92, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.645, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_2", "seq": 92, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.6038, "thp_mbps": 14.7456}
+{"role": "decision", "t": 18.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_0", "seq": 93, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_1", "seq": 93, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6517, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_2", "seq": 93, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5929, "thp_mbps": 14.7456}
+{"role": "decision", "t": 18.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_0", "seq": 94, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_1", "seq": 94, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6496, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_2", "seq": 94, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5842, "thp_mbps": 14.7456}
+{"role": "decision", "t": 18.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_0", "seq": 95, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_1", "seq": 95, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6492, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_2", "seq": 95, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5746, "thp_mbps": 14.7046}
+{"role": "decision", "t": 19.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_0", "seq": 96, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_1", "seq": 96, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6462, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_2", "seq": 96, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5887, "thp_mbps": 14.7456}
+{"role": "decision", "t": 19.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_0", "seq": 97, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_1", "seq": 97, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6479, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_2", "seq": 97, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5796, "thp_mbps": 14.7456}
+{"role": "decision", "t": 19.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_0", "seq": 98, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_1", "seq": 98, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6458, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_2", "seq": 98, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5825, "thp_mbps": 14.7866}
+{"role": "decision", "t": 19.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_0", "seq": 99, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_1", "seq": 99, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6471, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_2", "seq": 99, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5883, "thp_mbps": 14.7046}
+{"role": "decision", "t": 19.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_0", "seq": 100, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_1", "seq": 100, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6462, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_2", "seq": 100, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5883, "thp_mbps": 14.7456}
+{"role": "decision", "t": 20.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_0", "seq": 101, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_1", "seq": 101, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.6096, "thp_mbps": 13.5168}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_2", "seq": 101, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 21, "prb_util": 0.3729, "thp_mbps": 13.1072}
+{"role": "decision", "t": 20.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_0", "seq": 102, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_1", "seq": 102, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.5171, "thp_mbps": 15.1142}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_2", "seq": 102, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.4675, "thp_mbps": 14.1312}
+{"role": "decision", "t": 20.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_0", "seq": 103, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_1", "seq": 103, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6496, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_2", "seq": 103, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5896, "thp_mbps": 14.7456}
+{"role": "decision", "t": 20.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_0", "seq": 104, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_1", "seq": 104, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6462, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_2", "seq": 104, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5933, "thp_mbps": 14.7866}
+{"role": "decision", "t": 20.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_0", "seq": 105, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_1", "seq": 105, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6446, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_2", "seq": 105, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5813, "thp_mbps": 14.7046}
+{"role": "decision", "t": 21.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_0", "seq": 106, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_1", "seq": 106, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6475, "thp_mbps": 16.0563}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_2", "seq": 106, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5979, "thp_mbps": 14.7866}
+{"role": "decision", "t": 21.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_0", "seq": 107, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_1", "seq": 107, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.8925}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_2", "seq": 107, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5896, "thp_mbps": 14.7456}
+{"role": "decision", "t": 21.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_0", "seq": 108, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_1", "seq": 108, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6471, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_2", "seq": 108, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5992, "thp_mbps": 14.7456}
+{"role": "decision", "t": 21.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_0", "seq": 109, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_1", "seq": 109, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6454, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_2", "seq": 109, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5887, "thp_mbps": 14.7456}
+{"role": "decision", "t": 21.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_0", "seq": 110, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_1", "seq": 110, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6521, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_2", "seq": 110, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5867, "thp_mbps": 14.7456}
+{"role": "decision", "t": 22.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_0", "seq": 111, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_1", "seq": 111, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6467, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_2", "seq": 111, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5971, "thp_mbps": 14.7456}
+{"role": "decision", "t": 22.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_0", "seq": 112, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_1", "seq": 112, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.65, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_2", "seq": 112, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5896, "thp_mbps": 14.7456}
+{"role": "decision", "t": 22.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_0", "seq": 113, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_1", "seq": 113, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6508, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_2", "seq": 113, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 21, "prb_util": 0.4896, "thp_mbps": 13.1072}
+{"role": "decision", "t": 22.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_0", "seq": 114, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_1", "seq": 114, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.3362, "thp_mbps": 13.4349}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_2", "seq": 114, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.4587, "thp_mbps": 14.0083}
+{"role": "decision", "t": 22.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_0", "seq": 115, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_1", "seq": 115, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6, "thp_mbps": 15.7286}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_2", "seq": 115, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5879, "thp_mbps": 14.0902}
+{"role": "decision", "t": 23.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_0", "seq": 116, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_1", "seq": 116, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_2", "seq": 116, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5867, "thp_mbps": 15.36}
+{"role": "decision", "t": 23.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_0", "seq": 117, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_1", "seq": 117, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6479, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_2", "seq": 117, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5854, "thp_mbps": 14.7456}
+{"role": "decision", "t": 23.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_0", "seq": 118, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_1", "seq": 118, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6458, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_2", "seq": 118, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5833, "thp_mbps": 14.7046}
+{"role": "decision", "t": 23.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_0", "seq": 119, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_1", "seq": 119, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6471, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_2", "seq": 119, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5958, "thp_mbps": 14.7456}
+{"role": "decision", "t": 23.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_0", "seq": 120, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_1", "seq": 120, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6475, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_2", "seq": 120, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.6071, "thp_mbps": 14.7866}
+{"role": "decision", "t": 24.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_0", "seq": 121, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_1", "seq": 121, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6462, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_2", "seq": 121, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.6038, "thp_mbps": 14.7456}
+{"role": "decision", "t": 24.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_0", "seq": 122, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_1", "seq": 122, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6467, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_2", "seq": 122, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.6025, "thp_mbps": 14.6637}
+{"role": "decision", "t": 24.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_0", "seq": 123, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_1", "seq": 123, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6471, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_2", "seq": 123, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5979, "thp_mbps": 14.7866}
+{"role": "decision", "t": 24.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_0", "seq": 124, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_1", "seq": 124, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6467, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_2", "seq": 124, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5908, "thp_mbps": 14.7866}
+{"role": "decision", "t": 24.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.0, "node": "gnb_0", "seq": 125, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 25.0, "node": "gnb_1", "seq": 125, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6504, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 25.0, "node": "gnb_2", "seq": 125, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 21, "prb_util": 0.4625, "thp_mbps": 13.1072}
+{"role": "decision", "t": 25.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.2, "node": "gnb_0", "seq": 126, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 25.2, "node": "gnb_1", "seq": 126, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6508, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 25.2, "node": "gnb_2", "seq": 126, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.4579, "thp_mbps": 14.1312}
+{"role": "decision", "t": 25.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.4, "node": "gnb_0", "seq": 127, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 25.4, "node": "gnb_1", "seq": 127, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.265, "thp_mbps": 13.5578}
+{"role": "kpm_t0", "t": 25.4, "node": "gnb_2", "seq": 127, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5679, "thp_mbps": 14.7456}
+{"role": "decision", "t": 25.4, "rule": "hrdl-pipeline", "selected": ["energysaver_greenran-g1-TX_POWER-25.400-5"], "correlation": [{"action_id": "energysaver_greenran-g1-TX_POWER-25.400-5", "xapp_id": "energysaver_greenran", "node": "gnb_1", "parameter": "TX_POWER", "value": 30.0, "ue": -1}]}
+{"role": "control_request", "t": 25.4, "action_id": "energysaver_greenran-g1-TX_POWER-25.400-5", "node": "gnb_1", "parameter": "TX_POWER", "value": 30.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 16}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "20afaf6fd2c3d05622bbdf4ecb1e165eec59781bc66c99c21d63c44eeab56b85", "hex": "0101030854585f504f57455202012c"}, "e2ap_pdu": {"len": 54, "sha256": "85c4c45dcd41cf3434068fbee1ce33b6921c45e0bc4b15fe1a4d56fd8c454bd8", "hex": "00044032000005001d0005000001001000050002000300160004010101010017000f0101030854585f504f57455202012c0015000120"}, "decoded_value": 30.0}
+{"role": "kpm_t0", "t": 25.6, "node": "gnb_0", "seq": 128, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 25.6, "node": "gnb_1", "seq": 128, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.5154, "thp_mbps": 15.1142}
+{"role": "kpm_t0", "t": 25.6, "node": "gnb_2", "seq": 128, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5904, "thp_mbps": 14.6637}
+{"role": "control_ack", "t": 25.6, "action_id": "energysaver_greenran-g1-TX_POWER-25.400-5", "node": "gnb_1", "parameter": "TX_POWER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 16}, "status": "APPLIED", "detail": "TxPower=30 dBm", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "16c766be3d7e503c42856015eaa177ce04adddfacbe81d265873cd6f0b3167c1", "hex": "20044012000002001d00050000010010000500020003"}}
+{"role": "kpm_t1", "t": 25.6, "action_id": "energysaver_greenran-g1-TX_POWER-25.400-5", "node": "gnb_1", "parameter": "TX_POWER", "expected": 30.0, "observed": 30.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 25.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.8, "node": "gnb_0", "seq": 129, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 25.8, "node": "gnb_1", "seq": 129, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6496, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 25.8, "node": "gnb_2", "seq": 129, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5887, "thp_mbps": 14.7046}
+{"role": "decision", "t": 25.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.0, "node": "gnb_0", "seq": 130, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 26.0, "node": "gnb_1", "seq": 130, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6496, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 26.0, "node": "gnb_2", "seq": 130, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5942, "thp_mbps": 14.7456}
+{"role": "decision", "t": 26.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.2, "node": "gnb_0", "seq": 131, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 26.2, "node": "gnb_1", "seq": 131, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6492, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 26.2, "node": "gnb_2", "seq": 131, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5971, "thp_mbps": 14.7866}
+{"role": "decision", "t": 26.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.4, "node": "gnb_0", "seq": 132, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 26.4, "node": "gnb_1", "seq": 132, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 26.4, "node": "gnb_2", "seq": 132, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5725, "thp_mbps": 14.7456}
+{"role": "decision", "t": 26.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.6, "node": "gnb_0", "seq": 133, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 26.6, "node": "gnb_1", "seq": 133, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6508, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 26.6, "node": "gnb_2", "seq": 133, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5833, "thp_mbps": 14.7456}
+{"role": "decision", "t": 26.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.8, "node": "gnb_0", "seq": 134, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 26.8, "node": "gnb_1", "seq": 134, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 26.8, "node": "gnb_2", "seq": 134, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.6, "thp_mbps": 14.7456}
+{"role": "decision", "t": 26.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.0, "node": "gnb_0", "seq": 135, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 27.0, "node": "gnb_1", "seq": 135, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6504, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 27.0, "node": "gnb_2", "seq": 135, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5996, "thp_mbps": 14.7456}
+{"role": "decision", "t": 27.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.2, "node": "gnb_0", "seq": 136, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 27.2, "node": "gnb_1", "seq": 136, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6483, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 27.2, "node": "gnb_2", "seq": 136, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5842, "thp_mbps": 14.7456}
+{"role": "decision", "t": 27.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.4, "node": "gnb_0", "seq": 137, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 27.4, "node": "gnb_1", "seq": 137, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 27.4, "node": "gnb_2", "seq": 137, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 21, "prb_util": 0.5167, "thp_mbps": 13.1072}
+{"role": "decision", "t": 27.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.6, "node": "gnb_0", "seq": 138, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 27.6, "node": "gnb_1", "seq": 138, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 27.6, "node": "gnb_2", "seq": 138, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.4583, "thp_mbps": 14.1312}
+{"role": "decision", "t": 27.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.8, "node": "gnb_0", "seq": 139, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 27.8, "node": "gnb_1", "seq": 139, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6462, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 27.8, "node": "gnb_2", "seq": 139, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.605, "thp_mbps": 14.7866}
+{"role": "decision", "t": 27.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.0, "node": "gnb_0", "seq": 140, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 28.0, "node": "gnb_1", "seq": 140, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 24, "prb_util": 0.3567, "thp_mbps": 13.5168}
+{"role": "kpm_t0", "t": 28.0, "node": "gnb_2", "seq": 140, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5713, "thp_mbps": 14.7046}
+{"role": "decision", "t": 28.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.2, "node": "gnb_0", "seq": 141, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 28.2, "node": "gnb_1", "seq": 141, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.5983, "thp_mbps": 15.6058}
+{"role": "kpm_t0", "t": 28.2, "node": "gnb_2", "seq": 141, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5783, "thp_mbps": 14.7046}
+{"role": "decision", "t": 28.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.4, "node": "gnb_0", "seq": 142, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 28.4, "node": "gnb_1", "seq": 142, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6492, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 28.4, "node": "gnb_2", "seq": 142, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5863, "thp_mbps": 14.7456}
+{"role": "decision", "t": 28.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.6, "node": "gnb_0", "seq": 143, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 28.6, "node": "gnb_1", "seq": 143, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6508, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 28.6, "node": "gnb_2", "seq": 143, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5913, "thp_mbps": 14.7456}
+{"role": "decision", "t": 28.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.8, "node": "gnb_0", "seq": 144, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 28.8, "node": "gnb_1", "seq": 144, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6483, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 28.8, "node": "gnb_2", "seq": 144, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5796, "thp_mbps": 14.7866}
+{"role": "decision", "t": 28.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.0, "node": "gnb_0", "seq": 145, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 29.0, "node": "gnb_1", "seq": 145, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 29.0, "node": "gnb_2", "seq": 145, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5792, "thp_mbps": 14.7046}
+{"role": "decision", "t": 29.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.2, "node": "gnb_0", "seq": 146, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 29.2, "node": "gnb_1", "seq": 146, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6488, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 29.2, "node": "gnb_2", "seq": 146, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.585, "thp_mbps": 14.7866}
+{"role": "decision", "t": 29.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.4, "node": "gnb_0", "seq": 147, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 29.4, "node": "gnb_1", "seq": 147, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6508, "thp_mbps": 15.9334}
+{"role": "kpm_t0", "t": 29.4, "node": "gnb_2", "seq": 147, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5925, "thp_mbps": 14.7046}
+{"role": "decision", "t": 29.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.6, "node": "gnb_0", "seq": 148, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 29.6, "node": "gnb_1", "seq": 148, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6492, "thp_mbps": 16.0154}
+{"role": "kpm_t0", "t": 29.6, "node": "gnb_2", "seq": 148, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 23, "prb_util": 0.5975, "thp_mbps": 14.7456}
+{"role": "decision", "t": 29.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.8, "node": "gnb_0", "seq": 149, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 0, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 29.8, "node": "gnb_1", "seq": 149, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 27, "prb_util": 0.6496, "thp_mbps": 15.9744}
+{"role": "kpm_t0", "t": 29.8, "node": "gnb_2", "seq": 149, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran", "replay:fault_injector"], "n_ues": 21, "prb_util": 0.5062, "thp_mbps": 13.1072}
+{"role": "decision", "t": 29.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "chain_summary", "t": 29.8, "counts": {"e2_setup": 3, "subscription": 9, "kpm_t0": 447, "control_request": 7, "control_ack": 7, "kpm_t1": 7, "control_failure": 0, "control_timeout": 0, "decision": 149}}

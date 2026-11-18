@@ -1,0 +1,10 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+0.2,0,1,PRB_QUOTA,35,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-0.200-1,APPLIED,RBG 37/106
+0.2,1,2,PRB_QUOTA,35,-1,ranslicer_greenran,ranslicer_greenran-g1-PRB_QUOTA-0.200-2,APPLIED,RBG 37/106
+2.2,0,1,PRB_QUOTA,49,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-2.200-3,APPLIED,RBG 52/106
+4.2,0,1,PRB_QUOTA,57,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-4.200-4,APPLIED,RBG 60/106
+5.2,1,2,HANDOVER,0,-1,energysaver_greenran,energysaver_greenran-g1-HANDOVER-5.200-1,APPLIED,16 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)
+16.2,0,1,PRB_QUOTA,50,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-16.200-5,APPLIED,RBG 53/106
+18.2,0,1,PRB_QUOTA,57,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-18.200-6,APPLIED,RBG 60/106
+26.4,0,1,PRB_QUOTA,50,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-26.400-7,APPLIED,RBG 53/106
+28.4,0,1,PRB_QUOTA,57,-1,ranslicer_greenran,ranslicer_greenran-g0-PRB_QUOTA-28.400-8,APPLIED,RBG 60/106

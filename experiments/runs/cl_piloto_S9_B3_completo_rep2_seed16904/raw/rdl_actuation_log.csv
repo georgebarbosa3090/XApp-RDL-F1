@@ -1,0 +1,6 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+1.8,1,2,HANDOVER,0,22,traffic_steering,traffic_steering-g1-HANDOVER-1.800-1,APPLIED,1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)
+2.8,1,2,HANDOVER,0,29,traffic_steering,traffic_steering-g1-HANDOVER-2.800-5,APPLIED,1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)
+5.4,1,2,HANDOVER,0,37,traffic_steering,traffic_steering-g1-HANDOVER-5.400-7,APPLIED,1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)
+7,1,2,HANDOVER,0,20,traffic_steering,traffic_steering-g1-HANDOVER-7.000-8,APPLIED,1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)
+9,1,2,HANDOVER,0,25,traffic_steering,traffic_steering-g1-HANDOVER-9.000-9,APPLIED,1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)

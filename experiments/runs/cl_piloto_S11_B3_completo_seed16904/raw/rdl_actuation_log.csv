@@ -1,0 +1,7 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+1.2,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-1.200-1,APPLIED,RBG 480/533
+6.2,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-6.200-2,APPLIED,RBG 480/533
+11.4,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-11.400-3,APPLIED,RBG 480/533
+16.6,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-16.600-4,APPLIED,RBG 480/533
+21.6,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-21.600-5,APPLIED,RBG 480/533
+26.6,0,1,PRB_QUOTA,90,-1,load_balancer,load_balancer-g0-PRB_QUOTA-26.600-6,APPLIED,RBG 480/533

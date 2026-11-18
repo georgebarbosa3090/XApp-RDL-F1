@@ -27,12 +27,27 @@ Desde 2026-11-08 estes cenários aplicam, durante a simulação, as ações deci
 | S3 | `scenario_rdl_energy_vs_qos` | 2 gNBs a 50 m (grade), 20 UEs, 50 MHz | duas classes de tráfego | xSlice 40 dBm (prio 90) × Energy Saving 10 dBm (prio 65) na mesma célula |
 | S4 | `scenario_rdl_ts_vs_energy` | macro + small cell a 200 m, 40 UEs | 30 UEs pesados (1024 B / 8 ms), 10 leves | Traffic Steering handover gNB0 → gNB1 (prio 80) × Energy Saving 0 dBm na gNB1 (prio 65) — conflito entre células |
 | S5 | `scenario_rdl_temporal_pingpong` | 2 gNBs a 150 m, 24 UEs no meio | 512 B / 10 ms | Traffic Steering gNB0 → gNB1 e Load Balancer gNB1 → gNB0, alternados a cada 2 s (18–26 s) |
-| S6 | `scenario_rdl_conflict_storm` | 4 gNBs em quadrado de 200 m, 30 UEs (`--loadLevel=0`) | 512 B / 5 ms | seis xApps disputam PRB e potência nas quatro gNBs a cada 0,5 s |
+| S6 | `scenario_rdl_conflict_storm` | 4 gNBs em quadrado de 200 m, 30 UEs (`--loadLevel=0`) | 512 B / 5 ms | cinco xApps (Energy Saving em três gNBs) disputam PRB e potência nas quatro gNBs a cada 0,5 s (detalhe abaixo) |
 | S7 | `scenario_rdl_fault_injection` | 2 gNBs a 200 m, 20 UEs | 512 B / 15 ms | xApp maliciosa pede 60 dBm e PRB 150 % (prio 100) contra xSlice PRB 70 % |
 
 Observações dos experimentos:
 
 - S2, S4 e S5 rodam com `--disableSrs=true`: o 5G-LENA v5.1 aborta em handover em massa por SRS sobrepostos no gNB de destino.
+- **Como o S6 injeta a tempestade (malha aberta):** o catálogo tem oito fluxos de proposta, defasados em 20 ms e repetidos a cada 0,5 s de 10 s a 15 s; `expand_proposals` (`scripts/certification/run_conflict_experiment.py`) desdobra cada fluxo em 10 eventos, num total de 80 propostas. As oito de cada rodada cabem em 0,14 s e caem na mesma janela de decisão de 200 ms, com quatro conflitos simultâneos:
+
+  | Início | xApp | gNB | Parâmetro | Valor | Prioridade | Conflito |
+  | :-: | :-- | :-: | :-- | :-: | :-: | :-- |
+  | 10,00 s | xslice | 0 | PRB_QUOTA | 85 | 90 | direto de PRB na gNB0 |
+  | 10,02 s | energy_saving | 0 | PRB_QUOTA | 25 | 65 | (mesmo alvo) |
+  | 10,04 s | load_balancer | 1 | PRB_QUOTA | 60 | 75 | indireto na gNB1 (PRB × potência) |
+  | 10,06 s | energy_saving | 1 | TX_POWER | 15 | 65 | (mesma célula) |
+  | 10,08 s | beamformer | 2 | TX_POWER | 38 | 70 | direto de potência na gNB2 |
+  | 10,10 s | energy_saving | 2 | TX_POWER | 12 | 65 | (mesmo alvo) |
+  | 10,12 s | isac_radar | 3 | PRB_QUOTA | 40 | 60 | direto de PRB na gNB3 |
+  | 10,14 s | xslice | 3 | PRB_QUOTA | 90 | 90 | (mesmo alvo) |
+
+  O baseline decide janela a janela e o resultado vira `raw/action_schedule.csv`, aplicado pelo ns-3: no B0 as 80 propostas chegam à RAN (57 oscilações por execução); no B3 a RDL escolhe um vencedor por alvo e o intervalo mínimo de 1000 ms barra a repetição seguinte (25 ações, nenhuma oscilação). No NORI (modo catalog) a `kpm-probe` usa só a primeira ocorrência de cada xApp/gNB/parâmetro numa única decisão.
+- **S6 só com xApps (malha fechada, decisão do autor de 2026-11-18):** daqui em diante o S6 de referência é o da malha fechada, sem nenhuma proposta do catálogo: xSlice (derivada), EnergySaver-GreenRAN, Load Balancer, Beamformer e ISAC Radar leem o KPM do ns-3 e propõem por conta própria (`scripts/closed_loop/orchestrator.py --scenario S6 --xapps completo`); do catálogo ficam só a topologia, o tráfego e quais xApps participam. A tempestade passa a ser a que as xApps de fato geram, e, se não ocorrer, isso é o resultado. A versão por catálogo fica como evidência histórica da malha aberta.
 - A rede de base do S7 é limitada por interferência entre as duas células (atraso de 75–150 ms antes do conflito); restringir PRB numa célula reduz o atraso das duas.
 - No S4 e no S5 os conflitos ocorrem entre células. Até 2026-11-10 a RDL-N1 não os detectava, e as campanhas registradas até essa data (nativa de 2026-11-08 e NORI de 2026-11-09) refletem isso. Desde então o B3 detecta os dois: no S4 a redução de potência da gNB1 perde para o handover (`HANDOVER_INTO_REDUCED_CELL`, prioridade 80 > 65); no S5 o handover de volta do Load Balancer perde para o do Traffic Steering (`HANDOVER_PING_PONG`, 80 > 70). Execuções novas desses cenários não são comparáveis às anteriores sem declarar a mudança.
 

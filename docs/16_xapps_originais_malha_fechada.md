@@ -79,6 +79,7 @@ Pronto quando:
   - as xApps assíncronas podem tornar a execução variar entre repetições;
   - o PPO do xSlice aprende em linha e usa aleatoriedade própria, que deve ser semeada pelo orquestrador quando o código permitir;
   - o piloto mede isso repetindo a mesma semente duas vezes (pré-registro 11, §5).
+  - **Resultado (semente 16904, B3, 2026-11-18):** `scripts/run_closed_loop_pilot.sh --repeat 2` rodou os nove cenários do piloto (G1, G2, S9–S15) duas vezes, com todas as xApps do cenário, o TS original e a cadeia E2. `scripts/closed_loop/comparar_determinismo.py --seed 16904` deu **9 de 9 pares idênticos**: nenhuma janela diverge em KPM, propostas, decisão ou ações, e os arquivos da cadeia E2, da atuação e da série de KPI são iguais byte a byte. A barreira por janela e o prazo por xApp bastam para tornar a malha fechada determinística nesses cenários, inclusive com o TS em processo separado. Pelo §5 do pré-registro 11, a variância vem só das sementes, e o número de sementes não precisa crescer por não determinismo. Relatório em `reports/avaliacao/determinismo_seed16904/`. O xSlice original (PPO em linha) ainda não entrou na malha fechada e terá de ser medido quando entrar.
 
 ## 4. Adaptador de cada original
 
@@ -406,6 +407,7 @@ O pré-registro é fechado e commitado depois do piloto e antes da campanha, com
    - S15: `unsafe_applied = 0` no B3.
    
    Se a xApp original não gerar o conflito no cenário, isso é um resultado e é relatado. O cenário não é ajustado para forçar o conflito.
+6a. **Ablação do slew-rate (decisão do autor, 18/11):** braço **B3S** = B3 com `enforce_slew_rate` ligado (no máximo 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado, lido da Percepção; recusa o salto maior, que volta à xApp como recusa). Mesmos cenários e sementes do B3, comparação pareada B3S × B3. Na malha fechada o estado confirmado é o último controle despachado; com a cadeia E2 o ACK dele chega na Indication seguinte. Medidas: ações recusadas pelo slew-rate, vazão e atraso na janela, oscilações e, nos cenários de energia, a demora para atingir o alvo. A variante que divide o salto em degraus de até 3 dB / 30 pontos fica fora deste pré-registro.
 7. **Regras de relato:** iguais às do pré-registro 10 (`--retry-failed` uma vez; retomada depois de interrupção). Acrescenta-se uma regra: o relato separa as falhas de xApp das falhas do ns-3.
 
 ## 10. Ciclo da cadeia igual ao NORI S8 (decisão do autor de 2026-11-14: híbrido A + C)

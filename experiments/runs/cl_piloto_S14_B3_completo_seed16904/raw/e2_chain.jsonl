@@ -1,0 +1,270 @@
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_0", "cell_id": 1, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_0", "cell_id": 1, "accepted": [2, 3]}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:isac_radar", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:isac_radar", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 2}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "derivado:xslice", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 2}, "admitted": true}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_0", "seq": 1, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.0125, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.2, "rule": "hrdl-pipeline", "selected": ["isac_radar-g0-PRB_QUOTA-0.200-1"], "correlation": [{"action_id": "isac_radar-g0-PRB_QUOTA-0.200-1", "xapp_id": "isac_radar", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1}]}
+{"role": "control_request", "t": 0.2, "action_id": "isac_radar-g0-PRB_QUOTA-0.200-1", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 3}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "15e2928b21dabec587ac7d558f2815648aa0497756d5f28a7707eb9b9d47fde5", "hex": "010101095052425f51554f54410128"}, "e2ap_pdu": {"len": 54, "sha256": "195e42a613cf28e29015a568dd8249d876aa614d593254f139ffbd6687c3b48a", "hex": "00044032000005001d0005000001000300050002000300160004010101010017000f010101095052425f51554f544101280015000120"}, "decoded_value": 40.0}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_0", "seq": 2, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "control_ack", "t": 0.4, "action_id": "isac_radar-g0-PRB_QUOTA-0.200-1", "node": "gnb_0", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 3}, "status": "APPLIED", "detail": "RBG 106/266", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "6b24f80bfbb5ae24e7e2f9ed13d82d12ffafbe7023fdb2e2c16e3ec5b1397c19", "hex": "20044012000002001d00050000010003000500020003"}}
+{"role": "kpm_t1", "t": 0.4, "action_id": "isac_radar-g0-PRB_QUOTA-0.200-1", "node": "gnb_0", "parameter": "PRB_QUOTA", "expected": 40.0, "observed": 40.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 0.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_0", "seq": 3, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_0", "seq": 4, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_0", "seq": 5, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 1.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_0", "seq": 6, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3905, "thp_mbps": 47.9232}
+{"role": "decision", "t": 1.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_0", "seq": 7, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 1.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_0", "seq": 8, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 1.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_0", "seq": 9, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 1.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_0", "seq": 10, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 2.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_0", "seq": 11, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 2.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_0", "seq": 12, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 2.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_0", "seq": 13, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 2.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_0", "seq": 14, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 2.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_0", "seq": 15, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 3.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_0", "seq": 16, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 3.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_0", "seq": 17, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 3.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_0", "seq": 18, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 3.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_0", "seq": 19, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 3.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_0", "seq": 20, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 4.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_0", "seq": 21, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 4.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_0", "seq": 22, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 4.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_0", "seq": 23, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 4.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_0", "seq": 24, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 4.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_0", "seq": 25, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 5.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_0", "seq": 26, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 5.2, "rule": "hrdl-pipeline", "selected": ["isac_radar-g0-PRB_QUOTA-5.200-2"], "correlation": [{"action_id": "isac_radar-g0-PRB_QUOTA-5.200-2", "xapp_id": "isac_radar", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1}]}
+{"role": "control_request", "t": 5.2, "action_id": "isac_radar-g0-PRB_QUOTA-5.200-2", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 4}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "15e2928b21dabec587ac7d558f2815648aa0497756d5f28a7707eb9b9d47fde5", "hex": "010101095052425f51554f54410128"}, "e2ap_pdu": {"len": 54, "sha256": "bf2f8454cbd2c0cd437d48411f6d9277f95a62048fb852a966e02882960e4993", "hex": "00044032000005001d0005000001000400050002000300160004010101010017000f010101095052425f51554f544101280015000120"}, "decoded_value": 40.0}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_0", "seq": 27, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "control_ack", "t": 5.4, "action_id": "isac_radar-g0-PRB_QUOTA-5.200-2", "node": "gnb_0", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 4}, "status": "APPLIED", "detail": "RBG 106/266", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "e70bd0c8f4455418f66b7d13dca2bd805879da3502202e21838a50dad60a445c", "hex": "20044012000002001d00050000010004000500020003"}}
+{"role": "kpm_t1", "t": 5.4, "action_id": "isac_radar-g0-PRB_QUOTA-5.200-2", "node": "gnb_0", "parameter": "PRB_QUOTA", "expected": 40.0, "observed": 40.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 5.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_0", "seq": 28, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 5.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_0", "seq": 29, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 5.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_0", "seq": 30, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 6.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_0", "seq": 31, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 6.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_0", "seq": 32, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 6.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_0", "seq": 33, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 6.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_0", "seq": 34, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 6.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_0", "seq": 35, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 7.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_0", "seq": 36, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 7.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_0", "seq": 37, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 7.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_0", "seq": 38, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 7.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_0", "seq": 39, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 7.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_0", "seq": 40, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 8.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_0", "seq": 41, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 8.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_0", "seq": 42, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 8.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_0", "seq": 43, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 8.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_0", "seq": 44, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 8.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_0", "seq": 45, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 9.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_0", "seq": 46, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 9.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_0", "seq": 47, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 9.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_0", "seq": 48, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 9.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_0", "seq": 49, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 9.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_0", "seq": 50, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 10.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_0", "seq": 51, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 10.2, "rule": "hrdl-pipeline", "selected": ["isac_radar-g0-PRB_QUOTA-10.200-3"], "correlation": [{"action_id": "isac_radar-g0-PRB_QUOTA-10.200-3", "xapp_id": "isac_radar", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1}]}
+{"role": "control_request", "t": 10.2, "action_id": "isac_radar-g0-PRB_QUOTA-10.200-3", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "15e2928b21dabec587ac7d558f2815648aa0497756d5f28a7707eb9b9d47fde5", "hex": "010101095052425f51554f54410128"}, "e2ap_pdu": {"len": 54, "sha256": "301cf07fed797337462f0e9fa645efd3baf71900a7f6bba3dfa6e7ccceb8afdd", "hex": "00044032000005001d0005000001000500050002000300160004010101010017000f010101095052425f51554f544101280015000120"}, "decoded_value": 40.0}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_0", "seq": 52, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "control_ack", "t": 10.4, "action_id": "isac_radar-g0-PRB_QUOTA-10.200-3", "node": "gnb_0", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "status": "APPLIED", "detail": "RBG 106/266", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "a3bf3e6795db2f1ddeffdb7f602f64419ff352d8004a357347b6fea3aa792686", "hex": "20044012000002001d00050000010005000500020003"}}
+{"role": "kpm_t1", "t": 10.4, "action_id": "isac_radar-g0-PRB_QUOTA-10.200-3", "node": "gnb_0", "parameter": "PRB_QUOTA", "expected": 40.0, "observed": 40.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 10.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_0", "seq": 53, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 10.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_0", "seq": 54, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 10.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_0", "seq": 55, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 11.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_0", "seq": 56, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 11.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_0", "seq": 57, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 11.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_0", "seq": 58, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 11.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_0", "seq": 59, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 11.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_0", "seq": 60, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 12.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_0", "seq": 61, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 12.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_0", "seq": 62, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 12.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_0", "seq": 63, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 12.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_0", "seq": 64, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 12.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_0", "seq": 65, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 13.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_0", "seq": 66, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 13.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_0", "seq": 67, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 13.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_0", "seq": 68, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 13.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_0", "seq": 69, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 13.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_0", "seq": 70, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 14.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_0", "seq": 71, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 14.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_0", "seq": 72, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 14.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_0", "seq": 73, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 14.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_0", "seq": 74, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 14.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_0", "seq": 75, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 15.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_0", "seq": 76, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 15.2, "rule": "hrdl-pipeline", "selected": ["isac_radar-g0-PRB_QUOTA-15.200-4"], "correlation": [{"action_id": "isac_radar-g0-PRB_QUOTA-15.200-4", "xapp_id": "isac_radar", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1}]}
+{"role": "control_request", "t": 15.2, "action_id": "isac_radar-g0-PRB_QUOTA-15.200-4", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 6}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "15e2928b21dabec587ac7d558f2815648aa0497756d5f28a7707eb9b9d47fde5", "hex": "010101095052425f51554f54410128"}, "e2ap_pdu": {"len": 54, "sha256": "7680fb1930dd15cfbb7c92aeb6a9bb0d77c993f30f8ee2740d69872fc1a86689", "hex": "00044032000005001d0005000001000600050002000300160004010101010017000f010101095052425f51554f544101280015000120"}, "decoded_value": 40.0}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_0", "seq": 77, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "control_ack", "t": 15.4, "action_id": "isac_radar-g0-PRB_QUOTA-15.200-4", "node": "gnb_0", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 6}, "status": "APPLIED", "detail": "RBG 106/266", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "672476d0a7592af5ec282b1770c0ddc7d63cad771b86927ce19ef97cb0dde54d", "hex": "20044012000002001d00050000010006000500020003"}}
+{"role": "kpm_t1", "t": 15.4, "action_id": "isac_radar-g0-PRB_QUOTA-15.200-4", "node": "gnb_0", "parameter": "PRB_QUOTA", "expected": 40.0, "observed": 40.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 15.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_0", "seq": 78, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 15.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_0", "seq": 79, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 15.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_0", "seq": 80, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 16.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_0", "seq": 81, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 16.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_0", "seq": 82, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 16.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_0", "seq": 83, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 16.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_0", "seq": 84, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 16.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_0", "seq": 85, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 17.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_0", "seq": 86, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 17.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_0", "seq": 87, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 17.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_0", "seq": 88, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 17.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_0", "seq": 89, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 17.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_0", "seq": 90, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 18.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_0", "seq": 91, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 18.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_0", "seq": 92, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 18.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_0", "seq": 93, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 18.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_0", "seq": 94, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 18.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_0", "seq": 95, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 19.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_0", "seq": 96, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 19.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_0", "seq": 97, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 19.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_0", "seq": 98, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 19.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_0", "seq": 99, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 19.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_0", "seq": 100, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 20.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_0", "seq": 101, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 20.2, "rule": "hrdl-pipeline", "selected": ["isac_radar-g0-PRB_QUOTA-20.200-5"], "correlation": [{"action_id": "isac_radar-g0-PRB_QUOTA-20.200-5", "xapp_id": "isac_radar", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1}]}
+{"role": "control_request", "t": 20.2, "action_id": "isac_radar-g0-PRB_QUOTA-20.200-5", "node": "gnb_0", "parameter": "PRB_QUOTA", "value": 40.0, "ue": -1, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 7}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 15, "sha256": "15e2928b21dabec587ac7d558f2815648aa0497756d5f28a7707eb9b9d47fde5", "hex": "010101095052425f51554f54410128"}, "e2ap_pdu": {"len": 54, "sha256": "0bbcdcae614f7f8735b4903245e080fb16eb560e582b7ab3f05109fd9eb8a252", "hex": "00044032000005001d0005000001000700050002000300160004010101010017000f010101095052425f51554f544101280015000120"}, "decoded_value": 40.0}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_0", "seq": 102, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "control_ack", "t": 20.4, "action_id": "isac_radar-g0-PRB_QUOTA-20.200-5", "node": "gnb_0", "parameter": "PRB_QUOTA", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 7}, "status": "APPLIED", "detail": "RBG 106/266", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "c6557823fd082ac91b026b992d6e8eb43f5813c2668031eb3bdabf58bf0ebd54", "hex": "20044012000002001d00050000010007000500020003"}}
+{"role": "kpm_t1", "t": 20.4, "action_id": "isac_radar-g0-PRB_QUOTA-20.200-5", "node": "gnb_0", "parameter": "PRB_QUOTA", "expected": 40.0, "observed": 40.0, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 20.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_0", "seq": 103, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 20.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_0", "seq": 104, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 20.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_0", "seq": 105, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 21.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_0", "seq": 106, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 21.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_0", "seq": 107, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 21.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_0", "seq": 108, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 21.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_0", "seq": 109, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 21.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_0", "seq": 110, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 22.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_0", "seq": 111, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 22.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_0", "seq": 112, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 22.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_0", "seq": 113, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 22.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_0", "seq": 114, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 22.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_0", "seq": 115, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 23.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_0", "seq": 116, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 23.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_0", "seq": 117, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 23.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_0", "seq": 118, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 23.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_0", "seq": 119, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 23.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_0", "seq": 120, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 24.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_0", "seq": 121, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 24.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_0", "seq": 122, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 24.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_0", "seq": 123, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 24.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_0", "seq": 124, "subscribers": ["derivado:xslice", "propria:isac_radar"], "n_ues": 30, "prb_util": 0.3985, "thp_mbps": 49.152}
+{"role": "decision", "t": 24.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "chain_summary", "t": 24.8, "counts": {"e2_setup": 1, "subscription": 2, "kpm_t0": 124, "control_request": 5, "control_ack": 5, "kpm_t1": 5, "control_failure": 0, "control_timeout": 0, "decision": 124}}

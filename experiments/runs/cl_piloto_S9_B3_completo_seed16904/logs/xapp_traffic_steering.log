@@ -1,0 +1,254 @@
+[WARN] jwrapper: element [10] is undefined or of unknown type
+[WARN] jwrapper: element [32] is undefined or of unknown type
+[WARN] jwrapper: element [77] is undefined or of unknown type
+[INFO] listening on port 4560
+1795012484625 76338/RMR [INFO] ric message routing library on SI95 p=4560 mv=3 flg=00 id=a (9f31e260 4.9.4 built: Nov 13 2026)
+[INFO] Policy Callback got a message, type=20010, length=112
+[INFO] Payload is {"operation": "CREATE", "policy_type_id": 20008, "policy_instance_id": "ts-limiar", "payload": {"threshold": 5}}
+[INFO] Setting Threshold for A1-P value: 5%
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "22", "measTimeStampRf": 1800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["22"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"22": {"2": [1, 0], "1": [5, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 1,
+    "ue": "22",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:34:48 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 2200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"29": {"2": [1, 0], "1": [97, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 2,
+    "ue": "29",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:34:49 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 2400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=36
+[INFO] Payload is {"29": {"2": [1, 0], "1": [104, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 3,
+    "ue": "29",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:34:50 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 2600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"29": {"2": [1, 0], "1": [84, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 4,
+    "ue": "29",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:34:51 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 2800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"29": {"2": [1, 0], "1": [86, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 5,
+    "ue": "29",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:34:52 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 3000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"29": {"1": [8, 0], "2": [0, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "29", "measTimeStampRf": 3200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["29"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"29": {"1": [16, 0], "2": [0, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=261
+[INFO] Payload is [{"du-id": 1010, "ue-id": "20", "measTimeStampRf": 5400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "37", "measTimeStampRf": 5400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "38", "measTimeStampRf": 5400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=37, payload={"UEPredictionSet": ["20","37","38"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"20": {"2": [8, 0], "1": [13, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 6,
+    "ue": "20",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:35:01 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"37": {"2": [8, 0], "1": [12, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 7,
+    "ue": "37",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:35:01 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"38": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "27", "measTimeStampRf": 6400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["27"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "20", "measTimeStampRf": 7000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["20"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"2": [1, 0], "1": [2, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 8,
+    "ue": "20",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:35:07 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "20", "measTimeStampRf": 7200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["20"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"20": {"1": [8, 0], "2": [6, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=174
+[INFO] Payload is [{"du-id": 1010, "ue-id": "27", "measTimeStampRf": 8200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 8200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=32, payload={"UEPredictionSet": ["27","28"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [1, 0], "1": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [1, 0], "1": [1, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=174
+[INFO] Payload is [{"du-id": 1010, "ue-id": "27", "measTimeStampRf": 8400, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 8400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=32, payload={"UEPredictionSet": ["27","28"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [8, 0], "1": [8, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=174
+[INFO] Payload is [{"du-id": 1010, "ue-id": "27", "measTimeStampRf": 8600, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 8600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=32, payload={"UEPredictionSet": ["27","28"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [8, 0], "1": [8, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=174
+[INFO] Payload is [{"du-id": 1010, "ue-id": "27", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 8800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=32, payload={"UEPredictionSet": ["27","28"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [8, 0], "1": [8, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=261
+[INFO] Payload is [{"du-id": 1010, "ue-id": "25", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "27", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "28", "measTimeStampRf": 9000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=37, payload={"UEPredictionSet": ["25","27","28"]}
+[INFO] Prediction Callback got a message, type=30002, length=35
+[INFO] Payload is {"25": {"2": [8, 0], "1": [11, 0]}}
+[INFO] Sending a HandOff CONTROL message to "http://127.0.0.1:54633/handoff"
+[INFO] HandOff request is {
+    "command": "HandOff",
+    "seqNo": 9,
+    "ue": "25",
+    "fromCell": "2",
+    "toCell": "1",
+    "timestamp": "Wed Nov 18 11:35:15 2026",
+    "reason": "HandOff Control Request from TS xApp",
+    "ttl": 10
+}
+[INFO] HandOff reply is {
+    "status": "accepted"
+}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"27": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"28": {"2": [8, 0], "1": [8, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=174
+[INFO] Payload is [{"du-id": 1010, "ue-id": "23", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}, {"du-id": 1010, "ue-id": "35", "measTimeStampRf": 9200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=32, payload={"UEPredictionSet": ["23","35"]}
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"23": {"2": [8, 0], "1": [7, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] Prediction Callback got a message, type=30002, length=34
+[INFO] Payload is {"35": {"2": [8, 0], "1": [8, 0]}}
+[INFO] The current serving cell "2" is the best one
