@@ -105,6 +105,8 @@ class ConflictEvent:
     description: str = ""
     conflict_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     detected_at: float = field(default_factory=time.time)
+    # Regra que formou um conflito entre células (src/core/inter_cell.py); None nos demais tipos
+    rule: Optional[str] = None
 
 
 @dataclass

@@ -58,7 +58,7 @@ from src.infrastructure.memory_module import MemoryModule
 from src.core.perception import Perception
 from src.core.reasoning import Reasoning
 from src.core.refinement import Refinement
-from src.core.inter_cell import InterCellRules, load_inter_cell_config
+from src.core.inter_cell import HANDOVER_PING_PONG, InterCellRules, load_inter_cell_config
 from src.core.knowledge_graph import KnowledgeGraph
 from src.core.decision_window import AdaptiveDecisionWindow, Urgency, WindowConfig, parse_critical_targets
 from src.core import proposal_registry as preg
@@ -1187,6 +1187,34 @@ class RDLxApp:
                 or all(is_incumbent(act) for act in reduced)
             ):
                 continue  # a oposição foi eliminada no estágio direto
+            if conflict.rule == HANDOVER_PING_PONG:
+                # Proteção da ação recente (docs/16 §10.10): o handover já confirmado não pode ser desfeito, e a
+                # volta dentro da janela de ping-pong só passa com prioridade maior que a dele pela margem
+                # configurada. Sem isso, o EEVS (que pondera prioridade, não estabilidade) deixava passar a volta
+                # de uma xApp de prioridade um pouco maior, e o ping-pong acontecia (S5 em malha fechada).
+                rules = self.perception.inter_cell_rules
+                kept = [act for act in reduced if act.parameter == "HANDOVER" and is_incumbent(act)]
+                if kept:
+                    holder = max(kept, key=lambda act: act.priority)
+                    reverse = [act for act in reduced if act.parameter == "HANDOVER" and not is_incumbent(act)
+                               and act.priority < holder.priority + rules.pingpong_override_margin]
+                    if reverse:
+                        register_guard = f"ping-pong: handover confirmado mantido (janela de {rules.pingpong_window_s:g} s)"
+                        for act in reverse:
+                            blocked_targets.add(target_of(act))
+                            block_reason.setdefault(target_of(act), (preg.LOST_ARBITRATION, register_guard, holder))
+                        for act in kept:
+                            admit(target_of(act), act, conflict.conflict_id)
+                        logger.info("Ping-pong evitado: volta recusada", conflict=conflict.conflict_id,
+                                    kept=holder.action_id, refused=len(reverse))
+                        reduced = [act for act in reduced if all(act is not r for r in reverse)]
+                        targets = {target_of(act) for act in reduced}
+                        if (
+                            len(targets) < 2
+                            or len({act.xapp_id for act in reduced}) < 2
+                            or all(is_incumbent(act) for act in reduced)
+                        ):
+                            continue
             sub_conflict = ConflictEvent(
                 conflict_type=conflict.conflict_type,
                 severity=conflict.severity,
@@ -1195,6 +1223,7 @@ class RDLxApp:
                 description=conflict.description,
                 conflict_id=conflict.conflict_id,
                 detected_at=conflict.detected_at,
+                rule=conflict.rule,
             )
             resolution, is_valid, reason = arbitrate(sub_conflict)
             winners_by_target: Dict[Tuple[str, str], XAppAction] = {}

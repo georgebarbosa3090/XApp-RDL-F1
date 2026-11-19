@@ -77,6 +77,9 @@ class InterCellRules:
     # None: um handover confirmado protege a célula de destino até ser substituído
     handover_hold_s: Optional[float] = None
     allow_neighbor_sleep: bool = False
+    # Ping-pong com um handover já confirmado: a volta só passa se a prioridade dela superar a do
+    # confirmado em pelo menos esta margem (docs/16 §10.10); a ação confirmada não pode ser desfeita
+    pingpong_override_margin: float = 20.0
     handover_target: Callable[[XAppAction], Optional[str]] = default_handover_target
 
     @classmethod
@@ -93,6 +96,7 @@ class InterCellRules:
             pingpong_window_s=float(config.get("pingpong_window_s", 5.0)),
             handover_hold_s=(float(config["handover_hold_s"]) if config.get("handover_hold_s") is not None else None),
             allow_neighbor_sleep=bool(config.get("allow_neighbor_sleep", False)),
+            pingpong_override_margin=float(config.get("pingpong_override_margin", 20.0)),
         )
 
     def are_neighbors(self, node_a: str, node_b: str) -> bool:

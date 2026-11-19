@@ -139,6 +139,10 @@ class Perception:
                     )
                     if not common_kpis:
                         continue
+                    # Um handover já confirmado é um evento passado, não um estado do nó: só entra nas regras
+                    # entre células (ping-pong, célula reduzida), não em conflito indireto (docs/16 §10.10)
+                    if any(p not in candidates and base_parameter(p) == "HANDOVER" for p in (param_a, param_b)):
+                        continue
                     members_a = candidates.get(param_a) or [committed[param_a]]
                     members_b = candidates.get(param_b) or [committed[param_b]]
                     if not any(a.xapp_id != b.xapp_id for a in members_a for b in members_b):
@@ -234,6 +238,7 @@ class Perception:
                 involved_xapps=members,
                 affected_kpis=kpis,
                 description=f"Inter-cell conflict {reason} between {nodes[0]} and {nodes[1]}",
+                rule=reason,
             ))
         return conflicts
 

@@ -135,3 +135,44 @@ def test_b3_ping_pong_between_ues_of_two_xapps_is_still_detected():
     finally:
         d.close()
     assert any(r["conflict_type"] == "INTER_CELL" for r in entry["resolutions"])
+
+
+def _ids(d, props, t):
+    return sorted(w["id"] for w in d.decide(props, t)[0])
+
+
+def test_b3_keeps_recent_handover_against_reverse_within_pingpong_window():
+    """docs/16 §10.10: o Load Balancer (70) transfere da gNB0 para a gNB1; a volta do TS (80) em menos de 5 s é
+    recusada, porque não supera a prioridade do handover confirmado pela margem de 20 pontos."""
+    d = WindowBaseline("B3")
+    try:
+        assert _ids(d, [_ho(1, -1, gnb=0, value=1, xapp="load_balancer", prio=70)], 0.2) == ["h1"]
+        assert _ids(d, [_ho(2, 5, gnb=1, value=0), _ho(3, 6, gnb=1, value=0)], 0.8) == []
+        # fora da janela de ping-pong (5 s), a volta passa
+        assert _ids(d, [_ho(4, 5, gnb=1, value=0)], 6.0) == ["h4"]
+    finally:
+        d.close()
+
+
+def test_b3_reverse_handover_with_clearly_higher_priority_passes():
+    d = WindowBaseline("B3")
+    try:
+        _ids(d, [_ho(1, -1, gnb=0, value=1, xapp="load_balancer", prio=70)], 0.2)
+        assert _ids(d, [_ho(2, 5, gnb=1, value=0, prio=95)], 0.8) == ["h2"]   # 95 >= 70 + 20
+    finally:
+        d.close()
+
+
+def test_b3_confirmed_handover_does_not_form_indirect_conflict():
+    """Um handover confirmado é um evento passado: um teto de PRB proposto depois na mesma célula não forma
+    conflito indireto com ele (antes, o EEVS resolvia esses pares sem efeito)."""
+    d = WindowBaseline("B3")
+    try:
+        _ids(d, [_ho(1, 5, gnb=0, value=1)], 0.2)
+        prb = {"id": "p1", "t": 2.0, "xapp_id": "load_balancer", "gnb": 0, "parameter": "PRB_QUOTA", "value": 90,
+               "priority": 70, "ue": -1}
+        sel, entry = d.decide([prb], 2.2)
+    finally:
+        d.close()
+    assert [w["id"] for w in sel] == ["p1"]
+    assert not any(r["conflict_type"] == "INDIRECT" for r in entry["resolutions"])
