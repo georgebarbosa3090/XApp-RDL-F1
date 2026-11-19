@@ -1,0 +1,177 @@
+[
+  {
+    "execucao": "cl_ajuste2_S5_B0_completo_seed16906",
+    "cenario": "S5",
+    "baseline": "B0",
+    "semente": 16906,
+    "status": "SUCCESS",
+    "commit": "f5983ea",
+    "drivers": [
+      "propria:load_balancer",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 24,
+    "janelas": 149,
+    "duracao_s": 2495,
+    "ues_registrados": 24,
+    "handovers_observados": 23,
+    "ping_pong": 9,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 17,
+    "propostas_por_xapp": {
+      "load_balancer/HANDOVER": 1,
+      "load_balancer/PRB_QUOTA": 5,
+      "traffic_steering/HANDOVER": 11
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 1,
+    "pares_em_conflito": {
+      "load_balancer × traffic_steering [associação de UE]": 1
+    },
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 8
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 17
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 12,
+      "PRB_QUOTA:APPLIED": 5
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 3,
+        "PRB_QUOTA": 4
+      },
+      "gnb_1": {
+        "HANDOVER": 9,
+        "PRB_QUOTA": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 17,
+      "control_ack": 17,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 17
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 141,
+      "predicoes_QP_30002": 646,
+      "handoff_REST": 11,
+      "mantidos_na_servidora": 635,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 79.878,
+    "atraso_medio_ms": 8.862
+  },
+  {
+    "execucao": "cl_ajuste2_S5_B3_completo_seed16906",
+    "cenario": "S5",
+    "baseline": "B3",
+    "semente": 16906,
+    "status": "SUCCESS",
+    "commit": "f5983ea",
+    "drivers": [
+      "propria:load_balancer",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 24,
+    "janelas": 149,
+    "duracao_s": 2249,
+    "ues_registrados": 24,
+    "handovers_observados": 23,
+    "ping_pong": 9,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 17,
+    "propostas_por_xapp": {
+      "load_balancer/HANDOVER": 1,
+      "load_balancer/PRB_QUOTA": 5,
+      "traffic_steering/HANDOVER": 11
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 1,
+    "pares_em_conflito": {
+      "load_balancer × traffic_steering [associação de UE]": 1
+    },
+    "regras_de_decisao": {
+      "hrdl-pipeline": 8
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 19
+    },
+    "tipos_de_conflito": {
+      "INTER_CELL": 2,
+      "INDIRECT": 17
+    },
+    "consultas_grafo": 0,
+    "escritas_grafo": 32,
+    "acoes_ran_por_status": {
+      "APPLIED": 17
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 12,
+      "PRB_QUOTA:APPLIED": 5
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 3,
+        "PRB_QUOTA": 4
+      },
+      "gnb_1": {
+        "HANDOVER": 9,
+        "PRB_QUOTA": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 17,
+      "control_ack": 17,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 17
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 141,
+      "predicoes_QP_30002": 646,
+      "handoff_REST": 11,
+      "mantidos_na_servidora": 635,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 79.878,
+    "atraso_medio_ms": 8.862
+  }
+]
