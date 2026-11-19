@@ -147,7 +147,10 @@ def test_b3_keeps_recent_handover_against_reverse_within_pingpong_window():
     d = WindowBaseline("B3")
     try:
         assert _ids(d, [_ho(1, -1, gnb=0, value=1, xapp="load_balancer", prio=70)], 0.2) == ["h1"]
-        assert _ids(d, [_ho(2, 5, gnb=1, value=0), _ho(3, 6, gnb=1, value=0)], 0.8) == []
+        sel, entry = d.decide([_ho(2, 5, gnb=1, value=0), _ho(3, 6, gnb=1, value=0)], 0.8)
+        assert sel == []
+        # a recusa aparece no log de decisão, como as resoluções do TVS/EEVS
+        assert [(r["strategy"], r["winners"]) for r in entry["resolutions"]] == [("PINGPONG_GUARD", ["h1"])]
         # fora da janela de ping-pong (5 s), a volta passa
         assert _ids(d, [_ho(4, 5, gnb=1, value=0)], 6.0) == ["h4"]
     finally:

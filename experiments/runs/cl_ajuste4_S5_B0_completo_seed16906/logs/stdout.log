@@ -1,0 +1,41 @@
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_7986.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-1 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-2 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-3 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-4 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=2.0s vazao=85.85 Mbps atraso=10.43 ms
+[RDL-KPI] t=3.0s vazao=85.85 Mbps atraso=10.46 ms
+[RDL-KPI] t=4.0s vazao=85.77 Mbps atraso=10.50 ms
+[RDL-KPI] t=5.0s vazao=85.85 Mbps atraso=10.42 ms
+[RDL-KPI] t=6.0s vazao=85.98 Mbps atraso=9.61 ms
+[RDL-KPI] t=7.0s vazao=85.69 Mbps atraso=10.35 ms
+[RDL-KPI] t=8.0s vazao=85.73 Mbps atraso=9.47 ms
+[RDL-ACT] t=8.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-8.200-5 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-8.200-6 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-8.200-7 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-8.200-8 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-8.400-1 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-8.400-2 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=8.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-8.400-3 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=9.0s vazao=83.80 Mbps atraso=10.56 ms
+[RDL-KPI] t=10.0s vazao=83.97 Mbps atraso=10.66 ms
+[RDL-KPI] t=11.0s vazao=83.72 Mbps atraso=10.41 ms
+[RDL-KPI] t=12.0s vazao=83.89 Mbps atraso=10.57 ms
+[RDL-KPI] t=13.0s vazao=82.86 Mbps atraso=8.90 ms
+[RDL-KPI] t=14.0s vazao=83.93 Mbps atraso=10.56 ms
+[RDL-KPI] t=15.0s vazao=83.93 Mbps atraso=10.72 ms
+[RDL-KPI] t=16.0s vazao=83.68 Mbps atraso=10.60 ms
+[RDL-KPI] t=17.0s vazao=83.97 Mbps atraso=10.69 ms
+[RDL-KPI] t=18.0s vazao=86.47 Mbps atraso=11.30 ms
+[RDL-KPI] t=19.0s vazao=83.80 Mbps atraso=10.48 ms
+[RDL-KPI] t=20.0s vazao=83.85 Mbps atraso=10.60 ms
+[RDL-KPI] t=21.0s vazao=84.01 Mbps atraso=10.75 ms
+[RDL-KPI] t=22.0s vazao=83.97 Mbps atraso=10.57 ms
+[RDL-KPI] t=23.0s vazao=83.27 Mbps atraso=9.30 ms
+[RDL-KPI] t=24.0s vazao=83.39 Mbps atraso=9.62 ms
+[RDL-KPI] t=25.0s vazao=82.21 Mbps atraso=7.82 ms
+[RDL-KPI] t=26.0s vazao=83.19 Mbps atraso=9.75 ms
+[RDL-KPI] t=27.0s vazao=83.52 Mbps atraso=9.60 ms
+[RDL-KPI] t=28.0s vazao=83.27 Mbps atraso=9.21 ms
+[RDL-KPI] t=29.0s vazao=83.48 Mbps atraso=9.75 ms

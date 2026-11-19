@@ -178,6 +178,9 @@ class RDLxApp:
                 logger.warning("SDL indisponível no ambiente local. Utilizando MemoryModule.")
                 self.memory = MemoryModule()
 
+        # Decisões da proteção da ação recente no ping-pong (docs/16 §10.10), no formato das resoluções do
+        # Reasoning, para os logs de decisão e o painel (não passam pelo TVS/EEVS)
+        self.guard_events: List[Dict[str, Any]] = []
         # Regras entre células compartilhadas pela percepção (detecção) e pelo raciocínio (EEVS)
         self.inter_cell_rules = InterCellRules.from_config(load_inter_cell_config())
         self.knowledge_graph = KnowledgeGraph(max_events=int(os.getenv("RDL_KG_MAX_EVENTS", "5000")))
@@ -1205,6 +1208,10 @@ class RDLxApp:
                             block_reason.setdefault(target_of(act), (preg.LOST_ARBITRATION, register_guard, holder))
                         for act in kept:
                             admit(target_of(act), act, conflict.conflict_id)
+                        self.guard_events.append({
+                            "conflict_type": conflict.conflict_type.name, "rule": conflict.rule,
+                            "involved": [a.action_id for a in kept + reverse],
+                            "winners": [a.action_id for a in kept], "strategy": "PINGPONG_GUARD"})
                         logger.info("Ping-pong evitado: volta recusada", conflict=conflict.conflict_id,
                                     kept=holder.action_id, refused=len(reverse))
                         reduced = [act for act in reduced if all(act is not r for r in reverse)]
