@@ -57,8 +57,10 @@ def test_full_drivers_build_and_propose(scenario, monkeypatch, tmp_path):
                 assert p["parameter"] in ("PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE")
             props += got
             d.on_decision(set())
-    # as xApps leem o KPM: com carga e sinal sintéticos, ao menos uma propõe em cada cenário
-    assert props or roles <= {"energy_saving", "energy_saving_ru0", "energy_saving_ru1", "fault_injector"}, scenario
+    # as xApps leem o KPM: com carga e sinal sintéticos, ao menos uma propõe em cada cenário. A EnergySaver espera
+    # 30 s de permanência e o TS precisa de vizinha mais forte, que o KPM sintético não traz (S4 só tem esses dois).
+    assert props or roles <= {"energy_saving", "energy_saving_ru0", "energy_saving_ru1", "fault_injector",
+                               "traffic_steering"}, scenario
 
 
 def test_ue_sst_map_from_groups():

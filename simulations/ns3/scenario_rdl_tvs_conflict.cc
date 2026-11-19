@@ -110,6 +110,9 @@ int main (int argc, char *argv[])
     cmd.AddValue ("nrTraces", "Ativar traces completos do 5G-LENA (arquivos de varios GB)", nrTraces);
     bool disableSrs = false;
     cmd.AddValue ("disableSrs", "Desativar SRS (contorno de falha do 5G-LENA em handover)", disableSrs);
+    // Malha fechada (docs/16 §10.8): opções com padrão igual ao comportamento anterior.
+    std::string channel = "";
+    cmd.AddValue ("channel", "Canal 3GPP (UMa, UMi-StreetCanyon...); vazio = fábricas padrão", channel);
     cmd.Parse (argc, argv);
     if (disableSrs)
     {
@@ -216,6 +219,11 @@ int main (int argc, char *argv[])
 
     // Inicializacao dos modelos de canal no NrChannelHelper e vinculacao a banda
     Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    if (!channel.empty ())
+    {
+        // Canal 3GPP do 5G-LENA (UMa, UMi-StreetCanyon...); vazio = fábricas padrão (RSRP igual em todas as células)
+        channelHelper->ConfigureFactories (channel, "Default", "ThreeGpp");
+    }
     channelHelper->AssignChannelsToBands ({band});
 
     // Parametrizacao dos modelos de propagacao de canal 3GPP TR 38.901

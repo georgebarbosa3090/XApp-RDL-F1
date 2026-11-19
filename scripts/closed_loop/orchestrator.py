@@ -290,6 +290,14 @@ def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple =
 def run(args) -> int:
     catalog = rce.load_catalog()
     spec = dict(catalog["scenarios"][args.scenario], _id=args.scenario)
+    # Malha fechada (docs/16 §10.8): o closed_loop.json pode dar ao cenário argumentos ns-3 próprios (canal 3GPP,
+    # tráfego que exercite as xApps) e a vizinhança das células; o catálogo e a malha aberta não mudam.
+    cl_args: List[str] = []
+    if args.xapps == "completo":
+        sc_cl = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))["scenarios"].get(args.scenario, {})
+        cl_args = list(sc_cl.get("ns3_args", []))
+        if sc_cl.get("topology") and not spec.get("topology"):
+            spec["topology"] = sc_cl["topology"]
     window = float(catalog.get("decision_window_s", 0.2))
     run_id = args.run_id or f"cl_{args.scenario}_{args.baseline}_{args.xapps}_seed{args.seed}"
     run_dir = RUNS / run_id
@@ -315,7 +323,7 @@ def run(args) -> int:
         cmd += ["--extra-source", "HRDL_RUNTIME"]
     if args.no_build:
         cmd += ["--no-build"]
-    cmd += ["--", *spec.get("args", []), *args.sim_arg]
+    cmd += ["--", *spec.get("args", []), *cl_args, *args.sim_arg]
     print("$ " + " ".join(cmd), flush=True)
     proc = subprocess.Popen(cmd, env=env)
 

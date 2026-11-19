@@ -190,9 +190,12 @@ class HrdlStream:
     def decide(self, group: List[Dict[str, Any]], t_close: float) -> Tuple[List[str], Dict[str, Any]]:
         """Decide as propostas de uma janela. Retorna os ids selecionados e o registro da janela."""
         self._clock.now = t_close
+        # UE do handover no alvo (docs/16 §10.9), como no B1/B2 (_target); sem UE (catálogo: -1) o alvo não muda
         actions = [self._XAppAction(xapp_id=e["xapp_id"], node_id=f"gnb_{e['gnb']}", parameter=e["parameter"],
                                     value=e["value"], priority=e["priority"], action_id=e["id"],
-                                    timestamp=t_close) for e in group]
+                                    timestamp=t_close,
+                                    ue_id=int(e["ue"]) if int(e.get("ue", -1)) >= 0 else None)
+                   for e in group]
         before, res_before = len(self._dispatched), len(self._resolutions)
         kg = getattr(self.app, "knowledge_graph", None)
         kg_before = kg.op_totals() if kg is not None and hasattr(kg, "op_totals") else None

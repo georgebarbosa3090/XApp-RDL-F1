@@ -77,6 +77,11 @@ int main (int argc, char *argv[])
     cmd.AddValue ("udpIntervalUs", "Intervalo entre pacotes UDP por UE (us)", udpIntervalUs);
     bool disableSrs = false;
     cmd.AddValue ("disableSrs", "Desativar SRS (contorno de falha do 5G-LENA em handover)", disableSrs);
+    // Malha fechada (docs/16 §10.8): opções com padrão igual ao comportamento anterior.
+    std::string channel = "";
+    uint32_t urllcUes = 0;
+    cmd.AddValue ("channel", "Canal 3GPP (UMa, UMi-StreetCanyon...); vazio = fábricas padrão", channel);
+    cmd.AddValue ("urllcUes", "UEs URLLC (os primeiros N: 128 B a cada 1 ms); 0 = todos iguais", urllcUes);
     cmd.Parse (argc, argv);
     if (disableSrs)
     {
@@ -188,6 +193,11 @@ int main (int argc, char *argv[])
     CcBwpCreator::SimpleOperationBandConf bandConf (centralFreq, bandwidth, 1);
     OperationBandInfo band = ccBwpCreator.CreateOperationBandContiguousCc (bandConf);
     Ptr<NrChannelHelper> channelHelper = CreateObject<NrChannelHelper> ();
+    if (!channel.empty ())
+    {
+        // Canal 3GPP do 5G-LENA (UMa, UMi-StreetCanyon...); vazio = fábricas padrão (RSRP igual em todas as células)
+        channelHelper->ConfigureFactories (channel, "Default", "ThreeGpp");
+    }
     channelHelper->AssignChannelsToBands ({band});
     BandwidthPartInfoPtrVector allBwps = CcBwpCreator::GetAllBwps ({band});
 
@@ -227,8 +237,9 @@ int main (int argc, char *argv[])
 
         UdpClientHelper client (ueIpIface.GetAddress (i), port);
         client.SetAttribute ("MaxPackets", UintegerValue (0xFFFFFFFF));
-        client.SetAttribute ("Interval", TimeValue (MicroSeconds (udpIntervalUs))); // 1024B a cada udpIntervalUs
-        client.SetAttribute ("PacketSize", UintegerValue (1024));
+        bool urllc = i < urllcUes;                                                   // URLLC: 128 B a cada 1 ms
+        client.SetAttribute ("Interval", TimeValue (urllc ? MilliSeconds (1) : MicroSeconds (udpIntervalUs)));
+        client.SetAttribute ("PacketSize", UintegerValue (urllc ? 128 : 1024));
         clientApps.Add (client.Install (remoteHost));
     }
     RdlActuation rdlActuation (nrHelper, gNbDevs, ueDevs);

@@ -75,6 +75,15 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
     bool disableSrs = false;
     cmd.AddValue ("disableSrs", "Desativar SRS (contorno de falha do 5G-LENA em handover)", disableSrs);
+    // Malha fechada (docs/16 §10.8): opções com padrão igual ao comportamento anterior.
+    std::string channel = "";
+    double udpIntervalMs = 10.0;
+    double ueBoxXmin = 65.0;
+    double ueBoxXmax = 85.0;
+    cmd.AddValue ("channel", "Canal 3GPP (UMa, UMi-StreetCanyon...); vazio = fábricas padrão", channel);
+    cmd.AddValue ("udpIntervalMs", "Intervalo entre pacotes de 512 B por UE (ms)", udpIntervalMs);
+    cmd.AddValue ("ueBoxXmin", "Limite inferior de x dos UEs (m; gNBs em x=0 e x=150)", ueBoxXmin);
+    cmd.AddValue ("ueBoxXmax", "Limite superior de x dos UEs (m)", ueBoxXmax);
     cmd.Parse (argc, argv);
     if (disableSrs)
     {
@@ -163,7 +172,7 @@ int main (int argc, char *argv[])
 
     // UEs localizados estrategicamente na borda celular (x=75m) onde ocorrem reversões de handover e oscilação de SINR
     mobility.SetPositionAllocator ("ns3::RandomBoxPositionAllocator",
-                                   "X", StringValue ("ns3::UniformRandomVariable[Min=65.0|Max=85.0]"),
+                                   "X", StringValue ("ns3::UniformRandomVariable[Min=" + std::to_string (ueBoxXmin) + "|Max=" + std::to_string (ueBoxXmax) + "]"),
                                    "Y", StringValue ("ns3::UniformRandomVariable[Min=-30.0|Max=30.0]"),
                                    "Z", StringValue ("ns3::ConstantRandomVariable[Constant=1.5]"));
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
@@ -173,13 +182,13 @@ int main (int argc, char *argv[])
     // Rede NR funcional comum (rdl-nr-common.h): EPC, host remoto, IPs, attach ao gNB mais
     // proximo e X2. A montagem anterior nao anexava os UEs nem lhes atribuia IP, e o trafego
     // era enviado para 10.0.0.1 (inexistente): o FlowMonitor ficava vazio.
-    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth);
+    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth, channel);
     uint16_t port = 8001;
     ApplicationContainer serverApps;
     ApplicationContainer clientApps;
     // Carga original do cenario, agora em downlink a partir do host remoto
     RdlInstallDownlinkUdp (rdlNet, ueNodes, serverApps, clientApps, port,
-                           [&] (uint32_t i) { return MilliSeconds (10); }, 512);
+                           [&] (uint32_t i) { return MilliSeconds (udpIntervalMs); }, 512);
     RdlActuation rdlActuation (rdlNet.nrHelper, rdlNet.gnbDevs, rdlNet.ueDevs);
     rdlActuation.Load (actionSchedule);
     RdlKpiSampler rdlKpi (rdlNet.ueDevs, kpiPeriod, simTime);

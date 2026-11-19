@@ -93,6 +93,7 @@ from src.e2.e2ap.constants import (
 )
 from src.conflict_types import (
     XAppAction,
+    target_parameter,
     KPMReport,
     ConflictEvent,
     ConflictSeverity,
@@ -1096,11 +1097,11 @@ class RDLxApp:
                 logger.warning("Falha ao registrar conflito no grafo de conhecimento", error=str(exc))
 
         def target_of(act: XAppAction) -> Tuple[str, str]:
-            return (act.node_id, act.parameter)
+            return (act.node_id, target_parameter(act))
 
         def is_incumbent(act: XAppAction) -> bool:
             """Ação já confirmada pela RAN: mantê-la não gera novo controle."""
-            return self.perception.get_committed_action(act.node_id, act.parameter) is act
+            return self.perception.get_committed_action(act.node_id, target_parameter(act)) is act
 
         def register(conflict: ConflictEvent) -> None:
             logger.info("Conflito Detectado", conflict_id=conflict.conflict_id, type=conflict.conflict_type.name)
@@ -1291,7 +1292,7 @@ class RDLxApp:
         # 5. Despacho de Controle para Ações Admitidas via ControlDispatcher
         dispatched_actions = []
         for act in all_selected:
-            previous_action = self.perception.get_committed_action(act.node_id, act.parameter)
+            previous_action = self.perception.get_committed_action(act.node_id, target_parameter(act))
             kpm = self.perception.get_latest_kpm(act.node_id)
             per_action_decision = RDLDecision(
                 decision_id=f"{decision.decision_id}-{act.action_id[:6]}",
@@ -1388,7 +1389,7 @@ class RDLxApp:
         if self.oran_strict and not self.backend.metadata.protocol_interoperability_verified:
             logger.error("Controle rejeitado: interoperabilidade E2 não foi validada.")
             return False
-        previous_action = self.perception.get_committed_action(node_id, parameter)
+        previous_action = self.perception.get_committed_action(node_id, target_parameter(target_action))
         decision = RDLDecision(
             decision_id=decision_id or str(uuid.uuid4())[:8],
             selected_actions=[target_action],

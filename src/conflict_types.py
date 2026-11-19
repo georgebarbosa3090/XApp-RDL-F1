@@ -50,6 +50,8 @@ class XAppAction:
     # Governança: prioridade pedida antes do teto do registro/A1 e origem interceptada (nível 2)
     requested_priority: Optional[int] = None
     intercepted: bool = False
+    # UE do handover (docs/16 §10.9): handovers de UEs diferentes são alvos diferentes; None = sem UE
+    ue_id: Optional[int] = None
 
     def __post_init__(self):
         if self.t_arrival == 0.0:
@@ -74,6 +76,24 @@ class XAppAction:
         if self.t_ack > 0 and self.t_dispatch_start > 0:
             return max(0.0, (self.t_ack - self.t_dispatch_start) * 1000.0)
         return None
+
+
+UE_TARGET_SEP = "#ue"
+
+
+def target_parameter(action: "XAppAction") -> str:
+    """Parâmetro do alvo (nó, parâmetro) da arbitragem. O handover de um UE identificado é um alvo próprio
+    (``HANDOVER#ue<i>``): dois UEs da mesma célula não disputam o mesmo controle, como já tratam o B1 e o B2
+    (docs/16 §10.9). Sem UE (catálogo, ``ue_id`` None ou negativo), o alvo é o parâmetro, como antes."""
+    ue = getattr(action, "ue_id", None)
+    if action.parameter == "HANDOVER" and ue is not None and int(ue) >= 0:
+        return f"HANDOVER{UE_TARGET_SEP}{int(ue)}"
+    return action.parameter
+
+
+def base_parameter(key: str) -> str:
+    """Parâmetro de RAN de uma chave de alvo (tira o UE do handover)."""
+    return key.split(UE_TARGET_SEP, 1)[0]
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from typing import Tuple, Dict, Any, List, Optional, Callable
 import time
 import math
-from src.conflict_types import ConflictEvent, ResolutionAction, XAppAction
+from src.conflict_types import ConflictEvent, ResolutionAction, XAppAction, target_parameter
 from src.observability.logging import setup_logger
 
 logger = setup_logger("Refinement")
@@ -74,7 +74,7 @@ class Refinement:
     def remaining_lockout_ms(self, action: XAppAction, now_ms: Optional[float] = None) -> float:
         """Quanto falta para o alvo aceitar novo controle desta ação (0 = já aceita)."""
         now_ms = self.clock() * 1000 if now_ms is None else now_ms
-        last_time = self.last_control_time.get(f"{action.node_id}_{action.parameter}")
+        last_time = self.last_control_time.get(f"{action.node_id}_{target_parameter(action)}")
         if last_time is None:                       # alvo nunca controlado: não há bloqueio
             return 0.0
         return max(0.0, self.min_interval_ms(action) - (now_ms - last_time))
@@ -171,7 +171,7 @@ class Refinement:
             if not callable(get_committed):
                 # Fail-closed: slew-rate habilitado sem fonte de estado confirmado.
                 return False, "Slew-rate enforcement enabled but no committed-state source is configured"
-            committed = get_committed(action.node_id, action.parameter)
+            committed = get_committed(action.node_id, target_parameter(action))
             if committed is not None:
                 delta_val = abs(value - float(committed.value))
                 if action.parameter == "TX_POWER" and delta_val > float(self.config.get("max_tx_power_slew_db", 3.0)):
@@ -194,7 +194,7 @@ class Refinement:
         now = timestamp_ms if timestamp_ms is not None else (self.clock() * 1000)
         for action in actions:
             if action and action.node_id and action.parameter:
-                self.last_control_time[f"{action.node_id}_{action.parameter}"] = now
+                self.last_control_time[f"{action.node_id}_{target_parameter(action)}"] = now
 
     def validate_single_action(self, action: XAppAction, record_timestamp: bool = True) -> Tuple[bool, int, str]:
         """
@@ -208,7 +208,7 @@ class Refinement:
             return False, 1, "Unknown target node or empty action"
 
         now = self.clock() * 1000
-        target_key = f"{action.node_id}_{action.parameter}"
+        target_key = f"{action.node_id}_{target_parameter(action)}"
 
         # 1. Validade temporal (histerese / frequência máxima de controle para o mesmo alvo)
         # Alvo nunca controlado não tem bloqueio (antes, o padrão 0 recusava controles no primeiro intervalo
@@ -247,7 +247,7 @@ class Refinement:
             if not action or not action.node_id:
                 return False, 1, "Unknown target node or empty action"
 
-            target_key = f"{action.node_id}_{action.parameter}"
+            target_key = f"{action.node_id}_{target_parameter(action)}"
 
             # 1. Validade temporal (frequência máxima de controle no mesmo parâmetro/nó)
             last_time = self.last_control_time.get(target_key)

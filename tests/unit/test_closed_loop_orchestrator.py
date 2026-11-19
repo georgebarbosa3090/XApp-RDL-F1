@@ -91,3 +91,47 @@ def test_b3s_enforces_slew_rate_and_b3_does_not():
         finally:
             d.close()
         assert got == esperado, baseline
+
+
+def _ho(i, ue, gnb=0, value=1, xapp="traffic_steering", prio=80):
+    return {"id": f"h{i}", "t": 0.1, "xapp_id": xapp, "gnb": gnb, "parameter": "HANDOVER", "value": value,
+            "priority": prio, "ue": ue}
+
+
+def test_b3_handover_target_includes_the_ue():
+    """docs/16 §10.9: handovers de UEs diferentes da mesma célula são alvos diferentes no B3, como no B1/B2.
+    Antes, viravam propostas repetidas do alvo (gNB, HANDOVER) e só uma passava por janela."""
+    d = WindowBaseline("B3")
+    try:
+        first = sorted(w["id"] for w in d.decide([_ho(1, 5), _ho(2, 6), _ho(3, 7)], 0.2)[0])
+        # 0.4 s depois: o UE 5 está na histerese de 1 s do seu alvo; o UE 8 é um alvo novo
+        second = sorted(w["id"] for w in d.decide([_ho(4, 5), _ho(5, 8)], 0.6)[0])
+    finally:
+        d.close()
+    assert first == ["h1", "h2", "h3"]
+    assert second == ["h5"]
+    b1 = WindowBaseline("B1")
+    try:
+        assert sorted(w["id"] for w in b1.decide([_ho(1, 5), _ho(2, 6), _ho(3, 7)], 0.2)[0]) == ["h1", "h2", "h3"]
+    finally:
+        b1.close()
+
+
+def test_b3_handover_without_ue_keeps_the_cell_target():
+    """Sem UE (catálogo, ue = -1), o alvo continua (gNB, HANDOVER): as campanhas em malha aberta não mudam."""
+    d = WindowBaseline("B3")
+    try:
+        got = [w["id"] for w in d.decide([_ho(1, -1), _ho(2, -1, prio=70)], 0.2)[0]]
+    finally:
+        d.close()
+    assert got == ["h1"]
+
+
+def test_b3_ping_pong_between_ues_of_two_xapps_is_still_detected():
+    """O ping-pong é uma regra entre células: o UE no alvo não a desliga (TS 0→1 e Load Balancer 1→0)."""
+    d = WindowBaseline("B3")
+    try:
+        _, entry = d.decide([_ho(1, 5, gnb=0, value=1), _ho(2, 9, gnb=1, value=0, xapp="load_balancer", prio=70)], 0.2)
+    finally:
+        d.close()
+    assert any(r["conflict_type"] == "INTER_CELL" for r in entry["resolutions"])

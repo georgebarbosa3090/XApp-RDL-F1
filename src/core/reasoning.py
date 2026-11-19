@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Any, Optional
-from src.conflict_types import ConflictEvent, ResolutionAction, ResolutionStrategy, XAppAction, KPMReport
+from src.conflict_types import ConflictEvent, ResolutionAction, ResolutionStrategy, XAppAction, KPMReport, target_parameter
 from src.infrastructure.sdl_repository import SdlRepository
 from src.core.inter_cell import InterCellRules
 import math
@@ -133,7 +133,7 @@ class Reasoning:
         # enumera-se o produto das opções por alvo (incluindo "nenhuma"), não o powerset.
         options_by_target: Dict[Tuple[str, str], List[XAppAction]] = {}
         for act in actions:
-            options_by_target.setdefault((act.node_id, act.parameter), []).append(act)
+            options_by_target.setdefault((act.node_id, target_parameter(act)), []).append(act)
         # Para a agregação aditiva: maior prioridade de cada alvo do conflito (denominador fixo)
         if self.eevs_aggregation == "additive":
             self._eevs_targets = {t: max(self._calculate_action_scores(a)["priority"] for a in opts)
@@ -214,7 +214,7 @@ class Reasoning:
     def _has_physical_incompatibility(self, subset: List[XAppAction]) -> bool:
         param_targets = {}
         for act in subset:
-            key = f"{act.node_id}_{act.parameter}"
+            key = f"{act.node_id}_{target_parameter(act)}"
             if key in param_targets and param_targets[key] != act.value:
                 return True
             param_targets[key] = act.value

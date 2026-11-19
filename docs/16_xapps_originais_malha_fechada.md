@@ -499,3 +499,44 @@ O artigo do RDL-N1 passou a cobrir só S0–S8 (decisão do autor de 18/11). Par
   - **S6:** a tempestade das xApps tem 26 propostas (ISAC, EnergySaver, Load Balancer; Beamformer e xSlice não propuseram), contra 80 no catálogo. Com a RDL: 16 conflitos resolvidos (3 TVS, 13 EEVS), 3 recusas, 21 ações contra 26, 0 oscilações contra 3, vazão 15,3 → 17,7 Mb/s, atraso 141,6 → 138,1 ms (uma semente).
   - **S7:** a rogue fez 13 propostas; no B0 as 9 fora dos limites viraram Failure no codec E2SM-RC, no B3 o Safety Guard as recusou antes da arbitragem. A RAN recebeu as mesmas 4 ações nos dois.
   - Leitura: em malha fechada, o conflito do catálogo só aparece onde o tráfego e a topologia do programa fazem as xApps agirem. Para o pré-registro 11, os cenários S1, S2, S4 e S5 precisam de tráfego que exercite as xApps (UEs URLLC, carga desigual, vizinha melhor), ou serão relatados como sem conflito.
+
+### 10.8 Tráfego e canal de S1, S2, S4 e S5 para a malha fechada (2026-11-18)
+
+A rodada da §10.7 mostrou por que S1, S4 e S5 não tiveram proposta:
+
+- **Canal:** os programas de S0–S7 usavam as fábricas de canal padrão do 5G-LENA, e todo UE media a mesma RSRP em todas as células (−34,06 dBm). Por isso o TS original nunca via vizinha melhor. O S9, que usa o canal 3GPP UMa, tem RSRP diferentes por célula.
+- **Tráfego:** não havia sobrecarga nem desequilíbrio entre células (S4, S5), e S1, S4 e S5 não tinham classe URLLC.
+- **Energia:** a EnergySaver precisa da topologia de vizinhas para evacuar uma célula e espera 30 s antes de pô-la para dormir. S0–S7 não têm vizinhas no catálogo, e o S4 durava 30 s.
+
+O ajuste mantém o catálogo e a malha aberta como estavam. Cada programa ganhou opções cujo padrão é o comportamento anterior; o `closed_loop.json` passa os valores da malha fechada (`ns3_args`) e as vizinhas (`topology`), e o orquestrador repassa os dois ao ns-3 e às xApps quando `--xapps completo`:
+
+| Cenário | Programa | Opções na malha fechada | Para quê |
+|---|---|---|---|
+| S1 | `scenario_rdl_direct_prb_conflict.cc` | `--channel=UMa --urllcUes=6`; `ue_sst_counts [[6,2],[14,1]]` | 6 UEs URLLC (128 B a cada 1 ms) dão ao xSlice uma fatia a proteger |
+| S2 | `scenario_rdl_tvs_conflict.cc` | `--channel=UMa`; vizinhas gNB0↔gNB1 | RSRP diferentes por célula para o TS |
+| S4 | `scenario_rdl_ts_vs_energy.cc` | `--channel=UMa --heavyIntervalMs=1 --ueRhoMax=170 --simTime=60`; vizinhas | macro sobrecarregada (30 UEs a 1024 B/1 ms), UEs ao alcance da small cell (a 200 m) e tempo para a permanência mínima da EnergySaver |
+| S5 | `scenario_rdl_temporal_pingpong.cc` | `--channel=UMa --udpIntervalMs=1 --ueBoxXmin=20 --ueBoxXmax=90`; vizinhas | 24 UEs a 512 B/1 ms concentrados perto da gNB0 (gNBs em x = 0 e 150 m), para haver desequilíbrio de carga |
+
+`--channel` aplica `ConfigureFactories (canal, "Default", "ThreeGpp")` antes de atribuir os canais às bandas; vazio, mantém as fábricas padrão.
+
+**Validação (só B0, semente 16906, prefixo `cl_ajuste`, código ainda sem commit; execuções exploratórias):**
+
+- S1: xSlice limitou o eMBB a 25 % (t = 1,2 s) e a EnergySaver baixou a potência da mesma célula para 30 dBm (t = 5,2 s): conflito indireto entre proteção da URLLC e economia de energia. 3 propostas, 3 ações.
+- S2: xSlice (tetos de 25 % e 80 %) e três handovers do TS original na gNB1, o par TVS do cenário. 7 propostas, 7 ações.
+- S4: o TS original passou a transferir UEs da macro sobrecarregada para a small cell (9 handovers; 523 anomalias e 2524 predições nos quatro cenários) e a EnergySaver baixou a potência da small cell para 30 dBm (t = 5,2 s). A vazão subiu de 171 para 194 Mb/s e o atraso caiu de 18,7 para 8,8 ms. A EnergySaver não pôs a célula para dormir: com os UEs vindos da macro, a carga da small cell nunca ficou abaixo de 15 %. 10 propostas, 10 ações, 60 s simulados em cerca de 3 h.
+- S5: o TS fez 5 handovers em t = 1,8 s e depois manteve os UEs; o Load Balancer não propôs, porque as duas células ficaram saturadas (uso de PRB 100 % e 92 %, diferença de 8 pontos, abaixo dos 30 pontos da regra).
+- Painel `reports/avaliacao/painel_cl_ajuste_16906/`: 4 de 4 com `SUCCESS` e cadeia E2 completa, 25 propostas e 25 ações (17 handovers, 6 cotas de PRB, 2 potências), 285 min.
+
+**Leitura.** O canal 3GPP e o tráfego fazem as xApps agirem nos quatro cenários (antes, S1, S4 e S5 não tinham proposta), mas as ações de xApps diferentes caem em janelas diferentes ou não disparam as regras da RDL: no S1 e no S2, xSlice, EnergySaver e TS agem com segundos de distância; no S4, a redução para 30 dBm fica acima do limiar de 10 dBm da regra de handover para célula reduzida; no S5, só o TS age. Sem conflito, o B3 tende a repetir o B0. As execuções `cl_ajuste` são exploratórias (código sem commit no manifesto) e não entram em painel de resultado.
+
+### 10.9 Alvo por UE no handover e segundo ajuste do S5 (2026-11-19)
+
+**Alvo por UE.** A RDL arbitra por alvo (nó, parâmetro), e o `XAppAction` não tinha o UE. Na malha fechada, o TS original pede um handover por UE; na mesma célula e na mesma janela, esses pedidos viravam propostas repetidas do alvo (gNB, `HANDOVER`): só um passava, e a histerese de 1 s barrava os seguintes. O B1 e o B2 já usavam (gNB, parâmetro, UE) como alvo (`_target` em `scripts/certification/run_conflict_experiment.py`), e só o B3 diferia. Agora:
+
+- `XAppAction.ue_id` (opcional) e `target_parameter()` em `src/conflict_types.py`: o handover de um UE identificado tem alvo próprio (`HANDOVER#ue<i>`); sem UE (`None` ou negativo), o alvo é o parâmetro, como antes.
+- A chave do alvo vale na Percepção (deduplicação, conflito direto, registro das ações confirmadas), no pipeline (`target_of`, incumbente, despacho), no Reasoning (opções do EEVS, incompatibilidade física) e no Refinement (histerese e slew-rate). Os KPIs de um alvo continuam os do parâmetro (`base_parameter`), e handovers de UEs diferentes não formam conflito indireto entre si.
+- As regras entre células não mudam: o ping-pong e o handover para célula reduzida olham células, não UEs.
+- O `HrdlStream` passa o UE da proposta quando ele é ≥ 0. Os handovers do catálogo não têm UE, então as campanhas em malha aberta decidem como antes (os testes que comparam o cronograma do `HrdlStream` com o do executor continuam passando).
+- Testes: `tests/unit/test_closed_loop_orchestrator.py` (três UEs na mesma janela passam no B3 e no B1; histerese por UE; sem UE, um só alvo; ping-pong entre UEs de duas xApps continua detectado). Suíte de unidade: 493 passaram.
+
+**S5.** Com x de 20 a 90 m, as duas células saturaram (uso de PRB 100 % e 92 %) e o Load Balancer, que pede 30 pontos de diferença, não propôs. Os UEs passam a ficar entre x = 10 e 60 m (gNBs em 0 e 150 m): a gNB0 satura, a gNB1 fica quase vazia, o Load Balancer transfere usuários para a gNB1 e o TS pode trazê-los de volta (o ping-pong que o cenário estuda).

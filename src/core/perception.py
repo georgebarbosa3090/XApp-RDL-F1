@@ -1,6 +1,7 @@
 import time
 from typing import Callable, Dict, List, Optional, Tuple
-from src.conflict_types import XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport
+from src.conflict_types import (XAppAction, ConflictEvent, ConflictType, ConflictSeverity, KPMReport,
+                                base_parameter, target_parameter)
 from src.core.inter_cell import HANDOVER_INTO_REDUCED_CELL, InterCellRules
 from src.core.knowledge_graph import KnowledgeGraph
 
@@ -99,7 +100,7 @@ class Perception:
 
         latest: Dict[Tuple[str, str, str], XAppAction] = {}
         for action in actions:
-            latest[(action.node_id, action.parameter, action.xapp_id)] = action
+            latest[(action.node_id, target_parameter(action), action.xapp_id)] = action
 
         proposals_by_node: Dict[str, Dict[str, List[XAppAction]]] = {}
         for (node_id, parameter, _), action in latest.items():
@@ -122,7 +123,7 @@ class Perception:
                         conflict_type=ConflictType.DIRECT,
                         severity=ConflictSeverity.HIGH,
                         involved_xapps=members,
-                        affected_kpis=list(self.kpi_dependency_graph.get(parameter, [])),
+                        affected_kpis=list(self.kpi_dependency_graph.get(base_parameter(parameter), [])),
                         description=f"Direct conflict on parameter {parameter} ({len(members)} candidates)"
                     ))
 
@@ -131,8 +132,10 @@ class Perception:
                 for param_b in all_params[i + 1:]:
                     if param_a not in proposals_by_param and param_b not in proposals_by_param:
                         continue
-                    common_kpis = set(self.kpi_dependency_graph.get(param_a, [])).intersection(
-                        self.kpi_dependency_graph.get(param_b, [])
+                    if base_parameter(param_a) == base_parameter(param_b):
+                        continue  # handovers de UEs diferentes são alvos independentes (docs/16 §10.9)
+                    common_kpis = set(self.kpi_dependency_graph.get(base_parameter(param_a), [])).intersection(
+                        self.kpi_dependency_graph.get(base_parameter(param_b), [])
                     )
                     if not common_kpis:
                         continue
@@ -174,7 +177,7 @@ class Perception:
             for parameter, committed in by_param.items():
                 if (node_id, parameter) in targets_with_proposal:
                     continue
-                if parameter == "HANDOVER":
+                if committed.parameter == "HANDOVER":
                     if rules.handover_hold_s is None or now - float(committed.timestamp) <= rules.handover_hold_s:
                         relevant.append(committed)
                 elif rules.reduces_cell(committed):
@@ -239,10 +242,11 @@ class Perception:
         for action in actions:
             if action.node_id not in self._action_registry:
                 self._action_registry[action.node_id] = {}
-            self._action_registry[action.node_id][action.parameter] = action
+            self._action_registry[action.node_id][target_parameter(action)] = action
 
     def get_committed_action(self, node_id: str, parameter: str) -> Optional[XAppAction]:
-        """Return the last control acknowledged by the RAN, if known."""
+        """Return the last control acknowledged by the RAN, if known. ``parameter`` é a chave do alvo
+        (``target_parameter``): para o handover de um UE, ``HANDOVER#ue<i>``."""
         return self._action_registry.get(node_id, {}).get(parameter)
 
     def remove_action(self, node_id: str, parameter: str) -> bool:

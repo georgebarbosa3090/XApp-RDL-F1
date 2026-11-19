@@ -75,6 +75,13 @@ int main (int argc, char *argv[])
     cmd.AddValue ("kpiPeriod", "Periodo da serie temporal de KPIs por celula (s)", kpiPeriod);
     bool disableSrs = false;
     cmd.AddValue ("disableSrs", "Desativar SRS (contorno de falha do 5G-LENA em handover)", disableSrs);
+    // Malha fechada (docs/16 §10.8): opções com padrão igual ao comportamento anterior.
+    std::string channel = "";
+    double heavyIntervalMs = 8.0;
+    double ueRhoMax = 80.0;
+    cmd.AddValue ("channel", "Canal 3GPP (UMa, UMi-StreetCanyon...); vazio = fábricas padrão", channel);
+    cmd.AddValue ("heavyIntervalMs", "Intervalo dos 30 UEs pesados (ms, 1024 B)", heavyIntervalMs);
+    cmd.AddValue ("ueRhoMax", "Raio máximo do disco de UEs em torno da macro (m)", ueRhoMax);
     cmd.Parse (argc, argv);
     if (disableSrs)
     {
@@ -160,7 +167,7 @@ int main (int argc, char *argv[])
     mobility.SetPositionAllocator ("ns3::RandomDiscPositionAllocator",
                                    "X", StringValue ("0.0"),
                                    "Y", StringValue ("0.0"),
-                                   "Rho", StringValue ("ns3::UniformRandomVariable[Min=10.0|Max=80.0]"));
+                                   "Rho", StringValue ("ns3::UniformRandomVariable[Min=10.0|Max=" + std::to_string (ueRhoMax) + "]"));
     mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
     mobility.Install (ueNodes);
 
@@ -168,13 +175,13 @@ int main (int argc, char *argv[])
     // Rede NR funcional comum (rdl-nr-common.h): EPC, host remoto, IPs, attach ao gNB mais
     // proximo e X2. A montagem anterior nao anexava os UEs nem lhes atribuia IP, e o trafego
     // era enviado para 10.0.0.1 (inexistente): o FlowMonitor ficava vazio.
-    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth);
+    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth, channel);
     uint16_t port = 7001;
     ApplicationContainer serverApps;
     ApplicationContainer clientApps;
     // Carga original do cenario, agora em downlink a partir do host remoto
     RdlInstallDownlinkUdp (rdlNet, ueNodes, serverApps, clientApps, port,
-                           [&] (uint32_t i) { return MilliSeconds ((i < 30) ? 8.0 : 50.0); }, 1024);
+                           [&] (uint32_t i) { return MilliSeconds ((i < 30) ? heavyIntervalMs : 50.0); }, 1024);
     RdlActuation rdlActuation (rdlNet.nrHelper, rdlNet.gnbDevs, rdlNet.ueDevs);
     rdlActuation.Load (actionSchedule);
     RdlKpiSampler rdlKpi (rdlNet.ueDevs, kpiPeriod, simTime);
