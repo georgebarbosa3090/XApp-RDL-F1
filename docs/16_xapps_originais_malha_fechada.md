@@ -561,3 +561,14 @@ Decisão do autor depois da validação da §10.9: a RDL passa a proteger o hand
 - os UEs ficaram na célula de sinal fraco, e a RDL protegeu, de forma correta segundo a regra, uma ação ruim e recorrente.
 
 Leitura: a proteção da ação recente faz o que promete (a volta dentro de 5 s é recusada), mas, em malha fechada, protege também a ação de uma xApp mal calibrada. O Load Balancer do projeto precisa transferir só parte dos UEs (os de melhor sinal na vizinha, o suficiente para reduzir a diferença de carga), com um pedido por UE, antes de qualquer rodada valendo.
+
+### 10.11 Load Balancer transfere só parte dos UEs (2026-11-19)
+
+Decisão do autor depois da validação da §10.10. O Load Balancer do projeto (`src/xapps/proprias.py`) pedia o handover da célula sem UE, e o ns-3 movia todos os UEs para a vizinha (24 de uma vez no S5). Agora, quando a diferença de carga passa de 30 pontos e o KPM traz RSRP por UE:
+
+- escolhe os UEs de menor diferença de RSRP entre a servidora e a vizinha, só os que estão a até `lb_max_rsrp_gap_db` = 10 dB;
+- transfere a fração `diferença / (2 × carga)` dos UEs da célula (metade da diferença de carga), ao menos um e no máximo `lb_max_ues` = 4;
+- faz um pedido de handover por UE (campo `ue`), que a RDL arbitra com o alvo por UE da §10.9 e a proteção da §10.10;
+- sem nenhum UE que ouça a vizinha o bastante, não propõe; sem RSRP por UE no KPM (perfis sem essa medida), mantém o handover da célula.
+
+Isso muda também o S6 em malha fechada, onde o Load Balancer participa da tempestade. Testes: `tests/unit/test_xapps_kpm.py` (quatro UEs de menor diferença de RSRP, um pedido por UE e espera de 5 s; nenhum pedido quando nenhum UE ouve a vizinha).

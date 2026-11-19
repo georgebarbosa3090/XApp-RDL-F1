@@ -104,3 +104,28 @@ def test_reference_runtime_loop_uses_kpm_core():
     core = kpm_runtime.make_core(Core, Owner.transport)
     kpm_runtime.run_kpm_loop(Owner, core, 0.0)            # sem SUBMGR_URL e sem KPM: sai sem propor
     assert core.decide(0.0) == []
+
+
+def test_load_balancer_moves_part_of_the_ues_with_best_neighbor_signal():
+    """docs/16 §10.11: com RSRP por UE, o Load Balancer transfere só parte dos UEs (os de menor diferença de RSRP,
+    até 10 dB), um pedido por UE, e não a célula inteira."""
+    lb = LoadBalancer(transport=_T(), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]})
+    s0 = CellSample("gnb_0", 0, load_pct=100)
+    # diferença de RSRP servidora - vizinha: UE i tem 2*i dB; os UEs 6..9 (12 a 18 dB) não ouvem a vizinha o bastante
+    s0.ues = [UeKpi(str(i), "gnb_0", 5.0, {"gnb_0": -90.0, "gnb_1": -90.0 - 2 * i}) for i in range(10)]
+    lb.observe(s0)
+    lb.observe(CellSample("gnb_1", 0, load_pct=10))
+    out = lb.decide(1.0)
+    # metade da diferença (90 pontos) sobre 100 % de carga: 45 % de 10 UEs -> 5, limitado a lb_max_ues = 4
+    assert [(p["node_id"], p["parameter"], p["value"], p["ue"]) for p in out] == [
+        ("gnb_0", "HANDOVER", 1.0, ue) for ue in (0, 1, 2, 3)]
+    assert lb.decide(2.0) == []                               # espera de 5 s por célula
+
+
+def test_load_balancer_without_ue_that_hears_the_neighbor_does_not_move():
+    lb = LoadBalancer(transport=_T(), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]})
+    s0 = CellSample("gnb_0", 0, load_pct=100)
+    s0.ues = [UeKpi(str(i), "gnb_0", 5.0, {"gnb_0": -80.0, "gnb_1": -110.0}) for i in range(5)]
+    lb.observe(s0)
+    lb.observe(CellSample("gnb_1", 0, load_pct=0))
+    assert lb.decide(1.0) == []

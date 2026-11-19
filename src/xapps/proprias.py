@@ -4,7 +4,10 @@
 xApps próprias para os papéis do catálogo sem original público (docs/16, decisão D2), guiadas por KPM:
 
 - ``LoadBalancer``: se a carga de uma célula passa da vizinha menos carregada em ``lb_imbalance_pct``
-  pontos, propõe o handover dela para essa vizinha; com desequilíbrio moderado, propõe abrir a cota de PRB
+  pontos, propõe o handover de **parte** dos UEs dela para essa vizinha: os de menor diferença de RSRP
+  entre a servidora e a vizinha (no máximo ``lb_max_rsrp_gap_db``), em quantidade proporcional à metade
+  da diferença de carga e no máximo ``lb_max_ues``, com um pedido por UE (docs/16 §10.11). Sem RSRP por UE
+  no KPM, propõe o handover da célula, como antes. Com desequilíbrio moderado, propõe abrir a cota de PRB
   da célula carregada.
 - ``Beamformer``: se o SINR médio dos UEs da célula cai abaixo de ``bf_min_sinr_db``, propõe subir a
   potência em ``bf_step_db`` (até ``bf_max_tx_dbm``); com SINR folgado, propõe voltar à nominal.
@@ -15,6 +18,7 @@ xApps próprias para os papéis do catálogo sem original público (docs/16, dec
   PRB da célula para ``embb_cap_pct``.
 """
 
+import math
 from typing import Any, Dict, List, Optional
 
 from src.xapps.derivadas import _Kpm, _index
@@ -24,7 +28,8 @@ class LoadBalancer(_Kpm):
     XAPP_ID = "load_balancer"
     A1_TYPE = ""
     DEFAULTS: Dict[str, Any] = {"lb_imbalance_pct": 30.0, "lb_moderate_pct": 15.0, "lb_open_cap_pct": 90.0,
-                                "lb_cooldown_s": 5.0, "lb_priority": 70}
+                                "lb_cooldown_s": 5.0, "lb_priority": 70, "lb_max_ues": 4,
+                                "lb_max_rsrp_gap_db": 10.0}
 
     def __init__(self, *a, neighbors: Optional[Dict[str, List[str]]] = None, **k):
         super().__init__(*a, **k)
@@ -43,11 +48,39 @@ class LoadBalancer(_Kpm):
             light = min(neigh, key=lambda n: loads[n])
             gap = load - loads[light]
             if gap >= float(pol["lb_imbalance_pct"]) and _index(light) is not None:
-                self.last[cell] = now
-                out.append(self._proposal(cell, "HANDOVER", _index(light), pol["lb_priority"]))
+                moves = self._ues_to_move(cell, light, load, gap, pol)
+                if moves is None:          # sem RSRP por UE: handover da célula (comportamento anterior)
+                    self.last[cell] = now
+                    out.append(self._proposal(cell, "HANDOVER", _index(light), pol["lb_priority"]))
+                elif moves:
+                    self.last[cell] = now
+                    out += [self._proposal(cell, "HANDOVER", _index(light), pol["lb_priority"], ue=ue)
+                            for ue in moves]
             elif gap >= float(pol["lb_moderate_pct"]):
                 self.last[cell] = now
                 out.append(self._proposal(cell, "PRB_QUOTA", pol["lb_open_cap_pct"], pol["lb_priority"]))
+        return out
+
+    def _ues_to_move(self, cell: str, light: str, load: float, gap: float,
+                     pol: Dict[str, Any]) -> Optional[List[int]]:
+        """UEs a transferir da célula carregada para a vizinha: os de menor diferença de RSRP (servidora menos
+        vizinha), até ``lb_max_rsrp_gap_db``; quantos: a fração ``gap / (2 load)`` dos UEs da célula, ao menos
+        um e no máximo ``lb_max_ues``. ``None`` quando o KPM não traz RSRP por UE; lista vazia quando nenhum UE
+        ouve a vizinha o bastante."""
+        ues = [u for u in self.samples[cell].ues if light in u.rsrp_dbm and cell in u.rsrp_dbm]
+        if not ues:
+            return None
+        deficit = lambda u: u.rsrp_dbm[cell] - u.rsrp_dbm[light]  # noqa: E731
+        ok = sorted((u for u in ues if deficit(u) <= float(pol["lb_max_rsrp_gap_db"])),
+                    key=lambda u: (deficit(u), u.ue_id))
+        share = gap / (2.0 * load) if load > 0 else 0.0
+        k = min(int(pol["lb_max_ues"]), max(1, math.ceil(share * len(self.samples[cell].ues))))
+        out = []
+        for u in ok[:k]:
+            try:
+                out.append(int(u.ue_id))
+            except (TypeError, ValueError):
+                continue
         return out
 
 
