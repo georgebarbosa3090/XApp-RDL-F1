@@ -1,0 +1,10 @@
+time_s,gnb,cell_id,parameter,value,ue,xapp_id,action_id,status,detail
+1.2,0,1,HANDOVER,1,-1,load_balancer,load_balancer-g0-HANDOVER-1.200-1,APPLIED,24 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+1.8,0,1,HANDOVER,1,17,traffic_steering,traffic_steering-g0-HANDOVER-1.800-6,APPLIED,1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+1.8,0,1,HANDOVER,1,21,traffic_steering,traffic_steering-g0-HANDOVER-1.800-7,APPLIED,1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+3.2,1,2,PRB_QUOTA,90,-1,load_balancer,load_balancer-g1-PRB_QUOTA-3.200-2,APPLIED,RBG 480/533
+8,0,1,HANDOVER,1,-1,load_balancer,load_balancer-g0-HANDOVER-8.000-3,APPLIED,18 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+15.2,0,1,HANDOVER,1,-1,load_balancer,load_balancer-g0-HANDOVER-15.200-4,APPLIED,18 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+17.6,1,2,PRB_QUOTA,90,-1,load_balancer,load_balancer-g1-PRB_QUOTA-17.600-5,APPLIED,RBG 480/533
+22.4,0,1,HANDOVER,1,-1,load_balancer,load_balancer-g0-HANDOVER-22.400-6,APPLIED,18 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)
+29.6,0,1,HANDOVER,1,-1,load_balancer,load_balancer-g0-HANDOVER-29.600-7,APPLIED,18 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)

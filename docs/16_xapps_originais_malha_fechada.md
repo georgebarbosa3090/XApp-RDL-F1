@@ -553,3 +553,11 @@ Decisão do autor depois da validação da §10.9: a RDL passa a proteger o hand
 - **Conflito indireto com handover confirmado.** Um handover confirmado é um evento passado, não um estado do nó. Ele continua nas regras entre células (ping-pong, célula reduzida), mas não forma mais conflito indireto com propostas posteriores do mesmo nó (no S5, 17 conflitos desse tipo, todos resolvidos sem efeito).
 - **Malha aberta.** Os cronogramas do B3 e do B3A nos 18 cenários do catálogo (36 cronogramas) são idênticos antes e depois da mudança: as campanhas registradas decidem como antes.
 - **Testes.** `tests/unit/test_closed_loop_orchestrator.py`: volta do TS (80) recusada contra o handover do Load Balancer (70) em menos de 5 s e aceita depois de 5 s; volta com prioridade 95 aceita; teto de PRB depois de um handover confirmado sem conflito indireto. Suíte de unidade: 501 passaram.
+
+**Validação (S5, B0 e B3, semente 16906, prefixo `cl_ajuste3`, commit `69e241b`, 72 min; painel `reports/avaliacao/painel_cl_ajuste3_16906/`).** As duas execuções terminaram com `SUCCESS` e cadeia E2 completa. O B0 repetiu a §10.9 (17 ações, 79,9 Mb/s, 8,9 ms). No B3, a proteção recusou as voltas do TS, mas o resultado piorou: 246 propostas, 9 ações aplicadas, 107 handovers no KPM, 73,1 Mb/s e 10,3 ms. A causa está no Load Balancer, não na regra:
+
+- o pedido de handover do Load Balancer é por célula, sem UE, e o ns-3 o executa movendo **todos** os UEs da célula: 24 UEs da gNB0 para a gNB1 em t = 1,2 s e 18 de novo em t = 8,0, 15,2, 22,4 e 29,6 s (5 s de espera entre pedidos), para uma célula longe da maioria deles;
+- cada novo handover do Load Balancer abre outra janela de proteção de 5 s, e o TS, que não recebe a recusa, repete os pedidos de volta a cada janela (por isso as 246 propostas); quase todos foram recusados;
+- os UEs ficaram na célula de sinal fraco, e a RDL protegeu, de forma correta segundo a regra, uma ação ruim e recorrente.
+
+Leitura: a proteção da ação recente faz o que promete (a volta dentro de 5 s é recusada), mas, em malha fechada, protege também a ação de uma xApp mal calibrada. O Load Balancer do projeto precisa transferir só parte dos UEs (os de melhor sinal na vizinha, o suficiente para reduzir a diferença de carga), com um pedido por UE, antes de qualquer rodada valendo.
