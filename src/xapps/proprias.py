@@ -5,7 +5,8 @@ xApps próprias para os papéis do catálogo sem original público (docs/16, dec
 
 - ``LoadBalancer``: se a carga de uma célula passa da vizinha menos carregada em ``lb_imbalance_pct``
   pontos, propõe o handover de **parte** dos UEs dela para essa vizinha: os de menor diferença de RSRP
-  entre a servidora e a vizinha (no máximo ``lb_max_rsrp_gap_db``), em quantidade proporcional à metade
+  entre a servidora e a vizinha (a vizinha no máximo ``lb_max_rsrp_gap_db`` = 3 dB pior que a servidora,
+  docs/16 §10.13), em quantidade proporcional à metade
   da diferença de carga e no máximo ``lb_max_ues``, com um pedido por UE (docs/16 §10.11). Sem RSRP por UE
   no KPM, propõe o handover da célula, como antes. Com desequilíbrio moderado, propõe abrir a cota de PRB
   da célula carregada.
@@ -29,7 +30,7 @@ class LoadBalancer(_Kpm):
     A1_TYPE = ""
     DEFAULTS: Dict[str, Any] = {"lb_imbalance_pct": 30.0, "lb_moderate_pct": 15.0, "lb_open_cap_pct": 90.0,
                                 "lb_cooldown_s": 5.0, "lb_priority": 70, "lb_max_ues": 4,
-                                "lb_max_rsrp_gap_db": 10.0}
+                                "lb_max_rsrp_gap_db": 3.0}
 
     def __init__(self, *a, neighbors: Optional[Dict[str, List[str]]] = None, **k):
         super().__init__(*a, **k)
@@ -64,7 +65,8 @@ class LoadBalancer(_Kpm):
     def _ues_to_move(self, cell: str, light: str, load: float, gap: float,
                      pol: Dict[str, Any]) -> Optional[List[int]]:
         """UEs a transferir da célula carregada para a vizinha: os de menor diferença de RSRP (servidora menos
-        vizinha), até ``lb_max_rsrp_gap_db``; quantos: a fração ``gap / (2 load)`` dos UEs da célula, ao menos
+        vizinha), até ``lb_max_rsrp_gap_db`` (3 dB: a vizinha não pode ser muito pior que a servidora, senão o UE
+        perde a conexão lá; docs/16 §10.12 e §10.13); quantos: a fração ``gap / (2 load)`` dos UEs da célula, ao menos
         um e no máximo ``lb_max_ues``. ``None`` quando o KPM não traz RSRP por UE; lista vazia quando nenhum UE
         ouve a vizinha o bastante."""
         ues = [u for u in self.samples[cell].ues if light in u.rsrp_dbm and cell in u.rsrp_dbm]

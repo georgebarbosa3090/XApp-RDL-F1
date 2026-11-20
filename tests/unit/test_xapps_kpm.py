@@ -107,12 +107,13 @@ def test_reference_runtime_loop_uses_kpm_core():
 
 
 def test_load_balancer_moves_part_of_the_ues_with_best_neighbor_signal():
-    """docs/16 §10.11: com RSRP por UE, o Load Balancer transfere só parte dos UEs (os de menor diferença de RSRP,
-    até 10 dB), um pedido por UE, e não a célula inteira."""
+    """docs/16 §10.11 e §10.13: com RSRP por UE, o Load Balancer transfere só parte dos UEs (os de menor diferença
+    de RSRP, com a vizinha no máximo 3 dB pior), um pedido por UE, e não a célula inteira."""
     lb = LoadBalancer(transport=_T(), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]})
     s0 = CellSample("gnb_0", 0, load_pct=100)
-    # diferença de RSRP servidora - vizinha: UE i tem 2*i dB; os UEs 6..9 (12 a 18 dB) não ouvem a vizinha o bastante
-    s0.ues = [UeKpi(str(i), "gnb_0", 5.0, {"gnb_0": -90.0, "gnb_1": -90.0 - 2 * i}) for i in range(10)]
+    # diferença de RSRP servidora - vizinha: UE i tem i - 2 dB (UEs 0 e 1 ouvem a vizinha melhor); os UEs 6..9
+    # (4 a 7 dB) não ouvem a vizinha o bastante
+    s0.ues = [UeKpi(str(i), "gnb_0", 5.0, {"gnb_0": -90.0, "gnb_1": -90.0 - (i - 2)}) for i in range(10)]
     lb.observe(s0)
     lb.observe(CellSample("gnb_1", 0, load_pct=10))
     out = lb.decide(1.0)
@@ -120,6 +121,19 @@ def test_load_balancer_moves_part_of_the_ues_with_best_neighbor_signal():
     assert [(p["node_id"], p["parameter"], p["value"], p["ue"]) for p in out] == [
         ("gnb_0", "HANDOVER", 1.0, ue) for ue in (0, 1, 2, 3)]
     assert lb.decide(2.0) == []                               # espera de 5 s por célula
+
+
+def test_load_balancer_does_not_move_ue_to_a_much_weaker_neighbor():
+    """docs/16 §10.12 e §10.13: no S5 (semente 16907), o UE 2 ouvia a vizinha 6,5 dB pior e o UE 14, 3,3 dB pior;
+    transferidos, perdiam a conexão lá. Com a vizinha mais de 3 dB pior, o Load Balancer não transfere."""
+    lb = LoadBalancer(transport=_T(), neighbors={"gnb_0": ["gnb_1"], "gnb_1": ["gnb_0"]})
+    s0 = CellSample("gnb_0", 0, load_pct=100)
+    s0.ues = [UeKpi("2", "gnb_0", 5.0, {"gnb_0": -122.6, "gnb_1": -129.1}),
+              UeKpi("14", "gnb_0", 5.0, {"gnb_0": -130.0, "gnb_1": -133.3}),
+              UeKpi("7", "gnb_0", 5.0, {"gnb_0": -120.0, "gnb_1": -122.7})]
+    lb.observe(s0)
+    lb.observe(CellSample("gnb_1", 0, load_pct=0))
+    assert [p["ue"] for p in lb.decide(1.0)] == [7]
 
 
 def test_load_balancer_without_ue_that_hears_the_neighbor_does_not_move():

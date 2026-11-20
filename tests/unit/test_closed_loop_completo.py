@@ -27,7 +27,9 @@ def _kpm(t, spec, cells=3):
     ues = []
     for u in range(n):
         g = u % cells
-        rsrp = {str(c + 1): (-80.0 if c == g else -86.0 - 3 * c) for c in range(cells)}
+        # vizinhas 1 a 3 dB mais fracas: UEs de borda que o Load Balancer pode transferir (docs/16 §10.13), sem
+        # vizinha mais forte para o TS
+        rsrp = {str(c + 1): (-80.0 if c == g else -81.0 - c) for c in range(cells)}
         ues.append({"ue": u, "cell_id": g + 1, "gnb": g, "connected": True, "thp_mbps": 0.5, "delay_ms": 15.0,
                     "sinr_db": 8.0, "rsrp_dbm": rsrp})
     return {"t": t, "cells": [{"gnb": c, "cell_id": c + 1, "prb_util": 0.05 + 0.4 * (c == 0)} for c in range(cells)],
