@@ -1,0 +1,23 @@
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_11100.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 PRB_QUOTA=25.000 xapp=xslice id=xslice-g0-PRB_QUOTA-1.200-1 -> APPLIED (RBG 133/533)
+[RDL-KPI] t=2.0s vazao=52.19 Mbps atraso=14.71 ms
+[RDL-KPI] t=3.0s vazao=48.62 Mbps atraso=13.73 ms
+[RDL-KPI] t=4.0s vazao=39.70 Mbps atraso=18.75 ms
+[RDL-KPI] t=5.0s vazao=40.02 Mbps atraso=19.92 ms
+[RDL-ACT] t=5.200s gnb=0 cell=1 TX_POWER=30.000 xapp=energysaver_greenran id=energysaver_greenran-g0-TX_POWER-5.200-1 -> APPLIED (TxPower=30 dBm)
+[RDL-ACT] t=6.000s gnb=0 cell=1 PRB_QUOTA=80.000 xapp=xslice id=xslice-g0-PRB_QUOTA-6.000-2 -> APPLIED (RBG 426/533)
+[RDL-KPI] t=6.0s vazao=63.88 Mbps atraso=14.79 ms
+[RDL-KPI] t=7.0s vazao=173.09 Mbps atraso=9.01 ms
+[RDL-KPI] t=8.0s vazao=171.53 Mbps atraso=8.99 ms
+[RDL-KPI] t=9.0s vazao=173.02 Mbps atraso=8.98 ms
+[RDL-KPI] t=10.0s vazao=171.94 Mbps atraso=9.03 ms
+[RDL-KPI] t=11.0s vazao=172.78 Mbps atraso=8.97 ms
+[RDL-KPI] t=12.0s vazao=172.20 Mbps atraso=9.02 ms
+[RDL-KPI] t=13.0s vazao=172.69 Mbps atraso=9.00 ms
+[RDL-KPI] t=14.0s vazao=172.44 Mbps atraso=8.99 ms
+[RDL-KPI] t=15.0s vazao=172.84 Mbps atraso=9.00 ms
+[RDL-KPI] t=16.0s vazao=172.04 Mbps atraso=8.99 ms
+[RDL-KPI] t=17.0s vazao=173.08 Mbps atraso=9.00 ms
+[RDL-KPI] t=18.0s vazao=172.09 Mbps atraso=9.01 ms
+[RDL-KPI] t=19.0s vazao=172.93 Mbps atraso=8.97 ms

@@ -1,0 +1,44 @@
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_438572.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-1 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-2 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-3 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-4 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=2.0s vazao=93.72 Mbps atraso=7.59 ms
+[RDL-KPI] t=3.0s vazao=93.27 Mbps atraso=7.57 ms
+[RDL-KPI] t=4.0s vazao=93.39 Mbps atraso=6.97 ms
+[RDL-KPI] t=5.0s vazao=93.47 Mbps atraso=6.78 ms
+[RDL-KPI] t=6.0s vazao=93.35 Mbps atraso=6.80 ms
+[RDL-ACT] t=6.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-6.200-5 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=6.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-6.200-6 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=7.0s vazao=93.39 Mbps atraso=7.67 ms
+[RDL-KPI] t=8.0s vazao=93.51 Mbps atraso=7.72 ms
+[RDL-KPI] t=9.0s vazao=93.31 Mbps atraso=6.81 ms
+[RDL-KPI] t=10.0s vazao=93.14 Mbps atraso=6.78 ms
+[RDL-KPI] t=11.0s vazao=93.18 Mbps atraso=7.19 ms
+[RDL-ACT] t=11.400s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-11.400-7 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=11.400s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-11.400-8 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=12.0s vazao=93.39 Mbps atraso=7.78 ms
+[RDL-KPI] t=13.0s vazao=93.31 Mbps atraso=7.66 ms
+[RDL-KPI] t=14.0s vazao=93.31 Mbps atraso=6.35 ms
+[RDL-KPI] t=15.0s vazao=92.94 Mbps atraso=6.81 ms
+[RDL-KPI] t=16.0s vazao=93.39 Mbps atraso=6.69 ms
+[RDL-ACT] t=16.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-16.600-10 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=16.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-16.600-9 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=17.0s vazao=93.39 Mbps atraso=7.75 ms
+[RDL-KPI] t=18.0s vazao=93.39 Mbps atraso=7.77 ms
+[RDL-KPI] t=19.0s vazao=90.48 Mbps atraso=5.34 ms
+[RDL-KPI] t=20.0s vazao=93.14 Mbps atraso=6.83 ms
+[RDL-KPI] t=21.0s vazao=93.31 Mbps atraso=6.85 ms
+[RDL-ACT] t=21.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-21.600-11 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=21.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-21.600-12 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=22.0s vazao=93.51 Mbps atraso=7.78 ms
+[RDL-KPI] t=23.0s vazao=93.39 Mbps atraso=7.71 ms
+[RDL-KPI] t=24.0s vazao=90.56 Mbps atraso=5.26 ms
+[RDL-KPI] t=25.0s vazao=93.31 Mbps atraso=6.82 ms
+[RDL-KPI] t=26.0s vazao=93.10 Mbps atraso=6.98 ms
+[RDL-ACT] t=26.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-26.600-13 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=26.600s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-26.600-14 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=27.0s vazao=93.43 Mbps atraso=7.73 ms
+[RDL-KPI] t=28.0s vazao=93.39 Mbps atraso=7.71 ms
+[RDL-KPI] t=29.0s vazao=90.56 Mbps atraso=5.34 ms

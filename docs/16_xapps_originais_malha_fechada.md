@@ -576,3 +576,51 @@ Isso muda também o S6 em malha fechada, onde o Load Balancer participa da tempe
 **Validação (S5, B0 e B3, semente 16906, prefixo `cl_ajuste4`, commit `93e4c31`, 77 min; painel `reports/avaliacao/painel_cl_ajuste4_16906/`).** As duas execuções terminaram com `SUCCESS` e cadeia E2 completa. O Load Balancer transferiu 4 UEs em t = 1,2 s e mais 4 em t = 8,2 s; o KPM não registrou nenhum retorno à célula de origem em até 5 s, nos dois baselines (antes, 18). No B0, o TS devolveu 3 UEs em t = 8,4 s; no B3, a proteção da §10.10 recusou essas voltas, e o TS, que não recebe a recusa, as repetiu (33 propostas, 9 ações). Vazão de 84,0 Mb/s (B0) e 84,3 Mb/s (B3), atraso de 10,9 e 11,1 ms: com o Load Balancer movendo poucos UEs de bom sinal, a rede ficou melhor que na §10.9 (79,9 Mb/s) nos dois baselines, e a diferença entre eles é desprezível nesta semente.
 
 **Registro da proteção.** As recusas da proteção não passavam pelo Reasoning, e o painel do B3 mostrava "nenhum conflito". Agora cada uma entra no log de decisão como uma resolução de estratégia `PINGPONG_GUARD` (regra, envolvidas e vencedora), contada no painel junto com TVS e EEVS (`RDLxApp.guard_events`, lido pelo `HrdlStream`).
+
+### 10.12 Rodada S1, S2, S4 e S5 com B0 e B3 (semente 16907, 2026-11-20)
+
+**Execução.** Prefixo `cl_s1245`, commit `725889f`, 8 execuções, 1703 min; painel `reports/avaliacao/painel_cl_s1245_16907/`. Todas terminaram com `SUCCESS` e cadeia E2 completa (71 controles, 71 ACKs, nenhuma falha). Nenhuma janela teve conflito direto (mesmo gNB e recurso) e não houve oscilação de potência ou de teto de PRB.
+
+| cenário | propostas B0/B3 | ações B0/B3 | vazão B0/B3 (Mb/s) | atraso B0/B3 (ms) | resoluções da RDL no B3 |
+|---|---|---|---|---|---|
+| S1 | 3/3 | 3/3 | 140,703/140,703 | 10,982/10,982 | 2 EEVS (indiretos, as duas ações mantidas) |
+| S2 | 8/8 | 8/8 | 131,024/131,024 | 12,508/12,508 | 2 EEVS (indiretos, as duas ações mantidas) |
+| S4 | 7/7 | 7/7 | 167,411/167,411 | 8,110/8,110 | nenhuma |
+| S5 | 21/129 | 21/14 | 93,385/93,173 | 7,569/9,092 | 64 `PINGPONG_GUARD` |
+
+**S1, S2 e S4.** Os conflitos que apareceram foram indiretos (teto de PRB do xSlice contra potência do Energy Saver no S1; handovers do TS contra o teto do xSlice no S2), e o EEVS manteve as duas ações. A RDL aplicou exatamente o que o B0 aplicou, e o ns-3, com a mesma semente e as mesmas ações, produziu as mesmas medidas. Nesses três cenários, em malha fechada, as xApps não chegaram a disputar o mesmo recurso; a RDL não mudou nem atrapalhou nada.
+
+**S5: a proteção do ping-pong segurou UEs numa célula ruim.** Os registros (`raw/rdl_actuation_log.csv` e `raw/closed_loop_log.jsonl` das duas execuções) mostram o ciclo:
+
+- a cada ~5 s (t = 1,2; 6,2; 11,4; 16,6; 21,6; 26,6 s), o Load Balancer transfere os UEs 2 e 14 da célula 1 para a 2 (em t = 1,2 s também os UEs 7 e 23, que ficam bem na célula 2);
+- os UEs 2 e 14 ouvem a célula 2 **pior** que a célula 1 (em t = 3,4 s: RSRP de −129,1 contra −122,6 dBm no UE 2 e −133,3 contra −130,0 dBm no UE 14; SINR de −7,7 e −8,0 dB). Eles passam no filtro do Load Balancer porque a diferença de RSRP está dentro de `lb_max_rsrp_gap_db` = 10 dB, mas o filtro não exige que a vizinha seja melhor;
+- **no B0**, o TS devolve o UE 14 à célula 1 de 0,2 a 0,6 s depois (o UE 2 só no primeiro ciclo); nos ciclos seguintes, o UE 2 perde a conexão cerca de 2,2 s depois do handover (`connected: false`, célula 0 no KPM) e se restabelece na célula 1;
+- **no B3**, a proteção da §10.10 recusa todas as voltas do TS (64 janelas com `PINGPONG_GUARD`; das 129 propostas, 115 foram recusadas, e o TS as repetiu a cada janela). Os dois UEs ficam na célula 2 até perderem a conexão (t = 3,6; 8,6; 13,8; 19,0; 24,0; 29,0 s) e voltam à célula 1 pelo restabelecimento, não pelo handover.
+
+Efeito: vazão igual (−0,2 %), atraso médio 20 % maior no B3 (9,09 contra 7,57 ms). O atraso médio da célula 2 subiu de 8,2 para 11,7 ms; o do UE 2 subiu de 32,9 para 44,0 ms, e o do UE 14 caiu de 119,9 para 90,0 ms. O KPM contou 26 handovers nos dois baselines, porque no B3 as voltas pelo restabelecimento substituem as voltas pelo TS.
+
+**Leitura.** A proteção faz o que a regra diz: a volta dentro de 5 s é recusada. Mas a ação protegida era ruim para dois dos quatro UEs, e só a xApp que corrige (o TS) via isso no KPM. Com uma semente, o resultado é um caso, não uma estimativa. Duas correções possíveis, ainda não decididas:
+
+1. **Load Balancer:** só transferir UEs cuja vizinha não seja pior que a servidora por mais que uma margem pequena (por exemplo, RSRP da vizinha ≥ RSRP da servidora − 3 dB), em vez de aceitar 10 dB de diferença em qualquer sentido.
+2. **RDL:** deixar a volta passar quando o KPM mostra que o UE protegido está em condição ruim na célula de destino (SINR abaixo de um limiar), mesmo dentro dos 5 s.
+
+A primeira corrige a origem e não muda a RDL; a segunda torna a proteção sensível ao estado do UE e vale para qualquer xApp mal calibrada.
+
+### 10.13 Load Balancer não transfere UE para vizinha muito mais fraca (2026-11-20)
+
+Decisão do autor depois da §10.12: a correção 1. Em `src/xapps/proprias.py`, `lb_max_rsrp_gap_db` passa de 10 para 3 dB: o Load Balancer só escolhe UEs cuja vizinha seja no máximo 3 dB mais fraca que a servidora (RSRP da servidora − RSRP da vizinha ≤ 3 dB). O resto da §10.11 não muda (menor diferença primeiro, metade da diferença de carga, no máximo 4 UEs, um pedido por UE, espera de 5 s). A RDL não muda.
+
+O valor de 3 dB é uma escolha do projeto, na ordem do offset usual do evento A3 de handover; não vem de uma norma. Com 10 dB, o filtro aceitava UEs que ouvem a vizinha bem pior e perdiam a conexão lá; com 0 dB (só vizinha melhor), quase nenhum UE de borda seria transferido.
+
+**O que se espera no S5 (semente 16907), lido do KPM registrado, não simulado.** Em t = 1,2 s, as diferenças dos UEs da célula 1 eram −0,1 dB (UE 23), 2,7 (UE 7), 3,3 (UE 14) e 6,5 (UE 2); com o novo limite, só os UEs 23 e 7 seriam transferidos, e os dois ficaram bem na célula 2 nas execuções da §10.12. Nos ciclos seguintes (t = 6,2 s em diante) nenhum UE da célula 1 ficava dentro de 3 dB, então o ciclo de transferência, recusa da volta e perda de conexão não deveria se repetir. A confirmação exige uma nova execução do S5 com B0 e B3.
+
+**Validação (S5, B0 e B3, semente 16907, prefixo `cl_lb3`, sobre o commit `725889f` com a mudança ainda não commitada (`repo_dirty`; o código executado é o do commit `b5e34b9`, feito depois da rodada), 56 min; painel `reports/avaliacao/painel_cl_lb3_16907/`).** As duas execuções terminaram com `SUCCESS` e cadeia E2 completa. O Load Balancer transferiu só os UEs 23 e 7 em t = 1,2 s e não propôs mais nada; o TS não pediu nenhuma volta. O KPM registrou 4 handovers (2 por execução) e nenhum retorno à célula de origem em até 5 s (antes, 25 na rodada da §10.12). A RDL não teve conflito a resolver, e o B3 aplicou as mesmas 2 ações do B0.
+
+| S5, semente 16907 | vazão B0 / B3 (Mb/s) | atraso B0 / B3 (ms) | ações B0 / B3 | propostas B0 / B3 |
+|---|---|---|---|---|
+| antes (§10.12, limite de 10 dB) | 93,385 / 93,173 | 7,569 / 9,092 | 21 / 14 | 21 / 129 |
+| depois (limite de 3 dB) | 94,771 / 94,771 | 5,429 / 5,429 | 2 / 2 | 2 / 2 |
+
+Leitura: o ciclo de transferência ruim, recusa da volta e perda de conexão desapareceu, e a rede ficou melhor nos dois baselines (atraso 28 % menor que o B0 anterior). Mas, com o Load Balancer bem calibrado, o S5 em malha fechada deixou de produzir o conflito de ping-pong que o cenário estuda: não sobra nada para a RDL arbitrar, e B0 e B3 são idênticos. Para que o S5 volte a exercitar a RDL, o conflito precisa vir das xApps lendo uma rede em que transferir e devolver sejam ambos razoáveis (por exemplo, UEs de borda com RSRP próximo nas duas células e carga que oscile), e não de uma xApp mal calibrada. Isso é uma decisão de cenário, ainda não tomada.
+
+**Testes.** `tests/unit/test_xapps_kpm.py`: o teste da §10.11 passa a usar diferenças de −2 a 7 dB; um teste novo reproduz os UEs 2, 14 e 7 do S5 (só o 7 é transferido). Em `tests/unit/test_closed_loop_completo.py`, o KPM sintético passa a ter vizinhas 1 a 3 dB mais fracas (antes, 6 dB ou mais), para que o Load Balancer ainda proponha no S5 e no S11. Suíte de unidade: 499 passaram, 1 ignorado.

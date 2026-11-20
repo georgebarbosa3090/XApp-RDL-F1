@@ -1,0 +1,629 @@
+[
+  {
+    "execucao": "cl_s1245_S1_B0_completo_seed16907",
+    "cenario": "S1",
+    "baseline": "B0",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 20,
+    "janelas": 99,
+    "duracao_s": 1198,
+    "ues_registrados": 20,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 99,
+    "propostas_rmr_30000": 3,
+    "propostas_por_xapp": {
+      "energysaver_greenran/TX_POWER": 1,
+      "xslice/PRB_QUOTA": 2
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 2,
+      "21000": 2,
+      "21001": 2
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 3
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 3
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 2,
+      "TX_POWER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 2,
+        "TX_POWER": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 1,
+      "subscription": 2,
+      "kpm_t0": 99,
+      "decision": 99,
+      "control_request": 3,
+      "control_ack": 3,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 3
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "vazao_media_mbps": 140.703,
+    "atraso_medio_ms": 10.982
+  },
+  {
+    "execucao": "cl_s1245_S1_B3_completo_seed16907",
+    "cenario": "S1",
+    "baseline": "B3",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "derivado:xslice"
+    ],
+    "gnbs": 1,
+    "ues": 20,
+    "janelas": 99,
+    "duracao_s": 1222,
+    "ues_registrados": 20,
+    "handovers_observados": 0,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 1,
+    "indicacoes_kpm": 99,
+    "propostas_rmr_30000": 3,
+    "propostas_por_xapp": {
+      "energysaver_greenran/TX_POWER": 1,
+      "xslice/PRB_QUOTA": 2
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 2,
+      "21000": 2,
+      "21001": 2
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 3
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 2
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 2
+    },
+    "consultas_grafo": 0,
+    "escritas_grafo": 5,
+    "acoes_ran_por_status": {
+      "APPLIED": 3
+    },
+    "acoes_ran_por_parametro": {
+      "PRB_QUOTA:APPLIED": 2,
+      "TX_POWER:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 2,
+        "TX_POWER": 1
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 1,
+      "subscription": 2,
+      "kpm_t0": 99,
+      "decision": 99,
+      "control_request": 3,
+      "control_ack": 3,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 3
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "vazao_media_mbps": 140.703,
+    "atraso_medio_ms": 10.982
+  },
+  {
+    "execucao": "cl_s1245_S2_B0_completo_seed16907",
+    "cenario": "S2",
+    "baseline": "B0",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "original:traffic_steering",
+      "derivado:xslice"
+    ],
+    "gnbs": 2,
+    "ues": 30,
+    "janelas": 99,
+    "duracao_s": 2072,
+    "ues_registrados": 30,
+    "handovers_observados": 7,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 198,
+    "propostas_rmr_30000": 8,
+    "propostas_por_xapp": {
+      "traffic_steering/HANDOVER": 5,
+      "xslice/PRB_QUOTA": 3
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 2,
+      "21000": 2,
+      "21001": 2
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 5
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 8
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 5,
+      "PRB_QUOTA:APPLIED": 3
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 1
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 2,
+        "HANDOVER": 5
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 198,
+      "decision": 99,
+      "control_request": 8,
+      "control_ack": 8,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 8
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 91,
+      "predicoes_QP_30002": 668,
+      "handoff_REST": 5,
+      "mantidos_na_servidora": 663,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 131.024,
+    "atraso_medio_ms": 12.508
+  },
+  {
+    "execucao": "cl_s1245_S2_B3_completo_seed16907",
+    "cenario": "S2",
+    "baseline": "B3",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "original:traffic_steering",
+      "derivado:xslice"
+    ],
+    "gnbs": 2,
+    "ues": 30,
+    "janelas": 99,
+    "duracao_s": 1811,
+    "ues_registrados": 30,
+    "handovers_observados": 7,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 198,
+    "propostas_rmr_30000": 8,
+    "propostas_por_xapp": {
+      "traffic_steering/HANDOVER": 5,
+      "xslice/PRB_QUOTA": 3
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 2,
+      "21000": 2,
+      "21001": 2
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 5
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 5
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 5
+    },
+    "consultas_grafo": 0,
+    "escritas_grafo": 10,
+    "acoes_ran_por_status": {
+      "APPLIED": 8
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 5,
+      "PRB_QUOTA:APPLIED": 3
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 1
+      },
+      "gnb_1": {
+        "PRB_QUOTA": 2,
+        "HANDOVER": 5
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 198,
+      "decision": 99,
+      "control_request": 8,
+      "control_ack": 8,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 8
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 91,
+      "predicoes_QP_30002": 668,
+      "handoff_REST": 5,
+      "mantidos_na_servidora": 663,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 131.024,
+    "atraso_medio_ms": 12.508
+  },
+  {
+    "execucao": "cl_s1245_S4_B0_completo_seed16907",
+    "cenario": "S4",
+    "baseline": "B0",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 299,
+    "duracao_s": 8163,
+    "ues_registrados": 40,
+    "handovers_observados": 7,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 598,
+    "propostas_rmr_30000": 7,
+    "propostas_por_xapp": {
+      "traffic_steering/HANDOVER": 7
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 6,
+      "21000": 6,
+      "21001": 6
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 7
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 7
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 4
+      },
+      "gnb_1": {
+        "HANDOVER": 3
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 598,
+      "decision": 299,
+      "control_request": 7,
+      "control_ack": 7,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 7
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 291,
+      "predicoes_QP_30002": 2044,
+      "handoff_REST": 7,
+      "mantidos_na_servidora": 2037,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 167.411,
+    "atraso_medio_ms": 8.11
+  },
+  {
+    "execucao": "cl_s1245_S4_B3_completo_seed16907",
+    "cenario": "S4",
+    "baseline": "B3",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:energysaver_greenran",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 40,
+    "janelas": 299,
+    "duracao_s": 83839,
+    "ues_registrados": 40,
+    "handovers_observados": 7,
+    "ping_pong": 0,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 598,
+    "propostas_rmr_30000": 7,
+    "propostas_por_xapp": {
+      "traffic_steering/HANDOVER": 7
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 6,
+      "21000": 6,
+      "21001": 6
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 2
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": 0,
+    "escritas_grafo": 2,
+    "acoes_ran_por_status": {
+      "APPLIED": 7
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 7
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 4
+      },
+      "gnb_1": {
+        "HANDOVER": 3
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 598,
+      "decision": 299,
+      "control_request": 7,
+      "control_ack": 7,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 7
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 291,
+      "predicoes_QP_30002": 2044,
+      "handoff_REST": 7,
+      "mantidos_na_servidora": 2037,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 167.411,
+    "atraso_medio_ms": 8.11
+  },
+  {
+    "execucao": "cl_s1245_S5_B0_completo_seed16907",
+    "cenario": "S5",
+    "baseline": "B0",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:load_balancer",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 24,
+    "janelas": 149,
+    "duracao_s": 2110,
+    "ues_registrados": 24,
+    "handovers_observados": 26,
+    "ping_pong": 13,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 21,
+    "propostas_por_xapp": {
+      "load_balancer/HANDOVER": 14,
+      "traffic_steering/HANDOVER": 7
+    },
+    "recusas_devolvidas": 0,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "apply-all-at-window-close": 12
+    },
+    "resolucoes_por_estrategia": {},
+    "tipos_de_conflito": {},
+    "consultas_grafo": "não registrado",
+    "escritas_grafo": "não registrado",
+    "acoes_ran_por_status": {
+      "APPLIED": 21
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 21
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 14
+      },
+      "gnb_1": {
+        "HANDOVER": 7
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 21,
+      "control_ack": 21,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 21
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 141,
+      "predicoes_QP_30002": 142,
+      "handoff_REST": 7,
+      "mantidos_na_servidora": 135,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 93.385,
+    "atraso_medio_ms": 7.569
+  },
+  {
+    "execucao": "cl_s1245_S5_B3_completo_seed16907",
+    "cenario": "S5",
+    "baseline": "B3",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "725889f",
+    "drivers": [
+      "propria:load_balancer",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 24,
+    "janelas": 149,
+    "duracao_s": 1774,
+    "ues_registrados": 24,
+    "handovers_observados": 26,
+    "ping_pong": 12,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 129,
+    "propostas_por_xapp": {
+      "load_balancer/HANDOVER": 14,
+      "traffic_steering/HANDOVER": 115
+    },
+    "recusas_devolvidas": 115,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 0,
+    "pares_em_conflito": {},
+    "regras_de_decisao": {
+      "hrdl-pipeline": 70
+    },
+    "resolucoes_por_estrategia": {
+      "PINGPONG_GUARD": 64
+    },
+    "tipos_de_conflito": {
+      "INTER_CELL": 64
+    },
+    "consultas_grafo": 0,
+    "escritas_grafo": 134,
+    "acoes_ran_por_status": {
+      "APPLIED": 14
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 14
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "HANDOVER": 14
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 14,
+      "control_ack": 14,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 14
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 135,
+      "predicoes_QP_30002": 197,
+      "handoff_REST": 115,
+      "mantidos_na_servidora": 82,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 93.173,
+    "atraso_medio_ms": 9.092
+  }
+]

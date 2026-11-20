@@ -1,0 +1,931 @@
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_0", "cell_id": 1, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_0", "cell_id": 1, "accepted": [2, 3]}
+{"role": "e2_setup_request", "t": 0.0, "node": "gnb_1", "cell_id": 2, "ran_functions": [{"ran_function_id": 2, "oid": "E2SM-KPM", "styles": [1, 4]}, {"ran_function_id": 3, "oid": "E2SM-RC", "control_parameters": ["PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE"]}]}
+{"role": "e2_setup", "t": 0.0, "node": "gnb_1", "cell_id": 2, "accepted": [2, 3]}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 1}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "propria:energysaver_greenran", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 100, "ricInstanceID": 2}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 3}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_0", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 3}, "admitted": true}
+{"role": "subscription_request", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "ran_function_id": 2, "period_ms": 200}
+{"role": "subscription", "t": 0.0, "xapp": "original:traffic_steering", "node": "gnb_1", "ric_request_id": {"ricRequestorID": 101, "ricInstanceID": 4}, "admitted": true}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_0", "seq": 1, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.0134, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.2, "node": "gnb_1", "seq": 1, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.0033, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_0", "seq": 2, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.4, "node": "gnb_1", "seq": 2, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_0", "seq": 3, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.6, "node": "gnb_1", "seq": 3, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_0", "seq": 4, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 0.8, "node": "gnb_1", "seq": 4, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 0.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_0", "seq": 5, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "kpm_t0", "t": 1.0, "node": "gnb_1", "seq": 5, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.0, "thp_mbps": 0.0}
+{"role": "decision", "t": 1.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_0", "seq": 6, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 0.98, "thp_mbps": 105.7587}
+{"role": "kpm_t0", "t": 1.2, "node": "gnb_1", "seq": 6, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.87, "thp_mbps": 16.2611}
+{"role": "decision", "t": 1.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_0", "seq": 7, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 1.0, "thp_mbps": 110.1824}
+{"role": "kpm_t0", "t": 1.4, "node": "gnb_1", "seq": 7, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.8592, "thp_mbps": 17.5309}
+{"role": "decision", "t": 1.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_0", "seq": 8, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 1.0, "thp_mbps": 111.0426}
+{"role": "kpm_t0", "t": 1.6, "node": "gnb_1", "seq": 8, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.8462, "thp_mbps": 17.449}
+{"role": "decision", "t": 1.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_0", "seq": 9, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 32, "prb_util": 1.0, "thp_mbps": 111.4112}
+{"role": "kpm_t0", "t": 1.8, "node": "gnb_1", "seq": 9, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 8, "prb_util": 0.8562, "thp_mbps": 17.408}
+{"role": "decision", "t": 1.8, "rule": "hrdl-pipeline", "selected": ["traffic_steering-g0-HANDOVER-1.800-1", "traffic_steering-g0-HANDOVER-1.800-2", "traffic_steering-g0-HANDOVER-1.800-3", "traffic_steering-g0-HANDOVER-1.800-4", "traffic_steering-g1-HANDOVER-1.800-5", "traffic_steering-g1-HANDOVER-1.800-6"], "correlation": [{"action_id": "traffic_steering-g0-HANDOVER-1.800-1", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 2}, {"action_id": "traffic_steering-g0-HANDOVER-1.800-2", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 9}, {"action_id": "traffic_steering-g0-HANDOVER-1.800-3", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 12}, {"action_id": "traffic_steering-g0-HANDOVER-1.800-4", "xapp_id": "traffic_steering", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 17}, {"action_id": "traffic_steering-g1-HANDOVER-1.800-5", "xapp_id": "traffic_steering", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 26}, {"action_id": "traffic_steering-g1-HANDOVER-1.800-6", "xapp_id": "traffic_steering", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 36}]}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g0-HANDOVER-1.800-1", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 2, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "4c13da1b33e86612de43932948837a08a6146072555427f7a1bf232469c490c2", "hex": "0101040848414e444f5645520101"}, "e2ap_pdu": {"len": 53, "sha256": "5fc8197e2cf374a81d9a336f62b829b21e08460aa6b4c8f2c165d1a8455b3cac", "hex": "00044031000005001d0005000001000500050002000300160004010101010017000e0101040848414e444f56455201010015000120"}, "decoded_value": 1.0}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g0-HANDOVER-1.800-2", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 9, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 6}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "4c13da1b33e86612de43932948837a08a6146072555427f7a1bf232469c490c2", "hex": "0101040848414e444f5645520101"}, "e2ap_pdu": {"len": 53, "sha256": "37a9ea6326ef89b0d8c91ee4610bf6d55b82195d83cb83b727692c2323b6c126", "hex": "00044031000005001d0005000001000600050002000300160004010101010017000e0101040848414e444f56455201010015000120"}, "decoded_value": 1.0}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g0-HANDOVER-1.800-3", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 12, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 7}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "4c13da1b33e86612de43932948837a08a6146072555427f7a1bf232469c490c2", "hex": "0101040848414e444f5645520101"}, "e2ap_pdu": {"len": 53, "sha256": "89c296e3785cf463fa6492ff1bc781b0db50609fa842563e84a0a39815965fe8", "hex": "00044031000005001d0005000001000700050002000300160004010101010017000e0101040848414e444f56455201010015000120"}, "decoded_value": 1.0}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g0-HANDOVER-1.800-4", "node": "gnb_0", "parameter": "HANDOVER", "value": 1.0, "ue": 17, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 8}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "4c13da1b33e86612de43932948837a08a6146072555427f7a1bf232469c490c2", "hex": "0101040848414e444f5645520101"}, "e2ap_pdu": {"len": 53, "sha256": "56e17e42baaec2dc0c64d4e71859342cd7a46dff046545fa08a11585e70ccb82", "hex": "00044031000005001d0005000001000800050002000300160004010101010017000e0101040848414e444f56455201010015000120"}, "decoded_value": 1.0}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g1-HANDOVER-1.800-5", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 26, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 9}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "e398ea8674a2988279afa6160d855d0a5a4b2aa9a11d134b78712eea2578d262", "hex": "0101040848414e444f5645520100"}, "e2ap_pdu": {"len": 53, "sha256": "88d7bf120f32ea5236e1a1d457f5d9c17896efe32ef992d40e65dab8ab32cb38", "hex": "00044031000005001d0005000001000900050002000300160004010101010017000e0101040848414e444f56455201000015000120"}, "decoded_value": 0.0}
+{"role": "control_request", "t": 1.8, "action_id": "traffic_steering-g1-HANDOVER-1.800-6", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 36, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 10}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "e398ea8674a2988279afa6160d855d0a5a4b2aa9a11d134b78712eea2578d262", "hex": "0101040848414e444f5645520100"}, "e2ap_pdu": {"len": 53, "sha256": "4abc755e6cd005004c78ffed594ef1cdfc686cbb57b5fd647a2afcb65417f242", "hex": "00044031000005001d0005000001000a00050002000300160004010101010017000e0101040848414e444f56455201000015000120"}, "decoded_value": 0.0}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_0", "seq": 10, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 30, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 2.0, "node": "gnb_1", "seq": 10, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 10, "prb_util": 0.9938, "thp_mbps": 47.2678}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-1", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 5}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "a3bf3e6795db2f1ddeffdb7f602f64419ff352d8004a357347b6fea3aa792686", "hex": "20044012000002001d00050000010005000500020003"}}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-2", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 6}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "672476d0a7592af5ec282b1770c0ddc7d63cad771b86927ce19ef97cb0dde54d", "hex": "20044012000002001d00050000010006000500020003"}}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-3", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 7}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "c6557823fd082ac91b026b992d6e8eb43f5813c2668031eb3bdabf58bf0ebd54", "hex": "20044012000002001d00050000010007000500020003"}}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-4", "node": "gnb_0", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 8}, "status": "APPLIED", "detail": "1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "40df90a411ee5852d1192249e81fc39592c763b6e05270c6da3daef25473024b", "hex": "20044012000002001d00050000010008000500020003"}}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g1-HANDOVER-1.800-5", "node": "gnb_1", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 9}, "status": "APPLIED", "detail": "1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "88bca131052aab6dbb9fe1b363f3be74bbffecf5343ba27c26abc34df626f288", "hex": "20044012000002001d00050000010009000500020003"}}
+{"role": "control_ack", "t": 2.0, "action_id": "traffic_steering-g1-HANDOVER-1.800-6", "node": "gnb_1", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 10}, "status": "APPLIED", "detail": "1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "df6e03085adc378865ff0a42e7fa8781e06c01b69c125f1340b63733ecbeb79e", "hex": "20044012000002001d0005000001000a000500020003"}}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-1", "node": "gnb_0", "parameter": "HANDOVER", "expected": 1.0, "observed": 2, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-2", "node": "gnb_0", "parameter": "HANDOVER", "expected": 1.0, "observed": 2, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-3", "node": "gnb_0", "parameter": "HANDOVER", "expected": 1.0, "observed": 2, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g0-HANDOVER-1.800-4", "node": "gnb_0", "parameter": "HANDOVER", "expected": 1.0, "observed": 2, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g1-HANDOVER-1.800-5", "node": "gnb_1", "parameter": "HANDOVER", "expected": 0.0, "observed": 1, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "kpm_t1", "t": 2.0, "action_id": "traffic_steering-g1-HANDOVER-1.800-6", "node": "gnb_1", "parameter": "HANDOVER", "expected": 0.0, "observed": 1, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 2.0, "rule": "hrdl-pipeline", "selected": ["traffic_steering-g1-HANDOVER-2.000-7"], "correlation": [{"action_id": "traffic_steering-g1-HANDOVER-2.000-7", "xapp_id": "traffic_steering", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 34}]}
+{"role": "control_request", "t": 2.0, "action_id": "traffic_steering-g1-HANDOVER-2.000-7", "node": "gnb_1", "parameter": "HANDOVER", "value": 0.0, "ue": 34, "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 11}, "ran_function_id": 3, "e2sm_rc_header": {"len": 4, "sha256": "27ecd0a598e76f8a2fd264d427df0a119903e8eae384e478902541756f089dd1", "hex": "01010101"}, "e2sm_rc_message": {"len": 14, "sha256": "e398ea8674a2988279afa6160d855d0a5a4b2aa9a11d134b78712eea2578d262", "hex": "0101040848414e444f5645520100"}, "e2ap_pdu": {"len": 53, "sha256": "b6ebf7e945db5ee3558d75c25ed7f08c995f78abf8e4b7dd2865119fe5b80479", "hex": "00044031000005001d0005000001000b00050002000300160004010101010017000e0101040848414e444f56455201000015000120"}, "decoded_value": 0.0}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_0", "seq": 11, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 31, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 2.2, "node": "gnb_1", "seq": 11, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 9, "prb_util": 1.0, "thp_mbps": 49.9712}
+{"role": "control_ack", "t": 2.2, "action_id": "traffic_steering-g1-HANDOVER-2.000-7", "node": "gnb_1", "parameter": "HANDOVER", "ric_request_id": {"ricRequestorID": 1, "ricInstanceID": 11}, "status": "APPLIED", "detail": "1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms)", "control_latency_s": 0.2, "e2ap_pdu": {"len": 22, "sha256": "cd6c0787818aa51d98a0902db96cc1d9a60fce008324ec44fd65a472293a98e3", "hex": "20044012000002001d0005000001000b000500020003"}}
+{"role": "kpm_t1", "t": 2.2, "action_id": "traffic_steering-g1-HANDOVER-2.000-7", "node": "gnb_1", "parameter": "HANDOVER", "expected": 0.0, "observed": 1, "effect_ok": true, "effect_latency_s": 0.2}
+{"role": "decision", "t": 2.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_0", "seq": 12, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 31, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 2.4, "node": "gnb_1", "seq": 12, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 9, "prb_util": 1.0, "thp_mbps": 49.193}
+{"role": "decision", "t": 2.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_0", "seq": 13, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 31, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 2.6, "node": "gnb_1", "seq": 13, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 9, "prb_util": 1.0, "thp_mbps": 49.193}
+{"role": "decision", "t": 2.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_0", "seq": 14, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 31, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 2.8, "node": "gnb_1", "seq": 14, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 9, "prb_util": 1.0, "thp_mbps": 49.3158}
+{"role": "decision", "t": 2.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_0", "seq": 15, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 31, "prb_util": 1.0, "thp_mbps": 119.5622}
+{"role": "kpm_t0", "t": 3.0, "node": "gnb_1", "seq": 15, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 9, "prb_util": 1.0, "thp_mbps": 49.193}
+{"role": "decision", "t": 3.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_0", "seq": 16, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 26, "prb_util": 0.9983, "thp_mbps": 120.6272}
+{"role": "kpm_t0", "t": 3.2, "node": "gnb_1", "seq": 16, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7729, "thp_mbps": 49.6435}
+{"role": "decision", "t": 3.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_0", "seq": 17, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 0.9996, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 3.4, "node": "gnb_1", "seq": 17, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 3.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_0", "seq": 18, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8419}
+{"role": "kpm_t0", "t": 3.6, "node": "gnb_1", "seq": 18, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 3.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_0", "seq": 19, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.4803}
+{"role": "kpm_t0", "t": 3.8, "node": "gnb_1", "seq": 19, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 3.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_0", "seq": 20, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 4.0, "node": "gnb_1", "seq": 20, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 4.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_0", "seq": 21, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 4.2, "node": "gnb_1", "seq": 21, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 4.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_0", "seq": 22, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 4.4, "node": "gnb_1", "seq": 22, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 4.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_0", "seq": 23, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 4.6, "node": "gnb_1", "seq": 23, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 4.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_0", "seq": 24, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 4.8, "node": "gnb_1", "seq": 24, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 4.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_0", "seq": 25, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.4394}
+{"role": "kpm_t0", "t": 5.0, "node": "gnb_1", "seq": 25, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 5.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_0", "seq": 26, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6781}
+{"role": "kpm_t0", "t": 5.2, "node": "gnb_1", "seq": 26, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 5.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_0", "seq": 27, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 5.4, "node": "gnb_1", "seq": 27, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 5.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_0", "seq": 28, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.5043}
+{"role": "kpm_t0", "t": 5.6, "node": "gnb_1", "seq": 28, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 5.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_0", "seq": 29, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 5.8, "node": "gnb_1", "seq": 29, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 5.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_0", "seq": 30, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.9238}
+{"role": "kpm_t0", "t": 6.0, "node": "gnb_1", "seq": 30, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 6.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_0", "seq": 31, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 6.2, "node": "gnb_1", "seq": 31, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 6.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_0", "seq": 32, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.3574}
+{"role": "kpm_t0", "t": 6.4, "node": "gnb_1", "seq": 32, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 6.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_0", "seq": 33, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 6.6, "node": "gnb_1", "seq": 33, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 6.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_0", "seq": 34, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 6.8, "node": "gnb_1", "seq": 34, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 6.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_0", "seq": 35, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1526}
+{"role": "kpm_t0", "t": 7.0, "node": "gnb_1", "seq": 35, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 7.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_0", "seq": 36, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6371}
+{"role": "kpm_t0", "t": 7.2, "node": "gnb_1", "seq": 36, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 7.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_0", "seq": 37, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 7.4, "node": "gnb_1", "seq": 37, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 7.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_0", "seq": 38, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 7.6, "node": "gnb_1", "seq": 38, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 7.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_0", "seq": 39, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 7.8, "node": "gnb_1", "seq": 39, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 7.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_0", "seq": 40, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 120.9958}
+{"role": "kpm_t0", "t": 8.0, "node": "gnb_1", "seq": 40, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 8.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_0", "seq": 41, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 8.2, "node": "gnb_1", "seq": 41, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 8.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_0", "seq": 42, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 8.4, "node": "gnb_1", "seq": 42, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 8.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_0", "seq": 43, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 8.6, "node": "gnb_1", "seq": 43, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 8.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_0", "seq": 44, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 8.8, "node": "gnb_1", "seq": 44, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 8.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_0", "seq": 45, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 9.0, "node": "gnb_1", "seq": 45, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 9.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_0", "seq": 46, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.784}
+{"role": "kpm_t0", "t": 9.2, "node": "gnb_1", "seq": 46, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 9.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_0", "seq": 47, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6781}
+{"role": "kpm_t0", "t": 9.4, "node": "gnb_1", "seq": 47, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 9.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_0", "seq": 48, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.8659}
+{"role": "kpm_t0", "t": 9.6, "node": "gnb_1", "seq": 48, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 9.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_0", "seq": 49, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 9.8, "node": "gnb_1", "seq": 49, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 9.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_0", "seq": 50, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 10.0, "node": "gnb_1", "seq": 50, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 10.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_0", "seq": 51, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1936}
+{"role": "kpm_t0", "t": 10.2, "node": "gnb_1", "seq": 51, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 10.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_0", "seq": 52, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9979, "thp_mbps": 120.3405}
+{"role": "kpm_t0", "t": 10.4, "node": "gnb_1", "seq": 52, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 10.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_0", "seq": 53, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 10.6, "node": "gnb_1", "seq": 53, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 10.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_0", "seq": 54, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0058}
+{"role": "kpm_t0", "t": 10.8, "node": "gnb_1", "seq": 54, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 10.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_0", "seq": 55, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 11.0, "node": "gnb_1", "seq": 55, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 11.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_0", "seq": 56, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 11.2, "node": "gnb_1", "seq": 56, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 11.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_0", "seq": 57, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1117}
+{"role": "kpm_t0", "t": 11.4, "node": "gnb_1", "seq": 57, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 11.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_0", "seq": 58, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.784}
+{"role": "kpm_t0", "t": 11.6, "node": "gnb_1", "seq": 58, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 11.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_0", "seq": 59, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 11.8, "node": "gnb_1", "seq": 59, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 11.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_0", "seq": 60, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 12.0, "node": "gnb_1", "seq": 60, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 12.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_0", "seq": 61, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 12.2, "node": "gnb_1", "seq": 61, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 12.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_0", "seq": 62, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 12.4, "node": "gnb_1", "seq": 62, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 12.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_0", "seq": 63, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.743}
+{"role": "kpm_t0", "t": 12.6, "node": "gnb_1", "seq": 63, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 12.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_0", "seq": 64, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.7501}
+{"role": "kpm_t0", "t": 12.8, "node": "gnb_1", "seq": 64, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 12.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_0", "seq": 65, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 13.0, "node": "gnb_1", "seq": 65, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 13.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_0", "seq": 66, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0877}
+{"role": "kpm_t0", "t": 13.2, "node": "gnb_1", "seq": 66, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 13.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_0", "seq": 67, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1117}
+{"role": "kpm_t0", "t": 13.4, "node": "gnb_1", "seq": 67, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 13.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_0", "seq": 68, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 13.6, "node": "gnb_1", "seq": 68, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 13.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_0", "seq": 69, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 13.8, "node": "gnb_1", "seq": 69, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 13.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_0", "seq": 70, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.8659}
+{"role": "kpm_t0", "t": 14.0, "node": "gnb_1", "seq": 70, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 14.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_0", "seq": 71, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1117}
+{"role": "kpm_t0", "t": 14.2, "node": "gnb_1", "seq": 71, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 14.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_0", "seq": 72, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 14.4, "node": "gnb_1", "seq": 72, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 14.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_0", "seq": 73, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 14.6, "node": "gnb_1", "seq": 73, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 14.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_0", "seq": 74, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 14.8, "node": "gnb_1", "seq": 74, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 14.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_0", "seq": 75, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.2346}
+{"role": "kpm_t0", "t": 15.0, "node": "gnb_1", "seq": 75, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 15.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_0", "seq": 76, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.5453}
+{"role": "kpm_t0", "t": 15.2, "node": "gnb_1", "seq": 76, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 15.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_0", "seq": 77, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.5552}
+{"role": "kpm_t0", "t": 15.4, "node": "gnb_1", "seq": 77, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 15.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_0", "seq": 78, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.8659}
+{"role": "kpm_t0", "t": 15.6, "node": "gnb_1", "seq": 78, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 15.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_0", "seq": 79, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9478}
+{"role": "kpm_t0", "t": 15.8, "node": "gnb_1", "seq": 79, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 15.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_0", "seq": 80, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8419}
+{"role": "kpm_t0", "t": 16.0, "node": "gnb_1", "seq": 80, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 16.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_0", "seq": 81, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 16.2, "node": "gnb_1", "seq": 81, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 16.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_0", "seq": 82, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 16.4, "node": "gnb_1", "seq": 82, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 16.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_0", "seq": 83, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 16.6, "node": "gnb_1", "seq": 83, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 16.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_0", "seq": 84, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.4803}
+{"role": "kpm_t0", "t": 16.8, "node": "gnb_1", "seq": 84, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 16.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_0", "seq": 85, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 17.0, "node": "gnb_1", "seq": 85, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 17.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_0", "seq": 86, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 17.2, "node": "gnb_1", "seq": 86, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 17.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_0", "seq": 87, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 17.4, "node": "gnb_1", "seq": 87, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 17.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_0", "seq": 88, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 121.1597}
+{"role": "kpm_t0", "t": 17.6, "node": "gnb_1", "seq": 88, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 17.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_0", "seq": 89, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 17.8, "node": "gnb_1", "seq": 89, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 17.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_0", "seq": 90, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.9238}
+{"role": "kpm_t0", "t": 18.0, "node": "gnb_1", "seq": 90, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 18.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_0", "seq": 91, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1936}
+{"role": "kpm_t0", "t": 18.2, "node": "gnb_1", "seq": 91, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 18.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_0", "seq": 92, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 18.4, "node": "gnb_1", "seq": 92, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 18.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_0", "seq": 93, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.719}
+{"role": "kpm_t0", "t": 18.6, "node": "gnb_1", "seq": 93, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 18.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_0", "seq": 94, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 18.8, "node": "gnb_1", "seq": 94, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 18.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_0", "seq": 95, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 19.0, "node": "gnb_1", "seq": 95, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 19.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_0", "seq": 96, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.2755}
+{"role": "kpm_t0", "t": 19.2, "node": "gnb_1", "seq": 96, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 19.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_0", "seq": 97, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 19.4, "node": "gnb_1", "seq": 97, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 19.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_0", "seq": 98, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9478}
+{"role": "kpm_t0", "t": 19.6, "node": "gnb_1", "seq": 98, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 19.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_0", "seq": 99, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 19.8, "node": "gnb_1", "seq": 99, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 19.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_0", "seq": 100, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.2586}
+{"role": "kpm_t0", "t": 20.0, "node": "gnb_1", "seq": 100, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 20.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_0", "seq": 101, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 20.2, "node": "gnb_1", "seq": 101, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 20.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_0", "seq": 102, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.2755}
+{"role": "kpm_t0", "t": 20.4, "node": "gnb_1", "seq": 102, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 20.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_0", "seq": 103, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 20.6, "node": "gnb_1", "seq": 103, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 20.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_0", "seq": 104, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0877}
+{"role": "kpm_t0", "t": 20.8, "node": "gnb_1", "seq": 104, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 20.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_0", "seq": 105, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 21.0, "node": "gnb_1", "seq": 105, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 21.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_0", "seq": 106, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 21.2, "node": "gnb_1", "seq": 106, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 21.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_0", "seq": 107, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 21.4, "node": "gnb_1", "seq": 107, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 21.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_0", "seq": 108, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 21.6, "node": "gnb_1", "seq": 108, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 21.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_0", "seq": 109, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 21.8, "node": "gnb_1", "seq": 109, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 21.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_0", "seq": 110, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 22.0, "node": "gnb_1", "seq": 110, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 22.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_0", "seq": 111, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 22.2, "node": "gnb_1", "seq": 111, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 22.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_0", "seq": 112, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9979, "thp_mbps": 120.5453}
+{"role": "kpm_t0", "t": 22.4, "node": "gnb_1", "seq": 112, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 22.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_0", "seq": 113, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6371}
+{"role": "kpm_t0", "t": 22.6, "node": "gnb_1", "seq": 113, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 22.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_0", "seq": 114, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 22.8, "node": "gnb_1", "seq": 114, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 22.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_0", "seq": 115, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 23.0, "node": "gnb_1", "seq": 115, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 23.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_0", "seq": 116, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 23.2, "node": "gnb_1", "seq": 116, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 23.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_0", "seq": 117, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 23.4, "node": "gnb_1", "seq": 117, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 23.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_0", "seq": 118, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 23.6, "node": "gnb_1", "seq": 118, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 23.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_0", "seq": 119, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 23.8, "node": "gnb_1", "seq": 119, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 23.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_0", "seq": 120, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 24.0, "node": "gnb_1", "seq": 120, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 24.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_0", "seq": 121, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 24.2, "node": "gnb_1", "seq": 121, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 24.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_0", "seq": 122, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 24.4, "node": "gnb_1", "seq": 122, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 24.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_0", "seq": 123, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 24.6, "node": "gnb_1", "seq": 123, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 24.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_0", "seq": 124, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 121.1187}
+{"role": "kpm_t0", "t": 24.8, "node": "gnb_1", "seq": 124, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 24.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.0, "node": "gnb_0", "seq": 125, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 25.0, "node": "gnb_1", "seq": 125, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 25.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.2, "node": "gnb_0", "seq": 126, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 25.2, "node": "gnb_1", "seq": 126, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 25.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.4, "node": "gnb_0", "seq": 127, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6781}
+{"role": "kpm_t0", "t": 25.4, "node": "gnb_1", "seq": 127, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 25.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.6, "node": "gnb_0", "seq": 128, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 25.6, "node": "gnb_1", "seq": 128, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 25.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 25.8, "node": "gnb_0", "seq": 129, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0707}
+{"role": "kpm_t0", "t": 25.8, "node": "gnb_1", "seq": 129, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 25.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.0, "node": "gnb_0", "seq": 130, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 26.0, "node": "gnb_1", "seq": 130, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 26.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.2, "node": "gnb_0", "seq": 131, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6781}
+{"role": "kpm_t0", "t": 26.2, "node": "gnb_1", "seq": 131, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 26.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.4, "node": "gnb_0", "seq": 132, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 26.4, "node": "gnb_1", "seq": 132, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 26.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.6, "node": "gnb_0", "seq": 133, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 26.6, "node": "gnb_1", "seq": 133, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 26.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 26.8, "node": "gnb_0", "seq": 134, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 26.8, "node": "gnb_1", "seq": 134, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 26.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.0, "node": "gnb_0", "seq": 135, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1696}
+{"role": "kpm_t0", "t": 27.0, "node": "gnb_1", "seq": 135, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 27.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.2, "node": "gnb_0", "seq": 136, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9979, "thp_mbps": 121.2006}
+{"role": "kpm_t0", "t": 27.2, "node": "gnb_1", "seq": 136, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 27.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.4, "node": "gnb_0", "seq": 137, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8419}
+{"role": "kpm_t0", "t": 27.4, "node": "gnb_1", "seq": 137, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 27.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.6, "node": "gnb_0", "seq": 138, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 27.6, "node": "gnb_1", "seq": 138, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 27.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 27.8, "node": "gnb_0", "seq": 139, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 27.8, "node": "gnb_1", "seq": 139, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 27.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.0, "node": "gnb_0", "seq": 140, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.3574}
+{"role": "kpm_t0", "t": 28.0, "node": "gnb_1", "seq": 140, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 28.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.2, "node": "gnb_0", "seq": 141, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 28.2, "node": "gnb_1", "seq": 141, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 28.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.4, "node": "gnb_0", "seq": 142, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 28.4, "node": "gnb_1", "seq": 142, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 28.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.6, "node": "gnb_0", "seq": 143, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 28.6, "node": "gnb_1", "seq": 143, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 28.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 28.8, "node": "gnb_0", "seq": 144, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 28.8, "node": "gnb_1", "seq": 144, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 28.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.0, "node": "gnb_0", "seq": 145, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 29.0, "node": "gnb_1", "seq": 145, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 29.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.2, "node": "gnb_0", "seq": 146, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 29.2, "node": "gnb_1", "seq": 146, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 29.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.4, "node": "gnb_0", "seq": 147, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 29.4, "node": "gnb_1", "seq": 147, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 29.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.6, "node": "gnb_0", "seq": 148, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9979, "thp_mbps": 121.4054}
+{"role": "kpm_t0", "t": 29.6, "node": "gnb_1", "seq": 148, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 29.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 29.8, "node": "gnb_0", "seq": 149, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 29.8, "node": "gnb_1", "seq": 149, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 29.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 30.0, "node": "gnb_0", "seq": 150, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 30.0, "node": "gnb_1", "seq": 150, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 30.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 30.2, "node": "gnb_0", "seq": 151, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.784}
+{"role": "kpm_t0", "t": 30.2, "node": "gnb_1", "seq": 151, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 30.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 30.4, "node": "gnb_0", "seq": 152, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 30.4, "node": "gnb_1", "seq": 152, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 30.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 30.6, "node": "gnb_0", "seq": 153, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 30.6, "node": "gnb_1", "seq": 153, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 30.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 30.8, "node": "gnb_0", "seq": 154, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 30.8, "node": "gnb_1", "seq": 154, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 30.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 31.0, "node": "gnb_0", "seq": 155, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 31.0, "node": "gnb_1", "seq": 155, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 31.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 31.2, "node": "gnb_0", "seq": 156, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 31.2, "node": "gnb_1", "seq": 156, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 31.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 31.4, "node": "gnb_0", "seq": 157, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 31.4, "node": "gnb_1", "seq": 157, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 31.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 31.6, "node": "gnb_0", "seq": 158, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.8659}
+{"role": "kpm_t0", "t": 31.6, "node": "gnb_1", "seq": 158, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 31.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 31.8, "node": "gnb_0", "seq": 159, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6611}
+{"role": "kpm_t0", "t": 31.8, "node": "gnb_1", "seq": 159, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 31.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 32.0, "node": "gnb_0", "seq": 160, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.3405}
+{"role": "kpm_t0", "t": 32.0, "node": "gnb_1", "seq": 160, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 32.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 32.2, "node": "gnb_0", "seq": 161, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 32.2, "node": "gnb_1", "seq": 161, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 32.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 32.4, "node": "gnb_0", "seq": 162, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.9238}
+{"role": "kpm_t0", "t": 32.4, "node": "gnb_1", "seq": 162, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 32.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 32.6, "node": "gnb_0", "seq": 163, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 32.6, "node": "gnb_1", "seq": 163, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 32.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 32.8, "node": "gnb_0", "seq": 164, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 32.8, "node": "gnb_1", "seq": 164, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 32.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 33.0, "node": "gnb_0", "seq": 165, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 33.0, "node": "gnb_1", "seq": 165, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 33.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 33.2, "node": "gnb_0", "seq": 166, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 33.2, "node": "gnb_1", "seq": 166, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 33.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 33.4, "node": "gnb_0", "seq": 167, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 33.4, "node": "gnb_1", "seq": 167, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 33.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 33.6, "node": "gnb_0", "seq": 168, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 33.6, "node": "gnb_1", "seq": 168, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 33.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 33.8, "node": "gnb_0", "seq": 169, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 33.8, "node": "gnb_1", "seq": 169, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 33.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 34.0, "node": "gnb_0", "seq": 170, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9888}
+{"role": "kpm_t0", "t": 34.0, "node": "gnb_1", "seq": 170, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 34.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 34.2, "node": "gnb_0", "seq": 171, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 34.2, "node": "gnb_1", "seq": 171, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 34.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 34.4, "node": "gnb_0", "seq": 172, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 121.1597}
+{"role": "kpm_t0", "t": 34.4, "node": "gnb_1", "seq": 172, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 34.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 34.6, "node": "gnb_0", "seq": 173, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 34.6, "node": "gnb_1", "seq": 173, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 34.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 34.8, "node": "gnb_0", "seq": 174, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 34.8, "node": "gnb_1", "seq": 174, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 34.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 35.0, "node": "gnb_0", "seq": 175, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 35.0, "node": "gnb_1", "seq": 175, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 35.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 35.2, "node": "gnb_0", "seq": 176, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 35.2, "node": "gnb_1", "seq": 176, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 35.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 35.4, "node": "gnb_0", "seq": 177, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 35.4, "node": "gnb_1", "seq": 177, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 35.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 35.6, "node": "gnb_0", "seq": 178, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 35.6, "node": "gnb_1", "seq": 178, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 35.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 35.8, "node": "gnb_0", "seq": 179, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 35.8, "node": "gnb_1", "seq": 179, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 35.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 36.0, "node": "gnb_0", "seq": 180, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 36.0, "node": "gnb_1", "seq": 180, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 36.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 36.2, "node": "gnb_0", "seq": 181, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 36.2, "node": "gnb_1", "seq": 181, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 36.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 36.4, "node": "gnb_0", "seq": 182, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 36.4, "node": "gnb_1", "seq": 182, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 36.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 36.6, "node": "gnb_0", "seq": 183, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0707}
+{"role": "kpm_t0", "t": 36.6, "node": "gnb_1", "seq": 183, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 36.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 36.8, "node": "gnb_0", "seq": 184, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.7091}
+{"role": "kpm_t0", "t": 36.8, "node": "gnb_1", "seq": 184, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 36.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 37.0, "node": "gnb_0", "seq": 185, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0058}
+{"role": "kpm_t0", "t": 37.0, "node": "gnb_1", "seq": 185, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 37.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 37.2, "node": "gnb_0", "seq": 186, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 37.2, "node": "gnb_1", "seq": 186, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 37.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 37.4, "node": "gnb_0", "seq": 187, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 37.4, "node": "gnb_1", "seq": 187, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 37.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 37.6, "node": "gnb_0", "seq": 188, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 37.6, "node": "gnb_1", "seq": 188, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 37.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 37.8, "node": "gnb_0", "seq": 189, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 37.8, "node": "gnb_1", "seq": 189, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 37.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 38.0, "node": "gnb_0", "seq": 190, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 38.0, "node": "gnb_1", "seq": 190, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 38.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 38.2, "node": "gnb_0", "seq": 191, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 38.2, "node": "gnb_1", "seq": 191, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 38.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 38.4, "node": "gnb_0", "seq": 192, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 38.4, "node": "gnb_1", "seq": 192, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 38.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 38.6, "node": "gnb_0", "seq": 193, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 38.6, "node": "gnb_1", "seq": 193, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 38.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 38.8, "node": "gnb_0", "seq": 194, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 38.8, "node": "gnb_1", "seq": 194, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 38.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 39.0, "node": "gnb_0", "seq": 195, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 39.0, "node": "gnb_1", "seq": 195, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 39.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 39.2, "node": "gnb_0", "seq": 196, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 121.1597}
+{"role": "kpm_t0", "t": 39.2, "node": "gnb_1", "seq": 196, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 39.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 39.4, "node": "gnb_0", "seq": 197, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 39.4, "node": "gnb_1", "seq": 197, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 39.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 39.6, "node": "gnb_0", "seq": 198, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 39.6, "node": "gnb_1", "seq": 198, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 39.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 39.8, "node": "gnb_0", "seq": 199, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.9648}
+{"role": "kpm_t0", "t": 39.8, "node": "gnb_1", "seq": 199, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 39.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 40.0, "node": "gnb_0", "seq": 200, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5792}
+{"role": "kpm_t0", "t": 40.0, "node": "gnb_1", "seq": 200, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 40.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 40.2, "node": "gnb_0", "seq": 201, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 40.2, "node": "gnb_1", "seq": 201, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 40.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 40.4, "node": "gnb_0", "seq": 202, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 40.4, "node": "gnb_1", "seq": 202, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 40.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 40.6, "node": "gnb_0", "seq": 203, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 40.6, "node": "gnb_1", "seq": 203, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 40.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 40.8, "node": "gnb_0", "seq": 204, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.3165}
+{"role": "kpm_t0", "t": 40.8, "node": "gnb_1", "seq": 204, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 40.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 41.0, "node": "gnb_0", "seq": 205, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 41.0, "node": "gnb_1", "seq": 205, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 41.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 41.2, "node": "gnb_0", "seq": 206, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.9238}
+{"role": "kpm_t0", "t": 41.2, "node": "gnb_1", "seq": 206, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 41.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 41.4, "node": "gnb_0", "seq": 207, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 41.4, "node": "gnb_1", "seq": 207, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 41.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 41.6, "node": "gnb_0", "seq": 208, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 121.1187}
+{"role": "kpm_t0", "t": 41.6, "node": "gnb_1", "seq": 208, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 41.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 41.8, "node": "gnb_0", "seq": 209, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 41.8, "node": "gnb_1", "seq": 209, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 41.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 42.0, "node": "gnb_0", "seq": 210, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 42.0, "node": "gnb_1", "seq": 210, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 42.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 42.2, "node": "gnb_0", "seq": 211, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 42.2, "node": "gnb_1", "seq": 211, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 42.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 42.4, "node": "gnb_0", "seq": 212, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 42.4, "node": "gnb_1", "seq": 212, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 42.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 42.6, "node": "gnb_0", "seq": 213, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.743}
+{"role": "kpm_t0", "t": 42.6, "node": "gnb_1", "seq": 213, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 42.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 42.8, "node": "gnb_0", "seq": 214, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 42.8, "node": "gnb_1", "seq": 214, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 42.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 43.0, "node": "gnb_0", "seq": 215, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.6442}
+{"role": "kpm_t0", "t": 43.0, "node": "gnb_1", "seq": 215, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 43.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 43.2, "node": "gnb_0", "seq": 216, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8419}
+{"role": "kpm_t0", "t": 43.2, "node": "gnb_1", "seq": 216, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 43.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 43.4, "node": "gnb_0", "seq": 217, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 43.4, "node": "gnb_1", "seq": 217, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 43.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 43.6, "node": "gnb_0", "seq": 218, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9888}
+{"role": "kpm_t0", "t": 43.6, "node": "gnb_1", "seq": 218, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 43.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 43.8, "node": "gnb_0", "seq": 219, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0058}
+{"role": "kpm_t0", "t": 43.8, "node": "gnb_1", "seq": 219, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 43.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 44.0, "node": "gnb_0", "seq": 220, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 121.2006}
+{"role": "kpm_t0", "t": 44.0, "node": "gnb_1", "seq": 220, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 44.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 44.2, "node": "gnb_0", "seq": 221, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 44.2, "node": "gnb_1", "seq": 221, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 44.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 44.4, "node": "gnb_0", "seq": 222, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 44.4, "node": "gnb_1", "seq": 222, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 44.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 44.6, "node": "gnb_0", "seq": 223, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0707}
+{"role": "kpm_t0", "t": 44.6, "node": "gnb_1", "seq": 223, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 44.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 44.8, "node": "gnb_0", "seq": 224, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.743}
+{"role": "kpm_t0", "t": 44.8, "node": "gnb_1", "seq": 224, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 44.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 45.0, "node": "gnb_0", "seq": 225, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 45.0, "node": "gnb_1", "seq": 225, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 45.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 45.2, "node": "gnb_0", "seq": 226, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1696}
+{"role": "kpm_t0", "t": 45.2, "node": "gnb_1", "seq": 226, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 45.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 45.4, "node": "gnb_0", "seq": 227, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 45.4, "node": "gnb_1", "seq": 227, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 45.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 45.6, "node": "gnb_0", "seq": 228, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 45.6, "node": "gnb_1", "seq": 228, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 45.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 45.8, "node": "gnb_0", "seq": 229, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1696}
+{"role": "kpm_t0", "t": 45.8, "node": "gnb_1", "seq": 229, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 45.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 46.0, "node": "gnb_0", "seq": 230, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.2755}
+{"role": "kpm_t0", "t": 46.0, "node": "gnb_1", "seq": 230, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 46.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 46.2, "node": "gnb_0", "seq": 231, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0058}
+{"role": "kpm_t0", "t": 46.2, "node": "gnb_1", "seq": 231, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 46.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 46.4, "node": "gnb_0", "seq": 232, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9979, "thp_mbps": 121.0368}
+{"role": "kpm_t0", "t": 46.4, "node": "gnb_1", "seq": 232, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 46.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 46.6, "node": "gnb_0", "seq": 233, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 46.6, "node": "gnb_1", "seq": 233, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 46.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 46.8, "node": "gnb_0", "seq": 234, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0467}
+{"role": "kpm_t0", "t": 46.8, "node": "gnb_1", "seq": 234, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 46.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 47.0, "node": "gnb_0", "seq": 235, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 47.0, "node": "gnb_1", "seq": 235, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 47.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 47.2, "node": "gnb_0", "seq": 236, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 47.2, "node": "gnb_1", "seq": 236, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 47.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 47.4, "node": "gnb_0", "seq": 237, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 47.4, "node": "gnb_1", "seq": 237, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 47.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 47.6, "node": "gnb_0", "seq": 238, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 47.6, "node": "gnb_1", "seq": 238, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 47.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 47.8, "node": "gnb_0", "seq": 239, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.784}
+{"role": "kpm_t0", "t": 47.8, "node": "gnb_1", "seq": 239, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 47.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 48.0, "node": "gnb_0", "seq": 240, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.1286}
+{"role": "kpm_t0", "t": 48.0, "node": "gnb_1", "seq": 240, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 48.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 48.2, "node": "gnb_0", "seq": 241, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 48.2, "node": "gnb_1", "seq": 241, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 48.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 48.4, "node": "gnb_0", "seq": 242, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 48.4, "node": "gnb_1", "seq": 242, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 48.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 48.6, "node": "gnb_0", "seq": 243, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9888}
+{"role": "kpm_t0", "t": 48.6, "node": "gnb_1", "seq": 243, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 48.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 48.8, "node": "gnb_0", "seq": 244, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.6682}
+{"role": "kpm_t0", "t": 48.8, "node": "gnb_1", "seq": 244, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 48.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 49.0, "node": "gnb_0", "seq": 245, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 49.0, "node": "gnb_1", "seq": 245, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 49.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 49.2, "node": "gnb_0", "seq": 246, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 49.2, "node": "gnb_1", "seq": 246, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 49.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 49.4, "node": "gnb_0", "seq": 247, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 49.4, "node": "gnb_1", "seq": 247, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 49.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 49.6, "node": "gnb_0", "seq": 248, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 49.6, "node": "gnb_1", "seq": 248, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 49.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 49.8, "node": "gnb_0", "seq": 249, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 49.8, "node": "gnb_1", "seq": 249, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 49.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 50.0, "node": "gnb_0", "seq": 250, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 50.0, "node": "gnb_1", "seq": 250, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 50.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 50.2, "node": "gnb_0", "seq": 251, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0707}
+{"role": "kpm_t0", "t": 50.2, "node": "gnb_1", "seq": 251, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 50.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 50.4, "node": "gnb_0", "seq": 252, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 50.4, "node": "gnb_1", "seq": 252, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 50.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 50.6, "node": "gnb_0", "seq": 253, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.784}
+{"role": "kpm_t0", "t": 50.6, "node": "gnb_1", "seq": 253, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 50.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 50.8, "node": "gnb_0", "seq": 254, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.0298}
+{"role": "kpm_t0", "t": 50.8, "node": "gnb_1", "seq": 254, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 50.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 51.0, "node": "gnb_0", "seq": 255, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8419}
+{"role": "kpm_t0", "t": 51.0, "node": "gnb_1", "seq": 255, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 51.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 51.2, "node": "gnb_0", "seq": 256, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 121.0368}
+{"role": "kpm_t0", "t": 51.2, "node": "gnb_1", "seq": 256, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 51.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 51.4, "node": "gnb_0", "seq": 257, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0058}
+{"role": "kpm_t0", "t": 51.4, "node": "gnb_1", "seq": 257, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 51.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 51.6, "node": "gnb_0", "seq": 258, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.2755}
+{"role": "kpm_t0", "t": 51.6, "node": "gnb_1", "seq": 258, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 51.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 51.8, "node": "gnb_0", "seq": 259, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3744}
+{"role": "kpm_t0", "t": 51.8, "node": "gnb_1", "seq": 259, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 51.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 52.0, "node": "gnb_0", "seq": 260, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.6781}
+{"role": "kpm_t0", "t": 52.0, "node": "gnb_1", "seq": 260, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 52.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 52.2, "node": "gnb_0", "seq": 261, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 52.2, "node": "gnb_1", "seq": 261, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 52.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 52.4, "node": "gnb_0", "seq": 262, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 52.4, "node": "gnb_1", "seq": 262, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 52.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 52.6, "node": "gnb_0", "seq": 263, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.6202}
+{"role": "kpm_t0", "t": 52.6, "node": "gnb_1", "seq": 263, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 52.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 52.8, "node": "gnb_0", "seq": 264, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 52.8, "node": "gnb_1", "seq": 264, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 52.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 53.0, "node": "gnb_0", "seq": 265, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.3574}
+{"role": "kpm_t0", "t": 53.0, "node": "gnb_1", "seq": 265, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 53.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 53.2, "node": "gnb_0", "seq": 266, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 53.2, "node": "gnb_1", "seq": 266, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 53.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 53.4, "node": "gnb_0", "seq": 267, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 53.4, "node": "gnb_1", "seq": 267, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 53.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 53.6, "node": "gnb_0", "seq": 268, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.791}
+{"role": "kpm_t0", "t": 53.6, "node": "gnb_1", "seq": 268, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 53.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 53.8, "node": "gnb_0", "seq": 269, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.8829}
+{"role": "kpm_t0", "t": 53.8, "node": "gnb_1", "seq": 269, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 53.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 54.0, "node": "gnb_0", "seq": 270, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 54.0, "node": "gnb_1", "seq": 270, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 54.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 54.2, "node": "gnb_0", "seq": 271, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 54.2, "node": "gnb_1", "seq": 271, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 54.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 54.4, "node": "gnb_0", "seq": 272, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 54.4, "node": "gnb_1", "seq": 272, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 54.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 54.6, "node": "gnb_0", "seq": 273, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 54.6, "node": "gnb_1", "seq": 273, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 54.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 54.8, "node": "gnb_0", "seq": 274, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.825}
+{"role": "kpm_t0", "t": 54.8, "node": "gnb_1", "seq": 274, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 54.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 55.0, "node": "gnb_0", "seq": 275, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4154}
+{"role": "kpm_t0", "t": 55.0, "node": "gnb_1", "seq": 275, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 55.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 55.2, "node": "gnb_0", "seq": 276, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 55.2, "node": "gnb_1", "seq": 276, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 55.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 55.4, "node": "gnb_0", "seq": 277, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9069}
+{"role": "kpm_t0", "t": 55.4, "node": "gnb_1", "seq": 277, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 55.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 55.6, "node": "gnb_0", "seq": 278, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.7021}
+{"role": "kpm_t0", "t": 55.6, "node": "gnb_1", "seq": 278, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 55.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 55.8, "node": "gnb_0", "seq": 279, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.801}
+{"role": "kpm_t0", "t": 55.8, "node": "gnb_1", "seq": 279, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 55.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 56.0, "node": "gnb_0", "seq": 280, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9988, "thp_mbps": 121.1187}
+{"role": "kpm_t0", "t": 56.0, "node": "gnb_1", "seq": 280, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 56.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 56.2, "node": "gnb_0", "seq": 281, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.5962}
+{"role": "kpm_t0", "t": 56.2, "node": "gnb_1", "seq": 281, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 56.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 56.4, "node": "gnb_0", "seq": 282, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.3574}
+{"role": "kpm_t0", "t": 56.4, "node": "gnb_1", "seq": 282, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 56.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 56.6, "node": "gnb_0", "seq": 283, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 56.6, "node": "gnb_1", "seq": 283, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 56.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 56.8, "node": "gnb_0", "seq": 284, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4563}
+{"role": "kpm_t0", "t": 56.8, "node": "gnb_1", "seq": 284, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 56.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 57.0, "node": "gnb_0", "seq": 285, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 57.0, "node": "gnb_1", "seq": 285, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 57.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 57.2, "node": "gnb_0", "seq": 286, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.4973}
+{"role": "kpm_t0", "t": 57.2, "node": "gnb_1", "seq": 286, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 57.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 57.4, "node": "gnb_0", "seq": 287, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2106}
+{"role": "kpm_t0", "t": 57.4, "node": "gnb_1", "seq": 287, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 57.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 57.6, "node": "gnb_0", "seq": 288, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.9478}
+{"role": "kpm_t0", "t": 57.6, "node": "gnb_1", "seq": 288, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 57.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 57.8, "node": "gnb_0", "seq": 289, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 57.8, "node": "gnb_1", "seq": 289, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 57.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 58.0, "node": "gnb_0", "seq": 290, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2515}
+{"role": "kpm_t0", "t": 58.0, "node": "gnb_1", "seq": 290, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 58.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 58.2, "node": "gnb_0", "seq": 291, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.2925}
+{"role": "kpm_t0", "t": 58.2, "node": "gnb_1", "seq": 291, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 58.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 58.4, "node": "gnb_0", "seq": 292, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 25, "prb_util": 0.9983, "thp_mbps": 120.9139}
+{"role": "kpm_t0", "t": 58.4, "node": "gnb_1", "seq": 292, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7521, "thp_mbps": 49.3158}
+{"role": "decision", "t": 58.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 58.6, "node": "gnb_0", "seq": 293, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.76}
+{"role": "kpm_t0", "t": 58.6, "node": "gnb_1", "seq": 293, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 58.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 58.8, "node": "gnb_0", "seq": 294, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1526}
+{"role": "kpm_t0", "t": 58.8, "node": "gnb_1", "seq": 294, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 58.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 59.0, "node": "gnb_0", "seq": 295, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 117.719}
+{"role": "kpm_t0", "t": 59.0, "node": "gnb_1", "seq": 295, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 59.0, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 59.2, "node": "gnb_0", "seq": 296, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 119.1526}
+{"role": "kpm_t0", "t": 59.2, "node": "gnb_1", "seq": 296, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 59.2, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 59.4, "node": "gnb_0", "seq": 297, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.0877}
+{"role": "kpm_t0", "t": 59.4, "node": "gnb_1", "seq": 297, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 59.4, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 59.6, "node": "gnb_0", "seq": 298, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.5382}
+{"role": "kpm_t0", "t": 59.6, "node": "gnb_1", "seq": 298, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 59.6, "rule": "empty", "selected": [], "correlation": []}
+{"role": "kpm_t0", "t": 59.8, "node": "gnb_0", "seq": 299, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 28, "prb_util": 1.0, "thp_mbps": 118.3334}
+{"role": "kpm_t0", "t": 59.8, "node": "gnb_1", "seq": 299, "subscribers": ["original:traffic_steering", "propria:energysaver_greenran"], "n_ues": 7, "prb_util": 0.7517, "thp_mbps": 49.3158}
+{"role": "decision", "t": 59.8, "rule": "empty", "selected": [], "correlation": []}
+{"role": "chain_summary", "t": 59.8, "counts": {"e2_setup": 2, "subscription": 4, "kpm_t0": 598, "control_request": 7, "control_ack": 7, "kpm_t1": 7, "control_failure": 0, "control_timeout": 0, "decision": 299}}
