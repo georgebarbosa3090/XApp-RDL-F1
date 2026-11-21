@@ -25,6 +25,8 @@ O NORI não compila sobre ns-3.48 / 5G-LENA v5.1, por isso as pilhas são separa
 | S7 | injeção de falhas | [`scenario_rdl_fault_injection.cc`](scenario_rdl_fault_injection.cc) | propostas fora dos limites físicos |
 | S8 | closed loop com NORI | — (só na bancada NORI: variante `nori-rc-slicing-flowmon`, `bash scripts/run_nori_scenario.sh S8 <semente>`) | xslice × embb_throughput disputam a cota de PRB; o RDL-N1 decide sobre o KPM real e o RIC Control E2SM-RC altera a RAN |
 
+O S5 aceita UEs em movimento: `--ueSpeed` (m/s; padrão 0, posição fixa como antes), `--ueMovingFraction` (0,5), `--ueMoveXmin` (10) e `--ueMoveXmax` (140); os UEs que andam vão e voltam em x entre os dois limites ([docs/16 §10.15](../../docs/16_xapps_originais_malha_fechada.md)).
+
 As propostas de cada cenário estão em [`conflicts/catalog.json`](conflicts/catalog.json). Os cenários S0–S8 também rodam na bancada NORI com a cadeia E2 real (só a cota de PRB no gNB 0 é atuável lá); ver [docs/05](../../docs/05_observabilidade_e_campanhas.md).
 
 ## 3. Atuação na RAN

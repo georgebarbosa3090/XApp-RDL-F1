@@ -1,0 +1,74 @@
+[WARN] jwrapper: element [10] is undefined or of unknown type
+[WARN] jwrapper: element [32] is undefined or of unknown type
+[WARN] jwrapper: element [77] is undefined or of unknown type
+[INFO] listening on port 4560
+1795217072190 8894/RMR [INFO] ric message routing library on SI95 p=4560 mv=3 flg=00 id=a (9f31e260 4.9.4 built: Nov 13 2026)
+[INFO] Policy Callback got a message, type=20010, length=112
+[INFO] Payload is {"operation": "CREATE", "policy_type_id": 20008, "policy_instance_id": "ts-limiar", "payload": {"threshold": 5}}
+[INFO] Setting Threshold for A1-P value: 5%
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 4800, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [430, 0], "2": [441, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 5000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 5200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 5400, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [430, 0], "2": [441, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 5600, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=38
+[INFO] Payload is {"14": {"1": [451, 0], "2": [462, 0]}}
+[INFO] The current serving cell "1" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 6000, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"2": [2785, 0], "1": [2717, 0]}}
+[INFO] The current serving cell "2" is the best one
+[INFO] AD Callback got a message, type=30003, length=87
+[INFO] Payload is [{"du-id": 1010, "ue-id": "14", "measTimeStampRf": 6200, "Degradation": "RSRP RSSINR"}]
+[INFO] Prediction Request length=27, payload={"UEPredictionSet": ["14"]}
+[INFO] Prediction Callback got a message, type=30002, length=40
+[INFO] Payload is {"14": {"2": [4096, 0], "1": [4004, 0]}}
+[INFO] The current serving cell "2" is the best one

@@ -12,7 +12,9 @@ subconjuntos fisicamente incompatíveis na arbitragem (EEVS):
   um handover confirmado continua valendo até ser substituído por outro do mesmo nó de
   origem, ou por ``handover_hold_s`` segundos quando configurado.
 - HANDOVER_PING_PONG: handovers em sentidos opostos entre o mesmo par de células,
-  vindos de xApps diferentes, dentro de uma janela de tempo.
+  vindos de xApps diferentes, dentro de uma janela de tempo. Quando os dois handovers
+  identificam o UE (``ue_id`` >= 0), só formam ping-pong se o UE for o mesmo (docs/16
+  §10.14); sem UE em algum dos lados (catálogo), vale o par de células.
 - NEIGHBOR_SLEEP: duas células vizinhas desligadas por xApps diferentes na mesma
   decisão (risco de buraco de cobertura), quando a topologia é conhecida.
 
@@ -34,6 +36,18 @@ HANDOVER_PING_PONG = "HANDOVER_PING_PONG"
 NEIGHBOR_SLEEP = "NEIGHBOR_SLEEP"
 
 _TRAILING_INDEX = re.compile(r"^(.*?)(\d+)$")
+
+
+def _ue_of(action: XAppAction) -> Optional[int]:
+    ue = getattr(action, "ue_id", None)
+    return int(ue) if ue is not None and int(ue) >= 0 else None
+
+
+def _same_ue_or_unknown(a: XAppAction, b: XAppAction) -> bool:
+    """Dois handovers por UE só se desfazem se o UE for o mesmo: no S5 (docs/16 §10.14), o Load Balancer
+    movendo os UEs 2 e 14 para a célula 2 não desfaz o TS ter movido os UEs 4 e 18 para a célula 1."""
+    ua, ub = _ue_of(a), _ue_of(b)
+    return ua is None or ub is None or ua == ub
 
 
 def default_handover_target(action: XAppAction) -> Optional[str]:
@@ -126,7 +140,8 @@ class InterCellRules:
                 if self.handover_target(first) == second.node_id:
                     return HANDOVER_INTO_REDUCED_CELL
         if a.parameter == "HANDOVER" and b.parameter == "HANDOVER":
-            if self.handover_target(a) == b.node_id and self.handover_target(b) == a.node_id:
+            if (self.handover_target(a) == b.node_id and self.handover_target(b) == a.node_id
+                    and _same_ue_or_unknown(a, b)):
                 if not check_time or abs(float(a.timestamp) - float(b.timestamp)) <= self.pingpong_window_s:
                     return HANDOVER_PING_PONG
         if (

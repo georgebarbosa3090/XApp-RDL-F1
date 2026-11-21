@@ -624,3 +624,88 @@ O valor de 3 dB é uma escolha do projeto, na ordem do offset usual do evento A3
 Leitura: o ciclo de transferência ruim, recusa da volta e perda de conexão desapareceu, e a rede ficou melhor nos dois baselines (atraso 28 % menor que o B0 anterior). Mas, com o Load Balancer bem calibrado, o S5 em malha fechada deixou de produzir o conflito de ping-pong que o cenário estuda: não sobra nada para a RDL arbitrar, e B0 e B3 são idênticos. Para que o S5 volte a exercitar a RDL, o conflito precisa vir das xApps lendo uma rede em que transferir e devolver sejam ambos razoáveis (por exemplo, UEs de borda com RSRP próximo nas duas células e carga que oscile), e não de uma xApp mal calibrada. Isso é uma decisão de cenário, ainda não tomada.
 
 **Testes.** `tests/unit/test_xapps_kpm.py`: o teste da §10.11 passa a usar diferenças de −2 a 7 dB; um teste novo reproduz os UEs 2, 14 e 7 do S5 (só o 7 é transferido). Em `tests/unit/test_closed_loop_completo.py`, o KPM sintético passa a ter vizinhas 1 a 3 dB mais fracas (antes, 6 dB ou mais), para que o Load Balancer ainda proponha no S5 e no S11. Suíte de unidade: 499 passaram, 1 ignorado.
+
+### 10.14 S5 com as duas células carregadas: varredura da faixa dos UEs (proposta P1, 2026-11-20)
+
+Decisão do autor depois da §10.13: buscar um S5 em que transferir e devolver sejam ambos justificados pelas regras das próprias xApps, sem mudar código, alargando a faixa em x dos UEs (closed_loop.json usa `--ueBoxXmax=60`) para que a célula 2 receba carga. A faixa é sobreposta pelo `--sim-arg` do orquestrador. Scripts novos: `scripts/closed_loop/varrer_s5_faixa.sh` (uma execução e um painel por limite, prefixo `cl_p1x<limite>`) e `scripts/closed_loop/avaliar_pingpong.py` (critério abaixo).
+
+**Critério de conflito legítimo** (`avaliar_pingpong.py`, sobre `raw/rdl_actuation_log.csv` e o KPM da janela da decisão): handover do Load Balancer justificado se a carga da origem menos a do destino for ≥ 30 pontos; do TS, se o UE estiver mal atendido (vazão média em 1 s abaixo de 50 % da taxa oferecida) e ouvir o destino mais forte. Uma volta é o mesmo UE voltando à célula de origem por handover pedido em até 5 s. A execução cumpre o critério com ao menos uma volta em que as duas ações eram justificadas e nenhuma perda de conexão (`connected: false`) em até 3 s depois de um handover pedido.
+
+**Varredura com B0** (semente 16907, commit `fdfc9e9`, sem mudança de código; cerca de 30 min por execução; painéis `reports/avaliacao/painel_cl_p1x<limite>_16907/`). Todas terminaram com `SUCCESS` e cadeia E2 completa.
+
+| faixa x (m) | handovers aplicados | voltas justificadas | perdas de conexão após handover | uso de PRB célula 1 / 2 (%) | vazão (Mb/s) | atraso (ms) | critério |
+|---|---|---|---|---|---|---|---|
+| 10–70 | 3 | 0 | 1 | 96,6 / 49,5 | 95,472 | 5,741 | não |
+| 10–75 | 13 | 0 | 11 | 96,6 / 45,3 | 94,425 | 5,775 | não |
+| 10–80 | 5 | 0 | 0 | 89,5 / 73,4 | 93,552 | 5,756 | não |
+| 10–85 | 14 | 8 | 0 | 87,1 / 53,3 | 92,057 | 6,643 | sim |
+
+Descrição: cada linha é uma execução do S5 com B0; as colunas de handover e conexão vêm do critério acima, e as de vazão e atraso, do painel. A posição de cada UE é sorteada dentro da faixa, então mudar o limite muda a posição de todos os UEs: as linhas são distribuições diferentes, não uma escala de carga.
+
+- **10–70 e 10–75 m:** o UE 14, transferido pelo Load Balancer, perde a conexão na célula 2 de forma intermitente (12 e 11 janelas) e volta à célula 1 pelo restabelecimento; em 10–75 m o TS e o Load Balancer o reenviam à célula 2 a cada ~2,5 s. É um ciclo por perda de conexão, não um conflito legítimo.
+- **10–80 m:** nenhuma volta; o UE 10 fica sem conexão a execução inteira, sem handover envolvido.
+- **10–85 m:** a cada ~5 s (t = 6,2; 11,4; 16,6; 21,6; 26,6 s) o Load Balancer transfere o UE 14 da célula 1 para a 2, e o TS o devolve 0,2 s depois. O UE ouve a célula 2 2,5 dB mais fraca (−130,3 contra −127,8 dBm), dentro do limite da §10.13; as cargas eram 90 % e 25 %. As duas ações cumprem a regra de quem as pediu.
+
+**O TS devolve um UE que estava melhor.** Em 10–85 m, na célula 1 o UE 14 recebia 1,35 Mb/s dos 4,1 oferecidos, com atraso de ~60 ms; nos 0,2 s na célula 2, 3,93 Mb/s e 4,6 ms (SINR de −5,7 dB). O TS decide pela vazão média do último 1 s, que ainda é quase toda da célula 1, e vê o UE mal atendido e a célula 1 mais forte. O critério usa a mesma média, então conta como justificadas voltas que, medidas depois, pioraram o UE.
+
+**B3 em 10–85 m** (mesma semente e commit, cerca de 30 min). `SUCCESS`, cadeia E2 completa.
+
+| S5, faixa 10–85 m | propostas | ações | vazão (Mb/s) | atraso (ms) | resoluções da RDL | UE 14: vazão (Mb/s) / atraso (ms) | UE 14: janelas sem conexão |
+|---|---|---|---|---|---|---|---|
+| B0 | 15 | 15 | 92,057 | 6,643 | nenhuma | 1,331 / 64,1 | 0 |
+| B3 | 12 | 9 | 93,049 | 6,441 | 1 EEVS, 2 `PINGPONG_GUARD` | 2,758 / 27,7 | 7 |
+
+Descrição: vazão e atraso da rede vêm do painel; as colunas do UE 14 são médias das janelas a partir de t = 1 s em `raw/closed_loop_log.jsonl`.
+
+- **t = 11,6 s, proteção correta:** a RDL recusa a volta do UE 14 pedida pelo TS (handover do Load Balancer confirmado em t = 11,4 s). O UE fica na célula 2 recebendo toda a taxa oferecida (4,1 Mb/s, 4,5 ms), perde a conexão por uma janela em t = 13,8 s (SINR de −5,7 dB, abaixo do limiar de −5 dB do 5G-LENA) e se restabelece na própria célula 2. Nos ciclos seguintes o TS não pede mais a volta. Os outros UEs da célula 2 quase não mudam (vazão média de 4,017 para 4,013 Mb/s, atraso de 6,0 para 6,3 ms).
+- **t = 6,2 s, falso positivo:** a RDL recusa as transferências dos UEs 2 e 14 pelo Load Balancer porque em t = 1,8 s o TS tinha movido os UEs 4 e 18 no sentido oposto. A regra `HANDOVER_PING_PONG` (`src/core/inter_cell.py`, `pair_conflict`) compara só o par de células e o sentido, não o UE, embora as ações tragam o UE desde a §10.9 (`XAppAction.ue_id`). Por isso o B3 começa o ciclo em t = 11,4 s, e não em 6,2 s.
+
+**Leitura.** A faixa 10–85 m dá ao S5 o conflito que ele estuda: duas xApps, cada uma pela sua regra, empurrando o mesmo UE de borda em sentidos opostos. Nesse caso a proteção da RDL favoreceu a ação certa (a vazão do UE 14 dobrou e o atraso caiu 57 %, com a rede igual ou melhor), ao custo de perdas de conexão curtas que o UE recupera na mesma célula. Pelo critério, o B3 não cumpre (4 perdas de conexão após handover), mas o critério foi feito para escolher a faixa, não para julgar o baseline. A volta do TS era errada porque ele mede pelo passado, e não porque a RDL errou. Com uma semente, é um caso. O falso positivo de t = 6,2 s é um defeito da regra entre células, corrigido logo abaixo.
+
+**Correção: o ping-pong exige o mesmo UE quando os dois handovers trazem o UE** (decisão do autor depois da rodada acima). A §10.9 manteve as regras entre células olhando só células, porque o Load Balancer pedia o handover da célula inteira, sem UE; desde a §10.11 o Load Balancer e o TS pedem um handover por UE. Em `src/core/inter_cell.py` (`pair_conflict`), dois handovers em sentidos opostos entre o mesmo par de células só formam `HANDOVER_PING_PONG` se o UE for o mesmo; se algum dos dois não tiver UE (`ue_id` ausente ou negativo, como os handovers do catálogo), vale o par de células, como antes. A proteção da §10.10 não muda: a volta do mesmo UE dentro de 5 s continua recusada. As campanhas em malha aberta não mudam, porque os handovers do catálogo não têm UE.
+
+Testes em `tests/unit/test_closed_loop_orchestrator.py`: o teste da §10.9 que esperava ping-pong entre UEs diferentes passa a esperar o contrário, e mantém a detecção para o mesmo UE e para um lado sem UE. Um teste novo reproduz t = 1,8 e 6,2 s do B3 em 10–85 m: as transferências dos UEs 2 e 14 passam, e a volta do UE 14 pelo TS em t = 6,4 s é recusada. Os dois testes falham com a regra antiga. Suíte de unidade: 500 passaram, 1 ignorado.
+
+**Validação da correção (S5, B3, faixa 10–85 m, semente 16907, prefixo `cl_p1uex85`, sobre o commit `fdfc9e9` com a correção ainda não commitada, 33 min; painel `reports/avaliacao/painel_cl_p1uex85_16907/`).** `SUCCESS`, cadeia E2 completa. O binário do S5 já trazia a opção de UEs em movimento da §10.15 com velocidade 0, que não muda a saída. O rApp de governança estava ligado (padrão do B3 desde a §10.15), mas não publicou nenhuma A1 20000; só a 20001, como antes. Em t = 6,2 s, as transferências dos UEs 2 e 14 pelo Load Balancer passaram; em t = 6,4 s, a volta do UE 14 pelo TS foi recusada (`PINGPONG_GUARD`, o único da execução). Nos ciclos seguintes (t = 11,4 a 26,6 s), o Load Balancer volta a transferir o UE 14 e o TS não pede mais a volta.
+
+| S5, faixa 10–85 m | propostas | ações | vazão (Mb/s) | atraso (ms) | `PINGPONG_GUARD` | UE 14: vazão (Mb/s) / atraso (ms) | UE 14: janelas sem conexão | UE 2 a partir de 6,4 s: vazão (Mb/s) / atraso (ms) |
+|---|---|---|---|---|---|---|---|---|
+| B0 | 15 | 15 | 92,057 | 6,643 | 0 | 1,331 / 64,1 | 0 | 4,095 / 4,5 |
+| B3, regra por célula | 12 | 9 | 93,049 | 6,441 | 2 | 2,758 / 27,7 | 7 | 3,723 / 11,6 |
+| B3, regra por UE | 11 | 10 | 93,517 | 6,318 | 1 | 3,159 / 17,7 | 9 | 4,095 / 4,7 |
+
+Descrição: vazão e atraso da rede vêm dos painéis; as colunas dos UEs são médias das janelas em `raw/closed_loop_log.jsonl` (UE 14 a partir de t = 1 s, UE 2 a partir de t = 6,4 s, depois da primeira transferência). Uma execução por linha, mesma semente.
+
+Leitura: sem o falso positivo, o UE 2 vai para a célula 2 em t = 6,2 s, como no B0, e fica lá bem atendido (antes, só em 11,4 s, e o atraso médio dele triplicava). O UE 14 passa mais tempo na célula 2: vazão maior e atraso menor que nos outros dois, ao custo de mais janelas sem conexão (9 contra 7; o SINR dele na célula 2 continua −5,7 dB). A rede teve a maior vazão e o menor atraso dos três. Pelo critério de `avaliar_pingpong.py`, o B3 não cumpre (5 perdas de conexão após handover), pelo mesmo motivo do B3 anterior. Com uma semente, é um caso.
+
+### 10.15 S5 com UEs em movimento (proposta P3) e primeira rodada com RDL-N1 e RDL-N2 juntas (2026-11-21)
+
+Proposta P3: em vez de alargar a faixa (§10.14), fazer parte dos UEs andar entre as duas células, para que a borda mude com o tempo e transferir e devolver sejam ambos justificados em momentos diferentes. A mesma rodada estreia o baseline `N12` (RDL-N1 e RDL-N2 juntas, decisão do autor de 2026-11-20; docs/16 da Fase 2).
+
+**Mobilidade no cenário** (`simulations/ns3/scenario_rdl_temporal_pingpong.cc`). Opções novas: `--ueSpeed` (m/s; padrão 0), `--ueMovingFraction` (0,5), `--ueMoveXmin` (10) e `--ueMoveXmax` (140). Com `ueSpeed` ≤ 0 o cenário é o de antes (posição fixa). Com `ueSpeed` > 0, os primeiros `round(fração × N)` UEs recebem um `WaypointMobilityModel` e vão e voltam em x entre os dois limites até o fim da simulação, com y fixo; os de índice par começam indo para o gNB 2, os de índice ímpar para o gNB 1. O cenário imprime a trajetória de cada UE e a posição final (`[RDL-MOB]`).
+
+- **Defeito contornado no ns-3.48.** Chamar `GetPosition` antes de inserir os pontos faz `WaypointMobilityModel::Update` marcar o ponto inicial com t = −1 s. O primeiro trecho então começa em −1 s: o UE salta para a frente no início e anda mais devagar que o pedido até o primeiro ponto. O cenário insere o ponto inicial em t = 0 antes dos demais.
+- **Regressão.** Com `ueSpeed` = 0, o `flowmonitor` e o `rdl_kpi_timeseries.csv` saíram idênticos byte a byte aos do binário anterior. Com `ueSpeed` = 5, as posições finais impressas coincidiram com a trajetória declarada, com diferença de até 0,009 m (12 de 24 UEs em movimento).
+
+**Rodada** (S5, faixa 10–60 m do `closed_loop.json`, 5 m/s, metade dos UEs andando, semente 16907, prefixo `cl_p3v5`; commit `fdfc9e9` com árvore suja, incluindo a mobilidade, a correção do ping-pong por UE da §10.14 e o N12; cerca de 31 min por execução; script `scripts/closed_loop/rodar_s5_p3.sh`; painel `reports/avaliacao/painel_cl_p3v5_16907/`). As três terminaram com `SUCCESS` e cadeia E2 completa. Governança do Non-RT RIC ligada no B3 e no N12.
+
+| S5, P3 | propostas | ações | handovers pedidos | voltas em 5 s (justificadas) | perdas de conexão após handover | vazão (Mb/s) | atraso (ms) | resoluções da RDL |
+|---|---|---|---|---|---|---|---|---|
+| B0 | 32 | 32 | 28 | 12 (12) | 0 | 90,039 | 10,317 | nenhuma |
+| B3 | 26 | 25 | 22 | 8 (8) | 0 | 90,320 | 9,227 | 13 EEVS (indiretos) |
+| N12 | 26 | 25 | 22 | 8 (8) | 0 | 90,320 | 9,227 | 13 EEVS (indiretos), todos pela RDL-N2 |
+
+Descrição: handovers, voltas e perdas vêm de `avaliar_pingpong.py` (critério da §10.14); vazão e atraso, do painel. Nos três, o critério da §10.14 é cumprido. Por grupo (`avaliar_mobilidade.py`), os UEs que andam tiveram 1 perda de conexão com reconexão na outra célula nos três baselines; a parcela de janelas (UE × janela) mal atendidas desses UEs foi 12,4 % no B0 e 11,6 % no B3 e no N12, e a dos UEs fixos, 11,4 % nos três.
+
+**De onde vem a diferença.** Até t = 26,4 s, os três baselines receberam as mesmas propostas e aplicaram as mesmas ações, inclusive um vaivém do UE 6 pelo próprio TS (célula 2 para 1 em t = 26,0 s, 1 para 2 em t = 26,4 s). Em t = 26,6 s o TS pede de novo a volta do UE 6 à célula 1. No B0 ela é aplicada, e o TS segue alternando o UE até o fim: 5 handovers do UE 6 de t = 26,6 a 29,6 s. No B3 e no N12, a volta é recusada pelo limite de frequência do Safety Guard (1 s entre controles no mesmo alvo; o mesmo controle, handover do UE 6 a partir do gNB 2, tinha sido aplicado em t = 26,0 s). Não foi a proteção do ping-pong, que só vale entre xApps diferentes. O TS repete o pedido em t = 27,0 s, exatamente 1 s depois, ele passa, e o UE fica na célula 1 até o fim. O motivo foi obtido reproduzindo as decisões do B3 fora do ns-3 com as propostas registradas: as decisões coincidiram em todas as janelas, e a única recusa foi `Control frequency exceeded` para esse alvo. O registro da execução não guarda o motivo de uma recusa sem conflito; isso fica como melhoria do log.
+
+| S5, P3, a partir de t = 26,6 s | UE 6: vazão (Mb/s) | UE 6: atraso (ms) | vazão da rede (Mb/s) |
+|---|---|---|---|
+| B0 | 0,434 | 221,5 | 88,06 |
+| B3 e N12 | 1,216 | 86,9 | 90,29 |
+
+Descrição: médias das 17 janelas de 0,2 s a partir de t = 26,6 s em `raw/closed_loop_log.jsonl`; nenhum dos dois ficou sem conexão nesse trecho.
+
+**RDL-N1 e RDL-N2 juntas.** Os 13 conflitos da execução N12 foram indiretos (handover do TS contra o teto de PRB do Load Balancer na mesma célula), com C(c, s) = 2,2, e todos subiram à RDL-N2 (1 pela complexidade, 12 pela complexidade e pela recorrência no grafo, com 1 a 5 conflitos no mesmo alvo em 5 s). A RDL-N2 devolveu os 13 à RDL-N1 com o motivo `conflito INDIRECT fora do escopo do MAPPO`, e a decisão final foi a do B3. O Non-RT RIC entregou a A1 20002 uma vez e a 20001 três vezes; a governança não publicou A1 20000, porque não houve rejeição que mudasse o relatório.
+
+**Leitura.** Com UEs em movimento, o S5 volta a ter decisões de handover em sequência, todas justificadas pelas regras das xApps, mas o conflito entre xApps diferentes no mesmo UE (o da §10.14) não apareceu: as voltas foram do próprio TS, e o que as separou foi o limite de frequência do Safety Guard, que vale igual no B3 e no N12. Nesse único episódio, segurar a volta por 0,4 s e encerrar o vaivém deixou o UE 6 melhor e a rede igual ou melhor. Com uma semente e um episódio, é um caso. O N12 ficou idêntico ao B3, como esperado: o MAPPO só conhece disputas diretas de teto de PRB, e no S5 não houve nenhuma (docs/16 da Fase 2, §3). As rodadas não são evidência de publicação.

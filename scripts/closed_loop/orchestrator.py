@@ -46,7 +46,44 @@ from src.core import baselines as bl  # noqa: E402
 from scripts.closed_loop.drivers import ReplayDriver, XAppDriver  # noqa: E402
 
 RUNS = ROOT / "experiments" / "runs"
-EEVS = {"B3": "additive", "B3A": "additive", "B3M": "mean", "B3S": "additive"}
+EEVS = {"B3": "additive", "B3A": "additive", "B3M": "mean", "B3S": "additive", "N12": "additive"}
+# N12: RDL hierárquica, RDL-N1 e RDL-N2 juntas (decisão do autor de 2026-11-20): o pipeline do B3 com o raciocínio
+# trocado pelo roteador da Fase 2 (XApp-RDL-F2, cardl/hierarchy.py): baixa complexidade na RDL-N1 (TVS/EEVS), alta
+# na RDL-N2 (MAPPO com restrições; fora do escopo do modelo, reserva na RDL-N1). A Fase 1 não importa a Fase 2:
+# o caminho vem de RDL_F2_ROOT (padrão: repositório irmão XApp-RDL-F2).
+HIERARCHICAL = {"N12"}
+F2_ROOT = Path(os.environ.get("RDL_F2_ROOT", str(ROOT.parent / "XApp-RDL-F2")))
+
+
+def _git(repo: Path, *args: str) -> str | None:
+    try:
+        return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, timeout=20,
+                              check=True).stdout.strip()
+    except Exception:
+        return None
+
+
+def hierarchical_factory():
+    """Fábrica do raciocínio N1 + N2 da Fase 2 e a proveniência dela (commit, checkpoint, limiares)."""
+    if str(F2_ROOT) not in sys.path:
+        sys.path.insert(0, str(F2_ROOT))
+    os.environ.setdefault("CARDL_SELECTION", str(F2_ROOT / "experiments" / "training" / "selection.json"))
+    from cardl.hierarchy import attach_hierarchical
+    from cardl.engine import selected_checkpoint
+
+    checkpoint, sha256 = selected_checkpoint()
+    status = _git(F2_ROOT, "status", "--porcelain")
+    info = {"f2_root_name": F2_ROOT.name, "f2_git_sha": _git(F2_ROOT, "rev-parse", "HEAD"),
+            "f2_git_dirty": None if status is None else bool(status),
+            "f2_dirty_paths": None if status is None else status.splitlines()[:50],
+            "checkpoint": Path(checkpoint).relative_to(F2_ROOT).as_posix() if checkpoint else None,
+            "checkpoint_sha256": sha256,
+            "complexity_threshold": float(os.getenv("RDL_COMPLEXITY_THRESHOLD", "1.8")),
+            "kg_recent_threshold": int(os.getenv("RDL_KG_RECENT_THRESHOLD", "1")),
+            "kg_lookback_s": float(os.getenv("RDL_KG_LOOKBACK_S", "5")),
+            "min_confidence": float(os.getenv("CARDL_MIN_CONFIDENCE", "0.5")),
+            "time_budget_ms": float(os.getenv("CARDL_TIME_BUDGET_MS", "20"))}
+    return attach_hierarchical, info
 # B3S: ablação do slew-rate (docs/16, item 6a): o B3 com o Refinement limitando o passo em relação ao último
 # valor aplicado (3 dB de potência, 30 pontos de PRB). Desligado no B3 porque muda a semântica pré-registrada.
 SLEW_RATE = {"B3S"}
@@ -59,10 +96,17 @@ class WindowBaseline:
     def __init__(self, baseline: str):
         self.baseline = baseline
         self.stream = None
+        self.n2_info = None
         self._previous_eevs = os.environ.get("RDL_EEVS_AGGREGATION")
         if baseline in EEVS:
             os.environ["RDL_EEVS_AGGREGATION"] = EEVS[baseline]
-            self.stream = rce.HrdlStream()
+            factory = None
+            if baseline in HIERARCHICAL:
+                factory, self.n2_info = hierarchical_factory()
+            self.stream = rce.HrdlStream(reasoning_factory=factory)
+            if self.n2_info is not None:
+                reasoning = self.stream.app.reasoning
+                self.n2_info["policy_loaded_sha256"] = getattr(reasoning, "policy_sha256", None)
             if baseline in SLEW_RATE:
                 self.stream.app.refinement.config["enforce_slew_rate"] = True
 
@@ -140,13 +184,28 @@ class RAppStep:
 
     INSTANCES = {"20001": "greenran-rdl", "21000": "greenran-ranslicer", "21001": "greenran-energysaver"}
 
+    GOVERNANCE_INSTANCE = "rdl-governance"
+    MODEL_INSTANCE = "rdl-n2-model"
+
     def __init__(self, drivers: List[XAppDriver], baseline: "WindowBaseline", intent: Dict[str, Any], hour: int,
-                 ue_sst: Dict[int, int], period_s: float = 10.0):
+                 ue_sst: Dict[int, int], period_s: float = 10.0, governance: bool = True):
         import importlib.util
         spec = importlib.util.spec_from_file_location("greenran_resource_optimizer",
                                                       ROOT / "rapps" / "greenran_resource_optimizer.py")
         self.rapp = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.rapp)
+        # Governança no Non-RT RIC (desde 2026-11-20, pedido do autor): o rApp de governança da Fase 1
+        # (rapps/governance_rapp.py, nível 4) lê o relatório da RDL a cada período e publica a A1 20000
+        # (quarentena e teto de prioridade por xApp); com a RDL-N2, a A1 20002 liga o MARL. Só com RDL no laço.
+        self.governance_enabled = bool(governance) and getattr(baseline, "stream", None) is not None
+        self.gov = None
+        self._gov_prev: Dict[str, Any] | None = None
+        self._gov_published: Dict[str, Any] | None = None
+        self._model_policy_sent = False
+        if self.governance_enabled:
+            gspec = importlib.util.spec_from_file_location("governance_rapp", ROOT / "rapps" / "governance_rapp.py")
+            self.gov = importlib.util.module_from_spec(gspec)
+            gspec.loader.exec_module(self.gov)
         self.apps = {getattr(d, "app", None).XAPP_ID: d.app for d in drivers if getattr(d, "app", None) is not None}
         self.baseline, self.intent, self.hour, self.ue_sst, self.period_s = baseline, intent, hour, ue_sst, period_s
         self.next_t = 0.0
@@ -182,7 +241,37 @@ class RAppStep:
                 app.handle_a1(json.dumps({"operation": "CREATE", "policy_type_id": int(type_id),
                                           "policy_instance_id": self.INSTANCES[type_id], "payload": body}).encode())
                 delivered.append(f"{type_id}->{target}")
-        return {"t": t, "kpi": kpi, "policies": out["policies"], "reasons": out["reasons"], "delivered": delivered}
+        event = {"t": t, "kpi": kpi, "policies": out["policies"], "reasons": out["reasons"], "delivered": delivered}
+        if self.governance_enabled and stream is not None:
+            event["governanca"] = self._governance(stream.app, delivered)
+        return event
+
+    def _governance(self, app: Any, delivered: List[str]) -> Dict[str, Any]:
+        """rApp de governança (A1 20000) e, com a RDL-N2, a política do modelo (A1 20002)."""
+        out: Dict[str, Any] = {}
+        reasoning = getattr(app, "reasoning", None)
+        if not self._model_policy_sent and hasattr(reasoning, "apply_model_policy"):
+            body = {"marl_enabled": True,
+                    "min_confidence": float(os.getenv("CARDL_MIN_CONFIDENCE", "0.5"))}
+            ok = app.a1_policies.put_policy("20002", self.MODEL_INSTANCE, body)[0]
+            self._model_policy_sent = True
+            out["20002"] = {"body": body, "accepted": bool(ok)}
+            if ok:
+                delivered.append("20002->RDL")
+        decision = self.gov.decide(app._governance_view(), previous=self._gov_prev)
+        self._gov_prev = decision
+        data = decision["policy_data"]
+        empty = not data["xapp_modes"] and not data["xapp_priority_caps"]
+        # Publica só quando há o que aplicar (ou para desfazer o que já foi publicado)
+        if data != self._gov_published and not (empty and self._gov_published is None):
+            ok = app.a1_policies.put_policy("20000", self.GOVERNANCE_INSTANCE, data)[0]
+            if ok:
+                self._gov_published = data
+                delivered.append("20000->RDL")
+            out["20000"] = {"body": data, "accepted": bool(ok)}
+        out["reasons"] = decision["reasons"]
+        out["recommendations"] = decision["recommendations"]
+        return out
 
 
 def ue_sst_map(spec: Dict[str, Any], sc_cfg: Dict[str, Any], max_ues: int = 1024) -> Dict[int, int]:
@@ -334,7 +423,7 @@ def run(args) -> int:
         cfg = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))
         sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(args.scenario, {})}
         rapp = RAppStep(drivers, baseline, sc_cfg.get("intent", {}), int(sc_cfg.get("hour", 2)),
-                        ue_sst_map(spec, sc_cfg))
+                        ue_sst_map(spec, sc_cfg), governance=not args.sem_governanca)
     log_fh = chain_fh = chain = None
     use_chain = args.cadeia_e2 == "on" or (args.cadeia_e2 == "auto" and args.xapps == "completo")
     n_windows = n_props = n_actions = 0
@@ -358,7 +447,9 @@ def run(args) -> int:
         log_fh = open(run_dir / "raw" / "closed_loop_log.jsonl", "w", encoding="utf-8")
         log_fh.write(json.dumps({"type": "header", "scenario": args.scenario, "baseline": args.baseline,
                                  "xapps": args.xapps, "drivers": [d.name for d in drivers], "seed": args.seed,
-                                 "window_s": window, "hello": hello}, ensure_ascii=False) + "\n")
+                                 "window_s": window, "hello": hello, "rdl_n2": baseline.n2_info,
+                                 "governanca": rapp.governance_enabled if rapp is not None else None},
+                                ensure_ascii=False) + "\n")
         if use_chain:                             # ciclo NORI S8 (docs/16 §10.1): setup e subscrições
             from scripts.closed_loop.e2_chain import E2Chain
             chain_fh = open(run_dir / "raw" / "e2_chain.jsonl", "w", encoding="utf-8")
@@ -431,7 +522,11 @@ def run(args) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--scenario", required=True)
-    ap.add_argument("--baseline", required=True, choices=["B0", "B1", "B2", "B3", "B3A", "B3M", "B3S"])
+    ap.add_argument("--baseline", required=True, choices=["B0", "B1", "B2", "B3", "B3A", "B3M", "B3S", "N12"],
+                    help="N12: RDL hierárquica (RDL-N1 + RDL-N2 da Fase 2; ver HIERARCHICAL)")
+    ap.add_argument("--sem-governanca", action="store_true",
+                    help="desliga o rApp de governança (A1 20000) e a A1 20002 no Non-RT RIC simulado "
+                         "(reproduz as rodadas anteriores a 2026-11-20)")
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--xapps", default="replay", help="replay (gate E1) | originais (docs/16, E2–E4)")
     ap.add_argument("--run-id", default=None)

@@ -127,14 +127,35 @@ def test_b3_handover_without_ue_keeps_the_cell_target():
     assert got == ["h1"]
 
 
-def test_b3_ping_pong_between_ues_of_two_xapps_is_still_detected():
-    """O ping-pong é uma regra entre células: o UE no alvo não a desliga (TS 0→1 e Load Balancer 1→0)."""
+def test_b3_ping_pong_needs_the_same_ue_when_both_handovers_name_one():
+    """docs/16 §10.14: TS 0→1 do UE 5 e Load Balancer 1→0 do UE 9 não se desfazem; do mesmo UE, sim. Com um lado
+    sem UE (catálogo, ue = -1), a regra continua pelo par de células."""
+    def inter_cell(props):
+        d = WindowBaseline("B3")
+        try:
+            _, entry = d.decide(props, 0.2)
+        finally:
+            d.close()
+        return any(r["conflict_type"] == "INTER_CELL" for r in entry["resolutions"])
+
+    lb = dict(gnb=1, value=0, xapp="load_balancer", prio=70)
+    assert not inter_cell([_ho(1, 5, gnb=0, value=1), _ho(2, 9, **lb)])
+    assert inter_cell([_ho(1, 5, gnb=0, value=1), _ho(2, 5, **lb)])
+    assert inter_cell([_ho(1, 5, gnb=0, value=1), _ho(2, -1, **lb)])
+
+
+def test_b3_confirmed_handover_of_other_ues_does_not_block_reverse_transfer():
+    """S5, semente 16907, faixa 10–85 m (docs/16 §10.14): em t = 1,8 s o TS moveu os UEs 4 e 18 da gNB1 para a
+    gNB0; em t = 6,2 s a proteção do ping-pong recusava o Load Balancer movendo os UEs 2 e 14 no sentido oposto.
+    Outros UEs não são volta: as duas transferências passam. A volta do mesmo UE continua recusada."""
     d = WindowBaseline("B3")
     try:
-        _, entry = d.decide([_ho(1, 5, gnb=0, value=1), _ho(2, 9, gnb=1, value=0, xapp="load_balancer", prio=70)], 0.2)
+        assert _ids(d, [_ho(1, 4, gnb=1, value=0), _ho(2, 18, gnb=1, value=0)], 1.8) == ["h1", "h2"]
+        lb = dict(gnb=0, value=1, xapp="load_balancer", prio=70)
+        assert _ids(d, [_ho(3, 2, **lb), _ho(4, 14, **lb)], 6.2) == ["h3", "h4"]
+        assert _ids(d, [_ho(5, 14, gnb=1, value=0)], 6.4) == []                 # volta do UE 14 pelo TS
     finally:
         d.close()
-    assert any(r["conflict_type"] == "INTER_CELL" for r in entry["resolutions"])
 
 
 def _ids(d, props, t):

@@ -1,0 +1,92 @@
+[
+  {
+    "execucao": "cl_p1uex85_S5_B3_completo_seed16907",
+    "cenario": "S5",
+    "baseline": "B3",
+    "semente": 16907,
+    "status": "SUCCESS",
+    "commit": "fdfc9e9",
+    "drivers": [
+      "propria:load_balancer",
+      "original:traffic_steering"
+    ],
+    "gnbs": 2,
+    "ues": 24,
+    "janelas": 149,
+    "duracao_s": 1998,
+    "ues_registrados": 24,
+    "handovers_observados": 13,
+    "ping_pong": 3,
+    "janelas_celula_dormindo": 0,
+    "mudancas_potencia": 0,
+    "indicacoes_kpm": 298,
+    "propostas_rmr_30000": 11,
+    "propostas_por_xapp": {
+      "load_balancer/HANDOVER": 6,
+      "load_balancer/PRB_QUOTA": 1,
+      "traffic_steering/HANDOVER": 4
+    },
+    "recusas_devolvidas": 1,
+    "politicas_a1": {
+      "20001": 3,
+      "21000": 3,
+      "21001": 3
+    },
+    "conflitos_mesma_janela": 0,
+    "conflitos_em_sequencia": 1,
+    "pares_em_conflito": {
+      "load_balancer × traffic_steering [associação de UE]": 1
+    },
+    "regras_de_decisao": {
+      "hrdl-pipeline": 8
+    },
+    "resolucoes_por_estrategia": {
+      "EEVS": 1,
+      "PINGPONG_GUARD": 1
+    },
+    "tipos_de_conflito": {
+      "INDIRECT": 1,
+      "INTER_CELL": 1
+    },
+    "consultas_grafo": 0,
+    "escritas_grafo": 10,
+    "acoes_ran_por_status": {
+      "APPLIED": 10
+    },
+    "acoes_ran_por_parametro": {
+      "HANDOVER:APPLIED": 9,
+      "PRB_QUOTA:APPLIED": 1
+    },
+    "ajustes_por_gnb": {
+      "gnb_0": {
+        "PRB_QUOTA": 1,
+        "HANDOVER": 7
+      },
+      "gnb_1": {
+        "HANDOVER": 2
+      }
+    },
+    "oscilacoes": 0,
+    "cadeia_e2": {
+      "e2_setup": 2,
+      "subscription": 4,
+      "kpm_t0": 298,
+      "decision": 149,
+      "control_request": 10,
+      "control_ack": 10,
+      "control_failure": 0,
+      "control_timeout": 0,
+      "kpm_t1": 10
+    },
+    "cadeia_veredito": "CADEIA_COMPLETA",
+    "ts_original": {
+      "anomalias_AD_30003": 110,
+      "predicoes_QP_30002": 123,
+      "handoff_REST": 4,
+      "mantidos_na_servidora": 119,
+      "a1_20008": 1
+    },
+    "vazao_media_mbps": 93.517,
+    "atraso_medio_ms": 6.318
+  }
+]

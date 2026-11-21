@@ -1,0 +1,87 @@
+[RDL-MOB] UE 0 anda a 5 m/s, y=20.3846: x=30.645 -> x=140 (t=21.871 s) -> x=10 (t=47.871 s)
+[RDL-MOB] UE 1 anda a 5 m/s, y=-3.90195: x=37.3575 -> x=10 (t=5.47149 s) -> x=140 (t=31.4715 s)
+[RDL-MOB] UE 2 anda a 5 m/s, y=-23.8013: x=43.0228 -> x=140 (t=19.3954 s) -> x=10 (t=45.3954 s)
+[RDL-MOB] UE 3 anda a 5 m/s, y=-29.7619: x=18.8994 -> x=10 (t=1.77988 s) -> x=140 (t=27.7799 s) -> x=10 (t=53.7799 s)
+[RDL-MOB] UE 4 anda a 5 m/s, y=-20.0138: x=57.5401 -> x=140 (t=16.492 s) -> x=10 (t=42.492 s)
+[RDL-MOB] UE 5 anda a 5 m/s, y=-16.0736: x=27.5064 -> x=10 (t=3.50129 s) -> x=140 (t=29.5013 s) -> x=10 (t=55.5013 s)
+[RDL-MOB] UE 6 anda a 5 m/s, y=13.2184: x=39.1833 -> x=140 (t=20.1633 s) -> x=10 (t=46.1633 s)
+[RDL-MOB] UE 7 anda a 5 m/s, y=-8.33926: x=54.3915 -> x=10 (t=8.87829 s) -> x=140 (t=34.8783 s)
+[RDL-MOB] UE 8 anda a 5 m/s, y=22.736: x=16.3212 -> x=140 (t=24.7358 s) -> x=10 (t=50.7358 s)
+[RDL-MOB] UE 9 anda a 5 m/s, y=-3.3701: x=25.2176 -> x=10 (t=3.04352 s) -> x=140 (t=29.0435 s) -> x=10 (t=55.0435 s)
+[RDL-MOB] UE 10 anda a 5 m/s, y=16.7284: x=37.8602 -> x=140 (t=20.428 s) -> x=10 (t=46.428 s)
+[RDL-MOB] UE 11 anda a 5 m/s, y=2.87944: x=23.6093 -> x=10 (t=2.72186 s) -> x=140 (t=28.7219 s) -> x=10 (t=54.7219 s)
+[RDL-MOB] Mobilidade P3: 12 de 24 UEs andam entre x=10 e x=140 m
+[RDL-CTL] malha fechada: socket /tmp/rdl_ctl_10642.sock, janela 0.2 s
+[RDL-KPI] t=1.0s vazao=0.00 Mbps atraso=0.00 ms
+[RDL-ACT] t=1.200s gnb=0 cell=1 HANDOVER=1.000 xapp=load_balancer id=load_balancer-g0-HANDOVER-1.200-1 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=2.0s vazao=90.64 Mbps atraso=7.74 ms
+[RDL-KPI] t=3.0s vazao=90.89 Mbps atraso=7.66 ms
+[RDL-ACT] t=3.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-3.400-1 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=4.0s vazao=96.09 Mbps atraso=6.65 ms
+[RDL-KPI] t=5.0s vazao=92.98 Mbps atraso=7.12 ms
+[RDL-KPI] t=6.0s vazao=89.74 Mbps atraso=8.22 ms
+[RDL-KPI] t=7.0s vazao=88.43 Mbps atraso=8.94 ms
+[RDL-ACT] t=7.600s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-7.600-2 -> APPLIED (RBG 480/533)
+[RDL-KPI] t=8.0s vazao=83.89 Mbps atraso=8.86 ms
+[RDL-ACT] t=8.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-8.200-2 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=9.0s vazao=83.35 Mbps atraso=8.94 ms
+[RDL-ACT] t=9.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-9.200-3 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=9.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-9.200-4 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=9.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-9.400-5 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=10.0s vazao=91.75 Mbps atraso=13.56 ms
+[RDL-ACT] t=10.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-10.400-6 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=10.600s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-10.600-7 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=11.0s vazao=92.08 Mbps atraso=7.06 ms
+[RDL-ACT] t=12.000s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-12.000-8 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=12.0s vazao=91.01 Mbps atraso=8.29 ms
+[RDL-KPI] t=13.0s vazao=92.98 Mbps atraso=7.62 ms
+[RDL-KPI] t=14.0s vazao=88.92 Mbps atraso=9.52 ms
+[RDL-ACT] t=14.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-14.400-9 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=15.000s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-15.000-10 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=15.0s vazao=89.54 Mbps atraso=8.29 ms
+[RDL-KPI] t=16.0s vazao=92.12 Mbps atraso=7.62 ms
+[RDL-KPI] t=17.0s vazao=89.66 Mbps atraso=8.79 ms
+[RDL-ACT] t=17.400s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-17.400-11 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=17.600s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-17.600-3 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=18.000s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-18.000-12 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=18.0s vazao=88.76 Mbps atraso=8.22 ms
+[RDL-ACT] t=18.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-18.800-13 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=19.000s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-19.000-14 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=19.0s vazao=96.42 Mbps atraso=15.37 ms
+[RDL-KPI] t=20.0s vazao=86.92 Mbps atraso=8.39 ms
+[RDL-ACT] t=20.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-20.400-15 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=21.0s vazao=91.22 Mbps atraso=7.59 ms
+[RDL-KPI] t=22.0s vazao=92.20 Mbps atraso=8.40 ms
+[RDL-KPI] t=23.0s vazao=93.27 Mbps atraso=8.55 ms
+[RDL-ACT] t=24.000s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-24.000-16 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=24.0s vazao=88.68 Mbps atraso=11.31 ms
+[RDL-ACT] t=24.200s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-24.200-4 -> APPLIED (RBG 480/533)
+[RDL-ACT] t=24.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-24.200-17 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=25.0s vazao=89.74 Mbps atraso=9.21 ms
+[RDL-ACT] t=26.000s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-26.000-18 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=26.0s vazao=87.65 Mbps atraso=20.73 ms
+[RDL-ACT] t=26.400s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-26.400-19 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=26.600s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-26.600-20 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=27.0s vazao=88.15 Mbps atraso=18.99 ms
+[RDL-ACT] t=27.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-27.200-21 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=27.800s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-27.800-22 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=28.000s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-28.000-23 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-KPI] t=28.0s vazao=83.23 Mbps atraso=25.04 ms
+[RDL-ACT] t=29.000s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-29.000-24 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-KPI] t=29.0s vazao=91.38 Mbps atraso=22.62 ms
+[RDL-ACT] t=29.200s gnb=0 cell=1 HANDOVER=1.000 xapp=traffic_steering id=traffic_steering-g0-HANDOVER-29.200-25 -> APPLIED (1 UE(s) cell 1 -> 2 (escalonados a cada 10 ms))
+[RDL-ACT] t=29.600s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-29.600-26 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=29.600s gnb=1 cell=2 HANDOVER=0.000 xapp=traffic_steering id=traffic_steering-g1-HANDOVER-29.600-27 -> APPLIED (1 UE(s) cell 2 -> 1 (escalonados a cada 10 ms))
+[RDL-ACT] t=29.800s gnb=0 cell=1 PRB_QUOTA=90.000 xapp=load_balancer id=load_balancer-g0-PRB_QUOTA-29.800-5 -> APPLIED (RBG 480/533)
+[RDL-MOB] t=29.999s UE 0 em x=99.360 m
+[RDL-MOB] t=29.999s UE 1 em x=132.638 m
+[RDL-MOB] t=29.999s UE 2 em x=86.982 m
+[RDL-MOB] t=29.999s UE 3 em x=128.904 m
+[RDL-MOB] t=29.999s UE 4 em x=72.465 m
+[RDL-MOB] t=29.999s UE 5 em x=137.511 m
+[RDL-MOB] t=29.999s UE 6 em x=90.822 m
+[RDL-MOB] t=29.999s UE 7 em x=115.604 m
+[RDL-MOB] t=29.999s UE 8 em x=113.684 m
+[RDL-MOB] t=29.999s UE 9 em x=135.223 m
+[RDL-MOB] t=29.999s UE 10 em x=92.145 m
+[RDL-MOB] t=29.999s UE 11 em x=133.614 m

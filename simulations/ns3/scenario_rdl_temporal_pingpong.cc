@@ -19,6 +19,9 @@
 #include "ns3/applications-module.h"
 #include "ns3/flow-monitor-module.h"
 
+#include <cmath>
+#include <sstream>
+
 #if __has_include("ns3/nr-module.h")
 #include "ns3/nr-module.h"
 #define HAS_NR_MODULE 1
@@ -84,7 +87,21 @@ int main (int argc, char *argv[])
     cmd.AddValue ("udpIntervalMs", "Intervalo entre pacotes de 512 B por UE (ms)", udpIntervalMs);
     cmd.AddValue ("ueBoxXmin", "Limite inferior de x dos UEs (m; gNBs em x=0 e x=150)", ueBoxXmin);
     cmd.AddValue ("ueBoxXmax", "Limite superior de x dos UEs (m)", ueBoxXmax);
+    // Proposta P3 do S5 (docs/16 §10.15): parte dos UEs anda em x entre as duas células, ida e volta,
+    // a velocidade constante. ueSpeed = 0 (padrão) mantém todos os UEs fixos, como antes.
+    double ueSpeed = 0.0;
+    double ueMovingFraction = 0.5;
+    double ueMoveXmin = 10.0;
+    double ueMoveXmax = 140.0;
+    cmd.AddValue ("ueSpeed", "Velocidade (m/s) dos UEs que andam entre as células; 0 = todos fixos", ueSpeed);
+    cmd.AddValue ("ueMovingFraction", "Fração dos UEs que andam com ueSpeed > 0 (os de menor índice)", ueMovingFraction);
+    cmd.AddValue ("ueMoveXmin", "Limite inferior de x do trajeto dos UEs que andam (m)", ueMoveXmin);
+    cmd.AddValue ("ueMoveXmax", "Limite superior de x do trajeto dos UEs que andam (m)", ueMoveXmax);
     cmd.Parse (argc, argv);
+    if (ueSpeed < 0.0 || ueMovingFraction < 0.0 || ueMovingFraction > 1.0 || ueMoveXmin >= ueMoveXmax)
+    {
+        NS_FATAL_ERROR ("Mobilidade invalida: ueSpeed >= 0, 0 <= ueMovingFraction <= 1 e ueMoveXmin < ueMoveXmax");
+    }
     if (disableSrs)
     {
         // Contorno de NS_FATAL do 5G-LENA v5.1 em handover (NrSpectrumPhy::StartRxSrs, "Not allowed
@@ -175,8 +192,60 @@ int main (int argc, char *argv[])
                                    "X", StringValue ("ns3::UniformRandomVariable[Min=" + std::to_string (ueBoxXmin) + "|Max=" + std::to_string (ueBoxXmax) + "]"),
                                    "Y", StringValue ("ns3::UniformRandomVariable[Min=-30.0|Max=30.0]"),
                                    "Z", StringValue ("ns3::ConstantRandomVariable[Constant=1.5]"));
-    mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-    mobility.Install (ueNodes);
+    if (ueSpeed <= 0.0)
+    {
+        mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+        mobility.Install (ueNodes);
+    }
+    else
+    {
+        // Mesmas posições iniciais do caso fixo (o alocador sorteia na mesma ordem). Cada UE recebe um
+        // WaypointMobilityModel com a posição inicial como primeiro ponto; os que andam ganham pontos de
+        // ida e volta entre ueMoveXmin e ueMoveXmax até o fim da simulação (índice par começa rumo à
+        // gNB 2, ímpar rumo à gNB 1). Os demais ficam parados no primeiro ponto. Sem algoritmo de
+        // handover no 5G-LENA (NrNoOpHandoverAlgorithm): quem se afasta da servidora só muda de célula
+        // por handover pedido por xApp ou por falha de enlace (RLF) seguida de nova seleção de célula.
+        mobility.SetMobilityModel ("ns3::WaypointMobilityModel",
+                                   "InitialPositionIsWaypoint", BooleanValue (true));
+        mobility.Install (ueNodes);
+        uint32_t nMoving = static_cast<uint32_t> (std::lround (ueMovingFraction * ueNodes.GetN ()));
+        for (uint32_t i = 0; i < nMoving; ++i)
+        {
+            Ptr<WaypointMobilityModel> wp = ueNodes.Get (i)->GetObject<WaypointMobilityModel> ();
+            Vector p = wp->GetPosition ();
+            // GetPosition chama Update(), que marca o ponto inicial com t = -1 s quando ainda não há outros
+            // pontos (WaypointMobilityModel::Update, ns-3.48). Sem este ponto em t = 0, o primeiro trecho
+            // começaria em -1 s: salto de ueSpeed * t1 / (t1 + 1) metros em t = 0 e velocidade menor que ueSpeed.
+            wp->AddWaypoint (Waypoint (Seconds (0), p));
+            double t = 0.0;
+            double x = p.x;
+            bool forward = (i % 2 == 0);
+            std::ostringstream path;
+            path << "x=" << x;
+            while (t < simTime)
+            {
+                double target = forward ? ueMoveXmax : ueMoveXmin;
+                double dt = std::fabs (target - x) / ueSpeed;
+                if (dt > 0.0)
+                {
+                    t += dt;
+                    wp->AddWaypoint (Waypoint (Seconds (t), Vector (target, p.y, p.z)));
+                    path << " -> x=" << target << " (t=" << t << " s)";
+                }
+                x = target;
+                forward = !forward;
+            }
+            // std::cout (como [RDL-KPI]): NS_LOG some no build otimizado, e o trajeto precisa ficar no log da execução
+            std::cout << "[RDL-MOB] UE " << i << " anda a " << ueSpeed << " m/s, y=" << p.y << ": " << path.str ()
+                      << std::endl;
+            Simulator::Schedule (Seconds (simTime) - MilliSeconds (1), [wp, i] () {
+                std::cout << "[RDL-MOB] t=" << Simulator::Now ().GetSeconds () << "s UE " << i
+                          << " em x=" << wp->GetPosition ().x << " m" << std::endl;
+            });
+        }
+        std::cout << "[RDL-MOB] Mobilidade P3: " << nMoving << " de " << ueNodes.GetN () << " UEs andam entre x="
+                  << ueMoveXmin << " e x=" << ueMoveXmax << " m" << std::endl;
+    }
 
 #if HAS_NR_MODULE
     // Rede NR funcional comum (rdl-nr-common.h): EPC, host remoto, IPs, attach ao gNB mais

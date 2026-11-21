@@ -146,7 +146,9 @@ class HrdlStream:
     malha fechada (scripts/closed_loop/orchestrator.py, uma janela a cada KPM do ns-3).
     """
 
-    def __init__(self):
+    def __init__(self, reasoning_factory=None):
+        """``reasoning_factory(app, clock)``: troca o raciocínio da xApp (ex.: RDL hierárquica N1 + N2 da Fase 2,
+        ``cardl.hierarchy.attach_hierarchical``) antes da captura das resoluções; ``clock`` é o relógio simulado."""
         os.environ.setdefault("RDL_MODE", "OFFLINE_SIMULATION")
         os.environ.setdefault("USE_FAKE_SDL", "True")
         os.environ.setdefault("RAN_BACKEND", "NORI_NS3")
@@ -163,6 +165,8 @@ class HrdlStream:
         # injetado nos dois componentes; o módulo time não é mais trocado.
         self.app.perception.clock = self._clock.time
         self.app.refinement.clock = self._clock.time
+        if reasoning_factory is not None:
+            reasoning_factory(self.app, self._clock.time)
         self._dispatched: List[str] = []
         self._resolutions: List[Dict[str, Any]] = []
 
@@ -176,12 +180,16 @@ class HrdlStream:
 
         def capture_resolve(conflict):
             resolution = original_resolve(conflict)
-            self._resolutions.append({
+            record = {
                 "conflict_type": conflict.conflict_type.name,
                 "involved": [a.action_id for a in conflict.involved_xapps],
                 "winners": [a.action_id for a in resolution.winning_actions],
                 "strategy": resolution.strategy_used.name,
-            })
+            }
+            trace = getattr(self.app.reasoning, "trace_last", None)
+            if callable(trace):                   # RDL hierárquica: nível, C(c, s), grafo, origem e reserva
+                record.update(trace())
+            self._resolutions.append(record)
             return resolution
 
         self.app.dispatcher.dispatch_control = capture_dispatch
