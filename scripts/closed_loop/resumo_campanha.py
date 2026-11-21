@@ -38,6 +38,9 @@ RESOURCE = {"TX_POWER": "potência", "CELL_STATE": "estado da célula", "PRB_QUO
 A1_TARGET = {"20001": "RDL (pesos e limites)", "21000": "RANSlicer-GreenRAN (intenção de fatia)",
              "21001": "EnergySaver-GreenRAN (limiares de energia)", "20008": "Traffic Steering (limiar)"}
 NR = "não registrado"
+# xApp de teste de segurança e evento agendado do cenário: fora das contagens de conflito entre xApps legítimas
+# (comparativo das xApps, seção 4.7; docs/16 §10.16)
+TEST_XAPPS = {"rogue_xapp", "fault_injector"}
 
 
 def _iso(s: Optional[str]) -> Optional[datetime]:
@@ -103,6 +106,8 @@ def analyze(run: Path, horizon_s: float = 5.0) -> Dict[str, Any]:
     same_window, timeline = 0, defaultdict(list)
     pairs = Counter()
     selected = proposals = 0
+    id_xapp: Dict[str, str] = {}
+    res_legit = res_test = 0
     kg_q = kg_w = None
     for w in windows:
         ev = w.get("a1")
@@ -114,6 +119,7 @@ def analyze(run: Path, horizon_s: float = 5.0) -> Dict[str, Any]:
         groups = defaultdict(set)
         for p in ps:
             props_by[(p["xapp_id"], p["parameter"])] += 1
+            id_xapp[str(p.get("id"))] = p["xapp_id"]
             key = (p["gnb"], RESOURCE.get(p["parameter"], p["parameter"]))
             groups[key].add(p["xapp_id"])
             timeline[key].append((float(p["t"]), p["xapp_id"]))
@@ -126,6 +132,11 @@ def analyze(run: Path, horizon_s: float = 5.0) -> Dict[str, Any]:
         for res in d.get("resolutions") or []:
             strategies[res.get("strategy", "?")] += 1
             conflict_types[res.get("conflict_type", "?")] += 1
+            xs = {id_xapp.get(str(i), str(i).split("-")[0]) for i in res.get("involved") or []}
+            if xs & TEST_XAPPS:
+                res_test += 1
+            else:
+                res_legit += 1
         if "kg_queries" in d:
             kg_q = (kg_q or 0) + int(d["kg_queries"])
             kg_w = (kg_w or 0) + int(d.get("kg_writes", 0))
@@ -141,6 +152,7 @@ def analyze(run: Path, horizon_s: float = 5.0) -> Dict[str, Any]:
              recusas_devolvidas=proposals - selected, politicas_a1=dict(sorted(a1.items())),
              conflitos_mesma_janela=same_window, conflitos_em_sequencia=sequential, pares_em_conflito=dict(pairs.most_common()),
              regras_de_decisao=dict(rules), resolucoes_por_estrategia=dict(strategies), tipos_de_conflito=dict(conflict_types),
+             resolucoes_entre_xapps_legitimas=res_legit, resolucoes_com_xapp_de_teste=res_test,
              consultas_grafo=kg_q if kg_q is not None else NR, escritas_grafo=kg_w if kg_w is not None else NR)
 
     # ---------------- controle da RAN (log de atuação do ns-3)
@@ -242,7 +254,9 @@ def render(rows: List[Dict[str, Any]], title: str) -> str:
           f"- Oscilações (inversões de sentido em TX_POWER e PRB_QUOTA aplicados): {_sum(rows, 'oscilacoes')}",
           "- Pares e recursos: " + ("; ".join(f"{k}: {v}" for k, v in _merge(rows, "pares_em_conflito").items()) or "nenhum"),
           "- Resoluções da RDL por estratégia: " + (", ".join(f"{k}: {v}" for k, v in _merge(rows, "resolucoes_por_estrategia").items()) or "nenhuma"),
-          "- Tipos de conflito: " + (", ".join(f"{k}: {v}" for k, v in _merge(rows, "tipos_de_conflito").items()) or "nenhum"), ""]
+          "- Tipos de conflito: " + (", ".join(f"{k}: {v}" for k, v in _merge(rows, "tipos_de_conflito").items()) or "nenhum"),
+          f"- Resoluções entre xApps legítimas: {_sum(rows, 'resolucoes_entre_xapps_legitimas')}; com xApp de teste ou evento "
+          f"(Rogue, fault_injector; fora das contagens de conflito entre xApps): {_sum(rows, 'resolucoes_com_xapp_de_teste')}", ""]
     L += ["## Controle da RAN", "",
           "- Ações por status: " + (", ".join(f"{k}: {v}" for k, v in _merge(rows, "acoes_ran_por_status").items()) or "nenhuma"),
           "- Ações por parâmetro: " + (", ".join(f"{k}: {v}" for k, v in _merge(rows, "acoes_ran_por_parametro").items()) or "nenhuma"), ""]

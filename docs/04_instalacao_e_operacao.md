@@ -245,7 +245,7 @@ Os cenários do catálogo também rodam na bancada NORI, com a cadeia E2 real e 
 | Chart | Conteúdo |
 | :-- | :-- |
 | `deploy/helm/iqos-xapp-rdl` | xApp RDL (portas 4560 RMR, 8080 HTTP, 8081 métricas) |
-| `deploy/helm/xapp-qos-xslice`, `xapp-energy-saving`, `xapp-traffic-steering` | xApps de referência |
+| `deploy/helm/xapp-urllc-slice-guard` (até 2026-11-21, `xapp-qos-xslice`), `xapp-energy-saving`, `xapp-traffic-steering` | xApps de referência |
 | `deploy/helm/nori-ns3` | bancada NORI |
 | `deploy/helm/xapp-kpm-probe` | xApp de assinatura E2SM-KPM (fase 2) |
 

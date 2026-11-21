@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: iqos-xapp-rdl
+  pullPolicy: Never
+  tag: "1.1.0"
+
+fullnameOverride: "ricxapp-urllc-slice-guard"
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8082"
+  prometheus.io/path: "/metrics"
+
+env:
+  xappRole: "urllc_slice_guard"
+  httpPort: 8082
+  metricsPort: 8083
+  rmrPort: 4562
+  # KPM do Near-RT RIC: sem SUBMGR_URL a xApp não recebe KPM e não propõe nada
+  submgrUrl: "http://service-ricplt-submgr-http.ricplt:8088"
+  kpmNodes: ""            # nós E2 separados por vírgula (ids do E2Mgr)
+  kpmRanFunctionId: 2     # NORI: 200
+  kpmPeriodMs: 1000
+  decisionPeriodS: 1.0
+
+service:
+  httpPort: 8082
+  metricsPort: 8083
+  rmrPort: 4562
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

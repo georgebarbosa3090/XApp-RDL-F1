@@ -22,8 +22,11 @@ período, dentro da janela de economia da política A1 21001 (``GreenRAN_EnergyS
      de ``es_evacuation_timeout_s``, a evacuação é abortada (a célula volta a ``ACTIVE``).
    Uma célula por período.
 3. **Potência com histerese:** com carga moderada (entre o limiar e o dobro), propõe uma vez reduzir
-   ``TX_POWER`` para ``es_reduced_tx_power_dbm``. Se a carga passar do dobro do limiar mais
-   ``es_tx_power_hysteresis_pct`` e ``es_nominal_tx_power_dbm`` estiver definido, propõe restaurar.
+   ``TX_POWER`` para ``es_reduced_tx_power_dbm``; com a potência em vigor no KPM, o alvo fica ao menos
+   ``es_tx_power_min_step_db`` abaixo dela, e não há proposta se isso não for uma redução (docs/16 §10.16: nos
+   cenários do ns-3 a gNB transmite com 4 dBm, e os 30 dBm fixos eram um aumento). Se a carga passar do dobro
+   do limiar mais ``es_tx_power_hysteresis_pct``, propõe restaurar ``es_nominal_tx_power_dbm`` ou, sem ele, a
+   potência medida antes da redução. Uma recusa de ``TX_POWER`` desfaz a marcação da célula.
 
 Se a RDL recusar o desligamento ou a evacuação (por exemplo, pela regra ``HANDOVER_INTO_REDUCED_CELL`` ou
 pela política A1), a célula volta a ``ACTIVE`` e a permanência recomeça.
@@ -63,6 +66,8 @@ class EnergySaver(GreenRanXApp):
         "es_min_dwell_s": 30.0,
         "es_tx_power_hysteresis_pct": 5.0,
         "es_nominal_tx_power_dbm": None,
+        # com a potência em vigor no KPM, a redução fica ao menos este passo abaixo dela (§10.16)
+        "es_tx_power_min_step_db": 3.0,
         "es_utc_offset_h": -3,
         # observação mínima da célula antes de agir (no início, a carga ainda não reflete o tráfego)
         "es_min_observation_s": 5.0,
@@ -77,6 +82,7 @@ class EnergySaver(GreenRanXApp):
         self.evac_deadline: Dict[str, float] = {}
         self.retry_after: Dict[str, float] = {}       # espera depois de uma evacuação abortada
         self.tx_reduced: Dict[str, bool] = {}
+        self.tx_before: Dict[str, Optional[float]] = {}   # potência medida antes da redução (para restaurar)
         self.decisions: List[Dict[str, Any]] = []  # motivos (auditoria e testes)
         self._now: Optional[float] = None           # último instante de decisão (simulado na malha fechada)
         self.first_seen: Dict[str, float] = {}      # primeira observação de cada célula
@@ -125,6 +131,10 @@ class EnergySaver(GreenRanXApp):
             self._set_state(cell, ACTIVE, now)              # recusado pela RDL: volta a ativo
             self.evac_deadline.pop(cell, None)
             self._note(now, cell, "ACTIVE", f"recusa da RDL: {result.get('reason')}")
+        elif result.get("parameter") == "TX_POWER" and cell in self.tx_reduced:
+            # recusada: a potência em vigor não mudou; antes, a célula ficava marcada como reduzida para sempre
+            self.tx_reduced[cell] = not self.tx_reduced[cell]
+            self.tx_before.pop(cell, None)
 
     # ------------------------------------------------------------------ destino pela cobertura
     def _coverage_host(self, cell: str, hosts: List[str], pol: Dict[str, Any], now: float) -> Optional[str]:
@@ -221,13 +231,23 @@ class EnergySaver(GreenRanXApp):
                         or now - self.first_seen.get(cell, now) < float(pol["es_min_observation_s"]):
                     continue
                 load = self._load(cell)
+                measured = self.samples[cell].tx_power_dbm if cell in self.samples else None
                 if not self.tx_reduced.get(cell) and sleep_thr <= load < 2 * sleep_thr:
+                    target = float(pol["es_reduced_tx_power_dbm"])
+                    if measured is not None:
+                        # reduzir é sempre abaixo da potência em vigor: nos cenários do ns-3 a gNB transmite com o
+                        # padrão do 5G-LENA (4 dBm), e os 30 dBm fixos eram um aumento de 26 dB (§10.16)
+                        target = min(target, measured - float(pol["es_tx_power_min_step_db"]))
+                        if target >= measured:
+                            continue
                     self.tx_reduced[cell] = True
-                    out.append(self._proposal(cell, "TX_POWER", float(pol["es_reduced_tx_power_dbm"]), 60))
+                    self.tx_before[cell] = measured
+                    out.append(self._proposal(cell, "TX_POWER", target, 60))
                 elif self.tx_reduced.get(cell) and load >= 2 * sleep_thr + hyst:
                     self.tx_reduced[cell] = False
-                    if nominal is not None:
-                        out.append(self._proposal(cell, "TX_POWER", float(nominal), 60))
+                    restore = nominal if nominal is not None else self.tx_before.get(cell)
+                    if restore is not None:
+                        out.append(self._proposal(cell, "TX_POWER", float(restore), 60))
         return out
 
     def _proposal(self, cell: str, parameter: str, value: Any, priority: int) -> Dict[str, Any]:

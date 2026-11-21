@@ -36,12 +36,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 K8S_DIR="$ROOT_DIR/deploy/kubernetes"
 
-if [ -f "$K8S_DIR/xapp-qos-xslice.yaml" ]; then
+if [ -f "$K8S_DIR/xapp-urllc-slice-guard.yaml" ]; then
     echo "[+] Aplicando manifestos declarativos de deploy/kubernetes..."
-    kubectl apply -f "$K8S_DIR/xapp-qos-xslice.yaml" -n "$NAMESPACE"
+    kubectl apply -f "$K8S_DIR/xapp-urllc-slice-guard.yaml" -n "$NAMESPACE"
     kubectl apply -f "$K8S_DIR/xapp-energy-saving.yaml" -n "$NAMESPACE"
     kubectl apply -f "$K8S_DIR/xapp-traffic-steering.yaml" -n "$NAMESPACE"
-    kubectl rollout restart deployment ricxapp-qos-xslice -n "$NAMESPACE" 2>/dev/null || true
+    kubectl rollout restart deployment ricxapp-urllc-slice-guard -n "$NAMESPACE" 2>/dev/null || true
     kubectl rollout restart deployment ricxapp-energy-saving -n "$NAMESPACE" 2>/dev/null || true
     kubectl rollout restart deployment ricxapp-traffic-steering -n "$NAMESPACE" 2>/dev/null || true
 fi

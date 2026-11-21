@@ -6,9 +6,9 @@ os originais estão em third_party/xapps/ e rodam na malha fechada pelo libe42_s
 
 Cada núcleo decide só a partir do KPM observado (``self.samples``), nunca de valores fixos. Os papéis:
 
-- ``XSliceDerivada`` (papel de ``peihaoY/xslice-oran``): protege a fatia crítica (URLLC). Se o atraso dela
-  passa do limite, propõe um teto de PRB baixo para a célula (a fatia eMBB cede recursos), com prioridade
-  alta; quando o atraso volta ao normal por ``xs_relax_windows`` janelas, propõe relaxar o teto.
+O papel do xSlice (``peihaoY/xslice-oran``) na malha fechada é feito desde 2026-11-21 por uma xApp própria,
+``src.xapps.proprias.UrllcSliceGuard`` (até então, ``XSliceDerivada`` neste módulo, com ``xapp_id`` ``xslice``).
+
 - ``EnergySavingDerivada`` (papel de Energy Saving): com a carga da célula abaixo do limiar, propõe reduzir
   a potência de transmissão; com carga alta, propõe restaurar. Uma proposta por mudança de estado.
 - ``TrafficSteeringDerivada`` (papel de ``o-ran-sc/ric-app-ts``): quando uma fração dos UEs de uma célula
@@ -34,36 +34,6 @@ class _Kpm(GreenRanXApp):
     def _proposal(self, cell: str, parameter: str, value: float, priority: int, **extra) -> Dict[str, Any]:
         return {"xapp_id": self.XAPP_ID, "node_id": cell, "parameter": parameter, "value": float(value),
                 "priority": int(priority), **extra}
-
-
-class XSliceDerivada(_Kpm):
-    XAPP_ID = "xslice"
-    A1_TYPE = ""  # sem tipo A1 próprio: usa os padrões
-    DEFAULTS: Dict[str, Any] = {"xs_urllc_sst": 2, "xs_urllc_max_delay_ms": 10.0, "xs_protect_cap_pct": 25.0,
-                                "xs_relax_cap_pct": 80.0, "xs_relax_windows": 5, "xs_priority": 90}
-
-    def __init__(self, *a, **k):
-        super().__init__(*a, **k)
-        self.protecting: Dict[str, bool] = {}
-        self.ok_windows: Dict[str, int] = {}
-
-    def decide(self, now: float) -> List[Dict[str, Any]]:
-        pol, out = self.policy(), []
-        for cell, s in sorted(self.samples.items()):
-            urllc = s.slices.get(int(pol["xs_urllc_sst"]))
-            if urllc is None or urllc.ues == 0 or urllc.delay_ms is None:
-                continue
-            if urllc.delay_ms > float(pol["xs_urllc_max_delay_ms"]):
-                self.ok_windows[cell] = 0
-                if not self.protecting.get(cell):
-                    self.protecting[cell] = True
-                    out.append(self._proposal(cell, "PRB_QUOTA", pol["xs_protect_cap_pct"], pol["xs_priority"]))
-            elif self.protecting.get(cell):
-                self.ok_windows[cell] = self.ok_windows.get(cell, 0) + 1
-                if self.ok_windows[cell] >= int(pol["xs_relax_windows"]):
-                    self.protecting[cell] = False
-                    out.append(self._proposal(cell, "PRB_QUOTA", pol["xs_relax_cap_pct"], 60))
-        return out
 
 
 class EnergySavingDerivada(_Kpm):

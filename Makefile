@@ -88,7 +88,7 @@ panel:
 # -------------------------------------------------------------
 helm-package:
 	helm lint deploy/helm/iqos-xapp-rdl
-	helm lint deploy/helm/xapp-qos-xslice
+	helm lint deploy/helm/xapp-urllc-slice-guard
 	helm lint deploy/helm/xapp-energy-saving
 	helm lint deploy/helm/xapp-traffic-steering
 	helm lint deploy/helm/xapp-kpm-probe --set srcBundle=x --set srcCommit=x
@@ -101,7 +101,7 @@ helm-deploy-baseline:
 	bash scripts/deploy_helm.sh --baseline
 
 helm-uninstall:
-	helm uninstall ricxapp-qos-xslice -n $(NAMESPACE) 2>/dev/null || true
+	helm uninstall ricxapp-urllc-slice-guard -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall ricxapp-energy-saving -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall ricxapp-traffic-steering -n $(NAMESPACE) 2>/dev/null || true
 	helm uninstall $(RELEASE_NAME) -n $(NAMESPACE) 2>/dev/null || true

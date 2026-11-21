@@ -63,6 +63,9 @@ class CellSample:
     load_pct: Optional[float] = None          # PRBs em uso / disponíveis, em %
     slices: Dict[int, SliceKpi] = field(default_factory=dict)
     ues: List[UeKpi] = field(default_factory=list)
+    # potência de transmissão em vigor (dBm), quando o KPM a traz (malha fechada do ns-3: tx_power_dbm da célula);
+    # None numa célula dormindo (CELL_STATE = 0) ou sem a medida
+    tx_power_dbm: Optional[float] = None
 
     @property
     def total_ues(self) -> int:
@@ -76,12 +79,25 @@ class CellSample:
         return any(len(u.rsrp_dbm) > 1 for u in self.ues)
 
 
+def ue_slice(ue: Dict[str, Any], ue_sst: Optional[Dict[int, int]] = None) -> Optional[int]:
+    """SST de um UE do KPM da malha fechada: o campo ``sst`` do KPM; sem ele, o mapa ``ue_sst`` (registros
+    anteriores a 2026-11-21); sem os dois, None (fatias não separadas)."""
+    sst = ue.get("sst")
+    if isinstance(sst, (int, float)) and not isinstance(sst, bool):
+        return int(sst)
+    if ue_sst is not None:
+        return int(ue_sst.get(int(ue["ue"]), 1))
+    return None
+
+
 def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int]] = None) -> Dict[str, CellSample]:
     """
     Amostras por célula a partir do KPM da malha fechada (ns-3, ``rdl-nr-common.h``; docs/16 §3.1).
     As células são nomeadas ``gnb_<índice>``, como nos ``node_id`` das propostas.
 
-    ``ue_sst`` (índice do UE -> SST) separa os UEs em fatias. O ns-3 não mede PRB por UE: a parcela de PRB
+    A fatia de cada UE vem do próprio KPM (campo ``sst`` por UE, como a medida DRB.NetworkSlicing.SST; o ns-3 a
+    reporta desde 2026-11-21, ``RdlActuation::SetUeSst``). ``ue_sst`` (índice do UE -> SST, do closed_loop.json)
+    só vale para registros antigos, sem o campo. O ns-3 não mede PRB por UE: a parcela de PRB
     de cada fatia (``SliceKpi.prb_used``) é aproximada pela vazão da fatia, ou seja, supõe a mesma
     eficiência espectral entre as fatias da célula (docs/16).
     """
@@ -90,8 +106,10 @@ def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int
     out: Dict[str, CellSample] = {}
     for c in kpm.get("cells", []):
         util = c.get("prb_util")
+        tx = c.get("tx_power_dbm")
         out[f"gnb_{c['gnb']}"] = CellSample(f"gnb_{c['gnb']}", t,
-                                            load_pct=None if util is None else round(100.0 * float(util), 2))
+                                            load_pct=None if util is None else round(100.0 * float(util), 2),
+                                            tx_power_dbm=None if tx is None or c.get("sleeping") else float(tx))
     for u in kpm.get("ues", []):
         g = u.get("gnb")
         if not u.get("connected") or g is None or g < 0 or f"gnb_{g}" not in out:
@@ -100,8 +118,9 @@ def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int
                 if int(c) in gnb_of_cell and v is not None}
         thp = float(u.get("thp_mbps") or 0.0)
         out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp, thp))
-        if ue_sst is not None:
-            s = out[f"gnb_{g}"].slices.setdefault(int(ue_sst.get(int(u["ue"]), 1)), SliceKpi())
+        sst = ue_slice(u, ue_sst)
+        if sst is not None:
+            s = out[f"gnb_{g}"].slices.setdefault(sst, SliceKpi())
             s.ues += 1
             s.thp_mbps += thp
             s.prb_used += thp                                  # parcela de PRB proporcional à vazão

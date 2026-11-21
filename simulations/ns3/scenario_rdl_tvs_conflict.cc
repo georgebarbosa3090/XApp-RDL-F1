@@ -381,6 +381,10 @@ int main (int argc, char *argv[])
     // X2 entre gNBs: necessária para executar handovers pedidos pelas xApps
     nrHelper->AddX2Interface (gridScenario.GetBaseStations ());
     RdlActuation rdlActuation (nrHelper, gnbNetDev, ueNetDev);
+    for (uint32_t i = 0; i < totalUes; ++i)
+    {
+        rdlActuation.SetUeSst (i, i % 3 == 0 ? 2 : (i % 3 == 1 ? 1 : 3));          // fatia no KPM: URLLC 2, eMBB 1, mMTC 3
+    }
     rdlActuation.Load (actionSchedule);
     RdlKpiSampler rdlKpi (ueNetDev, kpiPeriod, simTime);
 #else

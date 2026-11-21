@@ -243,6 +243,10 @@ int main (int argc, char *argv[])
         clientApps.Add (client.Install (remoteHost));
     }
     RdlActuation rdlActuation (nrHelper, gNbDevs, ueDevs);
+    for (uint32_t i = 0; i < ueNum; ++i)
+    {
+        rdlActuation.SetUeSst (i, i < urllcUes ? 2 : 1);                             // fatia no KPM: URLLC 2, eMBB 1
+    }
     rdlActuation.Load (actionSchedule);
     RdlKpiSampler rdlKpi (ueDevs, kpiPeriod, simTime);
 #else

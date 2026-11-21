@@ -56,8 +56,8 @@ Pronto quando:
   Como o simulador é de eventos discretos, o tempo de parede gasto pelas xApps não afeta o tempo simulado.
 - **KPM por janela** (amplia o `RdlKpiSampler`):
   - por célula: vazão, atraso, pacotes, uso de PRB, UEs conectados, estado (ligada, desligada) e potência;
-  - por UE: célula servidora, SINR servidora, SINR e RSRP das vizinhas, vazão e atraso;
-  - por fatia: vazão, atraso e PRB usados (o xSlice usa 3 fatias).
+  - por UE: célula servidora, SINR servidora, SINR e RSRP das vizinhas, vazão e atraso; desde 2026-11-21, também a fatia (`sst`, como o `DRB.NetworkSlicing.SST`), declarada pelo cenário com `RdlActuation::SetUeSst` (S1, S2, S3; `--ueGroupSst` no `scenario_rdl_multicell`). UE sem fatia declarada reporta SST 1 (§10.16);
+  - por fatia: vazão, atraso e PRB usados, agregados pelo orquestrador a partir do `sst` de cada UE (o xSlice usa 3 fatias).
   
   Todas as fontes já existem no 5G-LENA: traces de PHY/MAC e RRC.
 - **Registro:** o KPM enviado e as ações recebidas vão para `raw/` da execução e entram nos hashes. Para refazer a decisão de uma execução, basta ler o registro, sem rodar as xApps de novo.
@@ -137,12 +137,13 @@ Pronto quando:
 
 - **GreenRAN:** RANSlicer-GreenRAN e EnergySaver-GreenRAN (`src/greenran/`), com KPM do orquestrador e proposta pelo `rdl_transport` (RMR).
 - **Rogue:** `reference-xapps/rogue-xapp/`, idem.
+- **URLLC Slice Guard** (`src/xapps/proprias.py`, `UrllcSliceGuard`; desde 2026-11-21, §10.16): faz o papel `xslice` do catálogo enquanto o xSlice original não estiver integrado (§4.1). Até 2026-11-21, esse papel era da derivada `XSliceDerivada` (`xapp_id` `xslice`, `xapp_impl: derivado`). Ela passou a ser declarada como xApp própria, com nome próprio, porque não reproduz a decisão do xSlice, que é de um agente PPO com GCN.
 
 ## 5. Mapeamento dos `xapp_id` do catálogo
 
 | `xapp_id` | Cenários | Fonte da proposta em malha fechada | Situação |
 | :-- | :-- | :-- | :-- |
-| `xslice` | S0, S1, S2, S3, S6, S7, S8, S12, S14 | xSlice original (C e GNNRL) | só `PRB_QUOTA`; o `TX_POWER` do S3 não existe no original |
+| `xslice` | S0, S1, S2, S3, S6, S7, S8, S12, S14 | xSlice original (C e GNNRL); **hoje a URLLC Slice Guard** (própria, `xapp_id` `urllc_slice_guard`; §4.4 e §10.16) | só `PRB_QUOTA`; o `TX_POWER` do S3 não existe no original; o original não está integrado |
 | `traffic_steering` | S2, S4, S5, S9, S10, S11, S13, S15, G2 | ric-app-ts original | `HANDOVER` |
 | `energy_saving` | S0, S1, S3, S4, S6, S9, S10, S12, S13, S15, G1 | ES Orange original | só `HANDOVER` e `CELL_STATE` (ver 4.2); no G1, decidir entre o ES Orange e a EnergySaver-GreenRAN (D1) |
 | `energy_saving_ru0/ru1` | G2 | duas instâncias do ES Orange, ou a EnergySaver-GreenRAN | D1 |
@@ -183,7 +184,7 @@ Se o pip, o git, o ns-3 e os builds disputarem a RAM com uma campanha, nada diss
 | D5 | Os cenários que perdem o conflito (S3 com `TX_POWER` do xSlice; S0, S3, S4 e S10 com `TX_POWER` do ES) **mudam de parâmetro**: o conflito é refeito com `PRB_QUOTA`, `HANDOVER` ou `CELL_STATE`, que os originais propõem. A definição desses cenários muda e entra no pré-registro 11. Os derivados em Python dos originais ficam no repositório (seção 1). |
 | Ordem | Os pré-registros 12 (energia, doc 17) e 13 (calibração, doc 18) **esperam este desenho** e rodam já em malha fechada, sem exceção à regra. |
 | Sementes | O pré-registro 11 usa **16001 a 16005**. As 12001 a 12005 já foram rodadas no pré-registro 09. |
-| Derivados (a) | **Controle pareado.** Nos cenários em que o derivado e o original propõem o mesmo parâmetro, o cenário roda também com o derivado no papel do original, com as mesmas sementes e baselines: xSlice com `PRB_QUOTA` e Traffic Steering com `HANDOVER`. O objetivo é medir quanto a reimplementação se afasta do original e se os números já publicados (campanhas 01 a 10, cujo catálogo reproduz o papel dos derivados) continuam valendo. O Energy Saving não tem par direto: o derivado propõe `TX_POWER`, e o original, `HANDOVER` e `CELL_STATE`. Para a comparação ser justa, o derivado passa a ler o KPM do ns-3 pelo mesmo adaptador, sem mudar a regra de decisão documentada. As execuções com derivado são marcadas no manifesto (`xapp_impl: derivado`) e nunca contam como execução com o original. Cenários, métrica de afastamento e critério ficam no pré-registro 11, ou num 11b. |
+| Derivados (a) | **Controle pareado.** Nos cenários em que o derivado e o original propõem o mesmo parâmetro, o cenário roda também com o derivado no papel do original, com as mesmas sementes e baselines: xSlice com `PRB_QUOTA` e Traffic Steering com `HANDOVER`. O objetivo é medir quanto a reimplementação se afasta do original e se os números já publicados (campanhas 01 a 10, cujo catálogo reproduz o papel dos derivados) continuam valendo. O Energy Saving não tem par direto: o derivado propõe `TX_POWER`, e o original, `HANDOVER` e `CELL_STATE`. Para a comparação ser justa, o derivado passa a ler o KPM do ns-3 pelo mesmo adaptador, sem mudar a regra de decisão documentada. As execuções com derivado são marcadas no manifesto (`xapp_impl: derivado`) e nunca contam como execução com o original. Cenários, métrica de afastamento e critério ficam no pré-registro 11, ou num 11b. **Revisão de 2026-11-21 (§10.16):** o papel `xslice` não tem mais derivado. A URLLC Slice Guard é declarada como xApp própria (`xapp_impl: propria`), e o controle pareado fica só para o Traffic Steering. |
 | Derivados (b) | **Ponte para o testbed.** No laboratório com srsRAN e OSC RIC (perfil GERCOM; ver `docs/compliance/VARREDURA_TESTBEDS_OPENRAN_BRASIL.md` §5), os originais do xSlice e do ES, que são xApps do FlexRIC, não rodam. Os derivados, que falam RMR com a RDL e já têm charts Helm, levam esses papéis à bancada real, inclusive no gate TB7 (arbitragem entre duas xApps reais). O papel vale até existir uma ponte E42 ↔ RMR. No laboratório com OAI e FlexRIC, rodam os originais. **Ressalva (2026-11-12):** a equipe informou que o testbed não terá fatiamento. Sem fatias, o papel do xSlice na bancada depende das propostas P1 (fatia no núcleo) ou P3 (teto de PRB da célula) da [varredura dos testbeds, §7](compliance/VARREDURA_TESTBEDS_OPENRAN_BRASIL.md). |
 | ES Orange nos cenários S (2026-11-13) | **Defeito no original:** em `add_UE` (linha 177 de `xapp_es_with_cell_util.c`), `numOfConnectedUEs` soma 1 a cada indicação, e não a cada UE novo. Com relatórios periódicos, a célula com um único UE conta 2 na segunda indicação, e o critério "no máximo 1 UE", verificado a cada 5 s, nunca é atendido. A xApp recebe e registra o KPM pelo shim, mas não emite controle. O teste `tests/integration/test_shim_es_orange.py` demonstra o defeito. **Decisão do autor:** o papel de energia nos cenários S fica com a **EnergySaver-GreenRAN**, como no G1 e no G2 (D1). O ES Orange fica documentado e fora das campanhas, sem correção, porque a regra é não alterar o original. |
 
@@ -313,8 +314,8 @@ O projeto tem duas xApps próprias com a função de economia de energia:
 
 | Aspecto | ES Orange (original, C) | Derivada (`reference-xapps/energy-saving`) | EnergySaver-GreenRAN (GreenRAN) |
 | :-- | :-- | :-- | :-- |
-| Entrada | KPM por UE: SINR servidor e das vizinhas | **nenhuma telemetria**: bateria, solar e ambiente vêm de variáveis de ambiente | KPM por célula (carga em %, UEs) e política A1 21001 |
-| Decisão | célula com no máximo 1 UE registrado → handover dos UEs → `CELL_OFF` | **constante**: `TX_POWER` de 18, 20 ou 21 dBm conforme o ambiente e a bateria configurados, a cada 2,5 s, em todos os nós | carga atual **e** carga esperada na próxima hora (perfil sazonal) abaixo do limiar, dentro da janela de economia, com vizinha capaz de absorver |
+| Entrada | KPM por UE: SINR servidor e das vizinhas | **desde 2026-11-13:** carga da célula no KPM (`EnergySavingDerivada`, `src/xapps/derivadas.py`). Até então, nenhuma telemetria: bateria, solar e ambiente vinham de variáveis de ambiente | KPM por célula (carga em %, UEs) e política A1 21001 |
+| Decisão | célula com no máximo 1 UE registrado → handover dos UEs → `CELL_OFF` | **desde 2026-11-13:** carga abaixo de 10 % propõe `TX_POWER` 30 dBm, e acima de 40 % restaura 43 dBm, uma proposta por mudança de estado. Até então, **constante**: 18, 20 ou 21 dBm conforme o ambiente e a bateria, a cada 2,5 s, em todos os nós | carga atual **e** carga esperada na próxima hora (perfil sazonal) abaixo do limiar, dentro da janela de economia, com vizinha capaz de absorver |
 | Ações | `HANDOVER` por UE e `CELL_STATE = 0` | só `TX_POWER` (os "modos" de sono são rótulos, sem ação diferente) | `HANDOVER` (evacuação), `CELL_STATE` 0 e 1, `TX_POWER` com carga moderada |
 | Destino do handover | por UE, a vizinha de maior SINR (exige 5 amostras e mais de −10 dB) | não faz handover | por célula, a vizinha **menos carregada** que fica abaixo do limiar de despertar, sem olhar o sinal do UE |
 | Religar célula | **não existe** | não se aplica | existe: fim da janela, vizinha sobrecarregada ou carga esperada alta (prioridade 85) |
@@ -322,6 +323,8 @@ O projeto tem duas xApps próprias com a função de economia de energia:
 | Coordenação | nenhuma (controla o E2 direto) | RMR 30000 para a RDL, sem tratar recusas | RMR 30000, `defer_ok`, `ttl_ms` e volta a `ACTIVE` se a RDL recusar |
 | Limites de escala | 20 UEs por célula, 10 células, registro que nunca é limpo | nenhum | nenhum |
 | Tempo | `time()` e `sleep(5)` (relógio simulado na malha fechada) | `time.sleep(2.5)` | `hour_of(t)`, por padrão o horário **local de parede** |
+
+**Descrição:** comparação feita em 2026-11-12 e 2026-11-13, com o código de cada xApp nessas datas. A coluna da derivada foi corrigida em 2026-11-21, depois do "Comparativo xApps originais e próprias" (seção 4.8), porque descrevia a versão anterior a 13/11. As melhorias da EnergySaver-GreenRAN feitas depois (destino pela cobertura, confirmação da evacuação, permanência mínima, redução de potência a partir da potência medida; §10.16) estão no docstring de `src/greenran/energysaver_greenran.py`.
 
 **Onde as xApps próprias são melhores que o original:**
 1. **A EnergySaver-GreenRAN decide com critério de carga e previsão.** O original usa "no máximo 1 UE já visto", que nunca diminui. A EnergySaver-GreenRAN olha a carga atual, a carga esperada para a próxima hora e a capacidade da vizinha, e respeita um mínimo de células ativas.
@@ -409,6 +412,14 @@ O pré-registro é fechado e commitado depois do piloto e antes da campanha, com
    Se a xApp original não gerar o conflito no cenário, isso é um resultado e é relatado. O cenário não é ajustado para forçar o conflito.
 6a. **Ablação do slew-rate (decisão do autor, 18/11):** braço **B3S** = B3 com `enforce_slew_rate` ligado (no máximo 3 dB em `TX_POWER` e 30 pontos em `PRB_QUOTA` em relação ao último valor confirmado, lido da Percepção; recusa o salto maior, que volta à xApp como recusa). Mesmos cenários e sementes do B3, comparação pareada B3S × B3. Na malha fechada o estado confirmado é o último controle despachado; com a cadeia E2 o ACK dele chega na Indication seguinte. Medidas: ações recusadas pelo slew-rate, vazão e atraso na janela, oscilações e, nos cenários de energia, a demora para atingir o alvo. A variante que divide o salto em degraus de até 3 dB / 30 pontos fica fora deste pré-registro.
 7. **Regras de relato:** iguais às do pré-registro 10 (`--retry-failed` uma vez; retomada depois de interrupção). Acrescenta-se uma regra: o relato separa as falhas de xApp das falhas do ns-3.
+8. **Declarações (acrescentadas em 2026-11-21, depois do "Comparativo xApps originais e próprias"; §10.16):**
+   - **Uma só xApp original.** Na malha fechada roda uma única xApp original de terceiros, o `ric-app-ts` (commit `beb44e0`), com a lógica de decisão sem alteração, adaptador E2 e AD e QP emulados (§4.3). As demais são próprias (`xapp_impl: propria`) ou derivadas (`derivado`). O texto usa a fórmula "lógica da xApp não modificada com adaptador E2", no singular.
+   - **Prioridades fixadas pelo projeto:** TS 80 (o original não tem prioridade; quem a fixa é o adaptador); eMBB Throughput 60, abaixo da RANSlicer (90), o que torna previsível o resultado do TVS entre as duas.
+   - **Hora fixa da EnergySaver:** `hour: 2` no `closed_loop.json`, sempre dentro da janela de economia (22 h a 6 h). Isso favorece a ação de energia e é declarado. Variar a hora entre execuções é uma extensão, e não está neste desenho.
+   - **ISAC Radar:** gerador periódico de carga de sensoriamento (teto de 40 % a cada 5 s, prioridade 85), sem medida de demanda de radar.
+   - **Load Balancer:** parâmetros fixados antes da rodada valendo: condição A3 com CIO de 3 dB, tempo de disparo de 640 ms, 30 pontos de desequilíbrio, até 4 UEs por pedido, 5 s entre pedidos, ramo de teto de PRB desligado.
+   - **Contagem de conflitos:** resoluções com a Rogue (teste de segurança) ou com o `fault_injector` (evento do cenário) ficam fora das contagens de conflito entre xApps legítimas. O painel as mostra à parte.
+   - **Execução:** só como projeto multinível (RDL-N1 e RDL-N2 juntas, Non-RT RIC, grafo, Safety Guard, cadeia E2), com 5 sementes e com o painel do §10.4 como saída.
 
 ## 10. Ciclo da cadeia igual ao NORI S8 (decisão do autor de 2026-11-14: híbrido A + C)
 
@@ -433,7 +444,7 @@ O ciclo de referência é o da bancada NORI S8 (apresentação de 10/11, fluxo 0
 
 ### 10.2 C: malha fechada na bancada NORI com E2 real (S8)
 
-- **xApps reais no RIC:** RANSlicer-GreenRAN, a derivada do xSlice e a `embb_throughput` como xApps do Near-RT RIC (charts Helm), assinando o KPM do gNB do NORI pelo SubMgr (`RicKpmSource`) e enviando propostas pelo RMR 30000.
+- **xApps reais no RIC:** RANSlicer-GreenRAN, a derivada do xSlice (hoje URLLC Slice Guard, §10.16) e a `embb_throughput` como xApps do Near-RT RIC (charts Helm), assinando o KPM do gNB do NORI pelo SubMgr (`RicKpmSource`) e enviando propostas pelo RMR 30000.
 - **RDL:** a `kpm-probe` ganha o modo `RC_DECISION=xapps`. Ela junta as propostas que chegam entre duas Indications (período E2 de 1 s), decide com o baseline da execução (B0–B3; B3 = RDL-N1) e envia o E2SM-RC pelo RMR 12040. O resto da cadeia é a do NORI: ACK, KPM_t1, PCAP dissecado pelo tshark e efeito por fatia.
 - **Limites conhecidos antes de rodar:** o KPM do NORI traz `DRB.UEThpDl` sempre 0 (docs/01), então as xApps que leem vazão por UE veem zero; a decisão delas fica apoiada em PRB e atraso. A memória do WSL (5 GB) não comporta a bancada NORI e o ns-3.48 juntos: C e A rodam em sequência.
 
@@ -512,7 +523,7 @@ O ajuste mantém o catálogo e a malha aberta como estavam. Cada programa ganhou
 
 | Cenário | Programa | Opções na malha fechada | Para quê |
 |---|---|---|---|
-| S1 | `scenario_rdl_direct_prb_conflict.cc` | `--channel=UMa --urllcUes=6`; `ue_sst_counts [[6,2],[14,1]]` | 6 UEs URLLC (128 B a cada 1 ms) dão ao xSlice uma fatia a proteger |
+| S1 | `scenario_rdl_direct_prb_conflict.cc` | `--channel=UMa --urllcUes=6`; `ue_sst_counts [[6,2],[14,1]]` | 6 UEs URLLC (128 B a cada 1 ms) dão à xApp do papel `xslice` (hoje a URLLC Slice Guard) uma fatia a proteger |
 | S2 | `scenario_rdl_tvs_conflict.cc` | `--channel=UMa`; vizinhas gNB0↔gNB1 | RSRP diferentes por célula para o TS |
 | S4 | `scenario_rdl_ts_vs_energy.cc` | `--channel=UMa --heavyIntervalMs=1 --ueRhoMax=170 --simTime=60`; vizinhas | macro sobrecarregada (30 UEs a 1024 B/1 ms), UEs ao alcance da small cell (a 200 m) e tempo para a permanência mínima da EnergySaver |
 | S5 | `scenario_rdl_temporal_pingpong.cc` | `--channel=UMa --udpIntervalMs=1 --ueBoxXmin=20 --ueBoxXmax=90`; vizinhas | 24 UEs a 512 B/1 ms concentrados perto da gNB0 (gNBs em x = 0 e 150 m), para haver desequilíbrio de carga |
@@ -709,3 +720,43 @@ Descrição: médias das 17 janelas de 0,2 s a partir de t = 26,6 s em `raw/clos
 **RDL-N1 e RDL-N2 juntas.** Os 13 conflitos da execução N12 foram indiretos (handover do TS contra o teto de PRB do Load Balancer na mesma célula), com C(c, s) = 2,2, e todos subiram à RDL-N2 (1 pela complexidade, 12 pela complexidade e pela recorrência no grafo, com 1 a 5 conflitos no mesmo alvo em 5 s). A RDL-N2 devolveu os 13 à RDL-N1 com o motivo `conflito INDIRECT fora do escopo do MAPPO`, e a decisão final foi a do B3. O Non-RT RIC entregou a A1 20002 uma vez e a 20001 três vezes; a governança não publicou A1 20000, porque não houve rejeição que mudasse o relatório.
 
 **Leitura.** Com UEs em movimento, o S5 volta a ter decisões de handover em sequência, todas justificadas pelas regras das xApps, mas o conflito entre xApps diferentes no mesmo UE (o da §10.14) não apareceu: as voltas foram do próprio TS, e o que as separou foi o limite de frequência do Safety Guard, que vale igual no B3 e no N12. Nesse único episódio, segurar a volta por 0,4 s e encerrar o vaivém deixou o UE 6 melhor e a rede igual ou melhor. Com uma semente e um episódio, é um caso. O N12 ficou idêntico ao B3, como esperado: o MAPPO só conhece disputas diretas de teto de PRB, e no S5 não houve nenhuma (docs/16 da Fase 2, §3). As rodadas não são evidência de publicação.
+
+### 10.16 Campanha `cl_n12` abortada e correções das xApps pelo comparativo (2026-11-21)
+
+**Campanha abortada.** A `cl_n12` (S0–S7 × B0, B3, N12, semente 16908) foi interrompida a pedido do autor depois de 12 execuções concluídas (S0 a S3). A execução `cl_n12_S4_B0_completo_seed16908` foi interrompida no meio, depois de cerca de 3 h 16 min, e ficou sem manifesto. As 13 pastas continuam em `experiments/runs`, mas usam as xApps de antes desta seção. Pela regra nova do autor, elas saem aos poucos, à medida que as campanhas novas as substituírem.
+
+**Correções, na ordem do "Comparativo xApps originais e próprias"** (relatório na pasta `reports` do workspace, fora do repositório):
+
+| xApp ou componente | Problema | Correção |
+| :-- | :-- | :-- |
+| xSlice derivado → **URLLC Slice Guard** | Sem histerese, o teto oscilava 25 → 80 → 25 % a cada ~1,4 s no S2 (atraso protegido de ~9 ms, limite de 10 ms). Sem tratar recusa, parava de propor depois da primeira recusa (S2/B3: 5 propostas, contra 25 no B0). O nome sugeria uma reimplementação do xSlice, cuja decisão é de um PPO com GCN | xApp própria `UrllcSliceGuard` (`src/xapps/proprias.py`, `xapp_id` `urllc_slice_guard`, `xapp_impl: propria`), no papel `xslice` do catálogo. Relaxa só com o atraso abaixo de 0,7 × limite por 5 janelas, e esse número dobra se relaxar recriar o risco (até 40). A recusa devolve a célula ao estado anterior. A xApp de implantação (`reference-xapps/urllc-slice-guard`, chart `xapp-urllc-slice-guard`) perdeu a carga simulada, os perfis fixos e as métricas de valor constante, e o chart passou a configurar o KPM (`SUBMGR_URL`, `KPM_NODES`) |
+| Fatia de cada UE | O orquestrador injetava a fatia a partir do `closed_loop.json` (`ue_sst_*`) | O ns-3 reporta a fatia no KPM por UE (`sst`) e no hello (`ue_sst`), como o `DRB.NetworkSlicing.SST` (`RdlActuation::SetUeSst`). S1, S2 e S3 a declaram no próprio programa, e o `scenario_rdl_multicell` ganhou `--ueGroupSst`, que o orquestrador passa a partir de `ue_sst_groups`. `ue_slice` prefere o valor do KPM, e o mapa do `closed_loop.json` só vale para registros antigos |
+| EnergySaver-GreenRAN | Nos cenários do ns-3 a gNB transmite com o padrão do 5G-LENA (`NrGnbPhy::TxPower` = 4 dBm). A "redução" fixa para 30 dBm era um aumento de 26 dB, e foi isso o que as 25 propostas de `TX_POWER` das rodadas S0–S7 fizeram. Uma recusa de `TX_POWER` deixava a célula marcada como reduzida | Com a potência em vigor no KPM (`tx_power_dbm`), o alvo fica ao menos 3 dB abaixo dela (`es_tx_power_min_step_db`), e não há proposta se isso não for uma redução. A restauração volta à potência medida antes. A recusa desfaz a marcação |
+| Beamformer | Nominal e máximo iguais (43 dBm): nunca propunha | Nominal = primeira potência medida no KPM (sem a medida, 37 dBm); máximo = nominal + 6 dB, até 43 dBm; a potência atual vem do KPM |
+| RANSlicer-GreenRAN | No NORI a vazão por UE vem sempre 0, e a xApp se via sempre em risco e pedia o máximo (§10.6) | Vazão eMBB 0 com PRB em uso é medida ausente: a célula não é decidida nem entra na média da eficiência |
+| Load Balancer | Calibrado ao longo das rodadas do S5, sem critério reconhecível; o ramo de teto de PRB gerava conflitos espúrios com o TS (13 no N12 do P3) | Condição A3 com CIO de 3 dB mantida por 640 ms (`lb_ttt_s`, valor de `TimeToTrigger` do TS 38.331), com o TTT recomeçando quando a condição cai. Ramo de teto de PRB desligado por padrão (`lb_open_cap_enabled`) |
+| Painel (`resumo_campanha.py`) | Resoluções com a Rogue e com o `fault_injector` inflavam a contagem de conflitos (25 de 32 no B3 do piloto 16902) | Bloco de conflitos com "resoluções entre xApps legítimas" e "com xApp de teste ou evento" separadas |
+| docs/16 | A tabela de energia (§8) descrevia a derivada de antes de 13/11; o rascunho do pré-registro 11 (§9) não declarava a hora fixa, as prioridades do projeto, o ISAC periódico nem a única xApp original | Coluna corrigida; item 8 de declarações no §9 |
+
+**Descrição:** uma linha por problema apontado no comparativo, com a correção feita no código. Os números da coluna "Problema" vêm do comparativo e dos registros citados nele; nenhuma execução nova foi feita depois das correções.
+
+**Testes.** Há testes novos para:
+- a histerese no padrão do S2;
+- a duplicação das janelas exigidas;
+- a nova proposta depois de uma recusa;
+- a fatia lida do KPM;
+- o tempo de disparo do Load Balancer;
+- o ramo de teto de PRB desligado;
+- o Beamformer com a potência medida;
+- a EnergySaver, que nunca sobe a potência ao reduzir;
+- a vazão 0 da RANSlicer.
+
+As suítes `tests/unit` e `tests/integration` passam (524 testes), com uma exceção. `test_schedule_replay.py::test_registered_native_schedules_are_reproduced` falha nos cronogramas `nr_S15_B3` (seeds 11001–11005, 12001–12005 e 9101). A falha já existia no commit `39bee5c`, antes destas correções, e foi conferida num worktree desse commit. A causa ainda não foi investigada.
+
+**ns-3.** Os 10 cenários foram recompilados com a fatia no KPM, e todos compilam. Até esta seção, nenhuma simulação rodou com o código novo.
+
+**Regras do autor para as próximas rodadas:**
+- só como projeto multinível, com RDL-N1 e RDL-N2 juntas e todos os componentes;
+- 5 sementes;
+- saída pelo painel do §10.4, como na apresentação;
+- a cada campanha concluída, atualizar os documentos e eliminar aos poucos os dados de antes destas correções.

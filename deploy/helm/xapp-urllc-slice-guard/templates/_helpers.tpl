@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "xapp-qos-xslice.name" -}}
+{{- define "xapp-urllc-slice-guard.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "xapp-qos-xslice.fullname" -}}
+{{- define "xapp-urllc-slice-guard.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -19,10 +19,10 @@ Create a default fully qualified app name.
 {{/*
 Common labels
 */}}
-{{- define "xapp-qos-xslice.labels" -}}
-app.kubernetes.io/name: {{ include "xapp-qos-xslice.name" . }}
+{{- define "xapp-urllc-slice-guard.labels" -}}
+app.kubernetes.io/name: {{ include "xapp-urllc-slice-guard.name" . }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app: {{ include "xapp-qos-xslice.fullname" . }}
+app: {{ include "xapp-urllc-slice-guard.fullname" . }}
 {{- end }}

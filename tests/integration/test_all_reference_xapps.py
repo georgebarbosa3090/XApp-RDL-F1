@@ -2,7 +2,7 @@
 Integração das xApps de referência com o núcleo RDL-N1.
 
 Desde 2026-11-10 restam quatro xApps de referência:
-  1. qos-xslice (PRB_QUOTA) — inspirada em Yan et al.
+  1. urllc-slice-guard (PRB_QUOTA) — URLLC Slice Guard, xApp própria (até 2026-11-21, qos-xslice)
   2. energy-saving (TX_POWER) — inspirada em Wadud et al.
   3. traffic-steering (HANDOVER) — inspirada no papel da o-ran-sc/ric-app-ts
   4. rogue-xapp (TX_POWER alternando 45/5 dBm) — teste do Safety Guard
@@ -15,10 +15,10 @@ from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(root_dir))
-for name in ("qos-xslice", "energy-saving", "traffic-steering", "rogue-xapp"):
+for name in ("urllc-slice-guard", "energy-saving", "traffic-steering", "rogue-xapp"):
     sys.path.insert(0, str(root_dir / "reference-xapps" / name))
 
-from xslice_xapp import XSliceXApp  # noqa: E402
+from urllc_slice_guard_xapp import UrllcSliceGuardXApp  # noqa: E402
 from energy_saving_xapp import EnergySavingXApp  # noqa: E402
 from traffic_steering_xapp import TrafficSteeringXApp  # noqa: E402
 from rogue_xapp import RogueXApp  # noqa: E402
@@ -31,14 +31,38 @@ from src.core.refinement import Refinement  # noqa: E402
 from src.infrastructure.memory_module import MemoryModule  # noqa: E402
 
 
+def _usg_proposal(node_id="gnb_01", delay_ms=25.0):
+    """Proposta da URLLC Slice Guard a partir de um KPM com a fatia URLLC (SST 2) acima do limite de atraso."""
+    from src.greenran.common import CellSample, SliceKpi
+    app = UrllcSliceGuardXApp(http_port=19082, transport=_Silent())
+    app.core.observe(CellSample(node_id, 0.0, load_pct=90.0, slices={2: SliceKpi(delay_ms=delay_ms, ues=3)}))
+    (p,) = app.step(now=1.0)
+    return p
+
+
+class _Silent:
+    """Transporte sem RMR para os testes."""
+    on_result = None
+    sent = []
+
+    def send(self, proposal):
+        self.sent.append(proposal)
+        return True
+
+    def start(self):
+        return "none"
+
+    def stop(self):
+        pass
+
+
 def _action(p):
     return XAppAction(xapp_id=p["xapp_id"], node_id=p["node_id"], parameter=p["parameter"],
                       value=float(p["value"]), priority=int(p["priority"]))
 
 
 def test_reference_xapps_proposal_parameters():
-    assert XSliceXApp(http_port=19082, metrics_port=19083).generate_action_proposal(
-        node_id="gnb_01", prb_quota=85.0)["parameter"] == "PRB_QUOTA"
+    assert _usg_proposal()["parameter"] == "PRB_QUOTA"
     assert EnergySavingXApp(http_port=19084, metrics_port=19085).generate_action_proposal(
         node_id="gnb_01", tx_power=15.0)["parameter"] == "TX_POWER"
     assert TrafficSteeringXApp(http_port=19086, metrics_port=19087).generate_action_proposal(
@@ -49,13 +73,13 @@ def test_reference_xapps_proposal_parameters():
 def test_reference_xapps_contract_with_rdl_safety_guard():
     """O que a RDL aceita de cada xApp (default-deny) e o contrato do HANDOVER."""
     proposals = {
-        "xslice": XSliceXApp(http_port=19182, metrics_port=19183).generate_action_proposal(node_id="gnb_01", prb_quota=85.0),
+        "usg": _usg_proposal(),
         "es": EnergySavingXApp(http_port=19184, metrics_port=19185).generate_action_proposal(node_id="gnb_01", tx_power=15.0),
         "ts": TrafficSteeringXApp(http_port=19186, metrics_port=19187).generate_action_proposal(
             source_node="gnb_01", target_node="gnb_02", target_ue="UE-01"),
     }
     guard = Refinement(MemoryModule())
-    assert {name: guard.check_bounds(_action(p))[0] for name, p in proposals.items()} == {"xslice": True, "es": True, "ts": True}
+    assert {name: guard.check_bounds(_action(p))[0] for name, p in proposals.items()} == {"usg": True, "es": True, "ts": True}
 
     # HANDOVER: value é o índice da célula de destino, coerente com target_node
     assert proposals["ts"]["value"] == 2.0
@@ -67,15 +91,15 @@ def test_reference_xapps_contract_with_rdl_safety_guard():
     assert sorted(results) == [False, True]
 
 
-def test_xslice_and_energy_saving_conflict_is_resolved():
-    """Conflito direto xSlice × Energy Saving no mesmo alvo, resolvido por TVS e validado pelo Safety Guard."""
+def test_urllc_slice_guard_and_energy_saving_conflict_is_resolved():
+    """Conflito direto URLLC Slice Guard × Energy Saving no mesmo alvo, resolvido por TVS e validado pelo Safety Guard."""
     memory = MemoryModule()
-    xslice = _action(XSliceXApp(http_port=19282, metrics_port=19283).generate_action_proposal(node_id="gnb_01", prb_quota=85.0))
+    usg = _action(_usg_proposal())
     energy = XAppAction(xapp_id="energy_saving", node_id="gnb_01", parameter="PRB_QUOTA", value=30.0, priority=65)
-    conflicts = Perception().detect_action_group([xslice, energy])
+    conflicts = Perception().detect_action_group([usg, energy])
     assert [c.conflict_type for c in conflicts] == [ConflictType.DIRECT]
     resolution = Reasoning(memory, config={}).resolve(conflicts[0])
-    assert resolution.winning_actions == [xslice]
+    assert resolution.winning_actions == [usg]
     assert Refinement(memory).validate(resolution, conflicts[0])[0]
 
 
@@ -107,7 +131,7 @@ def test_rmr_contract_between_reference_xapps_and_rdl(monkeypatch):
         app._action_proposal_handler(None, {"payload": sent[0][0]}, None)
         (queued,) = app.proposal_buffer
         assert (queued.xapp_id, queued.parameter, queued.value) == (es.xapp_id, "TX_POWER", 15.0)
-        rival = XAppAction(xapp_id="xslice_oran", node_id="gnb_0", parameter="TX_POWER", value=30.0, priority=95)
+        rival = XAppAction(xapp_id="urllc_slice_guard", node_id="gnb_0", parameter="TX_POWER", value=30.0, priority=95)
         app._process_action_group([queued, rival])
         (notice, mtype), = notices
         assert mtype == 30001 and notice["xapp_id"] == es.xapp_id

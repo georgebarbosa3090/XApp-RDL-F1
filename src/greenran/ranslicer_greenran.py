@@ -21,6 +21,8 @@ mMTC dos sensores (SST 2; App2). A cada período, por célula:
    (o TTL da proposta); o teto só desce depois de ``ranslicer_down_hold_s`` (10 s) sem risco, porque reduzir logo
    depois do risco o recriava (ciclo lento de 2 s e cerca de 7 pontos na 2ª rodada do piloto). Sem isso, o ruído da média móvel da eficiência fechava um ciclo 54 ↔ 56 % a cada
    janela (131 reversões em 30 s no G1/B0). Recusa da RDL devolve o teto de referência ao valor em vigor.
+6. **Medida ausente (2026-11-21):** com vazão eMBB 0 e PRB em uso, a célula não é decidida nem entra na
+   média da eficiência. É o caso do KPM do NORI, cuja vazão por UE vem sempre 0 (docs/16 §10.6 e §10.16).
 
 A intenção chega pela política A1 21000 (``GreenRAN_RANSlicer_Intent``), publicada pelo
 rApp-ResourceOptimizer.
@@ -64,7 +66,7 @@ class RanSlicer(GreenRanXApp):
     def observe(self, sample: CellSample) -> None:
         super().observe(sample)
         embb = sample.slices.get(EMBB_SST)
-        if embb and embb.prb_used > 0 and sample.load_pct:
+        if embb and embb.prb_used > 0 and sample.load_pct and embb.thp_mbps > 0:
             # fração de PRB da fatia (% da célula) estimada pela participação da fatia nos PRBs dos UEs
             total_prb = sum(s.prb_used for s in sample.slices.values()) or embb.prb_used
             share_pct = sample.load_pct * embb.prb_used / total_prb
@@ -82,6 +84,10 @@ class RanSlicer(GreenRanXApp):
         out = []
         for cell, s in sorted(self.samples.items()):
             embb = s.slices.get(EMBB_SST)
+            if embb is not None and embb.ues > 0 and embb.thp_mbps <= 0 and embb.prb_used > 0:
+                # vazão 0 com PRB em uso é medida ausente, não falta de vazão: no NORI o KPM traz DRB.UEThpDl
+                # sempre 0, e a xApp se via sempre em risco e pedia o máximo (docs/16 §10.6 e §10.16)
+                continue
             eff = self.efficiency.get(cell, float(pol["ranslicer_default_eff"]))
             target = float(pol["embb_min_thp_mbps"])
             need = target * (1 + float(pol["slice_safety_margin"])) / max(eff, 1e-6)

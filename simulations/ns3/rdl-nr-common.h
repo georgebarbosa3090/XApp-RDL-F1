@@ -208,6 +208,22 @@ class RdlActuation
     }
 
     /**
+     * Fatia (SST, 3GPP TS 23.501) do UE de índice u, reportada no KPM por UE ("sst") e no hello ("ue_sst"),
+     * como a medida DRB.NetworkSlicing.SST do E2SM-KPM. Os cenários não configuram bearers por fatia: a fatia é a
+     * classe de tráfego que o próprio cenário instala (URLLC, eMBB, mMTC). UE sem chamada: SST 1 (eMBB).
+     */
+    void SetUeSst(uint32_t u, uint32_t sst)
+    {
+        m_ueSst[u] = sst;
+    }
+
+    uint32_t UeSst(uint32_t u) const
+    {
+        auto it = m_ueSst.find(u);
+        return it == m_ueSst.end() ? 1 : it->second;
+    }
+
+    /**
      * Lê o cronograma e agenda cada ação. Retorna o número de ações agendadas.
      * Com RDL_CONTROL_SOCKET definido, entra em malha fechada (seção 4 do cabeçalho) e retorna 0.
      */
@@ -571,6 +587,11 @@ class RdlActuation
             h << (first ? "" : ",") << "\"" << u << "\":" << Num(mbps, 4);
             first = false;
         }
+        h << "},\"ue_sst\":{";
+        for (uint32_t u = 0; u < m_ueDevs.GetN(); ++u)
+        {
+            h << (u ? "," : "") << "\"" << u << "\":" << UeSst(u);
+        }
         h << "}}";
         SendLine(h.str());
         Simulator::Schedule(Seconds(m_window), &RdlActuation::CloseWindow, this);
@@ -656,8 +677,8 @@ class RdlActuation
             double sinrDb = a.sinrN ? 10.0 * std::log10(a.sinrSum / a.sinrN) : NAN;
             ues << (u ? "," : "") << "{\"ue\":" << u << ",\"cell_id\":" << cell << ",\"gnb\":" << g
                 << ",\"rnti\":" << rrc->GetRnti() << ",\"connected\":" << (connected ? "true" : "false")
-                << ",\"rx_packets\":" << a.packets << ",\"thp_mbps\":" << Num(thp) << ",\"delay_ms\":"
-                << Num(delay) << ",\"sinr_db\":" << Num(sinrDb, 2) << ",\"rsrp_dbm\":{";
+                << ",\"sst\":" << UeSst(u) << ",\"rx_packets\":" << a.packets << ",\"thp_mbps\":" << Num(thp)
+                << ",\"delay_ms\":" << Num(delay) << ",\"sinr_db\":" << Num(sinrDb, 2) << ",\"rsrp_dbm\":{";
             bool first = true;
             for (const auto& [c, r] : m_lastRsrp[u])
             {
@@ -766,6 +787,7 @@ class RdlActuation
 
     const double kSleepTxPowerDbm = -30.0;
     std::map<uint32_t, double> m_savedTxPower;
+    std::map<uint32_t, uint32_t> m_ueSst;            // índice do UE -> SST (SetUeSst)
     // ciclo E2 da malha fechada (docs/16 §10.1): resultado de cada controle, devolvido na Indication seguinte
     // (ACK/Failure no orquestrador), e a cota de PRB em vigor por gNB (estado aplicado para o KPM_t1)
     std::vector<std::string> m_outcomes;

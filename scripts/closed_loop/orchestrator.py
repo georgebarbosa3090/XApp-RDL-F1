@@ -211,9 +211,10 @@ class RAppStep:
         self.next_t = 0.0
 
     def _kpi(self, kpm: Dict[str, Any]) -> Dict[str, Any]:
+        from src.greenran.common import ue_slice
         thp, delays = 0.0, []
         for u in kpm.get("ues", []):
-            if u.get("connected") and self.ue_sst.get(int(u["ue"]), 1) == 1:
+            if u.get("connected") and ue_slice(u, self.ue_sst) == 1:
                 thp += float(u.get("thp_mbps") or 0.0)
                 if isinstance(u.get("delay_ms"), (int, float)):
                     delays.append(float(u["delay_ms"]))
@@ -275,7 +276,8 @@ class RAppStep:
 
 
 def ue_sst_map(spec: Dict[str, Any], sc_cfg: Dict[str, Any], max_ues: int = 1024) -> Dict[int, int]:
-    """Índice do UE -> SST.
+    """Índice do UE -> SST, só para registros sem o campo ``sst`` no KPM (antes de 2026-11-21): o ns-3 agora
+    reporta a fatia de cada UE, e ``src.greenran.common.ue_slice`` prefere o valor do KPM.
 
     - ``ue_sst_groups``: SST de cada grupo de --ueGroups, na ordem (scenario_rdl_multicell: G*, S9–S15);
     - ``ue_sst_cycle``: SST repetido em ciclo pelo índice do UE (S2: i mod 3 -> URLLC, eMBB, mMTC no programa);
@@ -385,6 +387,9 @@ def run(args) -> int:
     if args.xapps == "completo":
         sc_cl = json.loads(CLOSED_LOOP_CFG.read_text(encoding="utf-8"))["scenarios"].get(args.scenario, {})
         cl_args = list(sc_cl.get("ns3_args", []))
+        # A fatia de cada grupo de UEs vai ao ns-3, que a reporta no KPM por UE (campo "sst"; 2026-11-21)
+        if sc_cl.get("ue_sst_groups") and spec.get("ns3") == "scenario_rdl_multicell":
+            cl_args.append("--ueGroupSst=" + ",".join(str(int(s)) for s in sc_cl["ue_sst_groups"]))
         if sc_cl.get("topology") and not spec.get("topology"):
             spec["topology"] = sc_cl["topology"]
     window = float(catalog.get("decision_window_s", 0.2))

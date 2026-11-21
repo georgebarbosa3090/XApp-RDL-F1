@@ -1,0 +1,8 @@
+apiVersion: v2
+name: xapp-urllc-slice-guard
+description: URLLC Slice Guard, xApp própria do projeto RDL que protege a fatia URLLC limitando a fatia eMBB pelo KPM (até 2026-11-21, xapp-qos-xslice)
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+maintainers:
+  - name: George Barbosa

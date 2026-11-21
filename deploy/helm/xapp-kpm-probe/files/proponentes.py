@@ -2,7 +2,7 @@
 # Autor: George Barbosa
 # Software próprio do projeto xApp RDL. Licença: Apache-2.0 (ver LICENSE e AUTHORS.md).
 """
-xApps proponentes na bancada NORI (docs/16 §10.2, opção C do híbrido): RANSlicer-GreenRAN, derivada do xSlice e
+xApps proponentes na bancada NORI (docs/16 §10.2, opção C do híbrido): RANSlicer-GreenRAN, URLLC Slice Guard e
 ``embb_throughput``, sem alteração na regra de decisão, lendo o KPM real do gNB do NORI pelo Near-RT RIC.
 
 Fluxo:
@@ -47,10 +47,10 @@ ASN_DIR = ENV.get("ASN_DIR", "/data/asn")
 EVENTS_FILE = ENV.get("EVENTS_FILE", "/data/logs/proponentes_events.jsonl")
 APP_DIR = ENV.get("XAPP_RDL_APP_DIR", "/data/app")
 SRC_COMMIT = ENV.get("XAPP_RDL_SRC_COMMIT", "")
-XAPPS = [x for x in ENV.get("PROPONENTES", "ranslicer,xslice,embb_throughput").split(",") if x]
+XAPPS = [x for x in ENV.get("PROPONENTES", "ranslicer,urllc_slice_guard,embb_throughput").split(",") if x]
 PROPOSAL, RESULT = 30000, 30001
 CLASSES = {"ranslicer": ("src.greenran.ranslicer_greenran", "RanSlicer"),
-           "xslice": ("src.xapps.derivadas", "XSliceDerivada"),
+           "urllc_slice_guard": ("src.xapps.proprias", "UrllcSliceGuard"),
            "embb_throughput": ("src.xapps.proprias", "EmbbThroughput")}
 RX = ["RIC_SUB_RESP", "RIC_SUB_FAILURE", "RIC_SUB_DEL_RESP", "RIC_INDICATION", "TS_QOE_PRED_REQ"]
 TX = ["RIC_SUB_REQ", "RIC_SUB_DEL_REQ", "TS_UE_LIST"]

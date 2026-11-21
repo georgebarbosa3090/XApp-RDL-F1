@@ -15,8 +15,8 @@ Escrito para este projeto. Os arquivos principais trazem o cabeçalho `Autor: Ge
 | Perfis de backend do testbed (NORI, srsRAN, OAI) | `src/e2/backends/testbed_profiles.py`, `configs/testbed_ufpa/backends/` |
 | kpm-probe (xApp que fecha o loop E2 real na bancada NORI) | `deploy/helm/xapp-kpm-probe/files/kpm_probe.py` |
 | rApp-ResourceOptimizer e rApp de governança | `rapps/` |
-| xApps de referência: Rogue e transporte RMR comum | `reference-xapps/rogue-xapp/`, `reference-xapps/common/` |
-| xApps de referência reimplementadas em Python, inspiradas em trabalhos de terceiros (sem código deles): xSlice, Energy Saving, Traffic Steering | `reference-xapps/qos-xslice/`, `reference-xapps/energy-saving/`, `reference-xapps/traffic-steering/` |
+| xApps de referência: Rogue, URLLC Slice Guard (até 2026-11-21, `qos-xslice`) e transporte RMR comum | `reference-xapps/rogue-xapp/`, `reference-xapps/urllc-slice-guard/`, `reference-xapps/common/` |
+| xApps de referência reimplementadas em Python, inspiradas em trabalhos de terceiros (sem código deles): Energy Saving, Traffic Steering | `reference-xapps/energy-saving/`, `reference-xapps/traffic-steering/` |
 | Cenários ns-3/5G-LENA, harness de atuação, certificador, campanhas, charts Helm e documentação | `simulations/`, `scripts/`, `deploy/helm/`, `docs/` |
 
 ## Código de terceiros
@@ -26,7 +26,7 @@ Copiado **sem modificação**, só para registro de procedência das xApps inspi
 | Pasta | Origem | Licença | Usada como referência por |
 | :-- | :-- | :-- | :-- |
 | [`third_party/xapps/ric-app-ts`](third_party/xapps/ric-app-ts/SOURCE.md) | o-ran-sc/ric-app-ts (Traffic Steering) | Apache-2.0 | `reference-xapps/traffic-steering` |
-| [`third_party/xapps/xslice-oran`](third_party/xapps/xslice-oran/SOURCE.md) | peihaoY/xslice-oran (xSlice, Yan et al.) | OAI Public License v1.1 | `reference-xapps/qos-xslice` |
+| [`third_party/xapps/xslice-oran`](third_party/xapps/xslice-oran/SOURCE.md) | peihaoY/xslice-oran (xSlice, Yan et al.) | OAI Public License v1.1 | nenhuma (a URLLC Slice Guard faz o papel do xSlice sem reimplementá-lo) |
 | [`third_party/xapps/flexric-orange-es`](third_party/xapps/flexric-orange-es/SOURCE.md) | mosaic5g/flexric, ramo `oie-ric-taap-xapps` (Energy Saving da Orange) | Collaborative Standards Software License v1.0 | `reference-xapps/energy-saving` |
 
 Dependências de execução (O-RAN SC `ricxappframe`, NORI, ns-3, 5G-LENA, A1-PMS, Neo4j etc.) são usadas como bibliotecas, imagens ou ferramentas externas, com as licenças delas, e não estão neste repositório.

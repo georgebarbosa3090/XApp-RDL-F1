@@ -102,8 +102,9 @@ fi
 # 4. Deploy das 3 Reference xApps via Helm (ricxapp)
 echo -e "\n${YELLOW}[4/6] Realizando deploy das 3 Reference xApps via Helm no namespace ${NAMESPACE_XAPP}...${NC}"
 
-echo " -> 4.1 Instalando 1. xSlice QoS xApp (peihaoY/xslice-oran)..."
-helm upgrade --install ricxapp-qos-xslice deploy/helm/xapp-qos-xslice \
+echo " -> 4.1 Instalando 1. URLLC Slice Guard (xApp própria; até 2026-11-21, xapp-qos-xslice)..."
+helm uninstall ricxapp-qos-xslice -n ${NAMESPACE_XAPP} 2>/dev/null || true   # release antigo (renomeado)
+helm upgrade --install ricxapp-urllc-slice-guard deploy/helm/xapp-urllc-slice-guard \
   --namespace ${NAMESPACE_XAPP} \
   --create-namespace \
   --set image.pullPolicy=Never \
@@ -143,7 +144,7 @@ fi
 # 6. Validação de Rollout e Status
 echo -e "\n${YELLOW}[6/6] Validando rollout dos Pods no namespace ${NAMESPACE_XAPP}...${NC}"
 
-kubectl rollout status deployment/ricxapp-qos-xslice -n ${NAMESPACE_XAPP} --timeout=90s
+kubectl rollout status deployment/ricxapp-urllc-slice-guard -n ${NAMESPACE_XAPP} --timeout=90s
 kubectl rollout status deployment/ricxapp-energy-saving -n ${NAMESPACE_XAPP} --timeout=90s
 kubectl rollout status deployment/ricxapp-traffic-steering -n ${NAMESPACE_XAPP} --timeout=90s
 

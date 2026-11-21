@@ -13,6 +13,8 @@
  *                                        grupos de UEs: quantidade, centro e raio do disco,
  *                                        intervalo entre pacotes (ms), velocidade constante
  *                                        (m/s; 0,0 = parado) e altura (m)
+ *   --ueGroupSst="s1,s2,..."             fatia (SST) de cada grupo, na ordem de --ueGroups, reportada no
+ *                                        KPM por UE (vazio: SST 1 em todos)
  *   --channel=UMa|UMi|RMa|InH|InH-OfficeMixed|NTN-Rural|NTN-Suburban|NTN-Urban|NTN-DenseUrban
  *                                        Nos cenários NTN-*, o modelo de canal do 5G-LENA exige posições
  *                                        geocêntricas: --gnbs passa a ser "lat,lon,alt_m" e o centro de cada
@@ -106,6 +108,8 @@ main(int argc, char* argv[])
     CommandLine cmd(__FILE__);
     cmd.AddValue("gnbs", "Posicoes dos gNBs: x,y,z;x,y,z", gnbs);
     cmd.AddValue("ueGroups", "Grupos de UEs: n,cx,cy,rmin,rmax,intervalMs,vx,vy,z;...", ueGroups);
+    std::string ueGroupSst = "";
+    cmd.AddValue("ueGroupSst", "Fatia (SST) de cada grupo de UEs, na ordem de --ueGroups: s1,s2,...", ueGroupSst);
     cmd.AddValue("channel", "Cenario de canal 3GPP do 5G-LENA (UMa, RMa, NTN-Rural, ...)", channel);
     cmd.AddValue("txPowerDbm", "Potencia inicial dos gNBs (dBm)", txPowerDbm);
     cmd.AddValue("simTime", "Tempo de simulacao (s)", simTime);
@@ -226,6 +230,18 @@ main(int argc, char* argv[])
     RdlInstallDownlinkUdp(net, ueNodes, serverApps, clientApps, 7001,
                           [&](uint32_t i) { return MilliSeconds(ueInterval[i]); }, packetSize);
     RdlActuation actuation(net.nrHelper, net.gnbDevs, net.ueDevs);
+    if (!ueGroupSst.empty())
+    {
+        auto sst = ParseTable(ueGroupSst, ueTable.size(), "--ueGroupSst")[0];
+        uint32_t u = 0;
+        for (size_t g = 0; g < ueTable.size(); ++g)
+        {
+            for (uint32_t k = 0; k < static_cast<uint32_t>(ueTable[g][0]); ++k)
+            {
+                actuation.SetUeSst(u++, static_cast<uint32_t>(sst[g]));
+            }
+        }
+    }
     actuation.Load(actionSchedule);
     RdlKpiSampler kpi(net.ueDevs, kpiPeriod, simTime);
 #else

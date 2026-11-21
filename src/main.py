@@ -8,7 +8,7 @@ from pathlib import Path
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root_dir))
-sys.path.insert(0, str(root_dir / "reference-xapps" / "qos-xslice"))
+sys.path.insert(0, str(root_dir / "reference-xapps" / "urllc-slice-guard"))
 sys.path.insert(0, str(root_dir / "reference-xapps" / "energy-saving"))
 sys.path.insert(0, str(root_dir / "reference-xapps" / "traffic-steering"))
 
@@ -19,10 +19,10 @@ logger = logging.getLogger("xapp_entrypoint")
 def main():
     role = os.getenv("XAPP_ROLE", os.getenv("XAPP_TYPE", "rdl")).lower()
     
-    if role in ("xslice", "qos", "qos-xslice"):
-        from xslice_xapp import XSliceXApp
-        logger.info("Iniciando Reference xApp: xSlice (QoS / Slicing Optimizer)...")
-        app = XSliceXApp()
+    if role in ("urllc_slice_guard", "urllc-slice-guard", "usg"):
+        from urllc_slice_guard_xapp import UrllcSliceGuardXApp
+        logger.info("Iniciando URLLC Slice Guard...")
+        app = UrllcSliceGuardXApp()
 
     elif role in ("energy_saving", "es", "energy-saving"):
         from energy_saving_xapp import EnergySavingXApp

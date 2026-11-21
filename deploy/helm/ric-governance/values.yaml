@@ -42,7 +42,7 @@ routes:
   e2termEndpoint: service-ricplt-e2term-rmr-alpha.ricplt:38000
   # Endpoints das xApps que recebem RDL_ACTION_RESULT (30001); cada uma filtra pelo próprio xapp_id
   proposers: []
-  #   - service-ricxapp-xslice-rmr.ricxapp:4560
+  #   - service-ricxapp-urllc-slice-guard-rmr.ricxapp:4562
   # xApps de terceiros interceptadas: origem RMR (hostname:porta do remetente) cujo 12040 vai para a RDL
   intercepted: []
   #   - ricxapp-thirdparty-ts-0:4560
