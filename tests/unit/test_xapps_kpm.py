@@ -14,8 +14,8 @@ for p in (ROOT, ROOT / "reference-xapps" / "common"):
 
 from src.greenran.common import CellSample, SliceKpi, UeKpi  # noqa: E402
 from src.xapps.derivadas import EnergySavingDerivada, RogueDerivada, TrafficSteeringDerivada  # noqa: E402
-from src.xapps.proprias import (Beamformer, EmbbThroughput, IsacRadar, LoadBalancer,  # noqa: E402
-                                UrllcSliceGuard)
+from src.xapps.proprias import (Beamformer, CoverageCapacityOptimizer, EmbbThroughput, IsacRadar,  # noqa: E402
+                                LoadBalancer, UeFairnessScheduler, UrllcSliceGuard)
 
 
 class _T:
@@ -26,7 +26,7 @@ class _T:
 
 
 ALL = [UrllcSliceGuard, EnergySavingDerivada, TrafficSteeringDerivada, RogueDerivada, LoadBalancer, Beamformer,
-       IsacRadar, EmbbThroughput]
+       IsacRadar, EmbbThroughput, CoverageCapacityOptimizer, UeFairnessScheduler]
 
 
 @pytest.mark.parametrize("cls", ALL)
@@ -275,3 +275,42 @@ def test_ranslicer_treats_zero_throughput_with_prb_in_use_as_missing_measure():
     assert rs.decide(1.0) == []
     rs.observe(CellSample("gnb_0", 1, load_pct=60.0, slices={1: SliceKpi(thp_mbps=20.0, prb_used=30.0, ues=4)}))
     assert [p["parameter"] for p in rs.decide(2.0)] == ["PRB_QUOTA"]
+
+
+def _cell(cell, t, tx, sinrs, load=50.0, sst=None, thps=None):
+    s = CellSample(cell, t, load_pct=load, tx_power_dbm=tx)
+    s.ues = [UeKpi(str(i), cell, v, {cell: -100.0}, (thps or [1.0] * len(sinrs))[i], sst)
+             for i, v in enumerate(sinrs)]
+    return s
+
+
+def test_cco_raises_power_on_coverage_hole_and_returns_toward_nominal():
+    """docs/16 §10.17: CCO (TS 28.313) contra a EnergySaver em TX_POWER, como no par CCO × ES de Wadud et al."""
+    x = CoverageCapacityOptimizer(transport=_T())
+    x.observe(_cell("gnb_0", 0, 4.0, [-3.0, -2.0, 5.0, 8.0]))          # 50 % dos UEs na borda
+    assert [p["value"] for p in x.decide(1.0)] == [7.0]
+    x.observe(_cell("gnb_0", 1, 7.0, [-3.0, -2.0, 5.0, 8.0]))
+    assert x.decide(2.0) == []                                          # 2 s entre propostas da célula
+    assert [p["value"] for p in x.decide(3.0)] == [10.0]                # até a nominal + 6 dB
+    x.observe(_cell("gnb_0", 4, 10.0, [15.0, 16.0, 18.0, 20.0]))       # cobertura folgada
+    assert [p["value"] for p in x.decide(5.0)] == [7.0]
+    x.observe(_cell("gnb_0", 6, 4.0, [15.0, 16.0, 18.0, 20.0]))
+    assert x.decide(7.0) == []                                          # já na nominal
+
+
+def test_ue_scheduler_switches_between_fairness_and_efficiency():
+    x = UeFairnessScheduler(transport=_T())
+    x.observe(_cell("gnb_0", 0, 4.0, [5.0] * 4, load=90.0, sst=1, thps=[20.0, 0.5, 0.4, 0.3]))
+    (p,) = x.decide(1.0)
+    assert (p["parameter"], p["value"]) == ("SCHEDULER_WEIGHT", 20.0)  # Jain baixo: mais justiça
+    x.observe(_cell("gnb_0", 2, 4.0, [5.0] * 4, load=90.0, sst=1, thps=[5.0, 5.1, 4.9, 5.0]))
+    assert [q["value"] for q in x.decide(3.0)] == [100.0]               # justo e carregado: PF clássico
+    assert x.decide(6.0) == []                                          # mesmo modo: não repete
+    x.on_result({"node_id": "gnb_0", "parameter": "SCHEDULER_WEIGHT", "reason": "NOT_SELECTED"})
+    assert [q["value"] for q in x.decide(9.0)] == [100.0]               # recusa: volta a propor
+
+
+def test_ue_scheduler_ignores_other_slices():
+    x = UeFairnessScheduler(transport=_T())
+    x.observe(_cell("gnb_0", 0, 4.0, [5.0] * 3, load=90.0, sst=2, thps=[20.0, 0.1, 0.1]))
+    assert x.decide(1.0) == []

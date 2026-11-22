@@ -10,6 +10,11 @@ medida falha aqui.
 - B3 e B3A: o B3 das execuções registradas usou o EEVS por média (B3M hoje); o B3A, o aditivo.
 - Exceção documentada: S4 e S5 da campanha C1 (2026-11-08) são anteriores às regras entre células
   (achado 52 de docs/07: "as campanhas anteriores não refletem isso").
+- Exceção documentada (docs/16 §10.10 e §10.16): os B3 do S15 são anteriores à regra de que um handover já
+  confirmado não forma conflito indireto com propostas posteriores do mesmo nó (commit 69e241b). Antes, o EEVS
+  descartava as cotas de PRB do Energy Saving que vinham depois do handover do TS; hoje elas passam. Para essas
+  execuções, o teste confere que o cronograma atual contém o registrado e que as ações a mais são só cotas de PRB
+  de xApps que não pediram o handover.
 """
 
 import csv
@@ -32,6 +37,8 @@ import run_conflict_experiment as rce  # noqa: E402
 # Execuções anteriores às regras entre células (achado 52)
 PRE_INTER_CELL = {f"nr_{s}_B3_seed{seed}" for s in ("S4", "S5") for seed in range(1001, 1006)}
 DECIDER = {"B0": "B0", "B1": "B1", "B2": "B2", "B3": "B3M", "B3A": "B3A"}
+# Execuções anteriores à regra do handover confirmado (docs/16 §10.10; commit 69e241b)
+PRE_CONFIRMED_HO = {f"nr_S15_B3_seed{seed}" for seed in (9101, *range(11001, 11006), *range(12001, 12006))}
 
 
 def _runs():
@@ -50,6 +57,19 @@ def _schedule_sha(schedule):
     return hashlib.sha256(buf.getvalue().encode("utf-8")).hexdigest()
 
 
+def _only_prb_added_after_confirmed_handover(run, schedule):
+    """O cronograma atual contém o registrado, e o que sobra são cotas de PRB de xApps que não pediram handover."""
+    path = ROOT / "experiments" / "runs" / run / "raw" / "action_schedule.csv"
+    with open(path, newline="", encoding="utf-8") as fh:
+        registered = {(round(float(r["time_s"]), 6), r["action_id"]) for r in csv.DictReader(fh)}
+    current = {(round(float(r["time_s"]), 6), r["action_id"]): r for r in schedule}
+    if not registered <= set(current):
+        return False
+    movers = {r["xapp_id"] for r in schedule if r["parameter"] == "HANDOVER"}
+    extra = [current[k] for k in set(current) - registered]
+    return bool(extra) and all(r["parameter"] == "PRB_QUOTA" and r["xapp_id"] not in movers for r in extra)
+
+
 def test_registered_native_schedules_are_reproduced():
     runs = list(_runs())
     if not runs:
@@ -65,7 +85,10 @@ def test_registered_native_schedules_are_reproduced():
             if scenario not in catalog["scenarios"]:
                 continue
             _, _, schedule, _ = rce.decide(scenario, DECIDER[manifest["baseline"]], catalog)
-            if _schedule_sha(schedule) != manifest.get("action_schedule_sha256"):
+            if run in PRE_CONFIRMED_HO:
+                if not _only_prb_added_after_confirmed_handover(run, schedule):
+                    mismatched.append(run)
+            elif _schedule_sha(schedule) != manifest.get("action_schedule_sha256"):
                 mismatched.append(run)
     finally:
         logging.disable(previous)

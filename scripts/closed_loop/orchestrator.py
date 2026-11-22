@@ -336,7 +336,8 @@ def build_full_drivers(spec: Dict[str, Any], run_id: str = "", derivado: tuple =
     sc_cfg = {**cfg.get("defaults", {}), **cfg["scenarios"].get(spec.get("_id", ""), {})}
     ue_sst = ue_sst_map(spec, sc_cfg)
     hour = int(sc_cfg.get("hour", 2))
-    roles = sorted({p["xapp_id"] for p in spec["proposals"]})
+    # papéis do catálogo mais os da malha fechada (extra_roles do closed_loop.json; xApps sem papel no catálogo)
+    roles = sorted({p["xapp_id"] for p in spec["proposals"]} | set(sc_cfg.get("extra_roles", [])))
     drivers: List[XAppDriver] = []
     made = set()
     for role in roles:

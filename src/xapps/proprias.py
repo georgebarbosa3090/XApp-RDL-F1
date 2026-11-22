@@ -19,6 +19,9 @@ xApps próprias para os papéis do catálogo sem original público (docs/16, dec
   ``isac_max_load_pct`` (cede ao tráfego).
 - ``EmbbThroughput``: se a vazão da fatia eMBB fica abaixo de ``embb_target_mbps``, propõe abrir a cota de
   PRB da célula para ``embb_cap_pct``.
+- ``CoverageCapacityOptimizer`` (CCO): sobe a potência quando a fração de UEs na borda (SINR ou RSRP baixos) passa
+  do limite e volta em direção à nominal com cobertura folgada; contraparte da EnergySaver em ``TX_POWER``.
+- ``UeFairnessScheduler``: ajusta ``SCHEDULER_WEIGHT`` (índice de justiça do PF) pelo índice de Jain da vazão eMBB.
 - ``UrllcSliceGuard`` (URLLC Slice Guard): protege a fatia URLLC limitando a fatia eMBB da célula quando o
   atraso da URLLC passa do limite; faz o papel do xSlice no catálogo (até 2026-11-21, ``XSliceDerivada``).
 """
@@ -281,3 +284,124 @@ class UrllcSliceGuard(_Kpm):
             self.since_relax.pop(cell, None)
             self.ok_windows[cell] = 0
             self.cap_pct.pop(cell, None)
+
+
+class CoverageCapacityOptimizer(_Kpm):
+    """CCO (otimização de cobertura e capacidade, função SON do 3GPP TS 28.313): ajusta a potência da célula pela
+    cobertura medida na borda.
+
+    Entradas medidas no KPM: SINR e RSRP da servidora por UE e a potência em vigor (``tx_power_dbm``).
+    - **Buraco de cobertura:** se a fração de UEs na borda (SINR abaixo de ``cco_edge_sinr_db`` ou RSRP abaixo de
+      ``cco_edge_rsrp_dbm``) passa de ``cco_edge_frac``, propõe subir a potência ``cco_step_db``, até a potência
+      nominal (a primeira medida) mais ``cco_max_boost_db`` e no máximo ``cco_max_tx_dbm``.
+    - **Cobertura folgada:** sem UE na borda e com o 5º percentil do SINR acima de ``cco_ok_sinr_db``, propõe voltar
+      um passo em direção à nominal (reduz interferência nas vizinhas).
+    - Entre duas propostas da mesma célula passam ao menos ``cco_period_s``; uma recusa não muda nada, porque a
+      potência atual vem sempre do KPM.
+
+    Entra nos cenários com energia (S4, S6) como contraparte da EnergySaver em ``TX_POWER``: o conflito direto CCO
+    × ES em potência é o par da triagem de Wadud et al. (arXiv 2611.13516). xApp própria: as buscas não acharam
+    código público de CCO (docs/16 §10.17)."""
+
+    XAPP_ID = "cco"
+    A1_TYPE = ""
+    DEFAULTS: Dict[str, Any] = {"cco_edge_sinr_db": 0.0, "cco_edge_rsrp_dbm": -115.0, "cco_edge_frac": 0.2,
+                                "cco_ok_sinr_db": 10.0, "cco_step_db": 3.0, "cco_max_boost_db": 6.0,
+                                "cco_max_tx_dbm": 43.0, "cco_period_s": 2.0, "cco_priority": 75}
+
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.nominal: Dict[str, float] = {}
+        self.last_t: Dict[str, float] = {}
+
+    def decide(self, now: float) -> List[Dict[str, Any]]:
+        pol, out = self.policy(), []
+        for cell, s in sorted(self.samples.items()):
+            if s.tx_power_dbm is None or now - self.last_t.get(cell, float("-inf")) < float(pol["cco_period_s"]):
+                continue
+            sinrs = sorted(u.sinr_db for u in s.ues if u.sinr_db is not None)
+            if not sinrs:
+                continue
+            nominal = self.nominal.setdefault(cell, float(s.tx_power_dbm))
+            top = min(nominal + float(pol["cco_max_boost_db"]), float(pol["cco_max_tx_dbm"]))
+            edge = [u for u in s.ues if (u.sinr_db is not None and u.sinr_db < float(pol["cco_edge_sinr_db"]))
+                    or u.rsrp_dbm.get(cell, 0.0) < float(pol["cco_edge_rsrp_dbm"])]
+            p5 = sinrs[max(0, int(0.05 * len(sinrs)) - 1)] if len(sinrs) >= 20 else sinrs[0]
+            cur = float(s.tx_power_dbm)
+            if len(edge) / len(s.ues) > float(pol["cco_edge_frac"]) and cur < top:
+                new = min(cur + float(pol["cco_step_db"]), top)
+            elif not edge and p5 > float(pol["cco_ok_sinr_db"]) and cur > nominal:
+                new = max(cur - float(pol["cco_step_db"]), nominal)
+            else:
+                continue
+            self.last_t[cell] = now
+            out.append(self._proposal(cell, "TX_POWER", round(new, 1), pol["cco_priority"]))
+        return out
+
+
+class UeFairnessScheduler(_Kpm):
+    """Escalonador por UE (justiça × eficiência): ajusta ``SCHEDULER_WEIGHT`` da célula, que no ns-3 vira o índice de
+    justiça do PF (peso / 100; 1 = PF clássico, perto de 0 = vazão igual entre os UEs; docs/16 §10.17).
+
+    Entrada medida no KPM: a vazão por UE da fatia ``usch_sst`` (eMBB) e a carga da célula.
+    - **Injusto:** índice de Jain da vazão desses UEs abaixo de ``usch_unfair`` -> peso ``usch_fair_weight`` (mais
+      justiça, os UEs de borda recebem mais).
+    - **Justo e carregado:** índice acima de ``usch_fair`` e carga acima de ``usch_busy_pct`` -> peso
+      ``usch_pf_weight`` (PF clássico, mais eficiência).
+    - Uma proposta por mudança de modo, com ``usch_period_s`` entre propostas da célula; a recusa devolve o modo
+      anterior, e a xApp volta a propor.
+
+    Faz o par fatiamento × escalonamento por UE (Sinha et al., arXiv 2610.32254) com as xApps de teto de PRB, e é a
+    única xApp que propõe ``SCHEDULER_WEIGHT``, parâmetro que a RDL já controlava sem proponente. xApp própria."""
+
+    XAPP_ID = "ue_scheduler"
+    A1_TYPE = ""
+    DEFAULTS: Dict[str, Any] = {"usch_sst": 1, "usch_unfair": 0.6, "usch_fair": 0.9, "usch_busy_pct": 80.0,
+                                "usch_fair_weight": 20, "usch_pf_weight": 100, "usch_min_ues": 2,
+                                "usch_period_s": 2.0, "usch_priority": 65}
+
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.mode: Dict[str, str] = {}
+        self.pending: Dict[str, Optional[str]] = {}
+        self.last_t: Dict[str, float] = {}
+        self.jain: Dict[str, float] = {}
+
+    @staticmethod
+    def jain_index(values: List[float]) -> float:
+        s, q = sum(values), sum(v * v for v in values)
+        return (s * s) / (len(values) * q) if q > 0 else 1.0
+
+    def decide(self, now: float) -> List[Dict[str, Any]]:
+        pol, out = self.policy(), []
+        for cell, s in sorted(self.samples.items()):
+            if now - self.last_t.get(cell, float("-inf")) < float(pol["usch_period_s"]):
+                continue
+            thp = [u.thp_mbps for u in s.ues if u.sst == int(pol["usch_sst"])]
+            if len(thp) < int(pol["usch_min_ues"]):
+                continue
+            j = self.jain_index(thp)
+            self.jain[cell] = j
+            want = None
+            if j < float(pol["usch_unfair"]):
+                want = "justica"
+            elif j > float(pol["usch_fair"]) and (s.load_pct or 0.0) > float(pol["usch_busy_pct"]):
+                want = "eficiencia"
+            if want is None or want == self.mode.get(cell):
+                continue
+            self.pending[cell] = self.mode.get(cell)
+            self.mode[cell] = want
+            self.last_t[cell] = now
+            weight = pol["usch_fair_weight"] if want == "justica" else pol["usch_pf_weight"]
+            out.append(self._proposal(cell, "SCHEDULER_WEIGHT", float(weight), pol["usch_priority"]))
+        return out
+
+    def on_result(self, result: Dict[str, Any]) -> None:
+        super().on_result(result)
+        cell = result.get("node_id")
+        if result.get("parameter") == "SCHEDULER_WEIGHT" and cell in self.pending:
+            prev = self.pending.pop(cell)
+            if prev is None:
+                self.mode.pop(cell, None)
+            else:
+                self.mode[cell] = prev

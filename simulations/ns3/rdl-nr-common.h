@@ -63,6 +63,57 @@ namespace ns3
 {
 
 // ---------------------------------------------------------------------------------------
+// Escalonador PF com peso ajustável em execução (SCHEDULER_WEIGHT; docs/16 §10.17)
+// ---------------------------------------------------------------------------------------
+/**
+ * OFDMA-PF do 5G-LENA cujo índice de justiça (FairnessIndex, alfa da métrica PF: potencial^alfa / vazão média;
+ * 1 = PF clássico, 0 = vazão igual entre os UEs) muda durante a simulação. O atributo do 5G-LENA só vale para UEs
+ * criados depois; esta classe guarda os UEs que cria e atualiza o alfa deles também.
+ */
+class RdlSchedulerOfdmaPF : public NrMacSchedulerOfdmaPF
+{
+  public:
+    static TypeId GetTypeId()
+    {
+        static TypeId tid = TypeId("ns3::RdlSchedulerOfdmaPF")
+                                .SetParent<NrMacSchedulerOfdmaPF>()
+                                .AddConstructor<RdlSchedulerOfdmaPF>();
+        return tid;
+    }
+
+    void SetFairness(double alpha)
+    {
+        SetAttribute("FairnessIndex", DoubleValue(alpha));
+        for (auto it = m_ues.begin(); it != m_ues.end();)
+        {
+            if (auto ue = it->lock())
+            {
+                ue->m_alpha = static_cast<float>(alpha);
+                ++it;
+            }
+            else
+            {
+                it = m_ues.erase(it);
+            }
+        }
+    }
+
+  protected:
+    std::shared_ptr<NrMacSchedulerUeInfo> CreateUeRepresentation(
+        const NrMacCschedSapProvider::CschedUeConfigReqParameters& params) const override
+    {
+        auto ue = NrMacSchedulerOfdmaPF::CreateUeRepresentation(params);
+        m_ues.push_back(std::static_pointer_cast<NrMacSchedulerUeInfoPF>(ue));
+        return ue;
+    }
+
+  private:
+    mutable std::vector<std::weak_ptr<NrMacSchedulerUeInfoPF>> m_ues;
+};
+
+NS_OBJECT_ENSURE_REGISTERED(RdlSchedulerOfdmaPF);
+
+// ---------------------------------------------------------------------------------------
 // Rede NR funcional
 // ---------------------------------------------------------------------------------------
 
@@ -443,6 +494,26 @@ class RdlActuation
                 Record(a, "APPLIED", d.str());
             }
         }
+        else if (a.parameter == "SCHEDULER_WEIGHT")
+        {
+            // Peso 1..100 -> índice de justiça do PF 0,01..1 (docs/16 §10.17); só com o RdlSchedulerOfdmaPF
+            double weight = std::min(100.0, std::max(1.0, a.value));
+            double alpha = weight / 100.0;
+            for (uint32_t b = 0; b < nBwp; ++b)
+            {
+                Ptr<RdlSchedulerOfdmaPF> pf = DynamicCast<RdlSchedulerOfdmaPF>(NrHelper::GetScheduler(gnb, b));
+                if (!pf)
+                {
+                    Record(a, "UNSUPPORTED", "escalonador sem peso ajustável (cenário com --scheduler=pf)");
+                    return;
+                }
+                pf->SetFairness(alpha);
+            }
+            m_schedWeight[a.gnb] = weight;
+            std::ostringstream d;
+            d << "PF FairnessIndex=" << alpha;
+            Record(a, "APPLIED", d.str());
+        }
         else
         {
             Record(a, "UNSUPPORTED", "parâmetro sem mapeamento na RAN simulada");
@@ -698,6 +769,7 @@ class RdlActuation
               << ",\"tx_power_dbm\":" << Num(NrHelper::GetGnbPhy(gnb, 0)->GetTxPower(), 2)
               << ",\"sleeping\":" << (m_savedTxPower.count(g) ? "true" : "false")
               << ",\"prb_quota\":" << Num(m_prbQuota.count(g) ? m_prbQuota.at(g) : 100.0, 1)
+              << ",\"scheduler_weight\":" << Num(m_schedWeight.count(g) ? m_schedWeight.at(g) : NAN, 1)
               << ",\"prb_util\":" << Num(c.availReg > 0 ? c.usedReg / c.availReg : NAN)
               << ",\"n_ues\":" << nUes[g] << ",\"thp_mbps\":" << Num(pg.bytes * 8.0 / (m_window * 1e6))
               << ",\"delay_ms\":" << Num(pg.packets ? pg.delaySumMs / pg.packets : NAN) << "}";
@@ -788,6 +860,7 @@ class RdlActuation
     const double kSleepTxPowerDbm = -30.0;
     std::map<uint32_t, double> m_savedTxPower;
     std::map<uint32_t, uint32_t> m_ueSst;            // índice do UE -> SST (SetUeSst)
+    std::map<uint32_t, double> m_schedWeight;         // gNB -> SCHEDULER_WEIGHT aplicado
     // ciclo E2 da malha fechada (docs/16 §10.1): resultado de cada controle, devolvido na Indication seguinte
     // (ACK/Failure no orquestrador), e a cota de PRB em vigor por gNB (estado aplicado para o KPM_t1)
     std::vector<std::string> m_outcomes;

@@ -154,6 +154,8 @@ Pronto quando:
 | `beamformer` | S6 | sem original | D2 |
 | `isac_radar` | S6, S14 | sem original | D2 |
 | `embb_throughput` | S8 | sem original | D2 |
+| `cco` (só na malha fechada, `extra_roles`) | S4, S6 | CCO própria (§10.17) | `TX_POWER` |
+| `ue_scheduler` (só na malha fechada, `extra_roles`) | S1 | escalonador por UE próprio (§10.17) | `SCHEDULER_WEIGHT`, com `--scheduler=pf` |
 
 Quando a xApp roda de verdade, o conflito de cada cenário deixa de ser montado à mão: ele aparece ou não conforme o que as xApps propõem diante do KPM. O catálogo passa a fixar a topologia, o tráfego, as xApps presentes e os parâmetros delas (limiar A1, fatias), e não mais as propostas.
 
@@ -760,3 +762,41 @@ As suítes `tests/unit` e `tests/integration` passam (524 testes), com uma exce�
 - 5 sementes;
 - saída pelo painel do §10.4, como na apresentação;
 - a cada campanha concluída, atualizar os documentos e eliminar aos poucos os dados de antes destas correções.
+
+### 10.17 Pendências resolvidas e xApps novas: CCO e escalonador por UE (2026-11-21)
+
+**Pendências da §10.16:**
+
+| Pendência | Causa | Resolução |
+| :-- | :-- | :-- |
+| `test_schedule_replay.py` falhava nos B3 do S15 (malha aberta) | A bisseção apontou o commit `69e241b` (§10.10): um handover já confirmado deixou de formar conflito indireto com propostas posteriores do mesmo nó. Com isso, as cotas de PRB do Energy Saving que vinham depois do handover do TS passaram, e antes o EEVS as descartava. A mudança foi intencional, mas os cronogramas registrados (sementes 9101, 11001–11005 e 12001–12005) são anteriores a ela | Exceção documentada no teste: para essas execuções, ele confere que o cronograma atual contém o registrado e que as ações a mais são só cotas de PRB de xApps que não pediram o handover |
+| `repo_dirty: true` em execuções sem mudança de código | O checkout do Windows grava CRLF, e o git do WSL, sem normalizar, via os arquivos como alterados (56 no código, 147 na árvore toda na `cl_n12`) | `core.autocrlf=true` na consulta do executor (`run_ns3_certified.sh`) e do `run_conflict_experiment.py`. Conferido no WSL: 56 → 2, e os 2 eram as próprias edições |
+| Recusa sem conflito não ficava registrada (§10.15) | O registro da janela só guardava as resoluções de conflito | O `HrdlStream` captura cada entrada do registro de propostas não atendidas e grava `rejections` (proposta, motivo, detalhe e vencedora) no registro da janela. Teste: a volta do UE 6 aparece com `HYSTERESIS` e `Control frequency exceeded` |
+| Venv da F2 importava uma cópia antiga da F1 | O venv tinha a F1 instalada do commit fixado `9fefbff6` | A F1 local foi instalada em modo editável (`uv pip install -e ../XApp-RDL-F1`), como manda o README da F2 |
+
+**Descrição:** uma linha por pendência deixada na §10.16, com a causa encontrada e a correção. Os números de arquivos alterados vêm do `git status` no WSL.
+
+**xApps novas** (do relatório "Candidatas a xApps do escopo", na pasta `reports` do workspace):
+
+| xApp | Parâmetro | Regra | Cenários | Conflito que cria |
+| :-- | :-- | :-- | :-- | :-- |
+| CCO (`CoverageCapacityOptimizer`, `xapp_id` `cco`) | `TX_POWER` | Com mais de 20 % dos UEs na borda (SINR < 0 dB ou RSRP < −115 dBm), sobe a potência 3 dB, até a potência medida no início mais 6 dB. Com cobertura folgada (nenhum UE na borda e 5º percentil do SINR > 10 dB), volta um passo em direção a ela. No máximo uma proposta a cada 2 s por célula; prioridade 75 | S4 e S6 (`extra_roles`) | direto com a EnergySaver e com o Beamformer em `TX_POWER`: o par CCO × ES da triagem de Wadud et al. |
+| Escalonador por UE (`UeFairnessScheduler`, `xapp_id` `ue_scheduler`) | `SCHEDULER_WEIGHT` | Índice de Jain da vazão eMBB abaixo de 0,6 → peso 20 (mais justiça). Acima de 0,9 com carga acima de 80 % → peso 100 (PF clássico). Uma proposta por mudança de modo; a recusa devolve o modo anterior; prioridade 65 | S1 (`extra_roles`, com `--scheduler=pf`) | indireto com a URLLC Slice Guard e a EnergySaver (`SCHEDULER_WEIGHT` e `PRB_QUOTA` afetam `DRB.UEThpDl`): o par fatiamento × escalonamento de Sinha et al. |
+
+**Descrição:** as duas xApps próprias acrescentadas ao escopo, com a regra de decisão, os cenários em que entram e o tipo de conflito que geram com as xApps existentes. Nenhuma das duas tem código público de referência; são declaradas como `xapp_impl: propria`.
+
+**ns-3:**
+- `SCHEDULER_WEIGHT` passou a ser aplicado: o peso de 1 a 100 vira o índice de justiça do PF (0,01 a 1), e o KPM da célula reporta `scheduler_weight`.
+- A classe `RdlSchedulerOfdmaPF` (`rdl-nr-common.h`) é o OFDMA-PF do 5G-LENA, com os UEs já criados também atualizados, porque o atributo `FairnessIndex` só valia para UEs novos.
+- O S1 ganhou `--scheduler=rr|pf`, com padrão `rr`, o escalonador anterior. A malha fechada usa `pf`.
+- Com o escalonador Round Robin, a ação volta como `UNSUPPORTED`.
+
+**Ainda não incluídas:**
+- **MRO.** O ajuste de offsets de handover só tem efeito com um algoritmo automático de handover. Nos cenários, o handover só acontece por pedido das xApps (`NrNoOpHandoverAlgorithm`). Incluir a MRO exige um parâmetro novo na RDL (offset ou histerese por célula), no Safety Guard e no E2SM-RC, e uma variante de cenário com o algoritmo A3 do 5G-LENA.
+- **AD e QP originais do O-RAN SC, o ns3-oran do NIST e o xSlice original.** Os três dependem de downloads ainda não autorizados:
+  - `o-ran-sc/ric-app-ad` (16,5 MB);
+  - `o-ran-sc/ric-app-qp` (0,8 MB);
+  - `usnistgov/ns3-oran` (6,7 MB);
+  - PyTorch para CPU (174,6 MB) e dependências do GNNRL, que já está no WSL.
+  
+  O xSlice exige ainda as estatísticas de MAC por UE no ns-3.

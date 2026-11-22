@@ -200,3 +200,26 @@ def test_b3_confirmed_handover_does_not_form_indirect_conflict():
         d.close()
     assert [w["id"] for w in sel] == ["p1"]
     assert not any(r["conflict_type"] == "INDIRECT" for r in entry["resolutions"])
+
+
+def test_b3_log_records_the_reason_of_a_refusal_without_conflict():
+    """docs/16 §10.15: no S5 com mobilidade, a volta do UE 6 pelo próprio TS foi recusada pelo limite de frequência do
+    Safety Guard (1 s por alvo), sem conflito. O registro da janela agora guarda o motivo ("rejections")."""
+    d = WindowBaseline("B3")
+    try:
+        assert _ids(d, [_ho(1, 6, gnb=1, value=0)], 26.0) == ["h1"]
+        sel, entry = d.decide([_ho(2, 6, gnb=1, value=0)], 26.6)
+    finally:
+        d.close()
+    assert sel == [] and entry["resolutions"] == []
+    assert [(r["action_id"], r["reason"]) for r in entry["rejections"]] == [("h2", "HYSTERESIS")]
+    assert "Control frequency exceeded" in entry["rejections"][0]["detail"]
+
+
+@pytest.mark.parametrize("scenario,extra", [("S1", "propria:ue_scheduler"), ("S6", "propria:cco")])
+def test_extra_roles_of_closed_loop_config_join_the_scenario(scenario, extra):
+    """docs/16 §10.17: xApps sem papel no catálogo entram pelo extra_roles do closed_loop.json."""
+    from scripts.closed_loop.orchestrator import build_full_drivers
+    spec = dict(CATALOG["scenarios"][scenario], _id=scenario)
+    names = [d.name for d in build_full_drivers(spec, run_id="teste")]
+    assert extra in names and "propria:urllc_slice_guard" in names

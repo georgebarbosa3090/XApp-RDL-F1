@@ -54,6 +54,7 @@ class UeKpi:
     sinr_db: Optional[float] = None
     rsrp_dbm: Dict[str, float] = field(default_factory=dict)
     thp_mbps: float = 0.0
+    sst: Optional[int] = None     # fatia do UE, quando o KPM a traz (DRB.NetworkSlicing.SST)
 
 
 @dataclass
@@ -117,8 +118,8 @@ def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int
         rsrp = {f"gnb_{gnb_of_cell[int(c)]}": float(v) for c, v in (u.get("rsrp_dbm") or {}).items()
                 if int(c) in gnb_of_cell and v is not None}
         thp = float(u.get("thp_mbps") or 0.0)
-        out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp, thp))
         sst = ue_slice(u, ue_sst)
+        out[f"gnb_{g}"].ues.append(UeKpi(str(u["ue"]), f"gnb_{g}", u.get("sinr_db"), rsrp, thp, sst))
         if sst is not None:
             s = out[f"gnb_{g}"].slices.setdefault(sst, SliceKpi())
             s.ues += 1

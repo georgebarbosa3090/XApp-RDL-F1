@@ -82,6 +82,8 @@ int main (int argc, char *argv[])
     uint32_t urllcUes = 0;
     cmd.AddValue ("channel", "Canal 3GPP (UMa, UMi-StreetCanyon...); vazio = fábricas padrão", channel);
     cmd.AddValue ("urllcUes", "UEs URLLC (os primeiros N: 128 B a cada 1 ms); 0 = todos iguais", urllcUes);
+    std::string scheduler = "rr";
+    cmd.AddValue ("scheduler", "Escalonador MAC: rr (padrão do 5G-LENA) ou pf (OFDMA-PF com SCHEDULER_WEIGHT)", scheduler);
     cmd.Parse (argc, argv);
     if (disableSrs)
     {
@@ -180,6 +182,15 @@ int main (int argc, char *argv[])
     Ptr<NrHelper> nrHelper = CreateObject<NrHelper> ();
     nrHelper->SetBeamformingHelper (idealBeamformingHelper);
     nrHelper->SetEpcHelper (epcHelper);
+    if (scheduler == "pf")
+    {
+        // docs/16 §10.17: PF com índice de justiça ajustável pela RDL (SCHEDULER_WEIGHT)
+        nrHelper->SetSchedulerTypeId (RdlSchedulerOfdmaPF::GetTypeId ());
+    }
+    else if (scheduler != "rr")
+    {
+        NS_FATAL_ERROR ("--scheduler deve ser rr ou pf");
+    }
 
     nrHelper->SetUeAntennaAttribute ("NumRows", UintegerValue (1));
     nrHelper->SetUeAntennaAttribute ("NumColumns", UintegerValue (1));

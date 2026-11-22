@@ -195,6 +195,20 @@ class HrdlStream:
         self.app.dispatcher.dispatch_control = capture_dispatch
         self.app.reasoning.resolve = capture_resolve
 
+        # Motivo de cada proposta não atendida, inclusive sem conflito (Safety Guard, histerese do alvo): vai para o
+        # registro da janela ("rejections"). Antes, uma recusa sem conflito só aparecia como proposta não selecionada
+        # (docs/16 §10.15 e §10.16).
+        self._rejections: List[Dict[str, Any]] = []
+        original_record = self.app.proposals.record
+
+        def capture_record(action, reason, detail="", *args, **kwargs):
+            entry = original_record(action, reason, detail, *args, **kwargs)
+            self._rejections.append({"action_id": entry["action_id"], "reason": entry["reason"],
+                                     "detail": entry["detail"], "winner": entry.get("winner_action_id")})
+            return entry
+
+        self.app.proposals.record = capture_record
+
     def decide(self, group: List[Dict[str, Any]], t_close: float) -> Tuple[List[str], Dict[str, Any]]:
         """Decide as propostas de uma janela. Retorna os ids selecionados e o registro da janela."""
         self._clock.now = t_close
@@ -204,7 +218,7 @@ class HrdlStream:
                                     timestamp=t_close,
                                     ue_id=int(e["ue"]) if int(e.get("ue", -1)) >= 0 else None)
                    for e in group]
-        before, res_before = len(self._dispatched), len(self._resolutions)
+        before, res_before, rej_before = len(self._dispatched), len(self._resolutions), len(self._rejections)
         guard = getattr(self.app, "guard_events", [])
         guard_before = len(guard)
         kg = getattr(self.app, "knowledge_graph", None)
@@ -215,6 +229,7 @@ class HrdlStream:
         selected = self._dispatched[before:]
         entry = {"t_close": round(t_close, 6), "proposal_ids": [e["id"] for e in group],
                  "selected": selected, "resolutions": self._resolutions[res_before:] + guard[guard_before:],
+                 "rejections": self._rejections[rej_before:],
                  "decision_wall_ms": round(latency_ms, 3), "rule": "hrdl-pipeline"}
         if kg_before is not None:                 # consultas e escritas no grafo nesta decisão (docs/16 §10.4)
             after = kg.op_totals()
@@ -318,7 +333,7 @@ def repo_git_sha() -> str:
 
 def repo_dirty() -> Optional[bool]:
     """Há mudança não commitada no código que decide (src, scripts, simulations, configs)? None se o git não responde."""
-    out = _git(["-c", "core.filemode=false", "status", "--porcelain", "--untracked-files=normal", "--", "src", "scripts", "simulations", "configs"])
+    out = _git(["-c", "core.filemode=false", "-c", "core.autocrlf=true", "status", "--porcelain", "--untracked-files=normal", "--", "src", "scripts", "simulations", "configs"])
     return None if out is None else bool(out.strip())
 
 

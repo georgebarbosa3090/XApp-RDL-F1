@@ -171,10 +171,11 @@ def out(cmd):
         return ""
 def repo_changes():
     """Mudanças não commitadas (e arquivos novos) no código que decide ou executa a simulação.
-    None quando o git não responde a tempo (WSL sobre /mnt/c pode ser lento)."""
+    None quando o git não responde a tempo (WSL sobre /mnt/c pode ser lento). core.autocrlf=true: o checkout do
+    Windows grava CRLF, e sem normalizar o git do WSL via 147 arquivos alterados só no fim de linha (cl_n12)."""
     code = ["src", "scripts", "simulations", "configs", "reference-xapps", "xapps-originais", "third_party"]
     try:
-        res = subprocess.run(["git", "-c", "core.filemode=false", "-C", "${REPO_DIR}", "status", "--porcelain", "--untracked-files=normal", "--"] + code,
+        res = subprocess.run(["git", "-c", "core.filemode=false", "-c", "core.autocrlf=true", "-C", "${REPO_DIR}", "status", "--porcelain", "--untracked-files=normal", "--"] + code,
                              capture_output=True, text=True, check=False, timeout=90)
     except Exception:
         return None
