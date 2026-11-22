@@ -97,6 +97,9 @@ int main (int argc, char *argv[])
     cmd.AddValue ("ueMovingFraction", "Fração dos UEs que andam com ueSpeed > 0 (os de menor índice)", ueMovingFraction);
     cmd.AddValue ("ueMoveXmin", "Limite inferior de x do trajeto dos UEs que andam (m)", ueMoveXmin);
     cmd.AddValue ("ueMoveXmax", "Limite superior de x do trajeto dos UEs que andam (m)", ueMoveXmax);
+    // docs/16 §10.17: handover automático A3 com margem ajustável pela RDL (MRO); none (padrão) = só por pedido
+    std::string handoverAlgo = "none";
+    cmd.AddValue ("handoverAlgo", "Handover automático: none (só por pedido das xApps) ou mro (A3 com A3_OFFSET)", handoverAlgo);
     cmd.Parse (argc, argv);
     if (ueSpeed < 0.0 || ueMovingFraction < 0.0 || ueMovingFraction > 1.0 || ueMoveXmin >= ueMoveXmax)
     {
@@ -251,7 +254,7 @@ int main (int argc, char *argv[])
     // Rede NR funcional comum (rdl-nr-common.h): EPC, host remoto, IPs, attach ao gNB mais
     // proximo e X2. A montagem anterior nao anexava os UEs nem lhes atribuia IP, e o trafego
     // era enviado para 10.0.0.1 (inexistente): o FlowMonitor ficava vazio.
-    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth, channel);
+    RdlNrNetwork rdlNet = RdlBuildNrNetwork (gNbNodes, ueNodes, centralFreq, bandwidth, channel, handoverAlgo);
     uint16_t port = 8001;
     ApplicationContainer serverApps;
     ApplicationContainer clientApps;

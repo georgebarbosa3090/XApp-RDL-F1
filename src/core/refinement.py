@@ -129,8 +129,8 @@ class Refinement:
             return False, "Action priority must be an integer in [0, 100]"
         if action.parameter in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER", "CELL_STATE") and not value.is_integer():
             return False, f"{action.parameter} value must be an integer"
-        if action.parameter == "TX_POWER" and not (value * 10).is_integer():
-            return False, "TX_POWER supports at most one decimal place"
+        if action.parameter in ("TX_POWER", "A3_OFFSET") and not (value * 10).is_integer():
+            return False, f"{action.parameter} supports at most one decimal place"
 
         try:
             capability = rc_capability_registry.get_action_capability(

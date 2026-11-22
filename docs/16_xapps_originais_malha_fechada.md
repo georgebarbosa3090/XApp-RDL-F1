@@ -156,6 +156,7 @@ Pronto quando:
 | `embb_throughput` | S8 | sem original | D2 |
 | `cco` (só na malha fechada, `extra_roles`) | S4, S6 | CCO própria (§10.17) | `TX_POWER` |
 | `ue_scheduler` (só na malha fechada, `extra_roles`) | S1 | escalonador por UE próprio (§10.17) | `SCHEDULER_WEIGHT`, com `--scheduler=pf` |
+| `mro` (só na malha fechada, `extra_roles`) | S5 | MRO própria (§10.17) | `A3_OFFSET`, com `--handoverAlgo=mro` |
 
 Quando a xApp roda de verdade, o conflito de cada cenário deixa de ser montado à mão: ele aparece ou não conforme o que as xApps propõem diante do KPM. O catálogo passa a fixar a topologia, o tráfego, as xApps presentes e os parâmetros delas (limiar A1, fatias), e não mais as propostas.
 
@@ -791,12 +792,33 @@ As suítes `tests/unit` e `tests/integration` passam (524 testes), com uma exce�
 - O S1 ganhou `--scheduler=rr|pf`, com padrão `rr`, o escalonador anterior. A malha fechada usa `pf`.
 - Com o escalonador Round Robin, a ação volta como `UNSUPPORTED`.
 
-**Ainda não incluídas:**
-- **MRO.** O ajuste de offsets de handover só tem efeito com um algoritmo automático de handover. Nos cenários, o handover só acontece por pedido das xApps (`NrNoOpHandoverAlgorithm`). Incluir a MRO exige um parâmetro novo na RDL (offset ou histerese por célula), no Safety Guard e no E2SM-RC, e uma variante de cenário com o algoritmo A3 do 5G-LENA.
-- **AD e QP originais do O-RAN SC, o ns3-oran do NIST e o xSlice original.** Os três dependem de downloads ainda não autorizados:
-  - `o-ran-sc/ric-app-ad` (16,5 MB);
-  - `o-ran-sc/ric-app-qp` (0,8 MB);
-  - `usnistgov/ns3-oran` (6,7 MB);
-  - PyTorch para CPU (174,6 MB) e dependências do GNNRL, que já está no WSL.
-  
-  O xSlice exige ainda as estatísticas de MAC por UE no ns-3.
+**MRO** (`MobilityRobustnessOptimizer`, `xapp_id` `mro`; autorizada pelo autor em 21/11):
+
+| Peça | O que foi feito |
+| :-- | :-- |
+| Parâmetro na RDL | `A3_OFFSET` (dB, 0 a 10, uma casa decimal) no catálogo (`control_parameter.py`, `param_id` 6), no Safety Guard, no codificador E2SM-RC (escala 10) e na cadeia E2 da malha fechada. Fica sem capacidade padrão registrada, como o `CELL_STATE`: num nó real o despacho só ocorre depois que o nó anunciar o parâmetro. A percepção liga `A3_OFFSET` a `DRB.UEThpDl` e `RRU.PrbUsedDl`, os mesmos KPIs do `HANDOVER`, e por isso detecta o conflito indireto com o Load Balancer e o TS |
+| ns-3 | `RdlMroHandoverAlgorithm` (`rdl-nr-common.h`). O UE relata o A3 sem margem (TTT de 256 ms, relatório a cada 240 ms), e a gNB só pede o handover se a vizinha superar a servidora pela margem da célula, que a RDL muda durante a simulação. O A3 do 5G-LENA não serve para isso, porque fixa a histerese na configuração de medição enviada ao UE no início. O KPM da célula reporta `a3_offset_db`. Fica ligado por `--handoverAlgo=mro` no S5 (`RdlBuildNrNetwork`, parâmetro novo, com padrão `none`) |
+| xApp | Por célula de origem, numa janela de 10 s, conta ping-pongs (volta em até 5 s), handovers prematuros (perda de conexão em até 3 s depois de sair) e tardios (perda ainda na célula e volta por outra). A cada 5 s, mais prematuros que tardios (por 2) sobe a margem 1 dB, até 10 dB; o inverso desce, até 0. Prioridade 70 |
+| Cenário | S5 da malha fechada com metade dos UEs andando a 5 m/s (P3, §10.15) e `--handoverAlgo=mro`. Os handovers passam a acontecer também sem pedido das xApps, e a MRO disputa com o Load Balancer e o TS: o par MRO × MLB do ACCoRD |
+
+**Descrição:** as peças acrescentadas para a MRO, da RDL ao ns-3. A mudança no S5 (mobilidade e handover automático) vale para todos os braços das campanhas novas.
+
+**Originais baixadas** (autorização do autor em 21/11; em `~/xapps-originais/` no WSL, fora do repositório):
+
+| Original | Commit | O que a integração exige |
+| :-- | :-- | :-- |
+| `o-ran-sc/ric-app-ad` | `350a975` (2026-10-14) | Modelo Isolation Forest treinado pelo próprio código (`ad_train.py`) sobre o conjunto da Viavi que acompanha o repositório (`ue.csv`), com 31 colunas: RSRP, RSRQ e SINR da servidora e de 5 vizinhas, posição x e y, uso de PRB, vazão-alvo e vazão. A regra de causa compara cada UE com o próprio histórico de 20 s. O KPM do ns-3 não traz RSRQ nem posição e tem no máximo 3 vizinhas, e os valores do ns-3 (RSRP perto de −130 dBm) estão fora da faixa do conjunto da Viavi (cerca de −90 dBm). **Decisão necessária:** treinar com o próprio código sobre o `ue.csv` (original, mas fora do domínio) ou sobre execuções de aquecimento do ns-3 pré-registradas e congeladas, como a D4 do xSlice |
+| `o-ran-sc/ric-app-qp` | `9c6dfa7` (2026-10-14) | Modelo de série temporal por célula treinado sobre `cells.csv` (dados da Viavi), com a mesma questão de domínio do AD |
+| `usnistgov/ns3-oran` | `5e60f2d` (2026-05-26) | Os módulos de lógica (`oran-lm-lte-2-lte-*`) e os relatores são só LTE: não leem dispositivos NR do 5G-LENA. Usá-los exige escrever relatores NR e um adaptador para o RIC do módulo. A versão é para o ns-3.42, e o projeto usa o 3.48 |
+| xSlice original (`GNNRL/`) | `87db3bd` (já em `~/xapps-originais`) | Venv `~/.venvs/gnnrl` instalado: torch 2.5.1+cpu, torch_geometric 2.8.1, gym 0.26.2. Falta o que o §4.1 já listava: estatísticas de MAC por UE no ns-3 (MCS, TBS, RBs, BLER), o SQLite no esquema do FlexRIC alimentado pelo shim e o modelo pré-treinado da D4 |
+
+**Descrição:** o estado de cada original baixada, com o commit clonado e o que falta para ela rodar na malha fechada. Nenhuma delas roda ainda. As três primeiras exigem uma decisão sobre os dados de treino ou de adaptação antes de qualquer código de integração.
+
+**Validação curta das peças novas** (não é campanha: uma semente, 16999, no modo multinível N12, com todos os componentes; execuções `val_*`, fora do commit, a apagar com a regra de limpeza):
+
+| Execução | Tempo simulado | O que confirmou |
+| :-- | :-- | :-- |
+| `val_S1_N12_pf_seed16999` | 8 s | <ul><li>A fatia está no KPM de 20 dos 20 UEs (6 URLLC e 14 eMBB, como o cenário declara).</li><li>A URLLC Slice Guard limitou a eMBB a 25 % (t = 1,2 s).</li><li>O escalonador por UE pediu peso 20, e o ns-3 aplicou `FairnessIndex` = 0,2 no PF e reportou `scheduler_weight` = 20 (t = 1,4 s).</li><li>A EnergySaver reduziu a potência de 4 para 1 dBm, e não mais para 30 dBm (t = 5,2 s).</li></ul>`SUCCESS` |
+| `val_S5_N12_mro_seed16999` | 15 s | <ul><li>A margem do A3 começa em 3 dB nas duas células.</li><li>A MRO a subiu para 4 dB na gNB0 (t = 12,6 s), e o KPM passou a reportar 4,0.</li><li>Houve 10 mudanças de célula para 9 handovers pedidos pelas xApps (8 do TS, 1 do Load Balancer): ao menos um handover foi automático.</li><li>A RDL resolveu 3 conflitos indiretos.</li></ul>`SUCCESS` |
+
+**Descrição:** cada linha é uma execução curta feita para conferir que as peças novas funcionam no ns-3 e na cadeia completa. Os números vêm da conferência por script ao fim de cada execução (`closed_loop_log.jsonl` e `rdl_actuation_log.csv`). As execuções não medem desempenho e não entram em nenhum resultado.

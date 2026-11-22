@@ -22,12 +22,13 @@ xApps próprias para os papéis do catálogo sem original público (docs/16, dec
 - ``CoverageCapacityOptimizer`` (CCO): sobe a potência quando a fração de UEs na borda (SINR ou RSRP baixos) passa
   do limite e volta em direção à nominal com cobertura folgada; contraparte da EnergySaver em ``TX_POWER``.
 - ``UeFairnessScheduler``: ajusta ``SCHEDULER_WEIGHT`` (índice de justiça do PF) pelo índice de Jain da vazão eMBB.
+- ``MobilityRobustnessOptimizer`` (MRO): ajusta ``A3_OFFSET`` por ping-pong, handover prematuro e tardio.
 - ``UrllcSliceGuard`` (URLLC Slice Guard): protege a fatia URLLC limitando a fatia eMBB da célula quando o
   atraso da URLLC passa do limite; faz o papel do xSlice no catálogo (até 2026-11-21, ``XSliceDerivada``).
 """
 
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from src.xapps.derivadas import _Kpm, _index
 
@@ -405,3 +406,82 @@ class UeFairnessScheduler(_Kpm):
                 self.mode.pop(cell, None)
             else:
                 self.mode[cell] = prev
+
+
+class MobilityRobustnessOptimizer(_Kpm):
+    """MRO (otimização de robustez de mobilidade, função SON do 3GPP TS 28.313): ajusta a margem do evento A3 de cada
+    célula (``A3_OFFSET``) pelos defeitos de handover que observa no KPM (docs/16 §10.17).
+
+    Por célula de origem, numa janela de ``mro_window_s``:
+    - **ping-pong:** o UE volta à célula de origem em até ``mro_pingpong_s`` depois de sair dela;
+    - **handover prematuro:** o UE perde a conexão em até ``mro_rlf_s`` depois de sair da célula;
+    - **handover tardio:** o UE perde a conexão ainda servido pela célula, sem handover nos ``mro_rlf_s`` anteriores, e
+      volta por outra célula.
+
+    A cada ``mro_period_s``, se ping-pong + prematuros superam os tardios em ``mro_min_events``, a margem sobe
+    ``mro_step_db`` (até ``mro_max_db``); no caso inverso, desce (até ``mro_min_db``). A margem atual vem do KPM
+    (``a3_offset_db``); sem handover automático ajustável no cenário, a xApp não propõe. Entra no S5 com
+    ``--handoverAlgo=mro``, onde disputa com o Load Balancer e o TS: o par MRO × MLB do ACCoRD
+    (arXiv 2605.22306). xApp própria; as buscas não acharam código público de MRO."""
+
+    XAPP_ID = "mro"
+    A1_TYPE = ""
+    DEFAULTS: Dict[str, Any] = {"mro_window_s": 10.0, "mro_pingpong_s": 5.0, "mro_rlf_s": 3.0, "mro_period_s": 5.0,
+                                "mro_min_events": 2, "mro_step_db": 1.0, "mro_min_db": 0.0, "mro_max_db": 10.0,
+                                "mro_priority": 70}
+
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.cell_of: Dict[str, str] = {}               # UE -> célula servidora na última janela
+        self.left: Dict[str, Tuple[float, str, str]] = {}  # UE -> (t, origem, destino) do último handover
+        self.lost: Dict[str, Tuple[float, str]] = {}     # UE -> (t, célula) da perda de conexão em aberto
+        self.events: List[Tuple[float, str, str]] = []   # (t, célula de origem, tipo)
+        self.last_t: Dict[str, float] = {}
+
+    def _track(self, now: float, pol: Dict[str, Any]) -> None:
+        current = {u.ue_id: cell for cell, s in self.samples.items() for u in s.ues}
+        for ue, cell in current.items():
+            prev = self.cell_of.get(ue)
+            if ue in self.lost:                           # voltou depois de perder a conexão
+                t_lost, src = self.lost.pop(ue)
+                ho = self.left.get(ue)
+                if not (ho and t_lost - ho[0] <= float(pol["mro_rlf_s"])) and cell != src:
+                    self.events.append((now, src, "tardio"))
+            elif prev is not None and prev != cell:
+                ho = self.left.get(ue)
+                if ho and ho[1] == cell and ho[2] == prev and now - ho[0] <= float(pol["mro_pingpong_s"]):
+                    self.events.append((now, cell, "pingpong"))
+                self.left[ue] = (now, prev, cell)
+        for ue, prev in self.cell_of.items():
+            if ue not in current and ue not in self.lost:  # perdeu a conexão nesta janela
+                self.lost[ue] = (now, prev)
+                ho = self.left.get(ue)
+                if ho and ho[2] == prev and now - ho[0] <= float(pol["mro_rlf_s"]):
+                    self.events.append((now, ho[1], "prematuro"))
+        self.cell_of.update(current)
+        for ue in list(self.cell_of):
+            if ue not in current and ue in self.lost:
+                del self.cell_of[ue]
+        horizon = now - float(pol["mro_window_s"])
+        self.events = [e for e in self.events if e[0] > horizon]
+
+    def decide(self, now: float) -> List[Dict[str, Any]]:
+        pol, out = self.policy(), []
+        self._track(now, pol)
+        for cell, s in sorted(self.samples.items()):
+            if s.a3_offset_db is None or now - self.last_t.get(cell, float("-inf")) < float(pol["mro_period_s"]):
+                continue
+            kinds = [k for (_, c, k) in self.events if c == cell]
+            early = kinds.count("pingpong") + kinds.count("prematuro")
+            late = kinds.count("tardio")
+            cur = float(s.a3_offset_db)
+            if early - late >= int(pol["mro_min_events"]) and cur < float(pol["mro_max_db"]):
+                new = min(cur + float(pol["mro_step_db"]), float(pol["mro_max_db"]))
+            elif late - early >= int(pol["mro_min_events"]) and cur > float(pol["mro_min_db"]):
+                new = max(cur - float(pol["mro_step_db"]), float(pol["mro_min_db"]))
+            else:
+                continue
+            self.last_t[cell] = now
+            self.events = [e for e in self.events if e[1] != cell]    # recomeça a contagem depois de agir
+            out.append(self._proposal(cell, "A3_OFFSET", round(new, 1), pol["mro_priority"]))
+        return out

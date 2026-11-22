@@ -67,6 +67,8 @@ class CellSample:
     # potência de transmissão em vigor (dBm), quando o KPM a traz (malha fechada do ns-3: tx_power_dbm da célula);
     # None numa célula dormindo (CELL_STATE = 0) ou sem a medida
     tx_power_dbm: Optional[float] = None
+    # margem do A3 em vigor (dB), com handover automático ajustável (RdlMroHandoverAlgorithm; docs/16 §10.17)
+    a3_offset_db: Optional[float] = None
 
     @property
     def total_ues(self) -> int:
@@ -110,7 +112,8 @@ def samples_from_closed_loop(kpm: Dict[str, Any], ue_sst: Optional[Dict[int, int
         tx = c.get("tx_power_dbm")
         out[f"gnb_{c['gnb']}"] = CellSample(f"gnb_{c['gnb']}", t,
                                             load_pct=None if util is None else round(100.0 * float(util), 2),
-                                            tx_power_dbm=None if tx is None or c.get("sleeping") else float(tx))
+                                            tx_power_dbm=None if tx is None or c.get("sleeping") else float(tx),
+                                            a3_offset_db=None if c.get("a3_offset_db") is None else float(c["a3_offset_db"]))
     for u in kpm.get("ues", []):
         g = u.get("gnb")
         if not u.get("connected") or g is None or g < 0 or f"gnb_{g}" not in out:

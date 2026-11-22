@@ -36,6 +36,8 @@ class Perception:
             "LOAD_THRESHOLD": ["RRU.PrbUsedDl", "DRB.UEThpDl"],
             "PING_INTERVAL": ["DRB.RlcSduDelayDl"],
             "CELL_STATE": ["DRB.UEThpDl", "RRU.PrbUsedDl", "L1M.DL-sinr"],
+            # MRO (docs/16 §10.17): a margem do A3 muda quem fica na célula, como o HANDOVER
+            "A3_OFFSET": ["DRB.UEThpDl", "RRU.PrbUsedDl"],
         }
         for parameter, kpis in self.kpi_dependency_graph.items():
             self.knowledge_graph.add_parameter(parameter, kpis)

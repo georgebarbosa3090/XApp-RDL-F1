@@ -15,7 +15,7 @@ for p in (ROOT, ROOT / "reference-xapps" / "common"):
 from src.greenran.common import CellSample, SliceKpi, UeKpi  # noqa: E402
 from src.xapps.derivadas import EnergySavingDerivada, RogueDerivada, TrafficSteeringDerivada  # noqa: E402
 from src.xapps.proprias import (Beamformer, CoverageCapacityOptimizer, EmbbThroughput, IsacRadar,  # noqa: E402
-                                LoadBalancer, UeFairnessScheduler, UrllcSliceGuard)
+                                LoadBalancer, MobilityRobustnessOptimizer, UeFairnessScheduler, UrllcSliceGuard)
 
 
 class _T:
@@ -26,7 +26,8 @@ class _T:
 
 
 ALL = [UrllcSliceGuard, EnergySavingDerivada, TrafficSteeringDerivada, RogueDerivada, LoadBalancer, Beamformer,
-       IsacRadar, EmbbThroughput, CoverageCapacityOptimizer, UeFairnessScheduler]
+       IsacRadar, EmbbThroughput, CoverageCapacityOptimizer, UeFairnessScheduler,
+       MobilityRobustnessOptimizer]
 
 
 @pytest.mark.parametrize("cls", ALL)
@@ -314,3 +315,46 @@ def test_ue_scheduler_ignores_other_slices():
     x = UeFairnessScheduler(transport=_T())
     x.observe(_cell("gnb_0", 0, 4.0, [5.0] * 3, load=90.0, sst=2, thps=[20.0, 0.1, 0.1]))
     assert x.decide(1.0) == []
+
+
+def _mro_window(x, t, serving, offsets=(3.0, 3.0)):
+    """serving: UE -> célula (gnb_0/gnb_1); UE ausente = sem conexão."""
+    for g, off in zip(("gnb_0", "gnb_1"), offsets):
+        s = CellSample(g, t, load_pct=50.0, a3_offset_db=off)
+        s.ues = [UeKpi(ue, g, 5.0, {}) for ue, c in serving.items() if c == g]
+        x.observe(s)
+    return x.decide(t)
+
+
+def test_mro_raises_offset_after_ping_pongs_and_lowers_after_late_handovers():
+    """docs/16 §10.17: ping-pong e handover prematuro pedem margem maior na célula de origem; tardio, menor."""
+    x = MobilityRobustnessOptimizer(transport=_T())
+    seq = [(0.2, {"1": "gnb_0", "2": "gnb_0"}), (1.0, {"1": "gnb_1", "2": "gnb_1"}),
+           (2.0, {"1": "gnb_0", "2": "gnb_0"})]                  # dois ping-pongs que saem da gNB0
+    for t, serving in seq:
+        out = _mro_window(x, t, serving)
+    assert [(p["node_id"], p["parameter"], p["value"]) for p in out] == [("gnb_0", "A3_OFFSET", 4.0)]
+    y = MobilityRobustnessOptimizer(transport=_T())
+    seq = [(0.2, {"3": "gnb_1", "4": "gnb_1"}), (1.0, {}), (1.2, {"3": "gnb_0", "4": "gnb_0"})]
+    for t, serving in seq:                                        # perderam a conexão na gNB1 e voltaram pela gNB0
+        out = _mro_window(y, t, serving)
+    assert [(p["node_id"], p["value"]) for p in out] == [("gnb_1", 2.0)]
+
+
+def test_mro_counts_early_handover_and_needs_adjustable_a3():
+    x = MobilityRobustnessOptimizer(transport=_T())
+    for t, serving in [(0.2, {"5": "gnb_0", "6": "gnb_0"}), (1.0, {"5": "gnb_1", "6": "gnb_1"}), (2.0, {})]:
+        out = _mro_window(x, t, serving)                          # saíram da gNB0 e caíram em 1 s
+    assert [(p["node_id"], p["value"]) for p in out] == [("gnb_0", 4.0)]
+    z = MobilityRobustnessOptimizer(transport=_T())
+    for t, serving in [(0.2, {"1": "gnb_0"}), (1.0, {"1": "gnb_1"}), (2.0, {"1": "gnb_0"})]:
+        assert _mro_window(z, t, serving, offsets=(None, None)) == []   # sem handover automático: não propõe
+
+
+def test_safety_guard_accepts_a3_offset_within_bounds():
+    from src.conflict_types import XAppAction
+    from src.core.refinement import Refinement
+    from src.infrastructure.memory_module import MemoryModule
+    guard = Refinement(MemoryModule())
+    ok = lambda v: guard.check_bounds(XAppAction("mro", "gnb_0", "A3_OFFSET", v, 70))[0]  # noqa: E731
+    assert ok(4.0) and ok(0.5) and not ok(11.0) and not ok(2.25)

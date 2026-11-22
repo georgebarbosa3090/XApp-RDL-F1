@@ -30,7 +30,7 @@ from typing import Any, Dict, IO, List, Optional, Tuple
 
 RAN_FUNCTION_KPM, RAN_FUNCTION_RC = 2, 3
 RDL_REQUESTOR_ID = 1
-RC_PARAMETERS = ("PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE")
+RC_PARAMETERS = ("PRB_QUOTA", "TX_POWER", "HANDOVER", "CELL_STATE", "SCHEDULER_WEIGHT", "A3_OFFSET")
 ACK_STATUSES = {"APPLIED", "NO_EFFECT"}
 CHAIN_ROLES = ("e2_setup", "subscription", "kpm_t0", "control_request", "control_ack", "kpm_t1")
 
@@ -191,6 +191,12 @@ class E2Chain:
         if p == "PRB_QUOTA":
             obs = cell.get("prb_quota")
             return obs, obs is not None and abs(float(obs) - v) <= 1.0
+        if p == "SCHEDULER_WEIGHT":
+            obs = cell.get("scheduler_weight")
+            return obs, obs is not None and abs(float(obs) - v) <= 0.5
+        if p == "A3_OFFSET":
+            obs = cell.get("a3_offset_db")
+            return obs, obs is not None and abs(float(obs) - v) <= 0.05
         if p == "HANDOVER":
             target = self.nodes.get(int(v))
             ues = [u for u in kpm.get("ues", []) if ctl.get("ue", -1) in (-1, u.get("ue"))]

@@ -66,6 +66,17 @@ RAN_PARAMETERS: Dict[str, RANParameterDefinition] = {
         max_value=1.0,
         unit="state",
         description="Estado da célula: 0 = desligada (sleep), 1 = ativa"
+    ),
+    # Robustez de mobilidade (MRO, docs/16 §10.17): margem do evento A3 da célula, em dB. Sem capacidade padrão
+    # registrada (fail-closed num nó real, como o CELL_STATE); no ns-3, o RdlMroHandoverAlgorithm a aplica.
+    "A3_OFFSET": RANParameterDefinition(
+        param_id=6,
+        param_name="A3_OFFSET",
+        param_type="INTEGER",
+        min_value=0.0,
+        max_value=10.0,
+        unit="dB",
+        description="Margem do evento A3 da célula: o UE só muda se a vizinha superar a servidora por este valor"
     )
 }
 
@@ -90,8 +101,8 @@ def validate_ran_parameter(param_name: str, value: float) -> Tuple[bool, int, st
     defn = RAN_PARAMETERS[param_name]
     if param_name in ("PRB_QUOTA", "SCHEDULER_WEIGHT", "HANDOVER", "CELL_STATE") and not numeric_value.is_integer():
         return False, defn.param_id, f"Valor {numeric_value} deve ser inteiro para {param_name}"
-    if param_name == "TX_POWER" and not (numeric_value * 10).is_integer():
-        return False, defn.param_id, "TX_POWER aceita no máximo uma casa decimal"
+    if param_name in ("TX_POWER", "A3_OFFSET") and not (numeric_value * 10).is_integer():
+        return False, defn.param_id, f"{param_name} aceita no máximo uma casa decimal"
     if numeric_value < defn.min_value or numeric_value > defn.max_value:
         return False, defn.param_id, f"Valor {numeric_value} fora dos limites [{defn.min_value}, {defn.max_value}] {defn.unit}"
         

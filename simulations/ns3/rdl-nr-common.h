@@ -114,6 +114,116 @@ class RdlSchedulerOfdmaPF : public NrMacSchedulerOfdmaPF
 NS_OBJECT_ENSURE_REGISTERED(RdlSchedulerOfdmaPF);
 
 // ---------------------------------------------------------------------------------------
+// Handover automático com margem ajustável em execução (A3_OFFSET; MRO, docs/16 §10.17)
+// ---------------------------------------------------------------------------------------
+/**
+ * Evento A3 com a margem decidida na gNB. O NrA3RsrpHandoverAlgorithm do 5G-LENA põe a histerese na configuração
+ * de medição enviada ao UE no início da simulação, e ela não muda depois. Aqui o UE relata o A3 sem margem
+ * (deslocamento e histerese 0, TTT de 256 ms, relatório a cada 240 ms enquanto a condição dura), e a gNB só pede o
+ * handover se a melhor vizinha superar a servidora por OffsetDb, que a RDL ajusta durante a simulação (A3_OFFSET).
+ */
+class RdlMroHandoverAlgorithm : public NrHandoverAlgorithm
+{
+  public:
+    RdlMroHandoverAlgorithm()
+        : m_sapUser(nullptr)
+    {
+        m_sapProvider = new MemberNrHandoverManagementSapProvider<RdlMroHandoverAlgorithm>(this);
+    }
+
+    ~RdlMroHandoverAlgorithm() override
+    {
+    }
+
+    static TypeId GetTypeId()
+    {
+        static TypeId tid = TypeId("ns3::RdlMroHandoverAlgorithm")
+                                .SetParent<NrHandoverAlgorithm>()
+                                .AddConstructor<RdlMroHandoverAlgorithm>()
+                                .AddAttribute("OffsetDb",
+                                              "Margem do A3 (dB): a vizinha precisa superar a servidora por ela",
+                                              DoubleValue(3.0),
+                                              MakeDoubleAccessor(&RdlMroHandoverAlgorithm::m_offsetDb),
+                                              MakeDoubleChecker<double>(0.0, 15.0));
+        return tid;
+    }
+
+    void SetNrHandoverManagementSapUser(NrHandoverManagementSapUser* s) override
+    {
+        m_sapUser = s;
+    }
+
+    NrHandoverManagementSapProvider* GetNrHandoverManagementSapProvider() override
+    {
+        return m_sapProvider;
+    }
+
+    void SetOffsetDb(double db)
+    {
+        m_offsetDb = db;
+    }
+
+    double GetOffsetDb() const
+    {
+        return m_offsetDb;
+    }
+
+    friend class MemberNrHandoverManagementSapProvider<RdlMroHandoverAlgorithm>;
+
+  protected:
+    void DoInitialize() override
+    {
+        NrRrcSap::ReportConfigEutra reportConfig;
+        reportConfig.eventId = NrRrcSap::ReportConfigEutra::EVENT_A3;
+        reportConfig.a3Offset = 0;
+        reportConfig.hysteresis = 0;
+        reportConfig.timeToTrigger = 256;
+        reportConfig.reportOnLeave = false;
+        reportConfig.triggerQuantity = NrRrcSap::ReportConfigEutra::RSRP;
+        reportConfig.reportInterval = NrRrcSap::ReportConfigEutra::MS240;
+        m_measIds = m_sapUser->AddUeMeasReportConfigForHandover(reportConfig);
+        NrHandoverAlgorithm::DoInitialize();
+    }
+
+    void DoDispose() override
+    {
+        delete m_sapProvider;
+    }
+
+    void DoReportUeMeas(uint16_t rnti, NrRrcSap::MeasResults measResults) override
+    {
+        if (std::find(m_measIds.begin(), m_measIds.end(), measResults.measId) == m_measIds.end() ||
+            !measResults.haveMeasResultNeighCells || measResults.measResultListEutra.empty())
+        {
+            return;
+        }
+        uint16_t best = 0;
+        uint8_t bestRsrp = 0;
+        for (const auto& m : measResults.measResultListEutra)
+        {
+            if (m.haveRsrpResult && m.rsrpResult > bestRsrp)
+            {
+                best = m.physCellId;
+                bestRsrp = m.rsrpResult;
+            }
+        }
+        // faixa de RSRP do 3GPP: 1 dB por unidade
+        if (best > 0 && static_cast<double>(bestRsrp) - measResults.measResultPCell.rsrpResult >= m_offsetDb)
+        {
+            m_sapUser->TriggerHandover(rnti, best);
+        }
+    }
+
+  private:
+    NrHandoverManagementSapUser* m_sapUser;
+    NrHandoverManagementSapProvider* m_sapProvider;
+    std::vector<uint8_t> m_measIds;
+    double m_offsetDb{3.0};
+};
+
+NS_OBJECT_ENSURE_REGISTERED(RdlMroHandoverAlgorithm);
+
+// ---------------------------------------------------------------------------------------
 // Rede NR funcional
 // ---------------------------------------------------------------------------------------
 
@@ -137,7 +247,8 @@ RdlBuildNrNetwork(NodeContainer gnbNodes,
                   NodeContainer ueNodes,
                   double centralFreq,
                   double bandwidth,
-                  const std::string& channelScenario = "")
+                  const std::string& channelScenario = "",
+                  const std::string& handoverAlgo = "")
 {
     RdlNrNetwork net;
     net.epcHelper = CreateObject<NrPointToPointEpcHelper>();
@@ -146,6 +257,15 @@ RdlBuildNrNetwork(NodeContainer gnbNodes,
     net.nrHelper = CreateObject<NrHelper>();
     net.nrHelper->SetBeamformingHelper(beamforming);
     net.nrHelper->SetEpcHelper(net.epcHelper);
+    if (handoverAlgo == "mro")
+    {
+        // docs/16 §10.17: handover automático A3 com margem ajustável pela RDL (A3_OFFSET)
+        net.nrHelper->SetHandoverAlgorithmType("ns3::RdlMroHandoverAlgorithm");
+    }
+    else if (!handoverAlgo.empty() && handoverAlgo != "none")
+    {
+        NS_FATAL_ERROR("handoverAlgo deve ser none ou mro");
+    }
 
     net.nrHelper->SetUeAntennaAttribute("NumRows", UintegerValue(1));
     net.nrHelper->SetUeAntennaAttribute("NumColumns", UintegerValue(1));
@@ -514,6 +634,23 @@ class RdlActuation
             d << "PF FairnessIndex=" << alpha;
             Record(a, "APPLIED", d.str());
         }
+        else if (a.parameter == "A3_OFFSET")
+        {
+            PointerValue algo;
+            gnb->GetAttribute("NrHandoverAlgorithm", algo);
+            Ptr<RdlMroHandoverAlgorithm> mro = algo.Get<RdlMroHandoverAlgorithm>();
+            if (!mro)
+            {
+                Record(a, "UNSUPPORTED", "sem handover automático ajustável (cenário com --handoverAlgo=mro)");
+                return;
+            }
+            double db = std::min(15.0, std::max(0.0, a.value));
+            mro->SetOffsetDb(db);
+            m_a3Offset[a.gnb] = db;
+            std::ostringstream d;
+            d << "A3 offset=" << db << " dB";
+            Record(a, "APPLIED", d.str());
+        }
         else
         {
             Record(a, "UNSUPPORTED", "parâmetro sem mapeamento na RAN simulada");
@@ -536,6 +673,15 @@ class RdlActuation
         double usedReg{0.0};
         double availReg{0.0};
     };
+
+    // Margem do A3 em vigor na gNB (RdlMroHandoverAlgorithm); NaN sem handover automático ajustável
+    static double A3OffsetOf(Ptr<NrGnbNetDevice> gnb, uint32_t)
+    {
+        PointerValue algo;
+        gnb->GetAttribute("NrHandoverAlgorithm", algo);
+        Ptr<RdlMroHandoverAlgorithm> mro = algo.Get<RdlMroHandoverAlgorithm>();
+        return mro ? mro->GetOffsetDb() : NAN;
+    }
 
     static std::string Num(double v, int prec = 4)
     {
@@ -770,6 +916,7 @@ class RdlActuation
               << ",\"sleeping\":" << (m_savedTxPower.count(g) ? "true" : "false")
               << ",\"prb_quota\":" << Num(m_prbQuota.count(g) ? m_prbQuota.at(g) : 100.0, 1)
               << ",\"scheduler_weight\":" << Num(m_schedWeight.count(g) ? m_schedWeight.at(g) : NAN, 1)
+              << ",\"a3_offset_db\":" << Num(A3OffsetOf(gnb, g), 1)
               << ",\"prb_util\":" << Num(c.availReg > 0 ? c.usedReg / c.availReg : NAN)
               << ",\"n_ues\":" << nUes[g] << ",\"thp_mbps\":" << Num(pg.bytes * 8.0 / (m_window * 1e6))
               << ",\"delay_ms\":" << Num(pg.packets ? pg.delaySumMs / pg.packets : NAN) << "}";
@@ -861,6 +1008,7 @@ class RdlActuation
     std::map<uint32_t, double> m_savedTxPower;
     std::map<uint32_t, uint32_t> m_ueSst;            // índice do UE -> SST (SetUeSst)
     std::map<uint32_t, double> m_schedWeight;         // gNB -> SCHEDULER_WEIGHT aplicado
+    std::map<uint32_t, double> m_a3Offset;            // gNB -> A3_OFFSET aplicado (dB)
     // ciclo E2 da malha fechada (docs/16 §10.1): resultado de cada controle, devolvido na Indication seguinte
     // (ACK/Failure no orquestrador), e a cota de PRB em vigor por gNB (estado aplicado para o KPM_t1)
     std::vector<std::string> m_outcomes;

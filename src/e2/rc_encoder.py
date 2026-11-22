@@ -65,13 +65,13 @@ PARAM_PROFILES = {
     name: {
         "id": defn.param_id,
         "scale": 1 if name in ("PRB_QUOTA", "HANDOVER") else (
-            10 if name == "TX_POWER" else (
+            10 if name in ("TX_POWER", "A3_OFFSET") else (
                 1000 if name in ("SCHEDULER_WEIGHT", "BEAM_WEIGHTS") else 1
             )
         ),
         "unit": defn.unit,
-        "min": int(defn.min_value * (10 if name == "TX_POWER" else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
-        "max": int(defn.max_value * (10 if name == "TX_POWER" else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
+        "min": int(defn.min_value * (10 if name in ("TX_POWER", "A3_OFFSET") else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
+        "max": int(defn.max_value * (10 if name in ("TX_POWER", "A3_OFFSET") else (1000 if name == "SCHEDULER_WEIGHT" else 1))),
     }
     for name, defn in RAN_PARAMETERS.items()
 }
