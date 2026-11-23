@@ -21,6 +21,12 @@
 | D-1 | Revisão leve (máx. 2 h) | Logística e descanso | Dormir cedo |
 | D | Checklist | — | — |
 
+## Prova a mais de 10 dias: plano longo + intensivo final
+- Semanas 1 a N−1: **ciclo de estudos** por peso (específicas ≥ 60% do tempo), 1 bloco de questões por dia, revisão espaçada (D+1, D+7, D+30) e **1 simulado a cada 2 semanas**.
+- Distribua os módulos da apostila pelas semanas, priorizando os itens que a banca mais cobra (ver perfil).
+- Treine a discursiva/redação **1 vez por semana** a partir da semana 2.
+- **Última semana = Modo Intensivo** (tabela acima).
+
 ## Super Revisão por disciplina (1–2 páginas)
 - 📌 Tabela-mãe (comparações)
 - 🔢 Números que caem

@@ -31,7 +31,21 @@
 - Certo/Errado; uma errada anula uma certa. Palavra que invalida o item.
 - TI: profundidade conceitual, normas ISO, redes, governança.
 
-## FCC
+## FCC — análise real (TRT-15 2023, Analista Judiciário – TI; 40 questões específicas lidas)
+**Formato**: múltipla escolha, **5 alternativas (A–E)**. Nos TRTs: 60 questões (20 gerais + 40 específicas), 4h30, com discursiva (estudo de caso ou redação, conforme o cargo).
+
+**Estilo das questões de TI**: **muito prático e de detalhe**. Cenário curto ("Um Analista deseja…") → escolher o **comando, sintaxe, valor ou componente exato**.
+- Comandos exatos: `CREATE INDEX idx ON tabela (col);` (Oracle), `ALTER SYSTEM SET DB_CACHE_SIZE=2G SCOPE=SPFILE;`, `SET GLOBAL innodb_buffer_pool_size = 5368709120;` (MySQL), `git clone https://<token>@github.com/...`, `read.csv()` (R).
+- Completar código: recursão em Java, `enum` do TypeScript (`const tipo: TipoProcesso = TipoProcesso.Trabalhista;`), reconhecer Service Worker de PWA.
+- Stack PDPJ-Br/Spring: porta padrão do **Eureka = 8761** em `application.properties`; anotação **`@Mapper`** do MapStruct; WildFly `bin/add-user.sh`.
+- Redes avançadas: sub-rede IPv4 + IPv6 (/48 → sub-redes), **HSRP** (preempção), **EIGRP** (K1=K3=1 → banda e atraso), **DiffServ EF**, **NBR 14565** (MUTO: patch cord ≤ 20 m, até 12 áreas de trabalho), WPA2 (AES-CCMP).
+- Segurança/normas por **subseção**: ISO 27002:2022 (política específica por tema), ISO 27701 7.2.8 (inventário de tratamento), **NIST SSDF**, **CIS Controls v8** (funções), NIST SP 800-145, firewall filtro de pacotes, vírus de boot, RPO.
+- Engenharia: requisitos (descoberta, classificação, priorização, especificação — Sommerville), RF × RNF, CMMI-DEV 2.0 (Doing), MPS.BR (GPR por nível), APF (contagem de PF brutos), BPMN (tipos de tarefa e eventos), UML 2.5 (estrutura × comportamento), POO (encapsulamento, polimorfismo), padrões GoF (Factory Method), Gitflow, testes (integração × funcional), JUnit (`.jar`, `junit.framework.TestCase`), gerenciamento de configuração (linha de base).
+- **Estratégia**: estudar **sintaxe e valores padrão** (portas, parâmetros, anotações, nomes de arquivos), não só conceitos. Ler o edital procurando **versões** citadas (PostgreSQL 15–18, Oracle 19c, MySQL 8, OWASP 2025, PMBOK 8, ITIL 5) — a FCC cobra o que está nomeado.
+
+**Gerais (FCC)**: Português com texto literário/jornalístico, reescrita com correção e sentido, concordância, crase, pontuação, pronomes; RL com problemas de associação lógica e sequências; legislação literal (regimento, resoluções).
+
+## FCC — padrão geral
 - Literalidade de normas e leis. Código e SQL. ITIL/COBIT literal.
 
 ## Vunesp

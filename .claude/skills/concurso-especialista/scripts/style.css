@@ -22,3 +22,8 @@ pre code{background:none}
 hr{border:0;border-top:1px dashed var(--line);margin:1em 0}
 strong{color:#0d1b33}
 ul,ol{padding-left:1.4em} li{margin:.1em 0}
+/* Título da capa: sem a faixa azul dos h1 de módulo */
+h1.title{background:none;color:var(--brand);padding:0;page-break-before:avoid;border-radius:0}
+/* Blocos de código com realce do pandoc: remove o recuo de 5em do modo print */
+pre > code.sourceCode > span{display:inline!important;padding-left:0!important;text-indent:0!important}
+pre > code.sourceCode{white-space:pre-wrap}
