@@ -1,0 +1,57 @@
+cargo;nivel;vagas;inscritos;aprovados;aprovados_pcd;taxa_aprovacao_%;nota_minima;total_questoes;corte_vagas;media;mediana;maxima;desvio_padrao;acerto_%_Atualidades;acerto_%_Conhecimentos Específicos;acerto_%_Dir. Administrativo/Urbanístico/Ambiental;acerto_%_Dir. Constitucional/Direitos Humanos;acerto_%_Dir. Trabalho/Processo do Trabalho/Previdenciário;acerto_%_Direito Civil;acerto_%_Direito Processual Civil;acerto_%_Direito Tributário;acerto_%_Fundamentos Pedagógicos;acerto_%_Informática p/ Práticas Educativas;acerto_%_Legislação Educacional;acerto_%_Legislação Específica;acerto_%_Legislação do SUS;acerto_%_Língua Portuguesa;acerto_%_Matemática;acerto_%_Noções de Informática;acerto_%_Raciocínio Lógico Matemático;acerto_faixa_corte_%_Atualidades;acerto_faixa_corte_%_Conhecimentos Específicos;acerto_faixa_corte_%_Dir. Administrativo/Urbanístico/Ambiental;acerto_faixa_corte_%_Dir. Constitucional/Direitos Humanos;acerto_faixa_corte_%_Dir. Trabalho/Processo do Trabalho/Previdenciário;acerto_faixa_corte_%_Direito Civil;acerto_faixa_corte_%_Direito Processual Civil;acerto_faixa_corte_%_Direito Tributário;acerto_faixa_corte_%_Fundamentos Pedagógicos;acerto_faixa_corte_%_Informática p/ Práticas Educativas;acerto_faixa_corte_%_Legislação Educacional;acerto_faixa_corte_%_Legislação Específica;acerto_faixa_corte_%_Legislação do SUS;acerto_faixa_corte_%_Língua Portuguesa;acerto_faixa_corte_%_Matemática;acerto_faixa_corte_%_Noções de Informática;acerto_faixa_corte_%_Raciocínio Lógico Matemático
+AGENTE DE SERVIÇOS ADMINISTRATIVOS;Médio;70;6914;730;7;10.6;25;50;35;29.1;28.0;44;4.0;;62.5;;;;;;;;;;;;61.7;;49.5;54.8;;55.0;;;;;;;;;;;;57.4;;46.8;44.5
+AGENTE DE SERVIÇOS DE AUXILIAR DE SALA;Médio;15;1445;336;1;23.3;25;50;34;28.18;28.0;39;2.96;;69.8;;;;;;;;;;;;47.9;;60.4;34.0;;64.8;;;;;;;;;;;;44.0;;56.8;28.6
+AGENTE DE SERVIÇOS DE BIBLIOTECA ESCOLAR;Médio;10;909;47;0;5.2;25;50;29;27.47;27;35;2.53;;44.1;;;;;;;;;;;;52.6;;76.0;57.9;;41.0;;;;;;;;;;;;53.7;;72.7;51.0
+AGENTE DE SERVIÇOS DE CONSULTÓRIO ODONTOLÓGICO;Médio;4;167;44;0;26.3;25;50;30;27.48;27.0;32;1.96;;67.4;;;;;;;;;;;;48.0;;59.1;33.0;;66.2;;;;;;;;;;;;43.2;;54.0;30.0
+AGENTE DE SERVIÇOS DE COZINHEIRO ESCOLAR;Fundamental Completo;10;463;163;0;35.2;16;40;25;19.57;19;31;3.07;;84.9;;;;;;;;;;;;49.1;24.7;;;;79.9;;;;;;;;;;;;42.7;17.7;;
+AGENTE DE SERVIÇOS DE CULINÁRIA;Fundamental Completo;5;117;48;0;41.0;16;40;25;20.67;20.5;28;3.27;;82.3;;;;;;;;;;;;54.2;28.8;;;;78.7;;;;;;;;;;;;40.4;20.0;;
+AGENTE DE SERVIÇOS DE INFORMÁTICA;Médio;2;184;62;1;33.7;25;50;41;30.95;30.5;45;4.57;;64.9;;;;;;;;;;;;47.4;;78.5;53.7;;54.0;;;;;;;;;;;;37.3;;68.7;41.3
+AGENTE DE SERVIÇOS DE MECÂNICA;Fundamental Completo;1;184;37;1;20.1;16;40;33;21.24;20;33;3.94;;60.8;;;;;;;;;;;;58.9;42.2;;;;52.2;;;;;;;;;;;;51.1;28.1;;
+AGENTE DE SERVIÇOS DE MONITORIA SOCIAL;Fundamental Completo;5;377;124;2;32.9;16;40;31;20.75;20.0;33;4.06;;68.4;;;;;;;;;;;;57.4;35.4;;;;56.8;;;;;;;;;;;;49.5;24.1;;
+AGENTE DE SERVIÇOS DE OPERAÇÃO DE TRÂNSITO E TRANSPORTE;Médio;15;978;245;5;25.1;25;50;35;28.7;28;38;3.16;;63.2;;;;;;;;;;;;46.8;;69.2;44.7;;58.7;;;;;;;;;;;;41.9;;64.6;35.7
+AGENTE DE SERVIÇOS DE SEGURANÇA PATRIMONIAL;Fundamental Incompleto;60;6224;3358;45;54.0;12;30;28;18.94;19.0;30;4.55;;;;;;;;;;;;;;68.1;58.1;;;;;;;;;;;;;;;;51.7;34.8;;
+AGENTE DE SERVIÇOS DE VIGILÂNCIA EPIDEMIOLÓGICA;Médio;1;84;8;0;9.5;25;50;32;28.12;27.5;32;1.96;;57.5;;;;;;;;;;;;53.8;;66.2;46.2;;55.0;;;;;;;;;;;;57.5;;65.0;32.5
+AGENTE DE SERVIÇOS DE VIGILÂNCIA SANITÁRIA;Médio;3;1490;295;3;19.8;25;50;38;29.02;28;39;3.26;;53.2;;;;;;;;;;;;52.8;;73.8;57.1;;48.9;;;;;;;;;;;;48.6;;68.1;44.8
+AGENTE DE SERVIÇOS ELÉTRICOS;Fundamental Completo;1;201;66;0;32.8;16;40;36;22.5;22.0;36;5.07;;59.1;;;;;;;;;;;;60.2;50.4;;;;47.6;;;;;;;;;;;;51.8;29.4;;
+AGENTE DE SERVIÇOS GERAIS;Fundamental Incompleto;150;4590;2213;20;48.2;12;30;24;17.29;17;30;3.82;;;;;;;;;;;;;;69.4;45.8;;;;;;;;;;;;;;;;58.1;28.9;;
+AGENTE DE SERVIÇOS SOCIAIS;Médio;6;281;92;2;32.7;25;50;37;29.57;28.5;44;3.95;;73.6;;;;;;;;;;;;50.1;;63.0;35.3;;69.0;;;;;;;;;;;;45.1;;56.7;23.8
+AGENTE DE SERVIÇOS TÉCNICOS AGROPECUÁRIOS;Técnico;2;161;14;0;8.7;25;50;32;28.29;26.5;35;3.19;;70.7;;;;;;;;;;;;43.6;;36.4;61.4;;67.5;;;;;;;;;;;;36.2;;33.8;52.5
+AGENTE DE SERVIÇOS TÉCNICOS AMBIENTAIS;Técnico;2;206;8;0;3.9;25;50;32;27.5;26.0;32;2.92;;48.8;;;;;;;;;;;;67.5;;43.8;66.2;;41.0;;;;;;;;;;;;66.0;;38.0;68.0
+AGENTE DE SERVIÇOS TÉCNICOS DE ANÁLISES CLÍNICAS;Técnico;3;83;3;0;3.6;25;50;26;27.67;26;31;2.36;;55.0;;;;;;;;;;;;60.0;;36.7;70.0;;47.5;;;;;;;;;;;;50.0;;45.0;70.0
+AGENTE DE SERVIÇOS TÉCNICOS EM ENFERMAGEM;Técnico;30;3212;72;1;2.2;25;50;27;27.11;26.5;33;2.13;;59.7;;;;;;;;;;;;54.2;;38.3;59.2;;57.0;;;;;;;;;;;;50.2;;37.6;55.6
+AGENTE DE SERVIÇOS TÉCNICOS EM OBRAS PÚBLICAS;Técnico;2;170;11;0;6.5;25;50;29;27.27;27;32;2.05;;58.2;;;;;;;;;;;;49.1;;37.3;70.0;;54.3;;;;;;;;;;;;47.1;;35.7;68.6
+AGENTE DE SERVIÇOS TÉCNICOS EM RADIOLOGIA;Técnico;1;201;53;2;26.4;25;50;36;29.32;29;36;3.36;;82.4;;;;;;;;;;;;43.2;;35.1;50.2;;74.0;;;;;;;;;;;;36.2;;29.0;45.7
+AGENTE DE TRÂNSITO, TRANSPORTE E RODOVIÁRIO;Médio;28;2837;828;25;29.2;25;50;40;30.7;30.0;44;4.39;;66.1;;;;;;;;;;;;49.9;;72.3;52.5;;55.8;;;;;;;;;;;;43.6;;63.9;40.1
+ANALISTA DE CONTROLE INTERNO;Superior – Diversos;3;965;111;0;11.5;30;60;43;33.61;33;46;3.5;55.5;54.6;;;;;;;;;;;;76.6;;;40.2;52.7;48.8;;;;;;;;;;;;75.8;;;34.6
+ARQUITETO;Superior – Diversos;1;65;22;0;33.8;30;60;43;34.68;33.5;43;3.48;56.4;52.0;;;;;;;;;;;;80.9;;;53.6;53.8;45.0;;;;;;;;;;;;76.2;;;47.5
+ASSISTENTE SOCIAL;Superior – Assistente Social;10;1303;224;3;17.2;30;60;41;34.15;33.0;50;3.67;;64.8;;;;;;;;;;72.6;;70.3;;43.8;29.2;;59.1;;;;;;;;;;67.8;;66.2;;35.7;25.8
+AUDITOR AMBIENTAL;Superior – Diversos;1;181;31;0;17.1;30;60;43;33.81;33;43;3.51;54.8;53.8;;;;;;;;;;;;76.5;;;45.5;51.7;47.5;;;;;;;;;;;;70.8;;;39.2
+BIOMÉDICO;Superior – Saúde;1;177;33;0;18.6;30;60;46;33.48;33;46;3.41;;62.9;;;;;;;;;;;30.9;75.2;;47.9;39.1;;58.9;;;;;;;;;;;25.3;73.3;;42.7;32.7
+EDUCADOR DE TRÂNSITO;Superior – Diversos;1;84;24;0;28.6;30;60;41;34.54;33.0;41;3.38;60.0;57.9;;;;;;;;;;;;70.0;;;41.7;57.5;52.1;;;;;;;;;;;;65.0;;;35.0
+EDUCADOR FÍSICO;Superior – Diversos;1;103;28;0;27.2;30;60;51;37.18;35.5;51;5.63;50.0;70.4;;;;;;;;;;;;71.4;;;39.3;42.9;61.0;;;;;;;;;;;;64.3;;;25.7
+EDUCADOR SOCIAL;Superior – Diversos;1;50;13;1;26.0;30;60;43;37.62;37;43;3.18;51.5;71.8;;;;;;;;;;;;74.6;;;34.6;80.0;50.0;;;;;;;;;;;;80.0;;;10.0
+ENFERMEIRO;Superior – Saúde;20;4058;333;5;8.2;30;60;41;33.84;33;49;3.76;;55.3;;;;;;;;;;;68.6;60.7;;42.7;62.5;;49.6;;;;;;;;;;;65.1;55.9;;39.7;55.9
+ENGENHEIRO AGRÔNOMO;Superior – Diversos;1;268;64;1;23.9;30;60;45;35.03;34.0;45;3.94;54.4;59.2;;;;;;;;;;;;72.8;;;45.5;49.5;50.7;;;;;;;;;;;;73.2;;;33.7
+ENGENHEIRO CIVIL;Superior – Diversos;2;633;124;1;19.6;30;60;44;34.52;34.0;48;3.8;57.3;51.1;;;;;;;;;;;;78.1;;;56.6;53.1;43.8;;;;;;;;;;;;76.0;;;48.4
+FARMACÊUTICO;Superior – Saúde;1;203;31;0;15.3;30;60;44;35.19;34;44;4.24;;67.0;;;;;;;;;;;28.4;75.8;;47.7;46.8;;60.0;;;;;;;;;;;28.3;72.5;;35.8;39.2
+FISIOTERAPEUTA;Superior – Saúde;1;232;17;0;7.3;30;60;38;32.94;32;38;2.41;;52.9;;;;;;;;;;;32.9;80.6;;61.8;38.2;;50.2;;;;;;;;;;;28.9;74.4;;61.1;34.4
+MÉDICO VETERINÁRIO;Superior – Saúde;1;186;29;2;15.6;30;60;40;33.38;33;40;2.64;;61.2;;;;;;;;;;;26.9;75.5;;49.7;42.1;;55.0;;;;;;;;;;;21.7;75.8;;46.7;39.2
+NUTRICIONISTA;Superior – Saúde;2;285;27;1;9.5;30;60;38;33.15;32;47;3.67;;61.5;;;;;;;;;;;28.1;73.0;;51.9;38.9;;57.3;;;;;;;;;;;25.3;72.0;;48.0;32.0
+NUTRICIONISTA CLÍNICO;Superior – Saúde;1;72;23;0;31.9;30;60;41;34.65;34;41;3.33;;68.0;;;;;;;;;;;24.3;75.7;;45.7;43.0;;63.0;;;;;;;;;;;25.0;71.2;;35.0;33.8
+ODONTÓLOGO;Superior – Saúde;1;206;29;0;14.1;30;60;51;35.03;35;51;4.69;;62.2;;;;;;;;;;;28.3;80.3;;49.7;50.7;;53.8;;;;;;;;;;;23.6;76.4;;43.6;44.5
+ODONTÓLOGO PSF;Superior – Saúde;1;251;79;1;31.5;30;60;52;37.61;38;52;4.48;;84.6;;;;;;;;;;;26.3;73.0;;43.0;35.4;;74.8;;;;;;;;;;;20.0;62.0;;28.0;27.0
+PEDAGOGO;Superior – Diversos;5;1015;133;6;13.1;30;60;42;34.62;34;47;3.72;49.3;69.8;;;;;;;;;;;;57.7;;;29.7;45.1;62.8;;;;;;;;;;;;51.2;;;23.4
+PROCURADOR MUNICIPAL;Superior – Procurador;4;1190;281;7;23.6;30;60;52;37.99;36;55;6.23;;;64.6;57.7;65.5;71.6;59.0;60.0;;;;;;64.7;;;;;;50.8;42.7;50.6;66.4;44.6;42.7;;;;;;63.2;;;
+PROFESSOR DE ARTES;Superior – Educação;2;86;23;0;26.7;30;60;41;34.65;34;47;4.05;;55.2;;;;;;;60.9;98.6;50.5;;;56.5;;;31.9;;48.8;;;;;;;46.2;97.9;48.4;;;55.0;;;25.0
+PROFESSOR DE CIÊNCIAS NATURAIS\FÍSICA\BIOLÓGICA E QUÍMICA;Superior – Educação;5;498;99;2;19.9;30;60;43;35.31;35;46;3.69;;54.0;;;;;;;62.7;97.8;52.5;;;57.8;;;39.9;;45.2;;;;;;;55.4;96.5;42.2;;;50.4;;;34.7
+PROFESSOR DE EDUCAÇÃO BÁSICA;Superior – Educação;15;1083;169;4;15.6;30;60;39;33.77;33;47;3.55;;50.8;;;;;;;61.8;97.4;52.6;;;54.9;;;31.4;;45.9;;;;;;;55.1;96.5;46.4;;;51.1;;;27.4
+PROFESSOR DE EDUCAÇÃO ESPECIAL;Superior – Educação;2;129;41;1;31.8;30;60;39;34.71;34;42;3.09;;63.2;;;;;;;56.6;94.3;51.8;;;51.0;;;25.2;;57.7;;;;;;;46.4;90.9;39.8;;;45.5;;;25.8
+PROFESSOR DE EDUCAÇÃO FÍSICA;Superior – Educação;5;406;144;5;35.5;30;60;46;36.1;36.0;50;4.32;;73.9;;;;;;;53.8;94.1;41.9;;;50.0;;;32.4;;67.4;;;;;;;42.1;88.9;33.3;;;40.6;;;23.2
+PROFESSOR DE EDUCAÇÃO INFANTIL;Superior – Educação;20;1420;192;0;13.5;30;60;39;33.82;33.0;50;3.65;;52.4;;;;;;;62.0;97.0;55.1;;;52.3;;;28.0;;47.2;;;;;;;57.3;94.9;45.7;;;46.9;;;25.4
+PROFESSOR DE GEOGRAFIA;Superior – Educação;2;192;51;1;26.6;30;60;43;34.8;34;45;3.8;;60.7;;;;;;;56.9;98.4;47.5;;;52.7;;;33.3;;54.4;;;;;;;46.7;95.4;45.1;;;45.6;;;25.0
+PROFESSOR DE HISTÓRIA;Superior – Educação;2;213;67;0;31.5;30;60;52;38.7;39;53;5.78;;73.1;;;;;;;65.8;96.3;51.7;;;54.5;;;35.6;;60.8;;;;;;;43.3;95.8;43.8;;;39.2;;;20.8
+PROFESSOR DE INGLÊS;Superior – Educação;2;125;44;0;35.2;30;60;48;37.5;35.5;52;5.6;;68.0;;;;;;;59.5;97.3;51.7;;;58.9;;;34.8;;52.2;;;;;;;54.4;94.4;37.5;;;48.9;;;31.5
+PROFESSOR DE LÍNGUA PORTUGUESA;Superior – Educação;5;449;135;3;30.1;30;60;44;34.07;33;48;3.88;;49.0;;;;;;;63.6;97.2;48.8;;;62.8;;;31.9;;42.8;;;;;;;56.9;96.2;45.1;;;55.9;;;29.8
+PROFESSOR DE MATEMÁTICA;Superior – Educação;5;458;68;3;14.8;30;60;44;35.74;34.5;46;4.49;;49.3;;;;;;;63.2;97.1;53.1;;;56.9;;;63.0;;32.0;;;;;;;60.0;95.0;56.9;;;52.0;;;50.8
+PSICÓLOGO;Superior – Diversos;5;552;213;6;38.6;30;60;46;36.74;37;51;4.55;52.0;71.3;;;;;;;;;;;;71.2;;;30.2;43.2;63.1;;;;;;;;;;;;58.6;;;21.4
+PSICÓLOGO CLÍNICO;Superior – Saúde;1;69;17;0;24.6;30;60;40;34.41;34;40;3.27;;72.0;;;;;;;;;;;29.4;68.2;;48.2;32.9;;63.2;;;;;;;;;;;24.0;70.0;;44.0;26.0

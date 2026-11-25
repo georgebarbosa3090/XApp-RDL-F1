@@ -1,0 +1,147 @@
+dia;cargo;tipo;nivel;questao;disciplina;mudanca
+23/03;ANALISTA DE CONTROLE INTERNO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;ARQUITETO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;AUDITOR AMBIENTAL;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;AUDITOR AMBIENTAL;1;Superior – Diversos;57;Conhecimentos Específicos;alterada E→B
+23/03;EDUCADOR DE TRANSITO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;EDUCADOR DE TRANSITO;1;Superior – Diversos;50;Conhecimentos Específicos;alterada C→E
+23/03;EDUCADOR FISICO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;EDUCADOR FISICO;1;Superior – Diversos;33;Conhecimentos Específicos;alterada C→A
+23/03;EDUCADOR SOCIAL;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;ENGENHEIRO AGRONOMO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;ENGENHEIRO AGRONOMO;1;Superior – Diversos;35;Conhecimentos Específicos;alterada B→D
+23/03;ENGENHEIRO AGRONOMO;1;Superior – Diversos;45;Conhecimentos Específicos;alterada E→D
+23/03;ENGENHEIRO AGRONOMO;1;Superior – Diversos;54;Conhecimentos Específicos;alterada D→E
+23/03;ENGENHEIRO CIVIL;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;ENGENHEIRO CIVIL;1;Superior – Diversos;39;Conhecimentos Específicos;alterada B→C
+23/03;PSICOLOGO;1;Superior – Diversos;9;Língua Portuguesa;alterada D→E
+23/03;PSICOLOGO;1;Superior – Diversos;41;Conhecimentos Específicos;alterada A→E
+23/03;PSICOLOGO;1;Superior – Diversos;49;Conhecimentos Específicos;alterada D→B
+23/03;FARMACEUTICO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;FARMACEUTICO;1;Superior – Saúde;36;Conhecimentos Específicos;alterada C→E
+23/03;FARMACEUTICO;1;Superior – Saúde;50;Conhecimentos Específicos;alterada C→B
+23/03;FISIOTERAPEUTA;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;FISIOTERAPEUTA;1;Superior – Saúde;42;Conhecimentos Específicos;alterada A→D
+23/03;MEDICO VETERINARIO;1;Superior – Saúde;41;Conhecimentos Específicos;anulada
+23/03;MEDICO VETERINARIO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;NUTRICIONISTA;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;NUTRICIONISTA;1;Superior – Saúde;59;Conhecimentos Específicos;alterada B→C
+23/03;NUTRICIONISTA CLINICO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;ODONTOLOGO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;ODONTOLOGO;1;Superior – Saúde;37;Conhecimentos Específicos;alterada D→B
+23/03;ODONTOLOGO;1;Superior – Saúde;42;Conhecimentos Específicos;alterada A→C
+23/03;ODONTOLOGO;1;Superior – Saúde;46;Conhecimentos Específicos;alterada D→A
+23/03;ODONTOLOGO PSF;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;BIOMEDICO;1;Superior – Saúde;41;Conhecimentos Específicos;anulada
+23/03;BIOMEDICO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;BIOMEDICO;1;Superior – Saúde;40;Conhecimentos Específicos;alterada B→E
+23/03;BIOMEDICO;1;Superior – Saúde;46;Conhecimentos Específicos;alterada C→E
+23/03;PSICOLOGO CLINICO;1;Superior – Saúde;9;Língua Portuguesa;alterada D→E
+23/03;PSICOLOGO CLINICO;1;Superior – Saúde;57;Conhecimentos Específicos;alterada C→D
+23/03;ASSISTENTE SOCIAL;1;Superior – Assistente Social;9;Língua Portuguesa;alterada D→E
+23/03;ASSISTENTE SOCIAL;2;Superior – Assistente Social;8;Língua Portuguesa;alterada D→E
+23/03;PROCURADOR MUNICIPAL;1;Superior – Procurador;8;Língua Portuguesa;alterada E→D
+23/03;PROCURADOR MUNICIPAL;2;Superior – Procurador;2;Língua Portuguesa;alterada E→D
+30/03;PEDAGOGO;1;Superior – Diversos;32;Conhecimentos Específicos;alterada B→C
+30/03;PEDAGOGO;2;Superior – Diversos;36;Conhecimentos Específicos;alterada B→C
+30/03;PROFESSOR DE EDUCACAO INFANTIL;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO INFANTIL;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO INFANTIL;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO INFANTIL;2;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO INFANTIL;2;Superior – Educação;37;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO INFANTIL;2;Superior – Educação;40;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO BASICA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO BASICA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO BASICA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO BASICA;2;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO BASICA;2;Superior – Educação;37;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO BASICA;2;Superior – Educação;40;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO ESPECIAL;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO ESPECIAL;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO ESPECIAL;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE ARTES;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE ARTES;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE ARTES;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE CIENCIAS NATURAIS FISICA BIOLOGICA QUIMICA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE CIENCIAS NATURAIS FISICA BIOLOGICA QUIMICA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE CIENCIAS NATURAIS FISICA BIOLOGICA QUIMICA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO FISICA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE EDUCACAO FISICA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE EDUCACAO FISICA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE EDUCACAO FISICA;1;Superior – Educação;60;Conhecimentos Específicos;alterada D→A
+30/03;PROFESSOR DE GEOGRAFIA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE GEOGRAFIA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE GEOGRAFIA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE GEOGRAFIA;1;Superior – Educação;59;Conhecimentos Específicos;alterada D→C
+30/03;PROFESSOR DE HISTORIA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE HISTORIA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE HISTORIA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE HISTORIA;1;Superior – Educação;43;Conhecimentos Específicos;alterada B→C
+30/03;PROFESSOR DE INGLES;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE INGLES;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE INGLES;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE LINGUA PORTUGUESA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE LINGUA PORTUGUESA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE LINGUA PORTUGUESA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+30/03;PROFESSOR DE LINGUA PORTUGUESA;1;Superior – Educação;57;Conhecimentos Específicos;alterada B→A
+30/03;PROFESSOR DE MATEMATICA;1;Superior – Educação;31;Fundamentos Pedagógicos;alterada E→B
+30/03;PROFESSOR DE MATEMATICA;1;Superior – Educação;35;Fundamentos Pedagógicos;alterada B→A
+30/03;PROFESSOR DE MATEMATICA;1;Superior – Educação;36;Fundamentos Pedagógicos;alterada C→A
+06/04;AGENTE DE SERVICOS DE CONSULTORIO ODONTOLOGICO;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE CONSULTORIO ODONTOLOGICO;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE INFORMATICA;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE INFORMATICA;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE AUXILIAR DE SALA;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE AUXILIAR DE SALA;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE AUXILIAR DE SALA;2;Médio;30;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE AUXILIAR DE SALA;2;Médio;23;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE BIBLIOTECA ESCOLAR;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE BIBLIOTECA ESCOLAR;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE VIGILANCIA EPIDEMIOLOGICA;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE VIGILANCIA EPIDEMIOLOGICA;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE VIGILANCIA EPIDEMIOLOGICA;1;Médio;50;Conhecimentos Específicos;alterada C→D
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;1;Médio;33;Conhecimentos Específicos;anulada
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;1;Médio;32;Conhecimentos Específicos;alterada A→B
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;1;Médio;43;Conhecimentos Específicos;alterada E→B
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;2;Médio;30;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;2;Médio;34;Conhecimentos Específicos;anulada
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;2;Médio;23;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;2;Médio;38;Conhecimentos Específicos;alterada E→B
+06/04;AGENTE DE SERVICOS DE VIGILANCIA SANITARIA;2;Médio;43;Conhecimentos Específicos;alterada A→B
+06/04;AGENTE DE SERVICOS SOCIAIS;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS SOCIAIS;1;Médio;47;Conhecimentos Específicos;anulada
+06/04;AGENTE DE SERVICOS SOCIAIS;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS SOCIAIS;1;Médio;46;Conhecimentos Específicos;alterada B→C
+06/04;AGENTE DE SERVICOS DE OPERACAO DE TRANSITO TRANSPORTE;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE SERVICOS DE OPERACAO DE TRANSITO TRANSPORTE;1;Médio;43;Conhecimentos Específicos;anulada
+06/04;AGENTE DE SERVICOS DE OPERACAO DE TRANSITO TRANSPORTE;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE SERVICOS DE OPERACAO DE TRANSITO TRANSPORTE;1;Médio;35;Conhecimentos Específicos;alterada D→B
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;1;Médio;27;Noções de Informática;anulada
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;1;Médio;50;Conhecimentos Específicos;anulada
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;1;Médio;21;Noções de Informática;alterada E→A
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;2;Médio;30;Noções de Informática;anulada
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;2;Médio;50;Conhecimentos Específicos;anulada
+06/04;AGENTE DE TRANSITO TRANSPORTE RODOVIARIO;2;Médio;23;Noções de Informática;alterada E→A
+06/04;ENFERMEIRO;1;Superior – Saúde;11;Raciocínio Lógico Matemático;anulada
+06/04;ENFERMEIRO;1;Superior – Saúde;15;Raciocínio Lógico Matemático;anulada
+06/04;ENFERMEIRO;1;Superior – Saúde;3;Língua Portuguesa;alterada B→A
+06/04;ENFERMEIRO;2;Superior – Saúde;12;Raciocínio Lógico Matemático;anulada
+06/04;ENFERMEIRO;2;Superior – Saúde;16;Raciocínio Lógico Matemático;anulada
+06/04;ENFERMEIRO;2;Superior – Saúde;3;Língua Portuguesa;alterada B→A
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;1;Médio;22;Noções de Informática;alterada B→C
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;1;Médio;43;Conhecimentos Específicos;alterada E→C
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;1;Médio;46;Conhecimentos Específicos;alterada B→A
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;2;Médio;24;Noções de Informática;alterada B→C
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;2;Médio;31;Conhecimentos Específicos;alterada E→C
+13/04;AGENTE DE SERVICOS ADMINISTRATIVOS;2;Médio;34;Conhecimentos Específicos;alterada B→A
+13/04;AGENTE DE SERVICOS TECNICOS AGROPECUARIOS;1;Técnico;12;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS AGROPECUARIOS;1;Técnico;49;Conhecimentos Específicos;alterada B→C
+13/04;AGENTE DE SERVICOS TECNICOS AMBIENTAIS;1;Técnico;12;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS DE ANALISES CLINICAS;1;Técnico;12;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS EM ENFERMAGEM;1;Técnico;12;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS EM ENFERMAGEM;2;Técnico;19;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS EM OBRAS PUBLICAS;1;Técnico;12;Raciocínio Lógico Matemático;anulada
+13/04;AGENTE DE SERVICOS TECNICOS EM OBRAS PUBLICAS;1;Técnico;48;Conhecimentos Específicos;alterada A→D
+13/04;AGENTE DE SERVICOS TECNICOS EM RADIOLOGIA;1;Técnico;12;Raciocínio Lógico Matemático;anulada
