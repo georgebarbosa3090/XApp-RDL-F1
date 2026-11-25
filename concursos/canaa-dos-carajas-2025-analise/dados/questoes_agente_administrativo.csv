@@ -1,0 +1,51 @@
+questao;disciplina;tema_do_edital;o_que_cobra;gabarito_definitivo;dificuldade_estimada;mudanca_gabarito
+1;Língua Portuguesa;Leitura, compreensão e interpretação;Inferência sobre o Texto I;C;Fácil;
+2;Língua Portuguesa;Leitura, compreensão e interpretação;Afirmativa incorreta sobre tema e estrutura do texto;E;Média;
+3;Língua Portuguesa;Regência nominal e verbal;"Preposição ""de"" não exigida por termo anterior";E;Difícil;
+4;Língua Portuguesa;Articulação do texto: expressões referenciais;Dêixis temporal do advérbio *agora*;B;Média;
+5;Língua Portuguesa;Significação contextual / funções das classes de palavras;"Valor semântico de ""só"" (= somente, advérbio de exclusão)";D;Média;
+6;Língua Portuguesa;Estruturação do texto;Tipologia textual do Texto II;D;Média;
+7;Língua Portuguesa;Sintaxe: coordenação e subordinação;"Oração subordinada adverbial final (""para ver…"")";E;Fácil;
+8;Língua Portuguesa;Equivalência e transformação de estruturas · tempos e modos verbais;Reduzida de infinitivo → desenvolvida;E;Difícil;
+9;Língua Portuguesa;Estruturação do texto e dos parágrafos · nexos;Relação entre os períodos do Texto II;B;Média;
+10;Língua Portuguesa;Leitura, compreensão e interpretação;Função do último período;B;Fácil;
+11;Raciocínio Lógico Matemático;Números reais e operações;Inequação do 1º grau;A;Fácil;
+12;Raciocínio Lógico Matemático;Porcentagem e juros;Desconto percentual;B;Fácil;
+13;Raciocínio Lógico Matemático;Geometria básica: perímetro e área;Retângulos de área 24 (divisores);C;Média;
+14;Raciocínio Lógico Matemático;Problemas de contagem · problemas de lógica;Princípio da casa dos pombos (pior caso);D;Média;
+15;Raciocínio Lógico Matemático;Números racionais (frações);Frações de um todo;A;Fácil;
+16;Raciocínio Lógico Matemático;Noções de estatística: média;Média com novo elemento;E;Fácil;
+17;Raciocínio Lógico Matemático;Conjuntos e suas operações;União e interseção (inclusão-exclusão);C;Fácil;
+18;Raciocínio Lógico Matemático;Porcentagem e juros;Taxa de juros sobre o saldo financiado;B;Difícil;
+19;Raciocínio Lógico Matemático;Geometria básica: ângulos e triângulos;Ângulos do triângulo retângulo;D;Média;
+20;Raciocínio Lógico Matemático;Noções de estatística: mediana · dados em tabelas;Mediana em tabela;C;Média;
+21;Noções de Informática;Noções do ambiente Windows / sistemas operacionais;Ferramenta de linha de comando para imagens .wim/.vhd;B;Difícil;
+22;Noções de Informática;Conceitos relacionados à Internet (segurança);Vírus de computador — afirmativas I, II, III;C;Média;alterada no definitivo
+23;Noções de Informática;Dispositivos de armazenamento de dados (hardware);Tipo de memória;C;Difícil;
+24;Noções de Informática;Hardware (barramentos) — tema não listado no edital do nível médio;Divisão do barramento;E;Média;
+25;Noções de Informática;MS Office — Word;Opções de Arquivo > Compartilhar;C;Difícil;
+26;Noções de Informática;MS Office — Excel;Fórmula a partir do Rastrear Precedentes;D;Média;
+27;Noções de Informática;MS Office — Word;Quebras na guia Layout;D;Média;
+28;Noções de Informática;Conceitos relacionados à Internet · atalhos;Janela anônima no Chrome;C;Fácil;
+29;Noções de Informática;Conceitos relacionados à Internet (segurança);Firewall — afirmativas;E;Difícil;
+30;Noções de Informática;Conceitos relacionados à Internet;Rede social profissional;C;Fácil;
+31;Conhecimentos Específicos;Processo administrativo: planejamento;Matriz SWOT — fatores externos;E;Fácil;
+32;Conhecimentos Específicos;Processo administrativo: planejamento;Referencial estratégico: missão;E;Fácil;
+33;Conhecimentos Específicos;Processo administrativo: planejamento;Níveis de planejamento;D;Fácil;
+34;Conhecimentos Específicos;Processo administrativo: organização;Estrutura funcional — vantagem;B;Fácil;
+35;Conhecimentos Específicos;Processo administrativo: controle;Tipos de controle;B;Fácil;
+36;Conhecimentos Específicos;Processo administrativo: influência (direção);Bases de poder (French e Raven);E;Média;
+37;Conhecimentos Específicos;Conduta profissional: comunicação;Elementos do processo de comunicação;D;Fácil;
+38;Conhecimentos Específicos;Processo administrativo: influência (motivação);Pirâmide de Maslow;B;Fácil;
+39;Conhecimentos Específicos;Organização administrativa dos serviços públicos;Entidades e órgãos criados por lei (CF/88);D;Difícil;
+40;Conhecimentos Específicos;Organização administrativa dos serviços públicos;Agências reguladoras;B;Média;
+41;Conhecimentos Específicos;Organização administrativa dos serviços públicos;Descentralização por delegação;E;Média;
+42;Conhecimentos Específicos;Serviços e rotinas de protocolo;Atividades de protocolo;A;Fácil;
+43;Conhecimentos Específicos;Técnicas secretariais: organização de reuniões;Técnica de geração de ideias;C;Fácil;alterada no definitivo
+44;Conhecimentos Específicos;Gestão de material e controle de estoques;Filosofia de estoque mínimo;C;Fácil;
+45;Conhecimentos Específicos;Gestão de material — classificação de materiais;Atributos da classificação;A;Difícil;
+46;Conhecimentos Específicos;Controle de estoques e almoxarifado;Avaliação de estoques;A;Fácil;alterada no definitivo
+47;Conhecimentos Específicos;Serviços e rotinas de arquivo;Teoria das três idades;A;Fácil;
+48;Conhecimentos Específicos;Classificação de documentos;Gêneros documentais;B;Média;
+49;Conhecimentos Específicos;Qualidade no atendimento/serviço público;Diagrama de Ishikawa;B;Fácil;
+50;Conhecimentos Específicos;Conduta profissional: comunicação;Riqueza dos canais (Daft e Lengel);A;Difícil;

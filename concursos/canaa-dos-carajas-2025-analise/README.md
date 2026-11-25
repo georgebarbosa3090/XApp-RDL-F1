@@ -7,6 +7,8 @@ Edital nº 01/2024 · provas objetivas em 23/03, 30/03, 06/04 e 13/04/2025.
 | `dist/Analise-Canaa-dos-Carajas-2025-FGV.pdf` | Relatório completo (16 p.) |
 | `relatorio.md` | Fonte do relatório |
 | `dados/estatisticas_por_cargo.csv` | 56 cargos: vagas, inscritos, aprovados, taxa, corte das vagas, média, acerto por disciplina (geral e na faixa do corte) |
+| `dist/Mapa-Questoes-Agente-Administrativo-Canaa-2025.pdf` | Mapa das 50 questões da prova de Agente de Serviços Administrativos: tema do edital, gabarito, resolução e dificuldade |
+| `dados/questoes_agente_administrativo.csv` | O mesmo mapa em planilha |
 | `dados/mudancas_gabarito.csv` | Todas as questões anuladas ou com resposta alterada (preliminar → definitivo) |
 | `scripts/` | Extração (`parse.py`, `gab.py`) e cálculo (`stats.py`, `agg.py`, `qmap.py`, `report.py`) |
 
